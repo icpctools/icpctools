@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<presentations name="ICPC">
+   <presentation
+      id="org.icpc.tools.presentation.contest.problem.summary"
+      name="Problem summary"
+      category="ICPC"
+      image="images/presentations/problems.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.ProblemSummaryPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.logo"
+      name="Logo A"
+      category="Logos and Messages"
+      description="Displays the contest logo (CDP/present/logoA*.png)."
+      image="images/presentations/logoA.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.LogoAPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.logo2"
+      name="Logo B"
+      category="Logos and Messages"
+      description="Displays the contest logo (CDP/present/logoB*.png)."
+      image="images/presentations/logoB.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.LogoBPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.imagebuild"
+      name="Image progression"
+      image="images/presentations/logoB.png"
+      category="Logos and Messages"
+      description="Fades through a set of images in progression (CDP/present/path*)."
+      properties="path - the image filename or path prefix"
+      class="org.icpc.tools.presentation.contest.internal.presentations.ImageBuildPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.team"
+      name="Single Team"
+      category="ICPC"
+      properties="# - controls which team to show"
+      description="Displays a team photo and name."
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.SingleTeamPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.message"
+      name="Message"
+      category="Logos and Messages"
+      description="Displays a message and contest banner."
+      properties="Your message here - enter any message"
+      image="images/presentations/message.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.MessagePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.promo"
+      name="Promotions"
+      category="Logos and Messages"
+      description="Displays a rotating set of promotional images found in CDP/present/promo/."
+      image="images/presentations/promo.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.PromoPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.single.photo"
+      name="Photo and caption"
+      category="ICPC"
+      description="Displays the photo at CDP/present/photo.jpg and an optional message."
+      properties="Your message here - enter any message"
+      image="images/presentations/photo.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.SinglePhotoPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.photos"
+      name="Photos"
+      category="ICPC"
+      description="Displays a rotating set of photos found in CDP/present/photos/."
+      image="images/presentations/photos.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.PhotoPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.problems.colors"
+      name="Problem Colours"
+      category="ICPC"
+      description="Displays the problem colors"
+      image="images/presentations/problemColors.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.ProblemColorsPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.staff"
+      name="Staff"
+      category="ICPC"
+      description="Displays ICPC staff"
+      properties="Enter partial last name or first + last name"
+      class="org.icpc.tools.presentation.contest.internal.presentations.StaffPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.balloon.path"
+      name="Balloon Path"
+      category="ICPC"
+      description="Displays the balloons travelling to the teams"
+      class="org.icpc.tools.presentation.contest.internal.presentations.floor.BalloonFloorPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.orgs"
+      name="All Organizations"
+      category="ICPC"
+      description="Shows the logos of all organizations"
+      class="org.icpc.tools.presentation.contest.internal.presentations.AllOrgsPresentation"/>
+
+   <!-- Fun -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.fireworks"
+      name="Fireworks"
+      category="Fun"
+      image="images/presentations/fireworks.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.FireworksPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.bill"
+      name="Bill Poucher"
+      category="Fun"
+      image="images/presentations/bill.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.BillPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.doNotTouch"
+      name="Do not touch anything"
+      category="Fun"
+      image="images/presentations/doNotTouch.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.DoNotTouchPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.mohamed"
+      name="Mohamed Fouad"
+      category="Fun"
+      image="images/presentations/mohamed.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.MohamedPresentation"/>
+
+    <!-- Maps -->
+
+    <presentation
+      id="org.icpc.tools.presentation.contest.map.world"
+      name="World"
+      category="Maps"
+      description="Displays the world"
+      image="images/presentations/world.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.map.WorldPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.map.group"
+      name="Group"
+      category="Maps"
+      description="Displays groups around the world"
+      image="images/presentations/world.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.map.GroupPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.map.team"
+      name="Team Intro"
+      category="Maps"
+      description="Displays teams from around the world"
+      image="images/presentations/world.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.map.TeamIntroPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.map.balloon"
+      name="Submissions"
+      category="Maps"
+      description="Shows a world map with team submissions"
+      class="org.icpc.tools.presentation.contest.internal.presentations.map.BalloonMapPresentation"/>
+     
+   <!-- Beta / Old -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.floor"
+      name="Contest Floor"
+      category="Beta"
+      description="Shows the contest floor and all the teams competing"
+      class="org.icpc.tools.presentation.contest.internal.presentations.floor.ContestFloorPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.old.floor"
+      name="Floor"
+      category="Beta"
+      description="Displays the contest floor"
+      class="org.icpc.tools.presentation.contest.internal.presentations.old.FloorPresentation"/>
+
+   <!-- Clocks -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.clock"
+      name="Contest clock"
+      category="Clock"
+      description="The contest clock."
+      image="images/presentations/clock.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.clock.ClockPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.countdown"
+      name="Countdown"
+      category="Clock"
+      properties="statusOn - show status content,
+         statusOff - hide status content,
+         # - countdown to number of seconds from the epoch,
+         reset"
+      description="A countdown clock."
+      image="images/presentations/clockCountdown.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.clock.StatusCountdownPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.polar"
+      name="Polar countdown"
+      category="Clock"
+      properties="# - countdown to number of seconds from the epoch,
+         reset"
+      image="images/presentations/clockPolar.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.clock.PolarCountdownPresentation"/>
+
+   <!-- Scoreboards and Leaderboards -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.scoreboard"
+      name="Scoreboard"
+      category="Scoreboard"
+      properties="focusTeam:# - a team to focus on,style - set team name style"
+      description="Contest scoreboard."
+      image="images/presentations/scoreboard.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.scoreboard.timeline"
+      name="Timeline"
+      category="Scoreboard"
+      properties="style - set team name style"
+      image="images/presentations/scoreboardTimeline.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.TimelinePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.judge"
+      name="Judge queue"
+      category="Scoreboard"
+      properties="showRecent - show recent runs for a fixed time,showJudge - show normal judge view,style - set team name style"
+      description="The judgement queue. Shows all incoming runs and what the result is."
+      image="images/presentations/judgeQueue.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.JudgePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.judge.team"
+      name="Team Judgements"
+      category="Scoreboard"
+      properties="showRecent - show recent runs for a fixed time,showJudge - show normal judge view,style - set team name style"
+      description="A team judgement queue. Shows all incoming runs and what the result is."
+      image="images/presentations/judgeQueue.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.TeamJudgePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.first.solution"
+      name="First solution"
+      category="Scoreboard"
+      properties="style - set team name style"
+      description="Tracking the first solution in the contest."
+      image="images/presentations/firstSolution.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstSolutionPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.first.to.solve"
+      name="First to solve"
+      category="Scoreboard"
+      properties="style - set team name style,rows: - number of rows"
+      description="Shows which team was the first to solve each problem."
+      image="images/presentations/firstToSolve.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstToSolvePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.leaderboard"
+      name="Leaderboard"
+      category="Scoreboard"
+      properties="style - set team name style"
+      image="images/presentations/leaderboard.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.LeaderboardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.leaderboard.group"
+      name="Group leaderboard"
+      category="Scoreboard"
+      properties="style - set team name style"
+      image="images/presentations/groupLeaderboard.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.GroupLeaderboardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.leaderboard.group.all"
+      name="All Groups leaderboard"
+      category="Scoreboard"
+      properties="style - set team name style"
+      image="images/presentations/allGroups.png"
+      class="org.icpc.tools.presentation.contest.internal.scoreboard.AllGroupsLeaderboardPresentation"/>
+
+   <!-- Tile Scoreboards -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.tile.scoreboard"
+      name="Tiles"
+      category="Tile Scoreboards"
+      properties="rows:,columns:,style:"
+      image="images/presentations/tile.png"
+      class="org.icpc.tools.presentation.contest.internal.tile.TileScoreboardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.tile.scoreboard.rank"
+      name="Tile rank"
+      category="Tile Scoreboards"
+      properties="rows:,columns:,style:"
+      image="images/presentations/tileRank.png"
+      class="org.icpc.tools.presentation.contest.internal.tile.TileRankScoreboardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.tile.team"
+      name="Team scoreboard"
+      category="Tile Scoreboards"
+      properties="team:"
+      class="org.icpc.tools.presentation.contest.internal.tile.TilePictureScoreboardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.tile.scoreboard.list"
+      name="Tile list"
+      category="Tile Scoreboards"
+      properties="rows:,columns:,style:"
+      image="images/presentations/tile2.png"
+      class="org.icpc.tools.presentation.contest.internal.tile.TileListScoreboardPresentation"/>
+
+   <!-- Charts -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.language"
+      name="Languages"
+      category="Chart"
+      image="images/presentations/chartProblem.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.LanguageSummaryChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.problem.detail"
+      name="Problem detail"
+      category="Chart"
+      image="images/presentations/chartProblem.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.ProblemDetailChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.problem.comparison"
+      name="Problem comparison"
+      category="Chart"
+      image="images/presentations/chartProblem.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.ProblemComparisonChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.problem.summary"
+      name="Problem summary"
+      category="Chart"
+      image="images/presentations/chartProblems.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.ProblemSummaryChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.score"
+      name="Scoreboard"
+      category="Chart"
+      image="images/presentations/chartScoreboard.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.ScoreboardChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.total.problems"
+      name="Total Problems"
+      category="Chart"
+      image="images/presentations/chartTotalSubmissions.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.TotalProblemsChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.judgement.time"
+      name="Judgement time"
+      category="Chart"
+      image="images/presentations/chartTotalSubmissions.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.JudgementChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.historical"
+      name="Historical comparison"
+      category="Chart"
+      image="images/presentations/chartTotalSubmissions.png"
+      class="org.icpc.tools.presentation.contest.internal.chart.HistoricalComparisonChart"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.chart.queue.depth"
+      name="Judge Queue Depth"
+      category="Chart"
+      class="org.icpc.tools.presentation.contest.internal.chart.JudgeQueueDepthChart"/>
+
+   <!-- Test -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.test.align"
+      name="Alignment"
+      category="Test"
+      description="A grid to help with projector alignment."
+      image="images/presentations/testAlign.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.test.TestAlignmentPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.test.sync"
+      name="Synchronization"
+      category="Test"
+      description="A moving ball to test synchronization of the system clock."
+      image="images/presentations/testSync.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.test.TestSyncPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.test.clock"
+      name="Clock"
+      category="Test"
+      description="The current system time."
+      image="images/presentations/testClock.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.test.TestClockPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.test.bsod"
+      name="BSoD"
+      category="Test"
+      description="A special hello from the other Bill"
+      image="images/presentations/testBSoD.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.test.BSoDPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.test.fps"
+      name="FPS"
+      category="Test"
+      description="A frame rate guage"
+      image="images/presentations/testFPS.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.test.FPSPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.test.chart"
+      name="Chart"
+      category="Test"
+      description="A test chart"
+      image="images/presentations/testChart.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.test.TestChartPresentation"/>
+
+   <!-- ICPC Team Desktop -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.icpc.logo"
+      name="Logo"
+      category="Team"
+      description="The ICPC identifier."
+      class="org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.icpc.team"
+      name="Desktop"
+      category="Team"
+      description="The team desktop."
+      class="org.icpc.tools.presentation.contest.internal.presentations.TeamDisplayPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.icpc.sync"
+      name="Sync"
+      category="Team"
+      description="Flashing ICPC in sync."
+      class="org.icpc.tools.presentation.contest.internal.presentations.ICPCTeamPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.icpc.team.video"
+      name="Video test"
+      category="Team"
+      description="A tool to verify video."
+      class="org.icpc.tools.presentation.contest.internal.presentations.TeamVideoPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.icpc.team.wave"
+      name="Wave"
+      category="Team"
+      description="Do the wave!"
+      class="org.icpc.tools.presentation.contest.internal.presentations.WavePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.icpc.team.snake"
+      name="Snake"
+      category="Team"
+      description="Wave based on team labels"
+      class="org.icpc.tools.presentation.contest.internal.presentations.SnakePresentation"/>
+
+   <!-- Transitions -->
+
+   <transition
+      id="org.icpc.tools.presentation.core.trans.wipe"
+      name="Wipe"
+      description="Wipe on the next presentation"
+      properties="UP,UP_RIGHT,RIGHT,DOWN_RIGHT,DOWN,DOWN_LEFT,LEFT,UP_LEFT"
+      class="org.icpc.tools.presentation.core.transition.WipeTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.cover"
+      name="Cover"
+      description="Slide the next presentation over top"
+      properties="UP,UP_RIGHT,RIGHT,DOWN_RIGHT,DOWN,DOWN_LEFT,LEFT,UP_LEFT"
+      class="org.icpc.tools.presentation.core.transition.CoverTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.uncover"
+      name="Uncover"
+      description="Slide the existing presentation off"
+      properties="UP,UP_RIGHT,RIGHT,DOWN_RIGHT,DOWN,DOWN_LEFT,LEFT,UP_LEFT"
+      class="org.icpc.tools.presentation.core.transition.UncoverTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.push"
+      name="Push"
+      description="New presentation pushes the old one off"
+      properties="UP,UP_RIGHT,RIGHT,DOWN_RIGHT,DOWN,DOWN_LEFT,LEFT,UP_LEFT"
+      class="org.icpc.tools.presentation.core.transition.PushTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.none"
+      name="None"
+      description="No transition, cut from one to next"
+      class="org.icpc.tools.presentation.core.transition.NoneTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.zoom.in"
+      name="Zoom In"
+      description="Zoom the next presentation in from the given direction"
+      properties="UP,UP_RIGHT,RIGHT,DOWN_RIGHT,DOWN,DOWN_LEFT,LEFT,UP_LEFT"
+      class="org.icpc.tools.presentation.core.transition.ZoomInTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.zoom.out"
+      name="Zoom Out"
+      description="Zoom the current presentation out in the given direction"
+      properties="UP,UP_RIGHT,RIGHT,DOWN_RIGHT,DOWN,DOWN_LEFT,LEFT,UP_LEFT"
+      class="org.icpc.tools.presentation.core.transition.ZoomOutTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.split"
+      name="Split"
+      description="Split the current presentation in two and slide the pieces out"
+      properties="HORIZONTAL_IN, HORIZONTAL_OUT, VERTICAL_IN, VERTICAL_OUT"
+      class="org.icpc.tools.presentation.core.transition.SplitTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.clock"
+      name="Clock"
+      description="Make the next presentation appear like the hand of a clock"
+      properties="+ for clockwise, - for counter-clockwise"
+      class="org.icpc.tools.presentation.core.transition.ClockTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.dissolve"
+      name="Dissolve"
+      description="Dissolve squares into the next presentation"
+      properties="# - pixel size of blocks (2-100)"
+      class="org.icpc.tools.presentation.core.transition.DissolveTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.dissolve.black"
+      name="Dissolve black"
+      description="Dissolve cubes to black and then to the new presentation"
+      properties="# - pixel size of blocks (2-100)"
+      class="org.icpc.tools.presentation.core.transition.DissolveThroughBlackTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.fade"
+      name="Cross Fade"
+      description="Fade from one presentation directly into the next"
+      class="org.icpc.tools.presentation.core.transition.CrossFadeTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.fade.black"
+      name="Fade black"
+      description="Fade to black, then fade in the next presentation"
+      class="org.icpc.tools.presentation.core.transition.FadeThroughBlackTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.fade.white"
+      name="Fade white"
+      description="Fade to white, then fade in the next presentation"
+      class="org.icpc.tools.presentation.core.transition.FadeThroughWhiteTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.blinds"
+      name="Blinds"
+      description="Slide vertical or horizontal blinds to the next presentation"
+      properties="UP,RIGHT,DOWN,LEFT,# - number of blinds (2-50)"
+      class="org.icpc.tools.presentation.core.transition.BlindsTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.flash"
+      name="Flash"
+      description="Flash through white"
+      class="org.icpc.tools.presentation.core.transition.FlashTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.radial"
+      name="Radial"
+      description="Cover/uncover via an expanding/contracting disk"
+      properties="IN,OUT"
+      class="org.icpc.tools.presentation.core.transition.RadialTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.blinds"
+      name="Rectangle"
+      description="Cover/uncover via an expanding/contracting rectangle"
+      properties="IN,OUT"
+      class="org.icpc.tools.presentation.core.transition.RectangleTransition"/>
+   <transition
+      id="org.icpc.tools.presentation.core.trans.slides"
+      name="Slides"
+      description="Zoom out to another slide"
+      class="org.icpc.tools.presentation.core.transition.SlidesTransition"/>
+</presentations>

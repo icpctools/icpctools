@@ -1,0 +1,33 @@
+Release Notes for the ICPC Resolver, part of the ICPC Tools Suite.
+
+V2.0.0 - May 2018
+-----------------
+Support for Contest API.
+Minor UI fixes and cleanup.
+
+
+V1.2.0 - June 2017
+------------------
+Award generator support for new award types.
+UI fixes and timing improvements.
+Test features (--bill) for 2017 finals.
+
+
+V1.1.0 - May 2016
+---------------------
+Added backup and fast forward/rewind capability (see --help).
+Speed setting is now passed to clients.
+Team images are now pre-loaded in the background.
+Moved splash screen and 'missing team' image into the package.
+New award UI allows you to customize individual awards.
+Support for log files.
+
+
+V1.0.1 - 24 June 2015
+---------------------
+Updated the Splash Screen presentation so a mouse-click advances (rather than terminates).
+
+
+V1.0.0 - 18 June 2015
+---------------------
+Initial public release.

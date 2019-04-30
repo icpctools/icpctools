@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project SWTLauncher">
+    <!--ANT 1.7 is required                                        -->
+	<property name="debuglevel" value="source,lines,vars"/>
+	<property name="target" value="1.8"/>
+	<property name="source" value="1.8"/>
+
+	<target name="clean">
+	    <delete dir="bin"/>
+    	<delete dir="dist"/>
+	</target>
+	<target name="init">
+		<mkdir dir="bin"/>
+    	<mkdir dir="dist"/>
+	</target>
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: compile                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="compile" depends="clean,init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
+          <src path="src"/>
+        </javac>
+    </target>
+
+    <target name="create_run_jar" depends="compile">
+        <jar destfile="dist/swtLauncher.jar" filesetmanifest="mergewithoutmain">
+            <manifest>
+                <attribute name="Main-Class" value="org.icpc.tools.contest.SWTLauncher"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="bin"/>
+        </jar>
+    </target>
+</project>

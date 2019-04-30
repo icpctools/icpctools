@@ -1,0 +1,17 @@
+Release Notes for the ICPC Coach View, part of the ICPC Tools Suite.
+
+V2.0.0 - May 2018
+-----------------
+Support for Contest API.
+Ini file replaced by command line that's consistent with the other tools.
+
+
+V1.2.0 - June 2017
+------------------
+Show team submissions and current results.
+Minor UI improvements.
+
+
+V1.1.0 - 18 June 2015
+---------------------
+Initial public release.

@@ -1,0 +1,84 @@
+package org.icpc.tools.cds.web;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.icpc.tools.cds.util.Role;
+import org.icpc.tools.cds.video.VideoAggregator;
+
+@WebServlet(urlPatterns = { "/video/control", "/video/control/*" })
+@ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
+		Role.ADMIN, Role.BLUE, Role.TRUSTED }))
+public class ChannelControlServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String path = request.getPathInfo();
+		if (path == null || !path.startsWith("/")) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		int channel = 0;
+		try {
+			channel = Integer.parseInt(path.substring(1));
+		} catch (NumberFormatException nfe) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		if (channel < 0 || channel >= VideoAggregator.MAX_CHANNELS) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		request.setAttribute("channel", channel + "");
+		request.setAttribute("stream", VideoAggregator.getInstance().getChannel(channel));
+		request.getRequestDispatcher("/WEB-INF/jsps/channels.jsp").forward(request, response);
+	}
+
+	@Override
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String path = request.getPathInfo();
+		if (path == null || !path.startsWith("/")) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		int index = path.indexOf("/", 1);
+		if (index < 1) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		int channel = 0;
+		int stream = 0;
+		try {
+			channel = Integer.parseInt(path.substring(1, index));
+			stream = Integer.parseInt(path.substring(index + 1));
+		} catch (NumberFormatException nfe) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		if (channel < 0 || channel >= VideoAggregator.MAX_CHANNELS) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		if (stream < 0 || stream >= VideoAggregator.MAX_STREAMS) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		VideoAggregator.getInstance().setChannel(channel, stream);
+	}
+}

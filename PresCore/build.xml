@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="jar" name="org.icpc.tools.presentation.core">
+   <property name="org.icpc.tools.contest.location" value="../ContestModel" />
+   <import file="${org.icpc.tools.contest.location}/common.xml" />
+   <property file="version.properties"/>
+   <property name="title" value="ICPC Presentation Core"/>
+   <property name="jar.name" value="presentCore"/>
+   <path id="org.icpc.tools.presentation.core.classpath">
+      <path refid="org.icpc.tools.contest.classpath"/>
+      <pathelement location="bin"/>
+      <pathelement location="lib/tyrus-standalone-client-1.15.jar"/>
+   </path>
+   <property name="classpath" value="org.icpc.tools.presentation.core.classpath"/>
+   <target name="jar" depends="build-project,create-jar"/>
+   <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.admin.location}" inheritAll="false" target="clean" />
+      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.admin.location}" inheritAll="false" target="build">
+         <propertyset>
+            <propertyref name="build.compiler" />
+         </propertyset>
+      </ant>
+      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.contest.location}" inheritAll="false" target="clean" />
+      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.contest.location}" inheritAll="false" target="build">
+         <propertyset>
+            <propertyref name="build.compiler" />
+         </propertyset>
+      </ant>
+   </target>
+</project>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  <project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="dist" name="org.icpc.tools.contest.util.problemset">
+    <tstamp>
+      <format property="date" pattern="yyyyMMdd" timezone="UTC" />
+    </tstamp>
+    <tstamp>
+      <format
+        property="date.english"
+        pattern="EEEE, MMMM d yyyy"
+        timezone="UTC" />
+    </tstamp>
+    <tstamp>
+      <format
+        property="time.english"
+        pattern="HH:mm z"
+        timezone="UTC" />
+    </tstamp>
+    <property name="timestamp.english" value="${date.english} ${time.english}" />
+    <property file="version.properties"/>
+    <property name="title" value="Problem Set Editor"/>
+    <property name="bin.dir" value="bin"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="docs.dir" value="docs"/>
+    <property name="scripts.dir" value="scripts"/>
+    <property name="staging.dir" value="staging"/>
+    <property environment="env"/>
+    <condition property="ECLIPSE_HOME" value="${env.ECLIPSE_HOME}" else="../../../../../eclipses/eclipse-4.4.1/">
+        <isset property="env.ECLIPSE_HOME"/>
+    </condition>
+    <property name="asciidoctor-ant.jar" value="/software/pc2/ant/lib/asciidoctor-ant.jar"/>
+    <available file="${asciidoctor-ant.jar}" type="file"
+             property="asciidoctor.present"/>
+    <property name="SWTLauncher.dir" value="../SWTLauncher"/>
+    <property name="SWTLauncher.libs" value="${SWTLauncher.dir}/lib"/>
+    <property name="SWTLauncher.location" value="${SWTLauncher.dir}/dist"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
+    <path id="swt.userclasspath"/>
+    <path id="org.icpc.tools.contest.util.problemset.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/snakeyaml-1.18.jar"/>
+        <path refid="swt.userclasspath"/>
+        <pathelement location="${SWTLauncher.libs}/swt-gtk-linux-x86_64.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+        <delete dir="${staging.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <delete>
+            <fileset dir="." includes="*.pdf*"/>
+        </delete>
+    </target>
+    <target depends="clean" name="cleanall">
+        <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="clean"/>
+    </target>
+    <target depends="clean,build-project" name="build"/>
+    <target name="build-subprojects">
+        <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="build-project">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="org.icpc.tools.contest.util.problemset.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="doc" if="asciidoctor.present">
+      <asciidoctor:convert sourceDirectory="${basedir}/${docs.dir}" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="${docs.dir}"/>
+      <copy todir="${staging.dir}">
+          <fileset dir="." includes="*.pdf *.txt"/>
+      </copy>
+      <copy todir="${dist.dir}">
+          <fileset dir="." includes="*.pdf *.txt"/>
+      </copy>
+    </target>
+    <target description="create distribution" name="dist" depends="build,doc">
+    <exec executable="git" outputproperty="git_hash" failifexecutionfails="false" errorproperty="HEAD">
+      <arg value="log"/>
+      <arg value="-n"/>
+      <arg value="1"/>
+      <arg value="--pretty=format:%H"/>
+      <arg value="."/>
+    </exec>
+    <exec executable="git" outputproperty="build.number" failifexecutionfails="false" errorproperty="">
+      <arg value="rev-list"/>
+      <arg value="${git_hash}"/>
+      <arg value="--count"/>
+    </exec>
+    <condition property="build.number" value="0">
+      <not>
+        <isset property="build.number"/>
+      </not>
+    </condition>
+    <mkdir dir="${staging.dir}/lib"/>
+    <echo message="${version}.${build.number}" file="${staging.dir}/lib/VERSION"/>
+    <jar destfile="${staging.dir}/lib/problemset.jar" filesetmanifest="mergewithoutmain">
+      <manifest>
+        <attribute name="Specification-Version" value="${version}"/>
+        <attribute name="Implementation-Title" value="${title}"/>
+        <attribute name="Implementation-Version" value="${build.number}"/>
+        <attribute name="Built-On" value="${timestamp.english}"/>
+        <attribute name="Built-On-Date" value="${date}"/>
+      </manifest>
+      <fileset dir="${bin.dir}"/>
+    </jar>
+    <copy todir="${staging.dir}/lib">
+       <fileset dir="${lib.dir}"/>
+    </copy>
+    <copy todir="${staging.dir}/lib">
+       <fileset dir="${SWTLauncher.libs}"/>
+    </copy>
+    <!-- the swtLauncher.jar -->
+    <copy todir="${staging.dir}/lib">
+       <fileset dir="${SWTLauncher.location}"/>
+    </copy>
+    <copy todir="${staging.dir}">
+       <fileset dir="${scripts.dir}"/>
+    </copy>
+    <chmod perm="a+rx" dir="${staging.dir}" includes="**/*.sh"/>
+    <mkdir dir="${dist.dir}"/>
+    <property name="zip.path" value="${dist.dir}/problemSet-${version}.${build.number}.zip"/>
+    <zip destfile="${zip.path}">
+      <zipfileset dir="${staging.dir}" filemode="755" prefix="problemSet-${version}"/>
+    </zip>
+    <checksum file="${zip.path}" algorithm="MD5" fileext=".md5"/>
+    <checksum file="${zip.path}" algorithm="SHA-1" fileext=".sha1"/>
+    <checksum file="${zip.path}" algorithm="SHA-256" fileext=".sha256"/>
+    <checksum file="${zip.path}" algorithm="SHA-512" fileext=".sha512"/>
+    </target>
+</project>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contest>
+<info>
+ <length>05:00:00</length>
+ <penalty>20</penalty>
+ <scoreboard-freeze-length>01:00:00</scoreboard-freeze-length>
+ <started>True</started>
+ <starttime>1432116000.00000</starttime>
+ <title>ICPC Sample Contest</title>
+</info>
+<language>
+ <id>1</id>
+ <name>C++</name>
+</language>
+<language>
+ <id>2</id>
+ <name>Java</name>
+</language>
+<region>
+ <external-id>North America</external-id>
+ <name>North America</name>
+</region>
+<judgement>
+ <acronym>CE</acronym>
+ <id>1</id>
+ <name>Compile Error</name>
+</judgement>
+<judgement>
+ <acronym>AC</acronym>
+ <id>2</id>
+ <name>Accepted</name>
+</judgement>
+<problem>
+ <id>1</id>
+ <name>Amalgamated Artichokes</name>
+ <color>blue</color>
+ <rgb>0000FF</rgb>
+</problem>
+<problem>
+ <id>2</id>
+ <letter>B</letter>
+ <name>Asteroids</name>
+ <color>red</color>
+ <rgb>FF0000</rgb>
+</problem>
+<problem>
+ <id>3</id>
+ <name>Catering</name>
+ <color>yellow</color>
+ <rgb>FFFF00</rgb>
+</problem>
+<problem>
+ <id>4</id>
+ <name>Cutting Cheese</name>
+ <color>green</color>
+ <rgb>00FF00</rgb>
+</problem>
+<problem>
+ <id>5</id>
+ <name>Evolution in Parallel</name>
+ <color>white</color>
+ <rgb>FFFFFF</rgb>
+</problem>
+<problem>
+ <id>6</id>
+ <name>Keyboarding</name>
+ <color>black</color>
+ <rgb>000000</rgb>
+</problem>
+<team>
+ <id>14</id>
+ <name>University of Waterloo</name>
+ <region>North America</region>
+ <university>University of Waterloo</university>
+</team>
+<run>
+ <id>1</id>
+ <judged>True</judged>
+ <language>Java</language>
+ <penalty>False</penalty>
+ <problem>4</problem>
+ <result>AC</result>
+ <solved>True</solved>
+ <status>done</status>
+ <team>14</team>
+ <time>335.270</time>
+ <timestamp>1432116343.270</timestamp>
+</run>
+<run>
+ <id>2</id>
+ <judged>True</judged>
+ <language>Java</language>
+ <penalty>False</penalty>
+ <problem>2</problem>
+ <result>AC</result>
+ <solved>True</solved>
+ <status>done</status>
+ <team>14</team>
+ <time>336.270</time>
+ <timestamp>1432116344.270</timestamp>
+</run>
+</contest>

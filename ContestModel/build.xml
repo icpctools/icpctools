@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE project>
+<project basedir="." default="jar" name="org.icpc.tools.contest">
+  <property name="org.icpc.tools.contest.location" value="."/>
+  <import file="common.xml"/>
+  <property file="version.properties"/>
+  <property name="title" value="ICPC Contest Model"/>
+  <property name="jar.name" value="contestModel"/>
+  <property name="classpath" value="org.icpc.tools.contest.classpath"/>
+  <target name="jar" depends="build-project,version,create-jar"/>
+  <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+    <ant antfile="build.xml" dir="${org.icpc.tools.presentation.core.location}" inheritAll="false" target="clean"/>
+    <ant antfile="build.xml" dir="${org.icpc.tools.presentation.core.location}" inheritAll="false" target="build">
+      <propertyset>
+        <propertyref name="build.compiler"/>
+      </propertyset>
+    </ant>
+  </target>
+</project>

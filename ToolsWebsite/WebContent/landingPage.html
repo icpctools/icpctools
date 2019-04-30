@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="shortcut icon" href="images/icon-icpc-small.gif"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   <title>ICPC Tools</title>
+   <link rel="stylesheet" href="style.css">
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-65166360-1', 'auto');
+  ga('send', 'pageview');
+
+  var trackLink = function(desc,url) {
+    ga('send', 'event', desc, 'click', url, {'hitCallback':
+      function () {
+        document.location = url;
+      }
+    });
+  }
+</script>
+<style>
+div.head img {
+    float: middle;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+</style>
+</head>
+<body>
+
+<img src="./images/id.png" style="float: left; margin-left: 5px; margin-right: 5px" alt="Contest Identifier"/>
+<h1>ICPC Tools</h1>
+
+Welcome to the ICPC Tools web page! This page contains a variety of tools implemented by
+the International Collegiate Programming Contest (ICPC) Systems Group, most of of which were originally developed for use at the 
+ICPC World Finals and have been adapted for use at other programming contests.
+<P>
+These tools have been used to support a wide variety
+of programming contests including local contests at Universities world-wide, 
+multiple ICPC Regional Contests around the world, and a number of ICPC World Finals.
+<P>
+All of the ICPC tools are designed to work together, and where applicable they are based on 
+published ICPC standards.  
+In particular, many of the tools are derived from and based on the specifications
+published under the auspices of the 
+<i>Competitive Learning Initiative</i> as posted on the
+<a href="https://clics.ecs.baylor.edu/index.php">CLI Wiki</a>.
+
+<h2>Disclaimer</h2>
+
+The tools on this page are provided free and "as is", with the usual disclaimers: 
+lack of guarantee of suitability for any particular purpose, no stated or implied
+responsibility for the results of their use, etc.  
+<P>
+In other words, we find these tools to be very useful in supporting a variety of 
+common programming contest operations, and we think you will too; 
+but we do not guarantee that they will do exactly what you want for <I>your</I>
+programming contest.  All of the code has been written by and is directly under the control
+of the ICPC Systems Group, including that we take particular care to insure that there are
+no intentional bad things (malware) in them; however, neither ICPC nor its affiliates or
+volunteers make any guarantees at all regarding the code.
+<P>
+All ICPC Tools are Copyright &#169; by the ICPC.
+
+<h2>Bug Reports and Enhancement Requests</h2>
+
+We use a tracking system called <I>Bugzilla</I>
+to allow users to report bugs and request enhancements to the various ICPC Tools.
+Please visit the <A href="http://pc2.ecs.csus.edu/projects/bugzilla/enter_bug.cgi" target=icpcBugzilla>
+ICPC Tools Bugzilla page</A>
+to report a bug or request an enhancement.
+Note: upon first visiting the ICPC Tools Bugzilla page it is necessary to create a <I>Bugzilla login account</I> 
+in order to submit a bug report or enhancement request.  Once logged in you can
+select the appropriate ICPC Tool and then fill out a bug report or enhancement request.  
+
+
+<h2>Downloads</h2>
+
+Follow the links below to download any of the tools.  Click on the "Documentation" link to
+view the "User's Guide" for each tool. 
+
+<P>
+<table>
+<tr><td>
+<div class="head"><img src="./images/resolverIcon.png" alt="Resolver Icon"/>Resolver</div>
+<div class="tag">Animated reveal of final contest results</div>
+Download: <a href="./resolver/resolver-1.2.0.677.zip" onclick="trackLink('resolverZipDownload', './resolver/resolver-1.2.0.677.zip'); return false;">resolver-1.2.0.zip</a><br/>
+<a href="./resolver/doc.pdf" onclick="trackLink('resolverDocAccess', './resolver/doc.pdf'); return false;">Documentation</a> (pdf)
+</td>
+
+<td>
+<div class="head"><img src="./images/balloonIcon.png" alt="Balloon Utility Icon"/>Balloon Utility</div>
+<div class="tag">Manages and prints which teams to award a balloon</div>
+Download: <a href="./balloon/balloonUtil-1.2.0.664.zip" onclick="trackLink('balloonZipDownload', './balloon/balloonUtil-1.2.0.664.zip'); return false;">balloonUtil-1.2.0.zip</a><br/>
+<a href="./balloon/doc.pdf" onclick="trackLink('balloonDocAccess', './balloon/doc.pdf'); return false;">Documentation</a> (pdf)
+</td>
+</tr>
+
+<tr><td>
+<div class="head"><img src="./images/clientIcon.png" alt="Presentation Icon"/>Presentation Client</div>
+<div class="tag">Animated display of scoreboard and other contest data</div>
+Download: <a href="./notFound.html" onclick="trackLink('presentationsZipDownload', './notFound.html'); return false;">presentations-1.2.0.zip</a><br/>
+<a href="./notFound.html" onclick="trackLink('presentationsDocAccess', './notFound.html'); return false;">Documentation</a> (pdf)
+</td>
+<td>
+<div class="head"><img src="./images/adminIcon.png" alt="Presentation Admin Icon"/>Presentation Admin</div>
+<div class="tag">Remote administration of multiple presentations (requires CDS)</div>
+Download: <a href="./notFound.html" onclick="trackLink('presentationAdminZipDownload', './notFound.html'); return false;">presentationAdmin-1.2.0.zip</a><br/>
+<a href="./notFound.html" onclick="trackLink('presentationAdminDocAccess', './notFound.html'); return false;">Documentation</a> (pdf)
+</td>
+</tr>
+
+<tr><td>
+<div class="head"><img src="./images/cdsIcon.png" alt="CDS Icon"/>Contest Data Server</div>
+<div class="tag">Single-point URL services for accessing contest data</div>
+Download: <a href="./notFound.html" onclick="trackLink('wlp.CDSZipDownload', './notFound.html'); return false;">wlp.CDS-1.2.0.zip</a><br/>
+<a href="./notFound.html" onclick="trackLink('wlp.CDSDocAccess', './notFound.html'); return false;">Documentation</a> (pdf)
+</td>
+<td>
+<div class="head"><img src="./images/coachViewIcon.png" alt="Coach View Icon"/>Coach View</div>
+<div class="tag">Ability to remotely see the camera and desktop of a team</div>
+Download: <a href="./notFound.html" onclick="trackLink('coachViewZipDownload', './notFound.html'); return false;">coachview-1.2.0.zip</a><br/>
+<a href="./notFound.html" onclick="trackLink('coachViewDocAccess', './notFound.html'); return false;">Documentation</a> (pdf)
+</td>
+</tr>
+
+<tr><td>
+<div class="head"><img src="./images/problemSetIcon.png" alt="Problem Set Editor Icon"/>Problem Set Editor</div>
+<div class="tag">Generate/Edit YAML descriptions of problem sets for input to <br>CLICS-compatible CCS's.</div>
+Download: <a href="./notFound.html" onclick="trackLink('problemSetZipDownload', './notFound.html'); return false;">problemSet-1.2.0.zip</a><br/>
+<a href="./notFound.html" onclick="trackLink('problemSetDocAccess', './notFound.html'); return false;">Documentation</a> (pdf)
+</td>
+<td>
+<div class="head"><img src="./images/contestUtilsIcon.png" alt="Contest Utilities Icon"/>Contest Utilities</div>
+<div class="tag">A variety of useful contest-related utilities: <br>event feed checkers, floor map generators, submission extractors,<br> and more!</div>
+Download: <a href="./notFound.html" onclick="trackLink('contestUtilsZipDownload', './notFound.html'); return false;">contestUtil-1.2.0.zip</a><br/>
+<a href="./notFound.html" onclick="trackLink('contestUtilsDocAccess', './notFound.html'); return false;">Documentation</a> (pdf)
+</td>
+</tr>
+</table>
+
+<P>
+Last published tools update:  <!-- Date automagically filled in here by the publication process -->
+
+<P>
+Looking for the latest? Click <a href="http://pc2.ecs.csus.edu/pc2projects/build/">here</a> for the latest builds.  
+(<I><B>Please bear in mind:</B></I> the "latest builds" are just that -- development versions.
+No guarantees are made as to the stability, or even the usability, of these builds.
+If you want a stable build of any of the ICPC Tools, please use the above links instead.)
+
+
+<h2>Contacting Us</h2>
+
+The ICPC Tools are developed and maintained by a group of ICPC volunteers.  We also maintain 
+and monitor a
+<A href="http://hera.ecs.csus.edu/mailman/listinfo/icpctools-users">mailing list</A> for ICPC Tools users;
+to contact the developers or get involved in the user community, click on the preceding link.
+
+</body>
+
+</html>

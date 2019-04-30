@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE project>
+<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="dist" name="ToolsWebsite">
+  <property name="version" value="1.0.0"/>
+  <property environment="env"/>
+  <condition property="ECLIPSE_HOME" value="${env.ECLIPSE_HOME}" else="../../../../../eclipses/eclipse-4.4.1/">
+    <isset property="env.ECLIPSE_HOME"/>
+  </condition>
+  <property name="bin.dir" value="bin"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="docs.dir" value="docs"/>
+  <property name="staging.dir" value="staging"/>
+  <target name="clean">
+    <delete dir="${dist.dir}"/>
+    <delete dir="${staging.dir}"/>
+  </target>
+  <target depends="clean" name="package">
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${staging.dir}"/>
+    <property name="zip.path" value="${dist.dir}/ToolsWebsite.zip"/>
+    <exec executable="./mkindex">
+       <arg value="${staging.dir}"/>
+    </exec>
+    <copy todir="${staging.dir}">
+         <fileset dir="WebContent">
+            <exclude name="**/landingPage.html"/>
+            <exclude name="**/ResolverUsersGuide.html"/>
+         </fileset>
+    </copy>
+    <zip destfile="${zip.path}">
+         <zipfileset dir="${staging.dir}"/>
+    </zip>
+  </target>
+  <target name="dist" depends="package">
+  </target>
+</project>

@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Main-Class: org.icpc.tools.balloon.BalloonUtility
+Class-Path: contestModel.jar presentCore.jar

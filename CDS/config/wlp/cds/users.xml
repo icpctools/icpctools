@@ -1,0 +1,12 @@
+<server description="ICPC contest clients">
+   <!-- Change passwords immediately to secure the contest -->
+   <basicRegistry>
+      <user name="admin" password="adm1n"/>
+      <user name="presAdmin" password="padm1n"/>
+      <user name="balloon" password="balloonPr1nter"/>
+      <user name="public" password="publ1c"/>
+      <user name="presentation" password="presentat1on"/>
+      <user name="myicpc" password="my1cpc"/>
+      <user name="live" password="l1ve"/>
+   </basicRegistry>
+</server>

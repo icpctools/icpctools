@@ -1,0 +1,106 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use vars qw($outputdir $webdir $index $fh $ofh $download $type %dirmap %linkmap %filemap %pdfmap $file @f);
+
+# this maps between the dist filenames and directory they should be put in
+%linkmap = (
+   'balloonUtil' => 'balloon',
+   'resolver' => 'resolver',
+   'presentationAdmin' => 'presAdmin',
+   'presentations' => 'pres',
+   'contestUtil' => 'contestUtil',
+   'wlp.CDS' => 'CDS',
+   'coachview' => 'coachview',
+   'problemSet' => 'problemSet',
+   'contestUtil' => 'contestUtil',
+);
+# this maps between the git layout vs dist filename
+%dirmap = (
+   'BalloonUtility' => 'balloonUtil',
+   'Resolver' => 'resolver',
+   'PresAdmin' => 'presentationAdmin',
+   'PresContest' => 'presentations',
+   'ContestUtil' => 'contestUtil',
+   'CDS' => 'wlp.CDS',
+   'CoachView' => 'coachview',
+   'ProblemSet' => 'problemSet',
+);
+
+use File::Find ();
+
+# for the convenience of &wanted calls, including -eval statements:
+use vars qw/*name *dir *prune/;
+*name   = *File::Find::name;
+*dir    = *File::Find::dir;
+*prune  = *File::Find::prune;
+
+sub wanted;
+
+# Traverse desired filesystems
+File::Find::find({wanted => \&wanted}, '..');
+
+sub process_name {
+   my $name = shift;
+   my @f = split(m#/#, $name);
+   if (defined($dirmap{$f[1]})) {
+      $filemap{$dirmap{$f[1]}} = $f[3];
+   }
+}
+
+sub process_pdf {
+   my $pdf = shift;
+   my @f = split(m#/#, $pdf);
+   if (defined($dirmap{$f[1]})) {
+      $pdfmap{$dirmap{$f[1]}} = $f[3];
+   }
+}
+
+sub wanted {
+  /^.*\.zip\z/s
+  && &process_name($name);
+  /^.*\.pdf\z/s && !/ReleaseNotes/
+  && &process_pdf($name);
+# print("$name\n");
+}
+
+$webdir="WebContent";
+$index="landingPage.html";
+if ($#ARGV > -1 && -d $ARGV[0]) {
+   $outputdir = $ARGV[0];
+} else {
+   $outputdir = $webdir;
+}
+open my $fh, "<", "$webdir/$index" || die ("Unable to read $webdir/$index: $!\n");
+open my $ofh, ">", "$outputdir/index.html" || die("Unable to write $outputdir/index.html: $!\n");
+while(<$fh>) {
+   # this matches the Download lines
+   # specifically 1s is the href bit inbewteen the quotes
+   # 2nd is extra stuff after the href quote, but before the >
+   # 3rd is the clicky part of the link
+   if (m#^Download: <a href="([^"]+)"([^>]*)>([a-zA-Z.]+)([^<]+)</a><br/>#) {
+      my $download=$1;
+      my $extra=$2;
+      my $type=$3;
+      s/$4//;
+      if (defined($filemap{$type})) {
+          s#>$type<#>$filemap{$type}<#;
+      }
+      if (defined($linkmap{$type}) && defined($filemap{$type})) {
+          s#"$download"#"./$linkmap{$type}/$filemap{$type}"#;
+          s#'$download'#'./$linkmap{$type}/$filemap{$type}'#;
+          print $ofh $_;
+          $_ = <$fh>;
+          if (m#<a href="./([^"]+)"([^>]*)>Documentation</a>#) {
+              s#$1#$linkmap{$type}/$pdfmap{$type}#g;
+          }
+      } else {
+          s#"$download"#"./notFound.html"#;
+      }
+   }
+   print $ofh $_;
+}
+close($fh);
+close($ofh);
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE project>
+<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." name="org.icpc.tools.common">
+   <tstamp>
+      <format property="date" pattern="yyyyMMdd" timezone="UTC"/>
+   </tstamp>
+   <tstamp>
+      <format property="date.english" pattern="EEEE, MMMM d yyyy" timezone="UTC"/>
+   </tstamp>
+   <tstamp>
+      <format property="time.english" pattern="HH:mm z" timezone="UTC"/>
+   </tstamp>
+   <property name="timestamp.english" value="${date.english} ${time.english}"/>
+   <property name="bin.dir" value="bin" />
+   <property name="lib.dir" value="lib" />
+   <property name="staging.dir" value="staging" />
+   <property name="dist.dir" value="dist" />
+   <property name="scripts.dir" value="scripts" />
+   <property name="docs.dir" value="docs" />
+   <property environment="env" />
+   <condition property="ECLIPSE_HOME" value="${env.ECLIPSE_HOME}" else="../../../../../eclipses/eclipse-4.4.1/">
+      <isset property="env.ECLIPSE_HOME" />
+   </condition>
+   <property name="debuglevel" value="source,lines,vars" />
+   <property name="target" value="1.8" />
+   <property name="source" value="1.8" />
+   <property name="asciidoctor-ant.jar" value="/software/pc2/ant/lib/asciidoctor-ant.jar" />
+   <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present" />
+   <path id="org.icpc.tools.contest.classpath">
+      <pathelement location="${org.icpc.tools.contest.location}/bin" />
+      <pathelement location="${org.icpc.tools.contest.location}/lib/snakeyaml-1.18.jar" />
+   </path>
+   <target name="init">
+      <mkdir dir="bin" />
+      <copy includeemptydirs="false" todir="bin">
+         <fileset dir="src">
+            <exclude name="**/*.java" />
+         </fileset>
+      </copy>
+   </target>
+   <target name="clean">
+      <delete dir="bin" />
+      <delete dir="${staging.dir}" />
+      <delete dir="${dist.dir}" />
+      <delete>
+         <fileset dir="." includes="*.pdf*" />
+      </delete>
+   </target>
+   <target name="cleanall" depends="clean" />
+   <target name="build" depends="clean,build-project" />
+   <target name="build-subprojects" />
+   <target name="build-project" depends="clean,init">
+      <echo message="${ant.project.name}: ${ant.file}" />
+      <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
+         <src path="src" />
+         <classpath refid="${classpath}" />
+      </javac>
+   </target>
+   <target name="doc" if="asciidoctor.present">
+      <asciidoctor:convert sourceDirectory="${basedir}/${docs.dir}" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="${docs.dir}" />
+      <copy todir="${staging.dir}">
+         <fileset dir="." includes="*.pdf *.txt" />
+      </copy>
+   </target>
+   <target name="create-jar" description="jar the classes">
+      <jar destfile="${staging.dir}/lib/${jar.name}.jar" basedir="${bin.dir}" manifest="${bin.dir}/META-INF/MANIFEST.MF">
+         <manifest>
+            <attribute name="Specification-Version" value="${version}" />
+            <attribute name="Implementation-Title" value="${title}" />
+            <attribute name="Implementation-Version" value="${build.number}" />
+            <attribute name="Built-On" value="${timestamp.english}" />
+            <attribute name="Built-On-Date" value="${date}" />
+         </manifest>
+      </jar>
+   </target>
+   <target name="version" depends="build-project">
+      <exec executable="git" outputproperty="git_hash" failifexecutionfails="false" errorproperty="HEAD">
+         <arg value="log" />
+         <arg value="-n" />
+         <arg value="1" />
+         <arg value="--pretty=format:%H" />
+         <arg value="." />
+         <arg value="${org.icpc.tools.contest.location}"/>
+      </exec>
+      <exec executable="git" outputproperty="build.number" failifexecutionfails="false" errorproperty="">
+         <arg value="rev-list" />
+         <arg value="${git_hash}" />
+         <arg value="--count" />
+      </exec>
+      <condition property="build.number" value="0">
+         <not>
+            <isset property="build.number" />
+         </not>
+      </condition>
+      <mkdir dir="${staging.dir}/lib" />
+      <echo message="${version}.${build.number}" file="${staging.dir}/lib/VERSION" />
+   </target>
+   <target name="zip-dist" description="create distribution">
+      <mkdir dir="${dist.dir}" />
+      <property name="zip.path" value="${dist.dir}/${zip.prefix}-${version}.${build.number}.zip" />
+      <zip destfile="${zip.path}">
+         <zipfileset dir="${staging.dir}" filemode="755" prefix="${zip.prefix}-${version}" />
+      </zip>
+      <checksum file="${zip.path}" algorithm="MD5" fileext=".md5" />
+      <checksum file="${zip.path}" algorithm="SHA-1" fileext=".sha1" />
+      <checksum file="${zip.path}" algorithm="SHA-256" fileext=".sha256" />
+      <checksum file="${zip.path}" algorithm="SHA-512" fileext=".sha512" />
+   </target>
+   <target name="init-eclipse-compiler" description="copy Eclipse compiler jars to ant lib directory">
+      <copy todir="${ant.library.dir}">
+         <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar" />
+      </copy>
+      <unzip dest="${ant.library.dir}">
+         <patternset includes="jdtCompilerAdapter.jar" />
+         <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar" />
+      </unzip>
+   </target>
+   <target name="build-eclipse-compiler" description="compile project with Eclipse compiler">
+      <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
+      <antcall target="build" />
+   </target>
+</project>

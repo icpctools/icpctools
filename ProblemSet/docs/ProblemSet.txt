@@ -1,0 +1,37 @@
+== The ICPC Problem Set Editor 
+
+image::problemSetIcon.png["Problem Set Editor",scaledwidth="5%"]
+
+An ICPC Tool
+
+The ICPC Problem Set Editor is a tool for creating and editing _problemset.yaml_ files, 
+which define the list of contest problems
+and their colors for a https://clics.ecs.baylor.edu/index.php/Contest_Control_System[CLICS-compliant]
+Contest Control System (CCS).
+
+The following shows a screen shot of the editor in action:
+
+image::ProblemSetScreenShot.png["Problem Set editor",align="center"]
+
+== Using the Editor
+
+=== Installation
+
+To install the editor, download and unzip the distribution package 
+from the https://icpc.baylor.edu/icpctools/[ICPCTools website] to any 
+convenient location. The editor is a self-contained Java application and
+only requires a Java 1.8 JDK to run.
+
+=== Execution
+
+The distribution includes two scripts which can be used to launch the program:
+problemSet.bat (for Windows) and problemSet.sh (for MacOS and Linux).
+To start the editor, open a terminal window (command shell), 
+change to the folder where you unzipped the distribution, and type the name of the
+appropriate script. The scripts take one optional parameter: the name or path of
+a problemset.yaml to edit.  Executing the script with a single parameter "--help"
+will produce a help (usage) message.
+
+== Operating the Editor
+
+TO-DO

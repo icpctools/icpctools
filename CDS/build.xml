@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE project>
+<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="dist" name="CDS">
+  <property file="version.properties"/>
+  <property name="title" value="ICPC Contest Data Server"/>
+  <tstamp>
+    <format property="date" pattern="yyyyMMdd" timezone="UTC"/>
+  </tstamp>
+  <tstamp>
+    <format property="date.english" pattern="EEEE, MMMM d yyyy" timezone="UTC"/>
+  </tstamp>
+  <tstamp>
+    <format property="time.english" pattern="HH:mm z" timezone="UTC"/>
+  </tstamp>
+  <property name="timestamp.english" value="${date.english} ${time.english}"/>
+  <property environment="env"/>
+  <condition property="ECLIPSE_HOME" value="${env.ECLIPSE_HOME}" else="../../../../../eclipses/eclipse-4.4.1/">
+    <isset property="env.ECLIPSE_HOME"/>
+  </condition>
+  <property name="bin.dir" value="bin"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="docs.dir" value="docs"/>
+  <property name="staging.dir" value="staging"/>
+  <property name="web.dir" value="."/>
+  <property name="zip.prefix" value="CDS"/>
+  <property name="org.icpc.tools.contest.location" value="../ContestModel"/>
+  <property name="org.icpc.tools.presentation.contest.location" value="../PresContest"/>
+  <property name="debuglevel" value="source,lines,vars"/>
+  <property name="target" value="1.8"/>
+  <property name="source" value="1.8"/>
+  <property name="cds.zip" value="/software/pc2/openliberty-18.0.0.3/cds.zip"/>
+  <available file="${cds.zip}" type="file"
+             property="wlp.present"/>
+  <property name="asciidoctor-ant.jar" value="/software/pc2/ant/lib/asciidoctor-ant.jar"/>
+  <available file="${asciidoctor-ant.jar}" type="file"
+             property="asciidoctor.present"/>
+  <path id="EAR Libraries.libraryclasspath"/>
+  <path id="CDS.classpath">
+    <pathelement location="com.ibm.ws.javaee.jsp.2.2_1.0.0.jar"/>
+    <pathelement location="com.ibm.ws.javaee.servlet.3.0_1.0.1.jar"/>
+  	<pathelement location="com.ibm.ws.javaee.websocket.1.1_1.0.12.jar"/>
+    <pathelement location="${org.icpc.tools.contest.location}/bin"/>
+  	<pathelement location="${org.icpc.tools.contest.location}/lib/snakeyaml-1.18.jar"/>
+    <path refid="EAR Libraries.libraryclasspath"/>
+  </path>
+  <target name="init">
+    <mkdir dir="bin"/>
+    <copy includeemptydirs="false" todir="bin">
+      <fileset dir="src">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+    <exec executable="git" outputproperty="git_hash" failifexecutionfails="false" errorproperty="HEAD">
+      <arg value="log"/>
+      <arg value="-n"/>
+      <arg value="1"/>
+      <arg value="--pretty=format:%H"/>
+      <arg value="."/>
+      <arg value="${org.icpc.tools.contest.location}"/>
+    </exec>
+    <exec executable="git" outputproperty="build.number" failifexecutionfails="false" errorproperty="">
+      <arg value="rev-list"/>
+      <arg value="${git_hash}"/>
+      <arg value="--count"/>
+    </exec>
+  </target>
+  <target name="clean">
+    <delete dir="${bin.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${staging.dir}"/>
+    <delete>
+       <fileset dir="." includes="*.pdf*"/>
+    </delete>
+  </target>
+  <target name="doc" if="asciidoctor.present">
+    <asciidoctor:convert sourceDirectory="${basedir}/${docs.dir}" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="${docs.dir}"/>
+    <copy todir="${staging.dir}">
+        <fileset dir="." includes="*.pdf *.txt"/>
+    </copy>
+  </target>
+  <target depends="clean,build,doc" name="war">
+    <property name="war.path" value="${staging.dir}/CDS.war"/>
+    <war destfile="${war.path}" webxml="${web.dir}/WebContent/WEB-INF/web.xml">
+      <manifest>
+        <attribute name="Specification-Version" value="${version}"/>
+        <attribute name="Implementation-Title" value="${title}"/>
+        <attribute name="Implementation-Version" value="${build.number}"/>
+        <attribute name="Built-On" value="${timestamp.english}"/>
+        <attribute name="Built-On-Date" value="${date}"/>
+      </manifest>
+      <fileset dir="${web.dir}/WebContent">
+        <include name="**/*.*"/>
+      </fileset>
+      <lib dir="${org.icpc.tools.contest.location}/staging/lib">
+        <include name="contestModel.jar"/>
+      </lib>
+      <lib dir="${org.icpc.tools.contest.location}/lib">
+        <include name="*.jar"/>
+      </lib>
+      <classes dir="${bin.dir}"/>
+    </war>
+  </target>
+  <target depends="war" name="package">
+    <mkdir dir="${dist.dir}"/>
+    <property name="zip.path" value="${dist.dir}/CDS-${version}.${build.number}.zip"/>
+    <zip destfile="${zip.path}">
+       <zipfileset dir="${staging.dir}" filemode="755" prefix="${zip.prefix}-${version}"/>
+    </zip>
+    <checksum file="${zip.path}" algorithm="MD5" fileext=".md5"/>
+    <checksum file="${zip.path}" algorithm="SHA-1" fileext=".sha1"/>
+    <checksum file="${zip.path}" algorithm="SHA-256" fileext=".sha256"/>
+    <checksum file="${zip.path}" algorithm="SHA-512" fileext=".sha512"/>
+  </target>
+  <target name="wlp" depends="package" if="wlp.present">
+    <echo message="Building wlp.CDS-${version}.${build.number}.zip"/>
+    <mkdir dir="${staging.dir}/wlp/usr/servers/cds/apps"/>
+    <move file="${war.path}" 
+          tofile="${staging.dir}/wlp/usr/servers/cds/apps/CDS.war"/>
+    <move todir="${staging.dir}/wlp">
+         <fileset dir="${staging.dir}" includes="*.pdf *.txt"/>
+    </move>
+    <copy todir="${staging.dir}/wlp/usr/servers/cds/config/present">
+         <fileset dir="${org.icpc.tools.presentation.contest.location}/dist" includes="*.zip"/>
+    </copy>
+    <property name="zip2.path" value="${dist.dir}/wlp.CDS-${version}.${build.number}.zip"/>
+    <copy file="${cds.zip}"
+          tofile="${zip2.path}"/>
+    <copy todir="${staging.dir}/wlp/usr/servers/cds">
+         <fileset dir="config/wlp/cds"/>
+    </copy>
+    <zip destfile="${zip2.path}" update="true" basedir="${staging.dir}"/>
+    <checksum file="${zip2.path}" algorithm="MD5" fileext=".md5"/>
+    <checksum file="${zip2.path}" algorithm="SHA-1" fileext=".sha1"/>
+    <checksum file="${zip2.path}" algorithm="SHA-256" fileext=".sha256"/>
+    <checksum file="${zip2.path}" algorithm="SHA-512" fileext=".sha512"/>
+  </target>
+  <target name="dist" depends="package,wlp">
+  </target>
+  <target depends="build-project" name="build"/>
+  <target depends="init" name="build-project">
+    <echo message="${ant.project.name}: ${ant.file}"/>
+    <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
+      <src path="src"/>
+      <classpath refid="CDS.classpath"/>
+    </javac>
+  </target>
+  <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+    <copy todir="${ant.library.dir}">
+      <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+    </copy>
+    <unzip dest="${ant.library.dir}">
+      <patternset includes="jdtCompilerAdapter.jar"/>
+      <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+    </unzip>
+  </target>
+  <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+    <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+    <antcall target="build"/>
+  </target>
+</project>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="org.icpc.tools.contest.util">
+   <property name="org.icpc.tools.contest.location" value="../ContestModel" />
+   <import file="${org.icpc.tools.contest.location}/common.xml" />
+   <property file="version.properties" />
+   <property name="title" value="ICPC Contest Utilities" />
+   <property name="zip.prefix" value="contestUtil" />
+   <property name="jar.name" value="contestUtil" />
+   <path id="org.icpc.tools.contestUtil.classpath">
+      <pathelement location="bin" />
+      <path refid="org.icpc.tools.contest.classpath" />
+   </path>
+   <property name="classpath" value="org.icpc.tools.contestUtil.classpath" />
+   <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="clean" />
+      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="build">
+         <propertyset>
+            <propertyref name="build.compiler" />
+         </propertyset>
+      </ant>
+   </target>
+   <target description="create distribution" name="dist" depends="build,doc,version,create-jar">
+      <copy todir="${staging.dir}/lib">
+         <!-- contest model & libs -->
+         <fileset dir="${org.icpc.tools.contest.location}/staging/lib" />
+         <fileset dir="${org.icpc.tools.contest.location}/lib" />
+      </copy>
+      <copy todir="${staging.dir}">
+         <fileset dir="scripts" />
+      </copy>
+      <chmod perm="a+rx" dir="${staging.dir}" includes="**/*.sh" />
+   </target>
+   <target name="full-dist" description="create distribution" depends="dist,zip-dist" />
+</project>

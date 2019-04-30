@@ -1,0 +1,36 @@
+Upating the ICPCTools webpage at Baylor:
+
+NOTE: this file was written by John, to document the procedure used by John, on John's machine.
+It contains John's-machine-specific stuff.  The objective here was to at least provide others with some information, 
+which they can hopefully vary to suit their own environment, rather than leave the current void wherein there's NO 
+documentation for this procedure other than what's in someone's head...
+Please don't complain to John about his posting information
+with machine-specific stuff in it, unless you are willing to write a new version that's generic across all developer's
+machine environments.  
+
+This file describes the MANUAL process which was initially used to update the ICPCTools website.
+Currently the Jenkins "build" process supports automated publication (update of the website), so this process
+should not be used unless for some reason Jenkins is not doing the updates.
+
+- Start WinSCP.  It should start up with the following already set:
+  - hostname: icpc.baylor.edu
+  - user name: icpctoolssftp
+  - Advanced->SSH->Authentication->Private Key File:  set to "C:\clevengr\contest\ICPCTools\Website\icpctools.puttyPrivateKey.ppk"
+- Enter passphrase ...
+
+-In left panel, navigate to C:\clevengr\contest\icpctools\website
+
+-In right panel, navigate to (double-click on) "webhome".  "Webhome" is the folder which is actually served to the public;
+anything placed in "webhome" will be visible publicly.
+
+-To update the main ICPCTools page:
+  - edit it in Eclipse
+  - check it into git
+  - COPY the landingPage.html file (and any new files) to the left-hand WinSCP panel.  BE SURE to HOLD DOWN "CTRL" when
+     doing a drag/drop to the WinSCP panel; otherwise since the landingPage.html original (in the Git repo folder) and
+     the target folder (the WinSCP left panel) are on the same drive, it will MOVE the files instead of copying them.
+  - Copy the landingPage.html file (and any new files) from the left to the right WinSCP panel
+     (make sure the right panel is in "webhome")
+  - RENAME the current (old) index.html file in the right WinSCP panel to "index.xxxx"  where xxxx is the date
+  - Rename the landingPage.html file to "index.html".
+

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="org.icpc.tools.balloon">
+   <property name="org.icpc.tools.contest.location" value="../ContestModel" />
+   <import file="${org.icpc.tools.contest.location}/common.xml" />
+   <property file="version.properties" />
+   <property name="title" value="ICPC Balloon Utility" />
+   <property name="zip.prefix" value="balloonUtil" />
+   <property name="jar.name" value="balloonUtil" />
+   <property name="SWTLauncher.dir" value="../SWTLauncher" />
+   <property name="SWTLauncher.libs" value="${SWTLauncher.dir}/lib" />
+   <property name="SWTLauncher.location" value="${SWTLauncher.dir}/dist" />
+   <property name="org.icpc.tools.presentation.core.location" value="../PresCore"/>
+   <path id="org.icpc.tools.presentation.core.classpath">
+      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
+   </path>
+   <path id="org.icpc.tools.balloon.classpath">
+      <pathelement location="bin"/>
+      <path refid="org.icpc.tools.contest.classpath"/>
+      <path refid="org.icpc.tools.presentation.core.classpath"/>
+      <pathelement location="${SWTLauncher.libs}/swt-gtk-linux-x86_64.jar"/>
+   </path>
+   <property name="classpath" value="org.icpc.tools.balloon.classpath" />
+   <target depends="clean" name="cleanall">
+      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="clean" />
+   </target>
+   <target depends="clean,build-project" name="build" />
+   <target name="build-subprojects">
+      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="build-project">
+         <propertyset>
+            <propertyref name="build.compiler" />
+         </propertyset>
+      </ant>
+   </target>
+   <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects" />
+   <target description="create distribution" name="dist" depends="build,doc,version,create-jar">
+      <copy todir="${staging.dir}/lib">
+         <fileset dir="${SWTLauncher.libs}"/>
+         <!-- the swtLauncher.jar -->
+         <fileset dir="${SWTLauncher.location}"/>
+         <!-- contest model & libs -->
+         <fileset dir="${org.icpc.tools.contest.location}/staging/lib"/>
+         <fileset dir="${org.icpc.tools.contest.location}/lib"/>
+         <fileset dir="${org.icpc.tools.presentation.core.location}/staging/lib"/>
+         <fileset dir="${org.icpc.tools.presentation.core.location}/lib"/>
+      </copy>
+      <copy todir="${staging.dir}">
+         <fileset dir="${scripts.dir}" />
+      </copy>
+      <chmod perm="a+rx" dir="${staging.dir}" includes="**/*.sh" />
+   </target>
+   <target name="full-dist" depends="dist,zip-dist"/>
+</project>

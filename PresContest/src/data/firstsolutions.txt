@@ -1,0 +1,9 @@
+#2011	St. Petersburg State University	11
+#2012	Stanford University	15
+2013	National Taiwan University	10
+2014	Tsinghua University	17
+2015	Peking University	5
+2016	Chulalongkorn University	11
+2017	KAIST	5
+2018	St. Petersburg ITMO University	13
+2019	?	-1
