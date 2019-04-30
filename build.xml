@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="do_subprojects" name="Runs the build for all the ICPC tools subprojects.">
-   <target name="do_subprojects">
+<project default="build" name="Runs the build for all the ICPC tools subprojects.">
+   <target name="build">
       <ant dir="SWTLauncher"/>
       <ant dir="ContestModel"/>
       <ant dir="PresCore"/>
