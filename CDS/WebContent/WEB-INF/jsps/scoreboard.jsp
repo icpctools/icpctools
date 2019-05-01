@@ -80,11 +80,11 @@ function fillTable() {
     var scr = score.rows[i];
     var logoSrc='';
     var team = '';
-    var org = '';
+    var orgName = '';
     if (scr.team_id != null) {
       team = findById(teams, scr.team_id);
       if (team != null) {
-        org = findById(orgs, team.organization_id);
+        var org = findById(orgs, team.organization_id);
         if (org != null) {
           var logo = bestSquareLogo(org.logo,20);
           if (logo != null)
@@ -95,7 +95,7 @@ function fillTable() {
       }
     }
   
-    var col = $('<td align=right>'+ scr.rank +'</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + team + '</td><td>' + org + '</td>');
+    var col = $('<td align=right>'+ scr.rank +'</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + team + '</td><td>' + orgName + '</td>');
     var row = $('<tr></tr>');
     row.append(col);
     for (var j = 0; j < problems.length; j++) {

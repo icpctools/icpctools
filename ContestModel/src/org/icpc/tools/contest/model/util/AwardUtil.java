@@ -99,9 +99,9 @@ public class AwardUtil {
 						teamIds.add(team.getId());
 					} else if (count < numPerGroup) {
 						teamIds.add(team.getId());
+						lastRank = rank;
 						count++;
 					}
-					lastRank = rank;
 				}
 			}
 
