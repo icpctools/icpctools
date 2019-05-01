@@ -58,9 +58,6 @@
    </target>
    <target name="doc" if="asciidoctor.present">
       <asciidoctor:convert sourceDirectory="${basedir}/${docs.dir}" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="${docs.dir}" />
-      <copy todir="${staging.dir}">
-         <fileset dir="." includes="*.pdf *.txt" />
-      </copy>
    </target>
    <target name="create-jar" description="jar the classes">
       <jar destfile="${staging.dir}/lib/${jar.name}.jar" basedir="${bin.dir}" manifest="${bin.dir}/META-INF/MANIFEST.MF">
@@ -97,6 +94,13 @@
    </target>
    <target name="zip-dist" description="create distribution">
       <mkdir dir="${dist.dir}" />
+      <copy todir="${staging.dir}">
+         <fileset dir="${dist.dir}/../.." includes="LICENSE.txt"/>
+      </copy>
+      <copy todir="${staging.dir}">
+         <fileset dir="." includes="*.pdf *.txt"/>
+         <fileset dir="./.." includes="LICENSE.txt"/>
+      </copy>
       <property name="zip.path" value="${dist.dir}/${zip.prefix}-${version}.${build.number}.zip" />
       <zip destfile="${zip.path}">
          <zipfileset dir="${staging.dir}" filemode="755" prefix="${zip.prefix}-${version}" />

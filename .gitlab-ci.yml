@@ -3,7 +3,10 @@ image: openjdk:8
 
 before_script:
   - apt-get update
-  - apt-get -y install ant
+  - apt-get install -y ant
+  - pwd
+  - apt-get install -y asciidoctor
+  - whereis asciidoctor
 
 after_script:
   - echo "Post build cleanup"
@@ -21,7 +24,6 @@ build:
     - ContestUtil/dist/*.zip
     - PresAdmin/dist/*.zip
     - PresContest/dist/*.zip
-    - PresCore/dist/*.zip
     - ProblemSet/dist/*.zip
     - Resolver/dist/*.zip
     - ToolsWebsite/dist/*.zip
