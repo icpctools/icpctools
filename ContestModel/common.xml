@@ -24,7 +24,7 @@
    <property name="debuglevel" value="source,lines,vars" />
    <property name="target" value="1.8" />
    <property name="source" value="1.8" />
-   <property name="asciidoctor-ant.jar" value="/software/pc2/ant/lib/asciidoctor-ant.jar" />
+   <property name="asciidoctor-ant.jar" value="./ant/lib/asciidoctor-ant.jar" />
    <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present" />
    <path id="org.icpc.tools.contest.classpath">
       <pathelement location="${org.icpc.tools.contest.location}/bin" />

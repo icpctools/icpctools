@@ -4,9 +4,8 @@ image: openjdk:8
 before_script:
   - apt-get update
   - apt-get install -y ant
-  - pwd
-  - apt-get install -y asciidoctor
-  - whereis asciidoctor
+  - mkdir -p .ant/lib
+  - wget -O .ant/lib/asciidoctor-ant.jar http://repo1.maven.org/maven2/org/asciidoctor/asciidoctor-ant/1.5.6/asciidoctor-ant-1.5.6.jar
 
 after_script:
   - echo "Post build cleanup"
