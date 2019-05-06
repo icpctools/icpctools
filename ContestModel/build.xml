@@ -9,5 +9,4 @@
       <pathelement location="lib/snakeyaml-1.18.jar"/>
    </path>
   <property name="classpath" value="org.icpc.tools.contest.classpath"/>
-  <target name="jar" depends="build,version,jar"/>
 </project>
