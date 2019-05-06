@@ -10,13 +10,13 @@
    <path id="org.icpc.tools.presentation.admin.classpath">
       <path refid="org.icpc.tools.contest.classpath"/>
       <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
-      <pathelement location="${SWTLauncher}/libs/swt-gtk-linux-x86_64.jar"/>
+      <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.presentation.admin.classpath"/>
    <target name="dist" depends="build,doc,version,create-jar">
       <copy todir="staging/lib">
          <!-- SWT launcher -->
-         <fileset dir="${SWTLauncher}/libs"/>
+         <fileset dir="${SWTLauncher}/lib"/>
          <fileset dir="${SWTLauncher}/dist"/>
          <!-- contest model & libs -->
          <fileset dir="${org.icpc.tools.contest.location}/staging/lib" />
