@@ -13,7 +13,7 @@ if [ "$UNAME" == "Darwin" ]; then
 fi
 
 while true; do
-  java $vmoptions -jar lib/swtLauncher.jar presentAdmin.jar,tyrus-standalone-client-1.15.jar org.icpc.tools.presentation.admin.internal.Admin "$@"
+  java $vmoptions -jar lib/swtLauncher.jar presentationAdmin.jar,tyrus-standalone-client-1.15.jar org.icpc.tools.presentation.admin.internal.Admin "$@"
   result=$?
   if [ $result = 254 ]
   then

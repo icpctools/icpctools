@@ -4,15 +4,10 @@
    <import file="${org.icpc.tools.contest.location}/common.xml"/>
    <property file="version.properties"/>
    <property name="title" value="ICPC Presentation Client"/>
-   <property name="zip.prefix" value="presentations"/>
-   <property name="jar.name" value="presentContest"/>
+   <property name="jar.name" value="presentations"/>
    <property name="org.icpc.tools.presentation.core.location" value="../PresCore"/>
-   <path id="org.icpc.tools.presentation.core.classpath">
-      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
-   </path>
    <path id="org.icpc.tools.presentation.contest.classpath">
-      <pathelement location="bin"/>
-      <path refid="org.icpc.tools.presentation.core.classpath"/>
+      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
       <path refid="org.icpc.tools.contest.classpath"/>
       <pathelement location="lib/tyrus-standalone-client-1.15.jar"/>
       <pathelement location="lib/jna-5.2.0.jar"/>
@@ -21,43 +16,19 @@
       <pathelement location="lib/vlcj-3.12.1.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.presentation.contest.classpath"/>
-   <target depends="clean" name="cleanall">
-      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="clean"/>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.core.location}" inheritAll="false" target="clean"/>
-   </target>
-   <target name="build-subprojects">
-      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="build-project">
-         <propertyset>
-            <propertyref name="build.compiler"/>
-         </propertyset>
-      </ant>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.core.location}" inheritAll="false" target="build-project">
-         <propertyset>
-            <propertyref name="build.compiler"/>
-         </propertyset>
-      </ant>
-   </target>
-   <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.admin.location}" inheritAll="false" target="clean"/>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.admin.location}" inheritAll="false" target="build">
-         <propertyset>
-            <propertyref name="build.compiler"/>
-         </propertyset>
-      </ant>
-   </target>
-   <target description="create distribution" name="dist" depends="build,doc,version,create-jar">
-      <copy todir="${staging.dir}/lib">
-         <fileset dir="${lib.dir}"/>
+   <target name="dist" depends="build,doc,version,create-jar">
+      <copy todir="staging/lib">
+         <fileset dir="lib"/>
          <!-- contest model & libs -->
          <fileset dir="${org.icpc.tools.contest.location}/staging/lib" />
          <fileset dir="${org.icpc.tools.contest.location}/lib" />
          <fileset dir="${org.icpc.tools.presentation.core.location}/staging/lib" />
          <fileset dir="${org.icpc.tools.presentation.core.location}/lib" />
       </copy>
-      <copy todir="${staging.dir}">
-         <fileset dir="${scripts.dir}"/>
+      <copy todir="staging">
+         <fileset dir="scripts"/>
       </copy>
-      <chmod perm="a+rx" dir="${staging.dir}" includes="**/*.sh"/>
+      <chmod perm="a+rx" dir="staging" includes="**/*.sh"/>
    </target>
    <target name="full-dist" depends="dist,zip-dist"/>
 </project>

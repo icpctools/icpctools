@@ -1,41 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="Create Runnable Jar for Project CoachView">
-   <property name="org.icpc.tools.contest.location" value="../ContestModel" />
-   <import file="${org.icpc.tools.contest.location}/common.xml" />
-   <property file="version.properties" />
-   <property name="title" value="ICPC Coach View" />
-   <property name="zip.prefix" value="coachview" />
-   <property name="jar.name" value="coachview" />
+<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="org.icpc.tools.coachview">
+   <property name="org.icpc.tools.contest.location" value="../ContestModel"/>
+   <import file="${org.icpc.tools.contest.location}/common.xml"/>
+   <property file="version.properties"/>
+   <property name="title" value="ICPC Coach View"/>
+   <property name="jar.name" value="coachview"/>
    <property name="org.icpc.tools.presentation.core.location" value="../PresCore"/>
-   <path id="org.icpc.tools.presentation.core.classpath">
-      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
-   </path>
    <path id="coachview.classpath">
       <pathelement location="lib/jna-5.2.0.jar"/>
       <pathelement location="lib/jna-platform-5.2.0.jar"/>
       <pathelement location="lib/slf4j-nop-1.7.25.jar"/>
       <pathelement location="lib/vlcj-3.12.1.jar"/>
       <path refid="org.icpc.tools.contest.classpath"/>
-      <path refid="org.icpc.tools.presentation.core.classpath"/>
+      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
    </path>
-   <property name="classpath" value="coachview.classpath" />
+   <property name="classpath" value="coachview.classpath"/>
    <target name="dist" depends="build,doc,version,create-jar">
-      <copy includeemptydirs="false" todir="${bin.dir}">
+      <copy includeemptydirs="false" todir="bin">
          <fileset dir="src">
             <exclude name="**/*.java" />
          </fileset>
       </copy>
-      <copy todir="${staging.dir}/lib">
-         <fileset dir="${lib.dir}"/>
+      <copy todir="staging/lib">
+         <fileset dir="lib"/>
          <fileset dir="${org.icpc.tools.contest.location}/staging/lib"/>
          <fileset dir="${org.icpc.tools.contest.location}/lib"/>
          <fileset dir="${org.icpc.tools.presentation.core.location}/staging/lib"/>
          <fileset dir="${org.icpc.tools.presentation.core.location}/lib"/>
       </copy>
-      <copy todir="${staging.dir}">
-         <fileset dir="${scripts.dir}" />
+      <copy todir="staging">
+         <fileset dir="scripts"/>
       </copy>
-      <chmod perm="a+rx" dir="${staging.dir}" includes="**/*.sh"/>
+      <chmod perm="a+rx" dir="staging" includes="**/*.sh"/>
    </target>
    <target name="full-dist" depends="dist,zip-dist"/>
 </project>

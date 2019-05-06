@@ -4,66 +4,33 @@
    <import file="${org.icpc.tools.contest.location}/common.xml"/>
    <property file="version.properties"/>
    <property name="title" value="ICPC Resolver"/>
-   <property name="zip.prefix" value="resolver"/>
-   <property name="SWTLauncher.dir" value="../SWTLauncher"/>
-   <property name="SWTLauncher.libs" value="${SWTLauncher.dir}/lib"/>
-   <property name="SWTLauncher.location" value="${SWTLauncher.dir}/dist"/>
+   <property name="jar.name" value="resolver"/>
+   <property name="SWTLauncher" value="../SWTLauncher"/>
    <property name="org.icpc.tools.presentation.core.location" value="../PresCore"/>
    <property name="org.icpc.tools.presentation.contest.location" value="../PresContest"/>
-   <path id="org.icpc.tools.presentation.core.classpath">
-      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
-   </path>
-   <path id="org.icpc.tools.presentation.contest.classpath">
-      <pathelement location="${org.icpc.tools.presentation.contest.location}/bin"/>
-   </path>
    <path id="org.icpc.tools.resolver.classpath">
-      <pathelement location="bin"/>
       <path refid="org.icpc.tools.contest.classpath"/>
-      <path refid="org.icpc.tools.presentation.core.classpath"/>
-      <path refid="org.icpc.tools.presentation.contest.classpath"/>
-      <pathelement location="${SWTLauncher.libs}/swt-gtk-linux-x86_64.jar"/>
+      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
+      <pathelement location="${org.icpc.tools.presentation.contest.location}/bin"/>
+      <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.resolver.classpath"/>
-   <property name="jar.name" value="resolver"/>
-   <target depends="clean" name="cleanall">
-      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="clean"/>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.core.location}" inheritAll="false" target="clean"/>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.contest.location}" inheritAll="false" target="clean"/>
-   </target>
-   <target name="build-subprojects">
-      <ant antfile="build.xml" dir="${org.icpc.tools.contest.location}" inheritAll="false" target="build-project">
-         <propertyset>
-            <propertyref name="build.compiler"/>
-         </propertyset>
-      </ant>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.core.location}" inheritAll="false" target="build-project">
-         <propertyset>
-            <propertyref name="build.compiler"/>
-         </propertyset>
-      </ant>
-      <ant antfile="build.xml" dir="${org.icpc.tools.presentation.contest.location}" inheritAll="false" target="build-project">
-         <propertyset>
-            <propertyref name="build.compiler"/>
-         </propertyset>
-      </ant>
-   </target>
-   <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-   <target description="create distribution" name="dist" depends="build,doc,version,create-jar">
-      <copy todir="${staging.dir}/lib">
+   <target name="dist" depends="build,doc,version,create-jar">
+      <copy todir="staging/lib">
          <!-- contest model & libs -->
          <fileset dir="${org.icpc.tools.contest.location}/staging/lib" />
          <fileset dir="${org.icpc.tools.contest.location}/lib" />
          <!-- SWT Launcher -->
-         <fileset dir="${SWTLauncher.location}"/>
-         <fileset dir="${SWTLauncher.libs}" />
+         <fileset dir="${SWTLauncher}/dist"/>
+         <fileset dir="${SWTLauncher}/lib" />
          <!-- websockets impl -->
          <fileset dir="${org.icpc.tools.presentation.contest.location}/staging/lib"/>
          <fileset dir="${org.icpc.tools.presentation.contest.location}/lib"/>
       </copy>
-      <copy todir="${staging.dir}">
-         <fileset dir="${scripts.dir}"/>
+      <copy todir="staging">
+         <fileset dir="scripts"/>
       </copy>
-      <chmod perm="a+rx" dir="${staging.dir}" includes="**/*.sh"/>
+      <chmod perm="a+rx" dir="staging" includes="**/*.sh"/>
    </target>
    <target name="full-dist" depends="dist,zip-dist"/>
 </project>
