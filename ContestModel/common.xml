@@ -44,7 +44,7 @@
       <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs" />
    </target>
    <target name="jar" depends="build,version">
-      <jar destfile="staging/lib/${jar.name}.jar" basedir="src" manifest="bin/META-INF/MANIFEST.MF">
+      <jar destfile="staging/lib/${jar.name}.jar" basedir="src" manifest="META-INF/MANIFEST.MF">
          <manifest>
             <attribute name="Specification-Version" value="${version}"/>
             <attribute name="Implementation-Title" value="${title}"/>
