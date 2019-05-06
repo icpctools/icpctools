@@ -15,12 +15,7 @@
       <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
    </path>
    <property name="classpath" value="coachview.classpath"/>
-   <target name="dist" depends="build,doc,version,create-jar">
-      <copy includeemptydirs="false" todir="bin">
-         <fileset dir="src">
-            <exclude name="**/*.java" />
-         </fileset>
-      </copy>
+   <target name="dist" depends="build,doc,version,jar">
       <copy todir="staging/lib">
          <fileset dir="lib"/>
          <fileset dir="${org.icpc.tools.contest.location}/staging/lib"/>
@@ -28,10 +23,6 @@
          <fileset dir="${org.icpc.tools.presentation.core.location}/staging/lib"/>
          <fileset dir="${org.icpc.tools.presentation.core.location}/lib"/>
       </copy>
-      <copy todir="staging">
-         <fileset dir="scripts"/>
-      </copy>
-      <chmod perm="a+rx" dir="staging" includes="**/*.sh"/>
    </target>
    <target name="full-dist" depends="dist,zip-dist"/>
 </project>

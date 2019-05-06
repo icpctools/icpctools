@@ -10,5 +10,5 @@
       <pathelement location="lib/tyrus-standalone-client-1.15.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.presentation.core.classpath"/>
-   <target name="jar" depends="build-project,create-jar"/>
+   <target name="jar" depends="build,jar"/>
 </project>

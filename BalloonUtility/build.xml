@@ -13,8 +13,8 @@
       <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.balloon.classpath"/>
-   <target depends="clean,build-project" name="build" />
-   <target name="dist" depends="build,doc,version,create-jar">
+   <target name="build" depends="clean,build"/>
+   <target name="dist" depends="build,doc,version,jar">
       <copy todir="staging/lib">
          <fileset dir="${SWTLauncher}/lib"/>
          <!-- the swtLauncher.jar -->
@@ -25,10 +25,6 @@
          <fileset dir="${org.icpc.tools.presentation.core.location}/staging/lib"/>
          <fileset dir="${org.icpc.tools.presentation.core.location}/lib"/>
       </copy>
-      <copy todir="staging">
-         <fileset dir="scripts" />
-      </copy>
-      <chmod perm="a+rx" dir="staging" includes="**/*.sh" />
    </target>
    <target name="full-dist" depends="dist,zip-dist"/>
 </project>

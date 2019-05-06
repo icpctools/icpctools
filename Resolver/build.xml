@@ -15,22 +15,18 @@
       <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.resolver.classpath"/>
-   <target name="dist" depends="build,doc,version,create-jar">
+   <target name="dist" depends="build,doc,version,jar">
       <copy todir="staging/lib">
          <!-- contest model & libs -->
          <fileset dir="${org.icpc.tools.contest.location}/staging/lib" />
          <fileset dir="${org.icpc.tools.contest.location}/lib" />
          <!-- SWT Launcher -->
          <fileset dir="${SWTLauncher}/dist"/>
-         <fileset dir="${SWTLauncher}/lib" />
+         <fileset dir="${SWTLauncher}/lib"/>
          <!-- websockets impl -->
          <fileset dir="${org.icpc.tools.presentation.contest.location}/staging/lib"/>
          <fileset dir="${org.icpc.tools.presentation.contest.location}/lib"/>
       </copy>
-      <copy todir="staging">
-         <fileset dir="scripts"/>
-      </copy>
-      <chmod perm="a+rx" dir="staging" includes="**/*.sh"/>
    </target>
    <target name="full-dist" depends="dist,zip-dist"/>
 </project>
