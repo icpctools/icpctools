@@ -13,7 +13,6 @@
       <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
    </path>
    <property name="classpath" value="org.icpc.tools.balloon.classpath"/>
-   <target name="build" depends="clean,build"/>
    <target name="dist" depends="build,doc,version,jar">
       <copy todir="staging/lib">
          <fileset dir="${SWTLauncher}/lib"/>
