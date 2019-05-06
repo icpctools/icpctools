@@ -82,13 +82,11 @@
       <property name="zip.path" value="dist/${jar.name}-${version}.${build.number}.zip"/>
       <zip destfile="${zip.path}">
          <zipfileset dir="staging" filemode="755" prefix="${jar.name}-${version}"/>
-         <zipfileset src="./../LICENSE.txt"/>
-         <zipfileset src="ReleaseNotes.txt"/>
+         <zipfileset dir="./.." includes="LICENSE.txt"/>
+         <zipfileset dir="." includes="ReleaseNotes.txt"/>
          <zipfileset dir="." includes="*.pdf"/>
          <zipfileset dir="scripts"/>
       </zip>
-      <checksum file="${zip.path}" algorithm="MD5" fileext=".md5"/>
-      <checksum file="${zip.path}" algorithm="SHA-1" fileext=".sha1"/>
       <checksum file="${zip.path}" algorithm="SHA-256" fileext=".sha256"/>
       <checksum file="${zip.path}" algorithm="SHA-512" fileext=".sha512"/>
    </target>
