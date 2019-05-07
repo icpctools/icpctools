@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="org.icpc.tools.contest.util">
-   <property name="org.icpc.tools.contest.location" value="../ContestModel"/>
-   <import file="${org.icpc.tools.contest.location}/common.xml"/>
+<project basedir="." default="dist" name="org.icpc.tools.contest.util">
+   <property name="contest.model" value="../ContestModel"/>
+   <import file="${contest.model}/common.xml"/>
    <property file="version.properties"/>
    <property name="title" value="ICPC Contest Utilities"/>
    <property name="jar.name" value="contestUtil"/>
-   <path id="org.icpc.tools.contestUtil.classpath">
-      <path refid="org.icpc.tools.contest.classpath"/>
-   </path>
-   <property name="classpath" value="org.icpc.tools.contestUtil.classpath"/>
-   <target name="dist" depends="build,doc,version,jar">
-      <copy todir="staging/lib">
-         <!-- contest model & libs -->
-         <fileset dir="${org.icpc.tools.contest.location}/staging/lib"/>
-         <fileset dir="${org.icpc.tools.contest.location}/lib"/>
+   <target name="stage">
+      <copy todir="staging">
+         <fileset dir="${contest.model}/staging"/>
+         <fileset dir="${contest.model}/lib"/>
       </copy>
    </target>
-   <target name="full-dist" depends="dist,zip-dist" />
 </project>

@@ -17,8 +17,7 @@ build:
     - ant build
   artifacts:
     paths:
-    - dist/*.zip
-    - CDS/dist/*.zip
+    - dist/*.*
     expire_in: 1 month
 
 test:
