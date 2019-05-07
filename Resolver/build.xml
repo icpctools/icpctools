@@ -1,32 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="org.icpc.tools.resolver">
-   <property name="org.icpc.tools.contest.location" value="../ContestModel"/>
-   <import file="${org.icpc.tools.contest.location}/common.xml"/>
+<project basedir="." default="dist" name="org.icpc.tools.resolver">
+   <property name="contest.model" value="../ContestModel"/>
+   <property name="SWTLauncher" value="../SWTLauncher"/>
+   <property name="presentation.core" value="../PresCore"/>
+   <property name="presentation.contest" value="../PresContest"/>
+   <import file="${contest.model}/common.xml"/>
    <property file="version.properties"/>
    <property name="title" value="ICPC Resolver"/>
    <property name="jar.name" value="resolver"/>
-   <property name="SWTLauncher" value="../SWTLauncher"/>
-   <property name="org.icpc.tools.presentation.core.location" value="../PresCore"/>
-   <property name="org.icpc.tools.presentation.contest.location" value="../PresContest"/>
-   <path id="org.icpc.tools.resolver.classpath">
-      <path refid="org.icpc.tools.contest.classpath"/>
-      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
-      <pathelement location="${org.icpc.tools.presentation.contest.location}/bin"/>
-      <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
-   </path>
-   <property name="classpath" value="org.icpc.tools.resolver.classpath"/>
-   <target name="dist" depends="build,doc,version,jar">
-      <copy todir="staging/lib">
-         <!-- contest model & libs -->
-         <fileset dir="${org.icpc.tools.contest.location}/staging/lib" />
-         <fileset dir="${org.icpc.tools.contest.location}/lib" />
-         <!-- SWT Launcher -->
-         <fileset dir="${SWTLauncher}/dist"/>
+   <target name="stage">
+      <copy todir="staging">
+         <fileset dir="${contest.model}/staging"/>
+         <fileset dir="${contest.model}/lib"/>
+         <fileset dir="${SWTLauncher}/staging"/>
          <fileset dir="${SWTLauncher}/lib"/>
-         <!-- websockets impl -->
-         <fileset dir="${org.icpc.tools.presentation.contest.location}/staging/lib"/>
-         <fileset dir="${org.icpc.tools.presentation.contest.location}/lib"/>
+         <fileset dir="${presentation.core}/staging"/>
+         <fileset dir="${presentation.core}/lib"/>
+         <fileset dir="${presentation.contest}/staging"/>
+         <fileset dir="${presentation.contest}/lib"/>
       </copy>
    </target>
-   <target name="full-dist" depends="dist,zip-dist"/>
 </project>

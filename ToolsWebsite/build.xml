@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE project>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="dist" name="ToolsWebsite">
+<project basedir="." default="dist" name="ToolsWebsite">
   <property name="version" value="1.0.0"/>
   <property environment="env"/>
-  <condition property="ECLIPSE_HOME" value="${env.ECLIPSE_HOME}" else="../../../../../eclipses/eclipse-4.4.1/">
-    <isset property="env.ECLIPSE_HOME"/>
-  </condition>
-  <property name="bin.dir" value="bin"/>
-  <property name="dist.dir" value="dist"/>
-  <property name="docs.dir" value="docs"/>
-  <property name="staging.dir" value="staging"/>
   <target name="clean">
-    <delete dir="${dist.dir}"/>
-    <delete dir="${staging.dir}"/>
+    <delete dir="staging"/>
   </target>
-  <target depends="clean" name="package">
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${staging.dir}"/>
-    <property name="zip.path" value="${dist.dir}/ToolsWebsite.zip"/>
+  <target name="dist" depends="clean">
+    <mkdir dir="staging"/>
     <exec executable="./mkindex">
-       <arg value="${staging.dir}"/>
+      <arg value="staging"/>
     </exec>
-    <copy todir="${staging.dir}">
-         <fileset dir="WebContent">
-            <exclude name="**/landingPage.html"/>
-            <exclude name="**/ResolverUsersGuide.html"/>
-         </fileset>
+    <copy todir="staging">
+      <fileset dir="WebContent">
+        <exclude name="**/landingPage.html"/>
+        <exclude name="**/ResolverUsersGuide.html"/>
+      </fileset>
     </copy>
-    <zip destfile="${zip.path}">
-         <zipfileset dir="${staging.dir}"/>
+    <zip destfile="./../dist/ToolsWebsite.zip">
+      <zipfileset dir="staging"/>
     </zip>
-  </target>
-  <target name="dist" depends="package">
   </target>
 </project>

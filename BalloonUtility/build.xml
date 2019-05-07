@@ -1,29 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="full-dist" name="org.icpc.tools.balloon">
-   <property name="org.icpc.tools.contest.location" value="../ContestModel"/>
-   <import file="${org.icpc.tools.contest.location}/common.xml"/>
+<project basedir="." default="dist" name="org.icpc.tools.balloon">
+   <property name="contest.model" value="../ContestModel"/>
+   <property name="SWTLauncher" value="../SWTLauncher"/>
+   <property name="presentation.core" value="../PresCore"/>
+   <import file="${contest.model}/common.xml"/>
    <property file="version.properties"/>
    <property name="title" value="ICPC Balloon Utility"/>
    <property name="jar.name" value="balloonUtil"/>
-   <property name="SWTLauncher" value="../SWTLauncher"/>
-   <property name="org.icpc.tools.presentation.core.location" value="../PresCore"/>
-   <path id="org.icpc.tools.balloon.classpath">
-      <path refid="org.icpc.tools.contest.classpath"/>
-      <pathelement location="${org.icpc.tools.presentation.core.location}/bin"/>
-      <pathelement location="${SWTLauncher}/lib/swt-gtk-linux-x86_64.jar"/>
-   </path>
-   <property name="classpath" value="org.icpc.tools.balloon.classpath"/>
-   <target name="dist" depends="build,doc,version,jar">
-      <copy todir="staging/lib">
+   <target name="stage">
+      <copy todir="staging">
          <fileset dir="${SWTLauncher}/lib"/>
-         <!-- the swtLauncher.jar -->
-         <fileset dir="${SWTLauncher}/dist"/>
-         <!-- contest model & libs -->
-         <fileset dir="${org.icpc.tools.contest.location}/staging/lib"/>
-         <fileset dir="${org.icpc.tools.contest.location}/lib"/>
-         <fileset dir="${org.icpc.tools.presentation.core.location}/staging/lib"/>
-         <fileset dir="${org.icpc.tools.presentation.core.location}/lib"/>
+         <fileset dir="${SWTLauncher}/staging"/>
+         <fileset dir="${contest.model}/lib"/>
+         <fileset dir="${contest.model}/staging"/>
+         <fileset dir="${presentation.core}/lib"/>
+         <fileset dir="${presentation.core}/staging"/>
       </copy>
    </target>
-   <target name="full-dist" depends="dist,zip-dist"/>
 </project>

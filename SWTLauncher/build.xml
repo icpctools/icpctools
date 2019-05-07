@@ -1,26 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="jar" name="SWTLauncher">
-	<property name="debuglevel" value="source,lines,vars"/>
-	<property name="target" value="1.8"/>
-	<property name="source" value="1.8"/>
-	<target name="clean">
-	    <delete dir="bin"/>
-    	<delete dir="dist"/>
-	</target>
-    <target name="compile" depends="clean">
-        <mkdir dir="bin"/>
-        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
-          <src path="src"/>
-        </javac>
-    </target>
-    <target name="jar" depends="compile">
-        <mkdir dir="dist"/>
-        <jar destfile="dist/swtLauncher.jar" filesetmanifest="mergewithoutmain">
-            <manifest>
-                <attribute name="Main-Class" value="org.icpc.tools.contest.SWTLauncher"/>
-                <attribute name="Class-Path" value="."/>
-            </manifest>
-            <fileset dir="bin"/>
-        </jar>
-    </target>
+<!DOCTYPE project>
+<project basedir="." default="jar" name="SWTLauncher">
+  <property name="contest.model" value="../ContestModel"/>
+  <import file="${contest.model}/common.xml"/>
+  <property file="version.properties"/>
+  <property name="title" value="ICPC SWT Launcher"/>
+  <property name="jar.name" value="swtLauncher"/>
 </project>

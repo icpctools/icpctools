@@ -17,15 +17,8 @@ build:
     - ant build
   artifacts:
     paths:
-    - BalloonUtility/dist/*.zip
+    - dist/*.zip
     - CDS/dist/*.zip
-    - CoachView/dist/*.zip
-    - ContestUtil/dist/*.zip
-    - PresAdmin/dist/*.zip
-    - PresContest/dist/*.zip
-    - ProblemSet/dist/*.zip
-    - Resolver/dist/*.zip
-    - ToolsWebsite/dist/*.zip
     expire_in: 1 month
 
 test:

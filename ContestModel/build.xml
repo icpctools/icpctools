@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE project>
-<project basedir="." default="jar" name="org.icpc.tools.contest">
+<project basedir="." default="jar" name="org.icpc.tools.contest.model">
   <import file="common.xml"/>
   <property file="version.properties"/>
   <property name="title" value="ICPC Contest Model"/>
   <property name="jar.name" value="contestModel"/>
-  <path id="org.icpc.tools.contest.classpath">
-      <pathelement location="lib/snakeyaml-1.18.jar"/>
-   </path>
-  <property name="classpath" value="org.icpc.tools.contest.classpath"/>
 </project>

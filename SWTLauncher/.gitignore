@@ -1,2 +1,4 @@
-/bin/
-/dist/
+/bin
+/staging
+/logs
+**/.DS_Store
