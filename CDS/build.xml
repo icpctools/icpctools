@@ -16,9 +16,9 @@
   <property name="debuglevel" value="source,lines,vars"/>
   <property name="target" value="1.8"/>
   <property name="source" value="1.8"/>
-  <property name="cds.zip" value="/software/openliberty-18.0.0.3/cds.zip"/>
+  <property name="cds.zip" value="./../../cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
-  <property name="asciidoctor-ant.jar" value="/software/pc2/ant/lib/asciidoctor-ant.jar"/>
+  <property name="asciidoctor-ant.jar" value="./../../asciidoctor-ant.jar"/>
   <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present"/>
   <path id="CDS.classpath">
     <pathelement location="com.ibm.ws.javaee.jsp.2.2_1.0.0.jar"/>
@@ -34,31 +34,35 @@
         <exclude name="**/*.java"/>
       </fileset>
     </copy>
-    <exec executable="git" outputproperty="git_hash" failifexecutionfails="false" errorproperty="HEAD">
+    <exec executable="git" outputproperty="git_hash" failifexecutionfails="false">
       <arg value="log"/>
       <arg value="-n"/>
       <arg value="1"/>
       <arg value="--pretty=format:%H"/>
-      <arg value="."/>
-      <arg value="${contest.model}"/>
+      <arg value="./.."/>
     </exec>
-    <exec executable="git" outputproperty="build.number" failifexecutionfails="false" errorproperty="">
+    <exec executable="git" outputproperty="git.count" failifexecutionfails="false">
       <arg value="rev-list"/>
       <arg value="${git_hash}"/>
       <arg value="--count"/>
     </exec>
+  	<condition property="build.number" value="dev">
+      <equals arg1="${git.count}" arg2="" trim="true" forcestring="true"/>
+    </condition>
+    <property name="build.number" value="${git.count}"/>
   </target>
   <target name="clean">
     <delete dir="bin"/>
     <delete dir="staging"/>
     <delete>
-       <fileset dir="." includes="*.pdf*"/>
+      <fileset dir="." includes="*.pdf*"/>
     </delete>
   </target>
   <target name="doc" if="asciidoctor.present">
+    <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="./../../asciidoctor-ant.jar"/>
     <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs"/>
     <copy todir="staging">
-        <fileset dir="." includes="*.pdf *.txt"/>
+      <fileset dir="." includes="*.pdf *.txt"/>
     </copy>
   </target>
   <target name="war" depends="clean,build,doc">
@@ -100,7 +104,7 @@
          <fileset dir="staging" includes="*.pdf *.txt"/>
     </move>
     <copy todir="staging/wlp/usr/servers/cds/config/present">
-         <fileset dir="${presentation.contest}/dist" includes="*.zip"/>
+         <fileset dir="./../dist" includes="presentations-*.zip"/>
     </copy>
     <property name="zip2.path" value="./../dist/wlp.CDS-${version}.${build.number}.zip"/>
     <copy file="${cds.zip}"

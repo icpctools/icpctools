@@ -7,12 +7,11 @@
       <format property="time.english" pattern="HH:mm z" timezone="UTC"/>
    </tstamp>
    <property name="timestamp.english" value="${date.english} ${time.english}"/>
-   <property name="git.hash" value="../ContestModel"/>
    <property environment="env"/>
    <property name="debuglevel" value="source,lines,vars"/>
    <property name="target" value="1.8"/>
    <property name="source" value="1.8"/>
-   <property name="asciidoctor-ant.jar" value="./ant/lib/asciidoctor-ant.jar"/>
+   <property name="asciidoctor-ant.jar" value="./../../asciidoctor-ant.jar"/>
    <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present"/>
    <target name="clean">
       <delete dir="bin"/>
@@ -37,7 +36,8 @@
       </javac>
    </target>
    <target name="doc" if="asciidoctor.present">
-      <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs" />
+      <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="./../../asciidoctor-ant.jar"/>
+      <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs"/>
    </target>
    <target name="jar" depends="build,version">
       <jar destfile="staging/${jar.name}.jar" basedir="bin" manifest="src/META-INF/MANIFEST.MF">
@@ -51,15 +51,14 @@
       </jar>
    </target>
    <target name="version">
-      <exec executable="git" outputproperty="git_hash" failifexecutionfails="false" errorproperty="HEAD">
+      <exec executable="git" outputproperty="git_hash" failifexecutionfails="false">
          <arg value="log"/>
          <arg value="-n"/>
          <arg value="1"/>
          <arg value="--pretty=format:%H"/>
-         <arg value="."/>
-         <arg value="${git.hash}"/>
+         <arg value="./.."/>
       </exec>
-      <exec executable="git" outputproperty="git.count" failifexecutionfails="false" errorproperty="">
+      <exec executable="git" outputproperty="git.count" failifexecutionfails="false">
          <arg value="rev-list"/>
          <arg value="${git_hash}"/>
          <arg value="--count"/>
@@ -70,11 +69,13 @@
       <property name="build.number" value="${git.count}"/>
       <echo message="${version}.${build.number}" file="staging/VERSION"/>
    </target>
-   <target name="dist" depends="jar,version">
+   <target name="dist" depends="jar,version,doc">
+      <mkdir dir="lib"/>
       <mkdir dir="./../dist"/>
       <property name="zip.path" value="./../dist/${jar.name}-${version}.${build.number}.zip"/>
       <zip destfile="${zip.path}">
          <zipfileset dir="staging" filemode="755" prefix="lib"/>
+         <zipfileset dir="lib" filemode="755" prefix="lib"/>
          <zipfileset dir="./.." includes="LICENSE.txt"/>
          <zipfileset dir="." includes="ReleaseNotes.txt"/>
          <zipfileset dir="." includes="*.pdf"/>
