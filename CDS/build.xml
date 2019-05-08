@@ -16,7 +16,7 @@
   <property name="debuglevel" value="source,lines,vars"/>
   <property name="target" value="1.8"/>
   <property name="source" value="1.8"/>
-  <property name="cds.zip" value="./../../cds.zip"/>
+  <property name="cds.zip" value="./../../../../cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
   <property name="asciidoctor-ant.jar" value="./../../asciidoctor-ant.jar"/>
   <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present"/>
