@@ -16,9 +16,9 @@
   <property name="debuglevel" value="source,lines,vars"/>
   <property name="target" value="1.8"/>
   <property name="source" value="1.8"/>
-  <property name="cds.zip" value="./../../../../cds.zip"/>
+  <property name="cds.zip" value="/cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
-  <property name="asciidoctor-ant.jar" value="./../../asciidoctor-ant.jar"/>
+  <property name="asciidoctor-ant.jar" value="/asciidoctor-ant.jar"/>
   <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present"/>
   <path id="CDS.classpath">
     <pathelement location="com.ibm.ws.javaee.jsp.2.2_1.0.0.jar"/>
@@ -59,7 +59,7 @@
     </delete>
   </target>
   <target name="doc" if="asciidoctor.present">
-    <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="./../../asciidoctor-ant.jar"/>
+    <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="/asciidoctor-ant.jar"/>
     <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs"/>
     <copy todir="staging">
       <fileset dir="." includes="*.pdf *.txt"/>
