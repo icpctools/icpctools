@@ -20,4 +20,4 @@ build:
 test:
   stage: test
   script:
-    - echo "Do a test here!"
+    - echo "Future tests here"
