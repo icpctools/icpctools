@@ -23,6 +23,11 @@
    <target name="stage"/>
    <target name="build" depends="clean,stage">
       <mkdir dir="bin"/>
+      <copy includeemptydirs="false" todir="bin">
+         <fileset dir="src">
+            <exclude name="**/*.java" />
+         </fileset>
+      </copy>
       <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
          <src path="src"/>
          <classpath>
