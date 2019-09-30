@@ -12,6 +12,7 @@ build:
   script:
 #    - ant clean
     - ant build
+    - echo $CI_JOB_ID > dist/ci_job_id.txt
   artifacts:
     paths:
     - dist/*.*
