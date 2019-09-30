@@ -931,28 +931,28 @@ public class RESTContestSource extends DiskContestSource {
 		// ok, so there are multiple contests, and none of them are paused.
 		// let's start by figuring out the best contest(s) that are before, during, or
 		// after the current time
-		Info before = null;
-		long beforeTime = Long.MAX_VALUE;
-		boolean beforeDup = false;
+		Info next = null;
+		long timeUntilNext = Long.MAX_VALUE;
+		boolean nextIsDup = false;
 		Info during = null;
-		Info after = null;
-		long afterTime = Long.MAX_VALUE;
-		boolean afterDup = false;
+		Info previous = null;
+		long timeSincePrevious = Long.MAX_VALUE;
+		boolean previousIsDup = false;
 
 		long now = System.currentTimeMillis();
 		for (int i = 0; i < numContests; i++) {
 			Info info = infos[i];
 
 			if (now < info.getStartTime()) {
-				// before
-				long fromStart = info.getStartTime() - now;
-				Trace.trace(Trace.INFO, "Before contest: " + fromStart + " " + info.getId());
-				if (fromStart == beforeTime)
-					beforeDup = true;
-				else if (fromStart < beforeTime) {
-					before = info;
-					beforeTime = fromStart;
-					beforeDup = false;
+				// before the contest
+				long timeUntilStart = info.getStartTime() - now;
+				Trace.trace(Trace.INFO, "Next contest: " + timeUntilStart + " " + info.getId());
+				if (timeUntilStart == timeUntilNext)
+					nextIsDup = true;
+				else if (timeUntilStart < timeUntilNext) {
+					next = info;
+					timeUntilNext = timeUntilStart;
+					nextIsDup = false;
 				}
 			} else if (now < info.getStartTime() + info.getDuration()) {
 				// during
@@ -963,15 +963,15 @@ public class RESTContestSource extends DiskContestSource {
 				}
 				during = info;
 			} else {
-				// after
-				long fromEnd = now - (info.getStartTime() + info.getDuration());
-				Trace.trace(Trace.INFO, "After contest: " + fromEnd + " " + info.getId());
-				if (fromEnd == afterTime)
-					afterDup = true;
-				else if (fromEnd < afterTime) {
-					after = info;
-					afterTime = fromEnd;
-					afterDup = false;
+				// after the contest
+				long timeSince = now - (info.getStartTime() + info.getDuration());
+				Trace.trace(Trace.INFO, "Previous contest: " + timeSince + " " + info.getId());
+				if (timeSince == timeSincePrevious)
+					previousIsDup = true;
+				else if (timeSince < timeSincePrevious) {
+					previous = info;
+					timeSincePrevious = timeSince;
+					previousIsDup = false;
 				}
 			}
 		}
@@ -981,41 +981,41 @@ public class RESTContestSource extends DiskContestSource {
 			return during;
 
 		// if we're before all contests, pick the first one
-		if (before != null && after == null) {
-			if (beforeDup) { // unless the first two start at the same time
-				Trace.trace(Trace.INFO, "The first two contests start at the same time, can't pick between them");
-				return null;
-			}
-			return before;
-		}
-
-		// if we're after all contests, pick the last one
-		if (after != null && before == null) {
-			if (afterDup) { // unless the last two ended at the same time
-				Trace.trace(Trace.INFO, "The last two contests end at the same time, can't pick between them");
-				return null;
-			}
-			return after;
-		}
-
-		// ok, so we're between two (or more) contests. if the previous contest ended more than 2h
-		// ago or we're half way between them, switch to the next contest.
-		// if the direction we chose to go has more than one contest, give up
-		if (beforeTime > 120 * 1000 || beforeTime > afterTime) {
-			// pick the next contest
-			if (beforeDup) { // unless the next two start at the same time
+		if (next != null && previous == null) {
+			if (nextIsDup) { // unless the first two start at the same time
 				Trace.trace(Trace.INFO, "The next two contests start at the same time, can't pick between them");
 				return null;
 			}
-			return before;
+			return next;
+		}
+
+		// if we're after all contests, pick the last one
+		if (previous != null && next == null) {
+			if (previousIsDup) { // unless the previous two ended at the same time
+				Trace.trace(Trace.INFO, "The previous two contests ended at the same time, can't pick between them");
+				return null;
+			}
+			return previous;
+		}
+
+		// ok, so we're between two (or more) contests. if the previous contest ended more than 2h
+		// ago or we're closer (weighted x 2) to the next one, switch to the next contest.
+		// if the direction we chose to go has more than one contest, give up
+		if (timeSincePrevious > 120 * 1000 || timeUntilNext < timeSincePrevious * 2) {
+			// pick the next contest
+			if (nextIsDup) { // unless the next two start at the same time
+				Trace.trace(Trace.INFO, "The next two contests start at the same time, can't pick between them");
+				return null;
+			}
+			return next;
 		}
 
 		// not close to the next contest, stick with the previous one
-		if (afterDup) { // unless the previous two start at the same time
-			Trace.trace(Trace.INFO, "The previous two contests end at the same time, can't pick between them");
+		if (previousIsDup) { // unless the previous two ended at the same time
+			Trace.trace(Trace.INFO, "The previous two contests ended at the same time, can't pick between them");
 			return null;
 		}
-		return after;
+		return previous;
 	}
 
 	private static Class<?> getCallerClass() {
