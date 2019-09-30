@@ -375,9 +375,36 @@ public class ContestData implements Iterable<IContestObject> {
 		int tcIndex = tc.idMap.get(id);
 		tc.idMap.remove(id);
 
-		int index = tc.index[tcIndex];
+		// remove from type cache, type cache index, and cache sizes
+		if (tcIndex < tc.size - 1) {
+			System.arraycopy(tc.cache, tcIndex + 1, tc.cache, tcIndex, tc.size - tcIndex - 1);
+			System.arraycopy(tc.index, tcIndex + 1, tc.index, tcIndex, tc.size - tcIndex - 1);
+		}
+		tc.size--;
 
-		// remove it from the main array and clean up
+		for (String key : tc.idMap.keySet()) {
+			Integer in = tc.idMap.get(key);
+			if (in > tcIndex) {
+				tc.idMap.put(key, in - 1);
+			}
+		}
+
+		// remove all history from main array
+		int ind = 0;
+		while (ind < totalSize) {
+			int arr = ind % ARRAY_SIZE;
+			int num = ind / ARRAY_SIZE;
+			IContestObject obj2 = objs[num][arr];
+			if (obj2.getType() == obj.getType() && obj2.getId().equals(obj.getId()))
+				removeData(ind, tc);
+			else
+				ind++;
+		}
+
+		toArray = null;
+	}
+
+	private void removeData(int index, TypeCache tc) {
 		int arr = index % ARRAY_SIZE;
 		int num = index / ARRAY_SIZE;
 		System.arraycopy(objs[num], arr + 1, objs[num], arr, ARRAY_SIZE - arr - 1);
@@ -398,20 +425,7 @@ public class ContestData implements Iterable<IContestObject> {
 			}
 		}
 
-		// remove from type cache, type cache index, and cache sizes
-		if (tcIndex < tc.size - 1) {
-			System.arraycopy(tc.cache, tcIndex + 1, tc.cache, tcIndex, tc.size - tcIndex - 1);
-			System.arraycopy(tc.index, tcIndex + 1, tc.index, tcIndex, tc.size - tcIndex - 1);
-		}
-		tc.size--;
-
-		for (String key : tc.idMap.keySet()) {
-			Integer in = tc.idMap.get(key);
-			if (in > tcIndex) {
-				tc.idMap.put(key, in - 1);
-			}
-		}
-
+		// fix type cache references
 		for (TypeCache tc2 : typeCache) {
 			for (int i = 0; i < tc2.size; i++) {
 				if (tc2.index[i] > index)
@@ -420,7 +434,6 @@ public class ContestData implements Iterable<IContestObject> {
 		}
 
 		totalSize--;
-		toArray = null;
 	}
 
 	public void clone(ContestData list) {

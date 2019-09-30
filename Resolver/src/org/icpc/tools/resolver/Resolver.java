@@ -350,7 +350,7 @@ public class Resolver {
 					Trace.trace(Trace.WARNING, "Warning:  --file option is discarding trailing command-line options");
 				}
 				argList = list;
-			} else if ("--fast".equalsIgnoreCase(option)) {
+			} else if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
 				// --fast varies the speed at which the resolving process should run (useful for
 				// previewing results).
 				// This option allows for an optional float parameter following --fast; if present
