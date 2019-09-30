@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
 Main-Class: org.icpc.tools.resolver.Resolver
-Class-Path: contestModel.jar presentContest.jar
+Class-Path: contestModel.jar presentations.jar
