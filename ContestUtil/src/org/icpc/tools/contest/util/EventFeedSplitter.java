@@ -43,6 +43,7 @@ public class EventFeedSplitter {
 	private HashMap<String, XPathExpression> xpaths = new HashMap<>();
 	private Transformer xmlTransformer;
 	private boolean ndjsonFlag;
+	HashSet<Integer> validTeams = new HashSet<Integer>();
 
 	public EventFeedSplitter(String contestFile, String division, int probStart, int probEnd) throws Exception {
 		problemStart = probStart;
@@ -121,7 +122,23 @@ public class EventFeedSplitter {
 						teamIdKey = "from_team_id";
 					}
 					if (type.equals("teams") && data.containsKey("id")) {
-						teamIdKey = "id";
+						if (data.containsKey("name") && !data.isNull("name")) {
+							if (isDesiredTeam(data.getString("name"))) {
+								teamIdKey = "id";
+								validTeams.add(data.getInt("id"));
+
+							} else {
+								skip = true;
+							}
+						} else {
+							boolean isDiv2 = (data.getInt("id") % 100) >= 50;
+							if ((divNum == 2) == isDiv2) {
+								teamIdKey = "id";
+								validTeams.add(data.getInt("id"));
+							} else {
+								skip = true;
+							}
+						}
 					}
 					if (teamIdKey != null && !isDesiredTeam(Integer.valueOf(data.getString(teamIdKey)))) {
 						skip = true;
@@ -380,7 +397,11 @@ public class EventFeedSplitter {
 	}
 
 	private boolean isDesiredTeam(int teamId) {
-		boolean isDiv2 = (teamId % 100) >= 50;
+		return (validTeams.contains(teamId));
+	}
+
+	private boolean isDesiredTeam(String name) {
+		boolean isDiv2 = name.startsWith("D2");
 		return (divNum == 2) == isDiv2;
 	}
 
