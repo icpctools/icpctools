@@ -110,6 +110,28 @@ public class EventFeedSplitter {
 						s = br.readLine();
 						continue;
 					}
+					if (type.equals("groups") && data.containsKey("name")) {
+						String value = data.getString("name");
+						if (value.endsWith("D2") && divNum != 2) {
+							if (debugMode) {
+								System.err.println("skipping D2 value " + value + " with divnum=" + divNum);
+							}
+							skip = true;
+						}
+						if (value.endsWith("D1") && divNum != 1) {
+							if (debugMode) {
+								System.err.println("skipping D1 value " + value + " with divnum=" + divNum);
+							}
+							skip = true;
+						}
+						if (!skip) {
+							String id = data.getString("id");
+							if (debugMode) {
+								System.err.println("adding group with id='" + id + "'");
+							}
+							validGroups.add(id);
+						}
+					}
 
 					String teamIdKey = null;
 					if (data.containsKey("team_id")) {
@@ -122,21 +144,16 @@ public class EventFeedSplitter {
 						teamIdKey = "from_team_id";
 					}
 					if (type.equals("teams") && data.containsKey("id")) {
-						if (data.containsKey("name") && !data.isNull("name")) {
-							if (isDesiredTeam(data.getString("name"))) {
-								teamIdKey = "id";
-								validTeams.add(data.getInt("id"));
-
-							} else {
+						teamIdKey = "id";
+					}
+					if (type.equals("teams") && data.containsKey("group_ids")) {
+						Object[] group_ids = data.getArray("group_ids");
+						for (int i = 0; i < group_ids.length; i++) {
+							String group_id = (String) group_ids[i];
+							if (!validGroups.contains(group_id)) {
 								skip = true;
-							}
-						} else {
-							boolean isDiv2 = (data.getInt("id") % 100) >= 50;
-							if ((divNum == 2) == isDiv2) {
-								teamIdKey = "id";
-								validTeams.add(data.getInt("id"));
 							} else {
-								skip = true;
+								validTeams.add(data.getInt("id"));
 							}
 						}
 					}
@@ -150,28 +167,6 @@ public class EventFeedSplitter {
 								System.err.println("skipping problem_id id='" + data.getString("problem_id") + "'");
 							}
 							skip = true;
-						}
-						if (type.equals("groups") && data.containsKey("name")) {
-							String value = data.getString("name");
-							if (value.endsWith("D2") && divNum != 2) {
-								if (debugMode) {
-									System.err.println("skipping D2 value " + value + " with divnum=" + divNum);
-								}
-								skip = true;
-							}
-							if (value.endsWith("D1") && divNum != 1) {
-								if (debugMode) {
-									System.err.println("skipping D1 value " + value + " with divnum=" + divNum);
-								}
-								skip = true;
-							}
-							if (!skip) {
-								String id = data.getString("id");
-								if (debugMode) {
-									System.err.println("adding group with id='" + id + "'");
-								}
-								validGroups.add(id);
-							}
 						}
 						if (type.equals("problems")) {
 							String value = data.getString("ordinal");
@@ -398,11 +393,6 @@ public class EventFeedSplitter {
 
 	private boolean isDesiredTeam(int teamId) {
 		return (validTeams.contains(teamId));
-	}
-
-	private boolean isDesiredTeam(String name) {
-		boolean isDiv2 = name.startsWith("D2");
-		return (divNum == 2) == isDiv2;
 	}
 
 	private boolean isDesiredProblem(int problemId) {
