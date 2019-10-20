@@ -51,6 +51,8 @@ public interface ITeam extends IContestObject, IPosition {
 
 	public File getBackup(boolean force);
 
+	public File getKeyLog(boolean force);
+
 	public String getDesktopURL();
 
 	public String getWebcamURL();

@@ -23,6 +23,7 @@ public class Team extends ContestObject implements ITeam {
 	private static final String BACKUP = "backup";
 	private static final String DESKTOP = "desktop";
 	private static final String WEBCAM = "webcam";
+	private static final String KEY_LOG = "keylog";
 
 	private String name;
 	private String[] groupIds;
@@ -36,6 +37,7 @@ public class Team extends ContestObject implements ITeam {
 	private FileReferenceList desktop;
 	private FileReferenceList webcam;
 	private FileReferenceList backup;
+	private FileReferenceList keylog;
 
 	@Override
 	public ContestType getType() {
@@ -115,6 +117,19 @@ public class Team extends ContestObject implements ITeam {
 
 	public void setBackup(FileReferenceList list) {
 		backup = list;
+	}
+
+	public FileReferenceList getKeyLog() {
+		return keylog;
+	}
+
+	@Override
+	public File getKeyLog(boolean force) {
+		return getFile(getBestFileReference(keylog, null), KEY_LOG, force);
+	}
+
+	public void setKeyLog(FileReferenceList list) {
+		keylog = list;
 	}
 
 	public void setVideo(FileReferenceList list) {

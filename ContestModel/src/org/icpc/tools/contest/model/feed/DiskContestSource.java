@@ -829,6 +829,12 @@ public class DiskContestSource extends ContestSource {
 				team.setBackup(null);
 			else
 				team.setBackup(list);
+
+			list = getFilesWithPattern(obj, "logkeys");
+			if (list == null || list.isEmpty())
+				team.setKeyLog(null);
+			else
+				team.setKeyLog(list);
 		} else if (obj instanceof TeamMember) {
 			TeamMember member = (TeamMember) obj;
 			FileReference ref = getFileWithPattern("images" + File.separator + "team-member", obj.getId() + ".jpg",
