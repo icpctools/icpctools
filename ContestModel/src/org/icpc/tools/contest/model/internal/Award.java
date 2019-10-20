@@ -118,8 +118,8 @@ public class Award extends ContestObject implements IAward {
 	public void write(JSONEncoder je) {
 		je.open();
 		je.encode(ID, id);
-		je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		je.encode(CITATION, citation);
+		je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		if (show == false)
 			je.encode(SHOW, show);
 		je.close();
