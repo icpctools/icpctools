@@ -40,8 +40,8 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 
 public class BasicClient {
-	private static final boolean DEBUG_INPUT = true;
-	private static final boolean DEBUG_OUTPUT = true;
+	private static final boolean DEBUG_INPUT = false;
+	private static final boolean DEBUG_OUTPUT = false;
 
 	protected static enum Type {
 		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, THUMBNAIL

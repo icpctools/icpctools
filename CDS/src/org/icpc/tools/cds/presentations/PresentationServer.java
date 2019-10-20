@@ -20,8 +20,8 @@ import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class PresentationServer {
-	private static final boolean DEBUG_INPUT = true;
-	protected static final boolean DEBUG_OUTPUT = true;
+	private static final boolean DEBUG_INPUT = false;
+	protected static final boolean DEBUG_OUTPUT = false;
 
 	private static final String PREF_ID = "org.icpc.tools.cds";
 	private static final String PRES = "presentation";
