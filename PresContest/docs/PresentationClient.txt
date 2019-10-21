@@ -307,7 +307,7 @@ example is the "team desktop" presentation, which shows the team's logo and name
 
 The client decides which team machine it is running on by checking the following sources:
 
-[width="100%",cols="^1%d,<m,<m,d",options="header"]
+[width="100%",cols="d,<m",options="header"]
 |==========================
 |Source|Example
 |team-id environment variable|47
