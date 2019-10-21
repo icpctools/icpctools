@@ -702,7 +702,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 
 	protected BufferedImage getSmallTeamLogo(ITeam team, boolean forceLoad) {
 		String id = team.getId();
-		BufferedImage smImg = teamRowImages.get(team);
+		BufferedImage smImg = teamRowImages.get(id);
 		if (smImg != null || !forceLoad)
 			return smImg;
 

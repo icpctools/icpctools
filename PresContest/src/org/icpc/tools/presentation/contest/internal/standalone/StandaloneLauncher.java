@@ -21,8 +21,15 @@ public class StandaloneLauncher {
 		Trace.init("ICPC Standalone Presentations", "standalone", args);
 		System.setProperty("apple.awt.application.name", "Presentation Client");
 
+		List<PresentationInfo> presentations = PresentationHelper.getPresentations();
+		if (presentations.isEmpty()) {
+			Trace.trace(Trace.USER, "No presentations found");
+			System.exit(0);
+		}
+		sortPresentationsByCategory(presentations);
+
 		if (args == null || args.length == 0 || args[0].equals("--help")) {
-			showHelp();
+			showHelp(presentations);
 			return;
 		}
 
@@ -30,7 +37,7 @@ public class StandaloneLauncher {
 		StringTokenizer st = new StringTokenizer(args[0], "|");
 		List<PresentationInfo> list = new ArrayList<>();
 		while (st.hasMoreTokens())
-			list.add(findPresentation(st.nextToken()));
+			list.add(findPresentation(presentations, st.nextToken()));
 
 		PresentationInfo[] pres = list.toArray(new PresentationInfo[list.size()]);
 
@@ -46,7 +53,7 @@ public class StandaloneLauncher {
 		launch(pres, displayStr);
 	}
 
-	public static void showHelp() {
+	public static void showHelp(List<PresentationInfo> presentations) {
 		System.out.println("Usage: standalone.bat/sh presentations contestSource [user/host] [password/port] [options]");
 		System.out.println();
 		System.out.println("   presentations");
@@ -64,17 +71,10 @@ public class StandaloneLauncher {
 		System.out.println("          standalone 1|3|16 c:\\myContestCDPfolder");
 		System.out.println();
 
-		List<PresentationInfo> list = PresentationHelper.getPresentations();
-		if (list.isEmpty()) {
-			Trace.trace(Trace.USER, "No presentations found");
-			System.exit(0);
-		}
-
 		Trace.trace(Trace.USER, "Available presentations:");
-		sortPresentationsByCategory(list);
 		int count = 1;
 		String lastCategory = null;
-		for (PresentationInfo pw : list) {
+		for (PresentationInfo pw : presentations) {
 			StringBuilder sb = new StringBuilder();
 			String cat = pw.getCategory();
 			if (cat != null && !cat.equals(lastCategory)) {
@@ -125,11 +125,12 @@ public class StandaloneLauncher {
 		}
 	}
 
-	protected static PresentationInfo findPresentation(String s) {
+	protected static PresentationInfo findPresentation(List<PresentationInfo> presentations, String s) {
 		PresentationInfo pw = null;
 		try {
 			int num = Integer.parseInt(s);
 			List<PresentationInfo> list = PresentationHelper.getPresentations();
+			sortPresentationsByCategory(list);
 			if (num < 1 || num > list.size()) {
 				Trace.trace(Trace.ERROR, "Invalid # ('" + s + "')");
 				return null;
