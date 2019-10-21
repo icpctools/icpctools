@@ -3,3 +3,5 @@
 **/staging
 **/logs
 **/.DS_Store
+**/*.pdf
+.vscode
