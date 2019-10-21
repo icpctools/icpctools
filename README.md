@@ -1,6 +1,6 @@
 ![platforms](https://img.shields.io/badge/platforms-macos|linux|windows-lightgrey.svg)
 [![MIT License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/deboer-tim/icpctools/blob/master/LICENSE.txt)
-[![pipeline status](https://gitlab.com/deBoer/icpctools/badges/master/pipeline.svg)](https://gitlab.com/deBoer/icpctools/commits/master)
+[![pipeline status](https://gitlab.com/icpctools/icpctools/badges/master/pipeline.svg)](https://gitlab.com/icpctools/icpctools/commits/master)
 
 Welcome to the ICPC Tools!
 ==========================
