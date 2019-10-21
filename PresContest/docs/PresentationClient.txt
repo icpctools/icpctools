@@ -289,6 +289,34 @@ in conjunction with the Presentation Admin.)
 |37|Test - Synchronization |.test.sync|A moving ball to test synchronization of the system clock.
 |==========================
 
+== Team Clients
+
+At some contests you may want to run a presentation client on every team machine. If you just want to display static or common
+content like the contest logo you can do this with the standalone client, e.g.:
+
+[source]
+  standalone.bat logo https://contestSource user pwd
+
+If you want to run more interesting presentations or control from the admin, use the admin-controlled client with the special id 'team':
+
+[source]
+  client.sh team https://contestDataServer user pwd
+
+This will start a client that understands which team it is running on, and can display team-specific presentations. A good
+example is the "team desktop" presentation, which shows the team's logo and name, contest logo, and contest time.
+
+The client decides which team machine it is running on by checking the following sources:
+
+[width="100%",cols="^1%d,<m,<m,d",options="header"]
+|==========================
+|Source|Example
+|team-id environment variable|47
+|team-id system property (would require changing the script)|47
+|end of host name|teamnum47
+|end of host address|195.13.4.47
+
+The first source that correctly resolves into a number is used. All of the examples above resolve to team id 47.
+
 == Additional Notes
 
 The Presentation System is written in Java and will run on any platform supporting Java Version 7 or greater.  
