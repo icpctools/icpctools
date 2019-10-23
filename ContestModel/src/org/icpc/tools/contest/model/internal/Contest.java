@@ -1150,6 +1150,21 @@ public class Contest implements IContest {
 	}
 
 	/**
+	 * Forces the state of the given submission to SOLVED or FAILED.
+	 *
+	 * @param submission
+	 * @param b
+	 */
+	public void setGroupIsHidden(IGroup group, boolean hidden) {
+		if (group == null)
+			return;
+
+		Group g = (Group) ((Group) group).clone();
+		g.add("hidden", hidden);
+		add(g);
+	}
+
+	/**
 	 * Updates the state of the submission to match the given submission.
 	 *
 	 * @param submission
