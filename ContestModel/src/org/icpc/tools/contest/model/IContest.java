@@ -519,6 +519,14 @@ public interface IContest {
 	public IAward[] getAwards();
 
 	/**
+	 * Returns the award with the given id.
+	 *
+	 * @param id an identifier
+	 * @return an award, or <code>null</code> if the id was invalid
+	 */
+	public IAward getAwardById(String id);
+
+	/**
 	 * Validate all contest objects that can be validated.
 	 *
 	 * @return a list of validation issues

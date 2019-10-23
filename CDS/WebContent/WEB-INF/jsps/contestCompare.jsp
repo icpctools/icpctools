@@ -35,12 +35,11 @@
 <tr><td valign=top>Groups</td><td><%= (String) request.getAttribute("groups") %></td></tr>
 <tr><td valign=top>Organizations</td><td><%= (String) request.getAttribute("organizations") %></td></tr>
 <tr><td valign=top>Teams</td><td><%= (String) request.getAttribute("teams") %></td></tr>
+<tr><td valign=top>Submissions</td><td><%= (String) request.getAttribute("submissions") %></td></tr>
+<tr><td valign=top>Judgements</td><td><%= (String) request.getAttribute("judgements") %></td></tr>
+<tr><td valign=top>Awards</td><td><%= (String) request.getAttribute("awards") %></td></tr>
 </table>
 
-<% String s = (String) request.getAttribute("compare");
-
-%>
-<%= s %>
 </div>
 
 </body>
