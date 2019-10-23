@@ -664,7 +664,7 @@ public class DiskContestSource extends ContestSource {
 	public FileReferenceList getFilesWithPattern(IContestObject obj, String property) {
 		final String[] s = getLocalPattern(obj, property);
 		if (s == null) {
-			Trace.trace(Trace.ERROR, "No file pattern: " + obj + " " + property);
+			Trace.trace(Trace.ERROR, "No file pattern: " + obj.getType() + " " + property);
 			return null;
 		}
 		return getFilesWithPattern(s[0], s[1], s[2]);
@@ -747,6 +747,9 @@ public class DiskContestSource extends ContestSource {
 			if ("backup".equals(property))
 				return new String[] { "teams" + File.separator + obj.getId(), "backup.zip",
 						"teams/" + obj.getId() + "/backup" };
+			if ("logkeys".equals(property))
+				return new String[] { "teams" + File.separator + obj.getId(), "logkeys.txt",
+						"teams/" + obj.getId() + "/logkeys" };
 		} else if (obj instanceof TeamMember) {
 			if ("photo".equals(property))
 				return new String[] { "team-members" + File.separator + obj.getId(), "photo{0}.jpg",

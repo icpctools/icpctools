@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
@@ -146,31 +147,6 @@ public class EventFeedUtil {
 		cc.add(id, "Different " + field + " (" + a + " vs " + b + ")");
 	}
 
-	public static String compareNonConfigHTML(Contest c1, Contest c2, boolean summaryOnly) {
-		boolean ok = true;
-
-		StringBuilder sb = new StringBuilder();
-
-		CompareCount cc = compareSubmissions(c1, c2);
-		sb.append(cc.printSummary2("Submissions", !summaryOnly));
-		if (!cc.isOk())
-			ok = false;
-
-		cc = compareJudgements(c1, c2);
-		sb.append(cc.printSummary2("Submission Judgements", !summaryOnly));
-		if (!cc.isOk())
-			ok = false;
-
-		cc = compareAwards(c1, c2);
-		sb.append(cc.printSingletonSummary2("Awards", !summaryOnly));
-		if (!cc.isOk())
-			ok = false;
-
-		Trace.trace(Trace.INFO, "Compare result: " + ok);
-
-		return sb.toString();
-	}
-
 	public static boolean compare(Contest c1, Contest c2, boolean summaryOnly) {
 		boolean ok = true;
 
@@ -227,10 +203,6 @@ public class EventFeedUtil {
 		return ok;
 	}
 
-	public static String compareInfoHTML(Contest c1, Contest c2) {
-		return compareInfo(c1, c2).printSingletonSummaryHTML();
-	}
-
 	public static CompareCount compareInfo(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
 
@@ -249,10 +221,6 @@ public class EventFeedUtil {
 		}
 
 		return cc;
-	}
-
-	public static String compareLanguagesHTML(Contest c1, Contest c2) {
-		return compareLanguages(c1, c2).printSummaryHTML();
 	}
 
 	public static CompareCount compareLanguages(Contest c1, Contest c2) {
@@ -279,10 +247,6 @@ public class EventFeedUtil {
 		return cc;
 	}
 
-	public static String compareGroupsHTML(Contest c1, Contest c2) {
-		return compareGroups(c1, c2).printSummaryHTML();
-	}
-
 	public static CompareCount compareGroups(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
 		IGroup[] groups1 = c1.getGroups();
@@ -305,10 +269,6 @@ public class EventFeedUtil {
 		}
 
 		return cc;
-	}
-
-	public static String compareProblemsHTML(Contest c1, Contest c2) {
-		return compareProblems(c1, c2).printSummaryHTML();
 	}
 
 	public static CompareCount compareProblems(Contest c1, Contest c2) {
@@ -335,10 +295,6 @@ public class EventFeedUtil {
 		return cc;
 	}
 
-	public static String compareJudgementTypesHTML(Contest c1, Contest c2) {
-		return compareJudgementTypes(c1, c2).printSummaryHTML();
-	}
-
 	public static CompareCount compareJudgementTypes(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
 		IJudgementType[] types1 = c1.getJudgementTypes();
@@ -363,10 +319,6 @@ public class EventFeedUtil {
 		return cc;
 	}
 
-	public static String compareTeamsHTML(Contest c1, Contest c2) {
-		return compareTeams(c1, c2).printSummaryHTML();
-	}
-
 	public static CompareCount compareTeams(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
 		ITeam[] teams1 = c1.getTeams();
@@ -389,10 +341,6 @@ public class EventFeedUtil {
 		}
 
 		return cc;
-	}
-
-	public static String compareOrganizationsHTML(Contest c1, Contest c2) {
-		return compareOrganizations(c1, c2).printSummaryHTML();
 	}
 
 	public static CompareCount compareOrganizations(Contest c1, Contest c2) {
@@ -448,7 +396,7 @@ public class EventFeedUtil {
 			cc.different++;
 	}
 
-	private static CompareCount compareSubmissions(Contest c1, Contest c2) {
+	public static CompareCount compareSubmissions(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
 		ISubmission[] submissions1 = c1.getSubmissions();
 		ISubmission[] submissions2 = c2.getSubmissions();
@@ -472,7 +420,7 @@ public class EventFeedUtil {
 		return cc;
 	}
 
-	private static CompareCount compareJudgements(Contest c1, Contest c2) {
+	public static CompareCount compareJudgements(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
 		IJudgement[] submissions1 = c1.getJudgements();
 		IJudgement[] submissions2 = c2.getJudgements();
@@ -496,36 +444,27 @@ public class EventFeedUtil {
 		return cc;
 	}
 
-	private static CompareCount compareAwards(Contest c1, Contest c2) {
+	public static CompareCount compareAwards(Contest c1, Contest c2) {
 		CompareCount cc = new CompareCount();
-		/*IAward[] awards1 = c1.getAwards();
+		IAward[] awards1 = c1.getAwards();
 		IAward[] awards2 = c2.getAwards();
 		for (IAward a1 : awards1) {
 			String id = a1.getId();
 			cc.numSource++;
-			if (c2.getProblemById(id) == null) {
+			IAward a2 = c2.getAwardById(id);
+			if (a2 == null)
 				sourceOnly(cc, "Award " + id);
-			}
+			else
+				compareProperties(cc, "Award " + id, a1, a2);
 		}
 		for (IAward a2 : awards2) {
 			String id = a2.getId();
 			cc.numTarget++;
-			if (c1.getProblemById(id) == null) {
+			if (c1.getAwardById(id) == null) {
 				targetOnly(cc, "Award " + id);
 			}
-		}*/
-		/*for (IAward a1 : awards1) {
-			IAward2
-			String id = a1.getId();
-			IAward a2 = c2.getInstitutionById(id);
-			if (a2 != null) {
-				if (!compareProperties("Award " + id, (ContestObject) a1, (ContestObject) a2))
-					cc.different++;
-			}
 		}
-		
-		cc.printSummary("Awards", !summaryOnly);
-		return cc.isOk();*/
+
 		return cc;
 	}
 

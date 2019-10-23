@@ -781,6 +781,11 @@ public class Contest implements IContest {
 	}
 
 	@Override
+	public IAward getAwardById(String id) {
+		return (IAward) data.getById(id, ContestType.AWARD);
+	}
+
+	@Override
 	public IAward[] getAwards() {
 		IAward[] temp = awards;
 		if (temp != null)

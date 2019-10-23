@@ -190,7 +190,7 @@ public class ContestWebService extends HttpServlet {
 					NDJSONFeedParser parserA = new NDJSONFeedParser();
 					Contest contestA = new Contest(false);
 					parserA.parse(contestA, in);
-
+					
 					Contest contestB = new Contest(false);
 					if (cc.getContestSource() instanceof RESTContestSource) {
 						RESTContestSource cs = (RESTContestSource) cc.getContestSource();
@@ -198,22 +198,28 @@ public class ContestWebService extends HttpServlet {
 						request.setAttribute("b", path);
 						in = getHTTPInputStream(path, cs.getUser(), cs.getPassword());
 						NDJSONFeedParser parserB = new NDJSONFeedParser();
-
+					
 						parserB.parse(contestB, in);
 					} else {
 						request.setAttribute("b", "same");
 					}
-
+					
 					Thread.sleep(5000);*/
 
-					request.setAttribute("info", EventFeedUtil.compareInfoHTML(contestA, contestB));
-					request.setAttribute("problems", EventFeedUtil.compareProblemsHTML(contestA, contestB));
-					request.setAttribute("languages", EventFeedUtil.compareLanguagesHTML(contestA, contestB));
-					request.setAttribute("judgement-types", EventFeedUtil.compareJudgementTypesHTML(contestA, contestB));
-					request.setAttribute("groups", EventFeedUtil.compareGroupsHTML(contestA, contestB));
-					request.setAttribute("organizations", EventFeedUtil.compareOrganizationsHTML(contestA, contestB));
-					request.setAttribute("teams", EventFeedUtil.compareTeamsHTML(contestA, contestB));
-					request.setAttribute("compare", EventFeedUtil.compareNonConfigHTML(contestA, contestB, true));
+					request.setAttribute("info", EventFeedUtil.compareInfo(contestA, contestB).printSingletonSummaryHTML());
+					request.setAttribute("problems", EventFeedUtil.compareProblems(contestA, contestB).printSummaryHTML());
+					request.setAttribute("languages", EventFeedUtil.compareLanguages(contestA, contestB).printSummaryHTML());
+					request.setAttribute("judgement-types",
+							EventFeedUtil.compareJudgementTypes(contestA, contestB).printSummaryHTML());
+					request.setAttribute("groups", EventFeedUtil.compareGroups(contestA, contestB).printSummaryHTML());
+					request.setAttribute("organizations",
+							EventFeedUtil.compareOrganizations(contestA, contestB).printSummaryHTML());
+					request.setAttribute("teams", EventFeedUtil.compareTeams(contestA, contestB).printSummaryHTML());
+					request.setAttribute("submissions",
+							EventFeedUtil.compareSubmissions(contestA, contestB).printSummaryHTML());
+					request.setAttribute("judgements",
+							EventFeedUtil.compareJudgements(contestA, contestB).printSummaryHTML());
+					request.setAttribute("awards", EventFeedUtil.compareAwards(contestA, contestB).printSummaryHTML());
 					request.getRequestDispatcher("/WEB-INF/jsps/contestCompare.jsp").forward(request, response);
 				} catch (Exception e) {
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
