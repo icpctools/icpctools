@@ -1583,12 +1583,33 @@ public class Contest implements IContest {
 			boolean foundClar = false;
 			String teamId = clar.getFromTeamId();
 			if (teamId != null && teamIds.contains(teamId)) {
-				remove.remove(clar);
+				remove.add(clar);
 				foundClar = true;
 			}
 			teamId = clar.getToTeamId();
 			if (!foundClar && teamId != null && teamIds.contains(teamId)) {
-				remove.remove(clar);
+				remove.add(clar);
+			}
+		}
+
+		for (IAward award : getAwards()) {
+			String[] awardTeamIds = award.getTeamIds();
+			int found = 0;
+			for (String teamId : awardTeamIds) {
+				if (teamId != null && teamIds.contains(teamId))
+					found++;
+			}
+			if (found > 0) {
+				if (awardTeamIds.length != found) {
+					String[] newTeamIds = new String[awardTeamIds.length - found];
+					found = 0;
+					for (String teamId : awardTeamIds) {
+						if (teamId != null && !teamIds.contains(teamId))
+							newTeamIds[found++] = teamId;
+					}
+					((Award) award).setTeamIds(newTeamIds);
+				} else
+					remove.add(award);
 			}
 		}
 

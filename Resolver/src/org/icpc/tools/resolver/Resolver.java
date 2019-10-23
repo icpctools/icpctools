@@ -132,8 +132,8 @@ public class Resolver {
 		System.out.println("     Ctrl-Q - Quit");
 		System.out.println("     r      - Rewind");
 		System.out.println("     0      - Restart (jump to beginning)");
-		System.out.println("     1      - Fast forward (jump one step without delays)");
-		System.out.println("     2      - Fast rewind (jump one step without delays)");
+		System.out.println("     2      - Fast forward (jump one step without delays)");
+		System.out.println("     1      - Fast rewind (jump one step back without delays)");
 		System.out.println("     +/up   - Speed up (reduce resolution delay)");
 		System.out.println("     -/down - Slow down (increase resolution delay)");
 		System.out.println("     j      - Reset resolution speed");
@@ -595,10 +595,11 @@ public class Resolver {
 		if (groups != null) {
 			steps = new ArrayList<ResolutionUtil.ResolutionStep>();
 			for (String groupId : groups) {
+				Trace.trace(Trace.INFO, "Resolving for group " + groupId);
 				Contest cc = finalContest.clone(true);
 				// set the current group to be visible and all others hidden
 				for (IGroup g : cc.getGroups()) {
-					if (groupId.equals(g.getId())) {
+					if (groupId.trim().equals(g.getId())) {
 						cc.setGroupIsHidden(g, false);
 					} else if (!g.isHidden())
 						cc.setGroupIsHidden(g, true);

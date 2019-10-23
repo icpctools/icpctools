@@ -8,6 +8,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.icpc.tools.contest.Trace;
 
@@ -115,9 +117,34 @@ public interface IPresentationHandler {
 				GraphicsDevice gd = gds[i];
 				if (gd.getType() == GraphicsDevice.TYPE_RASTER_SCREEN) {
 					Trace.trace(Trace.INFO, "Display " + (i + 1) + " found, modes:");
-					for (DisplayMode mode : gd.getDisplayModes()) {
-						Trace.trace(Trace.INFO, "   " + mode.getWidth() + "x" + mode.getHeight() + " @ "
-								+ mode.getRefreshRate() + "hz in " + mode.getBitDepth() + "bit");
+
+					DisplayMode[] modes = gd.getDisplayModes();
+					Arrays.sort(modes, new Comparator<DisplayMode>() {
+						@Override
+						public int compare(DisplayMode m1, DisplayMode m2) {
+							int d = m2.getWidth() - m1.getWidth();
+							if (d != 0)
+								return d;
+							d = m2.getHeight() - m1.getHeight();
+							if (d != 0)
+								return d;
+							d = m2.getRefreshRate() - m1.getRefreshRate();
+							if (d != 0)
+								return d;
+							d = m2.getBitDepth() - m1.getBitDepth();
+							if (d != 0)
+								return d;
+							return 0;
+						}
+					});
+
+					String last = "";
+					for (DisplayMode mode : modes) {
+						String cur = mode.getWidth() + "x" + mode.getHeight() + " @ " + mode.getRefreshRate() + "hz in "
+								+ mode.getBitDepth() + "bit";
+						if (!last.equals(cur))
+							Trace.trace(Trace.INFO, "   " + cur);
+						last = cur;
 					}
 					for (GraphicsConfiguration cfg : gd.getConfigurations()) {
 						Trace.trace(Trace.INFO,

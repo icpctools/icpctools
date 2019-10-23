@@ -89,7 +89,6 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			@Override
 			public void run() {
 				// create cache of awards in correct order
-				IAward[] awards = contest.getAwards();
 				List<Cache> list = new ArrayList<>();
 
 				for (ResolutionStep step : steps) {
@@ -98,7 +97,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 						Cache c = new Cache();
 						c.teamId = as.teamId;
 
-						for (IAward a : awards) {
+						for (IAward a : as.awards) {
 							for (String tId : a.getTeamIds()) {
 								if (tId.equals(c.teamId))
 									c.awards.add(a);
