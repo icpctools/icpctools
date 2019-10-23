@@ -13,6 +13,7 @@ import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
+import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
@@ -66,6 +67,7 @@ public class Resolver {
 	private boolean bill;
 	private boolean test;
 	private Style style;
+	private String[] groups;
 
 	// client/server variables
 	private PresentationClient client;
@@ -96,6 +98,9 @@ public class Resolver {
 		System.out.println("     --style [style]");
 		System.out.println("         Change the display of team names. Must be one of:");
 		System.out.println("         team_name, org_name, org_formal_name, or team_and_org_name");
+		System.out.println("     --groups");
+		System.out.println("         Resolve only the teams in the specified list of comma separated group ids.");
+		System.out.println("         If multiple groups are given, each is resolved separately");
 		System.out.println("     --file file");
 		System.out.println("         Load these options from a file. Every option and");
 		System.out.println("         parameter must be on a separate line");
@@ -441,6 +446,8 @@ public class Resolver {
 				displayStr = argList.remove(0);
 			} else if ("--style".equalsIgnoreCase(option)) {
 				style = TeamUtil.getStyleByString(argList.remove(0));
+			} else if ("--groups".equalsIgnoreCase(option)) {
+				groups = argList.remove(0).split(",");
 			} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
 				// causes rows to be moved up the screen so they are not blocked by people on
 				// stage
@@ -584,30 +591,63 @@ public class Resolver {
 	private void init() {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
-		IAward[] contestAwards = finalContest.getAwards();
-		if (contestAwards == null || contestAwards.length == 0) {
-			Trace.trace(Trace.USER, "Generating awards");
-			finalContest.finalizeResults();
-			AwardUtil.createDefaultAwards(finalContest);
-			contestAwards = finalContest.getAwards();
+		List<ResolutionStep> steps = null;
+		if (groups != null) {
+			steps = new ArrayList<ResolutionUtil.ResolutionStep>();
+			for (String groupId : groups) {
+				Contest cc = finalContest.clone(true);
+				// set the current group to be visible and all others hidden
+				for (IGroup g : cc.getGroups()) {
+					if (groupId.equals(g.getId())) {
+						cc.setGroupIsHidden(g, false);
+					} else if (!g.isHidden())
+						cc.setGroupIsHidden(g, true);
+				}
+
+				cc.removeHiddenTeams();
+
+				IAward[] contestAwards = cc.getAwards();
+				if (contestAwards == null || contestAwards.length == 0) {
+					Trace.trace(Trace.USER, "Generating awards");
+					cc.finalizeResults();
+					AwardUtil.createDefaultAwards(cc);
+				}
+
+				// create the official scoreboard
+				cc.officialResults();
+
+				ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, rowOffset, show_info, predeterminedSteps);
+
+				long time = System.currentTimeMillis();
+				List<ResolutionStep> subSteps = logic.resolveFrom(bill);
+				steps.addAll(subSteps);
+				outputStats(steps, time);
+			}
+		} else {
+			IAward[] contestAwards = finalContest.getAwards();
+			if (contestAwards == null || contestAwards.length == 0) {
+				Trace.trace(Trace.USER, "Generating awards");
+				finalContest.finalizeResults();
+				AwardUtil.createDefaultAwards(finalContest);
+			}
+
+			// create the official scoreboard
+			finalContest.officialResults();
+
+			ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, rowOffset, show_info,
+					predeterminedSteps);
+
+			int showHour = -1;
+			if (showHour > 0) {
+				// IInfo info = finalContest.getInfo();
+				// ((Info)info).setFreezeDuration();
+				// contestTime = (showHour - 1) * 3600;
+			}
+
+			long time = System.currentTimeMillis();
+			steps = logic.resolveFrom(bill);
+			outputStats(steps, time);
 		}
-
-		// create the official scoreboard
-		finalContest.officialResults();
-
-		ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, rowOffset, show_info,
-				predeterminedSteps);
-
-		int showHour = -1;
-		if (showHour > 0) {
-			// IInfo info = finalContest.getInfo();
-			// ((Info)info).setFreezeDuration();
-			// contestTime = (showHour - 1) * 3600;
-		}
-
-		final long time = System.currentTimeMillis();
-		List<ResolutionStep> steps = logic.resolveFrom(bill);
-		outputStats(steps, time);
 
 		ui = new ResolverUI(steps, show_info, displayStr, isPresenter || client == null, screen, new ClickListener() {
 			@Override
