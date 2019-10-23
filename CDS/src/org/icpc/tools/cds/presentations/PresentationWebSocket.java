@@ -60,7 +60,7 @@ public class PresentationWebSocket {
 		}
 		if (PresentationServer.getInstance().doesClientExist(uid)) {
 			try {
-				Trace.trace(Trace.INFO, "Disconnecting client with existing uid");
+				Trace.trace(Trace.INFO, "Disconnecting client with existing uid: " + uid);
 				session
 						.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client id " + id + " is already logged in"));
 			} catch (Exception e) {

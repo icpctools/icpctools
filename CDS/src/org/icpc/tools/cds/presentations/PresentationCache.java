@@ -19,7 +19,7 @@ import org.icpc.tools.contest.Trace;
 public class PresentationCache {
 	private static File root;
 	private static final String ADMIN_ZIP = "admin.zip";
-	private static final String JAR_NAME = "presentContest.jar";
+	private static final String JAR_NAME = "presentations.jar";
 
 	private static File getPresentationZip() {
 		if (root != null)

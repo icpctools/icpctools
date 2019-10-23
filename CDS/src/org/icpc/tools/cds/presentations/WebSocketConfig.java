@@ -20,7 +20,7 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 			return;
 
 		WebSocketConfig.UserInfo info = new WebSocketConfig.UserInfo();
-		info.isAdmin = request.isUserInRole(Role.PRES_ADMIN);
+		info.isAdmin = request.isUserInRole(Role.PRES_ADMIN) | request.isUserInRole(Role.ADMIN);
 		info.isBlue = request.isUserInRole(Role.BLUE);
 		info.isBalloon = request.isUserInRole(Role.BALLOON);
 		config.getUserProperties().put(user, info);
