@@ -1,8 +1,10 @@
 package org.icpc.tools.client.core;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
@@ -309,7 +311,7 @@ public class BasicClient {
 	public void sendSnapshot(BufferedImage image) throws IOException {
 		createJSON(Type.SNAPSHOT, je -> {
 			je.encode("source", uid);
-			encodeImage(je, image);
+			encodeImage(je, imageToBytes(image));
 		});
 	}
 
@@ -318,7 +320,46 @@ public class BasicClient {
 			je.encode("source", uid);
 			je.encode("fps", fps);
 			je.encode("hidden", isHidden);
-			encodeImage(je, image);
+			encodeImage(je, imageToBytes(image));
+		});
+	}
+
+	public void sendThumbnailOnConnect(InputStream in) {
+		addListener(new IConnectionListener() {
+			@Override
+			public void connectionStateChanged(boolean connected) {
+				if (!connected)
+					return;
+				try {
+					sendThumbnail(in, false, -1);
+				} catch (Exception e) {
+					// ignore
+					e.printStackTrace();
+				} finally {
+					if (in != null)
+						try {
+							in.close();
+						} catch (Exception e) {
+							// ignore
+						}
+				}
+			}
+		});
+	}
+
+	public void sendThumbnail(InputStream in, boolean isHidden, int fps) throws IOException {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int n = in.read(buffer);
+		while (n > -1) {
+			bout.write(buffer, 0, n);
+			n = in.read(buffer);
+		}
+		createJSON(Type.THUMBNAIL, je -> {
+			je.encode("source", uid);
+			je.encode("fps", fps);
+			je.encode("hidden", isHidden);
+			encodeImage(je, bout.toByteArray());
 		});
 	}
 
@@ -341,10 +382,38 @@ public class BasicClient {
 		});
 	}
 
-	protected void encodeImage(JSONEncoder je, BufferedImage image) throws IOException {
+	protected void sendInfo(Dimension d, int fps, boolean hidden, String pres, String name, int[] displays)
+			throws IOException {
+		createJSON(Type.INFO, je -> {
+			je.encode("source", getUID());
+
+			je.encode("width", d.width);
+			je.encode("height", d.height);
+			je.encode("fps", fps);
+			je.encode("hidden", hidden);
+			if (pres != null)
+				je.encode("presentation", pres);
+			je.encode("name", name);
+
+			// int[] temp = getGraphicsInfo();
+			int num = displays.length / 3;
+			je.encode("num", num);
+			for (int i = 0; i < num; i++) {
+				je.encode("width" + i, displays[i * 3]);
+				je.encode("height" + i, displays[i * 3 + 1]);
+				je.encode("refresh" + i, displays[i * 3 + 2]);
+			}
+		});
+	}
+
+	protected byte[] imageToBytes(BufferedImage image) throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		ImageIO.write(image, "jpg", bout);
-		je.encode("image", Base64.getEncoder().encodeToString(bout.toByteArray()));
+		return bout.toByteArray();
+	}
+
+	protected void encodeImage(JSONEncoder je, byte[] b) {
+		je.encode("image", Base64.getEncoder().encodeToString(b));
 	}
 
 	protected static byte[] decodeImage(JsonObject obj) {
@@ -360,7 +429,7 @@ public class BasicClient {
 		createJSON(Type.SNAPSHOT, je -> {
 			je.encode("source", uid);
 			je.encode("target", toUID);
-			encodeImage(je, image);
+			encodeImage(je, imageToBytes(image));
 		});
 	}
 

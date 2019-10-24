@@ -337,14 +337,16 @@ public class ClientsControl extends Canvas {
 		Image oldImg = null;
 		synchronized (uiLock) {
 			ClientInfo ci = clientStates.get(id);
-			if (ci != null) {
+			if (ci == null)
+				ci = new ClientInfo();
+			if (ci.displays != null && ci.displays.length > 0)
 				ci.displays[0].refresh = fps;
-				ci.hidden = h;
-				oldImg = ci.thumbnail;
-				ci.thumbnail = img;
-				if (oldImg != null)
-					oldImg.dispose();
-			}
+			ci.hidden = h;
+			oldImg = ci.thumbnail;
+			ci.thumbnail = img;
+			clientStates.put(id, ci);
+			if (oldImg != null)
+				oldImg.dispose();
 		}
 
 		doRedraw();
@@ -458,7 +460,7 @@ public class ClientsControl extends Canvas {
 			int uid = selection.get(i);
 			ClientInfo ci = clientStates.get(uid);
 			if (ci != null) {
-				if (display >= ci.displays.length - 1)
+				if (ci.displays == null || display >= ci.displays.length - 1)
 					return false;
 				if (ci.window.equals(display + ""))
 					return false;
@@ -679,7 +681,7 @@ public class ClientsControl extends Canvas {
 					gc.drawString(c.contestId, rr.x + (rr.width - gc.textExtent(c.contestId).x) / 2, rr.y + rr.height - fh,
 							true);
 
-				if (ci != null) {
+				if (ci != null && ci.displays != null) {
 					String ss = ci.displays[0].width + "x" + ci.displays[0].height + "@" + ci.displays[0].refresh + "fps";
 					gc.drawString(ss, rr.x + rr.width - gc.textExtent(ss).x, rr.y + rr.height - fh, true);
 				}
@@ -757,12 +759,14 @@ public class ClientsControl extends Canvas {
 						ss += " (hidden)";
 
 					ss += " / ";
-					for (int i = 1; i < ci.displays.length; i++) {
-						if (i > 1)
-							ss += ", ";
-						ss += ci.displays[i].width + "x" + ci.displays[i].height + "@" + ci.displays[i].refresh + "hz";
-						if (ci.window != null && ci.window.startsWith(i + ""))
-							ss += "*";
+					if (ci.displays != null) {
+						for (int i = 1; i < ci.displays.length; i++) {
+							if (i > 1)
+								ss += ", ";
+							ss += ci.displays[i].width + "x" + ci.displays[i].height + "@" + ci.displays[i].refresh + "hz";
+							if (ci.window != null && ci.window.startsWith(i + ""))
+								ss += "*";
+						}
 					}
 					return ss;
 				}
