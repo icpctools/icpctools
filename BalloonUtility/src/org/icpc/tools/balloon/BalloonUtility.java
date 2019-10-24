@@ -836,6 +836,7 @@ public class BalloonUtility {
 
 			if (restContestSource.isCDS()) {
 				BasicClient client = new BasicClient(restContestSource, "Balloon");
+				client.sendThumbnailOnConnect(getClass().getResourceAsStream("/images/balloonIcon.png"));
 				client.connect(true);
 			}
 		}
