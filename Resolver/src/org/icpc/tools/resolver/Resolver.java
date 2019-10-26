@@ -523,7 +523,7 @@ public class Resolver {
 			}
 
 			if (!test && !finalContest.isDoneUpdating()) {
-				Trace.trace(Trace.ERROR, "Contest not done updating. Use --test if running against an incomplete contest");
+				Trace.trace(Trace.ERROR, "Contest not done updating. Use -test if running against an incomplete contest");
 				System.exit(1);
 			}
 
