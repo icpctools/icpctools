@@ -1,2 +1,2 @@
-docker build . -t icpctools/build:latest
-docker push icpctools/build:latest
+docker build . -t icpctools/build:servlet4
+docker push icpctools/build:servlet4
