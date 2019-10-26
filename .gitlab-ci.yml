@@ -1,5 +1,5 @@
 # GitLab build configuration
-image: deboer/icpctools:latest
+image: icpctools/build:servlet4
 
 before_script:
   - echo "No more setup, it's all in docker"
