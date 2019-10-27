@@ -1150,10 +1150,10 @@ public class Contest implements IContest {
 	}
 
 	/**
-	 * Forces the state of the given submission to SOLVED or FAILED.
+	 * Update the visibility status of the given group.
 	 *
-	 * @param submission
-	 * @param b
+	 * @param group
+	 * @param hidden
 	 */
 	public void setGroupIsHidden(IGroup group, boolean hidden) {
 		if (group == null)
