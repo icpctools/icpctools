@@ -295,7 +295,7 @@ You cannot change time in the final 30s before a contest starts.
 </td><td>
 <input type="checkbox" id="s6" onclick="sendCountdownStatusCommand(this, '6')">Marshalls
 </td><td>
-<input type="checkbox" id="s8" onclick="sendCountdownStatusCommand(this, '9')">Contest Director
+<input type="checkbox" id="s9" onclick="sendCountdownStatusCommand(this, '9')">Contest Director
 </td></tr>
 </table>
 
