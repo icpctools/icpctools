@@ -65,7 +65,7 @@ public class ContestRESTService extends HttpServlet {
 			PrintWriter pw = response.getWriter();
 			JSONArrayWriter writer = new JSONArrayWriter(pw);
 			response.setContentType(writer.getContentType());
-			response.setHeader("Access-Control-Allow-Origin:", "*");
+			response.setHeader("Access-Control-Allow-Origin", "*");
 			writer.writePrelude();
 			ConfiguredContest[] ccs = CDSConfig.getContests();
 			boolean first = true;
@@ -192,7 +192,7 @@ public class ContestRESTService extends HttpServlet {
 				String url = segments[ind];
 				for (int i = ind + 1; i < segments.length; i++)
 					url += "/" + segments[i];
-				response.setHeader("Access-Control-Allow-Origin:", "*");
+				response.setHeader("Access-Control-Allow-Origin", "*");
 				if (doDownload(request, response, cc, type2, id, url))
 					return;
 			} catch (Exception e) {
@@ -229,7 +229,7 @@ public class ContestRESTService extends HttpServlet {
 		PrintWriter pw = response.getWriter();
 		JSONArrayWriter writer = new JSONArrayWriter(pw);
 		response.setContentType(writer.getContentType());
-		response.setHeader("Access-Control-Allow-Origin:", "*");
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		cc.incrementRest();
 
 		doREST(isArray, type2, filter, writer, contest);
