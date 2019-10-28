@@ -300,7 +300,7 @@ public class View {
 				executeAction(new RemoteAction() {
 					@Override
 					public void run() throws Exception {
-						client.sendProperty(new int[] { clientUID }, "presentation", info.getClassName());
+						client.sendProperty(new int[] { clientUID }, "presentation", "1100|" + info.getClassName());
 						// if (propCombo.getText().length() > 0)
 						// writeProperty(info.getClassName(), propCombo.getText());
 					}
