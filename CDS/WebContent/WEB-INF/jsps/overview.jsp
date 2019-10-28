@@ -25,7 +25,6 @@
 
 <script>
 function validateSource() {
-   connectTime('<%= cc.getId() %>');
    var id = "sourceValidation";
    document.getElementById(id).innerHTML = "?";
    
