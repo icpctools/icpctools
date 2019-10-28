@@ -41,7 +41,7 @@ import org.icpc.tools.contest.model.internal.Contest;
 
 @WebServlet(urlPatterns = { "/api/", "/api/*" }, asyncSupported = true)
 @ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.BLUE, Role.TRUSTED, Role.BALLOON, Role.PUBLIC }))
+		Role.ADMIN, Role.PRES_ADMIN, Role.BLUE, Role.TRUSTED, Role.BALLOON, Role.PUBLIC }))
 public class ContestRESTService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -394,7 +394,7 @@ public class ContestRESTService extends HttpServlet {
 				aggregator = WebcamAggregator.getInstance();
 			else
 				return false;
-
+			
 			int num = -1;
 			try {
 				num = Integer.parseInt(id);
