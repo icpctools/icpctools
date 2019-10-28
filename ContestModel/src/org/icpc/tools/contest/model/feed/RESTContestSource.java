@@ -50,8 +50,7 @@ import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Team;
-
-import sun.net.www.protocol.https.HttpsURLConnectionImpl;
+import javax.net.ssl.HttpsURLConnection;
 
 public class RESTContestSource extends DiskContestSource {
 	protected static final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -744,8 +743,8 @@ public class RESTContestSource extends DiskContestSource {
 		try {
 			Object target = c;
 			try {
-				if (c instanceof HttpsURLConnectionImpl) {
-					final Field delegate = HttpsURLConnectionImpl.class.getDeclaredField("delegate");
+				if (c instanceof HttpsURLConnection) {
+					final Field delegate = c.getClass().getDeclaredField("delegate");
 					delegate.setAccessible(true);
 					target = delegate.get(c);
 				}
