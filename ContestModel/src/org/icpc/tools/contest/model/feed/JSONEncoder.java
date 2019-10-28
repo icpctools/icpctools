@@ -216,7 +216,6 @@ public class JSONEncoder {
 		else
 			first = false;
 		pw.write(value + "");
-		first = true;
 	}
 
 	public void close() {
