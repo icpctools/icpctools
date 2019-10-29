@@ -24,7 +24,7 @@ public class ExecutorListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent servletContextEvent) {
-		Trace.initSysout("CDS");
+		Trace.initSysout("CDS", servletContextEvent.getServletContext().getResourceAsStream("META-INF/MANIFEST.MF"));
 		executor = new ScheduledThreadPoolExecutor(400, new ThreadFactory() {
 			@Override
 			public Thread newThread(Runnable r) {

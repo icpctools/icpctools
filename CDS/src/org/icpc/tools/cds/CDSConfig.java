@@ -153,8 +153,6 @@ public class CDSConfig {
 			if (instance != null)
 				return instance;
 
-			Trace.trace(Trace.USER, "CDS version: " + Trace.getVersion());
-
 			InputStream in = null;
 			Exception ce = null;
 			try {
