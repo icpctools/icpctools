@@ -1,3 +1,4 @@
+---
 # GitLab build configuration
 image: icpctools/build:servlet4
 
@@ -10,15 +11,21 @@ after_script:
 build:
   stage: build
   script:
-#    - ant clean
+    # - ant clean
     - ant build
     - echo $CI_JOB_ID > dist/ci_job_id.txt
   artifacts:
     paths:
-    - dist/*.*
+      - dist/*.*
     expire_in: 1 month
 
 test:
   stage: test
   script:
     - echo "Future tests here"
+
+deploy:
+  - apt-get install -y curl
+  - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
+  - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
+  - curl "http://pc2.ecs.csus.edu/cgi-bin/grabgitlab_icpctools_artifacts.cgi?authkey=$AUTHKEY&url=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/jobs/$BUILD_JOB_ID/artifacts&buildnumber=$BUILDNUMBER"
