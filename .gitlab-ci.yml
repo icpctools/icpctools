@@ -2,6 +2,11 @@
 # GitLab build configuration
 image: icpctools/build:servlet4
 
+stages:
+  - build
+  # - test
+  - deploy
+
 before_script:
   - echo "No more setup, it's all in docker"
 
