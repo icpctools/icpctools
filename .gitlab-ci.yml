@@ -1,3 +1,4 @@
+---
 # GitLab build configuration
 image: icpctools/build:servlet4
 
@@ -29,6 +30,7 @@ test:
     - echo "Future tests here"
 
 deploy:
+  stage: deploy
   - apt-get install -y curl
   - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
   - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
