@@ -31,6 +31,7 @@ test:
 
 deploy:
   stage: deploy
+  script:
     - apt-get install -y curl
     - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
     - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
