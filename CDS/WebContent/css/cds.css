@@ -1,0 +1,19 @@
+body {
+    padding-top: 4.5rem;
+}
+
+.table {
+    width: auto;
+}
+
+.footer {
+    position: absolute;
+    right: 1ex;
+    margin-top: 1em;
+}
+
+.footer, .footer a {
+    font-size: x-small;
+    color: gray;
+    text-align: right;
+}
