@@ -31,7 +31,7 @@ test:
 
 deploy:
   stage: deploy
-  - apt-get install -y curl
-  - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
-  - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
-  - curl "http://pc2.ecs.csus.edu/cgi-bin/grabgitlab_icpctools_artifacts.cgi?authkey=$AUTHKEY&url=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/jobs/$BUILD_JOB_ID/artifacts&buildnumber=$BUILDNUMBER"
+    - apt-get install -y curl
+    - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
+    - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
+    - curl "http://pc2.ecs.csus.edu/cgi-bin/grabgitlab_icpctools_artifacts.cgi?authkey=$AUTHKEY&url=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/jobs/$BUILD_JOB_ID/artifacts&buildnumber=$BUILDNUMBER"
