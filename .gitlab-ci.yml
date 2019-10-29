@@ -1,4 +1,3 @@
----
 # GitLab build configuration
 image: icpctools/build:servlet4
 
