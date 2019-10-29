@@ -4,7 +4,7 @@ image: icpctools/build:servlet4
 
 stages:
   - build
-  # - test
+  - test
   - deploy
 
 before_script:
