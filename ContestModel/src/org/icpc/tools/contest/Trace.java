@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -35,6 +36,7 @@ public class Trace {
 
 	private static List<Integer> previousErrors = new ArrayList<>();
 	private static boolean hasOutputErrorMsg;
+	private static String version;
 
 	private static File getLogFile(String filename) {
 		File logFolder = new File("logs");
@@ -116,6 +118,12 @@ public class Trace {
 	}
 
 	public static String getVersion() {
+		if (version == null)
+			setVersion((InputStream) null);
+		return version;
+	}
+
+	private static void setVersion(InputStream in) {
 		Class<?> c = getCallerClass();
 		Package pack = c.getPackage();
 		String spec = pack.getSpecificationVersion();
@@ -129,8 +137,18 @@ public class Trace {
 			} catch (Exception e) {
 				// ignore
 			}
+		if (in != null && spec == null && impl == null)
+			try {
+				java.util.Properties prop = new java.util.Properties();
+				prop.load(in);
+				spec = prop.getProperty("Specification-Version");
+				impl = prop.getProperty("Implementation-Version");
+			} catch (Exception e) {
+				// ignore
+				e.printStackTrace();
+			}
 
-		return getVersion(spec) + "." + getVersion(impl);
+		version = getVersion(spec) + "." + getVersion(impl);
 	}
 
 	private static String getCallerClassName() {
@@ -155,8 +173,9 @@ public class Trace {
 		}
 	}
 
-	public static void initSysout(String name) {
-		System.out.println("--- " + name + " (" + getVersion() + ") ---");
+	public static void initSysout(String name, InputStream in) {
+		setVersion(in);
+		System.out.println("--- " + name + " (" + version + ") ---");
 	}
 
 	public static void init(String name, String filename, String[] args) {
