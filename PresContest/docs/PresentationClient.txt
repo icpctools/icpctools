@@ -92,19 +92,16 @@ documentation for the Presentation Admin (a separate ICPC Tool).
 
 ==== Standalone Mode
 
-The Presentation Client distribution includes a script (batch file) 
-named _standalone.bat_ which can be used
-to execute the Presentation Client in standalone mode in a Windows environment.
-(It would be easy to develop an equivalent script for Linux or similar systems;
-however, see _Additional Notes_, below.)
+The Presentation Client distribution includes a set of scripts which can be used to launch the program,
+standalone.bat for Windows platforms and standalone.sh for macOS and Linux.
+(for Linux or similar systems see _Additional Notes_, below)
 Also, see the Presentation Admin documentation for information regarding a
 second script, _client.bat_, which is contained in the Presentation Client
 distribution.
 
-The _standalone.bat_ script assumes it is being run from the main 
+The _standalone_ script assumes it is being run from the main 
 Presentation Client folder (i.e., from the folder where the distribution was unzipped).
-The script is intended to be invoked with a set of command line parameters,
-which it forwards to the Presentation Client program and which 
+The script is intended to be invoked with a set of command line parameters, which 
 control the operation of the program.  
 
 The first parameter to script must be a set of presentation names or numbers, 
@@ -152,7 +149,7 @@ If a Presentation Client is going to be used in conjunction with a Presentation 
 the Presentation Client must be started in a slightly different way.  This is supported
 by a second script (batch file) named _client.bat_.  
 
-Like the _standalone.bat_ script, the _client.bat_ script assumes it is being run from the main 
+Like the _standalone_ script, the _client_ script assumes it is being run from the main 
 Presentation Client folder (i.e., from the folder where the Presentation *Client*
 distribution was unzipped),
 and the script is intended to be invoked with a set of command line parameters
@@ -161,7 +158,7 @@ In this case, however, the parameters
 are used to tell the Presentation Client that it is to register itself with
 a Presentation Admin and to await further instructions from the Admin.
 
-The first parameter to the client.bat script is a client-specific identifier
+The first parameter to the client script is a client-specific identifier
 (typically a number) specifying the identity of the client being started
 (this ID value is used to uniquely identify this particular Presentation Client
 to the Presentation Admin).  The second script parameter must be the URL of
@@ -250,43 +247,38 @@ and dynamic, and to include them into the ICPC Presentation System; a future ver
 of this document will provide information on how that works.)
 Some of the available presentations are listed in the table below, which shows
 their identifying number and name, the internal specification by which they are known,
-and notes on their operation.  (Note that some presentations are only useful when used
-in conjunction with the Presentation Admin.)
+and notes on their operation.  (Note that the numbers will be different, and some
+presentations are only useful when used in conjunction with the Presentation Admin.)
 
 [width="100%",cols="^1%d,<m,<m,d",options="header"]
 |==========================
 |Number|Name|Internal Id (org.icpc.tools.presentation.contest)|Notes
-|1|Balloons |.balloon|Displays a balloon whenever a team solves a problem.
-|2|Bill Poucher |.bill|The venerable ICPC Executive Director.
-|3|Chart - Languages |.chart.language|
-|4|Chart - Problem detail |.chart.problem.detail|
-|5|Chart - Problem summary |.chart.problem.summary|Shows attempts, solutions, and fastest solution time for each problem.
-|6|Chart - Scoreboard |.chart.scoreboard|The current contest standings; scrolls through all teams and updates dynamically as new data arrives.
-|7|Chart - Total Problems |.chart.total.problems|
-|8|Contest clock |.clock|The contest clock (time remaining in the contest).
-|9|Countdown |.countdown|A countdown clock, initialized by data in the contest event feed.
-|10|Do not touch anything |.doNotTouch|
-|11|Fireworks |.fireworks|
-|12|First solution |.first.solution|Tracking the first solution.
-|13|First to solve |.first.to.solve|First to solve each problem.
-|16|Judge queue |.judge|The judgement queue: shows all incoming runs and what the result is.
-|17|Leaderboard |.leaderboard|
-|19|Logo |.logo|Displays the contest logo.
-|20|Logo 2 |.logo2|Displays the contest logo.
-|21|Message |.message|Displays a message and contest banner. The message is set via a property in the Presentation Admin.
-|23|Photo |.single.photo|Displays a single photo, taken from the CDP/present folder in file _photo.jpg_.
-|24|Pictures |.photos|Displays a rotating set of pictures found in the CDP/present/photos folder.
-|25|Problem summary |.problem.summary|
-|26|Promotions |.promo|Displays a rotating set of promotional images.
-|27|Group leaderboard |.leaderboard.group|
-|28|Scoreboard |.scoreboard|Contest scoreboard.
-|30|Single Team |.contest.team|Displays a team photo and name. The team id is set via a property in the Presentation Admin.
-|31|Solved |.contest.solved|
-|33|Team Display |.team.display|Display for team machines, shows the team logo and name. The team is is set via a property in the Presentation Admin.
-|34|Team Pictures |.teampics|
-|35|Test - Alignment |.test.align|A grid to help with projector alignment.
-|36|Test - Clock |.test.clock|The current system time (on the presentation machine).
-|37|Test - Synchronization |.test.sync|A moving ball to test synchronization of the system clock.
+|1|Bill Poucher |.bill|The venerable ICPC Executive Director.
+|2|Chart - Languages |.chart.language|
+|3|Chart - Problem detail |.chart.problem.detail|
+|4|Chart - Problem summary |.chart.problem.summary|Shows attempts, solutions, and fastest solution time for each problem.
+|5|Chart - Scoreboard |.chart.scoreboard|The current contest standings; scrolls through all teams and updates dynamically as new data arrives.
+|6|Chart - Total Problems |.chart.total.problems|
+|7|Contest clock |.clock|The contest clock (time remaining in the contest).
+|8|Countdown |.countdown|A countdown clock, initialized by data in the contest event feed.
+|9|Do not touch anything |.doNotTouch|
+|10|Fireworks |.fireworks|
+|11|First solution |.first.solution|Tracking the first solution.
+|12|First to solve |.first.to.solve|First to solve each problem.
+|13|Judge queue |.judge|The judgement queue: shows all incoming runs and what the result is.
+|14|Leaderboard |.leaderboard|
+|15|Logo |.logo|Displays the contest logo.
+|16|Message |.message|Displays a message and contest banner. The message is set via a property in the Presentation Admin.
+|17|Photo |.single.photo|Displays a single photo, taken from the CDP/present folder in file _photo.jpg_.
+|18|Pictures |.photos|Displays a rotating set of pictures found in the CDP/present/photos folder.
+|19|Problem summary |.problem.summary|
+|20|Promotions |.promo|Displays a rotating set of promotional images.
+|21|Group leaderboard |.leaderboard.group|
+|22|Scoreboard |.scoreboard|Contest scoreboard.
+|23|Team Display |.team.display|Display for team machines, shows the team logo and name. The team is is set via a property in the Presentation Admin.
+|24|Test - Alignment |.test.align|A grid to help with projector alignment.
+|25|Test - Clock |.test.clock|The current system time (on the presentation machine).
+|26|Test - Synchronization |.test.sync|A moving ball to test synchronization of the system clock.
 |==========================
 
 == Team Clients
@@ -324,6 +316,5 @@ However, it makes heavy use of screen-level graphics and is therefore heavily de
 graphics drivers on the platform.  
 In our experience, Linux graphics drivers tend to be substantially less robust than others; 
 we have had much better success running the Presentation components 
-on Windows platforms.
+on Windows and Mac platforms.
 Your mileage may vary (substantially).
-

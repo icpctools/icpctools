@@ -36,8 +36,12 @@ public class StandaloneLauncher {
 		// load presentation(s)
 		StringTokenizer st = new StringTokenizer(args[0], "|");
 		List<PresentationInfo> list = new ArrayList<>();
-		while (st.hasMoreTokens())
-			list.add(findPresentation(presentations, st.nextToken()));
+		while (st.hasMoreTokens()) {
+			PresentationInfo pi = findPresentation(presentations, st.nextToken());
+			if (pi == null)
+				System.exit(0);
+			list.add(pi);
+		}
 
 		PresentationInfo[] pres = list.toArray(new PresentationInfo[list.size()]);
 
@@ -140,7 +144,7 @@ public class StandaloneLauncher {
 			try {
 				pw = PresentationHelper.matchPresentation(s);
 			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Presentation '" + s + "' is not unique");
+				Trace.trace(Trace.ERROR, "Presentation '" + s + "' is ambiguous");
 				return null;
 			}
 		}

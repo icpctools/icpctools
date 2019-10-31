@@ -93,26 +93,13 @@ ICPC Presentations for distribution to running Presentation Clients.
 This means of course that there must be a CDS running in order for the Presentation
 Admin to connect; see the separate documentation on the ICPC CDS tool for further information.
 
-Note that in order for the CDS to
-be able to serve presentations to the Presentation Admin 
-the CDS must know what presentations are available.
-The current version of the CDS expects to find the set of available presentations in a file 
-named "presentContest.jar" in the "present" folder beneath the root folder of the Contest Data Package (CDP)
-being used by the CDS.  However, this jar file is not present by default in the current version
-of the CDS; the user must copy it there.  
-The easiest way to do that is to download the Presentation _Client_ 
-(which must be done anyway to use the Presentation System), 
-unzip it, and copy the file "presentContest.jar" from the Presentation Client's
-"lib" folder into the "present" folder under the Contest Data Package root.
-
 === Startup
 
-The Presentation Admin distribution includes a set of scripts which can be used to launch the program.  
-Each of these scripts has a name like _presAdmin.ext_, where "ext" is "bat" for MS-Windows
-platforms or ".sh" for Unix-like platforms (including Linux and MacOSX).
+The Presentation Admin distribution includes a set of scripts which can be used to launch the program,
+presAdmin.bat for Windows platforms and presAdmin.sh for macOS and Linux.
 To start the Presentation Admin, open a terminal window (command shell), 
 change to the folder where you unzipped the distribution, and type the name of the
-appropriate script.  
+appropriate script.
 
 The scripts expect three parameters.
 The first parameter is the HTTPS URL of the Contest Data Server which the Admin should contact.  

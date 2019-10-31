@@ -25,7 +25,7 @@ only requires a Java 1.8 JDK to run.
 === Execution
 
 The distribution includes two scripts which can be used to launch the program:
-problemSet.bat (for Windows) and problemSet.sh (for MacOS and Linux).
+problemSet.bat (for Windows) and problemSet.sh (for macOS and Linux).
 To start the editor, open a terminal window (command shell), 
 change to the folder where you unzipped the distribution, and type the name of the
 appropriate script. The scripts take one optional parameter: the name or path of

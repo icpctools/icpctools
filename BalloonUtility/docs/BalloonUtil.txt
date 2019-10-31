@@ -31,10 +31,9 @@ all the Java libraries and other components necessary to run the Balloon Utility
 
 ==== Execution
 
-The BU distribution includes a set of scripts which can be used to launch the program.  
-Each of these scripts has a name like _balloon.ext_, where "ext" is "bat" for
-MS-Windows platforms or ".sh" for Unix-like platforms
-(including Linux and MacOSX).  To start the BU, open a terminal window (command shell), 
+The Balloon Utility distribution includes a set of scripts which can be used to launch the program,
+balloon.bat for Windows platforms and balloon.sh for macOS and Linux.
+To start the BU, open a terminal window (command shell), 
 change to the folder where you unzipped the distribution, and type the name of the
 appropriate script.  The scripts do not require any parameters, although adding
 "--help" will generate a mildly-useful message, and "--clean" will remove any saved
