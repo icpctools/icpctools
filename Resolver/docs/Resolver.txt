@@ -155,11 +155,10 @@ all the Java libraries and other components necessary to run the Resolver.
 
 ==== Operation
 
-The distribution includes a script (batch file) named _resolver.bat_ which can be used
-to execute the Resolver in a Windows environment
-(It would be easy to develop an equivalent script for a Linux or similar system;
-however, see _Additional Notes_).
-The _resolver.bat_ script assumes it is being run from the main Resolver folder 
+The Resolver distribution includes a set of scripts which can be used to launch the program,
+resolver.bat for Windows platforms and resolver.sh for macOS and Linux.
+(for Linux or similar systems see _Additional Notes_, below)
+The _resolver_ script assumes it is being run from the main Resolver folder 
 (i.e., from the folder where the distribution was unzipped).
 The script is intended to be invoked with a set of command line parameters,
 which it forwards to the actual Resolver program and which in turn
@@ -461,7 +460,7 @@ it recognizes the additional award configuration information
 and uses it to control its behavior with regard to displaying awards. 
 
 The AG is invoked by executing a script, either _awards.bat_ on a Windows machine or _awards.sh_ 
-on a Linux or MacOSX machine.  The script is located in the root folder of the unzipped Resolver distribution, 
+on a Linux or macOS machine.  The script is located in the root folder of the unzipped Resolver distribution, 
 in the same place as the _resolver.bat_ script used to start the Resolver itself.  Specification of the custom
 award configuration can be done in one of two ways: by passing command line options to the _awards_ script, or by
 invoking a separate graphical user interface (GUI) that allows interactive award configuration.
@@ -741,6 +740,6 @@ However, the Resolver makes heavy use of screen-level graphics and is therefore 
 graphics drivers on the platform.  
 In our experience, Linux graphics drivers are substantially less robust than others; 
 we have had much better success running the graphical Resolver components 
-(standalone, presenter, and viewer clients) on Windows platforms 
+(standalone, presenter, and viewer clients) on Windows and macOS platforms 
 (although we regularly run the Resolver server on Linux).  
 Your mileage may vary (substantially).
