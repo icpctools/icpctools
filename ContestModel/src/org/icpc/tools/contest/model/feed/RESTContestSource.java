@@ -36,6 +36,8 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContestListener.Delta;
@@ -50,7 +52,6 @@ import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Team;
-import javax.net.ssl.HttpsURLConnection;
 
 public class RESTContestSource extends DiskContestSource {
 	protected static final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -1130,14 +1131,34 @@ public class RESTContestSource extends DiskContestSource {
 	private static void unzip(File zipFile2, File folder) throws IOException {
 		ZipFile zipFile = new ZipFile(zipFile2);
 		Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+		boolean commonRootFolder = true;
+		String rootFolder = null;
+		while (zipEntries.hasMoreElements()) {
+			ZipEntry zipEntry = zipEntries.nextElement();
+			String name = zipEntry.getName();
+			int ind = name.indexOf("/");
+			if (ind < 0) {
+				commonRootFolder = false;
+				break;
+			}
+			name = name.substring(ind + 1);
+			if (rootFolder == null)
+				rootFolder = name;
+			else if (!name.equals(rootFolder)) {
+				commonRootFolder = false;
+				break;
+			}
+		}
+
+		zipFile = new ZipFile(zipFile2);
+		zipEntries = zipFile.entries();
 		while (zipEntries.hasMoreElements()) {
 			ZipEntry zipEntry = zipEntries.nextElement();
 
 			if (!zipEntry.isDirectory()) {
 				String name = zipEntry.getName();
-				int ind = name.indexOf("/");
-				if (ind > 0)
-					name = name.substring(ind + 1);
+				if (commonRootFolder)
+					name = name.substring(rootFolder.length() + 1);
 				File f = new File(folder, name);
 				if (!f.getParentFile().exists())
 					f.getParentFile().mkdirs();
@@ -1153,6 +1174,8 @@ public class RESTContestSource extends DiskContestSource {
 				out.close();
 				bin.close();
 				f.setLastModified(zipEntry.getTime());
+				if (f.getName().endsWith(".sh") || f.getName().endsWith(".bat"))
+					f.setExecutable(true, false);
 			}
 		}
 	}
