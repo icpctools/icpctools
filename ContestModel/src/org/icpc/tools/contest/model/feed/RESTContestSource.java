@@ -170,6 +170,19 @@ public class RESTContestSource extends DiskContestSource {
 		return urls;
 	}
 
+	protected static URL ensureTrailingSlash(URL urls) {
+		String extForm = urls.toExternalForm();
+		if (extForm.endsWith("/"))
+			return urls;
+
+		try {
+			return new URL(extForm + "/");
+		} catch (Exception e) {
+			// ignore
+		}
+		return urls;
+	}
+
 	protected URL getChildURL(String path) {
 		if (path == null || path.isEmpty())
 			return url;
@@ -860,10 +873,10 @@ public class RESTContestSource extends DiskContestSource {
 			}
 			Info bestContest = pickBestContest(infos);
 			if (bestContest != null) {
-				url2 = new URL(url2, bestContest.getId());
+				url2 = new URL(ensureTrailingSlash(url2), bestContest.getId());
 				this.url = url2;
 				Trace.trace(Trace.USER,
-						"The given URL did not point to a specific contest, but " + infos.length + " contest(s) were found.");
+						"The URL did not point to a specific contest, but " + infos.length + " contest(s) were found.");
 				Trace.trace(Trace.USER, "Auto-connecting to: " + url);
 				return;
 			}
@@ -874,13 +887,14 @@ public class RESTContestSource extends DiskContestSource {
 					v.err("Unrecognized REST endpoint");
 					return;
 				}
-				poss.add(url2 + info.getId() + " (" + info.getName() + " starting at "
+				poss.add(ensureTrailingSlash(url2) + info.getId() + " (" + info.getName() + " starting at "
 						+ ContestUtil.formatStartTime(info.getStartTime()) + ")");
 			}
 
-			v.err("Invalid Contest API URL, try one of the following:");
+			v.err("Contest API found, but couldn't pick a contest. Try one of the following URLs:");
 			for (String p : poss)
 				v.ok("  " + p);
+			return;
 		} catch (Exception e) {
 			// ignore, not an array
 		}
