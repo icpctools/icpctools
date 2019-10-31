@@ -50,9 +50,9 @@ public class PresentationHelper {
 		PresentationInfo sel = null;
 		while (iterator.hasNext()) {
 			PresentationInfo pw = iterator.next();
-			if (pw.getId().endsWith(id)) {
+			if (pw.getId().contains(id)) {
 				if (sel != null)
-					throw new Exception("Presentation '" + id + "' is not unique");
+					throw new Exception("Presentation '" + id + "' is ambiguous");
 
 				sel = pw;
 			}
