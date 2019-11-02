@@ -207,6 +207,7 @@
                     <th>Name</th>
                     <th>Color</th>
                     <th>RGB</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -233,7 +234,11 @@
                     </td>
                     <td><%= problem.getColor() %>
                     </td>
-                    <td><%= problem.getRGB() %>
+                    <td>
+                        <%= problem.getRGB() %>
+                    </td>
+                    <td>
+                        <div class="circle" style="background-color: <%= problem.getRGB() %>"></div>
                     </td>
                 </tr>
                 <% } %>

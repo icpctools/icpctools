@@ -21,3 +21,11 @@ body {
 .pre-line {
     white-space: pre-line;
 }
+
+.circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid black;
+    display: inline-block;
+}
