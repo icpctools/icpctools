@@ -14,6 +14,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IGroup;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
@@ -68,6 +69,7 @@ public class Resolver {
 	private boolean test;
 	private Style style;
 	private String[] groups;
+	private String[] problems;
 
 	// client/server variables
 	private PresentationClient client;
@@ -448,6 +450,8 @@ public class Resolver {
 				style = TeamUtil.getStyleByString(argList.remove(0));
 			} else if ("--groups".equalsIgnoreCase(option)) {
 				groups = argList.remove(0).split(",");
+			} else if ("--problems".equalsIgnoreCase(option)) {
+				problems = argList.remove(0).split(",");
 			} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
 				// causes rows to be moved up the screen so they are not blocked by people on
 				// stage
@@ -594,18 +598,29 @@ public class Resolver {
 		List<ResolutionStep> steps = null;
 		if (groups != null) {
 			steps = new ArrayList<ResolutionUtil.ResolutionStep>();
-			for (String groupId : groups) {
-				Trace.trace(Trace.INFO, "Resolving for group " + groupId);
+			for (int i = 0; i < groups.length; i++) {
+				// for (String groupId : groups) {
+				Trace.trace(Trace.INFO, "Resolving for group " + groups[i]);
 				Contest cc = finalContest.clone(true);
 				// set the current group to be visible and all others hidden
 				for (IGroup g : cc.getGroups()) {
-					if (groupId.trim().equals(g.getId())) {
+					if (groups[i].trim().equals(g.getId())) {
 						cc.setGroupIsHidden(g, false);
 					} else if (!g.isHidden())
 						cc.setGroupIsHidden(g, true);
 				}
 
 				cc.removeHiddenTeams();
+
+				if (problems != null) {
+					String pIds = problems[i].trim();
+					List<String> problemIds = new ArrayList<String>();
+					for (IProblem p : cc.getProblems()) {
+						if (!pIds.contains(p.getLabel()))
+							problemIds.add(p.getId());
+					}
+					cc.removeProblems(problemIds);
+				}
 
 				IAward[] contestAwards = cc.getAwards();
 				if (contestAwards == null || contestAwards.length == 0) {
