@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,6 +22,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -472,12 +474,27 @@ public class RESTContestSource extends DiskContestSource {
 
 			final List<String> list = new ArrayList<>();
 
+			// We need to remove the doctype from the file, if it has any
+			InputStream fs = new FileInputStream(file);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(fs));
+			StringBuilder sb = new StringBuilder();
+			String line;
+
+			do {
+				line = reader.readLine();
+				if (line != null && !line.startsWith("<!doctype")) {
+					sb.append(line).append("\n");
+				}
+			} while(line != null);
+
+			String contents = sb.toString();
+
 			LinkParser.parse(new ILinkListener() {
 				@Override
 				public void linkFound(String s) {
 					list.add(s);
 				}
-			}, new FileInputStream(file));
+			}, new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)));
 
 			return list.toArray(new String[list.size()]);
 		} catch (Exception e) {

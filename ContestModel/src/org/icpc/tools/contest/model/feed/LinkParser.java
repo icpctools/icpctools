@@ -27,14 +27,24 @@ public class LinkParser {
 
 		try {
 			sp.parse(in, new DefaultHandler() {
+				boolean inTd = false;
 				@Override
 				public void startElement(String uri, String localName, String qName, Attributes attributes)
 						throws SAXException {
-					if ("a".endsWith(qName)) {
+					if (inTd && "a".endsWith(qName)) {
 						String href = attributes.getValue("href");
 						if (href != null && href.length() > 0) {
 							listener.linkFound(href);
 						}
+					} else if ("td".endsWith(qName)) {
+						inTd = true;
+					}
+				}
+
+				@Override
+				public void endElement(String uri, String localName, String qName) throws SAXException {
+					if ("td".endsWith(qName)) {
+						inTd = false;
 					}
 				}
 			});
