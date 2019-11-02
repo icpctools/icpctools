@@ -1,28 +1,36 @@
-<%@page import="org.icpc.tools.cds.ConfiguredContest"%>
+<% request.setAttribute("title", "Scoreboard Comparison"); %>
+<!doctype html>
 <html>
-
-<head>
-  <title>Scoreboard Comparison</title>
-  <link rel="stylesheet" href="/cds.css"/>
-  <link rel="icon" type="image/png" href="/favicon.png"/>
-</head>
-
+<%@ include file="layout/head.jsp" %>
 <body>
+<%@ include file="layout/contestMenu.jsp" %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Scoreboard Comparison</h1>
 
-<div id="navigation-header">
-  <div id="navigation-cds">Scoreboard Comparison (<%= ConfiguredContest.getUser(request) %>)</div>
+            <table class="table table-sm table-hover table-striped">
+                <tbody>
+                <tr>
+                    <td>Comparing</td>
+                    <td>
+                      <%= request.getAttribute("a") %>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-right">to</td>
+                    <td>
+                      <%= request.getAttribute("b") %>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <%= (String) request.getAttribute("compare") %>
+        </div>
+    </div>
 </div>
-
-<div id="main">
-
-<table>
-<tr><td>Comparing</td><td><%= request.getAttribute("a") %></td></tr>
-<tr><td align=right>to</td><td><%= request.getAttribute("b") %></td></tr>
-</table>
-<p/>
-
-<%= (String) request.getAttribute("compare") %>
-</div>
-
+<%@ include file="layout/footer.jsp" %>
+<%@ include file="layout/scripts.jsp" %>
 </body>
 </html>

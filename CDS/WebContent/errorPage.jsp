@@ -1,15 +1,23 @@
 <%@ page isErrorPage="true" %>
+<% request.setAttribute("title", "Error"); %>
+<!doctype html>
 <html>
-<head>
-  <link rel="icon" type="image/png" href="/favicon.png"/>
-</head>
+<%@ include file="WEB-INF/jsps/layout/head.jsp" %>
 <body>
-<h1>${pageContext.errorData.statusCode} Error</h1>
+<%@ include file="WEB-INF/jsps/layout/baseMenu.jsp" %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>${pageContext.errorData.statusCode} Error</h1>
 
-<p>(Detail: ${pageContext.errorData.throwable.message})</p>
+            <p>Detail</p>
+            <pre>${pageContext.errorData.throwable.message}</pre>
 
-<p>For up to date information on the services provided, please see the
-<a href="https://clics.ecs.baylor.edu/index.php/CDS">CLICS CDS documentation</a>.</p>
+            <p>For up to date information on the services provided, please see the
+                <a href="https://clics.ecs.baylor.edu/index.php/CDS" target="_blank">CLICS CDS documentation</a>.</p>
 
+        </div>
+    </div>
+</div>
 </body>
 </html>

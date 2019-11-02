@@ -1,27 +1,25 @@
+<% request.setAttribute("title", "Contest API"); %>
+<!doctype html>
 <html>
-
-<head>
-  <title>Contest API</title>
-  <link rel="stylesheet" href="/cds.css"/>
-  <link rel="icon" type="image/png" href="/favicon.png"/>
-</head>
-
+<%@ include file="layout/head.jsp" %>
 <body>
-<div id="navigation-header">
-  <div id="navigation-cds">Contest API</div>
+<%@ include file="layout/baseMenu.jsp" %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>Contest API</h1>
+
+            Welcome to the CDS Contest API. You probably want to try <%= webroot %>/api/contests!
+
+            <p/>
+
+            For information on using the Contest API, please go
+            <a href="https://clics.ecs.baylor.edu/index.php/Contest_API" target="_blank">here</a>.
+
+        </div>
+    </div>
 </div>
-
-<div id="main">
-
-<h2>Contest API</h2>
-
-Welcome to the CDS Contest API. You probably want to try /api/contests!
-
-<p/>
-
-For information on using the Contest API, please go 
-<a href="https://clics.ecs.baylor.edu/index.php/Contest_API">here</a>.
-
-</div>
+<%@ include file="layout/footer.jsp" %>
+<%@ include file="layout/scripts.jsp" %>
 </body>
 </html>

@@ -1,0 +1,35 @@
+body {
+    padding-top: 4.5rem;
+}
+
+.table {
+    width: auto;
+}
+
+.table-fullwidth {
+    width: 100%;
+}
+
+.footer {
+    position: absolute;
+    right: 1ex;
+    margin-top: 1em;
+}
+
+.footer, .footer a {
+    font-size: x-small;
+    color: gray;
+    text-align: right;
+}
+
+.pre-line {
+    white-space: pre-line;
+}
+
+.circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid black;
+    display: inline-block;
+}

@@ -1,26 +1,40 @@
-<%@page import="java.io.File"%>
+<%@page import="java.io.File" %>
 <%
- String folder = (String) request.getAttribute("folder");
- File[] files = (File[]) request.getAttribute("files");
+    String folder = (String) request.getAttribute("folder");
+    File[] files = (File[]) request.getAttribute("files");
 %>
-
+<% request.setAttribute("title", "Directory " + folder); %>
+<!doctype html>
 <html>
-<head>
-  <title>Directory <%= folder %></title>
-  <link rel="stylesheet" href="/cds.css"/>
-  <link rel="icon" type="image/png" href="/favicon.png"/>
-</head>
-
+<%@ include file="layout/head.jsp" %>
 <body>
-<h1>Directory listing for <%= folder %></h1>
+<%@ include file="layout/baseMenu.jsp" %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1>
+                Directory listing for <%= folder %>
+            </h1>
 
-<table>
-<tr><th>Files</th></tr>
-<% for (File f : files) { %>
-<tr><td><a href="<%= f.getName() %>"><%= f.getName() %></a></td></tr>
-<% } %>
-
-</table>
-
+            <table class="table table-sm table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>Files</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% for (File f : files) { %>
+                <tr>
+                    <td><a href="<%= f.getName() %>"><%= f.getName() %>
+                    </a></td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<%@ include file="layout/footer.jsp" %>
+<%@ include file="layout/scripts.jsp" %>
 </body>
 </html>
