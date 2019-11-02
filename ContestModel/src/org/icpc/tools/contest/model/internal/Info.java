@@ -230,8 +230,7 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(NAME, name);
 		je.encode(FORMAL_NAME, formalName);
@@ -255,7 +254,6 @@ public class Info extends ContestObject implements IInfo {
 
 		je.encode(LOGO, logo, false);
 		je.encode(BANNER, banner, false);
-		je.close();
 	}
 
 	@Override

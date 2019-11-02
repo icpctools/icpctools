@@ -117,8 +117,7 @@ public class Group extends ContestObject implements IGroup {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(ICPC_ID, icpcId);
 		je.encode(NAME, name);
@@ -126,7 +125,6 @@ public class Group extends ContestObject implements IGroup {
 		if (isHidden)
 			je.encode(HIDDEN, true);
 		je.encode(LOGO, logo, false);
-		je.close();
 	}
 
 	@Override

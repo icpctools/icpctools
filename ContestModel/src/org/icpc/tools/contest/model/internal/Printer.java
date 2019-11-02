@@ -49,14 +49,12 @@ public class Printer extends ContestObject implements IPrinter {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		if (x != Double.NaN)
 			je.encode(X, round(x));
 		if (y != Double.NaN)
 			je.encode(Y, round(y));
-		je.close();
 	}
 
 	private static String round(double d) {

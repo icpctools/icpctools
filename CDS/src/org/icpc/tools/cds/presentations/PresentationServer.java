@@ -20,9 +20,6 @@ import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class PresentationServer {
-	private static final boolean DEBUG_INPUT = false;
-	protected static final boolean DEBUG_OUTPUT = false;
-
 	private static final String PREF_ID = "org.icpc.tools.cds";
 	private static final String PRES = "presentation";
 	private static final String DEFAULT_PREFIX = "default:";
@@ -63,6 +60,14 @@ public class PresentationServer {
 		return false;
 	}
 
+	protected static void trace(String message, int uid) {
+		String s = message;
+		if (s.length() > 150)
+			s = s.substring(0, 150) + "...";
+
+		Trace.trace(Trace.INFO, s + " @ " + uid);
+	}
+
 	protected void onMessage(Session s, String message) throws IOException {
 		Client[] cl = clients.toArray(new Client[clients.size()]);
 
@@ -76,12 +81,7 @@ public class PresentationServer {
 		if (c == null)
 			throw new IOException("Client " + s.getId() + " does not exist");
 
-		if (DEBUG_INPUT) {
-			String st = message;
-			if (st.length() > 140)
-				st = st.substring(0, 140) + "...";
-			Trace.trace(Trace.USER, "> " + st + " from " + c.getUID());
-		}
+		trace("> " + message, c.getUID());
 
 		int sourceUID = c.getUID();
 
@@ -107,6 +107,10 @@ public class PresentationServer {
 				}
 				case INFO: {
 					handleInfo(c, obj, message);
+					break;
+				}
+				case CLIENT_INFO: {
+					handleClientInfo(c, obj, message);
 					break;
 				}
 				case PRES_LIST: {
@@ -224,6 +228,21 @@ public class PresentationServer {
 			Trace.trace(Trace.WARNING, "Client connection failure", e);
 		}
 		return c;
+	}
+
+	protected void updateClients(Client c) {
+		synchronized (adminMap) {
+			List<Client> admins = adminMap.get(c);
+			if (admins == null)
+				return;
+
+			for (Client admin : clients) {
+				if (admin.isAdmin() && isAdminOf(admin.getUser(), c.getUser())) {
+					List<Client> adminClients = adminMap.get(admin);
+					forClient(admin, cli -> cli.writeClients(adminClients));
+				}
+			}
+		}
 	}
 
 	protected void sendInitialProperties(Client c) {
@@ -521,6 +540,11 @@ public class PresentationServer {
 
 		List<Client> cadmins = adminMap.get(c);
 		forEachClient(cadmins, cl -> cl.writeInfo(c.getUID(), message));
+	}
+
+	protected void handleClientInfo(Client c, JsonObject obj, String message) {
+		c.storeClientInfo(obj);
+		updateClients(c);
 	}
 
 	protected void handlePresentationList(int sourceUID) {

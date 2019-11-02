@@ -68,8 +68,7 @@ public class Countdown extends ContestObject implements ICountdown {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < STATUS_SIZE; i++) {
@@ -79,6 +78,5 @@ public class Countdown extends ContestObject implements ICountdown {
 				sb.append("N");
 		}
 		je.encode(STATUS, sb.toString());
-		je.close();
 	}
 }

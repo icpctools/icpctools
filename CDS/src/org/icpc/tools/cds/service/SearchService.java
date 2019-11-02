@@ -69,8 +69,7 @@ public class SearchService extends HttpServlet {
 		en.openArray();
 		en.open();
 		en.encode("search_term", searchTerm);
-		en.encode3("results");
-		en.openArray();
+		en.openChildArray("results");
 
 		String search = searchTerm.toLowerCase();
 
@@ -80,8 +79,7 @@ public class SearchService extends HttpServlet {
 				continue;
 			en.open();
 			en.encode("contest_id", cc.getId());
-			en.encode3("results");
-			en.openArray();
+			en.openChildArray("results");
 			try {
 				ILanguage[] langs = contest.getLanguages();
 				for (ILanguage lang : langs) {

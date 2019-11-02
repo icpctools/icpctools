@@ -62,14 +62,12 @@ public class TestData extends ContestObject implements ITestData {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(PROBLEM_ID, problemId);
 		je.encode(ORDINAL, ordinal);
 		if (isSample != null)
 			je.encode(SAMPLE, isSample.booleanValue());
-		je.close();
 	}
 
 	@Override

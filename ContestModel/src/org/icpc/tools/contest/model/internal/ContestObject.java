@@ -192,7 +192,7 @@ public abstract class ContestObject implements IContestObject {
 		return props;
 	}
 
-	public void write(JSONEncoder je) {
+	public void writeBody(JSONEncoder je) {
 		// do nothing
 	}
 

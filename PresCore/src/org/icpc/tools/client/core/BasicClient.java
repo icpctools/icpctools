@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
@@ -13,8 +12,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,11 +43,10 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 
 public class BasicClient {
-	private static final boolean DEBUG_INPUT = false;
-	private static final boolean DEBUG_OUTPUT = false;
+	private static final boolean DEBUG_JSON_PAYLOADS = false;
 
 	protected static enum Type {
-		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, THUMBNAIL
+		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, CLIENT_INFO, THUMBNAIL
 	}
 
 	protected interface AddAttrs {
@@ -119,8 +119,11 @@ public class BasicClient {
 		public int uid;
 		public String id;
 		public String contestId;
+		public String type;
+		public String version;
 	}
 
+	private String clientType = "Unknown";
 	private String clientId = "Unknown";
 	private int uid;
 	private RESTContestSource contestSource;
@@ -132,11 +135,12 @@ public class BasicClient {
 
 	private WSClientEndpoint clientEndpoint;
 
-	public BasicClient(RESTContestSource contestSource, String clientId, int uid, String role) {
+	public BasicClient(RESTContestSource contestSource, String clientId, int uid, String role, String type) {
 		this.contestSource = contestSource;
 		this.clientId = clientId;
 		this.uid = uid;
 		this.role = role;
+		this.clientType = type;
 	}
 
 	/**
@@ -148,6 +152,7 @@ public class BasicClient {
 	public BasicClient(RESTContestSource contestSource, String clientType) {
 		this.contestSource = contestSource;
 		this.clientId = clientType;
+		this.clientType = clientType.toLowerCase();
 
 		String s = contestSource.getUser();
 		try {
@@ -241,6 +246,8 @@ public class BasicClient {
 			clients[i].uid = jo.getInt("uid");
 			clients[i].id = jo.getString("id");
 			clients[i].contestId = jo.getString("contest_id");
+			clients[i].type = jo.getString("client.type");
+			clients[i].version = jo.getString("version");
 		}
 
 		clientsChanged(clients);
@@ -324,45 +331,6 @@ public class BasicClient {
 		});
 	}
 
-	public void sendThumbnailOnConnect(InputStream in) {
-		addListener(new IConnectionListener() {
-			@Override
-			public void connectionStateChanged(boolean connected) {
-				if (!connected)
-					return;
-				try {
-					sendThumbnail(in, false, -1);
-				} catch (Exception e) {
-					// ignore
-					e.printStackTrace();
-				} finally {
-					if (in != null)
-						try {
-							in.close();
-						} catch (Exception e) {
-							// ignore
-						}
-				}
-			}
-		});
-	}
-
-	public void sendThumbnail(InputStream in, boolean isHidden, int fps) throws IOException {
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		int n = in.read(buffer);
-		while (n > -1) {
-			bout.write(buffer, 0, n);
-			n = in.read(buffer);
-		}
-		createJSON(Type.THUMBNAIL, je -> {
-			je.encode("source", uid);
-			je.encode("fps", fps);
-			je.encode("hidden", isHidden);
-			encodeImage(je, bout.toByteArray());
-		});
-	}
-
 	protected void createJSON(Type type, AddAttrs attr) throws IOException {
 		StringWriter sw = new StringWriter();
 		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
@@ -382,11 +350,25 @@ public class BasicClient {
 		});
 	}
 
+	public void sendClientInfo() throws IOException {
+		createJSON(Type.CLIENT_INFO, je -> {
+			je.encode("source", getUID());
+			je.encode("client.type", clientType);
+			je.encode("version", Trace.getVersion());
+			je.encode("os.name", System.getProperty("os.name"));
+			je.encode("os.version", System.getProperty("os.version"));
+			je.encode("jre.vendor", System.getProperty("java.vendor"));
+			je.encode("jre.version", System.getProperty("java.version"));
+			je.encode("locale", Locale.getDefault().toString());
+			je.encode("timezone", Calendar.getInstance().getTimeZone().getDisplayName());
+			je.encode("contest.id", contestSource.getContestId());
+		});
+	}
+
 	protected void sendInfo(Dimension d, int fps, boolean hidden, String pres, String name, int[] displays)
 			throws IOException {
 		createJSON(Type.INFO, je -> {
 			je.encode("source", getUID());
-
 			je.encode("width", d.width);
 			je.encode("height", d.height);
 			je.encode("fps", fps);
@@ -437,12 +419,7 @@ public class BasicClient {
 		if (clientEndpoint == null)
 			return false;
 
-		if (DEBUG_OUTPUT) {
-			String s = message;
-			if (s.length() > 140)
-				s = s.substring(0, 140) + "...";
-			Trace.trace(Trace.USER, "> " + s);
-		}
+		trace("> " + message, DEBUG_JSON_PAYLOADS);
 		clientEndpoint.send(message);
 		return true;
 	}
@@ -563,6 +540,7 @@ public class BasicClient {
 
 			Trace.trace(Trace.USER, clientId + " connected");
 			fireConnectionStateEvent(true);
+			sendClientInfo();
 
 			while (clientEndpoint.isConnected()) {
 				Thread.sleep(2000);
@@ -610,13 +588,19 @@ public class BasicClient {
 		nanoTimeDelta = newNanoTimeDelta;
 	}
 
+	private static void trace(String message, boolean user) {
+		String s = message;
+		if (s.length() > 150)
+			s = s.substring(0, 150) + "...";
+
+		if (user)
+			Trace.trace(Trace.USER, s);
+		else
+			Trace.trace(Trace.INFO, s);
+	}
+
 	private void onMessage(String message) throws IOException {
-		if (DEBUG_INPUT) {
-			String s = message;
-			if (s.length() > 140)
-				s = s.substring(0, 140) + "...";
-			Trace.trace(Trace.USER, "< " + s);
-		}
+		trace("< " + message, DEBUG_JSON_PAYLOADS);
 
 		JSONParser rdr = new JSONParser(message);
 		JsonObject obj = rdr.readObject();
@@ -690,11 +674,10 @@ public class BasicClient {
 	}
 
 	private static void writeClients(JSONEncoder je, int[] ids) {
-		je.encode3("clients");
-		je.openArray();
-		for (int i = 0; i < ids.length; i++) {
+		je.openChildArray("clients");
+		for (int i = 0; i < ids.length; i++)
 			je.encodeValue(ids[i]);
-		}
+
 		je.closeArray();
 	}
 

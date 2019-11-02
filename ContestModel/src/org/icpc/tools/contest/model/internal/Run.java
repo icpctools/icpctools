@@ -88,8 +88,7 @@ public class Run extends TimedEvent implements IRun {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(JUDGEMENT_ID, judgementId);
 		je.encode(JUDGEMENT_TYPE_ID, judgementTypeId);
@@ -97,7 +96,6 @@ public class Run extends TimedEvent implements IRun {
 		if (runTime > 0)
 			je.encodePrimitive(RUN_TIME, Decimal.format(runTime));
 		encodeTimeProperties(je);
-		je.close();
 	}
 
 	@Override

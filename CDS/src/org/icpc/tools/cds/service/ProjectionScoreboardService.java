@@ -51,7 +51,7 @@ public class ProjectionScoreboardService {
 
 		JSONEncoder je = new JSONEncoder(pw);
 		State state = (State) contest.getState();
-		state.write(je);
+		state.writeBody(je);
 
 		pw.write(",\n");
 

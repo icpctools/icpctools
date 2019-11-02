@@ -159,8 +159,7 @@ public class Problem extends ContestObject implements IProblem {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		if (label != null)
 			je.encode(LABEL, label);
@@ -177,7 +176,6 @@ public class Problem extends ContestObject implements IProblem {
 			je.encode(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
 			je.encodePrimitive(TIME_LIMIT, Decimal.format(timeLimit));
-		je.close();
 	}
 
 	private static double round(double d) {

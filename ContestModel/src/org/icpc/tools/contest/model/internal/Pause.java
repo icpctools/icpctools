@@ -63,13 +63,11 @@ public class Pause extends ContestObject implements IPause {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(START, start + "");
 		if (end != 0)
 			je.encode(END, end + "");
-		je.close();
 	}
 
 	@Override

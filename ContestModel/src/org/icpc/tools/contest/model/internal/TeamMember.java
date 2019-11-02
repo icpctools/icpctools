@@ -149,8 +149,7 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		if (icpcId != null)
 			je.encode(ICPC_ID, icpcId);
@@ -160,7 +159,6 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		je.encode(TEAM_ID, teamId);
 		je.encode(ROLE, role);
 		je.encode(PHOTO, photo, false);
-		je.close();
 	}
 
 	@Override

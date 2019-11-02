@@ -5,31 +5,34 @@ import java.io.PrintWriter;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.internal.ContestObject;
 
-public class JSONArrayWriter extends JSONWriter {
+public class JSONArrayWriter {
+	protected PrintWriter pw;
+	protected JSONEncoder je;
+
 	public JSONArrayWriter(PrintWriter pw) {
-		super(pw);
+		this.pw = pw;
+		je = new JSONEncoder(pw);
 	}
 
-	@Override
 	public String getContentType() {
 		return IContentType.JSON;
 	}
 
-	@Override
 	public void writePrelude() {
 		pw.write("[");
 	}
 
 	public void write(IContestObject obj) {
-		((ContestObject) obj).write(je);
+		je.reset();
+		je.open();
+		((ContestObject) obj).writeBody(je);
+		je.close();
 	}
 
-	@Override
 	public void writeSeparator() {
 		pw.write(",\n ");
 	}
 
-	@Override
 	public void writePostlude() {
 		pw.write("]");
 	}

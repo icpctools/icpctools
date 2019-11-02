@@ -836,7 +836,6 @@ public class BalloonUtility {
 
 			if (restContestSource.isCDS()) {
 				BasicClient client = new BasicClient(restContestSource, "Balloon");
-				client.sendThumbnailOnConnect(getClass().getResourceAsStream("/images/balloonIcon.png"));
 				client.connect(true);
 			}
 		}
@@ -1044,16 +1043,13 @@ public class BalloonUtility {
 
 	public static void showHelp() {
 		System.out.println("Usage: balloon.bat/sh [options]");
+		System.out.println("    or balloon.bat/sh contestSource [user] [password] [options]");
 		System.out.println();
 		System.out.println("  Options:");
 		System.out.println("     --clean");
 		System.out.println("         Removes all saved balloon data");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
-		System.out.println();
-		System.out.println("Usage: balloon.bat/sh contestSource [user] [password]");
-		System.out.println();
-		System.out.println("Example: balloon https://cds/api/contests/test bal00n passw0rd");
 	}
 
 	protected void parseSource(String[] args) {

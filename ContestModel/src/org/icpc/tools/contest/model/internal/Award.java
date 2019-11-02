@@ -115,14 +115,12 @@ public class Award extends ContestObject implements IAward {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(CITATION, citation);
 		je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		if (show == false)
 			je.encode(SHOW, show);
-		je.close();
 	}
 
 	@Override
