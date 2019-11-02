@@ -6,6 +6,10 @@ body {
     width: auto;
 }
 
+.table-fullwidth {
+    width: 100%;
+}
+
 .footer {
     position: absolute;
     right: 1ex;
