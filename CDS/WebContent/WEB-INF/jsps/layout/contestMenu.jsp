@@ -10,7 +10,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <a class="navbar-brand" href="<%= webroot %>">
         <img src="${pageContext.request.contextPath}/cdsIcon.png" alt="CDS" height="30"
-             class="d-inline-block align-top">
+             class="d-inline-block align-top" />
         <%= contest.getFormalName() %>
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav" aria-controls="nav"
