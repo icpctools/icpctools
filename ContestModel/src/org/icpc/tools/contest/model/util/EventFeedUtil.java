@@ -49,14 +49,14 @@ public class EventFeedUtil {
 		public String printSingletonSummaryHTML() {
 			StringBuilder sb = new StringBuilder();
 			if (!isOk())
-				sb.append("<font color=red>");
+				sb.append("<span class=\"text-danger\">");
 
 			String st = printSingletonSummary2(null, true);
 			String[] ss = st.split("\n");
 			for (String s2 : ss)
 				sb.append(s2 + "<br/>");
 			if (!isOk())
-				sb.append("</font>");
+				sb.append("</span>");
 			return sb.toString();
 		}
 
@@ -89,14 +89,14 @@ public class EventFeedUtil {
 		public String printSummaryHTML() {
 			StringBuilder sb = new StringBuilder();
 			if (!isOk())
-				sb.append("<font color=red>");
+				sb.append("<span class=\"text-danger\">");
 
 			String st = printSummary2(null, true);
 			String[] ss = st.split("\n");
 			for (String s2 : ss)
 				sb.append(s2 + "<br/>");
 			if (!isOk())
-				sb.append("</font>");
+				sb.append("</span>");
 			return sb.toString();
 		}
 
