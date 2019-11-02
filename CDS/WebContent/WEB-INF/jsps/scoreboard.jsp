@@ -6,7 +6,7 @@
 <html>
 <%@ include file="layout/head.jsp" %>
 <body>
-<%@ include file="layout/menu.jsp" %>
+<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">

@@ -7,7 +7,7 @@
 <html>
 <%@ include file="layout/head.jsp" %>
 <body>
-<%@ include file="layout/menu.jsp" %>
+<%@ include file="layout/contestMenu.jsp" %>
 <% IState state = contest.getState();
     long[] metrics = cc.getMetrics(); %>
 <div class="container-fluid">

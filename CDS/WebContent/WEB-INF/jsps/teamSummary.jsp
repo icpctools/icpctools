@@ -5,7 +5,7 @@
 <html>
 <%@ include file="layout/head.jsp" %>
 <body>
-<%@ include file="layout/menu.jsp" %>
+<%@ include file="layout/contestMenu.jsp" %>
 <% String teamId = (String) request.getAttribute("teamId");
     ITeam team = contest.getTeamById(teamId);
     IStanding st = contest.getStanding(team);

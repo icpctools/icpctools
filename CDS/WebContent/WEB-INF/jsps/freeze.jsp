@@ -4,7 +4,7 @@
 <html>
 <%@ include file="layout/head.jsp" %>
 <body>
-<%@ include file="layout/menu.jsp" %>
+<%@ include file="layout/contestMenu.jsp" %>
 <% IContest contest2 = cc.getContestByRole(true, false);
     IContest contest1 = cc.getContestByRole(false, false);
     IState state = contest1.getState(); %>
