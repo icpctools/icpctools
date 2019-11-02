@@ -61,13 +61,11 @@ public class JudgementType extends ContestObject implements IJudgementType {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(NAME, name);
 		je.encode(PENALTY, penalty);
 		je.encode(SOLVED, solved);
-		je.close();
 	}
 
 	@Override

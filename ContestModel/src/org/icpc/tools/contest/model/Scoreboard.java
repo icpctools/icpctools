@@ -51,8 +51,10 @@ public class Scoreboard {
 		pw.write("  \"state\": ");
 
 		JSONEncoder je = new JSONEncoder(pw);
+		je.open();
 		State state = (State) contest.getState();
-		state.write(je);
+		state.writeBody(je);
+		je.close();
 
 		pw.write(",\n");
 

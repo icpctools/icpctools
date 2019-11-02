@@ -36,8 +36,12 @@ public class PresentationClient extends BasicClient {
 	protected boolean sendingThumbnail;
 	protected boolean sendingInfo;
 
-	public PresentationClient(RESTContestSource source, String clientId, int uid, String role) {
-		super(source, clientId, uid, role);
+	protected PresentationClient(RESTContestSource source, String clientId, int uid, String role) {
+		this(source, clientId, uid, role, "presentation");
+	}
+
+	public PresentationClient(RESTContestSource source, String clientId, int uid, String role, String type) {
+		super(source, clientId, uid, role, type);
 		executor = new ThreadPoolExecutor(2, 4, 20L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5),
 				new ThreadFactory() {
 					@Override
@@ -59,7 +63,11 @@ public class PresentationClient extends BasicClient {
 	}
 
 	public PresentationClient(String clientId, String role, RESTContestSource source) {
-		this(source, clientId, 0, role);
+		this(clientId, role, source, "presentation");
+	}
+
+	public PresentationClient(String clientId, String role, RESTContestSource source, String type) {
+		this(source, clientId, 0, role, type);
 		String s = clientId;
 
 		try {

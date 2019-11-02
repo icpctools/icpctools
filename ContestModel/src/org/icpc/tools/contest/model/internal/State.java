@@ -132,8 +132,7 @@ public class State extends ContestObject implements IState {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		if (started != null)
 			je.encodeString(STARTED, Timestamp.format(started));
 		else
@@ -154,7 +153,6 @@ public class State extends ContestObject implements IState {
 			je.encodeString(END_OF_UPDATES, Timestamp.format(endOfUpdates));
 		else
 			je.encode(END_OF_UPDATES);
-		je.close();
 	}
 
 	@Override

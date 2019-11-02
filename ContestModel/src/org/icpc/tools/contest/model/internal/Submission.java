@@ -139,8 +139,7 @@ public class Submission extends TimedEvent implements ISubmission {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(PROBLEM_ID, problemId);
 		je.encode(TEAM_ID, teamId);
@@ -150,7 +149,6 @@ public class Submission extends TimedEvent implements ISubmission {
 		je.encode(FILES, files, true);
 		je.encode(REACTION, reaction, false);
 		encodeTimeProperties(je);
-		je.close();
 	}
 
 	@Override

@@ -83,8 +83,7 @@ public class Clarification extends TimedEvent implements IClarification {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(REPLY_TO_ID, replyToId);
 		je.encode(FROM_TEAM_ID, fromTeamId);
@@ -92,7 +91,6 @@ public class Clarification extends TimedEvent implements IClarification {
 		je.encode(PROBLEM_ID, problemId);
 		je.encode(TEXT, text);
 		encodeTimeProperties(je);
-		je.close();
 	}
 
 	@Override

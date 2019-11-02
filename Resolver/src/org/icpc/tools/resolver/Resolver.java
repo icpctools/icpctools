@@ -211,7 +211,7 @@ public class Resolver {
 			if (isPresenter)
 				role = "presAdmin";
 
-			client = new PresentationClient(cdsSource.getUser(), role, cdsSource) {
+			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
 				@Override
 				protected void clientsChanged(Client[] cl) {
 					Trace.trace(Trace.INFO, "Client list changed: " + cl.length);

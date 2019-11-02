@@ -39,11 +39,9 @@ public class Language extends ContestObject implements ILanguage {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(NAME, name);
-		je.close();
 	}
 
 	@Override

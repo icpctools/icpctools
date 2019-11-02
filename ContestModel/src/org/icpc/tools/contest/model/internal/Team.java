@@ -281,8 +281,7 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 
 		je.encode(NAME, name);
@@ -303,7 +302,6 @@ public class Team extends ContestObject implements ITeam {
 		je.encode(BACKUP, backup, false);
 		je.encodeSubs(DESKTOP, desktop, false);
 		je.encodeSubs(WEBCAM, webcam, false);
-		je.close();
 	}
 
 	private static double round(double d) {

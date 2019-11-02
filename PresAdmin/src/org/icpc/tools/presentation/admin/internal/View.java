@@ -95,9 +95,9 @@ public class View {
 		try {
 			s += InetAddress.getLocalHost().getHostAddress();
 		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Could not determine local host address");
+			Trace.trace(Trace.WARNING, "Could not determine localhost address");
 		}
-		client = new BasicClient(source, source.getUser(), s.hashCode(), "admin") {
+		client = new BasicClient(source, source.getUser(), s.hashCode(), "admin", "pres-admin") {
 			/**
 			 * @throws IOException
 			 */

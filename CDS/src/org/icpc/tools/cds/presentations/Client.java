@@ -25,7 +25,7 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Client {
 	protected static enum Type {
-		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, THUMBNAIL
+		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, CLIENT_INFO, THUMBNAIL
 	}
 
 	interface AddAttrs {
@@ -70,6 +70,8 @@ public class Client {
 	private String presentation;
 	private ClientDisplay[] displays;
 	private String contestId;
+	private String clientType;
+	private String version;
 
 	public Client(Session session, String user, int uid, String id, boolean isAdmin, String contestId) {
 		this.session = session;
@@ -94,6 +96,14 @@ public class Client {
 
 	public String getContestId() {
 		return contestId;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public String getType() {
+		return clientType;
 	}
 
 	public Session getSession() {
@@ -154,12 +164,8 @@ public class Client {
 					timeSync.add(new TimeSync());
 				}
 			}
-			if (PresentationServer.DEBUG_OUTPUT) {
-				String st = message.message;
-				if (st.length() > 140)
-					st = st.substring(0, 140) + "...";
-				Trace.trace(Trace.USER, "< " + st + " to " + uid);
-			}
+			PresentationServer.trace("< " + message.message, uid);
+
 			session.getBasicRemote().sendText(message.message);
 			if (message.type == Type.STOP || message.type == Type.RESTART)
 				return false;
@@ -263,14 +269,14 @@ public class Client {
 
 	protected void writeClients(List<Client> clients) throws IOException {
 		createJSON(Type.CLIENTS, je -> {
-			je.encode3("clients");
-			je.reset();
-			je.openArray();
+			je.openChildArray("clients");
 			for (Client c : clients) {
 				je.open();
 				je.encode("id", c.id);
 				je.encode("uid", c.uid);
 				je.encode("contest_id", c.contestId);
+				je.encode("version", c.version);
+				je.encode("client.type", c.clientType);
 				je.close();
 				je.unreset();
 			}
@@ -292,6 +298,11 @@ public class Client {
 
 	protected void writeSnapshot(String message) {
 		queueIt(Type.SNAPSHOT, message);
+	}
+
+	protected void storeClientInfo(JsonObject obj) {
+		version = obj.getString("version");
+		clientType = obj.getString("client.type");
 	}
 
 	protected void storeInfo(JsonObject obj) {

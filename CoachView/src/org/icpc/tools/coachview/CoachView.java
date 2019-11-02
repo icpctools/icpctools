@@ -563,7 +563,6 @@ public class CoachView extends Panel {
 
 			if (contestSource.isCDS()) {
 				BasicClient client = new BasicClient(contestSource, "Coach");
-				client.sendThumbnailOnConnect(getClass().getResourceAsStream("/images/coachViewIcon.png"));
 				client.connect(true);
 			}
 		} catch (Exception e) {

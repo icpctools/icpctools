@@ -52,8 +52,7 @@ public class NDJSONFeedWriter {
 
 		if (d == Delta.DELETE) {
 			je.encode("op", "delete");
-			je.encode3("data");
-			je.open();
+			je.openChild("data");
 			je.encode("id", obj.getId());
 			je.close();
 		} else {
@@ -62,16 +61,13 @@ public class NDJSONFeedWriter {
 			else
 				je.encode("op", "create");
 
-			je.encode3("data");
-			((ContestObject) obj).write(je);
+			je.openChild("data");
+			((ContestObject) obj).writeBody(je);
+			je.close();
 		}
 
 		je.close();
 		pw.write("\n");
-	}
-
-	public void write(IContestObject obj) {
-		((ContestObject) obj).write(je);
 	}
 
 	public void writeContest(Contest contest) {

@@ -155,8 +155,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(SUBMISSION_ID, submissionId);
 		je.encode(JUDGEMENT_TYPE_ID, judgementTypeId);
@@ -186,7 +185,6 @@ public class Judgement extends ContestObject implements IJudgement {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
-		je.close();
 	}
 
 	@Override

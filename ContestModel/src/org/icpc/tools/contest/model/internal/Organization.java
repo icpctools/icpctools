@@ -177,8 +177,7 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
-	public void write(JSONEncoder je) {
-		je.open();
+	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 		je.encode(ICPC_ID, icpcId);
 		je.encode(NAME, name);
@@ -192,7 +191,6 @@ public class Organization extends ContestObject implements IOrganization {
 		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE)
 			je.encodePrimitive(LOCATION, "{\"latitude\":" + round(latitude) + ",\"longitude\":" + round(longitude) + "}");
 		je.encode(LOGO, logo, false);
-		je.close();
 	}
 
 	private static double round(double d) {
