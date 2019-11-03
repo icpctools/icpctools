@@ -15,6 +15,8 @@
                     Search
                 </button>
             </form>
+            
+            <p/>
 
             <h3>Results</h3>
 
