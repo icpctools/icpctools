@@ -433,6 +433,17 @@ service has been configured into the CDS, as described earlier.)
 A complete list of the services provided by the CDS can be found on the
 https://clics.ecs.baylor.edu/index.php/CDS[CLI CDS] Wiki page.
 
+== Updating ICPC Clients
+
+When using any of the ICPC Tools clients (presentations, balloon printer, coach view, and resolver) with the CDS,
+they will check the CDS for newer versions on startup, and will automatically download and replace
+themselves if a newer version is available.
+To use this function, download the zip file of a newer version of a tool and place it in the CDS's config/present folder.
+
+For example, if a balloon client had the 2.2.87 version installed and you downloaded the 2.2.90 version and placed
+it at wlp/usr/servers/cds/config/present/balloonUtil-2.2.90.zip, the next time the balloon client is started or
+restarted it will update to 2.2.90. The presentation admin can be used to force a restart of any client.
+
 <<<
 [appendix]
 === Setting up Video Streaming on Team machines
