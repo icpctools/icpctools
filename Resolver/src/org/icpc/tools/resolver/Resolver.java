@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
@@ -599,14 +600,14 @@ public class Resolver {
 		if (groups != null) {
 			steps = new ArrayList<ResolutionUtil.ResolutionStep>();
 			for (int i = 0; i < groups.length; i++) {
-				// for (String groupId : groups) {
 				Trace.trace(Trace.INFO, "Resolving for group " + groups[i]);
 				Contest cc = finalContest.clone(true);
 				// set the current group to be visible and all others hidden
+				Pattern pattern = Pattern.compile(groups[i].trim());
 				for (IGroup g : cc.getGroups()) {
-					if (groups[i].trim().equals(g.getId())) {
+					if (pattern.matcher(g.getId()).matches())
 						cc.setGroupIsHidden(g, false);
-					} else if (!g.isHidden())
+					else if (!g.isHidden())
 						cc.setGroupIsHidden(g, true);
 				}
 
