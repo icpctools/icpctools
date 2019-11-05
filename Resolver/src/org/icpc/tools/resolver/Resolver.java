@@ -599,6 +599,8 @@ public class Resolver {
 		List<ResolutionStep> steps = null;
 		if (groups != null) {
 			steps = new ArrayList<ResolutionUtil.ResolutionStep>();
+			IAward[] fullAwards = finalContest.getAwards();
+			boolean hasAwards = fullAwards != null && fullAwards.length > 0;
 			for (int i = 0; i < groups.length; i++) {
 				Trace.trace(Trace.INFO, "Resolving for group " + groups[i]);
 				Contest cc = finalContest.clone(true);
@@ -623,8 +625,7 @@ public class Resolver {
 					cc.removeProblems(problemIds);
 				}
 
-				IAward[] contestAwards = cc.getAwards();
-				if (contestAwards == null || contestAwards.length == 0) {
+				if (!hasAwards) {
 					Trace.trace(Trace.USER, "Generating awards");
 					cc.finalizeResults();
 					AwardUtil.createDefaultAwards(cc);
