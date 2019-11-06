@@ -22,6 +22,19 @@ import org.icpc.tools.contest.model.internal.Info;
  * Event feed utility. Provides summary info or compares two event feeds.
  */
 public class EventFeedUtil {
+	public enum DiffType {
+		DIFF_OK, DIFF_BAD, SAME, SOURCE_ONLY, TARGET_ONLY
+	}
+
+	public static class CompareFull {
+		public DiffType[][] diff;
+		public String[] attrs;
+		public List<String> ids = new ArrayList<String>();
+		public String[][][] vals;
+		public int[] num;
+		public int[] only;
+		public int different;
+	}
 
 	public static class CompareCount {
 		List<String> messages = new ArrayList<>();
@@ -49,14 +62,14 @@ public class EventFeedUtil {
 		public String printSingletonSummaryHTML() {
 			StringBuilder sb = new StringBuilder();
 			if (!isOk())
-				sb.append("<span class=\"text-danger\">");
+				sb.append("<font color=red>");
 
 			String st = printSingletonSummary2(null, true);
 			String[] ss = st.split("\n");
 			for (String s2 : ss)
 				sb.append(s2 + "<br/>");
 			if (!isOk())
-				sb.append("</span>");
+				sb.append("</font>");
 			return sb.toString();
 		}
 
@@ -89,14 +102,14 @@ public class EventFeedUtil {
 		public String printSummaryHTML() {
 			StringBuilder sb = new StringBuilder();
 			if (!isOk())
-				sb.append("<span class=\"text-danger\">");
+				sb.append("<font color=red>");
 
 			String st = printSummary2(null, true);
 			String[] ss = st.split("\n");
 			for (String s2 : ss)
 				sb.append(s2 + "<br/>");
 			if (!isOk())
-				sb.append("</span>");
+				sb.append("</font>");
 			return sb.toString();
 		}
 
@@ -466,6 +479,219 @@ public class EventFeedUtil {
 		}
 
 		return cc;
+	}
+
+	interface ITemp {
+		String[] getAttrs();
+
+		IContestObject[] getContestObjs(Contest c);
+
+		IContestObject getObj(Contest c, String id);
+
+		String[] getVars(Contest c, IContestObject obj);
+	}
+
+	public static CompareFull compareAwardsFull2(Contest... contests) {
+		return compareFull(new ITemp() {
+			@Override
+			public String[] getAttrs() {
+				return new String[] { "Citation", "Type", "Teams" };
+			}
+
+			@Override
+			public IContestObject[] getContestObjs(Contest c) {
+				return c.getAwards();
+			}
+
+			@Override
+			public IContestObject getObj(Contest c, String id) {
+				return c.getAwardById(id);
+			}
+
+			@Override
+			public String[] getVars(Contest c, IContestObject obj) {
+				IAward a = (IAward) obj;
+				String teamStr = "";
+				// TODO sort team ids
+				for (String id : a.getTeamIds()) {
+					if (teamStr.length() > 0)
+						teamStr += "<br/>";
+					ITeam t = c.getTeamById(id);
+					teamStr += t.getId() + ": " + t.getName();
+				}
+				return new String[] { a.getCitation(), a.getAwardType().getName(), teamStr };
+			}
+		}, contests);
+	}
+
+	public static CompareFull compareProblemsFull(Contest... contests) {
+		return compareFull(new ITemp() {
+			@Override
+			public String[] getAttrs() {
+				return new String[] { "Label", "Name", "Ordinal", "Color", "RGB", "Test Data Count" };
+			}
+
+			@Override
+			public IContestObject[] getContestObjs(Contest c) {
+				return c.getProblems();
+			}
+
+			@Override
+			public IContestObject getObj(Contest c, String id) {
+				return c.getProblemById(id);
+			}
+
+			@Override
+			public String[] getVars(Contest c, IContestObject obj) {
+				IProblem p = (IProblem) obj;
+				return new String[] { p.getLabel(), p.getName(), p.getOrdinal() + "", p.getColor(), p.getRGB(),
+						p.getTestDataCount() + "" };
+			}
+		}, contests);
+	}
+
+	public static CompareFull compareLanguagesFull(Contest... contests) {
+		return compareFull(new ITemp() {
+			@Override
+			public String[] getAttrs() {
+				return new String[] { "Name" };
+			}
+
+			@Override
+			public IContestObject[] getContestObjs(Contest c) {
+				return c.getLanguages();
+			}
+
+			@Override
+			public IContestObject getObj(Contest c, String id) {
+				return c.getLanguageById(id);
+			}
+
+			@Override
+			public String[] getVars(Contest c, IContestObject obj) {
+				return new String[] { ((ILanguage) obj).getName() };
+			}
+		}, contests);
+	}
+
+	private static CompareFull compareFull(ITemp temp, Contest... contests) {
+		CompareFull cc = new CompareFull();
+		cc.attrs = temp.getAttrs();
+		int numAttr = cc.attrs.length;
+
+		for (Contest c : contests) {
+			for (IContestObject co : temp.getContestObjs(c))
+				if (!cc.ids.contains(co.getId()))
+					cc.ids.add(co.getId());
+		}
+
+		int numContests = contests.length;
+		cc.vals = new String[numContests][cc.ids.size()][numAttr];
+		cc.num = new int[numContests];
+		cc.only = new int[numContests];
+		int numVars = cc.vals[0][0].length;
+		cc.diff = new DiffType[cc.ids.size()][numAttr];
+
+		for (int j = 0; j < cc.ids.size(); j++) {
+			int num = 0;
+			for (int i = 0; i < numContests; i++) {
+				IContestObject co = temp.getObj(contests[i], cc.ids.get(j));
+				if (co != null) {
+					cc.num[i]++;
+					num++;
+					cc.vals[i][j] = temp.getVars(contests[i], co);
+				}
+			}
+			if (num == 1) {
+				for (int i = 0; i < numContests; i++) {
+					IAward a = contests[i].getAwardById(cc.ids.get(j));
+					if (a != null) {
+						cc.only[i]++;
+					}
+				}
+			}
+			for (int k = 0; k < numVars; k++) {
+				String s = cc.vals[0][j][k];
+				boolean diff = false;
+				for (int i = 1; i < numContests; i++) {
+					if (!s.equals(cc.vals[i][j][k]))
+						diff = true;
+				}
+				if (diff) {
+					cc.diff[j][k] = DiffType.DIFF_BAD;
+					cc.different++;
+				}
+			}
+		}
+
+		return cc;
+	}
+
+	public static CompareFull compareAwardsFull(Contest... contests) {
+		CompareFull cc = new CompareFull();
+		cc.attrs = new String[] { "Citation", "Type", "Teams" };
+
+		for (Contest c : contests) {
+			for (IAward a : c.getAwards())
+				if (!cc.ids.contains(a.getId()))
+					cc.ids.add(a.getId());
+		}
+
+		int numContests = contests.length;
+		cc.vals = new String[contests.length][cc.ids.size()][3];
+		cc.num = new int[numContests];
+		cc.only = new int[numContests];
+
+		for (int j = 0; j < cc.ids.size(); j++) {
+			int num = 0;
+			for (int i = 0; i < numContests; i++) {
+				IAward a = contests[i].getAwardById(cc.ids.get(j));
+				if (a != null) {
+					cc.num[i]++;
+					num++;
+					String teamStr = "";
+					// TODO sort team ids
+					for (String id : a.getTeamIds()) {
+						if (teamStr.length() > 0)
+							teamStr += "<br/>";
+						ITeam t = contests[i].getTeamById(id);
+						teamStr += t.getId() + ": " + t.getName();
+					}
+					cc.vals[i][j] = new String[] { a.getCitation(), a.getAwardType().getName(), teamStr };
+				}
+			}
+			if (num == 1) {
+				for (int i = 0; i < numContests; i++) {
+					IAward a = contests[i].getAwardById(cc.ids.get(j));
+					if (a != null) {
+						cc.only[i]++;
+					}
+				}
+			}
+		}
+
+		diff(cc);
+		return cc;
+	}
+
+	private static void diff(CompareFull cf) {
+		int numContests = cf.vals.length;
+		int numVars = cf.vals[0][0].length;
+		cf.diff = new DiffType[cf.ids.size()][3];
+		for (int i = 0; i < cf.ids.size(); i++) {
+			for (int k = 0; k < numVars; k++) {
+				String s = cf.vals[0][i][k];
+				boolean diff = false;
+				for (int j = 1; j < numContests; j++) {
+					if ((s == null && cf.vals[j][i][k] != null) || (s != null && !s.equals(cf.vals[j][i][k])))
+						diff = true;
+				}
+				if (diff) {
+					cf.diff[i][k] = DiffType.DIFF_BAD;
+					cf.different++;
+				}
+			}
+		}
 	}
 
 	protected static void outputValidationWarning(Contest contest) {

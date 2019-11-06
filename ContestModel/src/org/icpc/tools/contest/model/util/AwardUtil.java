@@ -95,7 +95,7 @@ public class AwardUtil {
 
 				if (teamInGroup) {
 					String rank = contest.getStanding(team).getRank();
-					if (count <= numPerGroup && rank.equals(lastRank)) {
+					if (count <= numPerGroup && rank.equals(lastRank) && rank.equals(lastRank)) {
 						teamIds.add(team.getId());
 					} else if (count < numPerGroup) {
 						teamIds.add(team.getId());
