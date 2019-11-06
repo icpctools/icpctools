@@ -15,6 +15,14 @@ public class ContestUtil {
 
 	public static boolean flashPending = true;
 
+	public static boolean isRecent(IContest c, int contestTime) {
+		Long l = c.getStartTime();
+		if (l == null)
+			return false;
+
+		return contestTime > (((System.currentTimeMillis() - l.longValue()) * c.getTimeMultiplier() - RECENT_MS));
+	}
+
 	/**
 	 * Returns <code>true</code> if the result is recent (i.e. "interesting" - is awaiting judgement
 	 * or recently changed).
@@ -27,13 +35,7 @@ public class ContestUtil {
 		if (r.getNumSubmissions() == 0)
 			return false;
 
-		return (flashPending
-				&& (r.getStatus() == Status.SUBMITTED || r.getContestTime() > c.getContestTimeOfLastEvent() - RECENT_MS));
-	}
-
-	public static boolean isRecent(IContest c, IProblemSummary e) { // TODO - should be based on
-																							// contest time
-		return e.getContestTime() > c.getContestTimeOfLastEvent() - RECENT_MS;
+		return (flashPending && (r.getStatus() == Status.SUBMITTED || isRecent(c, r.getContestTime())));
 	}
 
 	/**
@@ -45,7 +47,7 @@ public class ContestUtil {
 	 * @return
 	 */
 	public static boolean isRecent(IContest c, ISubmission s) {
-		return (flashPending && (!c.isJudged(s) || s.getContestTime() > (c.getContestTimeOfLastEvent() - RECENT_MS)));
+		return (flashPending && (!c.isJudged(s) || isRecent(c, s.getContestTime())));
 	}
 
 	/**

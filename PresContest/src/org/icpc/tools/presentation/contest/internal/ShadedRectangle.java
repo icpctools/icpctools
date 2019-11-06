@@ -94,7 +94,8 @@ public class ShadedRectangle {
 
 	public static void drawRoundRect(Graphics2D g, int x, int y, int w, int h, IContest contest, IProblemSummary summary,
 			long time, String s) {
-		Paint paint = getPaint(h, summary.getStatus(), ContestUtil.isRecent(contest, summary), false, time);
+		Paint paint = getPaint(h, summary.getStatus(), ContestUtil.isRecent(contest, summary.getContestTime()), false,
+				time);
 		Color outline = null;
 
 		drawRoundRect(g, x, y, w, h, paint, outline, s);
