@@ -27,6 +27,7 @@ import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.web.VideoStatusServlet;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestSource;
@@ -34,6 +35,7 @@ import org.icpc.tools.contest.model.feed.ContestSource.Validation;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.contest.model.util.EventFeedUtil;
 import org.icpc.tools.contest.model.util.ScoreboardData;
 import org.icpc.tools.contest.model.util.ScoreboardUtil;
@@ -178,7 +180,19 @@ public class ContestWebService extends HttpServlet {
 				try {
 					Contest contestA = cc.getContestByRole(request);
 					request.setAttribute("a", cc.getId());
-					Contest contestB = CDSConfig.getContest(segments[2]).getContestByRole(request);
+					String cId = segments[2];
+
+					Contest contestB = null;
+					if ("compare2cds".equals(cId)) {
+						contestB = contestA.clone(true);
+						// remove any existing awards
+						IAward[] awards = contestB.getAwards();
+						if (awards != null)
+							for (IAward a : awards)
+								contestB.removeFromHistory(a);
+						AwardUtil.createDefaultAwards(contestB);
+					} else
+						contestB = CDSConfig.getContest(cId).getContestByRole(request);
 					request.setAttribute("b", segments[2]);
 
 					/*String st = request.getRequestURL().toString();

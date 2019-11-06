@@ -102,6 +102,7 @@
                 <a href="<%= webroot%>/contestCompare/<%= cc2.getId() %>"><%= cc2.getId() %>
                 </a>&nbsp;&nbsp;
                 <% } %>
+                <a href="<%= webroot%>/contestCompare/compare2cds">CDS awards</a>
             </p>
 
             Freeze details & verification: <a href="<%= webroot%>/freeze">here</a>.
