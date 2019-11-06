@@ -627,7 +627,6 @@ public class Resolver {
 
 				if (!hasAwards) {
 					Trace.trace(Trace.USER, "Generating awards");
-					cc.finalizeResults();
 					AwardUtil.createDefaultAwards(cc);
 				}
 
@@ -645,7 +644,6 @@ public class Resolver {
 			IAward[] contestAwards = finalContest.getAwards();
 			if (contestAwards == null || contestAwards.length == 0) {
 				Trace.trace(Trace.USER, "Generating awards");
-				finalContest.finalizeResults();
 				AwardUtil.createDefaultAwards(finalContest);
 			}
 
