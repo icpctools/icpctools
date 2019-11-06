@@ -140,6 +140,9 @@ public class JsonToTSVConverter {
 			readContest(folder, index);
 			readStaff(folder);
 
+			teamList.removeIf(t -> t.number == null);
+			memberList.removeIf(m -> m.team.number == null);
+
 			groupList.sort((g1, g2) -> compare(g1.id, g2.id));
 			teamList.sort((t1, t2) -> compare(t1.number, t2.number));
 			institutionList.sort((i1, i2) -> compare(i1.id, i2.id));
