@@ -141,8 +141,6 @@ public class EditAwardsDialog extends Dialog {
 			public void widgetSelected(SelectionEvent event) {
 				if (isMultiTeamAwardSelected())
 					removeTeamFromAward();
-				else
-					awards.remove(selectedAward);
 
 				selectedAward = null;
 				updateAwards();
