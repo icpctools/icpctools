@@ -27,6 +27,8 @@ import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.presentations.Balloon;
 
 public class BalloonMapPresentation extends AbstractICPCPresentation {
+	private static final boolean FINALS_HACK = true;
+
 	private static final long TIME_TO_KEEP_SOLVED = 11000;
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
@@ -49,6 +51,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 
 		protected int problem;
 		protected IOrganization org;
+		protected ITeam team;
 		protected BufferedImage logo;
 		protected BufferedImage smLogo;
 
@@ -177,6 +180,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 		sr.anim = new Animator(0, SUBMISSION_MOVEMENT);
 		sr.anim.setTarget(0.95);
 		sr.problem = contest.getProblemIndex(submission.getProblemId());
+		sr.team = team;
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 		if (org != null) {
 			sr.org = org;
@@ -359,7 +363,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 
 			}
 
-			String s = sr.org.getName();
+			String s = FINALS_HACK ? sr.org.getName() : sr.team.getName();
 			g2.setColor(Color.WHITE);
 			g2.setFont(font);
 			FontMetrics fm = g2.getFontMetrics();
