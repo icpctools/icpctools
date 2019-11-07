@@ -42,3 +42,11 @@ h3 {
     border: 1px solid black;
     display: inline-block;
 }
+
+.card-header {
+    font-size: 1rem;
+}
+
+.navbar {
+    font-size: 1rem;
+}
