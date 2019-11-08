@@ -28,7 +28,7 @@ public class ResolutionUtil {
 
 	public static class PresentationStep implements ResolutionStep {
 		enum Presentations {
-			SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST
+			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST
 		}
 
 		public Presentations p;

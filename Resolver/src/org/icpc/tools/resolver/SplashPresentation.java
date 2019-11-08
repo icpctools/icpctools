@@ -34,10 +34,6 @@ public class SplashPresentation extends AbstractICPCPresentation {
 
 	private BufferedImage image;
 
-	public SplashPresentation(IContest c) {
-		setContest(c);
-	}
-
 	@Override
 	public void init() {
 		float dpi = 96;
