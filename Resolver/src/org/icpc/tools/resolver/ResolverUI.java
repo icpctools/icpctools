@@ -20,6 +20,7 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation;
@@ -90,6 +91,7 @@ public class ResolverUI {
 	private List<ResolutionStep> steps = new ArrayList<>();
 
 	private PresentationWindow window;
+	private AbstractICPCPresentation splashPresentation;
 	private ScoreboardPresentation scoreboardPresentation;
 	private TeamAwardPresentation awardPresentation;
 	private TeamLogoPresentation teamLogoPresentation;
@@ -220,7 +222,6 @@ public class ResolverUI {
 			}
 		};
 
-		Presentation splashPresentation = null;
 		if (screen == Screen.TEAM || screen == Screen.SIDE) {
 			logoPresentation = new StaticLogoPresentation();
 			logoPresentation.addMouseListener(nullMouse);
@@ -234,11 +235,10 @@ public class ResolverUI {
 				teamListSidePresentation.addMouseListener(nullMouse);
 			}
 		} else {
-			splashPresentation = new SplashPresentation(contest);
+			splashPresentation = new SplashPresentation();
+			splashPresentation.setContest(contest);
 			splashPresentation.addMouseListener(nullMouse);
 		}
-
-		window.setPresentation(splashPresentation);
 
 		scoreboardPresentation = new ScoreboardPresentation() {
 			@Override
@@ -302,6 +302,8 @@ public class ResolverUI {
 		final float dpi = 96;
 		float size = (window.getHeight() / 14f) * 36f / dpi;
 		messageFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, size);
+
+		processAction(Action.FORWARD);
 	}
 
 	private String getStatusInfo() {
@@ -491,6 +493,7 @@ public class ResolverUI {
 	private int processStep(long[] startTime, ResolutionStep step) {
 		if (step instanceof ContestStateStep) {
 			ContestStateStep state = (ContestStateStep) step;
+			splashPresentation.setContest(state.contest);
 			scoreboardPresentation.setContest(state.contest);
 			judgePresentation.setContest(state.contest);
 			awardPresentation.setContest(state.contest);
@@ -535,7 +538,9 @@ public class ResolverUI {
 			scoreboardPresentation.setScrollToRow(scroll.row);
 		} else if (step instanceof PresentationStep) {
 			PresentationStep pstep = (PresentationStep) step;
-			if (pstep.p == PresentationStep.Presentations.SCOREBOARD)
+			if (pstep.p == PresentationStep.Presentations.SPLASH)
+				setPresentation(splashPresentation);
+			else if (pstep.p == PresentationStep.Presentations.SCOREBOARD)
 				setPresentation(scoreboardPresentation);
 			else if (pstep.p == PresentationStep.Presentations.JUDGE)
 				setPresentation(judgePresentation);

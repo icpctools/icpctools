@@ -269,8 +269,9 @@ public class ResolverLogic {
 		cleanOutlierSubmissions();
 
 		// set the initial state
-		steps.add(new PauseStep());
 		steps.add(new ContestStateStep(contest));
+		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
+		steps.add(new PauseStep());
 		steps.add(new TeamSelectionStep());
 		steps.add(new SubmissionSelectionStep(null));
 		steps.add(new ToJudgeStep(null));
