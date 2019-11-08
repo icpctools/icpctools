@@ -54,14 +54,17 @@
                     <th>Id</th>
                     <th>Display</th>
                     <th>Presentation</th>
+                    <th>Actions</th>
                     <th style="width: 75px;"></th>
                     <th>Id</th>
                     <th>Display</th>
                     <th>Presentation</th>
+                    <th>Actions</th>
                     <th style="width: 75px;"></th>
                     <th>Id</th>
                     <th>Display</th>
                     <th>Presentation</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody></tbody>
@@ -93,6 +96,40 @@
         };
 
         xmlhttp.open("PUT", "present/" + id, true);
+        xmlhttp.send();
+    }
+    
+    function stop(id) {
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function () {
+            document.getElementById("status").innerHTML = "Changing to " + id;
+            if (xmlhttp.readyState == 4) {
+                if (xmlhttp.status == 200) {
+                    document.getElementById("status").innerHTML = "Success";
+                } else
+                    document.getElementById("status").innerHTML = xmlhttp.responseText;
+            }
+        };
+
+        xmlhttp.open("PUT", "stop/" + id, true);
+        xmlhttp.send();
+    }
+    
+    function restart(id) {
+        var xmlhttp = new XMLHttpRequest();
+
+        xmlhttp.onreadystatechange = function () {
+            document.getElementById("status").innerHTML = "Changing to " + id;
+            if (xmlhttp.readyState == 4) {
+                if (xmlhttp.status == 200) {
+                    document.getElementById("status").innerHTML = "Success";
+                } else
+                    document.getElementById("status").innerHTML = xmlhttp.responseText;
+            }
+        };
+
+        xmlhttp.open("PUT", "restart/" + id, true);
         xmlhttp.send();
     }
 
@@ -162,6 +199,8 @@
                         map.set(key, 1);
                 } else
                     col += '<td></td>';
+                col += '<td><a href="javascript:restart(\'' + clients[i].id + '\')">Restart</a>&nbsp;' 
+                + '<a href="javascript:stop(\'' + clients[i].id + '\')">Stop</a></td>';
 
                 count++;
                 if (count % 3 == 0 || count == clients.length) {
@@ -178,13 +217,13 @@
             $('#client-summary-table tbody').find("tr").remove();
             $('#client-summary-table tfoot').find("tr").remove();
             for (var [key, value] of map) {
-                var col = '<td>' + key + '</td><td>' + value + "</td>";
+                var col = '<td>' + key + '</td><td>' + value + '</td>';
                 row = $('<tr></tr>');
                 row.append($(col));
                 $('#client-summary-table tbody').append(row);
                 count += value;
             }
-            col = '<td class="text-right"><b>Total</b></td><td>' + count + "</td>";
+            col = '<td class="text-right"><b>Total</b></td><td>' + count + '</td>';
             row = $('<tr></tr>');
             row.append($(col));
             $('#client-summary-table tfoot').append(row);

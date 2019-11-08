@@ -434,6 +434,26 @@ public class PresentationServer {
 		sendProperties(clientUIDs, p);
 	}
 
+	public void restart(int[] clientUIDs) {
+		Trace.trace(Trace.USER, "Restarting clients");
+		forEachClient(getClients(clientUIDs), new ClientRun() {
+			@Override
+			public void run(Client cl) throws IOException {
+				cl.writeRestart();
+			}
+		});
+	}
+
+	public void stop(int[] clientUIDs) {
+		Trace.trace(Trace.USER, "Stopping clients");
+		forEachClient(getClients(clientUIDs), new ClientRun() {
+			@Override
+			public void run(Client cl) throws IOException {
+				cl.writeStop();
+			}
+		});
+	}
+
 	protected void handleProperties(JsonObject obj) {
 		int[] cl = readClients(obj);
 		int size = obj.getInt("num");
