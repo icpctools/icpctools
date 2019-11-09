@@ -1080,6 +1080,9 @@ public class Contest implements IContest {
 	}
 
 	public IStanding getStanding(int teamIndex) {
+		if (teamIndex < 0)
+			return null;
+
 		Standing[] tempStandings = standings;
 		if (tempStandings != null)
 			return tempStandings[teamIndex];
