@@ -12,6 +12,7 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Team extends ContestObject implements ITeam {
 	private static final String NAME = "name";
+	private static final String DISPLAY_NAME = "display_name";
 	private static final String GROUP_IDS = "group_ids";
 	private static final String ORGANIZATION_ID = "organization_id";
 	private static final String ICPC_ID = "icpc_id";
@@ -26,6 +27,7 @@ public class Team extends ContestObject implements ITeam {
 	private static final String KEY_LOG = "keylog";
 
 	private String name;
+	private String displayName;
 	private String[] groupIds;
 	private String organizationId;
 	private String icpcId;
@@ -62,6 +64,11 @@ public class Team extends ContestObject implements ITeam {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return displayName;
 	}
 
 	@Override
@@ -203,6 +210,10 @@ public class Team extends ContestObject implements ITeam {
 				name = (String) value;
 				return true;
 			}
+			case DISPLAY_NAME: {
+				displayName = (String) value;
+				return true;
+			}
 			case X: {
 				x = parseDouble(value);
 				return true;
@@ -250,6 +261,7 @@ public class Team extends ContestObject implements ITeam {
 		t.desktop = desktop;
 		t.webcam = webcam;
 		t.name = name;
+		t.displayName = displayName;
 		t.groupIds = groupIds;
 		t.organizationId = organizationId;
 		t.icpcId = icpcId;
@@ -263,6 +275,8 @@ public class Team extends ContestObject implements ITeam {
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
 		props.put(NAME, name);
+		if (displayName != null)
+			props.put(DISPLAY_NAME, displayName);
 		props.put(ICPC_ID, icpcId);
 		if (groupIds != null)
 			props.put(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
@@ -285,6 +299,8 @@ public class Team extends ContestObject implements ITeam {
 		je.encode(ID, id);
 
 		je.encode(NAME, name);
+		if (displayName != null)
+			je.encode(DISPLAY_NAME, displayName);
 		if (icpcId != null)
 			je.encode(ICPC_ID, icpcId);
 		if (groupIds != null)
