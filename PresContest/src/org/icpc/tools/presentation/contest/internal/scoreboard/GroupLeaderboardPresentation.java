@@ -71,14 +71,15 @@ public class GroupLeaderboardPresentation extends AbstractScoreboardPresentation
 		for (int i = 0; i < size; i++) {
 			ITeam team = teams[i];
 			String[] groupIds = team.getGroupIds();
-			for (String groupId : groupIds) {
-				if (currentGroupId == null || currentGroupId.equalsIgnoreCase(groupId)) {
-					targets[i] = count++;
-					continue;
+			if (groupIds != null) {
+				for (String groupId : groupIds) {
+					if (currentGroupId == null || currentGroupId.equalsIgnoreCase(groupId)) {
+						targets[i] = count++;
+						continue;
+					}
+					targets[i] = teamsPerScreen * 2;
 				}
-				targets[i] = teamsPerScreen * 2;
 			}
-
 		}
 		return targets;
 	}
