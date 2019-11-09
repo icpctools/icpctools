@@ -265,8 +265,8 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 
 				double lon = org.getLongitude();
 				if (lon != Double.MIN_VALUE) {
-					minLon = Math.min(minLon, lon);
-					maxLon = Math.max(maxLon, lon);
+					minLon = Math.min(minLon, lon - 3);
+					maxLon = Math.max(maxLon, lon + 3);
 				}
 			}
 		}

@@ -74,6 +74,60 @@ public class RESTContestSource extends DiskContestSource {
 	private boolean firstConnection = true;
 	private int contestSizeBeforeFeed;
 
+	// Based on https://stackoverflow.com/a/11024200
+	static class Version implements Comparable<Version> {
+
+		private String version;
+
+		public final String get() {
+			return this.version;
+		}
+
+		public Version(String version) {
+			if (version == null)
+				throw new IllegalArgumentException("Version can not be null");
+			if (!version.matches("[0-9]+(\\.[0-9]+)*"))
+				throw new IllegalArgumentException("Invalid version format");
+			this.version = version;
+		}
+
+		@Override
+		public int compareTo(Version that) {
+			if (that == null)
+				return 1;
+			String[] thisParts = this.get().split("\\.");
+			String[] thatParts = that.get().split("\\.");
+			int length = Math.max(thisParts.length, thatParts.length);
+			for (int i = 0; i < length; i++) {
+				int thisPart = i < thisParts.length ?
+						Integer.parseInt(thisParts[i]) : 0;
+				int thatPart = i < thatParts.length ?
+						Integer.parseInt(thatParts[i]) : 0;
+				if (thisPart < thatPart)
+					return -1;
+				if (thisPart > thatPart)
+					return 1;
+			}
+			return 0;
+		}
+
+		@Override
+		public boolean equals(Object that) {
+			if (this == that)
+				return true;
+			if (that == null)
+				return false;
+			if (this.getClass() != that.getClass())
+				return false;
+			return this.compareTo((Version) that) == 0;
+		}
+
+		@Override
+		public String toString() {
+			return version;
+		}
+	}
+
 	/**
 	 * Creates a REST contest source with a local caching policy.
 	 *
@@ -1121,32 +1175,31 @@ public class RESTContestSource extends DiskContestSource {
 
 			// check on CDS for which versions are available
 			String[] files = getDirectory("/presentation");
-			List<String> presJars = new ArrayList<>();
+			List<Version> presVersions = new ArrayList<>();
 			if (files != null && files.length > 0)
 				for (String f : files) {
-					if (f.startsWith(prefix) && f.endsWith(".zip"))
-						presJars.add(f);
+					if (f.startsWith(prefix) && f.endsWith(".zip")) {
+						String version = f.substring(prefix.length(), f.length() - 4);
+						presVersions.add(new Version(version));
+					}
 				}
 
-			Trace.trace(Trace.INFO, "Updates found on CDS: " + presJars.size());
-			if (presJars.size() > 0) {
+			Trace.trace(Trace.INFO, "Updates found on CDS: " + presVersions.size());
+			if (presVersions.size() > 0) {
 				// pick latest version and compare with local
-				presJars.sort(new Comparator<String>() {
-					@Override
-					public int compare(String s1, String s2) {
-						return -s1.compareTo(s2);
-					}
-				});
-				String localVersion = getVersion();
-				String remote = presJars.get(0);
-				String remoteVersion = remote.substring(prefix.length());
-				remoteVersion = remoteVersion.substring(0, remoteVersion.length() - 4);
-				Trace.trace(Trace.INFO, "Version check: " + localVersion + " (local) vs " + remoteVersion + " (remote)");
+				presVersions.sort((s1, s2) -> -s1.compareTo(s2));
+				String localVersionString = getVersion();
+				Version remoteVersion = presVersions.get(0);
+				Trace.trace(Trace.INFO, "Version check: " + localVersionString + " (local) vs " + remoteVersion + " (remote)");
+				if (localVersionString.contains("dev")) {
+					return;
+				}
+				Version localVersion = new Version(localVersionString);
 
-				if (!localVersion.contains("dev") && localVersion.compareTo(remoteVersion) < 0) {
+				if (localVersion.compareTo(remoteVersion) < 0) {
 					// download and unzip new version, restart
-					Trace.trace(Trace.USER, "Newer version found on CDS (" + remote + "). Downloading and restarting...");
-					File f = getFile("/presentation/" + remote);
+					Trace.trace(Trace.USER, "Newer version found on CDS (" + remoteVersion + "). Downloading and restarting...");
+					File f = getFile("/presentation/" + prefix + remoteVersion + ".zip");
 
 					// unzip to /update
 					unzip(f, updateDir);

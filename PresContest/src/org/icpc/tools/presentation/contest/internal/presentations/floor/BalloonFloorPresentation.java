@@ -52,6 +52,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		protected Path path;
 		protected int problem;
 		protected IOrganization org;
+		protected ITeam team;
 		protected BufferedImage logo;
 		protected BufferedImage smLogo;
 
@@ -169,6 +170,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		sr.anim = new Animator(0, SUBMISSION_MOVEMENT);
 		sr.anim.setTarget(sr.path.getDistance());
 		sr.problem = contest.getProblemIndex(submission.getProblemId());
+		sr.team = team;
 		sr.org = contest.getOrganizationById(team.getOrganizationId());
 		if (sr.org != null) {
 			sr.logo = sr.org.getLogoImage(height / 6, height / 6, true, true);
@@ -271,16 +273,16 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		g.setStroke(stroke);
 
 		// draw logos
-		List<String> orgIds = new ArrayList<>();
+		List<String> teamIds = new ArrayList<>();
 		for (int i = srs.length - 1; i >= 0; i--) {
 			SubmissionRecord sr = srs[i];
 			BufferedImage img = sr.logo;
 			BufferedImage smImg = sr.smLogo;
 			int yy = 4;
 			if (img != null) {
-				if (orgIds.contains(sr.org.getId()))
+				if (teamIds.contains(sr.team.getId()))
 					continue;
-				orgIds.add(sr.org.getId());
+				teamIds.add(sr.team.getId());
 				ITeam team = floor.getTeamById(sr.submission.getTeamId());
 				if (team != null) {
 					Point2D p2 = floor.getPosition(r, team.getX(), team.getY());
