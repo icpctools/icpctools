@@ -333,7 +333,10 @@ public class JsonToTSVConverter {
 			fw.write("\t");
 			fw.write(inst.name);
 			fw.write("\t");
-			fw.write(inst.shortName);
+			if (!inst.shortName.isEmpty())
+				fw.write(inst.shortName);
+			else
+				System.err.println("Institution without shortname: " + inst.name);
 			fw.write("\t");
 			if (inst.group != null)
 				fw.write(inst.group.id);
