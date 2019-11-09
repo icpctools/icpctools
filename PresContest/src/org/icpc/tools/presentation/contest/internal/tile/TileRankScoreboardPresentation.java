@@ -106,11 +106,13 @@ public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPrese
 			g.drawString(s, (margin - TILE_H_GAP - fm.stringWidth(s)) / 2,
 					fm.getAscent() + (int) (gr.y * (tileDim.height + TILE_V_GAP)) + TILE_V_GAP * 2);
 
-			s = "solved";
-			g.setColor(Color.LIGHT_GRAY);
-			g.setFont(solvedFont);
-			g.drawString(s, (margin - TILE_H_GAP - fm2.stringWidth(s)) / 2,
-					fm.getAscent() + fm2.getAscent() + (int) (gr.y * (tileDim.height + TILE_V_GAP)) + TILE_V_GAP * 4);
+			if (gr.numRows > 1) {
+				s = "solved";
+				g.setColor(Color.LIGHT_GRAY);
+				g.setFont(solvedFont);
+				g.drawString(s, (margin - TILE_H_GAP - fm2.stringWidth(s)) / 2,
+						fm.getAscent() + fm2.getAscent() + (int) (gr.y * (tileDim.height + TILE_V_GAP)) + TILE_V_GAP * 4);
+			}
 
 			i++;
 		}
