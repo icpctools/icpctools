@@ -59,7 +59,7 @@
                                     </div>
                                 </div>
                                 <% } %></td>
-                            <td colspan="4"><%= ContestUtil.formatDuration(contest.getDuration()) %>
+                            <td colspan="3"><%= ContestUtil.formatDuration(contest.getDuration()) %>
                                 starting at <%= ContestUtil.formatStartTime(contest) %>
                             </td>
                             <td class="text-right">
@@ -74,7 +74,6 @@
                             <td><a href="<%= apiRoot %>/">REST API root</a></td>
                             <td><a href="<%= apiRoot %>/event-feed">Event feed</a></td>
                             <td><a href="<%= apiRoot %>/scoreboard">JSON scoreboard</a></td>
-                            <td><a href="<%= webRoot %>/time">Time</a></td>
                             <td></td>
                         </tr>
 
@@ -84,15 +83,13 @@
                             <td><a href="<%= webRoot %>/details">Details</a></td>
                             <td><a href="<%= webRoot %>/orgs">Organizations</a></td>
                             <td><a href="<%= webRoot %>/teams">Teams</a></td>
-                            <td><a href="<%= webRoot %>/submissions">Submissions</a></td>
                         </tr>
                         <tr class="trcontest">
                             <td></td>
-                            <td><a href="<%= webRoot %>/clarifications">Clarifications</a></td>
                             <td><a href="<%= webRoot %>/scoreboard">Scoreboard</a></td>
                             <td><a href="<%= webRoot %>/countdown">Countdown</a></td>
-                            <td><a href="<%= webRoot %>/finalize">Finalize</a></td>
                             <td><a href="<%= webRoot %>/video/status">Video</a></td>
+                            <td></td>
                         </tr>
                         </tbody>
                     </table>
@@ -139,15 +136,15 @@
                            target="_blank">https://icpc.baylor.edu/icpctools</a></td>
                 </tr>
                 <tr>
-                    <td>Bugzilla</td>
+                    <td>Github</td>
                     <td>
-                        <a href="http://pc2.ecs.csus.edu/projects/bugzilla" target="_blank">http://pc2.ecs.csus.edu/projects/bugzilla</a>
+                        <a href="https://github.com/icpctools/icpctools" target="_blank">https://github.com/icpctools/icpctools</a>
                     </td>
                 </tr>
                 <tr>
-                    <td>Latest internal builds</td>
+                    <td>Latest builds</td>
                     <td>
-                        <a href="http://pc2.ecs.csus.edu/pc2projects/build" target="_blank">http://pc2.ecs.csus.edu/pc2projects/build</a>
+                        <a href="https://pc2.ecs.csus.edu/icpctools/gitlabbuilds" target="_blank">https://pc2.ecs.csus.edu/icpctools/gitlabbuilds</a>
                     </td>
                 </tr>
                 </tbody>

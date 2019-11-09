@@ -45,6 +45,11 @@ h3 {
 
 .card-header {
     font-size: 1rem;
+    font-weight: bold;
+}
+
+.card-body {
+ 	padding: 0px;
 }
 
 .navbar {
