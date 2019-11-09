@@ -11,15 +11,6 @@ h3 {
     font-size: 1.2rem;
 }
 
-.card-header {
-    font-size: 1.0rem;
-    font-weight: bold;
-}
-
-.card-body {
-	padding: 0px;
-}
-
 .table {
     width: auto;
 }
@@ -50,4 +41,17 @@ h3 {
     border-radius: 50%;
     border: 1px solid black;
     display: inline-block;
+}
+
+.card-header {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.card-body {
+ 	padding: 0px;
+ }
+
+.navbar {
+    font-size: 1rem;
 }

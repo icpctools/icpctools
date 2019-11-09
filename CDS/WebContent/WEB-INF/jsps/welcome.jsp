@@ -144,7 +144,7 @@
                 <tr>
                     <td>Latest builds</td>
                     <td>
-                        <a href="https://gitlab.com/icpctools/icpctools/pipelines" target="_blank">https://gitlab.com/icpctools/icpctools/pipelines</a>
+                        <a href="https://pc2.ecs.csus.edu/icpctools/gitlabbuilds" target="_blank">https://pc2.ecs.csus.edu/icpctools/gitlabbuilds</a>
                     </td>
                 </tr>
                 </tbody>
