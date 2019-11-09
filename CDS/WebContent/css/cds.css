@@ -11,6 +11,15 @@ h3 {
     font-size: 1.2rem;
 }
 
+.card-header {
+    font-size: 1.0rem;
+    font-weight: bold;
+}
+
+.card-body {
+	padding: 0px;
+}
+
 .table {
     width: auto;
 }
