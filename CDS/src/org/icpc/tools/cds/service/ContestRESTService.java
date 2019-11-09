@@ -52,6 +52,7 @@ public class ContestRESTService extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
+		response.setHeader("ICPC-Tools", "CDS");
 
 		String path = request.getPathInfo();
 		if (path == null || !path.startsWith("/contests")) {
@@ -133,10 +134,6 @@ public class ContestRESTService extends HttpServlet {
 				cc.incrementScoreboard();
 				response.setContentType("application/json");
 				Scoreboard.writeScoreboard(response.getWriter(), contest);
-				return;
-			} else if ("events".equals(segments[1])) {
-				response.sendError(HttpServletResponse.SC_GONE,
-						"XML Event Feed has been removed. Please contact John Clevenger ASAP if you still need it!");
 				return;
 			} else if ("projectedScoreboard".equals(segments[1])) {
 				int ind = getAfterEventIndex(request, contest);
@@ -394,7 +391,7 @@ public class ContestRESTService extends HttpServlet {
 				aggregator = WebcamAggregator.getInstance();
 			else
 				return false;
-			
+
 			int num = -1;
 			try {
 				num = Integer.parseInt(id);
