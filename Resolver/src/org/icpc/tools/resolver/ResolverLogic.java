@@ -483,6 +483,9 @@ public class ResolverLogic {
 
 						// we're done with that pending submission; find next pending submission
 						runInfo = getNextResolve();
+						// Also project standings for this run, if we have any
+						if (runInfo != null)
+							projectStandings(runInfo);
 					}
 					// row is fully resolved if it hasn't moved and doesn't have the next pending run
 					doneWithRow = contest.getOrderOf(team) == currentRow
