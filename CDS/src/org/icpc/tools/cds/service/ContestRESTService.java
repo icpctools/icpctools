@@ -52,7 +52,7 @@ public class ContestRESTService extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
-		response.setHeader("X-ICPC-Tools", "CDS");
+		response.setHeader("ICPC-Tools", "CDS");
 
 		String path = request.getPathInfo();
 		if (path == null || !path.startsWith("/contests")) {
@@ -391,7 +391,7 @@ public class ContestRESTService extends HttpServlet {
 				aggregator = WebcamAggregator.getInstance();
 			else
 				return false;
-			
+
 			int num = -1;
 			try {
 				num = Integer.parseInt(id);
