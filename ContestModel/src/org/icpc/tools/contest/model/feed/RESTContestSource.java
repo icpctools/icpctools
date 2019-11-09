@@ -31,7 +31,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -73,15 +72,11 @@ public class RESTContestSource extends DiskContestSource {
 	private FileOutputStream feedCacheOut;
 	private boolean firstConnection = true;
 	private int contestSizeBeforeFeed;
+	private boolean isCDS;
 
 	// Based on https://stackoverflow.com/a/11024200
 	static class Version implements Comparable<Version> {
-
 		private String version;
-
-		public final String get() {
-			return this.version;
-		}
 
 		public Version(String version) {
 			if (version == null)
@@ -95,14 +90,12 @@ public class RESTContestSource extends DiskContestSource {
 		public int compareTo(Version that) {
 			if (that == null)
 				return 1;
-			String[] thisParts = this.get().split("\\.");
-			String[] thatParts = that.get().split("\\.");
+			String[] thisParts = this.version.split("\\.");
+			String[] thatParts = that.version.split("\\.");
 			int length = Math.max(thisParts.length, thatParts.length);
 			for (int i = 0; i < length; i++) {
-				int thisPart = i < thisParts.length ?
-						Integer.parseInt(thisParts[i]) : 0;
-				int thatPart = i < thatParts.length ?
-						Integer.parseInt(thatParts[i]) : 0;
+				int thisPart = i < thisParts.length ? Integer.parseInt(thisParts[i]) : 0;
+				int thatPart = i < thatParts.length ? Integer.parseInt(thatParts[i]) : 0;
 				if (thisPart < thatPart)
 					return -1;
 				if (thisPart > thatPart)
@@ -117,14 +110,19 @@ public class RESTContestSource extends DiskContestSource {
 				return true;
 			if (that == null)
 				return false;
-			if (this.getClass() != that.getClass())
+			if (!(that instanceof Version))
 				return false;
-			return this.compareTo((Version) that) == 0;
+			return compareTo((Version) that) == 0;
 		}
 
 		@Override
 		public String toString() {
 			return version;
+		}
+
+		@Override
+		public int hashCode() {
+			return version.hashCode();
 		}
 	}
 
@@ -166,6 +164,8 @@ public class RESTContestSource extends DiskContestSource {
 
 		instance = this;
 
+		// TODO should be in temp folder? only when we know it gets cleaned up or there's an easy way
+		// to delete
 		feedCacheFile = new File("events-" + getRemoteContestId() + ".log");
 		if (feedCacheFile.exists()) {
 			// delete if older than 6h
@@ -506,6 +506,9 @@ public class RESTContestSource extends DiskContestSource {
 			else if (status == HttpURLConnection.HTTP_BAD_REQUEST)
 				throw new IOException("Bad request (HTTP response code 400)");
 
+			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
+				isCDS = true;
+
 			return conn.getInputStream();
 		} catch (ConnectException e) {
 			throw e;
@@ -539,7 +542,7 @@ public class RESTContestSource extends DiskContestSource {
 				if (line != null && !line.startsWith("<!doctype")) {
 					sb.append(line).append("\n");
 				}
-			} while(line != null);
+			} while (line != null);
 
 			String contents = sb.toString();
 
@@ -1190,15 +1193,16 @@ public class RESTContestSource extends DiskContestSource {
 				presVersions.sort((s1, s2) -> -s1.compareTo(s2));
 				String localVersionString = getVersion();
 				Version remoteVersion = presVersions.get(0);
-				Trace.trace(Trace.INFO, "Version check: " + localVersionString + " (local) vs " + remoteVersion + " (remote)");
-				if (localVersionString.contains("dev")) {
+				Trace.trace(Trace.INFO,
+						"Version check: " + localVersionString + " (local) vs " + remoteVersion + " (remote)");
+				if (localVersionString.contains("dev"))
 					return;
-				}
-				Version localVersion = new Version(localVersionString);
 
+				Version localVersion = new Version(localVersionString);
 				if (localVersion.compareTo(remoteVersion) < 0) {
 					// download and unzip new version, restart
-					Trace.trace(Trace.USER, "Newer version found on CDS (" + remoteVersion + "). Downloading and restarting...");
+					Trace.trace(Trace.USER,
+							"Newer version found on CDS (" + remoteVersion + "). Downloading and restarting...");
 					File f = getFile("/presentation/" + prefix + remoteVersion + ".zip");
 
 					// unzip to /update
@@ -1265,8 +1269,7 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	public boolean isCDS() {
-		// TODO use some CDS behaviour to confirm it's a CDS
-		return true;
+		return isCDS;
 	}
 
 	@Override
