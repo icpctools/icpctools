@@ -293,13 +293,8 @@ public class ResolverLogic {
 
 		// fourth click and beyond: start resolving!
 		resolveEverything(bill);
-		ResolutionUtil.numberThePauses(steps);
 
 		Trace.trace(Trace.USER, "Done resolving");
-
-		Trace.trace(Trace.INFO, "Resolution steps:");
-		for (ResolutionStep step : steps)
-			Trace.trace(Trace.INFO, "  " + step);
 
 		return steps;
 	}
