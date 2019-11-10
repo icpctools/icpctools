@@ -42,18 +42,18 @@ public class Printer extends ContestObject implements IPrinter {
 	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
-		if (x != Double.NaN)
+		if (!Double.isNaN(x))
 			props.put(X, round(x));
-		if (y != Double.NaN)
+		if (!Double.isNaN(y))
 			props.put(Y, round(y));
 	}
 
 	@Override
 	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
-		if (x != Double.NaN)
+		if (!Double.isNaN(x))
 			je.encode(X, round(x));
-		if (y != Double.NaN)
+		if (!Double.isNaN(y))
 			je.encode(Y, round(y));
 	}
 
