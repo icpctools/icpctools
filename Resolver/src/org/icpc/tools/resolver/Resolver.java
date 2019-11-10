@@ -665,6 +665,12 @@ public class Resolver {
 			outputStats(steps, time);
 		}
 
+		ResolutionUtil.numberThePauses(steps);
+
+		Trace.trace(Trace.INFO, "Resolution steps:");
+		for (ResolutionStep step : steps)
+			Trace.trace(Trace.INFO, "  " + step);
+
 		ui = new ResolverUI(steps, show_info, displayStr, isPresenter || client == null, screen, new ClickListener() {
 			@Override
 			public void clicked(int num) {
