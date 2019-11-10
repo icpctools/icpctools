@@ -133,7 +133,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 					long repeat = p.getRepeat();
 					if (repeat <= 0) {
 						if (presentations.length == 1)
-							time += 1000 * 60 * 60 * 24 * 365 * 10L; // 10 years
+							time += 1000L * 60 * 60 * 24 * 365 * 10; // 10 years
 						else
 							time += DEFAULT_REPEAT_TIME;
 					} else
