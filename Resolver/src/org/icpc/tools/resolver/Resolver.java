@@ -589,7 +589,7 @@ public class Resolver {
 			}
 			Trace.trace(Trace.INFO, "Loaded " + predeterminedSteps.size() + " predetermined steps");
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Could not load predetermined steps", e);
+			// Trace.trace(Trace.ERROR, "Could not load predetermined steps", e);
 		}
 	}
 

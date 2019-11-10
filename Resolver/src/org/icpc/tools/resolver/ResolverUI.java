@@ -119,7 +119,7 @@ public class ResolverUI {
 
 	public void moveTo(int pause2) {
 		// if thread is still running, ignore
-		if (thread != null)
+		if (thread != null || messageFont == null)
 			return;
 
 		// fire off a new thread to handle the click
