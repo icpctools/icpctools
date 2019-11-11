@@ -382,13 +382,6 @@ public class TeamTileHelper {
 		FontMetrics fm = g.getFontMetrics();
 		int ww = fm.stringWidth("199");
 
-		g.setFont(teamFont);
-		fm = g.getFontMetrics();
-
-		int yy = tileDim.height * 7 / 10;
-		g.setColor(Color.GRAY);
-		g.drawString("Problem totals", ww + tileDim.height + IN_TILE_GAP, (yy + fm.getAscent()) / 2 - 2);
-
 		g.setFont(penaltyFont);
 		fm = g.getFontMetrics();
 
@@ -409,21 +402,21 @@ public class TeamTileHelper {
 
 		for (int i = 0; i < numProblems; i++) {
 			IProblemSummary ps = contest.getProblemSummary(i);
-			Color c = null;
-			if (ps.getStatus() == Status.SOLVED)
-				c = ICPCColors.SOLVED_COLOR;
-			else if (ps.getStatus() == Status.FAILED)
-				c = ICPCColors.FAILED_COLOR;
-			else if (ps.getStatus() == Status.SUBMITTED)
-				c = ICPCColors.PENDING_COLOR;
-
-			if (c != null) {
-				g.setColor(c);
-				g.fillRoundRect(xx + w * i, y, w - 3, h - 1, arc2, arc2);
-				g.setColor(Color.BLACK);
-				String s = ps.getNumSubmissions() + "";
-				g.drawString(s, xx + w * i + (w - fm.stringWidth(s)) / 2 - 2, y + (h + fm.getAscent()) / 2 - 2);
-			}
+			if (ps.getNumPending() > 0)
+				draw(g, ICPCColors.PENDING_COLOR, xx + w * i, y - h * 5 / 4, w, h, arc2, ps.getNumPending() + "", fm);
+			else
+				draw(g, PROBLEM_BG, xx + w * i, y - h * 5 / 4, w, h, arc2, "", fm);
+			if (ps.getNumSolved() > 0)
+				draw(g, ICPCColors.SOLVED_COLOR, xx + w * i, y, w, h, arc2, ps.getNumSolved() + "", fm);
+			else
+				draw(g, PROBLEM_BG, xx + w * i, y, w, h, arc2, "", fm);
 		}
+	}
+
+	private static void draw(Graphics2D g, Color c, int x, int y, int w, int h, int arc, String s, FontMetrics fm) {
+		g.setColor(c);
+		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
+		g.setColor(Color.BLACK);
+		g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 2, y + (h + fm.getAscent()) / 2 - 2);
 	}
 }
