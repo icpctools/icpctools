@@ -281,7 +281,7 @@ public class ResolverUI {
 			}
 		};
 		awardPresentation.setSize(window.getSize());
-		awardPresentation.cacheAwards(contest, steps);
+		awardPresentation.cacheAwards(steps);
 		awardPresentation.addMouseListener(nullMouse);
 		awardPresentation.setShowInfo(showInfo);
 
