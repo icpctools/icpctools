@@ -212,10 +212,8 @@ public class VideoServlet extends HttpServlet {
 			je.encode("total_listeners", s.totalListeners);
 			je.encode("total_time", ContestUtil.formatTime(s.totalTime));
 			je.close();
-			je.unreset();
 		}
 		je.closeArray();
-		je.unreset();
 		je.encode("current", va.getConcurrent());
 		je.encode("max_current", va.getMaxConcurrent());
 		je.encode("total_listeners", va.getTotal());

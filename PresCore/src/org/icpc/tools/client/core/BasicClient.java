@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.InetAddress;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class BasicClient {
 	private static final boolean DEBUG_JSON_PAYLOADS = false;
@@ -115,12 +115,19 @@ public class BasicClient {
 		}
 	}
 
+	public static class Display {
+		public int width;
+		public int height;
+		public int refresh;
+	}
+
 	public static class Client {
 		public int uid;
-		public String id;
-		public String contestId;
+		public String name;
+		public String[] contestIds;
 		public String type;
 		public String version;
+		public Display[] displays;
 	}
 
 	private String clientType = "Unknown";
@@ -155,17 +162,7 @@ public class BasicClient {
 		this.clientType = clientType.toLowerCase();
 
 		String s = contestSource.getUser();
-		try {
-			String addr = InetAddress.getLocalHost().getHostAddress();
-			s += addr;
-			if (addr.contains(":"))
-				addr = addr.substring(addr.lastIndexOf(":"), addr.length());
-			if (addr.contains("."))
-				addr = addr.substring(addr.lastIndexOf("."), addr.length());
-			clientId += addr;
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Could not determine local host address");
-		}
+		clientId += NetworkUtil.getLocalAddress();
 		uid = s.hashCode();
 	}
 
@@ -174,18 +171,18 @@ public class BasicClient {
 	}
 
 	private void handleProperties(JsonObject obj) {
-		int numProps = obj.getInt("num");
-
 		// fire control properties first
 		Properties p = new Properties();
-		for (int i = 0; i < numProps; i++) {
-			String key = obj.getString("key" + i);
-			String value = obj.getString("value" + i);
-
-			if (key.contains("."))
-				p.setProperty(key, value);
-			else
-				firePropertyChangedEvent(key, value);
+		Object children = obj.get("props");
+		if (children != null) {
+			JsonObject jo = (JsonObject) children;
+			for (String key : jo.props.keySet()) {
+				String value = jo.getString(key);
+				if (key.contains("."))
+					p.setProperty(key, value);
+				else
+					firePropertyChangedEvent(key, value);
+			}
 		}
 
 		// then fire properties to presentations
@@ -206,7 +203,7 @@ public class BasicClient {
 	}
 
 	private void handleLogRequest(JsonObject obj) throws IOException {
-		int source = obj.getInt("source");
+		int source = getUID(obj, "source");
 		sendLog(source);
 	}
 
@@ -218,7 +215,7 @@ public class BasicClient {
 	}
 
 	private void handleSnapshotRequest(JsonObject obj) throws IOException {
-		int source = obj.getInt("source");
+		int source = getUID(obj, "source");
 		handleSnapshot(source);
 	}
 
@@ -243,11 +240,31 @@ public class BasicClient {
 		for (int i = 0; i < children.length; i++) {
 			JsonObject jo = (JsonObject) children[i];
 			clients[i] = new Client();
-			clients[i].uid = jo.getInt("uid");
-			clients[i].id = jo.getString("id");
-			clients[i].contestId = jo.getString("contest_id");
+			clients[i].uid = getUID(jo, "uid");
+			clients[i].name = jo.getString("name");
+
+			Object[] contestIds = jo.getArray("contest.ids");
+			if (contestIds != null) {
+				clients[i].contestIds = new String[contestIds.length];
+				for (int j = 0; j < contestIds.length; j++)
+					clients[i].contestIds[j] = (String) contestIds[j];
+			}
 			clients[i].type = jo.getString("client.type");
 			clients[i].version = jo.getString("version");
+
+			Object[] displays = jo.getArray("displays");
+			if (displays != null) {
+				int size = displays.length;
+				clients[i].displays = new Display[size];
+				for (int j = 0; j < size; j++) {
+					Display d = new Display();
+					JsonObject dobj = (JsonObject) displays[j];
+					d.height = dobj.getInt("height");
+					d.width = dobj.getInt("width");
+					d.refresh = dobj.getInt("refresh");
+					clients[i].displays[j] = d;
+				}
+			}
 		}
 
 		clientsChanged(clients);
@@ -275,13 +292,13 @@ public class BasicClient {
 	public void sendProperty(int[] clientUIDs, String key, String value) throws IOException {
 		createJSON(Type.PROPERTIES, je -> {
 			writeClients(je, clientUIDs);
-			if (key == null) {
-				je.encode("num", -1);
-			} else {
-				je.encode("num", 1);
-				je.encode("key0", key);
-				je.encode("value0", value);
+			je.openChild("props");
+			if (key != null) {
+				// je.openChild("property");
+				je.encode(key, value);
+				// je.close();
 			}
+			je.close();
 		});
 	}
 
@@ -303,28 +320,28 @@ public class BasicClient {
 
 	public void sendLogRequest(int[] clientUIDs) throws IOException {
 		createJSON(Type.REQUEST_LOG, je -> {
-			je.encode("source", uid);
+			je.encode("source", Integer.toHexString(uid));
 			writeClients(je, clientUIDs);
 		});
 	}
 
 	public void sendSnapshotRequest(int[] clientUIDs) throws IOException {
 		createJSON(Type.REQUEST_SNAPSHOT, je -> {
-			je.encode("source", uid);
+			je.encode("source", Integer.toHexString(uid));
 			writeClients(je, clientUIDs);
 		});
 	}
 
 	public void sendSnapshot(BufferedImage image) throws IOException {
 		createJSON(Type.SNAPSHOT, je -> {
-			je.encode("source", uid);
+			je.encode("source", Integer.toHexString(uid));
 			encodeImage(je, imageToBytes(image));
 		});
 	}
 
 	public void sendThumbnail(BufferedImage image, boolean isHidden, int fps) throws IOException {
 		createJSON(Type.THUMBNAIL, je -> {
-			je.encode("source", uid);
+			je.encode("source", Integer.toHexString(uid));
 			je.encode("fps", fps);
 			je.encode("hidden", isHidden);
 			encodeImage(je, imageToBytes(image));
@@ -344,31 +361,44 @@ public class BasicClient {
 
 	protected void sendLog(int toUID) throws IOException {
 		createJSON(Type.LOG, je -> {
-			je.encode("source", uid);
-			je.encode("target", toUID);
+			je.encode("source", Integer.toHexString(uid));
+			je.encode("target", Integer.toHexString(toUID));
 			je.encode("data", Trace.getLogContents2());
 		});
 	}
 
-	public void sendClientInfo() throws IOException {
+	protected void sendClientInfo() throws IOException {
 		createJSON(Type.CLIENT_INFO, je -> {
-			je.encode("source", getUID());
+			je.encode("source", Integer.toHexString(getUID()));
 			je.encode("client.type", clientType);
 			je.encode("version", Trace.getVersion());
 			je.encode("os.name", System.getProperty("os.name"));
 			je.encode("os.version", System.getProperty("os.version"));
 			je.encode("jre.vendor", System.getProperty("java.vendor"));
 			je.encode("jre.version", System.getProperty("java.version"));
+			je.encode("host.address", NetworkUtil.getLocalAddress());
+			je.encode("host.name", NetworkUtil.getHostName());
 			je.encode("locale", Locale.getDefault().toString());
 			je.encode("timezone", Calendar.getInstance().getTimeZone().getDisplayName());
-			je.encode("contest.id", contestSource.getContestId());
+
+			je.openChildArray("contest.ids");
+			je.encodeValue(contestSource.getContestId());
+			// for (String cId : c.contestIds)
+			// je.encode(cId);
+			je.closeArray();
+
+			additionalClientInfo(je);
 		});
+	}
+
+	protected void additionalClientInfo(JSONEncoder je) {
+		// do nothing
 	}
 
 	protected void sendInfo(Dimension d, int fps, boolean hidden, String pres, String name, int[] displays)
 			throws IOException {
 		createJSON(Type.INFO, je -> {
-			je.encode("source", getUID());
+			je.encode("source", Integer.toHexString(uid));
 			je.encode("width", d.width);
 			je.encode("height", d.height);
 			je.encode("fps", fps);
@@ -407,10 +437,14 @@ public class BasicClient {
 		return Base64.getDecoder().decode(obj.getString("file"));
 	}
 
+	protected static int getUID(JsonObject obj, String key) {
+		return Integer.parseUnsignedInt(obj.getString(key), 16);
+	}
+
 	protected void sendSnapshot(BufferedImage image, int toUID) throws IOException {
 		createJSON(Type.SNAPSHOT, je -> {
-			je.encode("source", uid);
-			je.encode("target", toUID);
+			je.encode("source", Integer.toHexString(uid));
+			je.encode("target", Integer.toHexString(toUID));
 			encodeImage(je, imageToBytes(image));
 		});
 	}
@@ -526,13 +560,12 @@ public class BasicClient {
 					.configurator(new AuthorizationConfigurator(contestSource.getAuth())).build();
 			StringBuilder sb = new StringBuilder("/presentation/ws");
 			sb.append("?id=" + URLEncoder.encode(clientId, "UTF-8"));
-			sb.append("&uid=" + uid);
+			sb.append("&uid=" + Integer.toHexString(uid));
 			if (role == null)
 				sb.append("&role=any");
 			else
 				sb.append("&role=" + role);
 			sb.append("&version=1.0");
-			sb.append("&contestId=" + contestSource.getContestId());
 			URI uri = contestSource.getRootURI("wss", sb.toString());
 
 			client.setDefaultMaxSessionIdleTimeout(60000L);
@@ -673,11 +706,10 @@ public class BasicClient {
 		}
 	}
 
-	private static void writeClients(JSONEncoder je, int[] ids) {
+	private static void writeClients(JSONEncoder je, int[] uids) {
 		je.openChildArray("clients");
-		for (int i = 0; i < ids.length; i++)
-			je.encodeValue(ids[i]);
-
+		for (int i = 0; i < uids.length; i++)
+			je.encodeValue(Integer.toHexString(uids[i]));
 		je.closeArray();
 	}
 

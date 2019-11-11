@@ -61,7 +61,6 @@ public class SearchService extends HttpServlet {
 		e.encode("type", IContestObject.ContestTypeNames[obj.getType().ordinal()]);
 		e.encode("id", obj.getId());
 		e.close();
-		e.unreset();
 	}
 
 	protected static void search(HttpServletRequest request, String searchTerm, JSONEncoder en) {
@@ -114,10 +113,8 @@ public class SearchService extends HttpServlet {
 			}
 			en.closeArray();
 			en.close();
-			en.unreset();
 		}
 		en.closeArray();
-		// System.out.println("Results: " + list.size());
 		en.close();
 		en.closeArray();
 	}

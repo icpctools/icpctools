@@ -51,17 +51,17 @@
             <table id="client-table" class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
-                    <th>Id</th>
+                    <th>Name</th>
                     <th>Display</th>
                     <th>Presentation</th>
                     <th>Actions</th>
                     <th style="width: 75px;"></th>
-                    <th>Id</th>
+                    <th>Name</th>
                     <th>Display</th>
                     <th>Presentation</th>
                     <th>Actions</th>
                     <th style="width: 75px;"></th>
-                    <th>Id</th>
+                    <th>Name</th>
                     <th>Display</th>
                     <th>Presentation</th>
                     <th>Actions</th>
@@ -184,7 +184,7 @@
             var col = '';
             $('#client-table tbody').find("tr").remove();
             for (var i = 0; i < clients.length; i++) {
-                col += '<td id=' + clients[i].id + '>' + clients[i].id + '</td>';
+                col += '<td id=' + clients[i].uid + '>' + clients[i].name + '</td>';
                 if (clients[i].display != null)
                     col += '<td>' + clients[i].display + '</td>';
                 else
@@ -199,8 +199,8 @@
                         map.set(key, 1);
                 } else
                     col += '<td></td>';
-                col += '<td><a href="javascript:restart(\'' + clients[i].id + '\')">Restart</a>&nbsp;' 
-                + '<a href="javascript:stop(\'' + clients[i].id + '\')">Stop</a></td>';
+                col += '<td><a href="javascript:restart(\'' + clients[i].uid + '\')">Restart</a>&nbsp;' 
+                + '<a href="javascript:stop(\'' + clients[i].uid + '\')">Stop</a></td>';
 
                 count++;
                 if (count % 3 == 0 || count == clients.length) {

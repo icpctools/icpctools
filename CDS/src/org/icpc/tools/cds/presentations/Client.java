@@ -36,12 +36,13 @@ public class Client {
 		public int width;
 		public int height;
 		public int refresh;
+	}
 
-		public ClientDisplay(int w, int h, int r) {
-			this.width = w;
-			this.height = h;
-			this.refresh = r;
-		}
+	public class PresentationClientInfo {
+		public int width;
+		public int height;
+		public int fps;
+		public String presentation;
 	}
 
 	protected class TimeSync {
@@ -62,24 +63,23 @@ public class Client {
 
 	private Session session;
 	private int uid;
-	private String id;
+	private String name;
 	private String user;
 	private boolean isAdmin;
 	private List<TimeSync> timeSync = new ArrayList<>();
 	private Queue<Message> queue = new ConcurrentLinkedQueue<>();
-	private String presentation;
 	private ClientDisplay[] displays;
-	private String contestId;
+	private PresentationClientInfo presInfo;
+	private String[] contestIds;
 	private String clientType;
 	private String version;
 
-	public Client(Session session, String user, int uid, String id, boolean isAdmin, String contestId) {
+	public Client(Session session, String user, int uid, String name, boolean isAdmin) {
 		this.session = session;
 		this.user = user;
 		this.uid = uid;
-		this.id = id;
+		this.name = name;
 		this.isAdmin = isAdmin;
-		this.contestId = contestId;
 	}
 
 	public String getUser() {
@@ -90,12 +90,16 @@ public class Client {
 		return uid;
 	}
 
-	public String getId() {
-		return id;
+	public String getName() {
+		return name;
 	}
 
 	public String getContestId() {
-		return contestId;
+		return contestIds[0];
+	}
+
+	public String[] getContestIds() {
+		return contestIds;
 	}
 
 	public String getVersion() {
@@ -114,8 +118,8 @@ public class Client {
 		return isAdmin;
 	}
 
-	public String getPresentation() {
-		return presentation;
+	public PresentationClientInfo getPresentationClientInfo() {
+		return presInfo;
 	}
 
 	public ClientDisplay[] getDisplays() {
@@ -132,7 +136,8 @@ public class Client {
 				Message remove = null;
 				for (Message m : queue) {
 					if (m.type == type && m.source == source) {
-						Trace.trace(Trace.INFO, "Throwing out duplicate packet type " + type + " bound for " + id);
+						Trace.trace(Trace.INFO,
+								"Throwing out duplicate packet type " + type + " bound for " + Integer.toHexString(uid));
 						remove = m;
 						break;
 					}
@@ -177,7 +182,7 @@ public class Client {
 		return true;
 	}
 
-	protected void writeTime(long delta) throws IOException {
+	private void writeTime(long delta) throws IOException {
 		TimeSync ts = new TimeSync();
 		ts.deltaGuess = delta;
 		synchronized (timeSync) {
@@ -272,13 +277,17 @@ public class Client {
 			je.openChildArray("clients");
 			for (Client c : clients) {
 				je.open();
-				je.encode("id", c.id);
-				je.encode("uid", c.uid);
-				je.encode("contest_id", c.contestId);
+				je.encode("name", c.name);
+				je.encode("uid", Integer.toHexString(c.uid));
+				if (c.contestIds != null) {
+					je.openChildArray("contest.ids");
+					for (String cId : c.contestIds)
+						je.encodeValue(cId);
+					je.closeArray();
+				}
 				je.encode("version", c.version);
 				je.encode("client.type", c.clientType);
 				je.close();
-				je.unreset();
 			}
 			je.closeArray();
 		});
@@ -303,25 +312,34 @@ public class Client {
 	protected void storeClientInfo(JsonObject obj) {
 		version = obj.getString("version");
 		clientType = obj.getString("client.type");
+		Object[] children = obj.getArray("contest.ids");
+		if (children != null) {
+			contestIds = new String[children.length];
+			for (int i = 0; i < children.length; i++)
+				contestIds[i] = (String) children[i];
+		}
+		children = obj.getArray("displays");
+		if (children != null) {
+			int size = children.length;
+			displays = new ClientDisplay[size];
+			for (int i = 0; i < children.length; i++) {
+				ClientDisplay d = new ClientDisplay();
+				JsonObject dobj = (JsonObject) children[i];
+				d.height = dobj.getInt("height");
+				d.width = dobj.getInt("width");
+				d.refresh = dobj.getInt("refresh");
+				displays[i] = d;
+			}
+		}
 	}
 
 	protected void storeInfo(JsonObject obj) {
-		int num = obj.getInt("num");
-		ClientDisplay[] temp = new ClientDisplay[num + 1];
-		for (int i = 0; i < num; i++) {
-			int w = obj.getInt("width" + i);
-			int h = obj.getInt("height" + i);
-			int r = obj.getInt("refresh" + i);
-			temp[i + 1] = new ClientDisplay(w, h, r);
-		}
-
-		int w = obj.getInt("width");
-		int h = obj.getInt("height");
-		int r = obj.getInt("fps");
-		temp[0] = new ClientDisplay(w, h, r);
-		displays = temp;
-
-		presentation = obj.getString("presentation");
+		if (presInfo == null)
+			presInfo = new PresentationClientInfo();
+		presInfo.presentation = obj.getString("presentation");
+		presInfo.width = obj.getInt("width");
+		presInfo.height = obj.getInt("height");
+		presInfo.fps = obj.getInt("fps");
 	}
 
 	protected void writeThumbnail(int source, String message) {
@@ -334,13 +352,15 @@ public class Client {
 
 	protected void writeProperties(Properties p) throws IOException {
 		createJSON(Type.PROPERTIES, je -> {
-			je.encode("num", p.size());
+			je.openChild("props");
 			Object[] keys = p.keySet().toArray();
-			for (int i = 0; i < p.size(); i++) {
+			for (int i = 0; i < keys.length; i++) {
 				String key = keys[i].toString();
-				je.encode("key" + i, key);
-				je.encode("value" + i, p.getProperty(key));
+				// je.openChild("property");
+				je.encode(key, p.getProperty(key));
+				// je.close();
 			}
+			je.close();
 		});
 	}
 
@@ -413,6 +433,6 @@ public class Client {
 
 	@Override
 	public String toString() {
-		return id + " [uid " + Integer.toHexString(uid) + "]";
+		return name + " [uid " + Integer.toHexString(uid) + "]";
 	}
 }

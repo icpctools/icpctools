@@ -3,7 +3,6 @@ package org.icpc.tools.presentation.admin.internal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +38,7 @@ import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.core.internal.PresentationInfo;
 import org.icpc.tools.presentation.core.internal.PresentationsParser;
 
@@ -90,13 +90,8 @@ public class View {
 	}
 
 	public View(RESTContestSource source) {
-		String s = source.getUser();
+		String s = source.getUser() + NetworkUtil.getLocalAddress();
 
-		try {
-			s += InetAddress.getLocalHost().getHostAddress();
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Could not determine localhost address");
-		}
 		client = new BasicClient(source, source.getUser(), s.hashCode(), "admin", "pres-admin") {
 			/**
 			 * @throws IOException
@@ -133,7 +128,7 @@ public class View {
 			protected void handleThumbnail(JsonObject obj) {
 				if (clientsControl == null || clientsControl.isDisposed())
 					return;
-				int sourceUID = obj.getInt("source");
+				int sourceUID = getUID(obj, "source");
 				int fps = obj.getInt("fps");
 				boolean hidden = obj.getBoolean("hidden");
 				byte[] b = decodeImage(obj);
@@ -144,19 +139,19 @@ public class View {
 			protected void handleInfo(JsonObject obj) {
 				if (clientsControl == null || clientsControl.isDisposed())
 					return;
-				int sourceUID = obj.getInt("source");
+				int sourceUID = getUID(obj, "source");
 				clientsControl.handleInfo(sourceUID, obj);
 			}
 
 			@Override
 			protected void handleLogResponse(JsonObject obj) throws IOException {
-				int sourceUID = obj.getInt("source");
+				int sourceUID = getUID(obj, "source");
 				clientsControl.handleLog(sourceUID, obj.getString("data"));
 			}
 
 			@Override
 			protected void handleSnapshotResponse(JsonObject obj) throws IOException {
-				int sourceUID = obj.getInt("source");
+				int sourceUID = getUID(obj, "source");
 				byte[] b = decodeImage(obj);
 				clientsControl.handleSnapshot(sourceUID, b);
 			}

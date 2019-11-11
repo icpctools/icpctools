@@ -44,7 +44,7 @@ public class PresentationWebSocket {
 		int uid = 0;
 		try {
 			uidStr = getParam(session, "uid");
-			uid = Integer.parseInt(uidStr);
+			uid = Integer.parseUnsignedInt(uidStr, 16);
 		} catch (Exception e) {
 			Trace.trace(Trace.INFO, "Could not find or parse uid: " + uidStr);
 			// ignore
@@ -117,9 +117,7 @@ public class PresentationWebSocket {
 			}
 		}
 
-		String contestId = getParam(session, "contestId");
-
-		Client c = new Client(session, user, uid, id, isAdmin, contestId);
+		Client c = new Client(session, user, uid, id, isAdmin);
 		PresentationServer.getInstance().addClient(c);
 	}
 
