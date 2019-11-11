@@ -5,11 +5,12 @@ import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.Status;
 
 public class ProblemSummary implements IProblemSummary {
-	private Status status = Status.UNATTEMPTED;
 	private int numPending;
+	private int pendingTime;
 	private int numSolved;
+	private int solvedTime;
 	private int numFailed;
-	private int time;
+	private int failedTime;
 
 	public ProblemSummary() {
 		super();
@@ -21,8 +22,18 @@ public class ProblemSummary implements IProblemSummary {
 	}
 
 	@Override
+	public int getPendingContestTime() {
+		return failedTime;
+	}
+
+	@Override
 	public int getNumSolved() {
 		return numSolved;
+	}
+
+	@Override
+	public int getSolvedContestTime() {
+		return failedTime;
 	}
 
 	@Override
@@ -31,43 +42,32 @@ public class ProblemSummary implements IProblemSummary {
 	}
 
 	@Override
+	public int getFailedContestTime() {
+		return failedTime;
+	}
+
+	@Override
 	public int getNumSubmissions() {
 		return numPending + numFailed + numSolved;
-	}
-
-	@Override
-	public int getContestTime() {
-		return time;
-	}
-
-	@Override
-	public Status getStatus() {
-		return status;
 	}
 
 	public void addResult(IResult result) {
 		if (result == null)
 			return;
 
-		Status status2 = result.getStatus();
-		if (status2 == Status.SUBMITTED) {
+		Status resultStatus = result.getStatus();
+		if (resultStatus == null || resultStatus == Status.UNATTEMPTED)
+			return;
+
+		if (resultStatus == Status.SUBMITTED) {
 			numPending++;
-			if (status == null || status == Status.UNATTEMPTED) {
-				status = Status.SUBMITTED;
-				time = result.getContestTime();
-			}
-		} else if (status2 == Status.FAILED) {
-			numFailed++;
-			if (status == null || status == Status.UNATTEMPTED || status == Status.SUBMITTED) {
-				status = Status.FAILED;
-				time = result.getContestTime();
-			}
-		} else if (status2 == Status.SOLVED) {
+			pendingTime = Math.max(pendingTime, result.getContestTime());
+		} else if (resultStatus == Status.SOLVED) {
 			numSolved++;
-			if (status != Status.SOLVED) {
-				status = Status.SOLVED;
-				time = result.getContestTime();
-			}
+			solvedTime = Math.max(solvedTime, result.getContestTime());
+		} else if (resultStatus == Status.FAILED) {
+			numFailed++;
+			failedTime = Math.max(failedTime, result.getContestTime());
 		}
 	}
 
@@ -76,22 +76,23 @@ public class ProblemSummary implements IProblemSummary {
 		if (!(obj instanceof ProblemSummary))
 			return false;
 
-		IResult r = (IResult) obj;
-
-		if (getNumSubmissions() != r.getNumSubmissions())
+		ProblemSummary ps = (ProblemSummary) obj;
+		if (numPending != ps.numPending)
 			return false;
-		if (getContestTime() != r.getContestTime())
+		if (numSolved != ps.numSolved)
+			return false;
+		if (numFailed != ps.numFailed)
 			return false;
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		return getNumSubmissions() * 80000 + getContestTime();
+		return numSolved + numFailed * 7 + numPending * 49;
 	}
 
 	@Override
 	public String toString() {
-		return "ProblemSummary [" + getStatus() + ", " + getNumSubmissions() + ", " + getContestTime() + "]";
+		return "ProblemSummary [" + numPending + ", " + numSolved + ", " + numFailed + "]";
 	}
 }

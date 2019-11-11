@@ -662,8 +662,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		FontMetrics fm = g.getFontMetrics();
 
 		int indent = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
-		g.drawString("Problem totals", indent, fm.getAscent() + 5);
-
 		int rowH = (int) (rowHeight * 0.6f);
 		IContest contest = getContest();
 		IProblem[] problems = contest.getProblems();
@@ -675,28 +673,18 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 			int xx = indent + curProblem * (cubeWidth + CUBE_INSET);
 
 			IProblemSummary ps = contest.getProblemSummary(curProblem);
-			if (ps.getStatus() != Status.UNATTEMPTED) {
-				// build a string to go in the round rectangle displaying the problem status
-				String s = "";
-				if (ps.getNumSubmissions() > 0) {
-					// there are some submissions for the current problem; add the number of
-					// submissions
-					s = ps.getNumSubmissions() + "";
-					if (ps.getContestTime() > 0)
-						// add a dash, surrounded on both sides by a Unicode "HairSpace" (the thinnest
-						// available), followed by the time of the submission
-						s += "\u200A-\u200A" + ContestUtil.getTime(ps.getContestTime());
-				}
+			if (ps.getNumPending() > 0)
+				ShadedRectangle.drawRoundRect(g, xx, rowH + CUBE_INSET / 2 - 1 - cubeHeight * 5 / 4, cubeWidth, cubeHeight,
+						contest, Status.SUBMITTED, ps.getPendingContestTime(), getTimeMs(), ps.getNumPending() + "");
+			else
+				ShadedRectangle.drawRoundRectPlain(g, xx, rowH + CUBE_INSET / 2 - 1 - cubeHeight * 5 / 4, cubeWidth,
+						cubeHeight, "");
 
-				// fill in the center of the oval with the appropriate color and string
-				ShadedRectangle.drawRoundRect(g, xx, rowH + CUBE_INSET / 2 - 1, cubeWidth, cubeHeight, contest, ps,
-						getTimeMs(), s);
-			} else {
-				// the team has no result for the current problem;
-				// draw a round rectangle containing the problem identifier string
-				ShadedRectangle.drawRoundRectPlain(g, xx, rowH + CUBE_INSET / 2 - 1, cubeWidth, cubeHeight,
-						problems[curProblem].getLabel());
-			}
+			if (ps.getNumSolved() > 0)
+				ShadedRectangle.drawRoundRect(g, xx, rowH + CUBE_INSET / 2 - 1, cubeWidth, cubeHeight, contest,
+						Status.SOLVED, ps.getSolvedContestTime(), getTimeMs(), ps.getNumSolved() + "");
+			else
+				ShadedRectangle.drawRoundRectPlain(g, xx, rowH + CUBE_INSET / 2 - 1, cubeWidth, cubeHeight, "");
 		}
 	}
 
