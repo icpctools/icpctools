@@ -3,6 +3,7 @@ package org.icpc.tools.cds.presentations;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -463,7 +464,7 @@ public class PresentationServer {
 		if (size == -1) {
 			// clear the properties
 			for (int id : cl) {
-				Trace.trace(Trace.INFO, "Clearing preferences for " + cl);
+				Trace.trace(Trace.INFO, "Clearing preferences for " + Arrays.toString(cl));
 
 				Preferences prefs = getPreferences().node("uid" + id);
 
