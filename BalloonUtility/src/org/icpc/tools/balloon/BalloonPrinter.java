@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Device;
@@ -65,19 +67,11 @@ public class BalloonPrinter {
 		Thread t = new Thread("Image loader") {
 			@Override
 			public void run() {
-				InputStream in = null;
 				try {
 					File f = ContestSource.getInstance().getContest().getInfo().getBanner(1920, 300, true);
 					bannerImage = new Image(device, new FileInputStream(f));
 				} catch (Exception e) {
 					// ignore
-				} finally {
-					if (in != null)
-						try {
-							in.close();
-						} catch (Exception e) {
-							// ignore
-						}
 				}
 			}
 		};
@@ -97,11 +91,7 @@ public class BalloonPrinter {
 	public void print(PrinterData printerData, BalloonContest bc, Balloon b, String[] messages) throws Exception {
 		Printer printer = new Printer(printerData);
 
-		String jobName = "Balloon ";
-		if (b != null)
-			jobName += b.getSubmissionId();
-		else
-			jobName += "Sample";
+		String jobName = "Balloon " + (b == null ? "Sample" : b.getSubmissionId());
 		boolean success = printer.startJob(jobName);
 		if (!success)
 			throw new Exception("Could not start a print job");
@@ -114,34 +104,16 @@ public class BalloonPrinter {
 		if (bc2 == null) {
 			bc2 = new BalloonContest();
 
-			InputStream in = null;
-			try {
-				in = getClass().getResourceAsStream("/sample/events.xml");
+			try (InputStream in = getClass().getResourceAsStream("/sample/events.xml")) {
 				bc2.setContest(XMLFeedParser.importFromStream(in, null));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading sample contest", e);
-			} finally {
-				if (in != null)
-					try {
-						in.close();
-					} catch (Exception e) {
-						// ignore
-					}
 			}
 
-			in = null;
-			try {
-				in = getClass().getResourceAsStream("/sample/contestFloor.txt");
+			try (InputStream in = getClass().getResourceAsStream("/sample/contestFloor.txt")) {
 				map = new FloorMap(in);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading floor map", e);
-			} finally {
-				if (in != null)
-					try {
-						in.close();
-					} catch (Exception e) {
-						// ignore
-					}
 			}
 
 			b2 = new Balloon("1", null);
@@ -179,12 +151,7 @@ public class BalloonPrinter {
 
 			gc = new GC(printer);
 
-			String[] messages2 = messages;
-			if (messages2 == null)
-				messages2 = DEFAULT_MESSAGES;
-			printPage(bc2, b2, printer, gc, r, messages);
-		} catch (Exception e) {
-			throw e;
+			printPage(bc2, b2, printer, gc, r, messages == null ? DEFAULT_MESSAGES : messages);
 		} finally {
 			if (gc != null)
 				gc.dispose();
@@ -211,15 +178,18 @@ public class BalloonPrinter {
 		if (groups == null || groups.length == 0)
 			return "<unknown>";
 
-		String groupName = "";
-		boolean first = true;
-		for (IGroup g : groups) {
-			if (!first)
-				groupName += ", ";
-			groupName += g.getName();
-			first = false;
-		}
-		return groupName;
+		return Arrays.stream(groups)
+				.map(g -> g.getName())
+				.collect(Collectors.joining(", "));
+	}
+
+	// Note that this method modifies fontData.
+	private Font createFont(int height, Device device, FontData[] fontData) {
+		 for (FontData fontDatum : fontData) {
+			  fontDatum.setHeight(height);
+			  fontDatum.setStyle(SWT.NORMAL);
+		 }
+		 return new Font(device, fontData);
 	}
 
 	/**
@@ -238,26 +208,11 @@ public class BalloonPrinter {
 		Font tempFont = gc.getFont();
 		if (font == null) {
 			FontData[] fontData = tempFont.getFontData();
-			for (int i = 0; i < fontData.length; i++) {
-				fontData[i].setHeight(10);
-				fontData[i].setStyle(SWT.NORMAL);
-			}
-			font = new Font(device, fontData);
 
-			for (int i = 0; i < fontData.length; i++) {
-				fontData[i].setHeight(90);
-			}
-			hugeFont = new Font(device, fontData);
-
-			for (int i = 0; i < fontData.length; i++) {
-				fontData[i].setHeight(28);
-			}
-			largeFont = new Font(device, fontData);
-
-			for (int i = 0; i < fontData.length; i++) {
-				fontData[i].setHeight(16);
-			}
-			mediumFont = new Font(device, fontData);
+			font = createFont(10, device, fontData);
+			mediumFont = createFont(16, device, fontData);
+			largeFont = createFont(28, device, fontData);
+			hugeFont = createFont(90, device, fontData);
 		}
 
 		IContest c = bc.getContest();
@@ -730,40 +685,22 @@ public class BalloonPrinter {
 		}
 	}
 
-	public void printPreview(Shell shell, BalloonContest bc, Balloon b, String[] messages) throws Exception {
+	public void printPreview(Shell shell, BalloonContest bc, Balloon b, String[] messages) {
 		BalloonContest bc2 = bc;
 		Balloon b2 = b;
 		if (bc2 == null) {
 			bc2 = new BalloonContest();
 
-			InputStream in = null;
-			try {
-				in = getClass().getResourceAsStream("/sample/events.xml");
+			try (InputStream in = getClass().getResourceAsStream("/sample/events.xml")) {
 				bc2.setContest(XMLFeedParser.importFromStream(in, null));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading sample contest", e);
-			} finally {
-				if (in != null)
-					try {
-						in.close();
-					} catch (Exception e) {
-						// ignore
-					}
 			}
 
-			in = null;
-			try {
-				in = getClass().getResourceAsStream("/sample/contestFloor.txt");
+			try (InputStream in = getClass().getResourceAsStream("/sample/contestFloor.txt")) {
 				map = new FloorMap(in);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading floor map", e);
-			} finally {
-				if (in != null)
-					try {
-						in.close();
-					} catch (Exception e) {
-						// ignore
-					}
 			}
 
 			b2 = new Balloon("1", null);
