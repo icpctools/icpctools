@@ -42,6 +42,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		private BufferedImage teamImage;
 		private BufferedImage teamLogo;
 		private BufferedImage groupLogo;
+		private boolean mergedAwards;
 
 		private String[] name;
 		private String[] members;
@@ -84,7 +85,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		showInfo = b;
 	}
 
-	public void cacheAwards(IContest contest, List<ResolutionStep> steps) {
+	public void cacheAwards(List<ResolutionStep> steps) {
 		execute(new Runnable() {
 			@Override
 			public void run() {
@@ -104,38 +105,11 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 							}
 						}
 
-						ITeamMember[] members = contest.getTeamMembersByTeamId(c.teamId);
-						if (members != null) {
-							Arrays.sort(members, new Comparator<ITeamMember>() {
-								@Override
-								public int compare(ITeamMember m1, ITeamMember m2) {
-									String r1 = m1.getRole();
-									String r2 = m2.getRole();
-									if (r1 == null || r2 == null)
-										return 0;
-									return -r1.compareTo(r2);
-								}
-							});
-						}
-						if (members == null)
-							c.members = new String[0];
-						else {
-							int size = members.length;
-							c.members = new String[size];
-							for (int i = 0; i < size; i++) {
-								c.members[i] = members[i].getFirstName() + " " + members[i].getLastName() + " ("
-										+ members[i].getRole() + ")";
-							}
-						}
-
 						list.add(c);
 					}
 				}
 
 				cache = list.toArray(new Cache[list.size()]);
-
-				for (Cache c : cache)
-					consolidateAwards(contest, c);
 
 				// load initial images
 				updateCache(0);
@@ -156,6 +130,32 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 
 		if (index < 0)
 			return;
+
+		mergeAwards();
+
+		ITeamMember[] members = getContest().getTeamMembersByTeamId(currentCache.teamId);
+		if (members != null) {
+			Arrays.sort(members, new Comparator<ITeamMember>() {
+				@Override
+				public int compare(ITeamMember m1, ITeamMember m2) {
+					String r1 = m1.getRole();
+					String r2 = m2.getRole();
+					if (r1 == null || r2 == null)
+						return 0;
+					return -r1.compareTo(r2);
+				}
+			});
+		}
+		if (members == null)
+			currentCache.members = new String[0];
+		else {
+			int size = members.length;
+			currentCache.members = new String[size];
+			for (int i = 0; i < size; i++) {
+				currentCache.members[i] = members[i].getFirstName() + " " + members[i].getLastName() + " ("
+						+ members[i].getRole() + ")";
+			}
+		}
 
 		final int index2 = index;
 
@@ -358,15 +358,20 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 	 * @param awards
 	 * @return
 	 */
-	protected static void consolidateAwards(IContest contest, Cache c) {
+	protected void mergeAwards() {
+		if (currentCache.mergedAwards)
+			return;
+
+		currentCache.mergedAwards = true;
+
 		boolean show = false;
 		int patternLen = IAward.FIRST_TO_SOLVE.getPattern("").length();
 		List<String> fts = new ArrayList<>();
 		List<IAward> list = new ArrayList<>();
-		for (IAward a : c.awards) {
+		for (IAward a : currentCache.awards) {
 			if (a.getAwardType() == IAward.FIRST_TO_SOLVE) {
 				String pId = a.getId().substring(patternLen);
-				IProblem p = contest.getProblemById(pId);
+				IProblem p = getContest().getProblemById(pId);
 				if (p == null) {
 					Trace.trace(Trace.WARNING, "Could not consolidate FTS award: " + a.getId());
 					continue;
@@ -384,8 +389,9 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		fts.sort((s1, s2) -> s1.compareTo(s2));
 
 		String citation = "First to solve problems " + String.join(", ", fts);
-		list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { c.teamId }, citation, show));
+		list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId }, citation,
+				show));
 
-		c.awards = list;
+		currentCache.awards = list;
 	}
 }
