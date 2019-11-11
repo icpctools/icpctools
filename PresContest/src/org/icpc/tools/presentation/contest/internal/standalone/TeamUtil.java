@@ -1,8 +1,7 @@
 package org.icpc.tools.presentation.contest.internal.standalone;
 
-import java.net.InetAddress;
-
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class TeamUtil {
 
@@ -27,16 +26,8 @@ public class TeamUtil {
 		if (prop != null)
 			return prop;
 
-		InetAddress addr = null;
 		try {
-			addr = InetAddress.getLocalHost();
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Could not determine host", e);
-			return null;
-		}
-
-		try {
-			String num = getNumberFromEnd(addr.getHostName());
+			String num = getNumberFromEnd(NetworkUtil.getHostName());
 			if (num != null)
 				return num;
 		} catch (Exception e) {
@@ -44,7 +35,7 @@ public class TeamUtil {
 		}
 
 		try {
-			String num = getNumberFromEnd(addr.getHostAddress());
+			String num = getNumberFromEnd(NetworkUtil.getLocalAddress());
 			if (num != null)
 				return num;
 		} catch (Exception e) {

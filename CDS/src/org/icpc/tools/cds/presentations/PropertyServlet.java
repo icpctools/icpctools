@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.icpc.tools.cds.presentations.Client.ClientDisplay;
+import org.icpc.tools.cds.presentations.Client.PresentationClientInfo;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
@@ -62,17 +62,16 @@ public class PropertyServlet extends HttpServlet {
 		en.openArray();
 		for (Client c : clients) {
 			en.open();
-			en.encode("uid", c.getUID());
-			en.encode("id", c.getId());
-			if (c.getPresentation() != null)
-				en.encode("presentation", c.getPresentation());
-			ClientDisplay[] displays = c.getDisplays();
-			if (displays != null && displays.length > 0)
-				en.encode("display", displays[0].width + "x" + displays[0].height + "@" + displays[0].refresh);
+			en.encode("uid", Integer.toHexString(c.getUID()));
+			en.encode("name", c.getName());
+			PresentationClientInfo info = c.getPresentationClientInfo();
+			if (info != null) {
+				en.encode("presentation", info.presentation);
+				en.encode("display", info.width + "x" + info.height + "@" + info.fps);
+			}
 			if (c.getVersion() != null)
 				en.encode("version", c.getVersion());
 			en.close();
-			en.unreset();
 		}
 		en.closeArray();
 	}
@@ -104,7 +103,6 @@ public class PropertyServlet extends HttpServlet {
 			en.encode("category", p.getCategory());
 			en.encode("classname", p.getClassName());
 			en.close();
-			en.unreset();
 		}
 		en.closeArray();
 	}
@@ -143,13 +141,13 @@ public class PropertyServlet extends HttpServlet {
 			Trace.trace(Trace.INFO, "Setting presentation " + presId + " to " + uids.length + " clients");
 			ps.setProperty(uids, "presentation", "1100|" + presId);
 		} else if (path.startsWith("/stop/")) {
-			String clientId = path.substring(6);
+			int clientUID = Integer.parseUnsignedInt(path.substring(6), 16);
 			PresentationServer ps = PresentationServer.getInstance();
 			List<Client> clients = ps.getClients();
 
 			List<Integer> uidList = new ArrayList<>();
 			for (Client c : clients) {
-				if (c.getId().equals(clientId))
+				if (c.getUID() == clientUID)
 					uidList.add(c.getUID());
 			}
 
@@ -157,16 +155,16 @@ public class PropertyServlet extends HttpServlet {
 			for (int i = 0; i < uids.length; i++)
 				uids[i] = uidList.get(i);
 
-			Trace.trace(Trace.INFO, "Stopping client " + clientId);
+			Trace.trace(Trace.INFO, "Stopping client " + Integer.toHexString(clientUID));
 			ps.stop(uids);
 		} else if (path.startsWith("/restart/")) {
-			String clientId = path.substring(9);
+			int clientUID = Integer.parseUnsignedInt(path.substring(9), 16);
 			PresentationServer ps = PresentationServer.getInstance();
 			List<Client> clients = ps.getClients();
 
 			List<Integer> uidList = new ArrayList<>();
 			for (Client c : clients) {
-				if (c.getId().equals(clientId))
+				if (c.getUID() == clientUID)
 					uidList.add(c.getUID());
 			}
 
@@ -174,7 +172,7 @@ public class PropertyServlet extends HttpServlet {
 			for (int i = 0; i < uids.length; i++)
 				uids[i] = uidList.get(i);
 
-			Trace.trace(Trace.INFO, "Restarting client " + clientId);
+			Trace.trace(Trace.INFO, "Restarting client " + Integer.toHexString(clientUID));
 			ps.restart(uids);
 		} else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);

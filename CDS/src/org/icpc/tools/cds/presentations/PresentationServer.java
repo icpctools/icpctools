@@ -41,6 +41,10 @@ public class PresentationServer {
 		return instance;
 	}
 
+	protected static int getUID(JsonObject obj, String key) {
+		return Integer.parseUnsignedInt(obj.getString(key), 16);
+	}
+
 	protected List<Client> clients = new ArrayList<>();
 	protected List<Client> pendingClients = new ArrayList<>();
 
@@ -65,7 +69,7 @@ public class PresentationServer {
 		if (s.length() > 150)
 			s = s.substring(0, 150) + "...";
 
-		Trace.trace(Trace.INFO, s + " @ " + uid);
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " " + s);
 	}
 
 	protected void onMessage(Session s, String message) throws IOException {
@@ -364,7 +368,7 @@ public class PresentationServer {
 		return null;
 	}
 
-	private void forEachClient(List<Client> targetClients, final ClientRun r) {
+	private void forEachClient(List<Client> targetClients, ClientRun r) {
 		if (targetClients == null || targetClients.isEmpty())
 			return;
 
@@ -390,11 +394,11 @@ public class PresentationServer {
 				return;
 
 			pendingClients.add(cl);
-			executor.schedule(() -> sendData(cl), 500, TimeUnit.MILLISECONDS);
+			executor.schedule(() -> sendData(cl), cl.isAdmin() ? 500 : 25, TimeUnit.MILLISECONDS);
 		}
 	}
 
-	protected void sendData(Client cl) {
+	private void sendData(Client cl) {
 		synchronized (pendingClients) {
 			pendingClients.remove(cl);
 		}
@@ -416,13 +420,8 @@ public class PresentationServer {
 		Object[] children = obj.getArray("clients");
 
 		int[] cl = new int[children.length];
-		for (int i = 0; i < children.length; i++) {
-			try {
-				cl[i] = Integer.parseInt((String) children[i]);
-			} catch (Exception e) {
-				// ignore
-			}
-		}
+		for (int i = 0; i < children.length; i++)
+			cl[i] = Integer.parseUnsignedInt((String) children[i], 16);
 
 		return cl;
 	}
@@ -456,11 +455,16 @@ public class PresentationServer {
 
 	protected void handleProperties(JsonObject obj) {
 		int[] cl = readClients(obj);
-		int size = obj.getInt("num");
-		if (size == 0)
-			return;
+		Properties p = new Properties();
+		Object children = obj.get("props");
+		if (children != null) {
+			JsonObject jo = (JsonObject) children;
+			for (String key : jo.props.keySet()) {
+				p.put(key, jo.getString(key));
+			}
+		}
 
-		if (size == -1) {
+		if (p.size() == 0) {
 			// clear the properties
 			for (int id : cl) {
 				Trace.trace(Trace.INFO, "Clearing preferences for " + cl);
@@ -475,13 +479,6 @@ public class PresentationServer {
 				}
 			}
 			return;
-		}
-
-		Properties p = new Properties();
-		for (int i = 0; i < size; i++) {
-			String key = obj.getString("key" + i);
-			String value = obj.getString("value" + i);
-			p.put(key, value);
 		}
 
 		// remember some properties
@@ -592,7 +589,7 @@ public class PresentationServer {
 	}
 
 	protected void handleLog(String message, JsonObject obj) {
-		int requestUID = obj.getInt("target");
+		int requestUID = getUID(obj, "target");
 		forClient(getClient(requestUID), new ClientRun() {
 			@Override
 			public void run(Client cl) throws IOException {
@@ -612,7 +609,7 @@ public class PresentationServer {
 	}
 
 	protected void handleSnapshot(String message, JsonObject obj) {
-		int requestUID = obj.getInt("target");
+		int requestUID = getUID(obj, "target");
 		forClient(getClient(requestUID), new ClientRun() {
 			@Override
 			public void run(Client cl) throws IOException {

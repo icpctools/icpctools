@@ -67,6 +67,7 @@ public class NDJSONFeedWriter {
 		}
 
 		je.close();
+		je.reset();
 		pw.write("\n");
 	}
 

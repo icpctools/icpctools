@@ -76,23 +76,13 @@ public class ClientsControl extends Canvas {
 	private boolean waitingForRedraw;
 
 	class ClientInfo {
-		ClientDisplay[] displays;
+		int width;
+		int height;
+		int fps;
 		boolean hidden;
 		String window = null; // null = unknown
 		String pres;
 		Image thumbnail;
-	}
-
-	class ClientDisplay {
-		int width;
-		int height;
-		int refresh;
-
-		public ClientDisplay(int w, int h, int r) {
-			this.width = w;
-			this.height = h;
-			this.refresh = r;
-		}
 	}
 
 	public interface IDropListener {
@@ -218,14 +208,14 @@ public class ClientsControl extends Canvas {
 			@Override
 			public int compare(Client c1, Client c2) {
 				try {
-					Integer in1 = Integer.parseInt(c1.id);
-					Integer in2 = Integer.parseInt(c2.id);
+					Integer in1 = Integer.parseInt(c1.name);
+					Integer in2 = Integer.parseInt(c2.name);
 					return in1.compareTo(in2);
 				} catch (Exception e) {
 					// ignore
 				}
 
-				return c1.id.compareTo(c2.id);
+				return c1.name.compareTo(c2.name);
 			}
 		});
 
@@ -283,21 +273,10 @@ public class ClientsControl extends Canvas {
 			ci = new ClientInfo();
 
 		try {
-			int num = obj.getInt("num");
-
 			synchronized (uiLock) {
-				ci.displays = new ClientDisplay[num + 1];
-				for (int i = 0; i < num; i++) {
-					int w = obj.getInt("width" + i);
-					int h = obj.getInt("height" + i);
-					int r = obj.getInt("refresh" + i);
-					ci.displays[i + 1] = new ClientDisplay(w, h, r);
-				}
-
-				int w = obj.getInt("width");
-				int h = obj.getInt("height");
-				int r = obj.getInt("fps");
-				ci.displays[0] = new ClientDisplay(w, h, r);
+				ci.width = obj.getInt("width");
+				ci.height = obj.getInt("height");
+				ci.fps = obj.getInt("fps");
 
 				ci.hidden = obj.getBoolean("hidden");
 				ci.pres = obj.getString("presentation");
@@ -339,8 +318,7 @@ public class ClientsControl extends Canvas {
 			ClientInfo ci = clientStates.get(id);
 			if (ci == null)
 				ci = new ClientInfo();
-			if (ci.displays != null && ci.displays.length > 0)
-				ci.displays[0].refresh = fps;
+			ci.fps = fps;
 			ci.hidden = h;
 			oldImg = ci.thumbnail;
 			ci.thumbnail = img;
@@ -352,10 +330,10 @@ public class ClientsControl extends Canvas {
 		doRedraw();
 	}
 
-	private String getIdFromUID(int uid) {
+	private String getNameFromUID(int uid) {
 		for (Client c : clients) {
 			if (c.uid == uid)
-				return c.id;
+				return c.name;
 		}
 		return "<unknown>";
 	}
@@ -377,7 +355,7 @@ public class ClientsControl extends Canvas {
 	private void showSnapshot(int uid, final Image img) {
 		Display display = getDisplay();
 		final Shell shell = new Shell(display);
-		shell.setText("Snapshot from " + getIdFromUID(uid));
+		shell.setText("Snapshot from " + getNameFromUID(uid));
 		shell.setImage(ImageResource.getImage(ImageResource.IMG_ICON));
 
 		GridLayout layout = new GridLayout();
@@ -423,7 +401,7 @@ public class ClientsControl extends Canvas {
 	private void showLog(int uid, final String log) {
 		Display display = getDisplay();
 		final Shell shell = new Shell(display);
-		shell.setText("Logs from " + getIdFromUID(uid));
+		shell.setText("Logs from " + getNameFromUID(uid));
 		shell.setImage(ImageResource.getImage(ImageResource.IMG_ICON));
 
 		GridLayout layout = new GridLayout();
@@ -458,13 +436,13 @@ public class ClientsControl extends Canvas {
 			return false;
 		for (int i = 0; i < size; i++) {
 			int uid = selection.get(i);
-			ClientInfo ci = clientStates.get(uid);
-			if (ci != null) {
-				if (ci.displays == null || display >= ci.displays.length - 1)
-					return false;
-				if (ci.window.equals(display + ""))
+			for (int j = 0; j < clients.length; j++) {
+				if (clients[j].uid == uid && clients[j].displays != null && display >= clients[j].displays.length)
 					return false;
 			}
+			ClientInfo ci = clientStates.get(uid);
+			if (ci != null && ci.window.equals(display + ""))
+				return false;
 		}
 		return true;
 	}
@@ -676,13 +654,13 @@ public class ClientsControl extends Canvas {
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
 				// id & current resolution/fps
-				gc.drawString(c.id, rr.x, rr.y + rr.height - fh, true);
-				if (c.contestId != null)
-					gc.drawString(c.contestId, rr.x + (rr.width - gc.textExtent(c.contestId).x) / 2, rr.y + rr.height - fh,
-							true);
+				gc.drawString(c.name, rr.x, rr.y + rr.height - fh, true);
+				if (c.contestIds != null && c.contestIds.length > 0)
+					gc.drawString(c.contestIds[0], rr.x + (rr.width - gc.textExtent(c.contestIds[0]).x) / 2,
+							rr.y + rr.height - fh, true);
 
-				if (ci != null && ci.displays != null) {
-					String ss = ci.displays[0].width + "x" + ci.displays[0].height + "@" + ci.displays[0].refresh + "fps";
+				if (ci != null) {
+					String ss = ci.width + "x" + ci.height + "@" + ci.fps + "fps";
 					gc.drawString(ss, rr.x + rr.width - gc.textExtent(ss).x, rr.y + rr.height - fh, true);
 				}
 			}
@@ -759,11 +737,11 @@ public class ClientsControl extends Canvas {
 						ss += " (hidden)";
 
 					ss += " / ";
-					if (ci.displays != null) {
-						for (int i = 1; i < ci.displays.length; i++) {
-							if (i > 1)
+					if (c.displays != null) {
+						for (int i = 0; i < c.displays.length; i++) {
+							if (i > 0)
 								ss += ", ";
-							ss += ci.displays[i].width + "x" + ci.displays[i].height + "@" + ci.displays[i].refresh + "hz";
+							ss += c.displays[i].width + "x" + c.displays[i].height + "@" + c.displays[i].refresh + "hz";
 							if (ci.window != null && ci.window.startsWith(i + ""))
 								ss += "*";
 						}

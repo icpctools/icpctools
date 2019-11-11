@@ -1,11 +1,11 @@
 package org.icpc.tools.contest.model.feed;
 
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import org.icpc.tools.contest.model.internal.FileReferenceList;
+import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class JSONEncoder {
 	private static final NumberFormat nf = NumberFormat.getInstance(Locale.US);
@@ -21,7 +21,7 @@ public class JSONEncoder {
 	private static String DEFAULT_HOST = "cds";
 	static {
 		try {
-			DEFAULT_HOST = InetAddress.getLocalHost().getHostAddress();
+			DEFAULT_HOST = NetworkUtil.getLocalAddress();
 		} catch (Exception e) {
 			// ignore
 		}
@@ -81,36 +81,45 @@ public class JSONEncoder {
 		first = true;
 	}
 
-	public void unreset() {
-		first = false;
+	public void writeSeparator() {
+		if (!first) {
+			pw.write(",");
+			first = true;
+		}
+
+		pw.write("\n");
 	}
 
 	public void open() {
-		if (!first)
+		if (!first) {
 			pw.write(",");
+			first = true;
+		}
 		pw.write("{");
-		first = true;
 	}
 
 	public void openChild(String name) {
-		if (!first)
+		if (!first) {
 			pw.write(",");
+			first = true;
+		}
 		pw.write("\"" + name + "\":{");
-		first = true;
 	}
 
 	public void openArray() {
-		if (!first)
+		if (!first) {
 			pw.write(",");
+			first = true;
+		}
 		pw.write("[");
-		first = true;
 	}
 
 	public void openChildArray(String name) {
-		if (!first)
+		if (!first) {
 			pw.write(",");
+			first = true;
+		}
 		pw.write("\"" + name + "\":[");
-		first = true;
 	}
 
 	public void encode(String name) {
@@ -250,9 +259,17 @@ public class JSONEncoder {
 		pw.write(value + "");
 	}
 
+	public void encodeValue(String value) {
+		if (!first)
+			pw.write(",");
+		else
+			first = false;
+		pw.write(value);
+	}
+
 	public void close() {
 		pw.write("}");
-		first = true;
+		first = false;
 	}
 
 	public void closeArray() {

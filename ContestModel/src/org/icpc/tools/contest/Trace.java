@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
+import org.icpc.tools.contest.model.internal.NetworkUtil;
+
 public class Trace {
 	public static final byte INFO = 0;
 	public static final byte USER = 1;
@@ -226,6 +228,7 @@ public class Trace {
 					+ System.getProperty("os.version") + ")");
 			writer.println("JRE: " + System.getProperty("java.vendor") + " (" + System.getProperty("java.version") + ")");
 			writer.println("Folder: " + System.getProperty("user.dir"));
+			writer.println("Host: " + NetworkUtil.getHostName() + " / " + NetworkUtil.getLocalAddress());
 			writer.println("Locale/TZ: " + Locale.getDefault().toString() + " / "
 					+ Calendar.getInstance().getTimeZone().getDisplayName());
 			if (args != null) {

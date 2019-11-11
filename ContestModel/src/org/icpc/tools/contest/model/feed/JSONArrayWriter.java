@@ -23,14 +23,13 @@ public class JSONArrayWriter {
 	}
 
 	public void write(IContestObject obj) {
-		je.reset();
 		je.open();
 		((ContestObject) obj).writeBody(je);
 		je.close();
 	}
 
 	public void writeSeparator() {
-		pw.write(",\n ");
+		je.writeSeparator();
 	}
 
 	public void writePostlude() {

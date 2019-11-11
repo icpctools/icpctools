@@ -55,11 +55,9 @@ public class VideoMapper {
 			je.encode("total_listeners", s.totalListeners);
 			je.encode("total_time", ContestUtil.formatTime(s.totalTime));
 			je.close();
-			je.unreset();
 		}
 
 		je.closeArray();
-		je.unreset();
 		je.encode("current", st.concurrentListeners);
 		je.encode("total_listeners", st.totalListeners);
 		je.encode("total_time", ContestUtil.formatTime(st.totalTime));

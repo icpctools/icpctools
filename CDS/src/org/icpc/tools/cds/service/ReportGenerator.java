@@ -213,12 +213,10 @@ public class ReportGenerator {
 	}
 
 	protected static void writeList(JSONEncoder en, List<Map<String, Object>> list) {
-		en.reset();
 		en.openArray();
-		for (Map<String, Object> map : list) {
+		for (Map<String, Object> map : list)
 			writeMap(en, map);
-			en.unreset();
-		}
+
 		en.closeArray();
 	}
 

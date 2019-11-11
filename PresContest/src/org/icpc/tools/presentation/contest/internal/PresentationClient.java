@@ -7,7 +7,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -19,7 +18,9 @@ import java.util.concurrent.TimeUnit;
 import org.icpc.tools.client.core.BasicClient;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.Presentation;
@@ -68,13 +69,7 @@ public class PresentationClient extends BasicClient {
 
 	public PresentationClient(String clientId, String role, RESTContestSource source, String type) {
 		this(source, clientId, 0, role, type);
-		String s = clientId;
-
-		try {
-			s += InetAddress.getLocalHost().getHostAddress();
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Could not determine local host address");
-		}
+		String s = clientId + NetworkUtil.getLocalAddress();
 		setUID(s.hashCode());
 	}
 
@@ -224,8 +219,7 @@ public class PresentationClient extends BasicClient {
 	}
 
 	protected int[] getGraphicsInfo() {
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice[] gds = ge.getScreenDevices();
+		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 
 		int count = 0;
 		int checksum = 0;
@@ -258,9 +252,24 @@ public class PresentationClient extends BasicClient {
 		return graphicsInfo;
 	}
 
+	@Override
+	protected void additionalClientInfo(JSONEncoder je) {
+		int[] temp = getGraphicsInfo();
+		int num = temp.length / 3;
+		je.openChildArray("displays");
+		for (int i = 0; i < num; i++) {
+			je.open();
+			je.encode("width", temp[i * 3]);
+			je.encode("height", temp[i * 3 + 1]);
+			je.encode("refresh", temp[i * 3 + 2]);
+			je.close();
+		}
+		je.closeArray();
+	}
+
 	protected void sendInfoImpl() throws IOException {
 		createJSON(Type.INFO, je -> {
-			je.encode("source", getUID());
+			je.encode("source", Integer.toHexString(getUID()));
 
 			Dimension d = window.getPresentationSize();
 			je.encode("width", d.width);
@@ -271,15 +280,6 @@ public class PresentationClient extends BasicClient {
 			if (name != null)
 				je.encode("presentation", name);
 			je.encode("name", window.getWindow().toDisplayString());
-
-			int[] temp = getGraphicsInfo();
-			int num = temp.length / 3;
-			je.encode("num", num);
-			for (int i = 0; i < num; i++) {
-				je.encode("width" + i, temp[i * 3]);
-				je.encode("height" + i, temp[i * 3 + 1]);
-				je.encode("refresh" + i, temp[i * 3 + 2]);
-			}
 		});
 	}
 
