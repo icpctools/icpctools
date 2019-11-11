@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IProblemSummary;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Status;
@@ -92,13 +91,10 @@ public class ShadedRectangle {
 		drawRoundRect(g, x, y, w, h, paint, outline, s);
 	}
 
-	public static void drawRoundRect(Graphics2D g, int x, int y, int w, int h, IContest contest, IProblemSummary summary,
-			long time, String s) {
-		Paint paint = getPaint(h, summary.getStatus(), ContestUtil.isRecent(contest, summary.getContestTime()), false,
-				time);
-		Color outline = null;
-
-		drawRoundRect(g, x, y, w, h, paint, outline, s);
+	public static void drawRoundRect(Graphics2D g, int x, int y, int w, int h, IContest contest, Status status,
+			int contestTime, long time, String s) {
+		Paint paint = getPaint(h, status, ContestUtil.isRecent(contest, contestTime), false, time);
+		drawRoundRect(g, x, y, w, h, paint, null, s);
 	}
 
 	public static void drawRoundRect(Graphics2D g, int x, int y, int w, int h, IContest contest, ISubmission submission,
