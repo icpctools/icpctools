@@ -110,7 +110,8 @@ public class Group extends ContestObject implements IGroup {
 		super.getPropertiesImpl(props);
 		props.put(ICPC_ID, icpcId);
 		props.put(NAME, name);
-		props.put(TYPE, name);
+		if (type != null)
+			props.put(TYPE, type);
 		if (isHidden)
 			props.put(HIDDEN, "true");
 		props.put(LOGO, logo);
@@ -121,7 +122,8 @@ public class Group extends ContestObject implements IGroup {
 		je.encode(ID, id);
 		je.encode(ICPC_ID, icpcId);
 		je.encode(NAME, name);
-		je.encode(TYPE, name);
+		if (type != null)
+			je.encode(TYPE, type);
 		if (isHidden)
 			je.encode(HIDDEN, true);
 		je.encode(LOGO, logo, false);
