@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -46,24 +45,10 @@ public class Trace {
 			logFolder.mkdir();
 
 		// check for older files and delete
-		File[] files = logFolder.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".log");
-			}
-		});
+		File[] files = logFolder.listFiles((dir, name) -> name.endsWith(".log"));
 
 		if (files.length > NUM_LOGS_TO_RETAIN) {
-			Arrays.sort(files, new Comparator<File>() {
-				@Override
-				public int compare(File f1, File f2) {
-					if (f1.lastModified() < f2.lastModified())
-						return -1;
-					if (f1.lastModified() > f2.lastModified())
-						return 1;
-					return 0;
-				}
-			});
+			Arrays.sort(files, Comparator.comparing(f -> f.lastModified()));
 
 			for (int i = 0; i < files.length - NUM_LOGS_TO_RETAIN; i++)
 				files[i].delete();
@@ -73,11 +58,9 @@ public class Trace {
 	}
 
 	public static byte[] getLogContents() {
-		BufferedInputStream in = null;
-		ByteArrayOutputStream out = null;
 		try {
-			in = new BufferedInputStream(new FileInputStream(file));
-			out = new ByteArrayOutputStream();
+			BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 			byte[] buf = new byte[8096];
 			int n = in.read(buf);
@@ -89,28 +72,26 @@ public class Trace {
 			return out.toByteArray();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading logs", e);
+			return new byte[0];
 		}
-		return new byte[0];
 	}
 
 	public static String getLogContents2() {
-		BufferedReader in = null;
-		StringWriter sw = null;
 		try {
-			in = new BufferedReader(new FileReader(file));
-			sw = new StringWriter();
+			BufferedReader in = new BufferedReader(new FileReader(file));
+			StringWriter sw = new StringWriter();
 
 			String s = in.readLine();
 			while (s != null) {
-				sw.append(s + "\n");
+				sw.append(s).append("\n");
 				s = in.readLine();
 			}
 
 			return sw.toString();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading logs", e);
+			return "";
 		}
-		return "";
 	}
 
 	private static String getVersion(String ver) {
@@ -121,7 +102,7 @@ public class Trace {
 
 	public static String getVersion() {
 		if (version == null)
-			setVersion((InputStream) null);
+			setVersion(null);
 		return version;
 	}
 
@@ -157,7 +138,7 @@ public class Trace {
 		StackTraceElement[] stes = Thread.currentThread().getStackTrace();
 		for (int i = 1; i < stes.length; i++) {
 			String className = stes[i].getClassName();
-			if (className.indexOf("Trace") < 0) {
+			if (!className.contains("Trace")) {
 				return className;
 			}
 		}
@@ -192,13 +173,13 @@ public class Trace {
 					Method m = null;
 					try {
 						Class<?> c = getCallerClass();
-						m = c.getDeclaredMethod("showHelp", new Class<?>[0]);
+						m = c.getDeclaredMethod("showHelp");
 					} catch (NoSuchMethodException ex) {
 						System.out.println("Command doesn't provide help");
 						System.exit(0);
 					}
 
-					m.invoke(null, new Object[0]);
+					m.invoke(null);
 				} catch (Exception e) {
 					System.out.println("Command doesn't provide help: " + e.getMessage());
 				}
