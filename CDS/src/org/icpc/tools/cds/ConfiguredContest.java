@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
 import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
+import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -57,8 +58,9 @@ public class ConfiguredContest {
 	private List<Video> videos = new ArrayList<>(3);
 	private Test test;
 	private Boolean isTesting;
+	private View view;
 
-	private DiskContestSource contestSource;
+	private ContestSource contestSource;
 
 	private Contest contest;
 	private Contest trustedContest;
@@ -157,6 +159,30 @@ public class ConfiguredContest {
 		}
 	}
 
+	public static class View {
+		private String groups;
+		private String problems;
+
+		protected View(Element e) {
+			groups = CDSConfig.getString(e, "groups");
+
+			problems = CDSConfig.getString(e, "problems");
+		}
+
+		public String getGroups() {
+			return groups;
+		}
+
+		public String getProblems() {
+			return problems;
+		}
+
+		@Override
+		public String toString() {
+			return "View[groups=" + groups + ",problems=" + problems + "]";
+		}
+	}
+
 	public static class CCS {
 		private String url;
 		private String user;
@@ -247,6 +273,10 @@ public class ConfiguredContest {
 		ee = CDSConfig.getChild(e, "test");
 		if (ee != null)
 			test = new Test(ee);
+
+		ee = CDSConfig.getChild(e, "view");
+		if (ee != null)
+			view = new View(ee);
 	}
 
 	public void init() {
@@ -343,6 +373,10 @@ public class ConfiguredContest {
 		return test;
 	}
 
+	public View getView() {
+		return view;
+	}
+
 	public boolean isTesting() {
 		if (isTesting == null) {
 			isTesting = (test != null);
@@ -388,7 +422,7 @@ public class ConfiguredContest {
 		return publicContest;
 	}
 
-	public DiskContestSource getContestSource() {
+	public ContestSource getContestSource() {
 		if (contestSource != null)
 			return contestSource;
 
@@ -397,9 +431,12 @@ public class ConfiguredContest {
 
 		File folder = new File(location);
 
-		if (ccs == null)
-			contestSource = new DiskContestSource(folder);
-		else {
+		if (ccs == null) {
+			if (!folder.exists() || folder.isDirectory())
+				contestSource = new DiskContestSource(folder);
+			else
+				contestSource = new EventFeedContestSource(folder.getAbsoluteFile());
+		} else {
 			try {
 				if (ccs.getURL() != null)
 					contestSource = new RESTContestSource(ccs.getURL(), ccs.getUser(), ccs.getPassword(), folder);
@@ -412,7 +449,8 @@ public class ConfiguredContest {
 			}
 		}
 
-		contestSource.setContestId(id);
+		if (contestSource instanceof DiskContestSource)
+			((DiskContestSource) contestSource).setContestId(id);
 		return contestSource;
 	}
 
