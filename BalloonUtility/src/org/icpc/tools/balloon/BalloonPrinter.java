@@ -178,18 +178,16 @@ public class BalloonPrinter {
 		if (groups == null || groups.length == 0)
 			return "<unknown>";
 
-		return Arrays.stream(groups)
-				.map(g -> g.getName())
-				.collect(Collectors.joining(", "));
+		return Arrays.stream(groups).map(g -> g.getName()).collect(Collectors.joining(", "));
 	}
 
-	// Note that this method modifies fontData.
-	private Font createFont(int height, Device device, FontData[] fontData) {
-		 for (FontData fontDatum : fontData) {
-			  fontDatum.setHeight(height);
-			  fontDatum.setStyle(SWT.NORMAL);
-		 }
-		 return new Font(device, fontData);
+	// Note that this method modifies fontData
+	private static Font createFont(int height, Device device, FontData[] fontData) {
+		for (FontData fontDatum : fontData) {
+			fontDatum.setHeight(height);
+			fontDatum.setStyle(SWT.NORMAL);
+		}
+		return new Font(device, fontData);
 	}
 
 	/**
