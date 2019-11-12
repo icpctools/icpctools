@@ -15,7 +15,6 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IGroup;
-import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
@@ -70,7 +69,6 @@ public class Resolver {
 	private boolean test;
 	private Style style;
 	private String[] groups;
-	private String[] problems;
 
 	// client/server variables
 	private PresentationClient client;
@@ -165,8 +163,9 @@ public class Resolver {
 		Trace.init("ICPC Resolver", log, args);
 		System.setProperty("apple.awt.application.name", "Resolver");
 
-		ContestSource contestSource = parseSource(args);
-		contestSource.outputValidation();
+		ContestSource[] contestSource = parseSource(args);
+		for (ContestSource cs : contestSource)
+			cs.outputValidation();
 
 		// remove the contest source args
 		argList.remove(0);
@@ -182,17 +181,27 @@ public class Resolver {
 		if (!r.processArgs(contestSource, argList))
 			return;
 
-		r.loadFromSource(contestSource);
-		r.loadSteps(contestSource);
-		r.init();
+		List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
+		for (ContestSource cs : contestSource) {
+			r.loadFromSource(cs);
+			r.loadSteps(cs);
+			r.init(steps);
+		}
+
+		ResolutionUtil.numberThePauses(steps);
+		Trace.trace(Trace.INFO, "Resolution steps:");
+		for (ResolutionStep step : steps)
+			Trace.trace(Trace.INFO, "  " + step);
+
+		r.launch(steps);
 	}
 
-	public static ContestSource parseSource(String[] args) {
+	public static ContestSource[] parseSource(String[] args) {
 		try {
 			if (args.length > 2 && !args[1].startsWith("--"))
-				return ContestSource.parseSource(args[0], args[1], args[2]);
+				return ContestSource.parseMultiSource(args[0], args[1], args[2]);
 
-			return ContestSource.parseSource(args[0]);
+			return ContestSource.parseMultiSource(args[0]);
 		} catch (IOException e) {
 			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
 			System.exit(1);
@@ -200,13 +209,13 @@ public class Resolver {
 		}
 	}
 
-	private void connectToCDS(ContestSource source) {
-		if (!(source instanceof RESTContestSource)) {
+	private void connectToCDS(ContestSource[] source) {
+		if (!(source[0] instanceof RESTContestSource)) {
 			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
 			System.exit(1);
 		}
 
-		RESTContestSource cdsSource = (RESTContestSource) source;
+		RESTContestSource cdsSource = (RESTContestSource) source[0];
 		try {
 			String role = "blue";
 			if (isPresenter)
@@ -296,7 +305,7 @@ public class Resolver {
 		}
 	} // end connectToServer
 
-	private boolean processArgs(ContestSource source, List<String> inArgList) {
+	private boolean processArgs(ContestSource[] source, List<String> inArgList) {
 		List<String> argList = inArgList;
 		clientArgs = ""; // reset
 		// TODO some options conflict, e.g. setting anything on a client
@@ -451,8 +460,6 @@ public class Resolver {
 				style = TeamUtil.getStyleByString(argList.remove(0));
 			} else if ("--groups".equalsIgnoreCase(option)) {
 				groups = argList.remove(0).split(",");
-			} else if ("--problems".equalsIgnoreCase(option)) {
-				problems = argList.remove(0).split(",");
 			} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
 				// causes rows to be moved up the screen so they are not blocked by people on
 				// stage
@@ -593,12 +600,10 @@ public class Resolver {
 		}
 	}
 
-	private void init() {
+	private void init(List<ResolutionStep> steps) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
-		List<ResolutionStep> steps = null;
 		if (groups != null) {
-			steps = new ArrayList<ResolutionUtil.ResolutionStep>();
 			IAward[] fullAwards = finalContest.getAwards();
 			boolean hasAwards = fullAwards != null && fullAwards.length > 0;
 			for (int i = 0; i < groups.length; i++) {
@@ -614,16 +619,6 @@ public class Resolver {
 				}
 
 				cc.removeHiddenTeams();
-
-				if (problems != null) {
-					String pIds = problems[i].trim();
-					List<String> problemIds = new ArrayList<String>();
-					for (IProblem p : cc.getProblems()) {
-						if (!pIds.contains(p.getLabel()))
-							problemIds.add(p.getId());
-					}
-					cc.removeProblems(problemIds);
-				}
 
 				if (!hasAwards) {
 					Trace.trace(Trace.USER, "Generating awards");
@@ -661,7 +656,8 @@ public class Resolver {
 			}
 
 			long time = System.currentTimeMillis();
-			steps = logic.resolveFrom(bill);
+			List<ResolutionStep> subSteps = logic.resolveFrom(bill);
+			steps.addAll(subSteps);
 			outputStats(steps, time);
 		}
 
@@ -670,7 +666,9 @@ public class Resolver {
 		Trace.trace(Trace.INFO, "Resolution steps:");
 		for (ResolutionStep step : steps)
 			Trace.trace(Trace.INFO, "  " + step);
+	}
 
+	protected void launch(List<ResolutionStep> steps) {
 		ui = new ResolverUI(steps, show_info, displayStr, isPresenter || client == null, screen, new ClickListener() {
 			@Override
 			public void clicked(int num) {
