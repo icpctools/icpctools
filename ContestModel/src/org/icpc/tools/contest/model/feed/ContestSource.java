@@ -85,8 +85,24 @@ public abstract class ContestSource {
 		throw new IOException("Could not parse or resolve contest source");
 	}
 
+	public static ContestSource[] parseMultiSource(String source, String arg1, String arg2) throws IOException {
+		if (source == null)
+			throw new IOException("No contest source");
+
+		String[] ss = source.split("&");
+		ContestSource[] cs = new ContestSource[ss.length];
+		for (int i = 0; i < ss.length; i++)
+			cs[i] = parseSource(ss[i], arg1, arg2);
+
+		return cs;
+	}
+
 	public static ContestSource parseSource(String source) throws IOException {
 		return parseSource(source, null, null);
+	}
+
+	public static ContestSource[] parseMultiSource(String source) throws IOException {
+		return parseMultiSource(source, null, null);
 	}
 
 	public String getContestId() {
