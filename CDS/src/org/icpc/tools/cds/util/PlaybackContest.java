@@ -4,24 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
+import java.util.regex.Pattern;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.ConfiguredContest.Test;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
+import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
+import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Clarification;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.FileReferenceList;
+import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.Organization;
+import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Run;
 import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
@@ -37,11 +44,17 @@ public class PlaybackContest extends Contest {
 	protected Long startTime;
 	private List<IContestObject> defaults = new ArrayList<>();
 	protected boolean configurationLoaded;
+	protected Pattern pattern;
 
 	public PlaybackContest(ConfiguredContest cc) {
 		contestId = cc.getId();
 		recordReactions = cc.isRecordingReactions();
 		this.cc = cc;
+
+		if (cc.getView() != null) {
+			String g = cc.getView().getGroups();
+			pattern = Pattern.compile(g.trim());
+		}
 	}
 
 	public void setStartTime(Long startTime) {
@@ -205,11 +218,98 @@ public class PlaybackContest extends Contest {
 
 	@Override
 	public void add(IContestObject obj) {
-		RESTContestSource src = null;
-		if (cc != null && cc.getContestSource() instanceof RESTContestSource) {
-			src = (RESTContestSource) cc.getContestSource();
+		if (pattern != null) {
+			if (obj instanceof Group) {
+				Group g = (Group) obj;
+				if (!pattern.matcher(g.getId()).matches())
+					return;
+			}
+			if (obj instanceof Problem) {
+				String pView = cc.getView().getProblems();
+				if (pView != null) {
+					Problem p = (Problem) obj;
+					if (!pView.contains(p.getLabel()))
+						return;
+				}
+			}
+			if (obj instanceof Team) {
+				Team team = (Team) obj;
+				if (team.getGroupIds() == null)
+					return;
+
+				for (String gId : team.getGroupIds()) {
+					if (!pattern.matcher(gId).matches())
+						return;
+				}
+			}
+			if (obj instanceof Submission) {
+				Submission sub = (Submission) obj;
+				if (getTeamById(sub.getTeamId()) == null)
+					return;
+				if (getProblemById(sub.getProblemId()) == null)
+					return;
+			}
+			if (obj instanceof Judgement) {
+				Judgement jud = (Judgement) obj;
+				if (getSubmissionById(jud.getSubmissionId()) == null)
+					return;
+			}
+			if (obj instanceof Run) {
+				Run run = (Run) obj;
+				if (getJudgementById(run.getJudgementTypeId()) == null)
+					return;
+			}
+			if (obj instanceof TeamMember) {
+				TeamMember member = (TeamMember) obj;
+				ITeam team = getTeamById(member.getTeamId());
+				if (team == null)
+					return;
+			}
+			if (obj instanceof Clarification) {
+				Clarification clar = (Clarification) obj;
+				if (clar.getFromTeamId() != null && getTeamById(clar.getFromTeamId()) == null)
+					return;
+				if (clar.getToTeamId() != null && getTeamById(clar.getToTeamId()) == null)
+					return;
+				if (clar.getProblemId() != null && getProblemById(clar.getProblemId()) == null)
+					return;
+			}
+			if (obj instanceof Award) {
+				Award a = (Award) obj;
+				if (a.getAwardType() == IAward.FIRST_TO_SOLVE) {
+					boolean found = false;
+					for (IProblem p : getProblems()) {
+						if (a.getId().endsWith("-" + p.getId()))
+							found = true;
+					}
+					if (!found)
+						return;
+				}
+
+				String[] teamIds = a.getTeamIds();
+				int count = 0;
+				for (String teamId : teamIds) {
+					ITeam team = getTeamById(teamId);
+					if (team != null)
+						count++;
+				}
+				if (count == 0)
+					return;
+
+				if (count != teamIds.length) {
+					List<String> ids = new ArrayList<String>(count);
+					for (String teamId : teamIds) {
+						ITeam team = getTeamById(teamId);
+						if (team != null)
+							ids.add(teamId);
+					}
+					a.setTeamIds(ids.toArray(new String[count]));
+				}
+			}
 		}
-		downloadAndSync(src, obj);
+
+		if (cc.getContestSource() instanceof RESTContestSource)
+			downloadAndSync((RESTContestSource) cc.getContestSource(), obj);
 
 		// set team video references
 		if (obj instanceof Team) {
