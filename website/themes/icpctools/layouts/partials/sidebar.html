@@ -1,0 +1,21 @@
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="/" class="brand-link">
+        <!-- TODO: add logo -->
+        <span class="brand-text font-weight-light">ICPC Tools</span>
+    </a>
+    <div class="sidebar">
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                {{ $currentPage := . }}
+                {{ range .Site.Pages }}
+                    <li class="nav-item">
+                        <a class="nav-link {{ if eq $currentPage.Path .Path }}active{{ end }}" href="{{ .URL }}">
+                            {{ if .Params.Icon }}<i class="{{ .Params.Icon }}"></i>{{ end }}
+                            <p>{{ .LinkTitle }}</p>
+                        </a>
+                    </li>
+                {{ end }}
+            </ul>
+        </nav>
+    </div>
+</aside>

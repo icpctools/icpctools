@@ -1,0 +1,6 @@
+baseURL = "https://icpctools.org/"
+languageCode = "en-us"
+title = "The ICPC Tools"
+theme = "icpctools"
+googleAnalytics = "UA-65166360-1"
+disableKinds = ["taxonomy", "taxonomyTerm"]
