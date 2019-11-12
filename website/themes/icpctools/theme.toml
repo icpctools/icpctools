@@ -1,0 +1,9 @@
+name = "ICPC Tools Theme"
+description = "Theme used for the ICPC Tools website"
+homepage = "https://icpctools.org"
+features = ["posts", "shortcodes", "related content"]
+min_version = "0.30.2"
+
+[author]
+name = "The ICPC Tools authors"
+homepage = "https://github.com/icpctools"
