@@ -5,7 +5,9 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -51,8 +53,7 @@ public interface IPresentationHandler {
 		}
 
 		public void apply(Window w) {
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			GraphicsDevice[] gds = ge.getScreenDevices();
+			GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 
 			// exit full screen window if necessary
 			if (p != Mode.FULL_SCREEN && p != Mode.FULL_SCREEN_MAX) {
@@ -63,7 +64,13 @@ public interface IPresentationHandler {
 			}
 
 			GraphicsDevice gDevice = gds[device];
-			Rectangle r = gDevice.getDefaultConfiguration().getBounds();
+			GraphicsConfiguration gConfig = gDevice.getDefaultConfiguration();
+			Rectangle r = gConfig.getBounds();
+			Insets in = Toolkit.getDefaultToolkit().getScreenInsets(gConfig);
+			r.x += in.left;
+			r.y += in.top;
+			r.height -= in.top + in.bottom;
+			r.width -= in.left + in.right;
 
 			if (p == Mode.TOP_LEFT)
 				w.setBounds(r.x, r.y, r.width / 2, r.height / 2);
@@ -110,8 +117,7 @@ public interface IPresentationHandler {
 		}
 
 		public static void logDevices() {
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			GraphicsDevice[] gds = ge.getScreenDevices();
+			GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 
 			for (int i = 0; i < gds.length; i++) {
 				GraphicsDevice gd = gds[i];
