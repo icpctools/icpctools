@@ -488,11 +488,16 @@ public class ConfiguredContest {
 			contest = contestSource.getContest();
 
 			publicContest = new Contest();
+			publicContest.setHashCode(contest.hashCode());
 			balloonContest = new Contest();
+			balloonContest.setHashCode(contest.hashCode());
 			trustedContest = new Contest();
+			trustedContest.setHashCode(contest.hashCode());
 			teamContests = new Contest[NUM_TEAMS];
-			for (int i = 0; i < NUM_TEAMS; i++)
+			for (int i = 0; i < NUM_TEAMS; i++) {
 				teamContests[i] = new Contest();
+				teamContests[i].setHashCode(contest.hashCode());
+			}
 			State currentState = new State();
 			contest.addListenerFromStart((contest2, obj, d) -> {
 				// don't show problems until contest starts
