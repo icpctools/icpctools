@@ -691,10 +691,12 @@ public class RESTContestSource extends DiskContestSource {
 					// ignore
 				}
 
-				feedCacheOut = new FileOutputStream(feedCacheFile, true);
+				if (feedCacheFile.exists()) {
+					if (!feedCacheFile.delete())
+						Trace.trace(Trace.WARNING, "Could not delete cache file");
+				}
 
-				if (feedCacheFile.exists())
-					feedCacheFile.delete();
+				feedCacheOut = new FileOutputStream(feedCacheFile, true);
 
 				if (contestSizeBeforeFeed != contest.getNumObjects()) {
 					try {
