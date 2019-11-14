@@ -107,8 +107,6 @@ public class JSONParser {
 	}
 
 	public JSONParser(String s) {
-		if (s == null)
-			throw new IllegalArgumentException("Invalid JSON: null");
 		this.s = s;
 	}
 

@@ -34,9 +34,6 @@ public class NDJSONFeedLogParser {
 				s = br.readLine();
 			}
 			try {
-				if (lastJson == null)
-					return;
-
 				JSONParser rdr = new JSONParser(lastJson);
 				JsonObject obj = rdr.readObject();
 				lastId = obj.getString("id");
