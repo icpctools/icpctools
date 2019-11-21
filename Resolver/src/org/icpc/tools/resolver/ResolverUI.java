@@ -296,8 +296,6 @@ public class ResolverUI {
 		teamListPresentation.loadCache(ResolutionUtil.getTeamListIds(steps));
 		teamListPresentation.addMouseListener(nullMouse);
 		teamListPresentation.setContest(contest);
-		if (style != null)
-			teamListPresentation.setStyle(style);
 
 		final float dpi = 96;
 		float size = (window.getHeight() / 14f) * 36f / dpi;
