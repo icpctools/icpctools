@@ -27,8 +27,6 @@ import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.resolver.ResolutionUtil.ResolutionStep;
 
@@ -47,8 +45,6 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		private String[] name;
 		private String[] members;
 	}
-
-	protected Style style2;
 
 	private Cache[] cache;
 	private Map<String, String[]> citations = new HashMap<>();
@@ -255,10 +251,9 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		ITeam team = contest.getTeamById(c.teamId);
 		int usableWidth = width - x - x2 - BORDER;
 
-		if (c.name == null) {
-			String s = TeamUtil.getTeamName(contest, team);
-			c.name = splitString(g, s, usableWidth);
-		}
+		if (c.name == null)
+			c.name = splitString(g, team.getActualDisplayName(), usableWidth);
+
 		h += fm.getHeight() * c.name.length;
 
 		for (IAward a : awards) {

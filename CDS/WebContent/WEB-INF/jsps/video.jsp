@@ -44,7 +44,7 @@
                 <tr>
                     <td><%= tId %>
                     </td>
-                    <td><%= t.getName() %>
+                    <td><%= t.getActualDisplayName() %>
                     </td>
                     <td><%= orgName %>
                     </td>

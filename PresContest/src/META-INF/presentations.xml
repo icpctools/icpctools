@@ -234,7 +234,6 @@
       id="org.icpc.tools.presentation.contest.first.solution"
       name="First solution"
       category="Scoreboard"
-      properties="style - set team name style"
       description="Tracking the first solution in the contest."
       image="images/presentations/firstSolution.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstSolutionPresentation"/>
@@ -242,7 +241,6 @@
       id="org.icpc.tools.presentation.contest.first.to.solve"
       name="First to solve"
       category="Scoreboard"
-      properties="style - set team name style,rows: - number of rows"
       description="Shows which team was the first to solve each problem."
       image="images/presentations/firstToSolve.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstToSolvePresentation"/>

@@ -34,7 +34,7 @@ public class TeamUtil {
 	}
 
 	public static String getTeamName(Style style, IContest contest, ITeam team) {
-		String s = team.getName();
+		String s = team.getActualDisplayName();
 		Style style2 = style;
 		if (style2 == null) {
 			if (defaultStyle == null)

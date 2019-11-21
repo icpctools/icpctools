@@ -29,7 +29,7 @@
 
 <tr>
 <td><%= r.getId() %></td>
-<td><%= team.getId() %> - <%= team.getName() %></td>
+<td><%= team.getId() %> - <%= team.getActualDisplayName() %></td>
 <td>
 <% if (r.isSolved()) {%>
 Solved

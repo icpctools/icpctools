@@ -75,7 +75,7 @@ public class ScoreboardChart extends AbstractChartPresentation {
 
 		for (int i = 0; i < NUM_TEAMS; i++) {
 			getSeries()[i].setValues(teamData[i]);
-			getSeries()[i].setTitle(teams[i].getName());
+			getSeries()[i].setTitle(teams[i].getActualDisplayName());
 		}
 	}
 }

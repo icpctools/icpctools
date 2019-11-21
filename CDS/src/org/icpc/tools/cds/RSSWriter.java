@@ -33,9 +33,9 @@ public class RSSWriter {
 		int pInd = contest.getProblemIndex(r.getProblemId());
 		IProblem p = contest.getProblems()[pInd];
 
-		String title = team.getName() + " solved problem " + p.getLabel() + "!";
-		String description = team.getName() + " solved problem " + p.getLabel() + " (" + p.getName() + ") in "
-				+ ContestUtil.getTimeInMin(r.getContestTime()) + " minutes";
+		String title = team.getActualDisplayName() + " solved problem " + p.getLabel() + "!";
+		String description = team.getActualDisplayName() + " solved problem " + p.getLabel() + " (" + p.getName()
+				+ ") in " + ContestUtil.getTimeInMin(r.getContestTime()) + " minutes";
 
 		IResult result = contest.getResult(team, pInd);
 		int attempts = result.getNumSubmissions();

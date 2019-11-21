@@ -161,7 +161,7 @@ public class StatisticsGenerator {
 			// fastest solution
 			if (fastestProblemSolved[j] >= 0)
 				list.add(new Statistic("fastest" + j,
-						fastestProblemSolvedTeam[j].getName() + " has solved Problem " + problems[j].getLabel()
+						fastestProblemSolvedTeam[j].getActualDisplayName() + " has solved Problem " + problems[j].getLabel()
 								+ " in the fastest time of " + ContestUtil.getTimeInMin(fastestProblemSolved[j]) + " minutes"));
 		}
 

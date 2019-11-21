@@ -15,6 +15,13 @@ public interface ITeam extends IContestObject, IPosition {
 	public String getName();
 
 	/**
+	 * The display name of the team, or falls back to team name.
+	 *
+	 * @return the display name
+	 */
+	public String getActualDisplayName();
+
+	/**
 	 * The display name of the team.
 	 *
 	 * @return the display name

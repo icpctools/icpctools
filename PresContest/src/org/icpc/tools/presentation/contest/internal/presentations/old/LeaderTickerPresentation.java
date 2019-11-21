@@ -119,7 +119,7 @@ public class LeaderTickerPresentation extends AbstractTickerPresentation {
 		ITeam[] teams = sc.getOrderedTeams();
 		for (int i = 0; i < 12; i++) {
 			IStanding standing = sc.getStanding(teams[i]);
-			append(new LeaderTicker(i + 1, teams[i].getName(), standing.getNumSolved(), standing.getTime()));
+			append(new LeaderTicker(i + 1, teams[i].getActualDisplayName(), standing.getNumSolved(), standing.getTime()));
 		}
 	}
 }

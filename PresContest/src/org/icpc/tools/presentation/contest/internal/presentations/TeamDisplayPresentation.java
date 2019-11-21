@@ -230,12 +230,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 			IOrganization org = null;
 			if (team != null && team.getOrganizationId() != null) {
 				org = restSource.getOrganization(team.getOrganizationId());
-				if (teamName == null) {
-					if (org != null)
-						teamName = org.getFormalName();
-					else
-						teamName = team.getName();
-				}
+				teamName = team.getActualDisplayName();
 			}
 			if (teamName == null)
 				teamName = "Team " + teamId;

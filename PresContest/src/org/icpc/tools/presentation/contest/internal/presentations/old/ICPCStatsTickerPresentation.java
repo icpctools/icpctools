@@ -71,11 +71,11 @@ public class ICPCStatsTickerPresentation extends AbstractTickerPresentation {
 			ITeam team = contest.getTeamById(run.getTeamId());
 			Status status = contest.getStatus(run);
 			if (status == Status.SOLVED) {
-				String s = team.getName() + " solved problem " + run.getProblemId();
+				String s = team.getActualDisplayName() + " solved problem " + run.getProblemId();
 				append(new StringTicker(s));
 				// append(new GapTicker(20));
 			} else if (status == Status.SUBMITTED) {
-				String s = team.getName() + " submitted a run for problem " + run.getProblemId();
+				String s = team.getActualDisplayName() + " submitted a run for problem " + run.getProblemId();
 				append(new StringTicker(s));
 				// append(new GapTicker(20));
 			}

@@ -130,7 +130,7 @@ public class SummaryPrint {
 				String s = team.getId() + ":";
 				gc.drawString(s, r.x + col[2] + (int) (aw * 4.0) - gc.stringExtent(s).x, yy, true);
 
-				s = TeamUtil.getTeamName(c, team);
+				s = team.getActualDisplayName();
 				Point ip = gc.stringExtent(s);
 				int tw = col[3] - col[2] - (int) (aw * 4.5);
 				if (ip.x > tw) {

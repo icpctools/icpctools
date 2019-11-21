@@ -101,7 +101,7 @@ public class EditAwardsDialog extends Dialog {
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		label = new Label(comp, SWT.NONE);
-		label.setText(team.getName());
+		label.setText(team.getActualDisplayName());
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 
 		label = new Label(comp, SWT.NONE);
