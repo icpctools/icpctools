@@ -18,7 +18,6 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 
 public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
@@ -257,7 +256,7 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 			g.drawImage(img, BORDER + fm.stringWidth("199 ") + nx, ny, null);
 		}
 
-		s = TeamUtil.getTeamName(style, contest, team);
+		s = team.getActualDisplayName();
 		g.setColor(Color.white);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();

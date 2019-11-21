@@ -26,7 +26,6 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 
 public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
@@ -324,7 +323,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 			g.drawImage(img, BORDER + col1 + nx, ny, null);
 		}
 
-		String s = TeamUtil.getTeamName(style, contest, team);
+		String s = team.getActualDisplayName();
 		g.setColor(Color.white);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();

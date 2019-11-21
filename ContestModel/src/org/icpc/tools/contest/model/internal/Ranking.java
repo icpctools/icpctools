@@ -53,19 +53,8 @@ public class Ranking {
 						if (si.getLastSolutionTime() > sj.getLastSolutionTime())
 							swap = true;
 						else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
-							ITeam ti = teams[order[i]];
-							String tin = ti.getName();
-
-							ITeam tj = teams[order[j]];
-							String tjn = tj.getName();
-
-							IOrganization tio = contest.getOrganizationById(ti.getOrganizationId());
-							IOrganization tjo = contest.getOrganizationById(tj.getOrganizationId());
-							if (tio != null && tjo != null && !tio.equals(tjo)) {
-								tin = tio.getFormalName();
-								tjn = tjo.getFormalName();
-							}
-
+							String tin = teams[order[i]].getActualDisplayName();
+							String tjn = teams[order[j]].getActualDisplayName();
 							if (collator.compare(tin, tjn) > 0)
 								swap = true;
 						}

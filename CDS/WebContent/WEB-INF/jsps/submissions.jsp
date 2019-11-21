@@ -37,7 +37,7 @@
                         if (id != null) {
                             ITeam team = contest.getTeamById(id);
                             if (team != null) {
-                                teamStr = id + ": " + team.getName();
+                                teamStr = id + ": " + team.getActualDisplayName();
                                 IOrganization org = contest.getOrganizationById(team.getOrganizationId());
                                 if (org != null)
                                     orgStr = org.getName();
@@ -126,7 +126,7 @@
                     if (id != null) {
                         ITeam team = contest.getTeamById(id);
                         if (team != null) {
-                            teamStr = id + ": " + team.getName();
+                            teamStr = id + ": " + team.getActualDisplayName();
                             IOrganization org = contest.getOrganizationById(team.getOrganizationId());
                             if (org != null)
                                 orgStr = org.getName();

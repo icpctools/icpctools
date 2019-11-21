@@ -136,7 +136,7 @@ public class SolvedPresentation extends AbstractICPCPresentation {
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 		h += fm.getHeight();
-		String name = team.getName();
+		String name = team.getActualDisplayName();
 		int usableWidth = width - x - BORDER;
 		if (fm.stringWidth(name) > usableWidth) {
 			int split = name.length() / 2 - 4;

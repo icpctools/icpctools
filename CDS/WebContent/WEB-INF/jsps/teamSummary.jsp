@@ -34,7 +34,7 @@
                 </tr>
                 <tr>
                     <td><b>Name:</b></td>
-                    <td><%= team.getName() %>
+                    <td><%= team.getActualDisplayName() %>
                     </td>
                 </tr>
                 <tr>

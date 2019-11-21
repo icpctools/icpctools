@@ -90,7 +90,7 @@ public class TeamPicturesPresentation extends AbstractICPCPresentation {
 			if (contest.isSolved(run)) {
 				PicInfo pi2 = new PicInfo();
 				String pId = run.getProblemId();
-				String t = contest.getTeamById(run.getTeamId()).getName();
+				String t = contest.getTeamById(run.getTeamId()).getActualDisplayName();
 				pi2.label = t + " solved problem " + pId + "!";
 
 				try {

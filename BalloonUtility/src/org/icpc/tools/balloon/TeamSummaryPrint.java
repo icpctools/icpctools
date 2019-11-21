@@ -155,7 +155,7 @@ public class TeamSummaryPrint {
 			String s = team.getId() + ":";
 			gc.drawString(s, r.x + col[0] + (int) (aw * 4.0) - gc.stringExtent(s).x, yy, true);
 
-			s = TeamUtil.getTeamName(contest, team);
+			s = team.getActualDisplayName();
 			Point ip = gc.stringExtent(s);
 			int tw = col[1] - col[0] - (int) (aw * 4.5);
 			if (ip.x > tw) {

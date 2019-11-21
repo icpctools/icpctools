@@ -20,12 +20,10 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
+import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TextImage;
-import org.icpc.tools.presentation.contest.internal.Animator.Movement;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 
 /**
  * Judge queue, shows incoming submissions and what judgement they receive.
@@ -303,7 +301,7 @@ public class TeamJudgePresentation extends AbstractICPCPresentation {
 		ShadedRectangle.drawRoundRect(g, width / COLUMNS / 2 - cubeWidth / 2, height / ROWS - cubeHeight - BORDER,
 				cubeWidth, cubeHeight, contest, sr.submission, 0, sr.text);
 
-		String s = TeamUtil.getTeamName(Style.ORGANIZATION_NAME, contest, team);
+		String s = team.getActualDisplayName();
 		g.setColor(Color.white);
 		// g.setFont(rowItalicsFont);
 		TextImage.drawString(g, s, width / COLUMNS / 2 - fm.stringWidth(s) / 2, BORDER);

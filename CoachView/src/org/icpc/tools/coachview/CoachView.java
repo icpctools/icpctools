@@ -353,7 +353,7 @@ public class CoachView extends Panel {
 
 	protected void paintDetails(Graphics2D g, ITeam team, Dimension d) {
 		int y = 30;
-		y = drawLine(g, y, "Team Name", team.getName());
+		y = drawLine(g, y, "Team", team.getActualDisplayName());
 
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 		if (org != null) {
@@ -582,11 +582,7 @@ public class CoachView extends Panel {
 
 		if (teams != null) {
 			for (ITeam team : teams) {
-				IOrganization org = contest.getOrganizationById(team.getOrganizationId());
-				if (org == null)
-					teamList.add(team.getId() + ": " + team.getName());
-				else
-					teamList.add(team.getId() + ": " + org.getFormalName());
+				teamList.add(team.getId() + ": " + team.getActualDisplayName());
 			}
 		}
 

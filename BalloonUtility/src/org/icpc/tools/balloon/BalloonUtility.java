@@ -601,7 +601,7 @@ public class BalloonUtility {
 
 					ITeam team = contest.getTeamById(tId);
 					if (team != null) {
-						text[4] = TeamUtil.getTeamName(contest, team);
+						text[4] = team.getActualDisplayName();
 						text[5] = getGroupLabel(contest, team);
 					}
 					text[6] = ContestUtil.getTime(submission.getContestTime());

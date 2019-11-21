@@ -104,7 +104,8 @@ public class SearchService extends HttpServlet {
 
 				ITeam[] teams = contest.getTeams();
 				for (ITeam team : teams) {
-					if (team.getName().toLowerCase().contains(search)) {
+					if (team.getName().toLowerCase().contains(search)
+							|| (team.getDisplayName() != null && team.getDisplayName().toLowerCase().contains(search))) {
 						write(en, team);
 					}
 				}

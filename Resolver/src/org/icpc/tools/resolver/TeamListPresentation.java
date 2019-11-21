@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
@@ -18,8 +17,6 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation;
 import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation.SelectType;
 import org.icpc.tools.resolver.ResolutionUtil.TeamListStep;
@@ -50,7 +47,6 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 	private Font subTitleFont;
 	private int rowHeight;
 	private double bottom = 0;
-	private Style style;
 
 	@Override
 	public void init() {
@@ -99,15 +95,11 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 			return;
 		}
 
-		IContest contest = getContest();
-		if (style == null)
-			style = TeamUtil.getDefaultStyle(contest);
-
 		final int size = step.teams.length;
 		teams = new TeamInfo[size];
 		for (int i = 0; i < size; i++) {
 			teams[i] = new TeamInfo();
-			teams[i].teamName = TeamUtil.getTeamName(style, contest, step.teams[i]);
+			teams[i].teamName = step.teams[i].getActualDisplayName();
 			teams[i].id = step.teams[i].getId();
 		}
 
@@ -223,10 +215,6 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		g.drawLine(0, y, width, y);
 		bottom = (y + TEAM_SPACING * 2) / (double) rowHeight;
 		g.dispose();
-	}
-
-	public void setStyle(Style style) {
-		this.style = style;
 	}
 
 	public void setScrollPause(boolean pause) {

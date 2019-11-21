@@ -72,6 +72,13 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
+	public String getActualDisplayName() {
+		if (displayName != null)
+			return displayName;
+		return name;
+	}
+
+	@Override
 	public double getX() {
 		return x;
 	}

@@ -165,7 +165,7 @@ public class BalloonPresentation extends AbstractICPCPresentation {
 			if (contest.isSolved(run)) {
 				Balloon b = new Balloon();
 				b.problem = run.getProblemId();
-				b.team = contest.getTeamById(run.getTeamId()).getName();
+				b.team = contest.getTeamById(run.getTeamId()).getActualDisplayName();
 				synchronized (diffs) {
 					diffs.add(b);
 				}

@@ -31,7 +31,7 @@
 
 <tr>
 <td><%= r.getId() %></td>
-<td><%= team.getId() %> - <%= team.getName() %></td>
+<td><%= team.getId() %> - <%= team.getActualDisplayName() %></td>
 <td><a href="/video/reaction/<%= r.getId() %>">Reaction</a></td>
 </tr>
 <% } %>

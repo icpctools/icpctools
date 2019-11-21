@@ -270,8 +270,8 @@ public class BalloonContest {
 					if (t1 == null || t2 == null)
 						return 0;
 
-					String n1 = TeamUtil.getTeamName(contest, t1);
-					String n2 = TeamUtil.getTeamName(contest, t2);
+					String n1 = t1.getActualDisplayName();
+					String n2 = t2.getActualDisplayName();
 					return collator.compare(n1, n2) * inc;
 				} else if (col == SORT_GROUP) {
 					ISubmission s1 = contest.getSubmissionById(b1.getSubmissionId());
