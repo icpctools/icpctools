@@ -8,7 +8,7 @@
    <target name="stage">
       <copy todir="staging">
          <fileset dir="${contest.model}/staging"/>
-         <fileset dir="${contest.model}/lib"/>
+	 <fileset dir="${contest.model}/lib" excludes="**/BUILD"/>
       </copy>
    </target>
 </project>
