@@ -11,11 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
@@ -26,6 +28,12 @@ public class SearchService extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
+		String searchTerm = request.getParameter("value");
+		if (searchTerm != null) {
+			request.getRequestDispatcher("/WEB-INF/jsps/search.jsp").forward(request, response);
+			return;
+		}
+
 		String path = request.getPathInfo();
 		if (path == null || !path.startsWith("/")) {
 			request.setCharacterEncoding("UTF-8");
@@ -36,7 +44,6 @@ public class SearchService extends HttpServlet {
 			return;
 		}
 
-		String searchTerm = null;
 		try {
 			searchTerm = path.substring(1);
 		} catch (Exception e) {
@@ -56,10 +63,11 @@ public class SearchService extends HttpServlet {
 		search(request, searchTerm, en);
 	}
 
-	protected static void write(JSONEncoder e, IContestObject obj) {
+	protected static void write(JSONEncoder e, IContestObject obj, String text) {
 		e.open();
 		e.encode("type", IContestObject.ContestTypeNames[obj.getType().ordinal()]);
 		e.encode("id", obj.getId());
+		e.encode("text", text);
 		e.close();
 	}
 
@@ -83,30 +91,48 @@ public class SearchService extends HttpServlet {
 				ILanguage[] langs = contest.getLanguages();
 				for (ILanguage lang : langs) {
 					if (lang.getName().toLowerCase().contains(search)) {
-						write(en, lang);
+						write(en, lang, lang.getName());
+					}
+				}
+
+				IProblem[] probs = contest.getProblems();
+				for (IProblem prob : probs) {
+					if (prob.getName().toLowerCase().contains(search)) {
+						write(en, prob, prob.getName());
 					}
 				}
 
 				IOrganization[] orgs = contest.getOrganizations();
 				for (IOrganization org : orgs) {
-					if (org.getName().toLowerCase().contains(search) || org.getFormalName().toLowerCase().contains(search)
-							|| org.getCountry().toLowerCase().contains(search)) {
-						write(en, org);
+					if (org.getName().toLowerCase().contains(search)) {
+						write(en, org, org.getName());
+					} else if (org.getFormalName().toLowerCase().contains(search)) {
+						write(en, org, org.getFormalName());
+					} else if (org.getCountry().toLowerCase().contains(search)) {
+						write(en, org, org.getCountry());
 					}
 				}
 
 				IGroup[] groups = contest.getGroups();
 				for (IGroup group : groups) {
 					if (group.getName().toLowerCase().contains(search)) {
-						write(en, group);
+						write(en, group, group.getName());
 					}
 				}
 
 				ITeam[] teams = contest.getTeams();
 				for (ITeam team : teams) {
-					if (team.getName().toLowerCase().contains(search)
-							|| (team.getDisplayName() != null && team.getDisplayName().toLowerCase().contains(search))) {
-						write(en, team);
+					if (team.getName().toLowerCase().contains(search)) {
+						write(en, team, team.getName());
+					} else if (team.getDisplayName() != null && team.getDisplayName().toLowerCase().contains(search)) {
+						write(en, team, team.getDisplayName());
+					}
+				}
+
+				IClarification[] clars = contest.getClarifications();
+				for (IClarification clar : clars) {
+					if (clar.getText().toLowerCase().contains(search)) {
+						write(en, clar, clar.getText());
 					}
 				}
 			} catch (Exception e) {

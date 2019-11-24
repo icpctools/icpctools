@@ -1,18 +1,17 @@
 <%@ page import="org.icpc.tools.contest.model.*" %>
 <% request.setAttribute("title", "Contest Freeze"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <% IContest contest2 = cc.getContestByRole(true, false);
     IContest contest1 = cc.getContestByRole(false, false);
     IState state = contest1.getState(); %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Contest Freeze</h1>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">State Changes</h3>
+           </div>
+        <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <tr>
                     <th>Frozen:</th>
@@ -36,7 +35,12 @@
                 </tr>
             </table>
 
-            <p/>
+            </div></div>
+            <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Details</h3>
+           </div>
+            <div class="card-body p-0">
 
             <% IJudgement[] juds = contest1.getJudgements();
                 int num = juds.length;
@@ -151,10 +155,8 @@
                 </tr>
                 </tbody>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>

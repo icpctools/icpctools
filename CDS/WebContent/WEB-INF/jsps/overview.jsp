@@ -3,18 +3,17 @@
 <%@ page import="org.icpc.tools.contest.model.IState" %>
 <%@ page import="org.icpc.tools.cds.CDSConfig" %>
 <% request.setAttribute("title", "Contest Overview"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <% IState state = contest.getState();
     long[] metrics = cc.getMetrics(); %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Contest Overview</h1>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Overview</h3>
+           </div>
+        <div class="card-body p-0">
             <% String validation = "";
                 List<String> validationList = contest.validate();
                 if (validationList == null)
@@ -29,72 +28,33 @@
                 <tbody>
                 <tr>
                     <td><b>Name:</b></td>
-                    <td><%= contest.getName() %>
-                    </td>
-                    <td><b>Problems:</b></td>
-                    <td><%= contest.getNumProblems() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/problems">API</a></td>
+                    <td><%= contest.getName() %></td>
+                    <td><b>Duration:</b></td>
+                    <td><%= ContestUtil.formatDuration(contest.getDuration()) %></td>
                 </tr>
                 <tr>
                     <td><b>Start:</b></td>
-                    <td><%= ContestUtil.formatStartTime(contest) %>
-                    </td>
-                    <td><b>Organizations:</b></td>
-                    <td><%= contest.getNumOrganizations() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/organizations">API</a></td>
-                </tr>
-                <tr>
-                    <td><b>Duration:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getDuration()) %>
-                    </td>
-                    <td><b>Teams:</b></td>
-                    <td><%= contest.getNumTeams() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/teams">API</a></td>
-                </tr>
-                <tr>
+                    <td><%= ContestUtil.formatStartTime(contest) %></td>
                     <td><b>Freeze duration:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %>
-                    </td>
-                    <td><b>Submissions:</b></td>
-                    <td><%= contest.getNumSubmissions() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/submissions">API</a></td>
-                </tr>
-                <tr>
-                    <td><b>Last event:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getContestTimeOfLastEvent()) %>
-                    </td>
-                    <td><b>Judgements:</b></td>
-                    <td><%= contest.getNumJudgements() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/judgements">API</a></td>
+                    <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %></td>
                 </tr>
                 <tr>
                     <td><b>Validation:</b></td>
-                    <td><a href="<%= webroot %>/validation"><%= validation %>
-                    </a></td>
-                    <td><b>Runs:</b></td>
-                    <td><%= contest.getNumRuns() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/runs">API</a></td>
+                    <td><a href="<%= webroot %>/validation"><%= validation %></a></td>
+                    <td><b>Last event:</b></td>
+                    <td><%= ContestUtil.formatDuration(contest.getContestTimeOfLastEvent()) %></td>
                 </tr>
                 <tr>
                     <td><b>Current time:</b></td>
                     <td><% if (state.getStarted() == null) { %>Not started
                         <% } else if (state.getEnded() != null) { %>Finished
                         <% } else { %><%= ContestUtil.formatTime((long) ((System.currentTimeMillis() - state.getStarted()) * contest.getTimeMultiplier())) %><% } %></td>
-                    <td><b>Clarifications:</b></td>
-                    <td><%= contest.getNumClarifications() %>
-                    </td>
-                    <td><a href="<%= apiRoot %>/clarifications">API</a></td>
+                    <td></td><td></td>
                 </tr>
                 </tbody>
             </table>
 
-            <p>
+            <p class="indent">
                 Compare to:
                 <% ConfiguredContest[] ccs = CDSConfig.getContests();
                     for (ConfiguredContest cc2 : ccs)
@@ -105,10 +65,16 @@
                 <a href="<%= webroot%>/contestCompare/compare2cds">CDS awards</a>
             </p>
 
-            Freeze details & verification: <a href="<%= webroot%>/freeze">here</a>.
-            <p/>
-
-            <h2>Clients currently connected to feed:</h2>
+            <p class="indent">Freeze details & verification: <a href="<%= webroot%>/freeze">here</a>.
+            </p>
+            
+            </div></div>
+            
+            <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Clients</h3>
+           </div>
+        <div class="card-body p-0">
             <% List<String> efClients = cc.getClients();
                 if (efClients == null || efClients.isEmpty()) { %>
             <ul>
@@ -122,9 +88,13 @@
                 <% } %>
             </ol>
             <% } %>
+            </div></div>
 
-
-            <h2>Contest Data Requests</h2>
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Data Requests</h3>
+           </div>
+        <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <tbody>
                 <tr>
@@ -174,9 +144,13 @@
                 </tr>
                 </tbody>
             </table>
-
-
-            <h2>Configuration</h2>
+            </div></div>
+            
+            <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Configuration</h3>
+           </div>
+        <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <tbody>
                 <tr>
@@ -205,11 +179,10 @@
                 </tr>
                 </tbody>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script>
     function validateSource() {
         var id = "sourceValidation";
@@ -231,5 +204,4 @@
 
     $(document).ready(validateSource);
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

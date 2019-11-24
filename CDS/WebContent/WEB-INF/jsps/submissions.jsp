@@ -1,20 +1,15 @@
 <%@page import="org.icpc.tools.contest.model.*" %>
 <%@page import="java.util.List" %>
 <% request.setAttribute("title", "Submissions"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1><a href="<%= apiRoot %>/submissions">Submissions</a> (<%= contest.getNumSubmissions() %>)</h1>
-            <h1><a href="<%= apiRoot %>/judgements">Judgements</a> (<%= contest.getNumJudgements() %>)</h1>
-            <h1><a href="<%= apiRoot %>/runs">Runs</a> (<%= contest.getNumRuns() %>)</h1>
-
-            <h3>Judge Queue</h3>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Judge Queue</h3>
+           </div>
+        <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -97,15 +92,15 @@
                 </tr>
                 <% } %>
                 </tbody>
-                <tfoot>
-                <tr>
-                    <td colspan=6><%= numJudging %> pending judgements</td>
-                </tr>
-                </tfoot>
             </table>
-
-            <h3>All Submissions</h3>
-
+             <p class="indent"><%= numJudging %> pending judgements</p>
+            </div></div>
+            
+            <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Submissions</h3>
+            </div>
+            <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -227,10 +222,8 @@
                 <% } %>
                 </tbody>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>

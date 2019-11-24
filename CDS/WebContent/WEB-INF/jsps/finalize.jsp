@@ -1,20 +1,17 @@
 <% request.setAttribute("title", "Finalize Control"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Finalize Control</h1>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6 col-md-4">
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Finalize Control</h3>
+           </div>
+        <div class="card-body p-0">
+          <p class="indent">
             <div class="form-group">
-                <label for="bSelect">Set value of b:</label>
-                <select id="bSelect" class="custom-select">
+                <label for="bSelect" class="indent">Set value of b:</label>
+                <select id="bSelect" class="custom-select indent">
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -23,19 +20,18 @@
                     <option value="5">5</option>
                     <option value="6">6</option>
                 </select>
-            </div>
-
-            <button id="set" class="btn btn-primary"
+            
+            <button id="set" class="btn btn-primary indent"
                     onclick="var e = document.getElementById('bSelect'); sendCommand('set', 'b:' + e.options[e.selectedIndex].value)">
                 Apply!
             </button>
 
-            <span id="status"></span>
+            <span class="indent" id="status"></span>
+            </div>
         </div>
+        </div></div>
     </div>
 </div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script>
     function sendCommand(id, command) {
         document.getElementById(id).disabled = true;
@@ -64,5 +60,4 @@
         xmlhttp.send();
     }
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>
