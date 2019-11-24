@@ -1,16 +1,13 @@
 <% request.setAttribute("title", "Contest Reports"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1>Contest Reports</h1>
-
-            <h3>Languages</h3>
-
+   <div class="row">
+     <div class="col-12">
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Languages</h3>
+           </div>
+        <div class="card-body p-0">
             <table id="langs-table" class="table table-sm table-hover table-striped">
                 <thead></thead>
                 <tbody>
@@ -19,9 +16,13 @@
                 </tr>
                 </tbody>
             </table>
+        </div></div>
 
-            <h3>Runs</h3>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Runs</h3>
+           </div>
+        <div class="card-body p-0">
             <table id="runs-table" class="table table-sm table-hover table-striped">
                 <thead></thead>
                 <tbody>
@@ -30,9 +31,13 @@
                 </tr>
                 </tbody>
             </table>
+        </div></div>
 
-            <h3>Problems</h3>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Problems</h3>
+           </div>
+        <div class="card-body p-0">
             <table id="problems-table" class="table table-sm table-hover table-striped">
                 <thead></thead>
                 <tbody>
@@ -41,11 +46,10 @@
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
+        </div></div>
+      </div>
+   </div>
 </div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -104,7 +108,5 @@
         }
         sortByColumn($(table));
     }
-
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

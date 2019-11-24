@@ -1,19 +1,13 @@
 <% request.setAttribute("title", "Presentation Admin"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/baseMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-
-            <h1>Presentation Admin</h1>
-
-            <p>Simple web admin, allows you to apply one presentation to all clients.</p>
-
-            <h3>Summary</h3>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Summary</h3>
+           </div>
+        <div class="card-body p-0">
             <table id="client-summary-table" class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -29,9 +23,13 @@
                 </tr>
                 </tfoot>
             </table>
-
-            <h2>Presentations</h2>
-
+            </div></div>
+            
+            <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Presentations</h3>
+           </div>
+        <div class="card-body p-0">
             <table id="pres-table" class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -45,9 +43,13 @@
             </table>
 
             <div id="status"></div>
-
-            <h2>Clients (<span id="client-count">0</span>)</h2>
-
+            </div></div>
+            
+            <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Clients</h3>&nbsp;(<span id="client-count">0</span>)
+           </div>
+        <div class="card-body p-0">
             <table id="client-table" class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -69,12 +71,11 @@
                 </thead>
                 <tbody></tbody>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
 
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script>
     var last;
@@ -135,7 +136,6 @@
 
 
     $(document).ready(function () {
-
         var pres;
         var clients;
 
@@ -266,7 +266,5 @@
             alert("Could not load page! " + result);
         })
     })
-
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

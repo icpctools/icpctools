@@ -1,9 +1,5 @@
 <% request.setAttribute("title", "Contest API"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/baseMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -20,6 +16,3 @@
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>

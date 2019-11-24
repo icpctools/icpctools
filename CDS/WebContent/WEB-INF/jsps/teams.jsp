@@ -1,14 +1,13 @@
-<% request.setAttribute("title", "Organizations"); %>
-<!doctype html>
-<html>
-<%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1><a href="<%= apiRoot %>/teams">Teams</a> (<%= contest.getNumTeams() %>)</h1>
-
+<div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Teams</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getNumTeams() %>" class="badge bg-primary"><%= contest.getNumTeams() %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/teams'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+        <div class="card-body p-0">
             <table id="team-table" class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -27,11 +26,8 @@
                 </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-</div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
+            </div>
+         </div>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -96,5 +92,3 @@
 
     })
 </script>
-</body>
-</html>
