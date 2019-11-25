@@ -275,7 +275,7 @@ public class CDSConfig {
 		}
 	}
 
-	static String getString(Element element, String key) {
+	protected static String getString(Element element, String key) {
 		Attr attr = element.getAttributeNode(key);
 		if (attr == null)
 			return null;
