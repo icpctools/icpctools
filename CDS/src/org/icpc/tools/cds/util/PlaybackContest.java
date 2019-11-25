@@ -234,8 +234,10 @@ public class PlaybackContest extends Contest {
 
 				boolean found = false;
 				for (String gId : team.getGroupIds()) {
-					if (view.matchesGroup(gId))
+					if (view.matchesGroup(gId)) {
 						found = true;
+						break;
+					}
 				}
 				if (!found)
 					return;
