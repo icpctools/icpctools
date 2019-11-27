@@ -2,7 +2,7 @@
 <%@page import="org.icpc.tools.contest.model.IOrganization" %>
 <%@page import="org.icpc.tools.contest.model.ITeam" %>
 <%@page import="java.util.Arrays" %>
-<% request.setAttribute("title", "Video Status"); %>
+<% request.setAttribute("title", "Video"); %>
 <%@ include file="layout/head.jsp" %>
 <% int numTeams = contest.getNumTeams();%>
 <div class="container-fluid">
@@ -13,7 +13,7 @@
              <h3 class="card-title">Video Status</h3>
            </div>
         <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>

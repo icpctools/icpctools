@@ -19,7 +19,7 @@
                 <tfoot>
                 <tr>
                     <td class="text-right"><b>Total</b></td>
-                    <td>Loading...</td>
+                    <td><div class="spinner-border"></div></td>
                 </tr>
                 </tfoot>
             </table>

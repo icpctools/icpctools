@@ -8,7 +8,7 @@
              </div>
            </div>
         <div class="card-body p-0">
-            <table id="org-table" class="table table-sm table-hover table-striped">
+            <table id="org-table" class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td colspan=5>Loading...</td>
+                    <td colspan=5><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>

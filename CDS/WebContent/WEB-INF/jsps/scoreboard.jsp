@@ -27,7 +27,7 @@
 
             <% } %>
 
-            <table id="score-table" class="table table-sm table-hover table-striped">
+            <table id="score-table" class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th class="text-right">Rank</th>
@@ -48,7 +48,11 @@
                     <th class="text-right">Time</th>
                 </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                <tr>
+                    <td colspan="<%= 6 + numProblems %>"><div class="spinner-border"></div></td>
+                </tr>
+                </tbody>
             </table>
             </div></div>
         </div>
@@ -62,6 +66,7 @@
         contest.setContestId("<%= cc.getId() %>");
 
         function fillTable() {
+        	$("#score-table tbody").find("tr").remove();
             score = contest.getScoreboard();
             teams = contest.getTeams();
             orgs = contest.getOrganizations();

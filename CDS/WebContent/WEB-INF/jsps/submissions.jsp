@@ -10,7 +10,7 @@
              <h3 class="card-title">Judge Queue</h3>
            </div>
         <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -101,7 +101,7 @@
               <h3 class="card-title">Submissions</h3>
             </div>
             <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
