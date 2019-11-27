@@ -155,7 +155,10 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark"><%= request.getAttribute("title") %></h1>
+          <% String contestName = "";
+             if (contest != null)
+            	 contestName = contest.getName() + " "; %>
+            <h1 class="m-0 text-dark"><%= contestName %><%= request.getAttribute("title") %></h1>
           </div><!-- /.col -->
         </div><!-- /.row -->
       </div><!-- /.container-fluid -->

@@ -1,5 +1,5 @@
 <%@ page import="org.icpc.tools.contest.model.*" %>
-<% request.setAttribute("title", "Contest Freeze"); %>
+<% request.setAttribute("title", "Freeze"); %>
 <%@ include file="layout/head.jsp" %>
 <% IContest contest2 = cc.getContestByRole(true, false);
     IContest contest1 = cc.getContestByRole(false, false);

@@ -1,6 +1,6 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.icpc.tools.contest.model.*" %>
-<% request.setAttribute("title", "Contest Details"); %>
+<% request.setAttribute("title", "Details"); %>
 <%@ include file="layout/head.jsp" %>
 <% IState state = contest.getState(); %>
 <div class="container-fluid">
@@ -16,7 +16,7 @@
            </div>
             <div class="card-body p-0">
 
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <tbody>
                 <tr>
                     <td><b>Name:</b></td>
@@ -50,7 +50,7 @@
            </div>
             <div class="card-body p-0">
 
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <tbody>
                 <tr>
                     <td><b>Started:</b></td>
@@ -96,7 +96,7 @@
              </div>
            </div>
             <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -140,7 +140,7 @@
            </div>
             <div class="card-body p-0">
 
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -191,7 +191,7 @@
            </div>
             <div class="card-body p-0">
             
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -249,7 +249,7 @@
            </div>
             <div class="card-body p-0">
             
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>

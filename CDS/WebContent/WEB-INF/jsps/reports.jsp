@@ -1,4 +1,4 @@
-<% request.setAttribute("title", "Contest Reports"); %>
+<% request.setAttribute("title", "Reports"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
    <div class="row">
@@ -12,7 +12,7 @@
                 <thead></thead>
                 <tbody>
                 <tr>
-                    <td>Loading...</td>
+                    <td><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>
@@ -27,7 +27,7 @@
                 <thead></thead>
                 <tbody>
                 <tr>
-                    <td>Loading...</td>
+                    <td><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>
@@ -42,7 +42,7 @@
                 <thead></thead>
                 <tbody>
                 <tr>
-                    <td>Loading...</td>
+                    <td><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>

@@ -8,7 +8,7 @@
              </div>
            </div>
         <div class="card-body p-0">
-            <table id="award-table" class="table table-sm table-hover table-striped">
+            <table id="award-table" class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -18,7 +18,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td colspan=3>Loading...</td>
+                    <td colspan=3><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>
@@ -54,7 +54,7 @@
                 $('#award-table tbody').append(row);
             }
             if (awards.length === 0) {
-                col = $('<td colspan="3">No awards (yet)</td>');
+                col = $('<td colspan="3">No awards</td>');
                 row = $('<tr></tr>');
                 row.append(col);
                 $('#award-table tbody').append(row);

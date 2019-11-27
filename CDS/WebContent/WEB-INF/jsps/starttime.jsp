@@ -1,4 +1,4 @@
-<% request.setAttribute("title", "Countdown Control"); %>
+<% request.setAttribute("title", "Countdown"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
     <div class="row">

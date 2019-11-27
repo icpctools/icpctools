@@ -1,4 +1,4 @@
-<% request.setAttribute("title", "Finalize Control"); %>
+<% request.setAttribute("title", "Finalization"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
     <div class="row">

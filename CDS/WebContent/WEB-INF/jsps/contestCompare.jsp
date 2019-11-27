@@ -1,4 +1,4 @@
-<% request.setAttribute("title", "Contest Comparison"); %>
+<% request.setAttribute("title", "Comparison"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
     <div class="row">
