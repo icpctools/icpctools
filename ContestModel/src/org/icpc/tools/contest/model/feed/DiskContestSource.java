@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.feed;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -60,6 +61,7 @@ public class DiskContestSource extends ContestSource {
 	private static Map<String, List<FileReference>> cache = new HashMap<>();
 	private String contestId;
 	private boolean expectFeed = true;
+	private Closeable parser;
 
 	/**
 	 * Create a disk contest source at the specified folder.
@@ -639,11 +641,13 @@ public class DiskContestSource extends ContestSource {
 		}
 		try {
 			if (contestFile.getName().endsWith("json")) {
-				NDJSONFeedParser parser = new NDJSONFeedParser();
-				parser.parse(contest, in);
+				NDJSONFeedParser jsonParser = new NDJSONFeedParser();
+				jsonParser.parse(contest, in);
+				parser = jsonParser;
 			} else {
-				XMLFeedParser parser = new XMLFeedParser();
-				parser.parse(contest, in);
+				XMLFeedParser xmlParser = new XMLFeedParser();
+				xmlParser.parse(contest, in);
+				parser = xmlParser;
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading event feed", e);
@@ -659,6 +663,12 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		Trace.trace(Trace.INFO, "Time to load EF: " + (System.currentTimeMillis() - time) + "ms");
+	}
+
+	@Override
+	public void close() throws Exception {
+		if (parser != null)
+			parser.close();
 	}
 
 	public FileReferenceList getFilesWithPattern(IContestObject obj, String property) {

@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.model.feed;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,9 +13,11 @@ import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Deletion;
 
-public class NDJSONFeedParser {
+public class NDJSONFeedParser implements Closeable {
 	protected String lastId;
 	protected String readUntilId;
+	protected BufferedReader br;
+	protected boolean closed;
 
 	public void parse(final Contest contest, InputStream in) throws Exception {
 		if (in == null)
@@ -24,7 +27,7 @@ public class NDJSONFeedParser {
 		// endpoint> }
 		String s = null;
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			s = br.readLine();
 			while (s != null) {
 				if (s.isEmpty() || s.startsWith("!")) { // heart beat or REST connector log message
@@ -69,12 +72,17 @@ public class NDJSONFeedParser {
 					Trace.trace(Trace.ERROR, "Could not parse event feed line (" + lastId + "): " + s, e);
 				}
 
+				if (closed)
+					return;
+
 				s = null;
 
 				// read next line
 				s = br.readLine();
 			}
 		} catch (Exception e) {
+			if (closed)
+				return;
 			Trace.trace(Trace.ERROR, "Could not parse event feed: (" + lastId + ") " + s, e);
 			throw new IOException("Error parsing event feed");
 		}
@@ -82,6 +90,19 @@ public class NDJSONFeedParser {
 
 	public void readUntilEventId(String id) {
 		readUntilId = id;
+	}
+
+	@Override
+	public void close() {
+		closed = true;
+		if (br != null) {
+			try {
+				br.close();
+			} catch (Exception e) {
+				// ignore
+			}
+			br = null;
+		}
 	}
 
 	public String getLastEventId() {

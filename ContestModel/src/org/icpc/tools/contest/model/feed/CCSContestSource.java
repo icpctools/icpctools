@@ -25,6 +25,7 @@ public class CCSContestSource extends DiskContestSource {
 	private int port;
 	private String startTime;
 	private String submissionFiles;
+	private XMLFeedParser parser;
 
 	/**
 	 * Create a CCS contest source with a temporary cache.
@@ -143,7 +144,7 @@ public class CCSContestSource extends DiskContestSource {
 			in = new BufferedInputStream(connectToSocket());
 			if (super.isCache())
 				notifyListeners(ConnectionState.CONNECTED);
-			XMLFeedParser parser = new XMLFeedParser();
+			parser = new XMLFeedParser();
 			parser.parse(contest, in);
 		} catch (Exception e) {
 			throw e;
@@ -155,6 +156,13 @@ public class CCSContestSource extends DiskContestSource {
 				// ignore
 			}
 		}
+	}
+
+	@Override
+	public void close() throws Exception {
+		super.close();
+		if (parser != null)
+			parser.close();
 	}
 
 	/**
