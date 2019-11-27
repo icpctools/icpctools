@@ -153,6 +153,26 @@ public class ConfiguredContest {
 		}
 
 		@Override
+		public int hashCode() {
+			return countdown + (int) startTime * 31 + (int) (multiplier * 31.0 * 31.0);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Test))
+				return false;
+
+			Test t = (Test) obj;
+			if (t.countdown != countdown)
+				return false;
+			if (t.startTime != startTime)
+				return false;
+			if (t.multiplier != multiplier)
+				return false;
+			return true;
+		}
+
+		@Override
 		public String toString() {
 			if (startTime > 0)
 				return "Playback at " + ContestUtil.formatStartTime(startTime) + " at " + getMultiplier() + "x speed";
@@ -332,6 +352,14 @@ public class ConfiguredContest {
 				else
 					VideoMapper.WEBCAM.mapAllTeams(this, urlPattern, mode);
 			}
+		}
+	}
+
+	public void close() {
+		try {
+			getContestSource().close();
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not close contest", e);
 		}
 	}
 

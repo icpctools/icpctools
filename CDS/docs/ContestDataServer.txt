@@ -145,8 +145,9 @@ This configuration is done via an XML file named _cdsConfig.xml_,
 located in the _usr/servers/cds_ folder. 
 The _cdsConfig.xml_ file contains a root element *<cds>* which in turn contains a separate "service-defining" XML element for each 
 service which the CDS knows how to provide.  All nested elements and attributes are optional except
-for the _contest location_ attribute, and unknown elements or attributes are ignored. 
-This allows you to easily rename or comment-out an element to add or remove a service.
+for the _contest location_ attribute, and unknown elements or attributes are ignored - 
+this allows you to easily rename or comment-out an element to add or remove a service.
+If you save changes to _cdsConfig.xml_ while the CDS is running the changes will be automatically applied after a few seconds.
 
 A simple example of a _cdsConfig.xml_ file is shown below.  
 

@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model.feed;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class XMLFeedParser {
+public class XMLFeedParser implements Closeable {
 	private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
 	protected static final String INFO = "info";
@@ -68,6 +69,8 @@ public class XMLFeedParser {
 	private static final String TIMESTAMP = "timestamp";
 
 	protected boolean inferJudgementTypes = true;
+	protected InputStream feedIn;
+	protected boolean closed;
 
 	static class Property {
 		public String name;
@@ -105,6 +108,8 @@ public class XMLFeedParser {
 	public void parse(final Contest contest, InputStream in) throws Exception {
 		if (in == null)
 			return;
+
+		feedIn = in;
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser sp = factory.newSAXParser();
@@ -147,8 +152,23 @@ public class XMLFeedParser {
 				}
 			});
 		} catch (SAXParseException e) {
+			if (closed)
+				return;
 			Trace.trace(Trace.ERROR, "Could not parse event feed: '" + e.getMessage() + "' on line " + e.getLineNumber());
 			throw new IOException("Error parsing event feed");
+		}
+	}
+
+	@Override
+	public void close() {
+		closed = true;
+		if (feedIn != null) {
+			try {
+				feedIn.close();
+			} catch (Exception e) {
+				// ignore
+			}
+			feedIn = null;
 		}
 	}
 

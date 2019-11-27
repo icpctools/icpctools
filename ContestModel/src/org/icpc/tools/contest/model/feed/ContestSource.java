@@ -245,6 +245,10 @@ public abstract class ContestSource {
 		// do nothing
 	}
 
+	public void close() throws Exception {
+		// do nothing
+	}
+
 	/**
 	 * Wait for the contest to be reading from a live source, or done/failed from any other source.
 	 *
