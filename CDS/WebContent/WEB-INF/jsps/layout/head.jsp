@@ -81,9 +81,10 @@
           <% ConfiguredContest[] ccs3 = CDSConfig.getContests();
              for (ConfiguredContest cc3 : ccs3) {
              if (!cc3.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
-                IContest contest3 = cc3.getContest(); %>
+                IContest contest3 = cc3.getContest();
+                String webroot3 = request.getContextPath() + "/contests/" + cc3.getId(); %>
 
-          <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains(contest3.getId())) { %>open<% } else { %>closed<% } %>">
+          <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().startsWith(webroot3)) { %>open<% } else { %>closed<% } %>">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
@@ -97,7 +98,7 @@
             <ul class="nav nav-treeview">
               <% for (int i = 0; i < menuPages.length; i++) { %>
               <li class="nav-item">
-                <a href="/contests/<%= contest3.getId() %><%= menuPages[i] %>" class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot + menuPages[i])) { %> active<% } %>">
+                <a href="/contests/<%= contest3.getId() %><%= menuPages[i] %>" class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
                   <i class="far fa-circle nav-icon"></i>
                   <p><%= menuTitles[i] %></p>
                 </a>
