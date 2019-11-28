@@ -86,9 +86,13 @@ public class CDSConfig {
 		this.file = file;
 
 		lastModified = file.lastModified();
-		Element e = readElement(file);
-		loadContests(e);
-		loadOtherConfig(e);
+		try {
+			Element e = readElement(file);
+			loadContests(e);
+			loadOtherConfig(e);
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not read from CDS config! No contests loaded");
+		}
 
 		ExecutorListener.getExecutor().scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -99,9 +103,13 @@ public class CDSConfig {
 				Trace.trace(Trace.USER, "----- CDS config change detected -----");
 				lastModified = file.lastModified();
 
-				Element el = readElement(file);
-				loadContests(el);
-				loadOtherConfig(el);
+				try {
+					Element el = readElement(file);
+					loadContests(el);
+					loadOtherConfig(el);
+				} catch (Exception e) {
+					Trace.trace(Trace.USER, "Error reading CDS config, changes will be ignored until the file is fixed");
+				}
 			}
 		}, 15, 5, TimeUnit.SECONDS);
 	}
@@ -227,17 +235,20 @@ public class CDSConfig {
 		return domains;
 	}
 
-	private static Element readElement(File file) {
+	private static Element readElement(File file) throws Exception {
 		Document document = null;
 		try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder parser = factory.newDocumentBuilder();
+			// clear default error handler - exception will be caught below
+			parser.setErrorHandler(null);
 			document = parser.parse(new InputSource(in));
 			Node node = document.getFirstChild();
 			if (node instanceof Element)
 				return (Element) node;
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error reading CDS config", e);
+			Trace.trace(Trace.WARNING, "Error reading cdsConfig.xml: " + e.getMessage());
+			throw e;
 		}
 		return null;
 	}
