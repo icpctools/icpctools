@@ -3,19 +3,16 @@ package org.icpc.tools.cds.service;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.ConfiguredContest;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ICountdown;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Countdown;
 
 public class CountdownStatusService {
-	protected static void doGet(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc)
-			throws IOException {
+	protected static void doGet(HttpServletResponse response, ConfiguredContest cc) throws IOException {
 		Contest contest = cc.getContest();
 
 		StringBuilder sb = new StringBuilder();
@@ -33,21 +30,11 @@ public class CountdownStatusService {
 		response.getWriter().println(sb.toString());
 	}
 
-	protected static void doPut(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc)
-			throws IOException {
-		if (!Role.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-
-		String path = request.getPathInfo();
+	protected static void doPut(HttpServletResponse response, String path, ConfiguredContest cc) throws IOException {
 		if (path == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
-
-		if (path.contains("/"))
-			path = path.substring(path.lastIndexOf("/") + 1);
 
 		if (path.length() != 9) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);

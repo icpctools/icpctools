@@ -437,7 +437,7 @@ public class ConfiguredContest {
 		if (isTesting == null) {
 			isTesting = (test != null);
 			if (isTesting)
-				System.out.println("----- Test mode enabled -----");
+				Trace.trace(Trace.USER, "----- Test mode enabled -----");
 		}
 
 		return isTesting;

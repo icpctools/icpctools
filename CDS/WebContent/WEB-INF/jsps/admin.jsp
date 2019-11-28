@@ -1,4 +1,4 @@
-<% request.setAttribute("title", "Countdown"); %>
+<% request.setAttribute("title", "Admin"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
     <div class="row">
@@ -7,23 +7,9 @@
            <div class="card-header">
              <h3 class="card-title">Countdown Control</h3>
            </div>
-        <div class="card-body p-0">
-            <b class="indent"><font size="+8"><span id="countdown">unknown</span></font></b>
-            
-            <p/>
-
-            <button id="show" class="btn btn-primary indent" data-toggle="collapse" data-target="#controls">
-                Show / Hide Controls
-            </button>
-        </div></div>
-
-            <div class="collapse" id="controls">
-
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Time Control</h3>
-           </div>
-        <div class="card-body p-0 indent">
+        <div class="card-body">
+          <b><font size="+7"><span id="countdown">unknown</span></font></b>
+        
            <p>You cannot change time in the final 30s before a contest starts.</p>
                 <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause
                 </button>
@@ -98,6 +84,10 @@
             <span id="status"></span>
                 </div></div>
 
+      </div>
+      </div>
+      <div class="row">
+      <div class="col-9">
                 <div class="card">
            <div class="card-header">
              <h3 class="card-title">Contest Readiness</h3>
@@ -175,8 +165,38 @@
                     </tr>
                 </table>
             </div>
-            </div></div>
+            </div>
         </div>
+
+        <div class="col-3">
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Finalization</h3>
+           </div>
+        <div class="card-body">
+          <form>
+            <div class="form-group">
+                <label for="bSelect">Value of b:</label>
+                <select id="bSelect" class="custom-select form-control">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            
+            <button id="set" class="btn btn-primary form-control"
+                    onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('set', 'b:' + e.options[e.selectedIndex].value)">
+                Apply
+            </button>
+
+            <span id="status"></span>
+            </div>
+            </form>
+        </div>
+        </div></div>
     </div>
 </div>
 <script>
@@ -260,7 +280,7 @@
             document.getElementById("status").innerHTML = "Request timed out";
             document.getElementById(id).disabled = false;
         }
-        xmlhttp.open("PUT", "<%= webroot %>/countdown/" + command, true);
+        xmlhttp.open("PUT", "<%= webroot %>/admin/time/" + command, true);
         xmlhttp.send();
     }
 
@@ -295,7 +315,7 @@
             document.getElementById("status").innerHTML = "Request timed out";
             document.getElementById(checkbox.id).disabled = false;
         }
-        xmlhttp.open("PUT", "<%= webroot %>/statuschecks/" + s, true);
+        xmlhttp.open("PUT", "<%= webroot %>/admin/status/" + s, true);
         xmlhttp.send();
     }
 
@@ -318,7 +338,7 @@
         xmlhttp.ontimeout = function () {
             document.getElementById("status").innerHTML = "Request timed out";
         }
-        xmlhttp.open("GET", "<%= webroot %>/countdown/update", true);
+        xmlhttp.open("GET", "<%= webroot %>/admin/time", true);
         xmlhttp.send();
     }
 
@@ -339,7 +359,34 @@
                     document.getElementById("status").innerHTML = xmlhttp.responseText;
             }
         }
-        xmlhttp.open("GET", "<%= webroot %>/statuschecks", true);
+        xmlhttp.open("GET", "<%= webroot %>/admin/status", true);
+        xmlhttp.send();
+    }
+    
+    function sendFinalizeCommand(id, command) {
+        document.getElementById(id).disabled = true;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            document.getElementById("status").innerHTML = "";
+            if (xmlhttp.readyState == 4) {
+                var resp = xmlhttp.responseText;
+                if (xmlhttp.status == 200) {
+                    if (resp == null || resp.trim().length == 0)
+                        targetTime = null;
+                    else
+                        targetTime = parseInt(resp) / 1000.0;
+                } else
+                    document.getElementById("status").innerHTML = resp;
+                document.getElementById(id).disabled = false;
+            }
+        };
+        xmlhttp.timeout = 10000;
+        xmlhttp.ontimeout = function () {
+            document.getElementById("status").innerHTML = "Request timed out";
+            document.getElementById(id).disabled = false;
+        };
+        xmlhttp.open("PUT", "<%= webroot %>/admin/finalize/" + command, true);
         xmlhttp.send();
     }
 
