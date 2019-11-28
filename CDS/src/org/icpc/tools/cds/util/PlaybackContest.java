@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
-import java.util.regex.Pattern;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.ConfiguredContest.Test;
+import org.icpc.tools.cds.ConfiguredContest.View;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.contest.Trace;
@@ -44,17 +44,11 @@ public class PlaybackContest extends Contest {
 	protected Long startTime;
 	private List<IContestObject> defaults = new ArrayList<>();
 	protected boolean configurationLoaded;
-	protected Pattern pattern;
 
 	public PlaybackContest(ConfiguredContest cc) {
 		contestId = cc.getId();
 		recordReactions = cc.isRecordingReactions();
 		this.cc = cc;
-
-		if (cc.getView() != null) {
-			String g = cc.getView().getGroups();
-			pattern = Pattern.compile(g.trim());
-		}
 	}
 
 	public void setStartTime(Long startTime) {
@@ -218,17 +212,18 @@ public class PlaybackContest extends Contest {
 
 	@Override
 	public void add(IContestObject obj) {
-		if (pattern != null) {
+		if (cc.getView() != null) {
+			View view = cc.getView();
 			if (obj instanceof Group) {
 				Group g = (Group) obj;
-				if (!pattern.matcher(g.getId()).matches())
+				if (!view.matchesGroup(g.getId()))
 					return;
 			}
 			if (obj instanceof Problem) {
-				String pView = cc.getView().getProblems();
-				if (pView != null) {
+				String[] problems = cc.getView().getProblems();
+				if (problems != null) {
 					Problem p = (Problem) obj;
-					if (!pView.contains(p.getLabel()))
+					if (!view.matchesProblem(p.getLabel()))
 						return;
 				}
 			}
@@ -237,10 +232,15 @@ public class PlaybackContest extends Contest {
 				if (team.getGroupIds() == null)
 					return;
 
+				boolean found = false;
 				for (String gId : team.getGroupIds()) {
-					if (!pattern.matcher(gId).matches())
-						return;
+					if (view.matchesGroup(gId)) {
+						found = true;
+						break;
+					}
 				}
+				if (!found)
+					return;
 			}
 			if (obj instanceof Submission) {
 				Submission sub = (Submission) obj;

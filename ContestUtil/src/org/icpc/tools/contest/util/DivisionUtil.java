@@ -99,7 +99,7 @@ public class DivisionUtil {
 			}
 		}
 		if ((!isDiv1 && isTeamDiv1) || (isDiv2 && !isTeamDiv2)) {
-			Trace.trace(Trace.ERROR, "Team submitted out of division: " + teamId + " - " + team.getName());
+			Trace.trace(Trace.ERROR, "Team submitted out of division: " + teamId + " - " + team.getActualDisplayName());
 			Trace.trace(Trace.ERROR, "   Submission: " + submission.getId() + " " + contest.getStatus(submission).name());
 			Trace.trace(Trace.ERROR, "   Problem: " + pId + " - " + p.getName());
 		}

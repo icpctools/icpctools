@@ -1,25 +1,30 @@
-<% request.setAttribute("title", "Countdown Control"); %>
-<!doctype html>
-<html>
+<% request.setAttribute("title", "Countdown"); %>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <b><font size="+10"><span id="countdown">unknown</span></font></b>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Countdown Control</h3>
+           </div>
+        <div class="card-body p-0">
+            <b class="indent"><font size="+8"><span id="countdown">unknown</span></font></b>
+            
             <p/>
 
-            <button id="show" class="btn btn-primary" data-toggle="collapse" data-target="#controls">Show / Hide
-                Controls
+            <button id="show" class="btn btn-primary indent" data-toggle="collapse" data-target="#controls">
+                Show / Hide Controls
             </button>
+        </div></div>
 
             <div class="collapse" id="controls">
 
-                <h3>Countdown Control</h3>
-
-                <p/>
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Time Control</h3>
+           </div>
+        <div class="card-body p-0 indent">
+           <p>You cannot change time in the final 30s before a contest starts.</p>
                 <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause
                 </button>
                 <button id="resume" class="btn btn-secondary" onclick="sendCommand('resume', 'resume')">Resume
@@ -27,11 +32,6 @@
                 <button id="clear" class="btn btn-secondary" onclick="sendCommand('clear', 'clear')">Clear
                 </button>
 
-                <h3>Time Control</h3>
-                <p/>
-                You cannot change time in the final 30s before a contest starts.
-
-                <p/>
                 <table class="table table-sm table-hover table-striped">
                     <tbody>
                     <tr>
@@ -94,10 +94,15 @@
                     </tr>
                     </tbody>
                 </table>
-
                 <p/>
+            <span id="status"></span>
+                </div></div>
 
-                <h3>Contest Readiness</h3>
+                <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Contest Readiness</h3>
+           </div>
+        <div class="card-body p-0">
                 <table class="table table-sm table-hover table-striped">
                     <tr>
                         <td>
@@ -169,15 +174,11 @@
                         </td>
                     </tr>
                 </table>
-
             </div>
-            <p/>
-            <span id="status"></span>
+            </div></div>
         </div>
     </div>
 </div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script>
     var targetTime = 50.0;
 
@@ -353,5 +354,4 @@
 
     $(document).ready(updateInBackground);
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

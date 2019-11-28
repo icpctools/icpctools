@@ -306,7 +306,7 @@ public class BalloonPrinter {
 		} catch (Exception e) {
 			// ignore
 		}
-		String name = TeamUtil.getTeamName(c, team);
+		String name = team.getActualDisplayName();
 		gc.setForeground(device.getSystemColor(SWT.COLOR_BLACK));
 		Point ip = gc.stringExtent(name);
 		if (r.x + p.x + ip.x + gap + indent > r.width) {

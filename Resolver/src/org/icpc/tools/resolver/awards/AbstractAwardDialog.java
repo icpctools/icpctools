@@ -94,7 +94,8 @@ public abstract class AbstractAwardDialog extends Dialog {
 						IStanding standing = previewContest.getStanding(team);
 
 						TableItem ti = new TableItem(previewTable, SWT.NONE);
-						ti.setText(new String[] { standing.getRank(), team.getId(), team.getName(), award.getCitation() });
+						ti.setText(new String[] { standing.getRank(), team.getId(), team.getActualDisplayName(),
+								award.getCitation() });
 					}
 				}
 		}

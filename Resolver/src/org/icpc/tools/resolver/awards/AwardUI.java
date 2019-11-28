@@ -409,7 +409,7 @@ public class AwardUI {
 				}
 				return t1.getId().compareTo(t2.getId()) * inc;
 			} else if (col == SORT_TEAM) {
-				return collator.compare(t1.getName(), t2.getName()) * inc;
+				return collator.compare(t1.getActualDisplayName(), t2.getActualDisplayName()) * inc;
 			} else if (col == SORT_GROUP) {
 				String g1 = getGroupLabel(t1);
 				String g2 = getGroupLabel(t2);
@@ -519,7 +519,7 @@ public class AwardUI {
 			IStanding standing = contest.getStanding(team);
 			String awardStr = getAwardString(team);
 			String groupName = getGroupLabel(team);
-			ti.setText(new String[] { standing.getRank(), team.getId(), team.getName(), groupName,
+			ti.setText(new String[] { standing.getRank(), team.getId(), team.getActualDisplayName(), groupName,
 					standing.getNumSolved() + "", standing.getTime() + "", awardStr });
 		}
 	}

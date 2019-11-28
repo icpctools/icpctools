@@ -4,11 +4,7 @@
     File[] files = (File[]) request.getAttribute("files");
 %>
 <% request.setAttribute("title", "Directory " + folder); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/baseMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -35,6 +31,3 @@
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>

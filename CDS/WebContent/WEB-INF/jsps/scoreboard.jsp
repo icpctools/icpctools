@@ -2,18 +2,18 @@
 <%@ page import="org.icpc.tools.cds.CDSConfig" %>
 <%@ page import="org.icpc.tools.contest.model.IProblem" %>
 <% request.setAttribute("title", "Scoreboard"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1><a href="<%= apiRoot %>/scoreboard">Scoreboard</a></h1>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Scoreboard</h3>
+             <div class="card-tools"><a href="<%= apiRoot %>/scoreboard">API</a></div>
+           </div>
+        <div class="card-body p-0">
             <% if (Role.isBlue(request)) { %>
-            <p>
+            <p class="indent">
                 Compare to:
                 <% ConfiguredContest[] ccs = CDSConfig.getContests();
                     for (ConfiguredContest cc2 : ccs)
@@ -27,7 +27,7 @@
 
             <% } %>
 
-            <table id="score-table" class="table table-sm table-hover table-striped">
+            <table id="score-table" class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th class="text-right">Rank</th>
@@ -48,13 +48,16 @@
                     <th class="text-right">Time</th>
                 </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                <tr>
+                    <td colspan="<%= 6 + numProblems %>"><div class="spinner-border"></div></td>
+                </tr>
+                </tbody>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -63,6 +66,7 @@
         contest.setContestId("<%= cc.getId() %>");
 
         function fillTable() {
+        	$("#score-table tbody").find("tr").remove();
             score = contest.getScoreboard();
             teams = contest.getTeams();
             orgs = contest.getOrganizations();
@@ -127,5 +131,4 @@
         })
     })
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

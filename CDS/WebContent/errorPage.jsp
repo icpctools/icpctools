@@ -1,10 +1,6 @@
 <%@ page isErrorPage="true" %>
 <% request.setAttribute("title", "Error"); %>
-<!doctype html>
-<html>
-<%@ include file="WEB-INF/jsps/layout/head.jsp" %>
-<body>
-<%@ include file="WEB-INF/jsps/layout/baseMenu.jsp" %>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -19,5 +15,3 @@
         </div>
     </div>
 </div>
-</body>
-</html>

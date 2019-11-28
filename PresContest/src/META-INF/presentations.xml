@@ -80,12 +80,14 @@
       category="ICPC"
       description="Displays ICPC staff"
       properties="Enter partial last name or first + last name"
+      image="images/presentations/staff.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.StaffPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.balloon.path"
       name="Balloon Path"
       category="ICPC"
       description="Displays the balloons travelling to the teams"
+      image="images/presentations/balloonPath.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.floor.BalloonFloorPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.orgs"
@@ -149,6 +151,7 @@
       name="Submissions"
       category="Maps"
       description="Shows a world map with team submissions"
+      image="images/presentations/worldJudge.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.BalloonMapPresentation"/>
      
    <!-- Beta / Old -->
@@ -216,23 +219,21 @@
       id="org.icpc.tools.presentation.contest.judge"
       name="Judge queue"
       category="Scoreboard"
-      properties="showRecent - show recent runs for a fixed time,showJudge - show normal judge view,style - set team name style"
-      description="The judgement queue. Shows all incoming runs and what the result is."
+      properties="style - set team name style"
+      description="The judgement queue. Shows all incoming submissions and what the result is."
       image="images/presentations/judgeQueue.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.JudgePresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.judge.team"
       name="Team Judgements"
       category="Scoreboard"
-      properties="showRecent - show recent runs for a fixed time,showJudge - show normal judge view,style - set team name style"
-      description="A team judgement queue. Shows all incoming runs and what the result is."
-      image="images/presentations/judgeQueue.png"
+      description="A team judgement queue. Shows all incoming submissions and what the result is."
+      image="images/presentations/teamJudgeQueue.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.TeamJudgePresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.first.solution"
       name="First solution"
       category="Scoreboard"
-      properties="style - set team name style"
       description="Tracking the first solution in the contest."
       image="images/presentations/firstSolution.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstSolutionPresentation"/>
@@ -240,7 +241,6 @@
       id="org.icpc.tools.presentation.contest.first.to.solve"
       name="First to solve"
       category="Scoreboard"
-      properties="style - set team name style,rows: - number of rows"
       description="Shows which team was the first to solve each problem."
       image="images/presentations/firstToSolve.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstToSolvePresentation"/>

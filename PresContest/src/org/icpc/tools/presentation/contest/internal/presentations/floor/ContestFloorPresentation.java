@@ -81,7 +81,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 		if (team != null) {
 			g.setFont(font);
 			g.setColor(Color.WHITE);
-			String s = team.getName();
+			String s = team.getActualDisplayName();
 			FontMetrics fm = g.getFontMetrics();
 			int x = 0;
 			IOrganization org = contest.getOrganizationById(team.getOrganizationId());

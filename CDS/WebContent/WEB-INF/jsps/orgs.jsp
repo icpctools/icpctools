@@ -1,15 +1,14 @@
-<% request.setAttribute("title", "Organizations"); %>
-<!doctype html>
-<html>
-<%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1><a href="<%= apiRoot %>/organizations">Organizations</a> (<%= contest.getOrganizations().length %>)</h1>
-
-            <table id="org-table" class="table table-sm table-hover table-striped">
+        <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Organizations</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getOrganizations().length %>" class="badge bg-primary"><%= contest.getOrganizations().length %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/organizations'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+        <div class="card-body p-0">
+            <table id="org-table" class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -21,15 +20,12 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td colspan=5>Loading...</td>
+                    <td colspan=5><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
+        </div>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -78,5 +74,3 @@
         })
     })
 </script>
-</body>
-</html>

@@ -9,11 +9,11 @@
    <property name="jar.name" value="balloonUtil"/>
    <target name="stage">
       <copy todir="staging">
-         <fileset dir="${SWTLauncher}/lib"/>
+	 <fileset dir="${SWTLauncher}/lib" excludes="**/BUILD"/>
          <fileset dir="${SWTLauncher}/staging"/>
-         <fileset dir="${contest.model}/lib"/>
+	 <fileset dir="${contest.model}/lib" excludes="**/BUILD"/>
          <fileset dir="${contest.model}/staging"/>
-         <fileset dir="${presentation.core}/lib"/>
+	 <fileset dir="${presentation.core}/lib" excludes="**/BUILD"/>
          <fileset dir="${presentation.core}/staging"/>
       </copy>
    </target>

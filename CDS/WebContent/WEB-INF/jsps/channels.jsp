@@ -1,16 +1,14 @@
 <% request.setAttribute("title", "Video Channel Control"); %>
 <% String channel2 = (String) request.getAttribute("channel"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/baseMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Video Channel <%= channel2 %>
-            </h1>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Video Channel <%= channel2 %></h3>
+           </div>
+        <div class="card-body p-0">
             <table id="stream-table" class="table table-sm table-hover table-striped">
                 <thead>
                 <tr>
@@ -26,12 +24,11 @@
                 </thead>
                 <tbody></tbody>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
 
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script>
@@ -132,5 +129,4 @@
         });
     })
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

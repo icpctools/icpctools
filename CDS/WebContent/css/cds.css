@@ -1,38 +1,5 @@
 body {
-    padding-top: 4.5rem;
-    font-size: 0.8rem;
-}
-
-h1 {
-    font-size: 1.8rem;
-}
-
-h3 {
-    font-size: 1.2rem;
-}
-
-.table {
-    width: auto;
-}
-
-.table-fullwidth {
-    width: 100%;
-}
-
-.footer {
-    position: absolute;
-    right: 1ex;
-    margin-top: 1em;
-}
-
-.footer, .footer a {
-    font-size: x-small;
-    color: gray;
-    text-align: right;
-}
-
-.pre-line {
-    white-space: pre-line;
+    font-size: 0.9rem;
 }
 
 .circle {
@@ -43,15 +10,10 @@ h3 {
     display: inline-block;
 }
 
-.card-header {
-    font-size: 1rem;
-    font-weight: bold;
+.main-footer {
+    font-size: 0.85rem;
 }
-
-.card-body {
- 	padding: 0px;
-}
-
-.navbar {
-    font-size: 1rem;
+.indent {
+	margin: 10px;
+	margin-left: 20px;
 }

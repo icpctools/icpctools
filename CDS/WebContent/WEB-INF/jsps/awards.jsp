@@ -1,14 +1,14 @@
-<% request.setAttribute("title", "Awards"); %>
-<!doctype html>
-<html>
-<%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1><a href="<%= apiRoot %>/awards">Awards</a> (<%= contest.getAwards().length %>)</h1>
-            <table id="award-table" class="table table-sm table-hover table-striped">
+<div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Awards</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getAwards().length %>" class="badge bg-primary"><%= contest.getAwards().length %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/awards'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+        <div class="card-body p-0">
+            <table id="award-table" class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -18,15 +18,12 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td colspan=3>Loading...</td>
+                    <td colspan=3><div class="spinner-border"></div></td>
                 </tr>
                 </tbody>
             </table>
+            </div>
         </div>
-    </div>
-</div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -57,7 +54,7 @@
                 $('#award-table tbody').append(row);
             }
             if (awards.length === 0) {
-                col = $('<td colspan="3">No awards (yet)</td>');
+                col = $('<td colspan="3">No awards</td>');
                 row = $('<tr></tr>');
                 row.append(col);
                 $('#award-table tbody').append(row);
@@ -72,5 +69,3 @@
         });
     });
 </script>
-</body>
-</html>

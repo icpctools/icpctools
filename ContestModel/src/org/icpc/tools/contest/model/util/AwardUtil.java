@@ -377,7 +377,7 @@ public class AwardUtil {
 		}
 
 		sb.append("\n\t");
-		sb.append(standing.getRank() + ": " + team.getName());
+		sb.append(standing.getRank() + ": " + team.getActualDisplayName());
 
 		return sb.toString();
 	}

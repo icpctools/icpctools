@@ -112,7 +112,7 @@ public class ResolutionUtil {
 				sb.append("Select team (none)");
 			else if (teams.size() == 1) {
 				ITeam team = teams.get(0);
-				sb.append("Select team " + team.getId() + ": " + team.getName());
+				sb.append("Select team " + team.getId() + ": " + team.getActualDisplayName());
 			} else {
 				sb.append("Select teams ");
 				int n = Math.min(10, teams.size());

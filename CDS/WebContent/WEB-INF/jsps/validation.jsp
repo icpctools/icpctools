@@ -1,14 +1,14 @@
 <%@ page import="java.util.List" %>
 <% request.setAttribute("title", "Contest validation"); %>
-<!doctype html>
-<html>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Contest Validation</h1>
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Validation</h3>
+           </div>
+        <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <%
                     List<String> validationList = contest.validate();
@@ -34,10 +34,8 @@
                 </tfoot>
                 <% } %>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>

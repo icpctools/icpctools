@@ -258,8 +258,8 @@ public class EventFeedUtil {
 				IStanding standing = contest.getStanding(team);
 				Trace.trace(Trace.USER,
 						"  " + standing.getRank() + " " + standing.getNumSolved() + " " + standing.getTime());
-				Trace.trace(Trace.USER,
-						"    " + team.getId() + ": " + team.getName() + " (" + getGroupLabel(contest, team) + ")");
+				Trace.trace(Trace.USER, "    " + team.getId() + ": " + team.getActualDisplayName() + " ("
+						+ getGroupLabel(contest, team) + ")");
 			}
 		}
 
@@ -376,7 +376,7 @@ public class EventFeedUtil {
 			System.exit(0);
 		}
 		Trace.trace(Trace.USER, "");
-		Trace.trace(Trace.USER, "Team: " + team.getName());
+		Trace.trace(Trace.USER, "Team: " + team.getActualDisplayName());
 		IStanding standing = contest.getStanding(team);
 		Trace.trace(Trace.USER, "Rank: " + standing.getRank());
 		Trace.trace(Trace.USER, "Solved: " + standing.getNumSolved());
@@ -518,7 +518,7 @@ public class EventFeedUtil {
 		Trace.trace(Trace.USER, "There were " + teamIds.size() + " team(s) with no activity during the contest:");
 		for (String teamId : teamIds) {
 			ITeam team = contest.getTeamById(teamId);
-			Trace.trace(Trace.USER, "   " + teamId + ": " + team.getName());
+			Trace.trace(Trace.USER, "   " + teamId + ": " + team.getActualDisplayName());
 		}
 
 		Trace.trace(Trace.USER, "Do you want to remove these teams? Enter Y/y to accept or any other key to cancel.");
@@ -528,7 +528,7 @@ public class EventFeedUtil {
 				for (String teamId : teamIds) {
 					ITeam team = contest.getTeamById(teamId);
 					Trace.trace(Trace.USER, "Removing: ");
-					Trace.trace(Trace.USER, "   " + teamId + ": " + team.getName());
+					Trace.trace(Trace.USER, "   " + teamId + ": " + team.getActualDisplayName());
 					contest.removeFromHistory(team);
 				}
 

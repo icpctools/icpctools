@@ -6,153 +6,99 @@
 <%@page import="org.icpc.tools.cds.ConfiguredContest" %>
 <%@page import="org.icpc.tools.cds.ConfiguredContest.Mode" %>
 <%@page import="org.icpc.tools.cds.util.Role" %>
-<% request.setAttribute("title", "Contest Data Server"); %>
-<!doctype html>
-<html>
+<% request.setAttribute("title", "Contests"); %>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/baseMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Contest Data Server</h1>
+            <% ConfiguredContest[] ccsh = CDSConfig.getContests();
 
-            <% ConfiguredContest[] ccs = CDSConfig.getContests();
-
-                for (ConfiguredContest cc : ccs) { %>
-            <% if (!cc.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
-                IContest contest = cc.getContest();
+                for (ConfiguredContest cch : ccsh) { %>
+            <% if (!cch.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
+                IContest contestH = cch.getContest();
                 try {
-                    IState state = contest.getState();
+                    IState state = contestH.getState();
                     if (state == null)
                         state = new State();
-                    String headerClass = "bg-warning text-white";
-                    if (state.getEnded() != null) {
+                    String headerClass = "bg-info";
+                    String textClass = "text-white";
+                    if (state.getFinalized() != null) {
                         headerClass = "";
-                    } else if (state.getFrozen() != null) {
-                        headerClass = "bg-info text-white";
-                    } else if (state.getStarted() != null) {
-                        headerClass = "bg-success text-white";
-                    }
+                        textClass = "text-dark";
+                    } else if (state.getEnded() != null)
+                        headerClass = "bg-danger";
+                    else if (state.getFrozen() != null) {
+                        headerClass = "bg-warning";
+                        textClass = "text-dark";
+                    } else if (state.getStarted() != null)
+                        headerClass = "bg-success";
             %>
             <div class="card mb-4">
                 <%
-                    String webRoot = "/contests/" + cc.getId();
-                    String apiRoot = "/api/contests/" + cc.getId(); %>
-                <div class="card-header <%= headerClass %>"><%= contest.getFormalName() %> (<%= cc.getId() %>)</div>
-
-                <div class="card-body">
-                    <table class="table table-sm table-hover table-striped table-fullwidth">
+                    String webRootH = "/contests/" + cch.getId();
+                    String apiRootH = "/api/contests/" + cch.getId(); %>
+                <div class="card-header <%= headerClass %> <%= textClass %>">
+                  <a href="<%= webRootH %>"><h2 class="card-title <%= textClass %>"><%= contestH.getFormalName() %></h2></a>
+                  <div class="card-tools"><a href="<%= apiRootH %>" class="<%= textClass %>">/<%= cch.getId() %></a></div>
+           </div>
+                <div class="card-body <%= headerClass %>">  
+                    <table class="table table-sm table-fullwidth">
                         <thead>
                         <tr>
-                            <td>
-                                <% if (state.getStarted() == null) {
-                                    if (contest.getStartStatus() == null) { %>Not scheduled
-                                <% } else if (contest.getStartStatus() < 0) {%>Countdown paused
-                                <% } else { %>Scheduled<% } %>
-                                <% } else if (state.getEnded() != null) { %>Finished
-                                <% } else { %>
-                                <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                         style="width:<%= Math.max(0, Math.min(99,(long)((System.currentTimeMillis() - state.getStarted()) * contest.getTimeMultiplier()) * 100 / contest.getDuration())) %>%;">
-                                        <%= ContestUtil.formatTime((long) ((System.currentTimeMillis() - state.getStarted()) * contest.getTimeMultiplier())) %>
-                                    </div>
-                                </div>
-                                <% } %></td>
-                            <td colspan="3"><%= ContestUtil.formatDuration(contest.getDuration()) %>
-                                starting at <%= ContestUtil.formatStartTime(contest) %>
-                            </td>
-                            <td class="text-right">
-                                <% if (cc.getMode() == Mode.ARCHIVE) { %>Archive
-                                <% } else if (cc.getMode() == Mode.LIVE) { %>Live
-                                <% } else { %>Playback (<%= cc.getTest().getMultiplier() %>x)<% } %></td>
+                        <% if (state.isRunning()) { %>
+                          <td colspan="2" width="98%"><div class="progress">
+                          <% String progressBg = "bg-warning";
+                             if (state.isFrozen())
+                            	progressBg = "bg-info"; %>
+                            <div class="progress-bar <%= progressBg %>" style="width: <%= Math.max(0, Math.min(99,(long)((System.currentTimeMillis() - state.getStarted()) * contestH.getTimeMultiplier()) * 100 / contestH.getDuration())) %>%;"><%= ContestUtil.formatTime((long) ((System.currentTimeMillis() - state.getStarted()) * contestH.getTimeMultiplier())) %></div>
+                          </div></td>
+                          <td align="right"><%= ContestUtil.formatDuration(contestH.getDuration()) %></td>
+                        </tr>
+                        <% } %>
+                        <tr>
+                          <td colspan="3">
+                          <% if (state.isRunning()) { %>
+                            <% if (state.isFrozen()) { %><a class="<%= textClass %>" href="<%= webRootH %>/freeze">Scoreboard frozen</a>. <% } %>
+                            Started at <%= ContestUtil.formatStartTime(contestH) %>
+                          <% } else if (state.getFinalized() != null) { %>
+                            Finalized. Started at <%= ContestUtil.formatStartTime(contestH) %>
+                          <% } else if (state.getEnded() != null) { %>
+                            Finished. Started at <%= ContestUtil.formatStartTime(contestH) %>
+                          <% } else {
+                        	  Long startStatus = contestH.getStartStatus();
+                        	  if (startStatus == null) {%>
+                                No scheduled start time
+                              <% } else if (startStatus > 0) { %>
+                                Scheduled start at <%= ContestUtil.formatStartTime(contestH) %> (<%= ContestUtil.formatTime(contestH.getStartTime() - System.currentTimeMillis()) %> from now)
+                              <% } else { %>
+                                Countdown - <%= ContestUtil.formatStartTime(contestH.getStartStatus()) %>
+                              <% } %>
+                          <% } %>
+                          <span class="float-right">
+                                <% if (cch.getMode() == Mode.ARCHIVE) { %>Archive
+                                <% } else if (cch.getMode() == Mode.LIVE) { %>Live
+                                <% } else { %>Playback (<%= cch.getTest().getMultiplier() %>x)<% } %></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><a href="<%= webRootH %>/details" class="<%= textClass %>"><%= contestH.getNumProblems() %> problems, <%= contestH.getNumTeams() %> teams</a>
+                            <span class="float-right"><a href="<%= webRootH %>/scoreboard" class="<%= textClass %>">Scoreboard</a></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><a href="<%= webRootH %>/submissions" class="<%= textClass %>"><%= contestH.getNumSubmissions() %> submissions</a>
+                            <span class="float-right"><a href="<%= webRootH %>/countdown" class="<%= textClass %>">Admin</a></span></td>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr class="trcontest">
-                            <td><b>Services:</b></td>
-                            <td><a href="<%= apiRoot %>/">REST API root</a></td>
-                            <td><a href="<%= apiRoot %>/event-feed">Event feed</a></td>
-                            <td><a href="<%= apiRoot %>/scoreboard">JSON scoreboard</a></td>
-                            <td></td>
-                        </tr>
-
-                        <tr class="trcontest">
-                            <td><b>Admin:</b></td>
-                            <td><a href="<%= webRoot %>">Overview</a></td>
-                            <td><a href="<%= webRoot %>/details">Details</a></td>
-                            <td><a href="<%= webRoot %>/orgs">Organizations</a></td>
-                            <td><a href="<%= webRoot %>/teams">Teams</a></td>
-                        </tr>
-                        <tr class="trcontest">
-                            <td></td>
-                            <td><a href="<%= webRoot %>/scoreboard">Scoreboard</a></td>
-                            <td><a href="<%= webRoot %>/countdown">Countdown</a></td>
-                            <td><a href="<%= webRoot %>/video/status">Video</a></td>
-                            <td></td>
-                        </tr>
-                        </tbody>
                     </table>
                 </div>
                 <% } catch (Exception e) { %>
                 <div class="card-header">
-                    Error loading contest <%= cc.getId() %>
+                    Error loading contest <%= cch.getId() %>
                 </div>
                 <% } %>
             </div>
             <% }
             } %>
-
-
-            <h2>Administration</h2>
-
-            <table class="table table-sm table-hover table-striped mb-4">
-                <tbody>
-                <tr>
-                    <td>Video</td>
-                    <td><a href="/video/control/1">Channel 1</a></td>
-                    <td><a href="/video/control/2">Channel 2</a></td>
-                    <td><a href="/video/control/3">Channel 3</a></td>
-                </tr>
-                </tbody>
-            </table>
-
-            <div class="mb-4">
-                <h3><a href="<%= webroot %>/presentation/admin/web">Presentation Admin</a></h3>
-
-                <h3><a href="<%= webroot %>/search">Search</a></h3>
             </div>
-
-            <h3>Links</h3>
-
-            <p>For up to date information on the services provided, please see the
-                <a href="https://clics.ecs.baylor.edu/index.php/CDS" target="_blank">CDS documentation</a>.</p>
-
-            <table class="table table-sm table-hover table-striped mb-4">
-                <tbody>
-                <tr>
-                    <td>ICPC Tools</td>
-                    <td><a href="https://icpc.baylor.edu/icpctools"
-                           target="_blank">https://icpc.baylor.edu/icpctools</a></td>
-                </tr>
-                <tr>
-                    <td>Github</td>
-                    <td>
-                        <a href="https://github.com/icpctools/icpctools" target="_blank">https://github.com/icpctools/icpctools</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Latest builds</td>
-                    <td>
-                        <a href="https://pc2.ecs.csus.edu/icpctools/gitlabbuilds" target="_blank">https://pc2.ecs.csus.edu/icpctools/gitlabbuilds</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>

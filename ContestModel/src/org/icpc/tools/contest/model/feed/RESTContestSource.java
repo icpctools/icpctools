@@ -164,9 +164,11 @@ public class RESTContestSource extends DiskContestSource {
 
 		instance = this;
 
-		// TODO should be in temp folder? only when we know it gets cleaned up or there's an easy way
-		// to delete
-		feedCacheFile = new File("events-" + getRemoteContestId() + ".log");
+		// store temporary events cache in log folder
+		File logFolder = new File("logs");
+		if (!logFolder.exists())
+			logFolder.mkdir();
+		feedCacheFile = new File(logFolder, "events-" + getRemoteContestId() + ".log");
 		if (feedCacheFile.exists()) {
 			// delete if older than 6h
 			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 6 * 60 * 60 * 1000) {
@@ -720,6 +722,13 @@ public class RESTContestSource extends DiskContestSource {
 				// ignore
 			}
 		}
+	}
+
+	@Override
+	public void close() throws Exception {
+		super.close();
+		if (parser != null)
+			parser.close();
 	}
 
 	@Override

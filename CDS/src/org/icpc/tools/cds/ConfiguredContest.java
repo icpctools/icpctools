@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
@@ -152,6 +153,26 @@ public class ConfiguredContest {
 		}
 
 		@Override
+		public int hashCode() {
+			return countdown + (int) startTime * 31 + (int) (multiplier * 31.0 * 31.0);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Test))
+				return false;
+
+			Test t = (Test) obj;
+			if (t.countdown != countdown)
+				return false;
+			if (t.startTime != startTime)
+				return false;
+			if (t.multiplier != multiplier)
+				return false;
+			return true;
+		}
+
+		@Override
 		public String toString() {
 			if (startTime > 0)
 				return "Playback at " + ContestUtil.formatStartTime(startTime) + " at " + getMultiplier() + "x speed";
@@ -160,26 +181,53 @@ public class ConfiguredContest {
 	}
 
 	public static class View {
-		private String groups;
-		private String problems;
+		private String[] groups;
+		private String[] problems;
+
+		private Pattern[] groupPatterns;
 
 		protected View(Element e) {
-			groups = CDSConfig.getString(e, "groups");
+			String groupStr = CDSConfig.getString(e, "groupIds");
+			String problemStr = CDSConfig.getString(e, "problemLabels");
 
-			problems = CDSConfig.getString(e, "problems");
+			if (groupStr != null) {
+				groups = groupStr.split(",");
+				groupPatterns = new Pattern[groups.length];
+				for (int i = 0; i < groups.length; i++)
+					groupPatterns[i] = Pattern.compile(groups[i].trim());
+			}
+			if (problemStr != null)
+				problems = problemStr.split(",");
 		}
 
-		public String getGroups() {
+		public boolean matchesGroup(String groupId) {
+			for (Pattern p : groupPatterns)
+				if (p.matcher(groupId).matches())
+					return true;
+			return false;
+		}
+
+		public boolean matchesProblem(String problemLabel) {
+			for (String pLabel : problems)
+				if (pLabel.contains(problemLabel))
+					return true;
+			return false;
+		}
+
+		public String[] getGroups() {
 			return groups;
 		}
 
-		public String getProblems() {
+		public String[] getProblems() {
 			return problems;
 		}
 
 		@Override
 		public String toString() {
-			return "View[groups=" + groups + ",problems=" + problems + "]";
+			if (problems != null)
+				return "View[groups=" + groups + ",problems=" + problems + "]";
+
+			return "View[groups=" + groups + "]";
 		}
 	}
 
@@ -304,6 +352,14 @@ public class ConfiguredContest {
 				else
 					VideoMapper.WEBCAM.mapAllTeams(this, urlPattern, mode);
 			}
+		}
+	}
+
+	public void close() {
+		try {
+			getContestSource().close();
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not close contest", e);
 		}
 	}
 
@@ -797,6 +853,9 @@ public class ConfiguredContest {
 			role = "trusted";
 		else if (Role.isBalloon(request))
 			role = "balloon";
+		String user = request.getRemoteUser();
+		if (user == null)
+			return role;
 		return request.getRemoteUser() + " / " + role;
 	}
 

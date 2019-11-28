@@ -1,77 +1,34 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.icpc.tools.contest.model.*" %>
-<% request.setAttribute("title", "Contest Details"); %>
-<!doctype html>
-<html>
+<% request.setAttribute("title", "Details"); %>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <% IState state = contest.getState(); %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Contest Details</h1>
+            <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Contest</h3>
+             <div class="card-tools">
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+            <div class="card-body p-0">
 
-            <h3><a href="<%= apiRoot %>">Contest</a></h3>
-
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <tbody>
                 <tr>
                     <td><b>Name:</b></td>
-                    <td><%= contest.getName() %>
-                    </td>
-                    <td><b>Problems:</b></td>
-                    <td><%= contest.getNumProblems() %>
-                    </td>
-                </tr>
-                <tr>
+                    <td><%= contest.getName() %></td>
                     <td><b>Start:</b></td>
-                    <td><%= ContestUtil.formatStartTime(contest) %>
-                    </td>
-                    <td><b>Organizations:</b></td>
-                    <td><%= contest.getNumOrganizations() %>
-                    </td>
+                    <td><%= ContestUtil.formatStartTime(contest) %></td>
                 </tr>
                 <tr>
                     <td><b>Duration:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getDuration()) %>
-                    </td>
-                    <td><b>Teams:</b></td>
-                    <td><%= contest.getNumTeams() %>
-                    </td>
-                </tr>
-                <tr>
+                    <td><%= ContestUtil.formatDuration(contest.getDuration()) %></td>
                     <td><b>Freeze duration:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %>
-                    </td>
-                    <td><b>Submissions:</b></td>
-                    <td><%= contest.getNumSubmissions() %>
-                    </td>
-                </tr>
-                <tr>
-                    <td><b>Last event:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getContestTimeOfLastEvent()) %>
-                    </td>
-                    <td><b>Judgements:</b></td>
-                    <td><%= contest.getNumJudgements() %>
-                    </td>
-                </tr>
-
-                <% String validation = "";
-                    List<String> validationList = contest.validate();
-                    if (validationList == null)
-                        validation = "No errors";
-                    else if (validationList.size() < 20) {
-                        for (String s : validationList)
-                            validation += s + "<br/>";
-                    } else
-                        validation = validationList.size() + " errors"; %>
-                <tr>
-                    <td><b>Validation:</b></td>
-                    <td><a href="<%= webroot %>/validation"><%= validation %>
-                    </a></td>
-                    <td></td>
-                    <td></td>
+                    <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %></td>
                 </tr>
                 <tr>
                     <td class="align-middle"><b>Logo:</b></td>
@@ -81,10 +38,19 @@
                 </tr>
                 </tbody>
             </table>
+            </div></div>
+            
+            <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">State</h3>
+             <div class="card-tools">
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/state'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+            <div class="card-body p-0">
 
-            <h3><a href="<%= apiRoot %>/state">State</a></h3>
-
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <tbody>
                 <tr>
                     <td><b>Started:</b></td>
@@ -118,10 +84,19 @@
                 </tr>
                 </tbody>
             </table>
-
-            <h3><a href="<%= apiRoot %>/languages">Languages</a> (<%= contest.getLanguages().length %>)</h3>
-
-            <table class="table table-sm table-hover table-striped">
+            </div></div>
+            
+            <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Languages</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getLanguages().length %>" class="badge bg-primary"><%= contest.getLanguages().length %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/languages'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+            <div class="card-body p-0">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -152,12 +127,20 @@
                 <% } %>
                 </tbody>
             </table>
+            </div></div>
+            
+            <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Judgement Types</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getJudgementTypes().length %>" class="badge bg-primary"><%= contest.getJudgementTypes().length %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/judgement-types'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+            <div class="card-body p-0">
 
-
-            <h3><a href="<%= apiRoot %>/judgement-types">Judgement Types</a> (<%= contest.getJudgementTypes().length %>)
-            </h3>
-
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -195,11 +178,20 @@
                 <% } %>
                 </tbody>
             </table>
+            </div></div>
 
-
-            <h3><a href="<%= apiRoot %>/problems">Problems</a> (<%= contest.getNumProblems() %>)</h3>
-
-            <table class="table table-sm table-hover table-striped">
+            <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Problems</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getNumProblems() %>" class="badge bg-primary"><%= contest.getNumProblems() %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/problems'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+            <div class="card-body p-0">
+            
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -244,11 +236,20 @@
                 <% } %>
                 </tbody>
             </table>
-
-
-            <h3><a href="<%= apiRoot %>/groups">Groups</a> (<%= contest.getGroups().length %>)</h3>
-
-            <table class="table table-sm table-hover table-striped">
+            </div></div>
+            
+            <div class="card collapsed-card">
+           <div class="card-header">
+             <h3 class="card-title">Groups</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getGroups().length %>" class="badge bg-primary"><%= contest.getGroups().length %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/groups'">API</button>
+               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+             </div>
+           </div>
+            <div class="card-body p-0">
+            
+            <table class="table table-sm table-hover table-striped table-head-fixed">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -294,11 +295,45 @@
                 <% } %>
                 </tbody>
             </table>
+            </div></div>
+            
+            <%@ include file="teams.jsp" %>
+            
+            <%@ include file="orgs.jsp" %>
+            
+            <%@ include file="clarifications.jsp" %>
+            
+            <%@ include file="awards.jsp" %>
+            
+            <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Submissions</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getNumSubmissions() %>" class="badge bg-primary"><%= contest.getNumSubmissions() %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/submissions'">API</button>
+             </div>
+           </div>
+        </div><div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Judgements</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getNumJudgements() %>" class="badge bg-primary"><%= contest.getNumJudgements() %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/judgements'">API</button>
+             </div>
+           </div>
+        </div><div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Runs</h3>
+             <div class="card-tools">
+               <span data-toggle="tooltip" title="<%= contest.getNumRuns() %>" class="badge bg-primary"><%= contest.getNumRuns() %></span>
+               <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/runs'">API</button>
+             </div>
+           </div>
+        </div>
+        </div>
         </div>
     </div>
 </div>
-<%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -333,5 +368,4 @@
         })
     })
 </script>
-</body>
-</html>
+<%@ include file="layout/footer.jsp" %>

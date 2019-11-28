@@ -226,10 +226,10 @@ public class LogScreenPresentation extends AbstractICPCPresentation {
 			ITeam team = contest.getTeamById(run.getTeamId());
 			Status status = contest.getStatus(run);
 			if (status == Status.SOLVED) {
-				String s = team.getName() + " solved Problem " + run.getProblemId();
+				String s = team.getActualDisplayName() + " solved Problem " + run.getProblemId();
 				append(s);
 			} else if (status == Status.SUBMITTED) {
-				String s = team.getName() + " submitted a run for Problem " + run.getProblemId();
+				String s = team.getActualDisplayName() + " submitted a run for Problem " + run.getProblemId();
 				append(s);
 			}
 		}

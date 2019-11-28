@@ -8,7 +8,7 @@
    <property name="jar.name" value="problemset"/>
    <target name="stage">
       <copy todir="staging">
-         <fileset dir="${SWTLauncher}/lib"/>
+	 <fileset dir="${SWTLauncher}/lib" excludes="**/BUILD"/>
          <fileset dir="${SWTLauncher}/staging"/>
       </copy>
    </target>

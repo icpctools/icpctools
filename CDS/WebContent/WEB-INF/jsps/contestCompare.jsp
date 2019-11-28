@@ -1,14 +1,13 @@
-<% request.setAttribute("title", "Contest Comparison"); %>
-<!doctype html>
-<html>
+<% request.setAttribute("title", "Comparison"); %>
 <%@ include file="layout/head.jsp" %>
-<body>
-<%@ include file="layout/contestMenu.jsp" %>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <h1>Contest Comparison</h1>
-
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Contest Comparison</h3>
+           </div>
+        <div class="card-body p-0">
             <table class="table table-sm table-hover table-striped">
                 <tbody>
                 <tr>
@@ -87,10 +86,8 @@
                     </td>
                 </tr>
             </table>
+            </div></div>
         </div>
     </div>
 </div>
 <%@ include file="layout/footer.jsp" %>
-<%@ include file="layout/scripts.jsp" %>
-</body>
-</html>
