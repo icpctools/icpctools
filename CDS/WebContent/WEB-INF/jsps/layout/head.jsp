@@ -11,8 +11,8 @@
     	webroot = request.getContextPath() + "/contests/" + cc.getId();
     	apiRoot = request.getContextPath() + "/api/contests/" + cc.getId();
     }
-    String[] menuPages = {"", "/details", "/submissions", "/scoreboard", "/countdown", "/finalize", "/video/status", "/reports"};
-    String[] menuTitles = {"Overview", "Details", "Submissions", "Scoreboard", "Countdown", "Finalize", "Video", "Reports"};
+    String[] menuPages = {"", "/details", "/submissions", "/scoreboard", "/admin", "/video/status", "/reports"};
+    String[] menuTitles = {"Overview", "Details", "Submissions", "Scoreboard", "Admin", "Video", "Reports"};
 %>
 <!DOCTYPE html>
 
@@ -155,7 +155,7 @@
     <div class="content-header">
       <div class="container-fluid">
         <div class="row mb-2">
-          <div class="col-sm-6">
+          <div class="col-sm-10">
           <% String contestName = "";
              if (contest != null)
             	 contestName = contest.getName() + " "; %>

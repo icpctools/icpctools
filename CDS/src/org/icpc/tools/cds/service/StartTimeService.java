@@ -2,13 +2,10 @@ package org.icpc.tools.cds.service;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.util.PlaybackContest;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
@@ -21,19 +18,12 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
 
 public class StartTimeService {
-	protected static void doGet(HttpServletRequest request, HttpServletResponse response, String[] segments)
-			throws ServletException, IOException {
-		if (segments.length == 3 && segments[2].equals("update")) {
-			ConfiguredContest cc = (ConfiguredContest) request.getAttribute("cc");
-			Long time = cc.getContest().getStartStatus();
-			if (time == null)
-				response.getWriter().println("");
-			else
-				response.getWriter().println(time);
-			return;
-		}
-
-		request.getRequestDispatcher("/WEB-INF/jsps/starttime.jsp").forward(request, response);
+	protected static void doGet(HttpServletResponse response, ConfiguredContest cc) throws IOException {
+		Long time = cc.getContest().getStartStatus();
+		if (time == null)
+			response.getWriter().println("");
+		else
+			response.getWriter().println(time);
 	}
 
 	private static boolean errorIfContestNotCountingDown(Long time, HttpServletResponse response) throws IOException {
@@ -53,13 +43,7 @@ public class StartTimeService {
 		return false;
 	}
 
-	protected static void doPut(HttpServletRequest request, HttpServletResponse response, String command,
-			ConfiguredContest cc) throws IOException {
-		if (!Role.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-
+	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {
 		// valid commands:
 		// absolute:2019-04-03T12:30:24.911+01 - the the contest start to the given time
 		// pause - pause the countdown
@@ -77,7 +61,7 @@ public class StartTimeService {
 
 		long now = System.currentTimeMillis();
 
-		System.out.println("Start time command: " + command);
+		Trace.trace(Trace.USER, "Start time command: " + command);
 		try {
 			if (command.startsWith("absolute:")) {
 				setStartTime(cc, Timestamp.parse(command.substring(8).trim()));
@@ -126,7 +110,7 @@ public class StartTimeService {
 			return;
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Error setting start time", e);
 			return;
 		}
 

@@ -85,7 +85,7 @@
                         </tr>
                         <tr>
                             <td colspan="3"><a href="<%= webRootH %>/submissions" class="<%= textClass %>"><%= contestH.getNumSubmissions() %> submissions</a>
-                            <span class="float-right"><a href="<%= webRootH %>/countdown" class="<%= textClass %>">Admin</a></span></td>
+                            <span class="float-right"><a href="<%= webRootH %>/admin" class="<%= textClass %>">Admin</a></span></td>
                         </tr>
                         </thead>
                     </table>

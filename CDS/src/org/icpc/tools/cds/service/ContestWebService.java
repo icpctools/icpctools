@@ -114,18 +114,25 @@ public class ContestWebService extends HttpServlet {
 		if (segments.length >= 2) {
 			request.setAttribute("cc", cc);
 			cc.incrementWeb();
-			if (segments[1].equals("statuschecks")) {
-				CountdownStatusService.doPut(request, response, cc);
-				return;
-			} else if (segments[1].equals("countdown")) {
-				StartTimeService.doPut(request, response, segments[2], cc);
+			if (segments[1].equals("admin")) {
+				if (!Role.isAdmin(request)) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+					return;
+				}
+
+				if (segments.length == 4) {
+					String command = segments[3];
+					if (segments[2].equals("time"))
+						StartTimeService.doPut(response, command, cc);
+					else if (segments[2].equals("status"))
+						CountdownStatusService.doPut(response, command, cc);
+					else if (segments[2].equals("finalize"))
+						FinalizeService.doPut(response, command, cc);
+				}
 				return;
 			} else if (segments.length == 3 && segments[1].equals("video") && segments[2].equals("status")) {
 				// VideoStatusServlet.doPut(cc, request, response);
 				request.getRequestDispatcher("/WEB-INF/jsps/video.jsp").forward(request, response);
-				return;
-			} else if (segments[1].equals("finalize")) {
-				FinalizeService.doPut(request, response, segments[2], cc);
 				return;
 			}
 		}
@@ -287,14 +294,17 @@ public class ContestWebService extends HttpServlet {
 			} else if (segments[1].equals("time")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/time.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("statuschecks")) {
-				CountdownStatusService.doGet(request, response, cc);
-				return;
-			} else if (segments[1].equals("countdown")) {
-				StartTimeService.doGet(request, response, segments);
-				return;
-			} else if (segments[1].equals("finalize")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/finalize.jsp").forward(request, response);
+			} else if (segments[1].equals("admin")) {
+				if (segments.length == 3) {
+					if (segments[2].equals("time")) {
+						StartTimeService.doGet(response, cc);
+						return;
+					} else if (segments[2].equals("status")) {
+						CountdownStatusService.doGet(response, cc);
+						return;
+					}
+				}
+				request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("freeze")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/freeze.jsp").forward(request, response);
