@@ -13,7 +13,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.icpc.tools.contest.Trace;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -39,7 +38,7 @@ public class PresentationsParser {
 				private String value = null;
 
 				@Override
-				public void characters(char[] ch, int start, int length) throws SAXException {
+				public void characters(char[] ch, int start, int length) {
 					String v = new String(ch, start, length);
 					if (value == null)
 						value = v;
@@ -48,8 +47,7 @@ public class PresentationsParser {
 				}
 
 				@Override
-				public void startElement(String uri, String localName, String qName, Attributes attributes)
-						throws SAXException {
+				public void startElement(String uri, String localName, String qName, Attributes attributes) {
 					if (level == 0) {
 						if (!qName.equals("presentations"))
 							Trace.trace(Trace.ERROR, "Invalid format for presentation.xml!");
@@ -85,7 +83,7 @@ public class PresentationsParser {
 				}
 
 				@Override
-				public void endElement(String uri, String localName, String qName) throws SAXException {
+				public void endElement(String uri, String localName, String qName) {
 					if (level == 3) {
 						map.put(qName, value.trim());
 						value = null;
@@ -113,17 +111,7 @@ public class PresentationsParser {
 	}
 
 	private static void sortPresentations(List<PresentationInfo> presentations) {
-		int size = presentations.size();
-		for (int i = 0; i < size - 1; i++) {
-			for (int j = i + 1; j < size; j++) {
-				PresentationInfo a = presentations.get(i);
-				PresentationInfo b = presentations.get(j);
-				if (a.getName().compareToIgnoreCase(b.getName()) > 0) {
-					presentations.set(i, b);
-					presentations.set(j, a);
-				}
-			}
-		}
+		 presentations.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
 	}
 
 	/**
@@ -156,8 +144,7 @@ public class PresentationsParser {
 				protected int level;
 
 				@Override
-				public void startElement(String uri, String localName, String name, Attributes attributes)
-						throws SAXException {
+				public void startElement(String uri, String localName, String name, Attributes attributes) {
 					if (level == 1) {
 						if (PRESENTATION.equals(name) || TRANSITION.equals(name)) {
 							String image = attributes.getValue("image");
@@ -169,7 +156,7 @@ public class PresentationsParser {
 				}
 
 				@Override
-				public void endElement(String uri, String localName, String qName) throws SAXException {
+				public void endElement(String uri, String localName, String qName) {
 					level--;
 				}
 			});
