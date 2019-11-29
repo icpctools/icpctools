@@ -81,8 +81,19 @@ public class DiskContestSource extends ContestSource {
 	public DiskContestSource(File folder) {
 		root = folder;
 
-		if (root == null || !root.exists() || root.isFile())
-			throw new IllegalArgumentException("File must point to a valid contest archive");
+		if (root == null) {
+			 throw new IllegalArgumentException("Contest archive not set.");
+		}
+		if (!root.exists()) {
+			 if (!root.mkdirs()) {
+				  throw new IllegalArgumentException("Contest archive (" + root.toString()
+						  + ") did not exist and directory creation failed.");
+			 }
+		}
+		if (root.isFile()) {
+			 throw new IllegalArgumentException("Contest archive (" + root.toString()
+					 + ") should point to directory, points to file instead.");
+		}
 
 		if (new File(root, "images").exists())
 			isOldCDP = true;
