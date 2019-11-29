@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,9 +226,9 @@ public class ConfiguredContest {
 		@Override
 		public String toString() {
 			if (problems != null)
-				return "View[groups=" + groups + ",problems=" + problems + "]";
+				return "View[groups=" + Arrays.toString(groups) + ",problems=" + Arrays.toString(problems) + "]";
 
-			return "View[groups=" + groups + "]";
+			return "View[groups=" + Arrays.toString(groups) + "]";
 		}
 	}
 
