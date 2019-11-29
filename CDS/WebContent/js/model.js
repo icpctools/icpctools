@@ -9,7 +9,7 @@ function findById(arr,id) {
   return null;
 }
 
-function findGroups(ids) {
+function findGroups(groups, ids) {
   if (groups == null || ids == null || ids.length == 0)
     return null;
 

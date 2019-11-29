@@ -4,6 +4,7 @@ var contest=(function() {
 	var groups;
 	var teams;
 	var languages;
+	var judgementTypes;
 	var problems;
 	var clarifications;
 	var awards;
@@ -42,6 +43,22 @@ var contest=(function() {
 			  url: urlPrefix + 'languages',
 			  success: function(result) {
 				  languages = result;
+			  }
+			});
+		}
+	}
+	
+	var loadJudgementTypes = function() {
+		console.log("Loading judgement types: " + judgementTypes);
+		var deferred = new $.Deferred();
+		if (judgementTypes != null) {
+			deferred.resolve();
+			return deferred;
+		} else {
+			return $.ajax({
+			  url: urlPrefix + 'judgement-types',
+			  success: function(result) {
+				  judgementTypes = result;
 			  }
 			});
 		}
@@ -172,6 +189,9 @@ var contest=(function() {
 	var getLanguages = function() {
 		return languages;
 	}
+	var getJudgementTypes = function() {
+		return judgementTypes;
+	}
 	var getProblems = function() {
 		return problems;
 	}
@@ -207,12 +227,15 @@ var contest=(function() {
 		loadOrganizations: loadOrganizations,
 		loadGroups: loadGroups,
 		loadLanguages: loadLanguages,
+		loadJudgementTypes: loadJudgementTypes,
 		loadTeams: loadTeams,
 		loadProblems: loadProblems,
 		loadClarifications: loadClarifications,
 		loadAwards: loadAwards,
 		loadScoreboard: loadScoreboard,
 		getInfo: getInfo,
+		getLanguages: getLanguages,
+		getJudgementTypes: getJudgementTypes,
 		getProblems: getProblems,
 		getGroups: getGroups,
 		getOrganizations: getOrganizations,
