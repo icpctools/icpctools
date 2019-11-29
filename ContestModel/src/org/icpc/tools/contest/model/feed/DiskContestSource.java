@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -24,8 +23,6 @@ import javax.imageio.stream.FileImageInputStream;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
-import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IOrganization;
@@ -33,7 +30,6 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.TSVImporter;
-import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
@@ -55,10 +51,11 @@ public class DiskContestSource extends ContestSource {
 	private static final String CACHE_PREFIX = "org.icpc.tools.cache.";
 	private static final String CACHE_FILE = ".cache";
 	private static final String CACHE_VERSION = "ICPC Tools Cache v1.0";
+	private static final Map<String, List<FileReference>> cache = new HashMap<>();
+
 	private File root;
 	private boolean isCache;
 	private boolean isOldCDP;
-	private static Map<String, List<FileReference>> cache = new HashMap<>();
 	private String contestId;
 	private boolean expectFeed = true;
 	private Closeable parser;
@@ -111,10 +108,10 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void setContestId(String contestId) {
-		this.contestId = contestId;
-	}
+      this.contestId = contestId;
+   }
 
-	private static String getSafeHash(String s) {
+	 private static String getSafeHash(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
@@ -130,12 +127,7 @@ public class DiskContestSource extends ContestSource {
 
 	private static void cleanUpTempDir(File cacheTempDir) {
 		File tempDir = new File(System.getProperty("java.io.tmpdir"));
-		File[] files = tempDir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name != null && name.startsWith(CACHE_PREFIX);
-			}
-		});
+		File[] files = tempDir.listFiles((dir, name) -> name != null && name.startsWith(CACHE_PREFIX));
 
 		if (files == null)
 			return;
@@ -143,7 +135,8 @@ public class DiskContestSource extends ContestSource {
 		for (File f : files) {
 			if (f.isDirectory() && !f.equals(cacheTempDir)) {
 				// delete cached files older than 10 days
-				if (f.lastModified() < System.currentTimeMillis() - 360000 * 24 * 10)
+				long tenDaysInMillis = 10 * 24 * 3600 * 1000;
+				if (f.lastModified() < System.currentTimeMillis() - tenDaysInMillis)
 					deleteDirectory(f);
 			}
 		}
@@ -160,23 +153,18 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			File[] files = dir.listFiles();
-			int size = files.length;
-
 			// cycle through files
 			boolean deleteCurrent = true;
-			for (int i = 0; i < size; i++) {
-				File current = files[i];
-				if (current.isFile()) {
-					if (!current.delete())
-						deleteCurrent = false;
-				} else if (current.isDirectory()) {
-					if (!deleteDirectory(current))
-						deleteCurrent = false;
-				}
-			}
-			if (deleteCurrent && !dir.delete())
-				return false;
-			return true;
+			 for (File current : files) {
+				  if (current.isFile()) {
+						if (!current.delete())
+							 deleteCurrent = false;
+				  } else if (current.isDirectory()) {
+						if (!deleteDirectory(current))
+							 deleteCurrent = false;
+				  }
+			 }
+			return !deleteCurrent || dir.delete();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error deleting directory " + dir.getAbsolutePath(), e);
 		}
@@ -199,21 +187,14 @@ public class DiskContestSource extends ContestSource {
 	private int getDiskHash() {
 		File hashFile = new File(root, "hash.txt");
 		if (hashFile.exists()) {
-			BufferedReader br = null;
-			try {
-				br = new BufferedReader(new FileReader(hashFile));
-				String s = br.readLine();
-				Trace.trace(Trace.INFO, "Contest hash found: " + s);
-				return Integer.parseInt(s);
-			} catch (Exception e) {
-				Trace.trace(Trace.WARNING, "Couldn't read contest hash file", e);
-			} finally {
-				try {
-					br.close();
-				} catch (Exception e) {
-					// ignore
-				}
-			}
+			 try (BufferedReader br = new BufferedReader(new FileReader(hashFile))) {
+				  String s = br.readLine();
+				  Trace.trace(Trace.INFO, "Contest hash found: " + s);
+				  return Integer.parseInt(s);
+			 } catch (Exception e) {
+				  Trace.trace(Trace.WARNING, "Couldn't read contest hash file", e);
+			 }
+			 // ignore
 		}
 		File configFolder = new File(root, "config");
 		File[] files = configFolder.listFiles();
@@ -314,12 +295,7 @@ public class DiskContestSource extends ContestSource {
 		return list.toArray(new String[list.size()]);
 	}
 
-	public static Contest loadContest(File file, IContestListener listener) throws Exception {
-		DiskContestSource source = new DiskContestSource(file);
-		return source.loadContest(listener);
-	}
-
-	/**
+	 /**
 	 * Set the remote info on a file so we know where it came from.
 	 */
 	protected void updateFileInfo(File file, String href, String etag) {
@@ -471,7 +447,6 @@ public class DiskContestSource extends ContestSource {
 						if (ref.lastModified == f.lastModified()) {
 							found = true;
 							currentList.add(ref);
-							continue;
 						}
 					}
 				}
@@ -487,12 +462,6 @@ public class DiskContestSource extends ContestSource {
 			cache.put(folder.getAbsolutePath(), currentList);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error getting file ref", e);
-		} finally {
-			try {
-				// ignore
-			} catch (Exception e) {
-				// ignore
-			}
 		}
 		return currentList;
 	}
@@ -581,7 +550,7 @@ public class DiskContestSource extends ContestSource {
 		return ref;
 	}
 
-	protected FileReference getOrgImage(File rootFolder, String base, String orgId, String teamId) {
+	protected FileReference getOrgImage(String base, String orgId, String teamId) {
 		FileReference ref = getFileWithPattern("images" + File.separator + base, orgId + ".png",
 				"organizations/" + orgId + "/" + base);
 		if (ref != null)
@@ -606,12 +575,7 @@ public class DiskContestSource extends ContestSource {
 			}
 			// attachLocalResources(contest, obj);
 		});
-		IContestModifier mod = new IContestModifier() {
-			@Override
-			public void notify(IContest contest2, IContestObject obj) {
-				attachLocalResources(obj);
-			}
-		};
+		IContestModifier mod = (contest2, obj) -> attachLocalResources(obj);
 		contest.addModifier(mod);
 
 		loadCDPConfigFiles();
@@ -631,7 +595,7 @@ public class DiskContestSource extends ContestSource {
 			return;
 		}
 
-		InputStream in = null;
+		InputStream in;
 		try {
 			in = new FileInputStream(contestFile);
 		} catch (Exception e) {
@@ -654,10 +618,9 @@ public class DiskContestSource extends ContestSource {
 			throw e;
 		} finally {
 			try {
-				if (in != null)
-					in.close();
+				 in.close();
 			} catch (Exception e) {
-				// ignore
+				 // ignore
 			}
 			contest.removeModifier(mod);
 		}
@@ -685,12 +648,7 @@ public class DiskContestSource extends ContestSource {
 		if (folderName != null)
 			folder = new File(folder, folderName);
 
-		File[] files = folder.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return (name.equalsIgnoreCase(filename));
-			}
-		});
+		File[] files = folder.listFiles((dir, name) -> (name.equalsIgnoreCase(filename)));
 		if (files == null || files.length == 0)
 			return null;
 
@@ -714,22 +672,17 @@ public class DiskContestSource extends ContestSource {
 
 		String start = filename.substring(0, ind);
 		String end = filename.substring(ind + 3);
-		File[] files = folder.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return (name.toLowerCase().startsWith(start) && name.toLowerCase().endsWith(end));
-			}
-		});
+		File[] files = folder.listFiles(
+				(dir, name) -> (name.toLowerCase().startsWith(start) && name.toLowerCase().endsWith(end)));
 
 		if (files == null)
 			return null;
 
-		int size = files.length;
-		for (int i = 0; i < size; i++) {
-			String subs = files[i].getName();
-			subs = subs.substring(start.length(), subs.length() - end.length());
-			refList.add(getMetadata(url.replace("{0}", subs), files[i]));
-		}
+		 for (File file : files) {
+			  String subs = file.getName();
+			  subs = subs.substring(start.length(), subs.length() - end.length());
+			  refList.add(getMetadata(url.replace("{0}", subs), file));
+		 }
 		return refList;
 	}
 
@@ -784,7 +737,6 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void attachLocalResources(IContestObject obj) {
-		File rootFolder = getRootFolder();
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
 			info.setBanner(getFilesWithPattern(obj, "banner"));
@@ -802,13 +754,13 @@ public class DiskContestSource extends ContestSource {
 					teamId = t.getId();
 				}
 			}
-			FileReference ref = getOrgImage(rootFolder, "logo", orgId, teamId);
+			FileReference ref = getOrgImage("logo", orgId, teamId);
 			if (ref != null)
 				list.add(ref);
-			ref = getOrgImage(rootFolder, "tile", orgId, teamId);
+			ref = getOrgImage("tile", orgId, teamId);
 			if (ref != null)
 				list.add(ref);
-			ref = getOrgImage(rootFolder, "icon", orgId, teamId);
+			ref = getOrgImage("icon", orgId, teamId);
 			if (ref != null)
 				list.add(ref);
 
@@ -889,72 +841,7 @@ public class DiskContestSource extends ContestSource {
 		}
 	}
 
-	private static void loadFile(File f, String typeName, Contest contest) throws IOException {
-		Trace.trace(Trace.INFO, "Loading " + typeName);
-		if (f == null || !f.exists())
-			return;
-
-		BufferedReader br = new BufferedReader(new FileReader(f));
-		try {
-			JSONParser parser = new JSONParser(new FileInputStream(f));
-			Object[] arr = parser.readArray();
-			for (Object obj : arr) {
-				JsonObject data = (JsonObject) obj;
-				ContestObject co = (ContestObject) IContestObject.createByName(typeName);
-				for (String key : data.props.keySet())
-					co.add(key, data.props.get(key));
-
-				contest.add(co);
-			}
-		} finally {
-			try {
-				br.close();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
-	}
-
-	protected void loadConfigFiles() {
-		if (isCache())
-			return;
-
-		Trace.trace(Trace.INFO, "Initializing contest model");
-
-		try {
-			loadFile(new File(root, "groups.json"), "groups", contest);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.WARNING, e.getMessage());
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error loading groups", e);
-		}
-
-		try {
-			loadFile(new File(root, "organizations.json"), "organizations", contest);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.WARNING, e.getMessage());
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error loading organizations", e);
-		}
-
-		try {
-			loadFile(new File(root, "teams.json"), "teams", contest);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.WARNING, e.getMessage());
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error loading teams", e);
-		}
-
-		try {
-			loadFile(new File(root, "team-members.json"), "team-members", contest);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.WARNING, e.getMessage());
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error loading team members", e);
-		}
-	}
-
-	protected void loadCDPConfigFiles() {
+	 protected void loadCDPConfigFiles() {
 		if (isCache())
 			return;
 
