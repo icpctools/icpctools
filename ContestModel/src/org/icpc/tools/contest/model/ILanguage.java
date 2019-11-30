@@ -9,5 +9,5 @@ public interface ILanguage extends IContestObject {
 	 *
 	 * @return the name
 	 */
-	public String getName();
+	String getName();
 }

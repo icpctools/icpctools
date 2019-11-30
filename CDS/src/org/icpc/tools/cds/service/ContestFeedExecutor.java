@@ -9,7 +9,7 @@ import org.icpc.tools.contest.Trace;
 
 public class ContestFeedExecutor {
 	interface Feed {
-		public boolean doOutput();
+		boolean doOutput();
 	}
 
 	private List<Feed> feeds = new ArrayList<>();

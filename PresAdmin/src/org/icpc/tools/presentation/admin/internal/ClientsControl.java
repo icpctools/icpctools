@@ -86,7 +86,7 @@ public class ClientsControl extends Canvas {
 	}
 
 	public interface IDropListener {
-		public void drop(int clientUID, PresentationInfo pres);
+		void drop(int clientUID, PresentationInfo pres);
 	}
 
 	/**

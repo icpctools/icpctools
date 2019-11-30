@@ -119,7 +119,7 @@ public class BalloonContest {
 	}
 
 	interface FlagListener {
-		public void updatedFlags(Balloon b);
+		void updatedFlags(Balloon b);
 	}
 
 	public synchronized void updateFlags(FlagListener fl) {

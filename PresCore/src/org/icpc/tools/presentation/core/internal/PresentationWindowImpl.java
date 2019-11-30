@@ -231,9 +231,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 	protected GraphicsDevice device;
 
 	public interface IThumbnailListener {
-		public void handleThumbnail(BufferedImage image);
+		void handleThumbnail(BufferedImage image);
 
-		public void handleInfo();
+		void handleInfo();
 	}
 
 	public PresentationWindowImpl(String title, Rectangle r, Image iconImage) {

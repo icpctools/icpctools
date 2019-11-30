@@ -9,19 +9,19 @@ public interface ITestData extends IContestObject {
 	 *
 	 * @return the problem id
 	 */
-	public String getProblemId();
+	String getProblemId();
 
 	/**
 	 * The ordinal of the test data.
 	 *
 	 * @return the ordinal
 	 */
-	public int getOrdinal();
+	int getOrdinal();
 
 	/**
 	 * <code>true</code> if this is sample (public) data, <code>false</code> otherwise.
 	 *
 	 * @return <code>true</code> if this is sample (public) data
 	 */
-	public Boolean isSample();
+	Boolean isSample();
 }

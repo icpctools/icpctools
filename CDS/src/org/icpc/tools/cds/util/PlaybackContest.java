@@ -148,7 +148,7 @@ public class PlaybackContest extends Contest {
 	}
 
 	interface IRefList {
-		public FileReferenceList getList(IContestObject obj);
+		FileReferenceList getList(IContestObject obj);
 	}
 
 	private void downloadMissingFiles(RESTContestSource src, IContestObject obj, String name, IRefList test) {

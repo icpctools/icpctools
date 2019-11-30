@@ -11,54 +11,54 @@ public interface IProblem extends IContestObject, IPosition {
 	 *
 	 * @return the ordinal
 	 */
-	public int getOrdinal();
+	int getOrdinal();
 
 	/**
 	 * The problem label, typically a simple letter or number like "A".
 	 *
 	 * @return the name
 	 */
-	public String getLabel();
+	String getLabel();
 
 	/**
 	 * The full name of the problem.
 	 *
 	 * @return the name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * The name of the problem color, e.g. blue.
 	 *
 	 * @return the color name
 	 */
-	public String getColor();
+	String getColor();
 
 	/**
 	 * A 3 or 6 character hex string representing the rgb color of the problem, e.g. FF0000 or 0F0.
 	 *
 	 * @return the rgb value
 	 */
-	public String getRGB();
+	String getRGB();
 
 	/**
 	 * A Java Color object representation of the RGB value, e.g. Color.RED or Color(0,0,255).
 	 *
 	 * @return the color
 	 */
-	public Color getColorVal();
+	Color getColorVal();
 
 	/**
 	 * Return the number of testcases for this problem.
 	 *
 	 * @return
 	 */
-	public int getTestDataCount();
+	int getTestDataCount();
 
 	/**
 	 * Returns the time limit, in ms.
 	 *
 	 * @return the time limit
 	 */
-	public int getTimeLimit();
+	int getTimeLimit();
 }

@@ -26,11 +26,11 @@ public class AbstractTickerPresentation extends AbstractICPCPresentation {
 	protected long currentTicker;
 
 	interface ITicker {
-		public float getWidth(Graphics2D g);
+		float getWidth(Graphics2D g);
 
-		public void paint(Graphics2D g, float x, float time);
+		void paint(Graphics2D g, float x, float time);
 
-		public void paint(Graphics2D g, Dimension2D d, float count);
+		void paint(Graphics2D g, Dimension2D d, float count);
 	}
 
 	public class StringTicker implements ITicker {

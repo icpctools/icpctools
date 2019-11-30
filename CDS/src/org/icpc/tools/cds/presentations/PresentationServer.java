@@ -348,7 +348,7 @@ public class PresentationServer {
 	}
 
 	interface ClientRun {
-		public void run(Client c) throws IOException;
+		void run(Client c) throws IOException;
 	}
 
 	protected List<Client> getClients(int[] clientUIDs) {

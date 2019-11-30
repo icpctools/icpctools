@@ -22,19 +22,19 @@ import org.icpc.tools.contest.model.internal.Team;
 import org.icpc.tools.contest.model.internal.TeamMember;
 
 public interface IContestObject {
-	public static enum ContestType {
+	enum ContestType {
 		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, PRINTER, COUNTDOWN, DELETE
 	}
 
-	public static final String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations",
+	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations",
 			"teams", "state", "runs", "submissions", "judgements", "clarifications", "awards", "judgement-types",
 			"testdata", "problems", "pause", "team-members", "printers", "countdown", "delete" };
 
-	public static String getTypeName(ContestType type) {
+	static String getTypeName(ContestType type) {
 		return ContestTypeNames[type.ordinal()];
 	}
 
-	public static ContestType getTypeByName(String typeName) {
+	static ContestType getTypeByName(String typeName) {
 		for (int i = 0; i < ContestTypeNames.length - 1; i++) {
 			if (ContestTypeNames[i].equals(typeName))
 				return ContestType.values()[i];
@@ -42,11 +42,11 @@ public interface IContestObject {
 		return null;
 	}
 
-	public static IContestObject createByName(String typeName) {
+	static IContestObject createByName(String typeName) {
 		return createByType(getTypeByName(typeName));
 	}
 
-	public static IContestObject createByType(ContestType type) {
+	static IContestObject createByType(ContestType type) {
 		if (type == null)
 			return null;
 
@@ -89,26 +89,26 @@ public interface IContestObject {
 		return null;
 	}
 
-	public ContestType getType();
+	ContestType getType();
 
-	public Object getProperty(String s);
+	Object getProperty(String s);
 
-	public Map<String, Object> getProperties();
+	Map<String, Object> getProperties();
 
 	/**
 	 * The unique id.
 	 *
 	 * @return the id
 	 */
-	public String getId();
+	String getId();
 
 	/**
 	 * Validate this contest object within the scope of the given contest (to check for id
 	 * references). Returns a list of errors, or null if there weren't any.
 	 */
-	public List<String> validate(IContest contest);
+	List<String> validate(IContest contest);
 
-	public default Object resolveFileReference(String url) {
+	default Object resolveFileReference(String url) {
 		return null;
 	}
 }

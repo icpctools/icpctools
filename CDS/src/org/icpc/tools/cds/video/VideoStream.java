@@ -24,11 +24,11 @@ public class VideoStream {
 	private final Stats stats = new Stats();
 
 	private interface ReadThread extends Runnable {
-		public abstract void terminate();
+		void terminate();
 	}
 
 	private interface StreamOperation {
-		public void execute(VideoStreamListener listener) throws IOException;
+		void execute(VideoStreamListener listener) throws IOException;
 	}
 
 	private String name;

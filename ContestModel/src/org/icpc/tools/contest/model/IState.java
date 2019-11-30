@@ -9,68 +9,68 @@ public interface IState extends IContestObject {
 	 *
 	 * @return the start time
 	 */
-	public Long getStarted();
+	Long getStarted();
 
 	/**
 	 * The time the contest ended.
 	 *
 	 * @return the end time
 	 */
-	public Long getEnded();
+	Long getEnded();
 
 	/**
 	 * The time the contest was frozen.
 	 *
 	 * @return the freeze time
 	 */
-	public Long getFrozen();
+	Long getFrozen();
 
 	/**
 	 * The time the contest was thawed.
 	 *
 	 * @return the thaw time
 	 */
-	public Long getThawed();
+	Long getThawed();
 
 	/**
 	 * The time the contest was finalized.
 	 *
 	 * @return the finalization time
 	 */
-	public Long getFinalized();
+	Long getFinalized();
 
 	/**
 	 * The time the contest was closed for updates.
 	 *
 	 * @return the end of updates time
 	 */
-	public Long getEndOfUpdates();
+	Long getEndOfUpdates();
 
 	/**
 	 * Returns true if the contest is running.
 	 *
 	 * @return
 	 */
-	public boolean isRunning();
+	boolean isRunning();
 
 	/**
 	 * Returns true if the contest is frozen.
 	 *
 	 * @return
 	 */
-	public boolean isFrozen();
+	boolean isFrozen();
 
 	/**
 	 * Returns true if the contest is final.
 	 *
 	 * @return
 	 */
-	public boolean isFinal();
+	boolean isFinal();
 
 	/**
 	 * Returns true if the contest is done all updates.
 	 *
 	 * @return
 	 */
-	public boolean isDoneUpdating();
+	boolean isDoneUpdating();
 }

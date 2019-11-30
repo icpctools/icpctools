@@ -9,47 +9,47 @@ public interface IJudgement extends IContestObject {
 	 *
 	 * @return the contest time
 	 */
-	public int getStartContestTime();
+	int getStartContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
 	 *
 	 * @return the time
 	 */
-	public long getStartTime();
+	long getStartTime();
 
 	/**
 	 * Returns the submission that this judgement is for.
 	 *
 	 * @return the submission id
 	 */
-	public String getSubmissionId();
+	String getSubmissionId();
 
 	/**
 	 * Returns the judgement type id.
 	 *
 	 * @return the judgement type id
 	 */
-	public String getJudgementTypeId();
+	String getJudgementTypeId();
 
 	/**
 	 * Returns the maximum run time, in ms.
 	 *
 	 * @return the maximum run time
 	 */
-	public int getMaxRunTime();
+	int getMaxRunTime();
 
 	/**
 	 * Returns the contest time relative to the start of the contest, in ms.
 	 *
 	 * @return the contest time
 	 */
-	public Integer getEndContestTime();
+	Integer getEndContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
 	 *
 	 * @return the time
 	 */
-	public Long getEndTime();
+	Long getEndTime();
 }

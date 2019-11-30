@@ -4,5 +4,5 @@ public interface IPropertyListener {
 	/**
 	 * Set a local property, e.g. on a presentation. Only called on non-admin clients.
 	 */
-	public void propertyUpdated(String key, String value);
+	void propertyUpdated(String key, String value);
 }

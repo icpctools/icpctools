@@ -16,11 +16,11 @@ import java.util.Comparator;
 import org.icpc.tools.contest.Trace;
 
 public interface IPresentationHandler {
-	public enum Mode {
+	enum Mode {
 		TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, MEDIUM, MEDIUM_BL, MIDDLE, ALMOST, FULL_WINDOW, FULL_SCREEN, FULL_SCREEN_MAX
 	}
 
-	public static class DeviceMode {
+	class DeviceMode {
 		public int device;
 		public Mode p = Mode.FULL_SCREEN;
 

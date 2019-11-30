@@ -9,14 +9,14 @@ public interface IClarification extends IContestObject {
 	 *
 	 * @return the id
 	 */
-	public String getReplyToId();
+	String getReplyToId();
 
 	/**
 	 * The id of the team asking this question, may be null if sent from staff.
 	 *
 	 * @return the id
 	 */
-	public String getFromTeamId();
+	String getFromTeamId();
 
 	/**
 	 * The id of the team receiving this reply, may be null if sent to staff. If both from and to
@@ -24,33 +24,33 @@ public interface IClarification extends IContestObject {
 	 *
 	 * @return the id
 	 */
-	public String getToTeamId();
+	String getToTeamId();
 
 	/**
 	 * The id of the associated problem, may be null.
 	 *
 	 * @return the id
 	 */
-	public String getProblemId();
+	String getProblemId();
 
 	/**
 	 * The text of the question or reply.
 	 *
 	 * @return the text
 	 */
-	public String getText();
+	String getText();
 
 	/**
 	 * Returns the contest time relative to the start of the contest, in ms.
 	 *
 	 * @return the contest time
 	 */
-	public int getContestTime();
+	int getContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
 	 *
 	 * @return the time
 	 */
-	public long getTime();
+	long getTime();
 }
