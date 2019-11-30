@@ -4,27 +4,28 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Video Channel <%= channel2 %></h3>
-           </div>
-        <div class="card-body p-0">
-            <table id="stream-table" class="table table-sm table-hover table-striped">
-                <thead>
-                <tr>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                    <th>Stream</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            </div></div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Video Channel <%= channel2 %></h3>
+                </div>
+                <div class="card-body p-0">
+                    <table id="stream-table" class="table table-sm table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                                <th>Stream</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

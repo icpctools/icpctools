@@ -8,28 +8,28 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Video Status</h3>
-           </div>
-        <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped table-head-fixed">
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Name</th>
-                    <th>Organization</th>
-                    <th colspan=3>Desktop</th>
-                    <th colspan=3>Webcam</th>
-                </tr>
-                <tr>
-                    <td colspan=3></td>
-                    <td colspan=3>Current / Max Current / Total</td>
-                    <td colspan=3>Current / Max Current / Total</td>
-                </tr>
-                </thead>
-                <tbody>
-                <% ITeam[] teams = contest.getTeams();
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Video Status</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover table-striped table-head-fixed">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Organization</th>
+                                <th colspan=3>Desktop</th>
+                                <th colspan=3>Webcam</th>
+                            </tr>
+                            <tr>
+                                <td colspan=3></td>
+                                <td colspan=3>Current / Max Current / Total</td>
+                                <td colspan=3>Current / Max Current / Total</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    <% ITeam[] teams = contest.getTeams();
                     teams = Arrays.copyOf(teams, teams.length);
                     ContestUtil.sort(teams);
                     for (int i = 1; i <= numTeams; i++) {
@@ -40,152 +40,159 @@
                             String orgName = "";
                             if (org != null)
                                 orgName = org.getFormalName(); %>
-                <tr>
-                    <td><%= tId %>
-                    </td>
-                    <td><%= t.getActualDisplayName() %>
-                    </td>
-                    <td><%= orgName %>
-                    </td>
-                    <td id="desktop-<%= tId %>" class="text-center">-</td>
-                    <td id="desktop-<%= tId %>m" class="text-center"></td>
-                    <td>
-                        <a href="javascript:request('<%= request.getContextPath() %>/video/desktop/<%= tId %>?reset=true');">Reset</a>
-                    </td>
-                    <td id="webcam-<%= tId %>" class="text-center">-</td>
-                    <td id="webcam-<%= tId %>m" class="text-center"></td>
-                    <td>
-                        <a href="javascript:request('<%= request.getContextPath() %>/video/webcam/<%= tId %>?reset=true');">Reset</a>
-                    </td>
-                </tr>
-                <% } else { %>
-                <tr>
-                    <td>?</td>
-                    <td>?</td>
-                    <td>?</td>
-                    <td id="desktop<%= i %>" class="text-center">-</td>
-                    <td></td>
-                    <td id="webcam<%= i %>" class="text-center">-</td>
-                    <td></td>
-                </tr>
-                <% }
-                } %>
-                </tbody>
-                <tfoot>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Total streams:</td>
-                    <td id="desktopStreams" class="text-center">-</td>
-                    <td></td>
-                    <td id="webcamStreams" class="text-center">-</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Current clients:</td>
-                    <td id="desktopCurrent" class="text-center">-</td>
-                    <td><a href="javascript:request('<%= request.getContextPath() %>/video/desktop?resetAll=true');">Reset
-                        all</a></td>
-                    <td id="webcamCurrent" class="text-center">-</td>
-                    <td><a href="javascript:request('<%= request.getContextPath() %>/video/webcam?resetAll=true');">Reset
-                        all</a></td>
-                </tr>
-                <!--  <tr><td></td><td></td><td class="text-right">Max concurrent:</td>
+                            <tr>
+                                <td><%= tId %>
+                                </td>
+                                <td><%= t.getActualDisplayName() %>
+                                </td>
+                                <td><%= orgName %>
+                                </td>
+                                <td id="desktop-<%= tId %>" class="text-center">-</td>
+                                <td id="desktop-<%= tId %>m" class="text-center"></td>
+                                <td>
+                                    <a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/desktop/<%= tId %>?reset=true');">Reset</a>
+                                </td>
+                                <td id="webcam-<%= tId %>" class="text-center">-</td>
+                                <td id="webcam-<%= tId %>m" class="text-center"></td>
+                                <td>
+                                    <a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/webcam/<%= tId %>?reset=true');">Reset</a>
+                                </td>
+                            </tr>
+                            <% } else { %>
+                            <tr>
+                                <td>?</td>
+                                <td>?</td>
+                                <td>?</td>
+                                <td id="desktop<%= i %>" class="text-center">-</td>
+                                <td></td>
+                                <td id="webcam<%= i %>" class="text-center">-</td>
+                                <td></td>
+                            </tr>
+                            <% }
+                        } %>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">Total streams:</td>
+                                <td id="desktopStreams" class="text-center">-</td>
+                                <td></td>
+                                <td id="webcamStreams" class="text-center">-</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">Current clients:</td>
+                                <td id="desktopCurrent" class="text-center">-</td>
+                                <td><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/desktop?resetAll=true');">Reset
+                                        all</a></td>
+                                <td id="webcamCurrent" class="text-center">-</td>
+                                <td><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/webcam?resetAll=true');">Reset
+                                        all</a></td>
+                            </tr>
+                            <!--  <tr><td></td><td></td><td class="text-right">Max concurrent:</td>
                       <td id="desktopMax" class="text-center">-</td><td></td>
                       <td id="webcamMax" class="text-center">-</td><td></td></tr> -->
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Total clients:</td>
-                    <td id="desktopTotal" class="text-center">-</td>
-                    <td></td>
-                    <td id="webcamTotal" class="text-center">-</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Total time:</td>
-                    <td id="desktopTotalTime" class="text-center" colspan="2">-</td>
-                    <td id="webcamTotalTime" class="text-center" colspan="2">-</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Connection mode:</td>
-                    <td id="desktopMode" class="text-center">-</td>
-                    <td>
-                        <a href="javascript:request('<%= request.getContextPath() %>/video/desktop?mode=eager');">Eager</a><br/><a
-                            href="javascript:request('<%= request.getContextPath() %>/video/desktop?mode=lazy');">Lazy</a><br><a
-                            href="javascript:request('<%= request.getContextPath() %>/video/desktop?mode=lazy_close');">Lazy
-                        close</a></td>
-                    <td id="webcamMode" class="text-center">-</td>
-                    <td>
-                        <a href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=eager');">Eager</a><br/><a
-                            href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=lazy');">Lazy</a><br><a
-                            href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=lazy_close');">Lazy
-                        close</a></td>
-                </tr>
-                </tfoot>
-            </table>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">Total clients:</td>
+                                <td id="desktopTotal" class="text-center">-</td>
+                                <td></td>
+                                <td id="webcamTotal" class="text-center">-</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">Total time:</td>
+                                <td id="desktopTotalTime" class="text-center" colspan="2">-</td>
+                                <td id="webcamTotalTime" class="text-center" colspan="2">-</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td class="text-right">Connection mode:</td>
+                                <td id="desktopMode" class="text-center">-</td>
+                                <td>
+                                    <a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/desktop?mode=eager');">Eager</a><br /><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/desktop?mode=lazy');">Lazy</a><br><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/desktop?mode=lazy_close');">Lazy
+                                        close</a></td>
+                                <td id="webcamMode" class="text-center">-</td>
+                                <td>
+                                    <a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=eager');">Eager</a><br /><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=lazy');">Lazy</a><br><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=lazy_close');">Lazy
+                                        close</a></td>
+                            </tr>
+                        </tfoot>
+                    </table>
 
-            <table>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Total streams:</td>
-                    <td id="totalStreams" class="text-center">-</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Current clients:</td>
-                    <td id="totalCurrent" class="text-center">-</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Max concurrent:</td>
-                    <td id="totalMax" class="text-center">-</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Total:</td>
-                    <td id="total" class="text-center">-</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">Total time:</td>
-                    <td id="totalTime" class="text-center">-</td>
-                </tr>
-            </table>
-            <p/>
+                    <table>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">Total streams:</td>
+                            <td id="totalStreams" class="text-center">-</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">Current clients:</td>
+                            <td id="totalCurrent" class="text-center">-</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">Max concurrent:</td>
+                            <td id="totalMax" class="text-center">-</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">Total:</td>
+                            <td id="total" class="text-center">-</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">Total time:</td>
+                            <td id="totalTime" class="text-center">-</td>
+                        </tr>
+                    </table>
+                    <p />
 
-            <p>
-                <a href="<%= webroot %>/video/map/desktop">Desktop map</a>
-                <br/>
-                <a href="<%= webroot %>/video/map/webcam">Webcam map</a>
-            </p>
+                    <p>
+                        <a href="<%= webroot %>/video/map/desktop">Desktop map</a>
+                        <br />
+                        <a href="<%= webroot %>/video/map/webcam">Webcam map</a>
+                    </p>
 
-            <h2>Status Key</h2>
-            <table class="table table-sm table-hover table-striped">
-                <tbody>
-                <tr>
-                    <td class="table-secondary">Unknown</td>
-                </tr>
-                <tr>
-                    <td class="table-success">Active</td>
-                </tr>
-                <tr>
-                    <td class="table-danger">Failed</td>
-                </tr>
-                </tbody>
-            </table>
-            </div></div>
+                    <h2>Status Key</h2>
+                    <table class="table table-sm table-hover table-striped">
+                        <tbody>
+                            <tr>
+                                <td class="table-secondary">Unknown</td>
+                            </tr>
+                            <tr>
+                                <td class="table-success">Active</td>
+                            </tr>
+                            <tr>
+                                <td class="table-danger">Failed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

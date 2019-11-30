@@ -5,25 +5,25 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Judge Queue</h3>
-           </div>
-        <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped table-head-fixed">
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th class="text-center">Time</th>
-                    <th>Problem</th>
-                    <th>Language</th>
-                    <th>Team</th>
-                    <th>Organization</th>
-                </tr>
-                </thead>
-                <tbody>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Judge Queue</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover table-striped table-head-fixed">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th class="text-center">Time</th>
+                                <th>Problem</th>
+                                <th>Language</th>
+                                <th>Team</th>
+                                <th>Organization</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
-                <% ISubmission[] subs = contest.getSubmissions();
+                    <% ISubmission[] subs = contest.getSubmissions();
                     int numJudging = 0;
                     for (int i = 0; i < subs.length; i++) {
                         String id = subs[i].getTeamId();
@@ -68,53 +68,53 @@
                             IProblem prob = contest.getProblemById(id);
                             if (prob != null)
                                 probStr = id + " (" + prob.getLabel() + ")";
-                        }
-                %>
-                <tr>
-                    <td><a href="<%= apiRoot %>/submissions/<%= subs[i].getId() %>">
-                        <%= subs[i].getId() %>
-                    </a></td>
-                    <td class="text-center">
-                        <%= ContestUtil.formatTime(subs[i].getContestTime()) %>
-                    </td>
-                    <td>
-                        <%= probStr %>
-                    </td>
-                    <td>
-                        <%= langStr %>
-                    </td>
-                    <td>
-                        <%= teamStr %>
-                    </td>
-                    <td>
-                        <%= orgStr %>
-                    </td>
-                </tr>
-                <% } %>
-                </tbody>
-            </table>
-             <p class="indent"><%= numJudging %> pending judgements</p>
-            </div></div>
-            
-            <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Submissions</h3>
+                        } %>
+                            <tr>
+                                <td><a href="<%= apiRoot %>/submissions/<%= subs[i].getId() %>">
+                                        <%= subs[i].getId() %>
+                                    </a></td>
+                                <td class="text-center">
+                                    <%= ContestUtil.formatTime(subs[i].getContestTime()) %>
+                                </td>
+                                <td>
+                                    <%= probStr %>
+                                </td>
+                                <td>
+                                    <%= langStr %>
+                                </td>
+                                <td>
+                                    <%= teamStr %>
+                                </td>
+                                <td>
+                                    <%= orgStr %>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    <p class="indent"><%= numJudging %> pending judgements</p>
+                </div>
             </div>
-            <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped table-head-fixed">
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th class="text-center">Time</th>
-                    <th>Problem</th>
-                    <th>Language</th>
-                    <th>Team</th>
-                    <th>Organization</th>
-                    <th>Judgements</th>
-                </tr>
-                </thead>
-                <tbody>
-                <% for (ISubmission sub : subs) {
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Submissions</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover table-striped table-head-fixed">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th class="text-center">Time</th>
+                                <th>Problem</th>
+                                <th>Language</th>
+                                <th>Team</th>
+                                <th>Organization</th>
+                                <th>Judgements</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                    <% for (ISubmission sub : subs) {
                     String id = sub.getTeamId();
                     String teamStr = "";
                     String orgStr = "";
@@ -189,40 +189,41 @@
                         for (String s : valList)
                             val += s + "\n";
                     } %>
-                <tr>
-                    <td>
-                        <a href="<%= apiRoot %>/submissions/<%= sub.getId() %>">
-                            <%= sub.getId() %>
-                        </a>
-                        <% if (val != null) { %>
-                        <span class="text-danger">
-                            <%= val %>
-                        </span>
-                        <% } %>
-                    </td>
-                    <td class="text-center">
-                        <%= ContestUtil.formatTime(sub.getContestTime()) %>
-                    </td>
-                    <td>
-                        <%= probStr %>
-                    </td>
-                    <td>
-                        <%= langStr %>
-                    </td>
-                    <td>
-                        <%= teamStr %>
-                    </td>
-                    <td>
-                        <%= orgStr %>
-                    </td>
-                    <td class="<%= judgeClass %>">
-                        <%= judgeStr %>
-                    </td>
-                </tr>
-                <% } %>
-                </tbody>
-            </table>
-            </div></div>
+                            <tr>
+                                <td>
+                                    <a href="<%= apiRoot %>/submissions/<%= sub.getId() %>">
+                                        <%= sub.getId() %>
+                                    </a>
+                                    <% if (val != null) { %>
+                                    <span class="text-danger">
+                                        <%= val %>
+                                    </span>
+                                    <% } %>
+                                </td>
+                                <td class="text-center">
+                                    <%= ContestUtil.formatTime(sub.getContestTime()) %>
+                                </td>
+                                <td>
+                                    <%= probStr %>
+                                </td>
+                                <td>
+                                    <%= langStr %>
+                                </td>
+                                <td>
+                                    <%= teamStr %>
+                                </td>
+                                <td>
+                                    <%= orgStr %>
+                                </td>
+                                <td class="<%= judgeClass %>">
+                                    <%= judgeStr %>
+                                </td>
+                            </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
