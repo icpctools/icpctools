@@ -6,55 +6,58 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Scoreboard</h3>
-             <div class="card-tools"><a href="<%= apiRoot %>/scoreboard">API</a></div>
-           </div>
-        <div class="card-body p-0">
-            <% if (Role.isBlue(request)) { %>
-            <p class="indent">
-                Compare to:
-                <% ConfiguredContest[] ccs = CDSConfig.getContests();
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Scoreboard</h3>
+                    <div class="card-tools"><a href="<%= apiRoot %>/scoreboard">API</a></div>
+                </div>
+                <div class="card-body p-0">
+                    <% if (Role.isBlue(request)) { %>
+                    <p class="indent">
+                        Compare to:
+                        <% ConfiguredContest[] ccs = CDSConfig.getContests();
                     for (ConfiguredContest cc2 : ccs)
                         if (!cc2.equals(cc)) { %>
-                <a href="<%= webroot%>/scoreboardCompare/<%= cc2.getId() %>"><%= cc2.getId() %>
-                </a>&nbsp;&nbsp;
-                <% } %>
+                        <a href="<%= webroot%>/scoreboardCompare/<%= cc2.getId() %>"><%= cc2.getId() %>
+                        </a>&nbsp;&nbsp;
+                        <% } %>
 
-                <a href="<%= webroot%>/scoreboardCompare/compare2src">source</a>
-            </p>
+                        <a href="<%= webroot%>/scoreboardCompare/compare2src">source</a>
+                    </p>
 
-            <% } %>
+                    <% } %>
 
-            <table id="score-table" class="table table-sm table-hover table-striped table-head-fixed">
-                <thead>
-                <tr>
-                    <th class="text-right">Rank</th>
-                    <th></th>
-                    <th>Team</th>
-                    <th>Organization</th>
-                    <% int numProblems = contest.getNumProblems();
+                    <table id="score-table" class="table table-sm table-hover table-striped table-head-fixed">
+                        <thead>
+                            <tr>
+                                <th class="text-right">Rank</th>
+                                <th></th>
+                                <th>Team</th>
+                                <th>Organization</th>
+                                <% int numProblems = contest.getNumProblems();
                         for (int j = 0; j < numProblems; j++) {
                             IProblem p = contest.getProblems()[j]; %>
 
-                    <th class="text-center">
-                        <%= p.getLabel() %>
-                        <div class="circle" style="background-color: <%= p.getRGB() %>"></div>
-                    </th>
-                    <% } %>
+                                <th class="text-center">
+                                    <%= p.getLabel() %>
+                                    <div class="circle" style="background-color: <%= p.getRGB() %>"></div>
+                                </th>
+                                <% } %>
 
-                    <th class="text-right">Solved</th>
-                    <th class="text-right">Time</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td colspan="<%= 6 + numProblems %>"><div class="spinner-border"></div></td>
-                </tr>
-                </tbody>
-            </table>
-            </div></div>
+                                <th class="text-right">Solved</th>
+                                <th class="text-right">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="<%= 6 + numProblems %>">
+                                    <div class="spinner-border"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -66,7 +69,7 @@
         contest.setContestId("<%= cc.getId() %>");
 
         function fillTable() {
-        	$("#score-table tbody").find("tr").remove();
+            $("#score-table tbody").find("tr").remove();
             score = contest.getScoreboard();
             teams = contest.getTeams();
             orgs = contest.getOrganizations();

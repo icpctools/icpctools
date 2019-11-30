@@ -7,42 +7,43 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">State Changes</h3>
-           </div>
-        <div class="card-body p-0">
-            <table class="table table-sm table-hover table-striped">
-                <tr>
-                    <th>Frozen:</th>
-                    <td><%= ContestUtil.formatStartTime(state.getFrozen()) %>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Ended:</th>
-                    <td><%= ContestUtil.formatStartTime(state.getEnded()) %>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Finalized:</th>
-                    <td><%= ContestUtil.formatStartTime(state.getFinalized()) %>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Thawed:</th>
-                    <td><%= ContestUtil.formatStartTime(state.getThawed()) %>
-                    </td>
-                </tr>
-            </table>
-
-            </div></div>
             <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Details</h3>
-           </div>
-            <div class="card-body p-0">
+                <div class="card-header">
+                    <h3 class="card-title">State Changes</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-hover table-striped">
+                        <tr>
+                            <th>Frozen:</th>
+                            <td><%= ContestUtil.formatStartTime(state.getFrozen()) %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ended:</th>
+                            <td><%= ContestUtil.formatStartTime(state.getEnded()) %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Finalized:</th>
+                            <td><%= ContestUtil.formatStartTime(state.getFinalized()) %>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Thawed:</th>
+                            <td><%= ContestUtil.formatStartTime(state.getThawed()) %>
+                            </td>
+                        </tr>
+                    </table>
 
-            <% IJudgement[] juds = contest1.getJudgements();
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Details</h3>
+                </div>
+                <div class="card-body p-0">
+
+                <% IJudgement[] juds = contest1.getJudgements();
                 int num = juds.length;
                 ISubmission s = null;
                 String trClass = "table-info";
@@ -87,75 +88,75 @@
                 if (jt != null || jaf > 0)
                     trClass = "table-danger";
                 else if (jt == null && jt2 != null)
-                    trClass = "table-success";
-            %>
+                    trClass = "table-success"; %>
 
-            <table class="table table-sm table-hover table-striped">
-                <thead>
-                <tr>
-                    <th></th>
-                    <th>Public Contest</th>
-                    <th>Full Contest</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td># submissions:</td>
-                    <td>
-                        <%= contest1.getNumSubmissions() %>
-                    </td>
-                    <td>
-                        <%= contest2.getNumSubmissions() %>
-                    </td>
-                </tr>
-                <tr>
-                    <td># judgements:</td>
-                    <td>
-                        <%= num %>
-                    </td>
-                    <td>
-                        <%= num2 %>
-                    </td>
-                </tr>
-                <tr class="<%= trClass %>">
-                    <td># of judgements after freeze:</td>
-                    <td>
-                        <%= jaf %>
-                    </td>
-                    <td>
-                        <%= jaf2 %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>First submission after the freeze:</td>
-                    <td>
-                        <%= t == null ? "n/a" : t.getId() %>
-                    </td>
-                    <td>
-                        <%= t2 == null ? "n/a" : t2.getId() %>
-                    </td>
-                </tr>
-                <tr class="<%= trClass %>">
-                    <td>Judgement of first submission after the freeze:</td>
-                    <td>
-                        <%= jt == null ? "n/a" : jt.getName() %>
-                    </td>
-                    <td>
-                        <%= jt2 == null ? "n/a" : jt2.getName() %>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Submission time of most recent judgement:</td>
-                    <td>
-                        <%= s == null ? "no judgements" : ContestUtil.formatTime(s.getContestTime()) %>
-                    </td>
-                    <td>
-                        <%= s2 == null ? "no judgements" : ContestUtil.formatTime(s2.getContestTime()) %>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            </div></div>
+                    <table class="table table-sm table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Public Contest</th>
+                                <th>Full Contest</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td># submissions:</td>
+                                <td>
+                                    <%= contest1.getNumSubmissions() %>
+                                </td>
+                                <td>
+                                    <%= contest2.getNumSubmissions() %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td># judgements:</td>
+                                <td>
+                                    <%= num %>
+                                </td>
+                                <td>
+                                    <%= num2 %>
+                                </td>
+                            </tr>
+                            <tr class="<%= trClass %>">
+                                <td># of judgements after freeze:</td>
+                                <td>
+                                    <%= jaf %>
+                                </td>
+                                <td>
+                                    <%= jaf2 %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>First submission after the freeze:</td>
+                                <td>
+                                    <%= t == null ? "n/a" : t.getId() %>
+                                </td>
+                                <td>
+                                    <%= t2 == null ? "n/a" : t2.getId() %>
+                                </td>
+                            </tr>
+                            <tr class="<%= trClass %>">
+                                <td>Judgement of first submission after the freeze:</td>
+                                <td>
+                                    <%= jt == null ? "n/a" : jt.getName() %>
+                                </td>
+                                <td>
+                                    <%= jt2 == null ? "n/a" : jt2.getName() %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Submission time of most recent judgement:</td>
+                                <td>
+                                    <%= s == null ? "no judgements" : ContestUtil.formatTime(s.getContestTime()) %>
+                                </td>
+                                <td>
+                                    <%= s2 == null ? "no judgements" : ContestUtil.formatTime(s2.getContestTime()) %>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

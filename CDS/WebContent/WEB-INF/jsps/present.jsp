@@ -3,75 +3,80 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Summary</h3>
-           </div>
-        <div class="card-body p-0">
-            <table id="client-summary-table" class="table table-sm table-hover table-striped">
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Display</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-                <tfoot>
-                <tr>
-                    <td class="text-right"><b>Total</b></td>
-                    <td><div class="spinner-border"></div></td>
-                </tr>
-                </tfoot>
-            </table>
-            </div></div>
-            
             <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Presentations</h3>
-           </div>
-        <div class="card-body p-0">
-            <table id="pres-table" class="table table-sm table-hover table-striped">
-                <thead>
-                <tr>
-                    <th>Category</th>
-                    <th>Presentation</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+                <div class="card-header">
+                    <h3 class="card-title">Summary</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table id="client-summary-table" class="table table-sm table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Display</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-right"><b>Total</b></td>
+                                <td>
+                                    <div class="spinner-border"></div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
 
-            <div id="status"></div>
-            </div></div>
-            
             <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Clients</h3>&nbsp;(<span id="client-count">0</span>)
-           </div>
-        <div class="card-body p-0">
-            <table id="client-table" class="table table-sm table-hover table-striped">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Display</th>
-                    <th>Presentation</th>
-                    <th>Actions</th>
-                    <th style="width: 75px;"></th>
-                    <th>Name</th>
-                    <th>Display</th>
-                    <th>Presentation</th>
-                    <th>Actions</th>
-                    <th style="width: 75px;"></th>
-                    <th>Name</th>
-                    <th>Display</th>
-                    <th>Presentation</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            </div></div>
+                <div class="card-header">
+                    <h3 class="card-title">Presentations</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table id="pres-table" class="table table-sm table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Presentation</th>
+                                <th>Description</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+
+                    <div id="status"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Clients</h3>&nbsp;(<span id="client-count">0</span>)
+                </div>
+                <div class="card-body p-0">
+                    <table id="client-table" class="table table-sm table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Display</th>
+                                <th>Presentation</th>
+                                <th>Actions</th>
+                                <th style="width: 75px;"></th>
+                                <th>Name</th>
+                                <th>Display</th>
+                                <th>Presentation</th>
+                                <th>Actions</th>
+                                <th style="width: 75px;"></th>
+                                <th>Name</th>
+                                <th>Display</th>
+                                <th>Presentation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -99,7 +104,7 @@
         xmlhttp.open("PUT", "present/" + id, true);
         xmlhttp.send();
     }
-    
+
     function stop(id) {
         var xmlhttp = new XMLHttpRequest();
 
@@ -116,7 +121,7 @@
         xmlhttp.open("PUT", "stop/" + id, true);
         xmlhttp.send();
     }
-    
+
     function restart(id) {
         var xmlhttp = new XMLHttpRequest();
 

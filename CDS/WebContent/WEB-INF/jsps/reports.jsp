@@ -1,54 +1,63 @@
 <% request.setAttribute("title", "Reports"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
-   <div class="row">
-     <div class="col-12">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Languages</h3>
-           </div>
-        <div class="card-body p-0">
-            <table id="langs-table" class="table table-sm table-hover table-striped">
-                <thead></thead>
-                <tbody>
-                <tr>
-                    <td><div class="spinner-border"></div></td>
-                </tr>
-                </tbody>
-            </table>
-        </div></div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Languages</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table id="langs-table" class="table table-sm table-hover table-striped">
+                        <thead></thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="spinner-border"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Runs</h3>
-           </div>
-        <div class="card-body p-0">
-            <table id="runs-table" class="table table-sm table-hover table-striped">
-                <thead></thead>
-                <tbody>
-                <tr>
-                    <td><div class="spinner-border"></div></td>
-                </tr>
-                </tbody>
-            </table>
-        </div></div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Runs</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table id="runs-table" class="table table-sm table-hover table-striped">
+                        <thead></thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="spinner-border"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Problems</h3>
-           </div>
-        <div class="card-body p-0">
-            <table id="problems-table" class="table table-sm table-hover table-striped">
-                <thead></thead>
-                <tbody>
-                <tr>
-                    <td><div class="spinner-border"></div></td>
-                </tr>
-                </tbody>
-            </table>
-        </div></div>
-      </div>
-   </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Problems</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table id="problems-table" class="table table-sm table-hover table-striped">
+                        <thead></thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="spinner-border"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
