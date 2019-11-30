@@ -38,6 +38,16 @@ public class YamlParser {
 		return info;
 	}
 
+	 private static int parseTime(String value) {
+		  int ind = value.indexOf(":");
+		  int h = Integer.parseInt(value.substring(0, ind));
+		  int ind2 = value.indexOf(":", ind + 1);
+		  int m = Integer.parseInt(value.substring(ind + 1, ind2));
+		  int s = Integer.parseInt(value.substring(ind2 + 1));
+		  int length = s + 60 * m + 60 * 60 * h;
+		  return length;
+	 }
+
 	 public static Info parseInfo(Reader reader) throws IOException {
 		  Yaml yaml = new Yaml(new Constructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
 		  Object obj = yaml.load(reader);
@@ -63,12 +73,7 @@ public class YamlParser {
 				  info.add("name", value);
 				  else if ("length".equals(key) || "duration".equals(key)) {
 				  try {
-						int ind = value.indexOf(":");
-						int h = Integer.parseInt(value.substring(0, ind));
-						int ind2 = value.indexOf(":", ind + 1);
-						int m = Integer.parseInt(value.substring(ind + 1, ind2));
-						int s = Integer.parseInt(value.substring(ind2 + 1));
-						int length = s + 60 * m + 60 * 60 * h;
+						int length = parseTime(value);
 						if (length >= 0)
 							 info.add("duration", RelativeTime.format(length * 1000));
 				  } catch (Exception ex) {
@@ -76,13 +81,7 @@ public class YamlParser {
 				  }
 				  } else if ("scoreboard-freeze".equals(key)) {
 				  try {
-						int ind = value.indexOf(":");
-						int h = Integer.parseInt(value.substring(0, ind));
-						int ind2 = value.indexOf(":", ind + 1);
-						int m = Integer.parseInt(value.substring(ind + 1, ind2));
-						int s = Integer.parseInt(value.substring(ind2 + 1));
-						int length = s + 60 * m + 60 * 60 * h;
-
+						int length = parseTime(value);
 						int d = info.getDuration();
 						if (length >= 0 && d > 0)
 							 info.add("scoreboard_freeze_duration", RelativeTime.format((d / 1000 - length) * 1000));
@@ -91,12 +90,7 @@ public class YamlParser {
 				  }
 				  } else if ("scoreboard-freeze-length".equals(key)) {
 				  try {
-						int ind = value.indexOf(":");
-						int h = Integer.parseInt(value.substring(0, ind));
-						int ind2 = value.indexOf(":", ind + 1);
-						int m = Integer.parseInt(value.substring(ind + 1, ind2));
-						int s = Integer.parseInt(value.substring(ind2 + 1));
-						int length = s + 60 * m + 60 * 60 * h;
+						int length = parseTime(value);
 						if (length >= 0)
 							 info.add("scoreboard_freeze_duration", RelativeTime.format(length * 1000));
 				  } catch (Exception ex) {
