@@ -41,10 +41,9 @@ import org.icpc.tools.contest.model.util.AwardUtil;
 public class Contest implements IContest {
 	private static final Collator collator = Collator.getInstance(Locale.US);
 
-	protected ContestData data;
-
-	private List<IContestListener> listeners = new ArrayList<>();
-	private List<IContestModifier> modifiers = new ArrayList<>();
+	private final ContestData data;
+	private final List<IContestListener> listeners = new ArrayList<>();
+	private final List<IContestModifier> modifiers = new ArrayList<>();
 
 	private Info info = new Info();
 	private IState state = new State();
@@ -97,15 +96,15 @@ public class Contest implements IContest {
 		}
 	}
 
-	public void addModifier(IContestModifier listener) {
+	public void addModifier(IContestModifier modifier) {
 		synchronized (modifiers) {
-			modifiers.add(listener);
+			modifiers.add(modifier);
 		}
 	}
 
-	public void removeModifier(IContestModifier listener) {
+	public void removeModifier(IContestModifier modifier) {
 		synchronized (modifiers) {
-			modifiers.remove(listener);
+			modifiers.remove(modifier);
 		}
 	}
 
@@ -185,7 +184,6 @@ public class Contest implements IContest {
 			submissionStatus = null;
 			recentActivity = null;
 			fts = null;
-			recentActivity = null;
 		} else if (e instanceof Info) {
 			info = (Info) e;
 		} else if (e instanceof State) {
@@ -279,8 +277,6 @@ public class Contest implements IContest {
 	/**
 	 * Removes an object from the contest. This method can be dangerous - listeners are not
 	 * notified.
-	 *
-	 * @param obj
 	 */
 	public void remove(IContestObject obj) {
 		if (obj == null)
@@ -296,8 +292,6 @@ public class Contest implements IContest {
 	/**
 	 * Removes an object from the contest. This method can be dangerous - listeners are not
 	 * notified.
-	 *
-	 * @param obj
 	 */
 	public void removeSince(int num) {
 		synchronized (data) {
@@ -310,8 +304,6 @@ public class Contest implements IContest {
 	/**
 	 * Removes an object from the contest. This method can be dangerous - listeners are not
 	 * notified.
-	 *
-	 * @param obj
 	 */
 	public void removeFromHistory(IContestObject obj) {
 		if (obj == null)
@@ -402,14 +394,6 @@ public class Contest implements IContest {
 	public IContestObject[] getObjects(ContestType type) {
 		synchronized (data) {
 			return data.toArray(type);
-		}
-	}
-
-	public IContestObject[] getObjectsAndListen(IContestListener listener) {
-		synchronized (data) {
-			IContestObject[] objs = data.toArray();
-			addListener(listener);
-			return objs;
 		}
 	}
 
@@ -628,7 +612,7 @@ public class Contest implements IContest {
 		if (pause == null)
 			return null;
 
-		return new Long(-pause);
+		return (long) -pause;
 	}
 
 	public Info setStartStatus(Long start) {
@@ -682,16 +666,7 @@ public class Contest implements IContest {
 			temp = data.getByType(IProblem.class, ContestType.PROBLEM);
 
 			// sort by ordinal (if it exists)
-			Arrays.sort(temp, new Comparator<IProblem>() {
-				@Override
-				public int compare(IProblem a, IProblem b) {
-					if (a.getOrdinal() < b.getOrdinal())
-						return -1;
-					if (a.getOrdinal() > b.getOrdinal())
-						return 1;
-					return 0;
-				}
-			});
+			Arrays.sort(temp, Comparator.comparingInt(IProblem::getOrdinal));
 
 			problems = temp;
 			return temp;
@@ -742,16 +717,13 @@ public class Contest implements IContest {
 		ITeamMember[] tempMembers = list.toArray(new ITeamMember[list.size()]);
 
 		// default sort: by last name with coaches to bottom
-		Arrays.sort(tempMembers, new Comparator<ITeamMember>() {
-			@Override
-			public int compare(ITeamMember o1, ITeamMember o2) {
-				if (o1.getRole() != null && o2.getRole() != null && !o1.getRole().equals(o2.getRole()))
-					return -o1.getRole().compareTo(o2.getRole());
-				if (o1.getLastName() != null && o2.getLastName() != null)
-					return collator.compare(o1.getLastName(), o2.getLastName());
-				return 0;
-			}
-		});
+		Arrays.sort(tempMembers, (o1, o2) -> {
+			if (o1.getRole() != null && o2.getRole() != null && !o1.getRole().equals(o2.getRole()))
+			  return -o1.getRole().compareTo(o2.getRole());
+			if (o1.getLastName() != null && o2.getLastName() != null)
+			  return collator.compare(o1.getLastName(), o2.getLastName());
+			return 0;
+	 });
 		return tempMembers;
 	}
 
@@ -867,12 +839,13 @@ public class Contest implements IContest {
 			for (int j = 0; j < numProblems; j++)
 				tempResultSummary[j] = new ProblemSummary();
 
+			// This will initialize submissions as side-effect.
 			getSubmissions();
 
 			// sort submissions by time (just in case they aren't)
 			ISubmission[] sortedSubs = new ISubmission[submissions.length];
 			System.arraycopy(submissions, 0, sortedSubs, 0, submissions.length);
-			Arrays.sort(sortedSubs, (s1, s2) -> Integer.compare(s1.getContestTime(), s2.getContestTime()));
+			Arrays.sort(sortedSubs, Comparator.comparingInt(ISubmission::getContestTime));
 
 			// sb.append((System.currentTimeMillis() - scoreTime) + "ms ");
 
@@ -1007,6 +980,7 @@ public class Contest implements IContest {
 				return tempRecent[teamIndex];
 
 			int numTeams = getNumTeams();
+			// This will initialize submissions as side-effect.
 			getSubmissions();
 			tempRecent = new Recent[numTeams];
 			for (int i = submissions.length - 1; i >= 0; i--) {
@@ -1127,9 +1101,6 @@ public class Contest implements IContest {
 
 	/**
 	 * Forces the state of the given submission to SOLVED or FAILED.
-	 *
-	 * @param submission
-	 * @param b
 	 */
 	public void setSubmissionIsSolved(ISubmission submission, boolean b) {
 		if (submission == null)
@@ -1154,9 +1125,6 @@ public class Contest implements IContest {
 
 	/**
 	 * Update the visibility status of the given group.
-	 *
-	 * @param group
-	 * @param hidden
 	 */
 	public void setGroupIsHidden(IGroup group, boolean hidden) {
 		if (group == null)
@@ -1169,9 +1137,6 @@ public class Contest implements IContest {
 
 	/**
 	 * Updates the state of the submission to match the given submission.
-	 *
-	 * @param submission
-	 * @param newSubmission
 	 */
 	public void updateSubmissionTo(ISubmission submission, IContest contest) {
 		if (submission == null)
@@ -1621,44 +1586,7 @@ public class Contest implements IContest {
 			removeFromHistory(obj);
 	}
 
-	public void removeProblems(List<String> problemIds) {
-		List<IContestObject> remove = new ArrayList<>();
-
-		for (IProblem p : problems) {
-			if (problemIds.contains(p.getId())) {
-				remove.add(p);
-			}
-		}
-
-		for (ISubmission s : getSubmissions()) {
-			String problemId = s.getProblemId();
-			if (problemIds.contains(problemId))
-				removeSubmission(remove, s);
-		}
-
-		for (IClarification clar : getClarifications()) {
-			String problemId = clar.getProblemId();
-			if (problemId != null && problemIds.contains(problemId))
-				remove.add(clar);
-		}
-
-		for (IAward award : getAwards()) {
-			if (award.getAwardType() == IAward.FIRST_TO_SOLVE) {
-				for (String pId : problemIds) {
-					if (award.getId().endsWith("-" + pId)) {
-						remove.add(award);
-						break;
-					}
-				}
-			}
-		}
-
-		Trace.trace(Trace.INFO, "Removing " + problemIds.size() + " problems and " + remove.size() + " total objects");
-		for (IContestObject obj : remove)
-			removeFromHistory(obj);
-	}
-
-	public int removeSubmissionsOutsideOfContestTime() {
+	 public int removeSubmissionsOutsideOfContestTime() {
 		List<IContestObject> remove = new ArrayList<>();
 
 		for (ISubmission s : getSubmissions()) {
@@ -1694,7 +1622,7 @@ public class Contest implements IContest {
 		this.hash = hash;
 	}
 
-	protected int hash;
+	private int hash;
 
 	@Override
 	public int hashCode() {
