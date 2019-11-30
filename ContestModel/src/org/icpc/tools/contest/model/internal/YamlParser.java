@@ -60,6 +60,7 @@ public class YamlParser {
 
 		  Info info = new Info();
 		  info.add("id", "1");
+		  boolean defaultPenaltyTime = true;
 		  for (Object ob : map.keySet()) {
 			 if (ob instanceof String) {
 				  String key = (String) ob;
@@ -96,17 +97,22 @@ public class YamlParser {
 				  } catch (Exception ex) {
 						Trace.trace(Trace.ERROR, "Could not parse freeze length: " + value);
 				  }
-				  } else if ("penalty-time".equals(key))
-				  info.add("penalty_time", value);
-				  else if ("start-time".equals(key)) {
-				  try {
-						info.add("start_time", value);
-				  } catch (Exception e) {
-						Trace.trace(Trace.ERROR, "Couldn't parse start time: " + value);
-				  }
+				  } else if ("penalty-time".equals(key)) {
+						info.add("penalty_time", value);
+						defaultPenaltyTime = false;
+				  } else if ("start-time".equals(key)) {
+						try {
+							 info.add("start_time", value);
+						} catch (Exception e) {
+							 Trace.trace(Trace.ERROR, "Couldn't parse start time: " + value);
+						}
 				  }
 			 }
 		}
+
+		  if (defaultPenaltyTime) {
+		  	 info.add("penalty_time", "20");
+		  }
 
 		  return info;
 	 }
