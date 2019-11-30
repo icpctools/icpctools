@@ -57,7 +57,7 @@ public class SummaryPrint {
 		if (list == null)
 			balloons = bc.getBalloons();
 		else
-			balloons = list.toArray(new Balloon[list.size()]);
+			balloons = list.toArray(new Balloon[0]);
 
 		Arrays.sort(balloons, new Comparator<Balloon>() {
 			@Override

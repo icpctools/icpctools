@@ -63,7 +63,7 @@ public class JudgePresentation2 extends JudgePresentation {
 						|| !lastSubmission.getProblemId().equals(submission.getProblemId()))) {
 					SubmissionRecord sr = createSubmissionRecord(lastSubmission);
 					last.remove(lastSubmission);
-					sr.related = last.toArray(new ISubmission[last.size()]);
+					sr.related = last.toArray(new ISubmission[0]);
 					last.clear();
 				}
 				last.add(submission);
@@ -74,7 +74,7 @@ public class JudgePresentation2 extends JudgePresentation {
 			if (lastSubmission != null) {
 				SubmissionRecord sr = createSubmissionRecord(lastSubmission);
 				last.remove(lastSubmission);
-				sr.related = last.toArray(new ISubmission[last.size()]);
+				sr.related = last.toArray(new ISubmission[0]);
 			}
 		}
 	}

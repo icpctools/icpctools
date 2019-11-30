@@ -102,7 +102,7 @@ public class ImageBuildPresentation extends AbstractICPCPresentation {
 		}
 
 		if (!list.isEmpty())
-			images = list.toArray(new BufferedImage[list.size()]);
+			images = list.toArray(new BufferedImage[0]);
 	}
 
 	@Override

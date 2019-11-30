@@ -106,7 +106,7 @@ public class AwardUtil {
 			}
 
 			if (!teamIds.isEmpty())
-				contest.add(new Award(IAward.GROUP, group.getId(), teamIds.toArray(new String[teamIds.size()]),
+				contest.add(new Award(IAward.GROUP, group.getId(), teamIds.toArray(new String[0]),
 						getGroupCitation(contest, group.getName(), 1), true));
 		}
 	}
@@ -132,7 +132,7 @@ public class AwardUtil {
 		}
 
 		contest.add(
-				new Award(IAward.GROUP_HIGHLIGHT, groupId2, teamIds.toArray(new String[teamIds.size()]), citation, show));
+				new Award(IAward.GROUP_HIGHLIGHT, groupId2, teamIds.toArray(new String[0]), citation, show));
 	}
 
 	public static void createFirstPlaceAward(Contest contest, String citation) {

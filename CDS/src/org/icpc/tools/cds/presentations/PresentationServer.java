@@ -74,7 +74,7 @@ public class PresentationServer {
 	}
 
 	protected void onMessage(Session s, String message) throws IOException {
-		Client[] cl = clients.toArray(new Client[clients.size()]);
+		Client[] cl = clients.toArray(new Client[0]);
 
 		Client c = null;
 		for (Client cli : cl) {

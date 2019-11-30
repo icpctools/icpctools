@@ -541,7 +541,7 @@ public class ImagesGenerator {
 			}
 		}
 		list.add(s);
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	private static String getFileName(BufferedImage img) {

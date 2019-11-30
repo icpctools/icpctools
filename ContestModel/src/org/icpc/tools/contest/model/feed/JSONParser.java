@@ -251,7 +251,7 @@ public class JSONParser {
 				t = nextToken();
 		}
 
-		return list.toArray(new Object[list.size()]);
+		return list.toArray(new Object[0]);
 	}
 
 	public JsonObject readObject() {

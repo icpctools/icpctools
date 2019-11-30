@@ -292,7 +292,7 @@ public class DiskContestSource extends ContestSource {
 				list.add(ff.getName());
 		}
 
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	 /**

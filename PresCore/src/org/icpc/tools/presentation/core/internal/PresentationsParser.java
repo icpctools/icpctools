@@ -109,7 +109,7 @@ public class PresentationsParser {
 		List<String> list = new ArrayList<>();
 		while (st.hasMoreTokens())
 			list.add(st.nextToken().trim());
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	private static void sortPresentations(List<PresentationInfo> presentations) {

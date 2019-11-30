@@ -166,7 +166,7 @@ public class BalloonContest {
 	}
 
 	public synchronized Balloon[] getBalloons() {
-		return balloons.toArray(new Balloon[balloons.size()]);
+		return balloons.toArray(new Balloon[0]);
 	}
 
 	public synchronized int getNumBalloons(String teamId) {

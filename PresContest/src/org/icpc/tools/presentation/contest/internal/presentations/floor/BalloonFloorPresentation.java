@@ -251,7 +251,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 			}
 		}, false);
 
-		SubmissionRecord[] srs = submissions.toArray(new SubmissionRecord[submissions.size()]);
+		SubmissionRecord[] srs = submissions.toArray(new SubmissionRecord[0]);
 
 		// draw paths
 		Stroke stroke = g.getStroke();

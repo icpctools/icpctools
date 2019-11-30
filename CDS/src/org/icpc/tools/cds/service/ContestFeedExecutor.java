@@ -46,7 +46,7 @@ public class ContestFeedExecutor {
 	private void notifyListeners() {
 		Feed[] list = null;
 		synchronized (feeds) {
-			list = feeds.toArray(new Feed[feeds.size()]);
+			list = feeds.toArray(new Feed[0]);
 		}
 
 		for (Feed feed : list) {

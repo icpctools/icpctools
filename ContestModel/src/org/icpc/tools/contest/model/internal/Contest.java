@@ -366,7 +366,7 @@ public class Contest implements IContest {
 	private void notifyListeners(IContestObject co, Delta delta) {
 		IContestListener[] list = null;
 		synchronized (listeners) {
-			list = listeners.toArray(new IContestListener[listeners.size()]);
+			list = listeners.toArray(new IContestListener[0]);
 		}
 
 		for (IContestListener listener : list) {
@@ -381,7 +381,7 @@ public class Contest implements IContest {
 	private void notifyModifiers(IContestObject co) {
 		IContestModifier[] list = null;
 		synchronized (modifiers) {
-			list = modifiers.toArray(new IContestModifier[modifiers.size()]);
+			list = modifiers.toArray(new IContestModifier[0]);
 		}
 
 		for (IContestModifier modifier : list) {
@@ -739,7 +739,7 @@ public class Contest implements IContest {
 		if (list.isEmpty())
 			return null;
 
-		ITeamMember[] tempMembers = list.toArray(new ITeamMember[list.size()]);
+		ITeamMember[] tempMembers = list.toArray(new ITeamMember[0]);
 
 		// default sort: by last name with coaches to bottom
 		Arrays.sort(tempMembers, new Comparator<ITeamMember>() {
@@ -1305,7 +1305,7 @@ public class Contest implements IContest {
 		if (list.isEmpty())
 			return null;
 
-		return list.toArray(new IJudgement[list.size()]);
+		return list.toArray(new IJudgement[0]);
 	}
 
 	@Override
@@ -1479,7 +1479,7 @@ public class Contest implements IContest {
 		if (list.isEmpty())
 			return null;
 
-		return list.toArray(new IRun[list.size()]);
+		return list.toArray(new IRun[0]);
 	}
 
 	@Override

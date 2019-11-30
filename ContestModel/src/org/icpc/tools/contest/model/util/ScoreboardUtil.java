@@ -231,7 +231,7 @@ public class ScoreboardUtil {
 					if (problem.numJudged != 0 || problem.numPending != 0)
 						list.add(problem);
 				}
-				team.problems = list.toArray(new SProblem[list.size()]);
+				team.problems = list.toArray(new SProblem[0]);
 			}
 		}
 	}
@@ -392,10 +392,10 @@ public class ScoreboardUtil {
 					}
 					problemList.add(p);
 				}
-				st.problems = problemList.toArray(new SProblem[problemList.size()]);
+				st.problems = problemList.toArray(new SProblem[0]);
 			}
 
-			sc.teams = teamList.toArray(new STeam[teamList.size()]);
+			sc.teams = teamList.toArray(new STeam[0]);
 			return sc;
 		} catch (ParseException e) {
 			throw new IOException("Could not parse: " + e.getMessage());

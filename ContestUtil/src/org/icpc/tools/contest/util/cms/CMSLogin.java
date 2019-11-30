@@ -53,6 +53,6 @@ public class CMSLogin {
 				// ignore
 			}
 		}
-		contests = list.toArray(new ContestInfo[list.size()]);
+		contests = list.toArray(new ContestInfo[0]);
 	}
 }

@@ -508,7 +508,7 @@ public class CoachView extends Panel {
 				publicTeamList.add(t);
 		}
 
-		newTeams = publicTeamList.toArray(new ITeam[publicTeamList.size()]);
+		newTeams = publicTeamList.toArray(new ITeam[0]);
 		if (teams != null && newTeams.length == teams.length)
 			return;
 

@@ -43,7 +43,7 @@ public class StandaloneLauncher {
 			list.add(pi);
 		}
 
-		PresentationInfo[] pres = list.toArray(new PresentationInfo[list.size()]);
+		PresentationInfo[] pres = list.toArray(new PresentationInfo[0]);
 
 		// connect to contest source
 		parseSource(args);
