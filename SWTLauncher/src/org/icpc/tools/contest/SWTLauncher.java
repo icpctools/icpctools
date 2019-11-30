@@ -41,7 +41,7 @@ public class SWTLauncher {
 				urls.add(new File("lib" + File.separator + jar).toURI().toURL());
 			}
 
-			URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[urls.size()]));
+			URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
 			Class<?> c = cl.loadClass(args[1]);
 			Method m = c.getMethod("main", String[].class);
 

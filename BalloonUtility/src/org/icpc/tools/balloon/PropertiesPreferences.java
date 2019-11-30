@@ -74,7 +74,7 @@ public class PropertiesPreferences extends AbstractPreferences {
 			if (key.startsWith(name()))
 				list.add(key.substring(name().length()));
 		}
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	@Override

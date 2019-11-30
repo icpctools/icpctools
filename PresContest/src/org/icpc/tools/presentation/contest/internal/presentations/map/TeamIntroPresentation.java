@@ -158,7 +158,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 				pos.add(p);
 			}
 		}
-		zoom.instPos = pos.toArray(new Position[pos.size()]);
+		zoom.instPos = pos.toArray(new Position[0]);
 
 		// sort institutions by position
 		Arrays.sort(zoom.instPos, (p1, p2) -> Double.compare(p1.x - p1.y, p2.x - p2.y));

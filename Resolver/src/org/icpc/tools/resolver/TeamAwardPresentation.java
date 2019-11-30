@@ -105,7 +105,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 					}
 				}
 
-				cache = list.toArray(new Cache[list.size()]);
+				cache = list.toArray(new Cache[0]);
 
 				// load initial images
 				updateCache(0);

@@ -141,7 +141,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 				}
 
 				totalRepeatTime = time;
-				segments = segs.toArray(new PresentationSegment[segs.size()]);
+				segments = segs.toArray(new PresentationSegment[0]);
 				updateEndTimes();
 				return;
 			}
@@ -192,7 +192,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 			}
 
 			totalRepeatTime = time;
-			segments = segs.toArray(new PresentationSegment[segs.size()]);
+			segments = segs.toArray(new PresentationSegment[0]);
 			updateEndTimes();
 		}
 

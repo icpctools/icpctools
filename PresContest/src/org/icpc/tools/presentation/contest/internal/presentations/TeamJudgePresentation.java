@@ -185,7 +185,7 @@ public class TeamJudgePresentation extends AbstractICPCPresentation {
 	public void paint(Graphics2D g) {
 		SubmissionRecord[] submissions2 = null;
 		synchronized (submissions) {
-			submissions2 = submissions.toArray(new SubmissionRecord[submissions.size()]);
+			submissions2 = submissions.toArray(new SubmissionRecord[0]);
 		}
 
 		for (SubmissionRecord sr : submissions2) {

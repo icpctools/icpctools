@@ -555,7 +555,7 @@ public class RESTContestSource extends DiskContestSource {
 				}
 			}, new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)));
 
-			return list.toArray(new String[list.size()]);
+			return list.toArray(new String[0]);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading filenames", e);
 		}

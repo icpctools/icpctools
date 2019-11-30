@@ -161,7 +161,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 	protected void paintImpl(Graphics2D g) {
 		SubmissionRecord[] submissions2 = null;
 		synchronized (submissions) {
-			submissions2 = submissions.toArray(new SubmissionRecord[submissions.size()]);
+			submissions2 = submissions.toArray(new SubmissionRecord[0]);
 		}
 
 		// draw backgrounds

@@ -342,7 +342,7 @@ public class CDSConfig {
 			}
 		}
 
-		return list.toArray(new Element[list.size()]);
+		return list.toArray(new Element[0]);
 	}
 
 	protected static Boolean getBoolean(Element element, String key) {

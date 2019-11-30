@@ -97,7 +97,7 @@ public class PresentationListIO {
 					}
 					String[] data = null;
 					if (!prop.isEmpty())
-						data = prop.toArray(new String[prop.size()]);
+						data = prop.toArray(new String[0]);
 					PresentationInfo info = new PresentationInfo(id, null, null, null, null, null, null, false);
 					info.setData(data);
 					list.add(info);

@@ -88,7 +88,7 @@ public class VideoStream {
 			if (listenerList == null || listenerList.isEmpty())
 				return;
 
-			list = listenerList.toArray(new VideoStreamListener[listenerList.size()]);
+			list = listenerList.toArray(new VideoStreamListener[0]);
 		}
 
 		for (VideoStreamListener l : list) {
@@ -189,7 +189,7 @@ public class VideoStream {
 			if (listeners == null || listeners.isEmpty())
 				return;
 
-			list = listeners.toArray(new VideoStreamListener[listeners.size()]);
+			list = listeners.toArray(new VideoStreamListener[0]);
 		}
 
 		for (VideoStreamListener l : list) {

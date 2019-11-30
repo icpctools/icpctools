@@ -306,7 +306,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 		g2.setStroke(new BasicStroke(3));
 		g2.setColor(Color.DARK_GRAY);
 
-		SubmissionRecord[] srs = submissions.toArray(new SubmissionRecord[submissions.size()]);
+		SubmissionRecord[] srs = submissions.toArray(new SubmissionRecord[0]);
 		for (SubmissionRecord sr : srs) {
 			Graphics2D gg = (Graphics2D) g2.create();
 			double d = sr.anim.getValue();

@@ -661,7 +661,7 @@ public class PresentationInfoListControl extends Canvas {
 			}
 		}
 		list.add(s);
-		return list.toArray(new String[list.size()]);
+		return list.toArray(new String[0]);
 	}
 
 	protected void showPopup(PresentationInfo info, Point p) {
