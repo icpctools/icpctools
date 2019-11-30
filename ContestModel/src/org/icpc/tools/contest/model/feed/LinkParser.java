@@ -14,7 +14,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class LinkParser {
 
 	public interface ILinkListener {
-		public void linkFound(String s);
+		void linkFound(String s);
 	}
 
 	public static void parse(final ILinkListener listener, InputStream in) throws Exception {

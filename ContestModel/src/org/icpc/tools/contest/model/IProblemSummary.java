@@ -9,47 +9,47 @@ public interface IProblemSummary {
 	 *
 	 * @return the number of submissions pending judgment
 	 */
-	public int getNumPending();
+	int getNumPending();
 
 	/**
 	 * Return the time in ms of the most recent submission, or 0 if there is none.
 	 *
 	 * @return the submission time, in ms
 	 */
-	public int getPendingContestTime();
+	int getPendingContestTime();
 
 	/**
 	 * Return the number of failed submissions.
 	 *
 	 * @return the number of failed submissions
 	 */
-	public int getNumFailed();
+	int getNumFailed();
 
 	/**
 	 * Return the time in ms of the most recent failed submission, or 0 if there is none.
 	 *
 	 * @return the submission time, in ms
 	 */
-	public int getFailedContestTime();
+	int getFailedContestTime();
 
 	/**
 	 * Return the number of solved submissions.
 	 *
 	 * @return the number of solved submissions
 	 */
-	public int getNumSolved();
+	int getNumSolved();
 
 	/**
 	 * Return the time in ms of the most recent accepted submission, or 0 if there is none.
 	 *
 	 * @return the submission time, in ms
 	 */
-	public int getSolvedContestTime();
+	int getSolvedContestTime();
 
 	/**
 	 * Return the total number of submissions.
 	 *
 	 * @return the total number of submissions
 	 */
-	public int getNumSubmissions();
+	int getNumSubmissions();
 }

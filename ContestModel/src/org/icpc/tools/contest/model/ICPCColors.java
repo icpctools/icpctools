@@ -8,9 +8,9 @@ public class ICPCColors {
 	private static final Color FAILED_COLOR = new Color(240, 0, 0);
 
 	private static final int CCOUNT = 15;
-	private static Color[] PENDING = getColorsBetween(PENDING_COLOR, alphaDarker(PENDING_COLOR, 128, 0.5f), CCOUNT);
-	private static Color[] SOLVED = getColorsBetween(SOLVED_COLOR, alphaDarker(SOLVED_COLOR, 128, 0.5f), CCOUNT);
-	private static Color[] FAILED = getColorsBetween(FAILED_COLOR, alphaDarker(FAILED_COLOR, 128, 0.5f), CCOUNT);
+	private static final Color[] PENDING = getColorsBetween(PENDING_COLOR, alphaDarker(PENDING_COLOR, 128, 0.5f), CCOUNT);
+	private static final Color[] SOLVED = getColorsBetween(SOLVED_COLOR, alphaDarker(SOLVED_COLOR, 128, 0.5f), CCOUNT);
+	private static final Color[] FAILED = getColorsBetween(FAILED_COLOR, alphaDarker(FAILED_COLOR, 128, 0.5f), CCOUNT);
 
 	public static Color[] colorText = getColorsBetween(Color.darkGray, Color.white, CCOUNT);
 

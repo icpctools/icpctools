@@ -44,7 +44,7 @@ public abstract class ContestSource {
 	}
 
 	public interface ContestSourceListener {
-		public void stateChanged(ConnectionState state);
+		void stateChanged(ConnectionState state);
 	}
 
 	public static ContestSource getInstance() {

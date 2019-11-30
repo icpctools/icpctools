@@ -1,7 +1,7 @@
 package org.icpc.tools.contest.model;
 
 public interface IAward extends IContestObject {
-	public class AwardType {
+	class AwardType {
 		private String name;
 		private String regEx;
 
@@ -27,17 +27,17 @@ public interface IAward extends IContestObject {
 		}
 	}
 
-	public static final AwardType WINNER = new AwardType("Winner", "winner");
-	public static final AwardType RANK = new AwardType("Rank", "rank-.*");
-	public static final AwardType MEDAL = new AwardType("Medal", ".*-medal");
-	public static final AwardType FIRST_TO_SOLVE = new AwardType("First to Solve", "first-to-solve-.*");
-	public static final AwardType GROUP = new AwardType("Group Winner", "group-winner-.*");
-	public static final AwardType ORGANIZATION = new AwardType("Organization Winner", "organization-winner-.*");
-	public static final AwardType GROUP_HIGHLIGHT = new AwardType("Group Highlight", "group-highlight-.*");
-	public static final AwardType SOLUTION = new AwardType("Solution", "solution-.*");
-	public static final AwardType OTHER = new AwardType("Other", ".*");
+	AwardType WINNER = new AwardType("Winner", "winner");
+	AwardType RANK = new AwardType("Rank", "rank-.*");
+	AwardType MEDAL = new AwardType("Medal", ".*-medal");
+	AwardType FIRST_TO_SOLVE = new AwardType("First to Solve", "first-to-solve-.*");
+	AwardType GROUP = new AwardType("Group Winner", "group-winner-.*");
+	AwardType ORGANIZATION = new AwardType("Organization Winner", "organization-winner-.*");
+	AwardType GROUP_HIGHLIGHT = new AwardType("Group Highlight", "group-highlight-.*");
+	AwardType SOLUTION = new AwardType("Solution", "solution-.*");
+	AwardType OTHER = new AwardType("Other", ".*");
 
-	public static final AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP,
+	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP,
 			ORGANIZATION, GROUP_HIGHLIGHT, SOLUTION, OTHER };
 
 	/**
@@ -45,21 +45,21 @@ public interface IAward extends IContestObject {
 	 *
 	 * @return the team id
 	 */
-	public String[] getTeamIds();
+	String[] getTeamIds();
 
 	/**
 	 * Returns the type of award using the award type constants.
 	 *
 	 * @return an award type constant, e.g. one of the MEDALs
 	 */
-	public AwardType getAwardType();
+	AwardType getAwardType();
 
 	/**
 	 * Return the citation for this award.
 	 *
 	 * @return
 	 */
-	public String getCitation();
+	String getCitation();
 
 	/**
 	 * Returns <code>true</code> if the award should be recognized by showing on a separate screen
@@ -67,5 +67,5 @@ public interface IAward extends IContestObject {
 	 *
 	 * @return
 	 */
-	public boolean showAward();
+	boolean showAward();
 }

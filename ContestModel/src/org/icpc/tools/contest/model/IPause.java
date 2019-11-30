@@ -6,12 +6,12 @@ public interface IPause extends IContestObject {
 	 *
 	 * @return the start
 	 */
-	public long getStart();
+	long getStart();
 
 	/**
 	 * Returns the pause end time.
 	 *
 	 * @return the end
 	 */
-	public long getEnd();
+	long getEnd();
 }

@@ -9,28 +9,28 @@ public interface IResult {
 	 *
 	 * @return the total number of submissions
 	 */
-	public int getNumSubmissions();
+	int getNumSubmissions();
 
 	/**
 	 * Return the total number of submissions pending judgment.
 	 *
 	 * @return the number of submissions pending judgment
 	 */
-	public int getNumPending();
+	int getNumPending();
 
 	/**
 	 * Return the number of submissions that have been judged.
 	 *
 	 * @return the number of judged submissions
 	 */
-	public int getNumJudged();
+	int getNumJudged();
 
 	/**
 	 * If this result was the first one to solve the problem.
 	 *
 	 * @return
 	 */
-	public boolean isFirstToSolve();
+	boolean isFirstToSolve();
 
 	/**
 	 * Return the time in ms of the solution, or if the problem hasn't been solved, the time of the
@@ -38,14 +38,14 @@ public interface IResult {
 	 *
 	 * @return the submission time, in ms
 	 */
-	public int getContestTime();
+	int getContestTime();
 
 	/**
 	 * Return the penalty time for this problem, in minutes.
 	 *
 	 * @return the penalty time
 	 */
-	public int getPenaltyTime();
+	int getPenaltyTime();
 
 	/**
 	 * Returns the overall status of the submissions for this problem (i.e. SOLVED if at least one
@@ -53,5 +53,5 @@ public interface IResult {
 	 *
 	 * @return the status
 	 */
-	public Status getStatus();
+	Status getStatus();
 }

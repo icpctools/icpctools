@@ -9,12 +9,12 @@ public interface IPosition {
 	 *
 	 * @return the x position
 	 */
-	public double getX();
+	double getX();
 
 	/**
 	 * The y position of the object.
 	 *
 	 * @return the y position
 	 */
-	public double getY();
+	double getY();
 }

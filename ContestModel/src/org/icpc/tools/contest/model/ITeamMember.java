@@ -12,44 +12,44 @@ public interface ITeamMember extends IContestObject {
 	 *
 	 * @return the id
 	 */
-	public String getICPCId();
+	String getICPCId();
 
 	/**
 	 * The person's first name.
 	 *
 	 * @return the first name
 	 */
-	public String getFirstName();
+	String getFirstName();
 
 	/**
 	 * The person's last name.
 	 *
 	 * @return the last name
 	 */
-	public String getLastName();
+	String getLastName();
 
 	/**
 	 * The person's sex (male or female).
 	 *
 	 * @return the sex
 	 */
-	public String getSex();
+	String getSex();
 
 	/**
 	 * The id of the team they belong to.
 	 *
 	 * @return the id
 	 */
-	public String getTeamId();
+	String getTeamId();
 
 	/**
 	 * The role of the person on the team.
 	 *
 	 * @return the role
 	 */
-	public String getRole();
+	String getRole();
 
-	public File getPhoto(int width, int height, boolean force);
+	File getPhoto(int width, int height, boolean force);
 
-	public BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+	BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
 }

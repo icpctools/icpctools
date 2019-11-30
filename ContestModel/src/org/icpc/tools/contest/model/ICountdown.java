@@ -6,5 +6,5 @@ public interface ICountdown extends IContestObject {
 	 *
 	 * @return the status
 	 */
-	public boolean[] getStatus();
+	boolean[] getStatus();
 }

@@ -9,26 +9,26 @@ public interface IStanding {
 	 *
 	 * @return the number of problems solved
 	 */
-	public int getNumSolved();
+	int getNumSolved();
 
 	/**
 	 * Return the total time this team has (sum of solution times + penalty), in minutes.
 	 *
 	 * @return the total time of this team
 	 */
-	public int getTime();
+	int getTime();
 
 	/**
 	 * Returns the time of the last (most recent) solution, in minutes.
 	 *
 	 * @return the time of last solution
 	 */
-	public int getLastSolutionTime();
+	int getLastSolutionTime();
 
 	/**
 	 * Return the current rank of this team.
 	 *
 	 * @return the rank
 	 */
-	public String getRank();
+	String getRank();
 }

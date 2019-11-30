@@ -9,19 +9,19 @@ public interface IJudgementType extends IContestObject {
 	 *
 	 * @return the name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Returns true if this judgement causes penalty time.
 	 *
 	 * @return if this judgement represents a penalty
 	 */
-	public boolean isPenalty();
+	boolean isPenalty();
 
 	/**
 	 * Returns true if this judgement represents a correct solution.
 	 *
 	 * @return if this judgement represents a correct solution
 	 */
-	public boolean isSolved();
+	boolean isSolved();
 }

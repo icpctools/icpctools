@@ -50,7 +50,7 @@ public class BasicClient {
 	}
 
 	protected interface AddAttrs {
-		public void add(JSONEncoder je) throws IOException;
+		void add(JSONEncoder je) throws IOException;
 	}
 
 	class WSClientEndpoint extends Endpoint {

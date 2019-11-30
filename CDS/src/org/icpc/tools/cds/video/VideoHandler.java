@@ -6,13 +6,13 @@ import java.io.OutputStream;
 
 public abstract class VideoHandler {
 	public interface IStreamListener {
-		public void write(byte[] b);
+		void write(byte[] b);
 
-		public void write(byte[] b, int off, int len);
+		void write(byte[] b, int off, int len);
 
-		public void flush();
+		void flush();
 
-		public boolean isDone();
+		boolean isDone();
 	}
 
 	protected abstract String getFormat();

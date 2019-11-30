@@ -9,40 +9,40 @@ public interface IRun extends IContestObject {
 	 *
 	 * @return the judgement id
 	 */
-	public String getJudgementId();
+	String getJudgementId();
 
 	/**
 	 * The judgement type (result) of this run.
 	 *
 	 * @return the id
 	 */
-	public String getJudgementTypeId();
+	String getJudgementTypeId();
 
 	/**
 	 * Return the ordinal of the run, used for sorting.
 	 *
 	 * @return the ordinal
 	 */
-	public int getOrdinal();
+	int getOrdinal();
 
 	/**
 	 * Returns the run time, in ms.
 	 *
 	 * @return the run time
 	 */
-	public int getRunTime();
+	int getRunTime();
 
 	/**
 	 * Returns the contest time relative to the start of the contest, in ms.
 	 *
 	 * @return the contest time
 	 */
-	public int getContestTime();
+	int getContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
 	 *
 	 * @return the time
 	 */
-	public long getTime();
+	long getTime();
 }

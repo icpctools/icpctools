@@ -24,12 +24,12 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Client {
-	protected static enum Type {
+	protected enum Type {
 		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, CLIENT_INFO, THUMBNAIL
 	}
 
 	interface AddAttrs {
-		public void add(JSONEncoder je) throws IOException;
+		void add(JSONEncoder je) throws IOException;
 	}
 
 	public class ClientDisplay {

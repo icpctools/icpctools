@@ -481,7 +481,7 @@ public class JsonToTSVConverter {
 	}
 
 	interface Converter {
-		public IContestObject convert(Object iter);
+		IContestObject convert(Object iter);
 	}
 
 	protected static void writeJSON(File f, List<?> iter, Converter c) throws Exception {

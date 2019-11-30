@@ -11,61 +11,61 @@ public interface ISubmission extends IContestObject {
 	 *
 	 * @return the problem id
 	 */
-	public String getProblemId();
+	String getProblemId();
 
 	/**
 	 * Returns the language that this submission is in.
 	 *
 	 * @return the language id
 	 */
-	public String getLanguageId();
+	String getLanguageId();
 
 	/**
 	 * Returns the id of the team that made this submission.
 	 *
 	 * @return the team
 	 */
-	public String getTeamId();
+	String getTeamId();
 
 	/**
 	 * Returns the optional entry point this submission.
 	 *
 	 * @return the entry point
 	 */
-	public String getEntryPoint();
+	String getEntryPoint();
 
 	/**
 	 * Returns a zip of the files submitted in this submission.
 	 *
 	 * @return a zip of the files
 	 */
-	public File getFiles(boolean force);
+	File getFiles(boolean force);
 
 	/**
 	 * Returns the reaction video.
 	 *
 	 * @return the reaction video
 	 */
-	public File getReaction(boolean force);
+	File getReaction(boolean force);
 
 	/**
 	 * Return the URL to the reaction video
 	 * 
 	 * @return
 	 */
-	public String getReactionURL();
+	String getReactionURL();
 
 	/**
 	 * Returns the contest time relative to the start of the contest, in ms.
 	 *
 	 * @return the contest time
 	 */
-	public int getContestTime();
+	int getContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
 	 *
 	 * @return the time
 	 */
-	public long getTime();
+	long getTime();
 }

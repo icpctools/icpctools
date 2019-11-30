@@ -12,42 +12,42 @@ public interface ITeam extends IContestObject, IPosition {
 	 *
 	 * @return the name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * The display name of the team, or falls back to team name.
 	 *
 	 * @return the display name
 	 */
-	public String getActualDisplayName();
+	String getActualDisplayName();
 
 	/**
 	 * The display name of the team.
 	 *
 	 * @return the display name
 	 */
-	public String getDisplayName();
+	String getDisplayName();
 
 	/**
 	 * The groups that this team is part of, or <code>null</code> if it is not in any group.
 	 *
 	 * @return the group ids
 	 */
-	public String[] getGroupIds();
+	String[] getGroupIds();
 
 	/**
 	 * The organization that the team is part of.
 	 *
 	 * @return the organization id
 	 */
-	public String getOrganizationId();
+	String getOrganizationId();
 
 	/**
 	 * The ICPC id of the team.
 	 *
 	 * @return the id
 	 */
-	public String getICPCId();
+	String getICPCId();
 
 	/**
 	 * The integer rotation of the team's desk in degrees, increasing counter-clockwise from 0 to
@@ -55,19 +55,19 @@ public interface ITeam extends IContestObject, IPosition {
 	 *
 	 * @return the rotation
 	 */
-	public int getRotation();
+	int getRotation();
 
-	public File getPhoto(int width, int height, boolean force);
+	File getPhoto(int width, int height, boolean force);
 
-	public BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+	BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
 
-	public File getVideo(boolean force);
+	File getVideo(boolean force);
 
-	public File getBackup(boolean force);
+	File getBackup(boolean force);
 
-	public File getKeyLog(boolean force);
+	File getKeyLog(boolean force);
 
-	public String getDesktopURL();
+	String getDesktopURL();
 
-	public String getWebcamURL();
+	String getWebcamURL();
 }
