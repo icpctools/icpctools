@@ -1,7 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,12 +142,7 @@ public class Contest implements IContest {
 		return lastTimedEvent;
 	}
 
-	@Override
-	public int getLastTimedObjectEventIndex() {
-		return lastTimedEventIndex;
-	}
-
-	private void clearCaches(IContestObject e, Delta delta) {
+	 private void clearCaches(IContestObject e, Delta delta) {
 		if (delta == Delta.NOOP)
 			return;
 
@@ -453,24 +447,9 @@ public class Contest implements IContest {
 		return info.getName();
 	}
 
-	/**
-	 * Returns the formal name of the contest.
-	 *
-	 * @return the formal name
-	 */
-	@Override
-	public String getFormalName() {
-		return info.getFormalName();
-	}
-
-	@Override
+	 @Override
 	public Long getStartTime() {
 		return info.getStartTime();
-	}
-
-	@Override
-	public Integer getCountdownPauseTime() {
-		return info.getCountdownPauseTime();
 	}
 
 	/**
@@ -493,18 +472,7 @@ public class Contest implements IContest {
 		return info.getFreezeDuration();
 	}
 
-	/**
-	 * Returns the penalty time. -1 means there is no concept of penalty time; 0 indicates there is
-	 * no penalty.
-	 *
-	 * @return the penalty time
-	 */
-	@Override
-	public int getPenaltyTime() {
-		return info.getPenaltyTime();
-	}
-
-	/**
+	 /**
 	 * Returns the time multiplier, if the contest is in test/playback mode. Otherwise, returns 1.
 	 *
 	 * @return the time multiplier
@@ -514,17 +482,7 @@ public class Contest implements IContest {
 		return info.getTimeMultiplier();
 	}
 
-	/**
-	 * Returns the logo file.
-	 *
-	 * @return
-	 */
-	@Override
-	public File getLogo(int width, int height, boolean force) {
-		return info.getLogo(width, height, force);
-	}
-
-	/**
+	 /**
 	 * Returns the logo image.
 	 *
 	 * @return
@@ -534,17 +492,7 @@ public class Contest implements IContest {
 		return info.getLogoImage(width, height, forceLoad, resizeToFit);
 	}
 
-	/**
-	 * Returns the banner file.
-	 *
-	 * @return
-	 */
-	@Override
-	public File getBanner(int width, int height, boolean force) {
-		return info.getBanner(width, height, force);
-	}
-
-	/**
+	 /**
 	 * Returns the contest banner image.
 	 *
 	 * @return
@@ -641,22 +589,7 @@ public class Contest implements IContest {
 		return info2;
 	}
 
-	@Override
-	public IPause[] getPauses() {
-		IPause[] temp = pauses;
-		if (temp != null)
-			return temp;
-
-		synchronized (data) {
-			if (pauses != null)
-				return pauses;
-
-			pauses = data.getByType(IPause.class, ContestType.PAUSE);
-			return pauses;
-		}
-	}
-
-	public boolean isDoneUpdating() {
+	 public boolean isDoneUpdating() {
 		IState state2 = getState();
 		if (state2 != null)
 			return state2.isDoneUpdating();
@@ -1231,12 +1164,7 @@ public class Contest implements IContest {
 		}
 	}
 
-	@Override
-	public int getNumTeamMembers() {
-		return getTeams().length;
-	}
-
-	@Override
+	 @Override
 	public IProblem getProblemById(String id) {
 		return (IProblem) data.getById(id, ContestType.PROBLEM);
 	}
@@ -1281,12 +1209,7 @@ public class Contest implements IContest {
 		}
 	}
 
-	@Override
-	public int getNumJudgements() {
-		return getJudgements().length;
-	}
-
-	@Override
+	 @Override
 	public IJudgement getJudgementById(String id) {
 		return (IJudgement) data.getById(id, ContestType.JUDGEMENT);
 	}
@@ -1440,12 +1363,7 @@ public class Contest implements IContest {
 		return (IJudgementType) data.getById(id, ContestType.JUDGEMENT_TYPE);
 	}
 
-	@Override
-	public int getNumRuns() {
-		return getRuns().length;
-	}
-
-	@Override
+	 @Override
 	public IRun[] getRuns() {
 		IRun[] temp = runs;
 		if (temp != null)
@@ -1460,12 +1378,7 @@ public class Contest implements IContest {
 		}
 	}
 
-	@Override
-	public IRun getRunById(String id) {
-		return (IRun) data.getById(id, ContestType.RUN);
-	}
-
-	@Override
+	 @Override
 	public IRun[] getRunsByJudgementId(String id) {
 		if (id == null)
 			return null;
@@ -1482,12 +1395,7 @@ public class Contest implements IContest {
 		return list.toArray(new IRun[list.size()]);
 	}
 
-	@Override
-	public int getNumClarifications() {
-		return getClarifications().length;
-	}
-
-	@Override
+	 @Override
 	public IClarification[] getClarifications() {
 		IClarification[] temp = clars;
 		if (temp != null)
