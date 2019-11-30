@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,31 +33,36 @@ public class YamlParser {
 			throw new FileNotFoundException("Contest config file (contest.yaml) not found");
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
+		Info info =  parseInfo(br);
+		br.close();
+		return info;
+	}
 
-		Yaml yaml = new Yaml(new Constructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
-		Object obj = yaml.load(br);
+	 public static Info parseInfo(Reader reader) throws IOException {
+		  Yaml yaml = new Yaml(new Constructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
+		  Object obj = yaml.load(reader);
 
-		// the file should have a top-level map of problems, which contains a list of problems
-		if (!(obj instanceof Map<?, ?>))
-			throw new IOException("Contest config file (contest.yaml) not imported: invalid format");
+		  // the file should have a top-level map of problems, which contains a list of problems
+		  if (!(obj instanceof Map<?, ?>))
+			 throw new IOException("Contest config file (contest.yaml) not imported: invalid format");
 
-		Map<?, ?> map = (Map<?, ?>) obj;
+		  Map<?, ?> map = (Map<?, ?>) obj;
 
-		Info info = new Info();
-		info.add("id", "1");
-		for (Object ob : map.keySet()) {
-			if (ob instanceof String) {
-				String key = (String) ob;
-				Object val = map.get(key);
-				String value = null;
-				if (val != null)
-					value = val.toString();
-				if ("name".equals(key))
-					info.add("formal_name", value);
-				else if ("short-name".equals(key))
-					info.add("name", value);
-				else if ("length".equals(key) || "duration".equals(key)) {
-					try {
+		  Info info = new Info();
+		  info.add("id", "1");
+		  for (Object ob : map.keySet()) {
+			 if (ob instanceof String) {
+				  String key = (String) ob;
+				  Object val = map.get(key);
+				  String value = null;
+				  if (val != null)
+				  value = val.toString();
+				  if ("name".equals(key))
+				  info.add("formal_name", value);
+				  else if ("short-name".equals(key))
+				  info.add("name", value);
+				  else if ("length".equals(key) || "duration".equals(key)) {
+				  try {
 						int ind = value.indexOf(":");
 						int h = Integer.parseInt(value.substring(0, ind));
 						int ind2 = value.indexOf(":", ind + 1);
@@ -64,12 +70,12 @@ public class YamlParser {
 						int s = Integer.parseInt(value.substring(ind2 + 1));
 						int length = s + 60 * m + 60 * 60 * h;
 						if (length >= 0)
-							info.add("duration", RelativeTime.format(length * 1000));
-					} catch (Exception ex) {
+							 info.add("duration", RelativeTime.format(length * 1000));
+				  } catch (Exception ex) {
 						Trace.trace(Trace.ERROR, "Could not parse duration: " + value);
-					}
-				} else if ("scoreboard-freeze".equals(key)) {
-					try {
+				  }
+				  } else if ("scoreboard-freeze".equals(key)) {
+				  try {
 						int ind = value.indexOf(":");
 						int h = Integer.parseInt(value.substring(0, ind));
 						int ind2 = value.indexOf(":", ind + 1);
@@ -79,12 +85,12 @@ public class YamlParser {
 
 						int d = info.getDuration();
 						if (length >= 0 && d > 0)
-							info.add("scoreboard_freeze_duration", RelativeTime.format((d / 1000 - length) * 1000));
-					} catch (Exception ex) {
+							 info.add("scoreboard_freeze_duration", RelativeTime.format((d / 1000 - length) * 1000));
+				  } catch (Exception ex) {
 						Trace.trace(Trace.ERROR, "Could not parse freeze: " + value);
-					}
-				} else if ("scoreboard-freeze-length".equals(key)) {
-					try {
+				  }
+				  } else if ("scoreboard-freeze-length".equals(key)) {
+				  try {
 						int ind = value.indexOf(":");
 						int h = Integer.parseInt(value.substring(0, ind));
 						int ind2 = value.indexOf(":", ind + 1);
@@ -92,27 +98,26 @@ public class YamlParser {
 						int s = Integer.parseInt(value.substring(ind2 + 1));
 						int length = s + 60 * m + 60 * 60 * h;
 						if (length >= 0)
-							info.add("scoreboard_freeze_duration", RelativeTime.format(length * 1000));
-					} catch (Exception ex) {
+							 info.add("scoreboard_freeze_duration", RelativeTime.format(length * 1000));
+				  } catch (Exception ex) {
 						Trace.trace(Trace.ERROR, "Could not parse freeze length: " + value);
-					}
-				} else if ("penalty-time".equals(key))
-					info.add("penalty_time", value);
-				else if ("start-time".equals(key)) {
-					try {
+				  }
+				  } else if ("penalty-time".equals(key))
+				  info.add("penalty_time", value);
+				  else if ("start-time".equals(key)) {
+				  try {
 						info.add("start_time", value);
-					} catch (Exception e) {
+				  } catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Couldn't parse start time: " + value);
-					}
-				}
-			}
+				  }
+				  }
+			 }
 		}
 
-		br.close();
-		return info;
-	}
+		  return info;
+	 }
 
-	// .timelimit
+	 // .timelimit
 	public static List<IProblem> importProblems(File root) throws IOException {
 		File f = getFile(root, "problemset.yaml");
 		if (f == null || !f.exists())
