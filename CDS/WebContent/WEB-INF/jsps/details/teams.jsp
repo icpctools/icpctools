@@ -1,12 +1,13 @@
-<div class="card collapsed-card">
+<div id="accordion">
+<div class="card">
     <div class="card-header">
-        <h3 class="card-title">Teams</h3>
+        <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTeams">Teams</a></h4>
         <div class="card-tools">
             <span id="teams-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
             <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/teams'">API</button>
-            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
         </div>
     </div>
+    <div id="collapseTeams" class="panel-collapse collapse in">
     <div class="card-body p-0">
         <table id="teams-table" class="table table-sm table-hover table-striped table-head-fixed">
             <thead>
@@ -29,6 +30,8 @@
             </tbody>
         </table>
     </div>
+    </div>
+</div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
