@@ -9,17 +9,16 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card collapsed-card">
+            <div id="accordion">
+            <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Contest</h3>
+                    <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseContest">Contest</a></h4>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>'">API</button>
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                class="fas fa-plus"></i></button>
                     </div>
                 </div>
+                <div id="collapseContest" class="panel-collapse collapse in">
                 <div class="card-body p-0">
-
                     <table class="table table-sm table-hover table-striped table-head-fixed">
                         <tbody>
                             <tr>
@@ -43,20 +42,21 @@
                         </tbody>
                     </table>
                 </div>
+                </div>
+            </div>
             </div>
 
-            <div class="card collapsed-card">
+            <div id="accordion">
+            <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">State</h3>
+                    <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseState">State</a></h4>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool"
                             onclick="location.href='<%= apiRoot %>/state'">API</button>
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                class="fas fa-plus"></i></button>
                     </div>
                 </div>
+                <div id="collapseState" class="panel-collapse collapse in">
                 <div class="card-body p-0">
-
                     <table class="table table-sm table-hover table-striped table-head-fixed">
                         <tbody>
                             <tr>
@@ -92,6 +92,8 @@
                         </tbody>
                     </table>
                 </div>
+                </div>
+            </div>
             </div>
 
             <%@ include file="details/languages.jsp" %>
