@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.LockSupport;
 
+import javax.imageio.ImageIO;
+
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
@@ -215,6 +217,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	protected Thread thread;
 	protected static Object lock = new Object();
 	protected boolean hidden = false;
+	protected BufferedImage logo;
 
 	protected int frameRate;
 
@@ -672,11 +675,24 @@ public class PresentationWindowImpl extends PresentationWindow {
 				g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
 			paintPresentations(g, time, hidden2);
 		} else {
+			if (logo == null) {
+				try {
+					logo = ImageIO.read(getClass().getClassLoader().getResource("images/logo.png"));
+				} catch (Exception e) {
+					Trace.trace(Trace.ERROR, "Error loading logo image " + e.getMessage());
+				}
+			}
+			int hh = 0;
+			if (logo != null) {
+				Dimension d = getSize();
+				hh = d.height / 2;
+				g.drawImage(logo, (d.width - hh) / 2, (d.height - hh) / 2 - 15, hh, hh, null);
+			}
 			g.setColor(Color.WHITE);
 			FontMetrics fm = g.getFontMetrics();
-			String s = "No presentation available";
+			String s = "No presentation assigned";
 			Dimension d = getSize();
-			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height / 2 - fm.getAscent());
+			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, (d.height) * 7 / 8);
 		}
 	}
 
