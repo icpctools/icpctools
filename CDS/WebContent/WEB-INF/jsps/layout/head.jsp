@@ -22,17 +22,17 @@
 <script src="${pageContext.request.contextPath}/js/adminlte.min.js"></script>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="x-ua-compatible" content="ie=edge"/>
 
   <title>CDS</title>
 
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/adminlte.min.css">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cds.css" />
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/fontawesome-free/css/all.min.css"/>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/adminlte.min.css"/>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cds.css"/>
   <!-- Google Font: Source Sans Pro -->
-  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"/>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -54,7 +54,7 @@
       <form class="form-inline ml-3" action="/search">
         <div class="input-group input-group-sm">
           <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search"
-            name="value">
+            name="value"/>
           <div class="input-group-append">
             <button class="btn btn-navbar" type="submit">
               <i class="fas fa-search"></i>
@@ -70,7 +70,7 @@
       <!-- Brand Logo -->
       <a href="/" class="brand-link">
         <img src="${pageContext.request.contextPath}/logoGear.png" alt="CDS Logo"
-          class="brand-image img-circle elevation-3">
+          class="brand-image img-circle elevation-3"/>
         <span class="brand-text font-weight-light">Contest Data Server</span>
       </a>
 

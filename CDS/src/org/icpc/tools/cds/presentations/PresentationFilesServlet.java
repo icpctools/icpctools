@@ -39,11 +39,7 @@ public class PresentationFilesServlet extends HttpServlet {
 		if (f.isDirectory()) {
 			File[] files = f.listFiles();
 
-			String servletPath = request.getServletPath();
-			servletPath = servletPath.replace("/", File.separator);
-			servletPath = servletPath.substring(1, servletPath.length());
-
-			request.setAttribute("folder", servletPath);
+			request.setAttribute("folder", f.getName());
 			request.setAttribute("files", files);
 			request.getRequestDispatcher("/WEB-INF/jsps/directory.jsp").forward(request, response);
 			return;
