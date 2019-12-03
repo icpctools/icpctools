@@ -31,7 +31,7 @@ public class TileListScoreboardPresentation extends ScrollingTileScoreboardPrese
 				if (style == Style.ORGANIZATION_NAME)
 					names[i] = org.getName();
 				else if (style == Style.ORGANIZATION_FORMAL_NAME)
-					names[i] = org.getFormalName();
+					names[i] = org.getActualFormalName();
 			}
 		}
 

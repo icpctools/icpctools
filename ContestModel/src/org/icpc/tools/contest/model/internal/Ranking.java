@@ -153,7 +153,8 @@ public class Ranking {
 				for (int j = i + 1; j < next; j++) {
 					IOrganization org1 = contest.getOrganizationById(teams[order[i]].getOrganizationId());
 					IOrganization org2 = contest.getOrganizationById(teams[order[j]].getOrganizationId());
-					if (org1 != null && org2 != null && collator.compare(org1.getFormalName(), org2.getFormalName()) > 0) {
+					if (org1 != null && org2 != null
+							&& collator.compare(org1.getActualFormalName(), org2.getActualFormalName()) > 0) {
 						swapOrder(order, i, j);
 					}
 				}

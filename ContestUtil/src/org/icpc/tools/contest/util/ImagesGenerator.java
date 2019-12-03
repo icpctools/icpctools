@@ -107,14 +107,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-
+		
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -315,7 +315,7 @@ public class ImagesGenerator {
 				IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 				if (org != null) {
 					if (contest.getNumTeams() == contest.getNumOrganizations())
-						name = org.getFormalName();
+						name = org.getActualFormalName();
 
 					File orgFolder = new File(contestRoot, "organizations" + File.separator + org.getId());
 					File imgFile = new File(orgFolder, DEFAULT_NAME);

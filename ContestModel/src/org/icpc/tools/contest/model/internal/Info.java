@@ -51,6 +51,10 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public String getFormalName() {
+		return formalName;
+	}
+
+	public String getActualFormalName() {
 		if (formalName == null)
 			return name;
 		return formalName;

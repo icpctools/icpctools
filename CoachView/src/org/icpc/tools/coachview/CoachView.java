@@ -361,9 +361,11 @@ public class CoachView extends Panel {
 			if (logoImg != null)
 				g.drawImage(logoImg, d.width - logoImg.getWidth() - BORDER, BORDER, null);
 
-			y = drawLine(g, y, "Organization", org.getFormalName());
+			y = drawLine(g, y, "Organization", org.getActualFormalName());
 			y = drawLine(g, y, null, "(" + org.getName() + ")");
-			String country = localeMap.get(org.getCountry()).getDisplayCountry();
+			String country = null;
+			if (org.getCountry() != null)
+				country = localeMap.get(org.getCountry()).getDisplayCountry();
 			if (country != null)
 				y = drawLine(g, y, "Country", country);
 			y = drawLine(g, y, "URL", org.getURL());

@@ -18,7 +18,7 @@
 <body onload="connectTime('<%= cc.getId() %>')">
 
 <div id="navigation-header">
-  <div id="navigation-cds"><%= contest.getFormalName() %> - Time</div>
+  <div id="navigation-cds"><%= contest.getActualFormalName() %> - Time</div>
 </div>
 
 <div id="main">

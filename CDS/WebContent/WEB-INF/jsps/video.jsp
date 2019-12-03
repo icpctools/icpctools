@@ -39,7 +39,7 @@
                             IOrganization org = contest.getOrganizationById(t.getOrganizationId());
                             String orgName = "";
                             if (org != null)
-                                orgName = org.getFormalName(); %>
+                                orgName = org.getActualFormalName(); %>
                             <tr>
                                 <td><%= tId %>
                                 </td>

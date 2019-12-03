@@ -51,6 +51,11 @@ public class Organization extends ContestObject implements IOrganization {
 
 	@Override
 	public String getFormalName() {
+		return formalName;
+	}
+
+	@Override
+	public String getActualFormalName() {
 		if (formalName == null)
 			return name;
 		return formalName;

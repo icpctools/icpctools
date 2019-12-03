@@ -225,7 +225,7 @@ public class ResolverLogic {
 								if (org == null)
 									Trace.trace(Trace.INFO, "Team list award for: " + teamId);
 								else
-									Trace.trace(Trace.INFO, "Team list award for: " + teamId + " " + org.getFormalName());
+									Trace.trace(Trace.INFO, "Team list award for: " + teamId + " " + org.getActualFormalName());
 
 								// are we going to show this on a separate page?
 								boolean show = false;
@@ -526,8 +526,8 @@ public class ResolverLogic {
 									if (org == null)
 										Trace.trace(Trace.INFO, "Catch up award at row: " + r + " " + missedTeamId);
 									else
-										Trace.trace(Trace.INFO,
-												"Catch up award at row: " + r + " " + missedTeamId + " " + org.getFormalName());
+										Trace.trace(Trace.INFO, "Catch up award at row: " + r + " " + missedTeamId + " "
+												+ org.getActualFormalName());
 
 									// are we going to show this on a separate page?
 									boolean show = false;
@@ -559,7 +559,7 @@ public class ResolverLogic {
 						IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 						if (org != null)
 							Trace.trace(Trace.INFO,
-									"Award at row: " + currentRow + " " + team.getId() + " " + org.getFormalName());
+									"Award at row: " + currentRow + " " + team.getId() + " " + org.getActualFormalName());
 						else
 							Trace.trace(Trace.INFO, "Award at row: " + currentRow + " " + team.getId());
 

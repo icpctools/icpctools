@@ -205,7 +205,7 @@ public class XMLFeedParser implements Closeable {
 				add(info, ID, "id-" + Math.random());
 
 			if (info.getName() == null)
-				add(info, "name", info.getFormalName());
+				add(info, "name", info.getActualFormalName());
 
 			contest.add(info);
 		} else if (TEAM.equals(name)) {
@@ -225,18 +225,18 @@ public class XMLFeedParser implements Closeable {
 			}
 
 			if (org.getName() == null)
-				add(org, "name", org.getFormalName());
+				add(org, "name", org.getActualFormalName());
 
 			boolean exists = false;
 			for (IOrganization org2 : contest.getOrganizations()) {
-				if (org2.getFormalName().equals(org.getFormalName())) {
+				if (org2.getActualFormalName().equals(org.getActualFormalName())) {
 					exists = true;
 					instId = org2.getId();
 				}
 			}
 
 			if (org.getName() == null || org.getName().isEmpty())
-				add(org, "name", org.getFormalName());
+				add(org, "name", org.getActualFormalName());
 			if (!exists)
 				contest.add(org);
 

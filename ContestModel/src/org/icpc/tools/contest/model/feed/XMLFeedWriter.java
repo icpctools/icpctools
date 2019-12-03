@@ -87,7 +87,7 @@ public class XMLFeedWriter {
 			Info info = (Info) obj;
 			writeStart(XMLFeedParser.INFO);
 			write("contest-id", info.getId());
-			write("title", info.getFormalName());
+			write("title", info.getActualFormalName());
 			write("short-title", info.getName());
 			write("length", formatDuration(info.getDuration()));
 			write("scoreboard-freeze-length", formatDuration(info.getFreezeDuration()));
@@ -119,8 +119,9 @@ public class XMLFeedWriter {
 			write("id", team.getId());
 			if (org != null) {
 				write("name", team.getName());
-				write("nationality", org.getCountry());
-				write("university", org.getFormalName());
+				if (org.getCountry() != null)
+					write("nationality", org.getCountry());
+				write("university", org.getActualFormalName());
 				write("university-short-name", org.getName());
 			}
 			if (groups != null && groups.length > 0 && groups[0] != null)

@@ -32,8 +32,13 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><b>Display Name:</b></td>
+                            <td><%= team.getDisplayName() == null ? "" : team.getDisplayName() %>
+                            </td>
+                        </tr>
+                        <tr>
                             <td><b>Name:</b></td>
-                            <td><%= team.getActualDisplayName() %>
+                            <td><%= team.getName() %>
                             </td>
                         </tr>
                         <tr>
@@ -49,7 +54,7 @@
                         </tr>
                         <tr>
                             <td><b>Org formal name:</b></td>
-                            <td><%= organization.getFormalName() %>
+                            <td><%= organization.getFormalName() == null ? "" : organization.getFormalName() %>
                             </td>
                         </tr>
                         <tr>
@@ -59,7 +64,7 @@
                         </tr>
                         <tr>
                             <td><b>Country:</b></td>
-                            <td><%= organization.getCountry() %>
+                            <td><%= organization.getCountry() == null ? "" : organization.getCountry() %>
                             </td>
                         </tr>
                         <% } %>

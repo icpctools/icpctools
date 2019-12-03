@@ -418,9 +418,9 @@ public class Contest implements IContest {
 	}
 
 	/**
-	 * Returns the name of the contest.
+	 * Returns the id of the contest.
 	 *
-	 * @return the name
+	 * @return the id
 	 */
 	@Override
 	public String getId() {
@@ -445,6 +445,16 @@ public class Contest implements IContest {
 	@Override
 	public String getFormalName() {
 		return info.getFormalName();
+	}
+
+	/**
+	 * Returns the formal name of the contest, or fall back to the name.
+	 *
+	 * @return the formal name
+	 */
+	@Override
+	public String getActualFormalName() {
+		return info.getActualFormalName();
 	}
 
 	@Override
@@ -719,11 +729,11 @@ public class Contest implements IContest {
 		// default sort: by last name with coaches to bottom
 		Arrays.sort(tempMembers, (o1, o2) -> {
 			if (o1.getRole() != null && o2.getRole() != null && !o1.getRole().equals(o2.getRole()))
-			  return -o1.getRole().compareTo(o2.getRole());
+				return -o1.getRole().compareTo(o2.getRole());
 			if (o1.getLastName() != null && o2.getLastName() != null)
-			  return collator.compare(o1.getLastName(), o2.getLastName());
+				return collator.compare(o1.getLastName(), o2.getLastName());
 			return 0;
-	 });
+		});
 		return tempMembers;
 	}
 
@@ -1586,7 +1596,7 @@ public class Contest implements IContest {
 			removeFromHistory(obj);
 	}
 
-	 public int removeSubmissionsOutsideOfContestTime() {
+	public int removeSubmissionsOutsideOfContestTime() {
 		List<IContestObject> remove = new ArrayList<>();
 
 		for (ISubmission s : getSubmissions()) {
