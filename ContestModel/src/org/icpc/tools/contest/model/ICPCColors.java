@@ -55,4 +55,17 @@ public class ICPCColors {
 		}
 		return colors;
 	}
+
+	/**
+	 * Return a contrasting color to the given color.
+	 *
+	 * @param color
+	 * @return a contrasting color
+	 */
+	public static Color getContrastColor(Color color) {
+		if (color == null)
+			return Color.WHITE;
+		long y = (299 * color.getRed() + 587 * color.getGreen() + 114 * color.getBlue()) / 1000;
+		return y >= 128 ? Color.BLACK : Color.WHITE;
+	}
 }

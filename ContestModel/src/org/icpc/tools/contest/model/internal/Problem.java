@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.feed.Decimal;
@@ -61,23 +62,34 @@ public class Problem extends ContestObject implements IProblem {
 		if (colorVal != null)
 			return colorVal;
 
-		if (rgb == null || (rgb.length() != 3 && rgb.length() != 6 && rgb.length() != 7))
-			return null;
-
-		if (rgb.length() == 3) {
-			int r = Integer.parseInt(rgb.substring(0, 1) + rgb.substring(0, 1), 16);
-			int g = Integer.parseInt(rgb.substring(1, 2) + rgb.substring(1, 2), 16);
-			int b = Integer.parseInt(rgb.substring(2, 3) + rgb.substring(2, 3), 16);
-			colorVal = new Color(r, g, b);
-		} else {
-			if (rgb.length() == 7)
-				rgb = rgb.substring(1);
-			int r = Integer.parseInt(rgb.substring(0, 2), 16);
-			int g = Integer.parseInt(rgb.substring(2, 4), 16);
-			int b = Integer.parseInt(rgb.substring(4, 6), 16);
-			colorVal = new Color(r, g, b);
+		if (rgb == null || !(rgb.length() == 3 || rgb.length() == 4 || rgb.length() == 6 || rgb.length() == 7)) {
+			colorVal = Color.BLACK;
+			return colorVal;
 		}
-		return colorVal;
+
+		try {
+			String rgbv = rgb;
+			if (rgbv.length() == 3 || rgbv.length() == 4) {
+				if (rgbv.length() == 4)
+					rgbv = rgbv.substring(1);
+				int r = Integer.parseInt(rgbv.substring(0, 1) + rgbv.substring(0, 1), 16);
+				int g = Integer.parseInt(rgbv.substring(1, 2) + rgbv.substring(1, 2), 16);
+				int b = Integer.parseInt(rgbv.substring(2, 3) + rgbv.substring(2, 3), 16);
+				colorVal = new Color(r, g, b);
+				return colorVal;
+			}
+			if (rgbv.length() == 7)
+				rgbv = rgbv.substring(1);
+			int r = Integer.parseInt(rgbv.substring(0, 2), 16);
+			int g = Integer.parseInt(rgbv.substring(2, 4), 16);
+			int b = Integer.parseInt(rgbv.substring(4, 6), 16);
+			colorVal = new Color(r, g, b);
+			return colorVal;
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Invalid color value for problem " + id + " (" + rgb + ")");
+			colorVal = Color.BLACK;
+			return colorVal;
+		}
 	}
 
 	@Override
