@@ -57,7 +57,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <input type="text" id="timeSelect2" value="0:01:00" class="form-control">
+                            <input type="text" id="timeSelect2" value="0:01:00" class="form-control"/>
                         </td>
                         <td>
                             <button id="set2" class="btn btn-secondary"
@@ -98,21 +98,21 @@
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s1" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '1')">
+                                       onclick="sendCountdownStatusCommand(this, '1')"/>
                                 <label class="custom-control-label" for="s1">Security</label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s4" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '4')">
+                                       onclick="sendCountdownStatusCommand(this, '4')"/>
                                 <label class="custom-control-label" for="s4">Judges</label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s7" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '7')">
+                                       onclick="sendCountdownStatusCommand(this, '7')"/>
                                 <label class="custom-control-label" for="s7">Operations</label>
                             </div>
                         </td>
@@ -121,21 +121,21 @@
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s2" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '2')">
+                                       onclick="sendCountdownStatusCommand(this, '2')"/>
                                 <label class="custom-control-label" for="s2">Sysops</label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s5" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '5')">
+                                       onclick="sendCountdownStatusCommand(this, '5')"/>
                                 <label class="custom-control-label" for="s5">Network Control</label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s8" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '8')">
+                                       onclick="sendCountdownStatusCommand(this, '8')"/>
                                 <label class="custom-control-label" for="s8">Executive Director</label>
                             </div>
                         </td>
@@ -144,21 +144,21 @@
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s3" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '3')">
+                                       onclick="sendCountdownStatusCommand(this, '3')"/>
                                 <label class="custom-control-label" for="s3">Contest Control</label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s6" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '6')">
+                                       onclick="sendCountdownStatusCommand(this, '6')"/>
                                 <label class="custom-control-label" for="s6">Marshalls</label>
                             </div>
                         </td>
                         <td>
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" id="s9" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '9')">
+                                       onclick="sendCountdownStatusCommand(this, '9')"/>
                                 <label class="custom-control-label" for="s9">Contest Director</label>
                             </div>
                         </td>
