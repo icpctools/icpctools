@@ -106,9 +106,9 @@ public class SearchService extends HttpServlet {
 				for (IOrganization org : orgs) {
 					if (org.getName().toLowerCase().contains(search)) {
 						write(en, org, org.getName());
-					} else if (org.getFormalName().toLowerCase().contains(search)) {
+					} else if (org.getFormalName() != null && org.getFormalName().toLowerCase().contains(search)) {
 						write(en, org, org.getFormalName());
-					} else if (org.getCountry().toLowerCase().contains(search)) {
+					} else if (org.getCountry() != null && org.getCountry().toLowerCase().contains(search)) {
 						write(en, org, org.getCountry());
 					}
 				}

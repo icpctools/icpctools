@@ -29,6 +29,13 @@ public interface IOrganization extends IContestObject {
 	String getFormalName();
 
 	/**
+	 * The formal name of the organization, falls back to name.
+	 *
+	 * @return the name
+	 */
+	String getActualFormalName();
+
+	/**
 	 * The nationality of the organization.
 	 *
 	 * @return the nationality

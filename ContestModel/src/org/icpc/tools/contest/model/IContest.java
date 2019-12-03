@@ -44,6 +44,13 @@ public interface IContest {
 	String getFormalName();
 
 	/**
+	 * Returns the formal name of the contest, or fall back to the name.
+	 *
+	 * @return the formal name
+	 */
+	String getActualFormalName();
+
+	/**
 	 * A positive # indicates a contest start time in seconds from the Unix epoch (Jan 1, 1970). A
 	 * negative # indicates that the contest start is paused and gives the negative time of the
 	 * pause, in seconds (e.g. -65 means it is paused 1m 5s before the start of the contest). Null

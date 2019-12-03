@@ -53,7 +53,7 @@ public class TeamUtil {
 		else if (style2 == Style.ORGANIZATION_NAME)
 			s = org.getName();
 		else if (style2 == Style.ORGANIZATION_FORMAL_NAME)
-			s = org.getFormalName();
+			s = org.getActualFormalName();
 		return s;
 	}
 
