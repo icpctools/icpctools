@@ -67,10 +67,7 @@ public class ProblemColorsPresentation extends AbstractICPCPresentation {
 			Graphics2D g = (Graphics2D) bi.getGraphics();
 			g.drawImage(img, 0, 0, w, h, 0, 0, img.getWidth(), img.getHeight(), null);
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			if (c != null && c.getRed() + c.getGreen() + c.getBlue() > 500)
-				g.setColor(Color.BLACK);
-			else
-				g.setColor(Color.WHITE);
+			g.setColor(org.icpc.tools.contest.model.ICPCColors.getContrastColor(c));
 			g.setFont(font);
 			String s = p.getLabel();
 			FontMetrics fm = g.getFontMetrics();

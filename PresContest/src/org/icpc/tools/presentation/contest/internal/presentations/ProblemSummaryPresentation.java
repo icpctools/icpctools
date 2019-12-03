@@ -186,15 +186,9 @@ public class ProblemSummaryPresentation extends AbstractICPCPresentation {
 				pColor = pColors.get(problemId);
 				poColor = poColors.get(problemId);
 				if (pColor == null) {
-					if (probColor == null)
-						pColor = new Color(0, 0, 0, 164);
-					else
-						pColor = new Color(probColor.getRed(), probColor.getGreen(), probColor.getBlue(), 164);
+					pColor = new Color(probColor.getRed(), probColor.getGreen(), probColor.getBlue(), 164);
 					pColors.put(problemId, pColor);
-					if (probColor == null)
-						poColor = Color.BLACK;
-					else
-						poColor = Utility.darker(probColor, 0.25f);
+					poColor = org.icpc.tools.contest.model.ICPCColors.getContrastColor(probColor);
 					poColors.put(problemId, poColor);
 				}
 			}

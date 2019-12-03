@@ -280,11 +280,8 @@ public class TeamJudgePresentation extends AbstractICPCPresentation {
 		String probId = sr.submission.getProblemId();
 		IProblem problem = contest.getProblemById(probId);
 		Color c = problem.getColorVal();
-		if (c != null) {
-			c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 127);
-			g.setColor(c);
-			g.fillRect(0, 0, width / COLUMNS, height / ROWS);
-		}
+		g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 127));
+		g.fillRect(0, 0, width / COLUMNS, height / ROWS);
 
 		String teamId = sr.submission.getTeamId();
 		ITeam team = contest.getTeamById(teamId);

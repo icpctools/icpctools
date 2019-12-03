@@ -10,7 +10,6 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.presentation.contest.internal.ContestData;
-import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.Utility;
 import org.icpc.tools.presentation.core.chart.AbstractChartPresentation;
@@ -64,23 +63,11 @@ public class JudgementChart extends AbstractChartPresentation {
 			return;
 
 		String[] labels = new String[numProblems];
-		int u = 0;
-
 		Color[] colorAttempt = new Color[numProblems];
 		Color[] colorSolved = new Color[numProblems];
 		for (int j = 0; j < numProblems; j++) {
 			labels[j] = problems[j].getLabel();
 			colorAttempt[j] = problems[j].getColorVal();
-			if (colorAttempt[j] == null) {
-				if (u == 0)
-					colorAttempt[j] = ICPCColors.BLUE;
-				else if (u == 1)
-					colorAttempt[j] = ICPCColors.YELLOW;
-				else
-					colorAttempt[j] = ICPCColors.RED;
-				u++;
-				u %= 3;
-			}
 			colorSolved[j] = Utility.alphaDarker(colorAttempt[j], 200, 0.8f);
 		}
 
