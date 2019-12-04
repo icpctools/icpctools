@@ -428,7 +428,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 
 		g.setColor(Color.white);
 		g.drawLine(0, headerHeight - 1, width, headerHeight - 1);
-		int y = headerHeight - 5;
+		int y = headerHeight - 3;
 
 		g.setFont(headerItalicsFont);
 		g.drawString("Rank", BORDER + (fm.stringWidth("199") - fm2.stringWidth("Rank")) / 2, y);
