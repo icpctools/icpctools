@@ -24,12 +24,10 @@ import javax.imageio.stream.FileImageInputStream;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.IGroup;
-import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.TSVImporter;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
@@ -55,10 +53,10 @@ public class DiskContestSource extends ContestSource {
 
 	private File root;
 	private boolean isCache;
-	private boolean isOldCDP;
 	private String contestId;
 	private boolean expectFeed = true;
 	private Closeable parser;
+	private Validation configValidation;
 
 	/**
 	 * Create a disk contest source at the specified folder.
@@ -79,23 +77,19 @@ public class DiskContestSource extends ContestSource {
 		root = folder;
 
 		if (root == null) {
-			 throw new IllegalArgumentException("Contest archive not set.");
+			throw new IllegalArgumentException("Contest archive not set.");
 		}
 		if (!root.exists()) {
-			 if (!root.mkdirs()) {
-				  throw new IllegalArgumentException("Contest archive (" + root.toString()
-						  + ") did not exist and directory creation failed.");
-			 }
+			if (!root.mkdirs()) {
+				throw new IllegalArgumentException(
+						"Contest archive (" + root.toString() + ") did not exist and directory creation failed.");
+			}
 		}
 		if (root.isFile()) {
-			 throw new IllegalArgumentException("Contest archive (" + root.toString()
-					 + ") should point to directory, points to file instead.");
+			throw new IllegalArgumentException(
+					"Contest archive (" + root.toString() + ") should point to directory, points to file instead.");
 		}
 
-		if (new File(root, "images").exists())
-			isOldCDP = true;
-		else if (new File(root, "video").exists())
-			isOldCDP = true;
 		instance = this;
 	}
 
@@ -119,10 +113,10 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void setContestId(String contestId) {
-      this.contestId = contestId;
-   }
+		this.contestId = contestId;
+	}
 
-	 private static String getSafeHash(String s) {
+	private static String getSafeHash(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
@@ -166,15 +160,15 @@ public class DiskContestSource extends ContestSource {
 			File[] files = dir.listFiles();
 			// cycle through files
 			boolean deleteCurrent = true;
-			 for (File current : files) {
-				  if (current.isFile()) {
-						if (!current.delete())
-							 deleteCurrent = false;
-				  } else if (current.isDirectory()) {
-						if (!deleteDirectory(current))
-							 deleteCurrent = false;
-				  }
-			 }
+			for (File current : files) {
+				if (current.isFile()) {
+					if (!current.delete())
+						deleteCurrent = false;
+				} else if (current.isDirectory()) {
+					if (!deleteDirectory(current))
+						deleteCurrent = false;
+				}
+			}
 			return !deleteCurrent || dir.delete();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error deleting directory " + dir.getAbsolutePath(), e);
@@ -198,14 +192,14 @@ public class DiskContestSource extends ContestSource {
 	private int getDiskHash() {
 		File hashFile = new File(root, "hash.txt");
 		if (hashFile.exists()) {
-			 try (BufferedReader br = new BufferedReader(new FileReader(hashFile))) {
-				  String s = br.readLine();
-				  Trace.trace(Trace.INFO, "Contest hash found: " + s);
-				  return Integer.parseInt(s);
-			 } catch (Exception e) {
-				  Trace.trace(Trace.WARNING, "Couldn't read contest hash file", e);
-			 }
-			 // ignore
+			try (BufferedReader br = new BufferedReader(new FileReader(hashFile))) {
+				String s = br.readLine();
+				Trace.trace(Trace.INFO, "Contest hash found: " + s);
+				return Integer.parseInt(s);
+			} catch (Exception e) {
+				Trace.trace(Trace.WARNING, "Couldn't read contest hash file", e);
+			}
+			// ignore
 		}
 		File configFolder = new File(root, "config");
 		File[] files = configFolder.listFiles();
@@ -306,7 +300,7 @@ public class DiskContestSource extends ContestSource {
 		return list.toArray(new String[0]);
 	}
 
-	 /**
+	/**
 	 * Set the remote info on a file so we know where it came from.
 	 */
 	protected void updateFileInfo(File file, String href, String etag) {
@@ -589,7 +583,7 @@ public class DiskContestSource extends ContestSource {
 		IContestModifier mod = (contest2, obj) -> attachLocalResources(obj);
 		contest.addModifier(mod);
 
-		loadCDPConfigFiles();
+		loadConfigFiles();
 
 		// Trace.trace(Trace.INFO, "Time to load EF 0: " + (System.currentTimeMillis() - time) +
 		// "ms");
@@ -629,9 +623,9 @@ public class DiskContestSource extends ContestSource {
 			throw e;
 		} finally {
 			try {
-				 in.close();
+				in.close();
 			} catch (Exception e) {
-				 // ignore
+				// ignore
 			}
 			contest.removeModifier(mod);
 		}
@@ -683,17 +677,17 @@ public class DiskContestSource extends ContestSource {
 
 		String start = filename.substring(0, ind);
 		String end = filename.substring(ind + 3);
-		File[] files = folder.listFiles(
-				(dir, name) -> (name.toLowerCase().startsWith(start) && name.toLowerCase().endsWith(end)));
+		File[] files = folder
+				.listFiles((dir, name) -> (name.toLowerCase().startsWith(start) && name.toLowerCase().endsWith(end)));
 
 		if (files == null)
 			return null;
 
-		 for (File file : files) {
-			  String subs = file.getName();
-			  subs = subs.substring(start.length(), subs.length() - end.length());
-			  refList.add(getMetadata(url.replace("{0}", subs), file));
-		 }
+		for (File file : files) {
+			String subs = file.getName();
+			subs = subs.substring(start.length(), subs.length() - end.length());
+			refList.add(getMetadata(url.replace("{0}", subs), file));
+		}
 		return refList;
 	}
 
@@ -852,17 +846,44 @@ public class DiskContestSource extends ContestSource {
 		}
 	}
 
-	 protected void loadCDPConfigFiles() {
+	private static void loadFile(Contest contest, File f, String typeName) throws IOException {
+		Trace.trace(Trace.INFO, "Loading " + typeName);
+		if (f == null || !f.exists())
+			return;
+
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+			JSONParser parser = new JSONParser(new FileInputStream(f));
+			Object[] arr = parser.readArray();
+			for (Object obj : arr) {
+				JsonObject data = (JsonObject) obj;
+				ContestObject co = (ContestObject) IContestObject.createByName(typeName);
+				for (String key : data.props.keySet())
+					co.add(key, data.props.get(key));
+
+				contest.add(co);
+			}
+		}
+	}
+
+	private static File getConfigFile(File root, String file) {
+		return new File(root, "config" + File.separator + file);
+	}
+
+	protected void loadConfigFiles() {
 		if (isCache())
 			return;
 
+		configValidation = new Validation();
 		try {
 			Trace.trace(Trace.INFO, "Importing contest info");
 			Info info = YamlParser.importContestInfo(root);
 			contest.add(info);
+			configValidation.ok("Contest info loaded");
 		} catch (FileNotFoundException e) {
+			configValidation.ok("Contest info not found");
 			Trace.trace(Trace.INFO, e.getMessage());
 		} catch (Exception e) {
+			configValidation.err("Error importing contest info: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing contest info", e);
 		}
 
@@ -874,48 +895,83 @@ public class DiskContestSource extends ContestSource {
 		} catch (FileNotFoundException e) {
 			Trace.trace(Trace.INFO, e.getMessage());
 		} catch (Exception e) {
+			configValidation.err("Error importing problem set: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing problem set", e);
 		}
 
 		try {
 			Trace.trace(Trace.INFO, "Importing groups");
-			List<IGroup> groups = TSVImporter.importGroups(root);
-			for (IGroup g : groups)
-				contest.add(g);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.INFO, e.getMessage());
+			File f = getConfigFile(root, "groups.json");
+			if (f.exists())
+				loadFile(contest, f, "groups");
+			else {
+				f = getConfigFile(root, "groups.tsv");
+				if (f.exists())
+					TSVImporter.importGroups(contest, f);
+				else
+					Trace.trace(Trace.INFO, "Group config file (groups.json/groups.tsv) not found");
+			}
 		} catch (Exception e) {
+			configValidation.err("Error importing groups: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing groups", e);
 		}
 
 		try {
 			Trace.trace(Trace.INFO, "Importing institutions");
-			List<IOrganization> orgs = TSVImporter.importInstitutions(root);
-			for (IOrganization o : orgs)
-				contest.add(o);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.INFO, e.getMessage());
+			File f = getConfigFile(root, "institutions.json");
+			if (f.exists())
+				loadFile(contest, f, "institutions");
+			else {
+				f = getConfigFile(root, "institutions2.tsv");
+				if (!f.exists())
+					f = getConfigFile(root, "institutions.tsv");
+
+				if (f.exists())
+					TSVImporter.importInstitutions(contest, f);
+				else
+					Trace.trace(Trace.INFO,
+							"Institutions config file (institutions.json/institutions2.tsv/institutions.tsv) not found");
+			}
 		} catch (Exception e) {
+			configValidation.err("Error importing institutions: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing institutions", e);
 		}
 
 		try {
 			Trace.trace(Trace.INFO, "Importing teams");
-			TSVImporter.importTeams(root, contest);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.INFO, e.getMessage());
+			File f = getConfigFile(root, "teams.json");
+			if (f.exists())
+				loadFile(contest, f, "teams");
+			else {
+				f = getConfigFile(root, "teams2.tsv");
+
+				if (!f.exists())
+					f = getConfigFile(root, "teams.tsv");
+
+				if (f.exists())
+					TSVImporter.importTeams(contest, f);
+				else
+					Trace.trace(Trace.INFO, "Team config file (teams.json/teams2.tsv/teams.tsv) not found");
+			}
 		} catch (Exception e) {
+			configValidation.err("Error importing teams: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing teams", e);
 		}
 
 		try {
 			Trace.trace(Trace.INFO, "Importing team-members");
-			List<ITeamMember> members = TSVImporter.importTeamMembers(root);
-			for (ITeamMember tm : members)
-				contest.add(tm);
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.INFO, e.getMessage());
+			File f = getConfigFile(root, "members.json");
+			if (f.exists())
+				loadFile(contest, f, "members");
+			else {
+				f = getConfigFile(root, "members.tsv");
+				if (f.exists())
+					TSVImporter.importTeamMembers(contest, f);
+				else
+					Trace.trace(Trace.INFO, "Team member config file (members.json/members.tsv) not found");
+			}
 		} catch (Exception e) {
+			configValidation.err("Error importing team-members: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing team-members", e);
 		}
 
@@ -925,15 +981,11 @@ public class DiskContestSource extends ContestSource {
 			if (map != null) {
 				List<ITeam> teams = map.getTeams();
 				for (ITeam t : teams) {
-					for (IContestObject obj : contest.getTeams()) {
-						if (obj instanceof ITeam) {
-							ITeam tt = (ITeam) obj;
-							if (tt.getId().equals(t.getId())) {
-								((ContestObject) obj).add("x", t.getX() + "");
-								((ContestObject) obj).add("y", t.getY() + "");
-								((ContestObject) obj).add("rotation", t.getRotation() + "");
-							}
-						}
+					ITeam tt = contest.getTeamById(t.getId());
+					if (tt != null) {
+						((ContestObject) tt).add("x", t.getX() + "");
+						((ContestObject) tt).add("y", t.getY() + "");
+						((ContestObject) tt).add("rotation", t.getRotation() + "");
 					}
 				}
 
@@ -948,34 +1000,14 @@ public class DiskContestSource extends ContestSource {
 				}
 			}
 		} catch (Exception e) {
+			configValidation.err("Error importing floor map: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing floor map", e);
 		}
 	}
 
 	@Override
 	public Validation validate() {
-		Validation v = new Validation();
-
-		if (isOldCDP) {
-			try {
-				v.messages.add("Contest Data Package");
-				if ((YamlParser.importContestInfo(root) != null))
-					v.ok("contest.yaml found");
-				else
-					v.err("contest.yaml not found");
-				v.ok("problemset.yaml: " + YamlParser.importProblems(root).size() + " problems");
-				v.ok("groups.tsv: " + TSVImporter.importGroups(root).size() + " groups");
-				Contest c = new Contest();
-				TSVImporter.importTeams(root, c);
-				v.ok("teams.tsv: " + c.getNumObjects() + " teams");
-			} catch (Exception e) {
-				v.err("Error during validation: " + e.getMessage());
-			}
-		} else {
-			v.ok("Contest Archive");
-			// TODO
-		}
-		return v;
+		return configValidation;
 	}
 
 	@Override

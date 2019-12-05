@@ -38,6 +38,9 @@
         contest.setContestId("<%= cc.getId() %>");
 
         function teamTd(team) {
+        	var name = team.display_name;
+        	if (name == null)
+        		name = team.name;
             var org = findById(contest.getOrganizations(), team.organization_id);
             var orgName = '';
             var orgFormalName = '';
@@ -62,7 +65,7 @@
                 }
             }
 
-            return $('<td><a href="<%= apiRoot %>/teams/' + team.id + '">' + team.id + '</td><td>' + team.name + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + orgName + '</td><td>' + orgFormalName + '</td><td>' + groupNames + '</td>'
+            return $('<td><a href="<%= apiRoot %>/teams/' + team.id + '">' + team.id + '</td><td>' + name + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + orgName + '</td><td>' + orgFormalName + '</td><td>' + groupNames + '</td>'
                 + '<td><a href="<%= webroot  %>/teamSummary/' + team.id + '">summary</a></td>');
         }
 

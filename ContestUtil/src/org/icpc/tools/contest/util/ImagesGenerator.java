@@ -30,7 +30,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.TSVImporter;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Organization;
 
@@ -72,7 +72,7 @@ public class ImagesGenerator {
 		Trace.init("ICPC Image Generator", "imageGenerator", args);
 
 		if (args == null || args.length != 1) {
-			Trace.trace(Trace.ERROR, "Single argument, must point to contest data package root");
+			Trace.trace(Trace.ERROR, "Missing argument, must point to a contest location");
 			System.exit(0);
 			return;
 		}
@@ -587,19 +587,9 @@ public class ImagesGenerator {
 	}
 
 	private void init() {
-		contest = new Contest();
-		try {
-			TSVImporter.importTeams(contestRoot, contest);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Could not import teams: " + e.getMessage());
-		}
-		try {
-			List<IOrganization> orgs = TSVImporter.importInstitutions(contestRoot);
-			for (IOrganization org : orgs)
-				contest.add(org);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Could not import teams: " + e.getMessage());
-		}
+		DiskContestSource source = new DiskContestSource(contestRoot);
+		contest = source.loadContest(null);
+		source.waitForContest(5000);
 
 		try {
 			InputStream in = getClass().getClassLoader().getResourceAsStream("font/HELV.PFB");

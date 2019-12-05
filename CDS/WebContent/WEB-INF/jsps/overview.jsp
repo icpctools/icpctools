@@ -14,15 +14,20 @@
                     <h3 class="card-title">Overview</h3>
                 </div>
                 <div class="card-body p-0">
-                    <% String validation = "";
+                <% String validation = null;
                 List<String> validationList = contest.validate();
-                if (validationList == null)
+                if (validationList != null) {
+                    if (validationList.size() < 20) {
+                        for (String s : validationList)
+                            validation += s + "<br/>";
+                    } else
+                    validation = validationList.size() + " errors";
+                }
+                    
+                if (validation == null)
                     validation = "No errors";
-                else if (validationList.size() < 20) {
-                    for (String s : validationList)
-                        validation += s + "<br/>";
-                } else
-                    validation = validationList.size() + " errors"; %>
+                else
+                    validation = "<a href='" + request.getContextPath() + "/contests/" + cc.getId() + "/validation'>" + validation + "</a>"; %>
 
                     <table class="table table-sm table-hover table-striped">
                         <tbody>
@@ -43,7 +48,7 @@
                             </tr>
                             <tr>
                                 <td><b>Validation:</b></td>
-                                <td><a href="<%= webroot %>/validation"><%= validation %></a></td>
+                                <td><%= validation %></td>
                                 <td><b>Last event:</b></td>
                                 <td><%= ContestUtil.formatDuration(contest.getContestTimeOfLastEvent()) %></td>
                             </tr>
@@ -61,7 +66,7 @@
                         <a href="<%= webroot%>/contestCompare/compare2cds">CDS awards</a>
                     </p>
 
-                    <p class="indent">Freeze details & verification: <a href="<%= webroot%>/freeze">here</a>.
+                    <p class="indent"><a href="<%= webroot%>/freeze">Freeze details & verification</a>
                     </p>
 
                 </div>

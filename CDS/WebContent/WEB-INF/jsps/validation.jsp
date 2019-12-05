@@ -1,5 +1,5 @@
 <%@ page import="java.util.List" %>
-<% request.setAttribute("title", "Contest validation"); %>
+<% request.setAttribute("title", "Validation"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
     <div class="row">
