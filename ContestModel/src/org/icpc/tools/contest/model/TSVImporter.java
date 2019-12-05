@@ -2,11 +2,8 @@ package org.icpc.tools.contest.model;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
@@ -40,19 +37,8 @@ public class TSVImporter {
 		co.add(name, value);
 	}
 
-	private static File getFile(File root, String file) {
-		return new File(root, "config" + File.separator + file);
-	}
-
-	public static List<IGroup> importGroups(File root) throws IOException {
-		File f = getFile(root, "groups.tsv");
-		if (f == null || !f.exists())
-			throw new FileNotFoundException("Group config file (groups.tsv) not found");
-
-		BufferedReader br = new BufferedReader(new FileReader(f));
-
-		List<IGroup> groups = new ArrayList<>();
-		try {
+	public static void importGroups(Contest contest, File f) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			// read header
 			br.readLine();
 
@@ -65,49 +51,18 @@ public class TSVImporter {
 						add(g, ID, st[0]);
 						add(g, ICPC_ID, st[0]);
 						add(g, NAME, st[1]);
-						groups.add(g);
+						contest.add(g);
 					} catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Error parsing groups.tsv", e);
 					}
 				}
 				s = br.readLine();
 			}
-		} finally {
-			try {
-				br.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
-		return groups;
 	}
 
-	public static void importTeams(File root, Contest c) throws IOException {
-		List<ITeam> teams = importTeams(root, c, new ArrayList<IContestObject>());
-		for (ITeam t : teams)
-			c.add(t);
-	}
-
-	public static List<ITeam> importTeams(File root, Contest c, List<IContestObject> objects) throws IOException {
-		File f = null;
-		try {
-			f = getFile(root, "teams2.tsv");
-		} catch (Exception e) {
-			// ignore
-		}
-		if (f == null || !f.exists())
-			try {
-				f = getFile(root, "teams.tsv");
-			} catch (Exception e) {
-				// ignore
-			}
-		if (f == null || !f.exists())
-			throw new FileNotFoundException("Team config file (teams.tsv) not found");
-
-		BufferedReader br = new BufferedReader(new FileReader(f));
-
-		List<ITeam> teams = new ArrayList<>();
-		try {
+	public static void importTeams(Contest contest, File f) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			// read header
 			br.readLine();
 
@@ -132,8 +87,7 @@ public class TSVImporter {
 							}
 							// TODO: group_id
 
-							teams.add(t);
-							objects.add(t);
+							contest.add(t);
 						}
 					} catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Error parsing teams.tsv, team " + t.getId(), e);
@@ -141,30 +95,11 @@ public class TSVImporter {
 				}
 				s = br.readLine();
 			}
-		} finally {
-			try {
-				br.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
-		return teams;
 	}
 
-	public static List<IOrganization> importInstitutions(File root) throws IOException {
-		File f = getFile(root, "institutions2.tsv");
-		if (f == null || !f.exists())
-			try {
-				f = getFile(root, "institutions.tsv");
-			} catch (Exception e) {
-				// ignore
-			}
-		if (f == null || !f.exists())
-			throw new FileNotFoundException("Institutions config file (institutions2.tsv) not found");
-
-		BufferedReader br = new BufferedReader(new FileReader(f));
-		List<IOrganization> orgs = new ArrayList<>();
-		try {
+	public static void importInstitutions(Contest contest, File f) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			// read header
 			br.readLine();
 
@@ -195,30 +130,16 @@ public class TSVImporter {
 						org.add(LOCATION, obj);
 					}
 
-					orgs.add(org);
+					contest.add(org);
 				}
 				s = br.readLine();
 			}
-		} finally {
-			try {
-				br.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
-		return orgs;
 	}
 
-	public static List<ITeamMember> importTeamMembers(File root) throws IOException {
-		File f = getFile(root, "members.tsv");
-		if (f == null || !f.exists())
-			throw new FileNotFoundException("Team member config file (members.tsv) not found");
-
-		BufferedReader br = new BufferedReader(new FileReader(f));
+	public static void importTeamMembers(Contest contest, File f) throws IOException {
 		int id = 1;
-
-		List<ITeamMember> people = new ArrayList<>();
-		try {
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			// read header
 			br.readLine();
 
@@ -246,18 +167,11 @@ public class TSVImporter {
 						}
 						if (st.length >= 6)
 							add(p, ICPC_ID, st[5]);
-						people.add(p);
+						contest.add(p);
 					}
 				}
 				s = br.readLine();
 			}
-		} finally {
-			try {
-				br.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
-		return people;
 	}
 }

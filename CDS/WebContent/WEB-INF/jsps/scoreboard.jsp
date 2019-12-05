@@ -89,7 +89,10 @@
                                 logoSrc = '/api/' + logo.href;
                             org = org.name;
                         }
-                        team = team.id + ': ' + team.name;
+                        if (team.display_name != null)
+                            team = team.id + ': ' + team.display_name;
+                        else
+                            team = team.id + ': ' + team.name;
                     }
                 }
 
