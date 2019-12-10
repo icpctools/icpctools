@@ -41,33 +41,26 @@ image::PresentationCollage.png["Presentation Samples",align="center",scaledwidth
 When a Presentation Client is started it must be told, in addition to what presentations to display,
 where to obtain its input data (images, contest events, etc.).
 This is referred to as specifying a _contest data source_.  
-Presentation Clients can obtain their input data from three different types of contest data sources: 
-a https://clics.ecs.baylor.edu/index.php/Main_Page#Contest_Data_Package[_contest data package (CDP)_],
-a https://clics.ecs.baylor.edu/index.php/Contest_Control_System[_contest control system (CCS)_], 
-or a https://clics.ecs.baylor.edu/index.php/CDS[_contest data server (CDS)_].
-(A _Contest Data Server_ is another ICPC Tool; see the 
-http://icpc.baylor.edu/icpctools[ICPC Tools website] for details.)
+Presentation Clients can obtain their input data from two different types of contest data sources:
+a compliant https://clics.ecs.baylor.edu/index.php?title=Contest_API[_Contest API_], or a
+a https://clics.ecs.baylor.edu/index.php/Main_Page#Contest_Data_Package[_contest data package (CDP)_].
 
-When connecting to a live Contest Control System, the Presentation Client works by reading 
-the _event feed_ output of the CCS
-The ICPC Presentation System will work with any CCS that produces an event feed which is 
-compliant with the https://clics.ecs.baylor.edu/[_CLI CCS Specification_].  
-Systems known to produce compliant event feeds include 
-http://pc2.ecs.csus.edu[PC-Squared] and 
+When connecting to a live Contest Control System via the Contest API, the Presentation Client works
+by reading the _event feed_ output of the CCS.
+The ICPC Presentation System will work with any CCS or the CDS that produces an event feed which is 
+compliant with the _CLI Contest API Specification_ defined at 
+https://clics.ecs.baylor.edu/. 
+Tools known to produce compliant event feeds include the
+https://icpc.baylor.edu/icpctools[Contest Data Server],
+https://www.domjudge.org[DOMjudge],
+http://pc2.ecs.csus.edu/pc2[PC-Squared], and 
 https://www.kattis.com/[Kattis]; 
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Presentation System.
 
 A second way to provide the Presentation Client with input data is by creating a _contest data package_ (CDP). 
 A CDP is an arbitrarily-named folder with specific contest-configuration contents;
-see the above reference for details on CDP structure.     
-
-Alternatively, a Presentation Client can obtain its input from a Contest Data Server. 
-A CDS provides URL access points for obtaining event feed and other contest data; 
-starting a Presentation Client with the URL of a CDS causes it to connect to the CDS 
-and pull down the necessary information dynamically.  
-(Note: the CDS must have been configured to connect to a compatible CCS in order
-for it to supply event feed data to the Presentation Client.)
+see the above reference for details on CDP structure.
 
 == Using the Presentation Client
 
@@ -115,18 +108,12 @@ The second parameter to the script specifies a contest data source.
 If the second parameter is the name of a folder,
 the Presentation Client interprets it as the root of a _contest data package (CDP)_,
 as described above, and it uses the specified CDP to obtain its contest data.
-  
-If the second parameter is the keyword "ccs"
-the Presentation Client expects the next two parameters to
-specify a host and port, and it attempts to open a connection to an event feed 
-from a Contest Control System at that host and port.
 
 If the second parameter is a URL, the Presentation Client interprets it as
-the URL of a contest data server; it opens a connection to the specified
-CDS and reads its input data from the CDS.  When the second parameter specifies 
-an HTTPS URL, the Presentation Client expects the next two parameters to
-specify a user name and password.  This user name and password is used to login to 
-a CDS at the specified URL.
+the URL of a Contest API server; it opens a connection to the specified
+server and reads its input data.  The Presentation Client expects the next two parameters to
+specify a user name and password. This user name and password are used to login to 
+the Contest API.
  
 To terminate a running presentation, press Ctrl-Q.
 
@@ -311,7 +298,7 @@ The first source that correctly resolves into a number is used. All of the examp
 
 == Additional Notes
 
-The Presentation System is written in Java and will run on any platform supporting Java Version 7 or greater.  
+The Presentation System is written in Java and will run on any platform supporting Java Version 8 or greater.  
 However, it makes heavy use of screen-level graphics and is therefore heavily dependent on the 
 graphics drivers on the platform.  
 In our experience, Linux graphics drivers tend to be substantially less robust than others; 

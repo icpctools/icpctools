@@ -58,20 +58,18 @@ public class StandaloneLauncher {
 	}
 
 	public static void showHelp(List<PresentationInfo> presentations) {
-		System.out.println("Usage: standalone.bat/sh presentations contestSource [user/host] [password/port] [options]");
+		System.out.println("Usage: standalone.bat/sh presentations contestSource [user] [password] [options]");
 		System.out.println();
 		System.out.println("   presentations");
 		System.out.println("      one or more presentation names or ids, separated by |");
-		System.out.println("   contestSource [user/host] [password/port]");
+		System.out.println("   contestSource [user] [password]");
 		System.out.println("      \"http://\" to connect to a CDS, or");
 		System.out.println("      \"https:// [user] [password] to connect to a secure CDS, or");
-		System.out.println("      \"ccs [host] [port]\" to connect to CCS, or");
 		System.out.println("      \"[folder]\" to load from a contest data package archive folder");
 		System.out.println("   options");
 		System.out.println("      \"--display X\" display on screen X");
 		System.out.println();
 		System.out.println("Examples: standalone logo|photos https://cds tim pwd");
-		System.out.println("          standalone timeline ccs ccsServer 4713");
 		System.out.println("          standalone 1|3|16 c:\\myContestCDPfolder");
 		System.out.println();
 

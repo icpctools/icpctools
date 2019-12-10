@@ -24,7 +24,6 @@ public class CCSContestSource extends DiskContestSource {
 	private String host;
 	private int port;
 	private String startTime;
-	private String submissionFiles;
 	private XMLFeedParser parser;
 
 	/**
@@ -59,8 +58,7 @@ public class CCSContestSource extends DiskContestSource {
 	/**
 	 * Create a CCS contest source with a disk cache.
 	 */
-	public CCSContestSource(String eventFeed, String user, String password, String submissionFiles, String startTime,
-			File folder) {
+	public CCSContestSource(String eventFeed, String user, String password, String startTime, File folder) {
 		super(folder);
 		int index = eventFeed.indexOf(":");
 		try {
@@ -73,45 +71,8 @@ public class CCSContestSource extends DiskContestSource {
 		this.user = user;
 		this.password = password;
 		this.startTime = startTime;
-		this.submissionFiles = submissionFiles;
 
 		instance = this;
-	}
-
-	@Override
-	public File getFile(String path) throws IOException {
-		File f = super.getFile(path);
-		if (f.exists())
-			return f;
-
-		// for submissions, try to cache submissions
-		if (path == null || !(path.startsWith("/submissions/") && path.endsWith("/files")) || submissionFiles == null)
-			return null;
-
-		String submissionId = path.substring(13, path.length() - 13 - 6);
-		String url = submissionFiles.replace("{0}", submissionId);
-
-		try {
-			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url), user, password);
-			conn.connect();
-
-			if (conn.getResponseCode() != 200)
-				throw new IOException(conn.getResponseCode() + ":" + conn.getResponseMessage());
-
-			InputStream in = null;
-			try {
-				in = conn.getInputStream();
-				downloadAndCache(in, f);
-				return f;
-			} finally {
-				in.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("500: Could not connect: " + e.getMessage());
-		} catch (Exception e) {
-			throw new IOException("Connection error", e);
-		}
 	}
 
 	@Override
@@ -163,33 +124,6 @@ public class CCSContestSource extends DiskContestSource {
 		super.close();
 		if (parser != null)
 			parser.close();
-	}
-
-	/**
-	 * Returns an input stream to the submission file content for the given submission id.
-	 *
-	 * @param submissionId a valid submission id
-	 * @return an input stream to the submission file content
-	 * @throws IOException
-	 */
-	public InputStream getSubmissionFile(String submissionId) throws IOException {
-		if (submissionFiles == null)
-			throw new IOException("Submission file service not configured");
-
-		try {
-			String url2 = submissionFiles.replace("{0}", submissionId);
-			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url2), user, password);
-			conn.connect();
-
-			if (conn.getResponseCode() != 200)
-				throw new IOException(conn.getResponseCode() + ": " + conn.getResponseMessage());
-			return conn.getInputStream();
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("500: Could not connect: " + e.getMessage());
-		} catch (Exception e) {
-			throw new IOException("Connection error", e);
-		}
 	}
 
 	/**
@@ -288,16 +222,6 @@ public class CCSContestSource extends DiskContestSource {
 		} catch (Exception e) {
 			v.err("Connection failure: " + e.getMessage());
 		}
-
-		if (submissionFiles != null) {
-			try {
-				getFile("/submissions/0/files");
-				v.ok("Submission files: OK");
-			} catch (Exception e) {
-				v.err("Submission files: FAIL - " + e.getMessage());
-			}
-		} else
-			v.ok("No submission file API configured");
 
 		if (startTime != null) {
 			try {

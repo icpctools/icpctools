@@ -30,7 +30,7 @@ The general form for executing the Coach View is
   
 where
 ........  
-  <contestSource> is either an HTTP or HTTPS URL to connect to a Contest API DS
+  <contestSource> is either an HTTP or HTTPS URL to connect to a Contest API
                   source, followed by user and password
 
   [options] can be "--display <num>", where <num> is which desktop display to use

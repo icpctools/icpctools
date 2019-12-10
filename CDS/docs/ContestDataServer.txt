@@ -202,10 +202,7 @@ that this is just meant to allow some configuration to happen in private, not a 
 <ccs
     url=""
     user=""
-    password=""
-    eventFeed=""
-    startTime=""
-    submissionFiles=""/>
+    password=""/>
 ....
 
 The optional <ccs> element is used to configure the CDS's access to the Contest Control System.  
@@ -213,29 +210,38 @@ The attributes associated with this element are as follows:
 
 ** url: the URL to a REST-based CCS
 
-** user: the user account name to be used to log in to the CCS
+** user: the user account name to log into the CCS
 
-** password:  the password for the CCS user account
+** password: the password for the CCS user account
 
-** eventFeed: (deprecated) the IP address and port at which the CDS should contact the CCS to obtain its event feed
+If the <ccs> element is present then the CDS will use the CCS as the master source of all contest data. The local
+<contest> folder is used as an initial source, cache, and can provide additional data (e.g. logos if the CCS does
+not provide those) but the event feed and all other contest data will come from or be overridden by the CCS.
 
-** startTime: (deprecated) the URL at which the CDS should contact the CCS to obtain the scheduled start time of the contest.
+====== <ccs> Child Element (deprecated)
+
+....
+<ccs
+    eventFeed=""
+    startTime=""
+    user=""
+    password=""/>
+....
+
+Only one <ccs> element may be used. This alternate and deprecated <ccs> element is provided to connect to older
+CCSs that do not support the CLI Contest API. It provides support for the final XML Event Feed specification
+(https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016) and Contest Start Interface
+(https://clics.ecs.baylor.edu/index.php?title=Contest_Start_Interface).
+The attributes associated with this element are as follows:
+
+** eventFeed: (host:port) the IP address and port at which the CDS should contact the CCS to obtain its event feed
+
+** startTime: the optional URL at which the CDS should contact the CCS to obtain the scheduled start time of the contest.
 The return start time is expected to be in mSec since the start of the Unix epoch (i.e., since midnight January 1st, 1970)
 
-** submissionFiles: (deprecated) the URL at which the CDS should contact the CCS to obtain the files corresponding to a specific team
-submission.  The URL must be of the form https://<host>/<path>?id={0} (for example, 
-"https://203.0.113.5/api/v0/submission_files.php?id={0}"); 
-the CDS will substitute the submission ID number (also called the "runID") in place of "{0}" 
-prior to invoking the request on the CCS.
+** user: the optional user account name to log into the CCS Start Interface
 
-Note that if the <ccs> element is present then it has the effect of overriding the source of the event feed as specified in the 
-<contest> element.  That is, if the <ccs> element is present then the CDS will obtain its event feed from the CCS
-rather than from the CDP whose location is specified in the <contest> element.  However, this does not affect any
-other data specified by the <contest> element; the CDS continues to obtain images, backups, etc. from the CDP location
-specified in the <contest> element even if the <ccs> element is present.
-
-See the https://clics.ecs.baylor.edu/index.php/CDS[CLI CDS wiki] for further details about the <ccs> element attributes.
-
+** password: the optional password for the CCS Start Interface user account
 
 ====== <video> Child Element
 

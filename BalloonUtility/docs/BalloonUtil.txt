@@ -51,52 +51,30 @@ image::BUStartupScreen.png[Balloon Utility Startup Screen,align="center"]
 screen will be unpopulated as shown above.)
 
 In order to use the BU once it is started, it must 
-be connected to the _event feed_ output of a 
-_Contest Control System (CCS)_.
-The Balloon Utility will work with any event feed which is 
-compliant with the _CLI CCS Specification_ defined at 
-https://clics.ecs.baylor.edu/.  
-CCS's known to produce compliant event feeds include 
-http://pc2.ecs.csus.edu/pc2[PC-Squared] and 
+be connected to the output of a _Contest Control System (CCS)_.
+The Balloon Utility will work with any CCS or the CDS which is 
+compliant with the _CLI Contest API Specification_ defined at 
+https://clics.ecs.baylor.edu/.
+Tools known to produce compliant event feeds include
+https://icpc.baylor.edu/icpctools[Contest Data Server], 
+https://www.domjudge.org[DOMjudge],
+http://pc2.ecs.csus.edu/pc2[PC-Squared], and 
 https://www.kattis.com/[Kattis]; 
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Balloon Utility.
 
-The BU is capable of operating with contest data obtained from one of three
-different sources: a Contest API source (e.g. CCS or CDS), an _event feed file_, or
-a _socket connection_ directly to an active CCS.
+The BU is capable of operating with contest data obtained from one of two
+different sources: a Contest API source (e.g. CCS or CDS) or an _event feed file_.
 
 Pressing the "Connect" button (above) will produce the following dialog, used to 
 select the event feed input source for the BU.
 
 image::BUSourceSelectionDialog.png[BUSourceSelection,align=center]
 
+Connecting the BU directly to a running (compatible) CCS or CDS is done using the REST
+selection in the Connect dialog and entering a valid Contest API URL, user, and password.
 The BU can be connected
-to an event feed file using the bottom selection in the Connect dialog.
-An event feed file is created off-line (that is, by steps external to 
-the Balloon Utility) by connecting to port 4713 on a machine
-running a compatible CCS and saving the resulting output to a file (see 
-https://clics.ecs.baylor.edu/index.php/Event_Feed for details on the structure of an event feed).  
-
-Connecting the BU directly to a running (compatible) CCS is done by entering 
-the Host IP address and port number in the middle entry of the Connect dialog.
-Note that the default event feed port for ICPC-compatible CCS's is 4713. 
-
-Alternatively, the BU can obtain its event feed data from a Contest Data Server (CDS). 
-A CDS provides URL access points for obtaining event feed and other contest data; 
-connecting the BU to a CDS causes it to pull the necessary information dynamically
-from the CDS.  
-(Note: the CDS must have been configured to connect to a compatible CCS in order
-for it to supply event feed data to the BU.)
-
-The main reason for using a CDS instead of a simple event feed file or live 
-event feed connection to provide
-BU input is that a CDS can also provide other information to the BU.  
-For example, if the CDS has been configured with
-problem names and balloon colors, the BU knows how to pull these
-from the CDS as well and will use them in the output display.  The sample image
-presented at the start of this document shows the use of such data; 
-these came from connecting the BU to a CDS.
+to an event feed file using the Disk selection in the Connect dialog.
 
 
 === Operating the Balloon Utility
@@ -176,5 +154,3 @@ for teams which are not at their site.
 
 Note that the definition of the groups in a contest comes from data in the event feed read by the BU; 
 groups cannot be directly defined within the Balloon Utility itself.
-
-

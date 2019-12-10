@@ -238,7 +238,6 @@ public class ConfiguredContest {
 		private String password;
 		private String eventFeed;
 		private String startTime;
-		private String submissionFiles;
 
 		protected CCS(Element e) {
 			url = CDSConfig.getString(e, "url");
@@ -246,7 +245,6 @@ public class ConfiguredContest {
 			password = CDSConfig.getString(e, "password");
 			eventFeed = CDSConfig.getString(e, "eventFeed");
 			startTime = CDSConfig.getString(e, "startTime");
-			submissionFiles = CDSConfig.getString(e, "submissionFiles");
 		}
 
 		public String getURL() {
@@ -269,10 +267,6 @@ public class ConfiguredContest {
 			return startTime;
 		}
 
-		public String getSubmissionFiles() {
-			return submissionFiles;
-		}
-
 		@Override
 		public String toString() {
 			if (getURL() != null)
@@ -282,8 +276,6 @@ public class ConfiguredContest {
 			sb.append(getUser() + "@" + getEventFeed());
 			if (startTime != null)
 				sb.append(", start " + startTime);
-			if (submissionFiles != null)
-				sb.append(", submissionFiles " + submissionFiles);
 			return sb.toString();
 		}
 	}
@@ -499,7 +491,7 @@ public class ConfiguredContest {
 					contestSource = new RESTContestSource(ccs.getURL(), ccs.getUser(), ccs.getPassword(), folder);
 				else
 					contestSource = new CCSContestSource(ccs.getEventFeed(), ccs.getUser(), ccs.getPassword(),
-							ccs.getSubmissionFiles(), ccs.getStartTime(), folder);
+							ccs.getStartTime(), folder);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not configure contest source", e);
 				contestSource = new DiskContestSource(folder);

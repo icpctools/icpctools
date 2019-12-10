@@ -34,10 +34,7 @@ public class Admin {
 
 		ContestSource source = null;
 		try {
-			if (args.length == 3)
-				source = ContestSource.parseSource(args[0], args[1], args[2]);
-			else
-				source = ContestSource.parseSource(args[0]);
+			source = ContestSource.parseSource(args[0], args[1], args[2]);
 		} catch (IOException e) {
 			Trace.trace(Trace.ERROR, "Could not parse source: " + e.getMessage());
 			return;
