@@ -40,7 +40,7 @@ public class ClientLauncher {
 	}
 
 	public static void showHelp() {
-		System.out.println("Usage: client.bat/sh id cdsURL [user] [password]");
+		System.out.println("Usage: client.bat/sh id cdsURL user password");
 		System.out.println();
 		System.out.println("   cdsURL");
 		System.out.println("      an HTTP(S) URL to a CDS");

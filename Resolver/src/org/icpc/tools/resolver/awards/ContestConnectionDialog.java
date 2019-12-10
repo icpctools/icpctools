@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.icpc.tools.contest.model.feed.CCSContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
@@ -36,12 +35,10 @@ public class ContestConnectionDialog extends Dialog {
 	private static final String PREF_URL = "rest.url";
 	private static final String PREF_USER = "rest.user";
 	private static final String PREF_PASSWORD = "rest.password";
-	private static final String PREF_HOST = "socket.host";
-	private static final String PREF_PORT = "socket.port";
 	private static final String PREF_FILE = "disk.file";
 
 	enum ConnectMethod {
-		RECENT, REST, SOCKET, DISK
+		RECENT, REST, DISK
 	}
 
 	protected ConnectMethod method = ConnectMethod.REST;
@@ -53,9 +50,6 @@ public class ContestConnectionDialog extends Dialog {
 	protected String url;
 	protected String user;
 	protected String password;
-
-	protected String host;
-	protected int port = -1;
 
 	protected String file;
 
@@ -88,16 +82,12 @@ public class ContestConnectionDialog extends Dialog {
 	public ContestSource getContestSource() throws IOException {
 		if (method == ConnectMethod.REST)
 			return new RESTContestSource(url, user, password);
-		else if (method == ConnectMethod.SOCKET)
-			return new CCSContestSource(host, port);
 		else if (method == ConnectMethod.DISK)
 			return new EventFeedContestSource(file);
 		else if (method == ConnectMethod.RECENT) {
 			String[] vals = recent;
 			if ("REST".equals(vals[1]))
 				return new RESTContestSource(vals[2], vals[3], vals[4]);
-			else if ("SOCKET".equals(vals[1]))
-				return new CCSContestSource(vals[2], Integer.parseInt(vals[3]));
 			else if ("FILE".equals(vals[1]))
 				return new EventFeedContestSource(vals[2]);
 		}
@@ -109,8 +99,6 @@ public class ContestConnectionDialog extends Dialog {
 			return String.join("`", recent);
 		else if (method == ConnectMethod.REST)
 			return user + " @ " + url + "`REST`" + url + "`" + user + "`" + password;
-		else if (method == ConnectMethod.SOCKET)
-			return host + ":" + port + "`SOCKET`" + host + "`" + port;
 		else if (method == ConnectMethod.DISK)
 			return file + "`FILE`" + file;
 		return null;
@@ -123,11 +111,6 @@ public class ContestConnectionDialog extends Dialog {
 				valid = false;
 		} else if (method == ConnectMethod.REST) {
 			if (url == null || url.isEmpty())
-				valid = false;
-		} else if (method == ConnectMethod.SOCKET) {
-			if (host == null || host.isEmpty())
-				valid = false;
-			if (port <= 0)
 				valid = false;
 		} else if (method == ConnectMethod.DISK) {
 			if (file == null || file.length() < 5)
@@ -251,54 +234,6 @@ public class ContestConnectionDialog extends Dialog {
 		return composite;
 	}
 
-	protected Composite createSocketTab(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
-		layout.marginWidth = 15;
-		layout.marginHeight = 15;
-		composite.setLayout(layout);
-
-		Label hostLabel = new Label(composite, SWT.NONE);
-		hostLabel.setText("H&ost:");
-		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
-		hostLabel.setLayoutData(data);
-
-		Text hostText = new Text(composite, SWT.BORDER);
-		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		hostText.setLayoutData(data);
-		hostText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent event) {
-				host = hostText.getText();
-				validate();
-			}
-		});
-		hostText.setText(prefs.get(PREF_HOST, ""));
-
-		Label portLabel = new Label(composite, SWT.NONE);
-		portLabel.setText("Po&rt:");
-		data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
-		portLabel.setLayoutData(data);
-
-		Text portText = new Text(composite, SWT.BORDER);
-		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		portText.setLayoutData(data);
-		portText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent event) {
-				try {
-					port = Integer.parseInt(portText.getText());
-				} catch (NumberFormatException e) {
-					port = -1;
-				}
-				validate();
-			}
-		});
-		portText.setText(prefs.getInt(PREF_PORT, 4713) + "");
-
-		return composite;
-	}
-
 	protected Composite createDiskTab(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(3, false);
@@ -372,12 +307,6 @@ public class ContestConnectionDialog extends Dialog {
 		restTab.setToolTipText("Connect via REST");
 		restTab.setControl(createRESTTab(tabFolder));
 		restTab.setData(ConnectMethod.REST);
-
-		TabItem socketTab = new TabItem(tabFolder, SWT.NONE);
-		socketTab.setText("&Socket");
-		socketTab.setToolTipText("Connect via Socket");
-		socketTab.setControl(createSocketTab(tabFolder));
-		socketTab.setData(ConnectMethod.SOCKET);
 
 		TabItem diskTab = new TabItem(tabFolder, SWT.NONE);
 		diskTab.setText("&Disk");
@@ -490,8 +419,6 @@ public class ContestConnectionDialog extends Dialog {
 		prefs.put(PREF_URL, url);
 		prefs.put(PREF_USER, user);
 		prefs.put(PREF_PASSWORD, password);
-		prefs.put(PREF_HOST, host);
-		prefs.putInt(PREF_PORT, port);
 		prefs.put(PREF_FILE, file);
 		try {
 			prefs.sync();

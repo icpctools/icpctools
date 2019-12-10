@@ -67,13 +67,6 @@ public abstract class ContestSource {
 			// could not parse as a url, ignore
 		}
 
-		if (source.equals("ccs")) {
-			try {
-				return new CCSContestSource(arg1, Integer.parseInt(arg2));
-			} catch (Exception e) {
-				// ignore, try file instead
-			}
-		}
 		File f = new File(source);
 		if (f.exists()) {
 			if (f.isDirectory())

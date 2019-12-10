@@ -89,43 +89,34 @@ the viewer clients see only the main Resolver output.
 
 === Input Data Sources
 
-The Resolver works by reading the _event feed_ output of a _Contest Control System (CCS)_.
-The ICPC Resolver will work with any CCS that produces an event feed which is 
-compliant with the _CLI CCS Specification_ defined at 
-https://clics.ecs.baylor.edu/.  
-Systems known to produce compliant event feeds include 
-http://pc2.ecs.csus.edu[PC-Squared] and 
+The Resolver works with any CCS or the CDS that produces an event feed which is 
+compliant with the _CLI Contest API Specification_ defined at 
+https://clics.ecs.baylor.edu/. 
+Tools known to produce compliant event feeds include the
+https://icpc.baylor.edu/icpctools[Contest Data Server],
+https://www.domjudge.org[DOMjudge],
+http://pc2.ecs.csus.edu/pc2[PC-Squared], and 
 https://www.kattis.com/[Kattis]; 
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Resolver.
 
 The Resolver is capable of operating with event feed data obtained from one of
-three different sources: an _event feed file_, a _contest data package_ (folder),
-or a _Contest API source_
-(The _Contest Data Server_ is another ICPC Tool that is a Contest API; see the 
-https://icpc.baylor.edu/icpctools/[ICPCTools website] for details.)
+three different sources: an _event feed file_, a _contest data package_ (CDP folder),
+or a _Contest API source_.
 
-An event feed file is created by connecting to port 4713 on a machine
-running a compatible CCS and saving the resulting output to a file (see 
-https://clics.ecs.baylor.edu/index.php/Event_Feed for details on the structure of an event feed).  
-Once the event feed data has been saved in a file, the Resolver can be started 
-with the event feed file as an argument.
-
-A second way to provide the Resolver with input data is by creating a _contest data package_ (CDP). 
 A CDP is an arbitrarily-named folder with specific contest-configuration contents.  
 If the Resolver is started with its first argument being the path (relative or absolute)
 to a folder whose contents are organized following the 
 https://clics.ecs.baylor.edu/index.php/CDP[CLI Contest Data Package specification] it will read its
 event feed data from that folder
-Note: the Resolver expects the find the event feed information stored in
-a file named _contest.xml_ located in the CDP root folder when it reads from a CDP.
+Note: when reading from a CDP the Resolver expects the find the event feed information stored in
+a file named _events.json_ located in the CDP root folder.
 
 Alternatively, the Resolver can obtain its event feed data from a Contest API server, for example
 the Contest Data Server (CDS). 
 The Contest API provides URL access points for obtaining event feed and other contest data; 
 starting the Resolver with the URL of a Contest API causes it to connect to the Contest API
-and pull down the necessary information dynamically.  
-
+and pull down the necessary information dynamically.
 
 The main reason for using either a CDP or a CDS instead of a simple event feed file to provide
 Resolver input is that a CDP or CDS can also provide other information to the Resolver.  
@@ -357,7 +348,7 @@ at the same speed as the presenter and displaying only the Resolver data
 (no special info).
 
 [source]
-resolver.bat c:\eventFeed.xml --singleStep 
+resolver.bat c:\events.json --singleStep 
 
 The above command runs the Resolver in "stand-alone" mode, taking its input from the specified local
 file.  It runs in single-step mode for the entire resolving process (meaning the user must click to
@@ -477,7 +468,7 @@ awards
 or
 
 [source]
-awards eventFeed.xml options...
+awards events.json options...
 
 Omitting all arguments (as shown in the first example) causes the script to invoke the interactive Award Generator interface (see below).
 
@@ -489,9 +480,9 @@ generate a help (usage) message and quit.
 
 When using the command line award configuration method, 
 the augmented event feed file is automatically saved in a new file whose name is the same as the
-specified _eventFeed.xml_ file but with "-awards" added in front of the ".xml" extension.
-(That is, the AG strips off the last four characters of the specified file name, assumed to be ".xml",
-and replaces them with the characters "-awards.xml".)  
+specified _events.json_ file but with "-awards" added in front of the ".json" extension.
+(That is, the AG strips off the last five characters of the specified file name, assumed to be ".json",
+and replaces them with the characters "-awards.json".)  
 
 
 ====== Command Line Options
@@ -729,13 +720,13 @@ and then in the latter case the CDS must be restarted (see the separate document
 available from the https://icpc.baylor.edu/icpctools/[ICPCTools website] for further information).
 
 Recall that the Resolver expects that event feed files loaded from a local CDP are located in a file
-named _contest.xml_ in the CDP root folder (event feed files loaded by a CDS are also expected to be
-named _contest.xml_).   It is up to the user to insure these naming conventions are followed.
+named _events.json_ in the CDP root folder (event feed files loaded by a CDS are also expected to be
+named _events.json_).  It is up to the user to ensure these naming conventions are followed.
 
 
 === Additional Notes
 
-The Resolver and Award Generator tools are written in Java and will run on any platform supporting Java Version 7 or greater.  
+The Resolver and Award Generator tools are written in Java and will run on any platform supporting Java Version 8 or greater.  
 However, the Resolver makes heavy use of screen-level graphics and is therefore heavily dependent on the 
 graphics drivers on the platform.  
 In our experience, Linux graphics drivers are substantially less robust than others; 
