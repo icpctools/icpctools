@@ -26,11 +26,11 @@ and unzip it into any convenient directory.  That's it!
 The general form for executing the Coach View is
 
 [source]
-  coachView.bat/sh <contestSource> [user] [password] [options]
+  coachView.bat/sh contestURL user password [options]
   
 where
 ........  
-  <contestSource> is either an HTTP or HTTPS URL to connect to a Contest API
+  <contestURL> is either an HTTP or HTTPS URL to connect to a Contest API
                   source, followed by user and password
 
   [options] can be "--display <num>", where <num> is which desktop display to use

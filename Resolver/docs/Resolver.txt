@@ -176,7 +176,7 @@ where it connects to a Contest Data Server (see above) to obtain its input data 
 the CDS to control multiple clients. 
 Note that these options are only available though the Contest Data Server and not when using
 a generic Contest API Server.
-Note also that  "--presenter" and "--connect" are mutually exclusive.
+Note also that  "--presenter" and "--client" are mutually exclusive.
 
 [source]		
 --presenter
@@ -186,7 +186,7 @@ in presenter mode has control over the Resolver operation, and its control comma
 forwarded to the server for distribution to viewer clients.
 
 [source]
---connect
+--client
 
 Starts a Resolver in "viewer" mode, instructing it to connect to a server at the specified
 URL.  A Resolver running

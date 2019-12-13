@@ -97,14 +97,7 @@ Presentation Client folder (i.e., from the folder where the distribution was unz
 The script is intended to be invoked with a set of command line parameters, which 
 control the operation of the program.  
 
-The first parameter to script must be a set of presentation names or numbers, 
-separated by "|"; for example, "2|4|clock" (which requests a presentation sequence
-consisting of presentation number 2, then number 4, then the presentation named "clock").
-Note that the vertical bar character ("|") is significant to many shell programs
-(command prompts); therefore, Presentation Client arguments containing this character
-must typically be surrounded by double-quotes.
-
-The second parameter to the script specifies a contest data source.
+The first parameter to the script specifies a contest data source.
 If the second parameter is the name of a folder,
 the Presentation Client interprets it as the root of a _contest data package (CDP)_,
 as described above, and it uses the specified CDP to obtain its contest data.
@@ -114,6 +107,10 @@ the URL of a Contest API server; it opens a connection to the specified
 server and reads its input data.  The Presentation Client expects the next two parameters to
 specify a user name and password. This user name and password are used to login to 
 the Contest API.
+
+The next parameter must be the "--p" option followed by a set of presentation names or numbers, 
+separated by spaces; for example, "2 4 clock" (which requests a presentation sequence
+consisting of presentation number 2, then number 4, then the presentation named "clock").
  
 To terminate a running presentation, press Ctrl-Q.
 
@@ -161,18 +158,17 @@ are the login user name and password for the CDS.
 The general form for executing the Presentation Client in standalone mode is
 
 [source]
-  standalone.bat/sh  <presentationList> <contestSource> [options]
+  standalone.bat/sh contestURL user password [options], or
+  standalone.bat/sh contestPath [options]
   
 where
 ........
-  <presentationList> is one or more presentation names or ids, separated by |
-  
-  <contestSource> is either an HTTP URL to connect to a CDS
-                  or an HTTPS URL to a CDS, followed by user and password
-                  or "ccs" to connect to a CCS, followed by host and port
-                  or [folder] to load from a contest data package archive folder
+  contestURL is an HTTPS URL to connect to a CDS, followed by user and password
 
-  [options] can be "--display <num>", where <num> is which desktop display to use
+  contestPath is a local file or folder to load from a contest data package archive
+
+  [options] can be "--p" followed by a set of presentation names or numbers, or
+                  "--display <num>", where <num> is which desktop display to use
                   in full-screen exclusive mode. The primary display is number 1,
                   secondary is number 2, etc. If this option is not specified
                   the default is the primary display.
@@ -181,42 +177,38 @@ where
 The general form for executing the Presentation Client in admin-controlled mode is
 
 [source]
-  client.bat/sh id CDSurl user password
+  client.bat/sh CDSurl user password [options]
 
 where
 .......
-  id is an arbitrary name used to identify this client
-  CDSurl is an HTTPS CDS URL
-  user and password are your HTTPS credentials
+  CDSurl is an HTTPS CDS URL, followed by user and password
+  
+  [options] can be "--name" followed by a name used to refer to this client, or
+                  "--display <num>", where <num> is which desktop display to use
+                  in full-screen exclusive mode. The primary display is number 1,
+                  secondary is number 2, etc. If this option is not specified
+                  the default is the primary display.
 .......
 
 == Examples
 
 [source]
-  standalone.bat "logo|pictures" https://cds user pwd
-  
+  standalone.bat https://cds user pwd --p logo pictures
+
 The above command starts the Presentation Client, causes it to connect to a CDS at the specified
 URL using the specified user name ("user") and password ("pwd"), and begins alternating between
 two presentation displays: the first consisting of the ICPC Contest Logo, the second
 consisting of a set of pictures obtained from the appropriate CDS URL.
-
-[source]
-  standalone.sh scoreboard ccs ccsServer 4713 --display 2
-  
-The above command starts the Presentation Client, causes it to connect to a live
-Contest Control System on the host named "ccsServer" at port 4713, and begins
-displaying the "scoreboard" presentation, updating as information comes in from 
-the live CCS connection. The presentation is shown on the secondary display.
   
 [source]
-  standalone.bat "1|3|16" c:\myContestCDP
+  standalone.bat c:\myContestCDP --p 1 3 16
 
 The above command starts the Presentation Client, causes it to load contest information
 from the Contest Data Package whose root is the folder "c:\\myContestCDP", and begins
 alternating between presentations 1, 3, and 16.
-  
+
 [source]
-  client.sh Client1 https://contestDataServer user pwd
+  client.sh https://contestDataServer user pwd --name Client1
 
 The above command starts a Presentation Client in admin-controlled mode, causing it
 to connect to the CDS specified by the URL _https://contestDataServer_ logging in 
@@ -274,12 +266,12 @@ At some contests you may want to run a presentation client on every team machine
 content like the contest logo you can do this with the standalone client, e.g.:
 
 [source]
-  standalone.bat logo https://contestSource user pwd
+  standalone.bat https://contestSource user pwd --p logo
 
 If you want to run more interesting presentations or control from the admin, use the admin-controlled client with the special id 'team':
 
 [source]
-  client.sh team https://contestDataServer user pwd
+  client.sh https://contestDataServer user pwd --name team
 
 This will start a client that understands which team it is running on, and can display team-specific presentations. A good
 example is the "team desktop" presentation, which shows the team's logo and name, contest logo, and contest time.

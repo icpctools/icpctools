@@ -64,17 +64,14 @@ other Contest Control Systems may also produce compatible event feeds and
 hence work with the Balloon Utility.
 
 The BU is capable of operating with contest data obtained from one of two
-different sources: a Contest API source (e.g. CCS or CDS) or an _event feed file_.
-
-Pressing the "Connect" button (above) will produce the following dialog, used to 
-select the event feed input source for the BU.
+different sources: a Contest API source (e.g. CCS or CDS) or a local contest path.
+If you don't specific a source on the command line you will be prompted on startup.
 
 image::BUSourceSelectionDialog.png[BUSourceSelection,align=center]
 
 Connecting the BU directly to a running (compatible) CCS or CDS is done using the REST
-selection in the Connect dialog and entering a valid Contest API URL, user, and password.
-The BU can be connected
-to an event feed file using the Disk selection in the Connect dialog.
+selection in the dialog and entering a valid Contest API URL, user, and password.
+The BU can be connected to a folder or event feed file using the Disk selection.
 
 
 === Operating the Balloon Utility
