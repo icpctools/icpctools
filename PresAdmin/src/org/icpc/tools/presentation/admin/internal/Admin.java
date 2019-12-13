@@ -1,6 +1,6 @@
 package org.icpc.tools.presentation.admin.internal;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -15,37 +15,33 @@ import org.eclipse.swt.widgets.Shell;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 
 public class Admin {
 	public static void main(String[] args) {
 		Trace.init("ICPC Presentation Admin", "presAdmin", args);
 
-		if (args == null || args.length != 3) {
-			System.out.println();
-			System.out.println("Usage: presAdmin.bat/sh cdsURL user password");
-			System.out.println();
-			System.out.println("   cdsURL");
-			System.out.println("      an HTTPS URL to a CDS");
-			System.out.println("   user/password");
-			System.out.println("      HTTPS authentication");
-			System.out.println();
-			return;
-		}
+		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				return false;
+			}
 
-		ContestSource source = null;
-		try {
-			source = ContestSource.parseSource(args[0], args[1], args[2]);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Could not parse source: " + e.getMessage());
-			return;
-		}
+			@Override
+			public void showHelp() {
+				System.out.println();
+				System.out.println("Usage: presAdmin.bat/sh cdsURL user password [options]");
+				System.out.println();
+				System.out.println("  Options:");
+				System.out.println("     --help");
+				System.out.println("         Shows this message");
+				System.out.println("     --version");
+				System.out.println("         Displays version information");
+			}
+		});
 
-		if (!(source instanceof RESTContestSource)) {
-			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
-			return;
-		}
-
-		RESTContestSource cdsSource = (RESTContestSource) source;
+		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
 		if (cdsSource.getURL().getPath() != null && cdsSource.getURL().getPath().length() > 1) {
 			Trace.trace(Trace.ERROR, "URL should not contain a path");
 			return;

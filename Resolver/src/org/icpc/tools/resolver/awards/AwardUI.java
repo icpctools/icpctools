@@ -618,7 +618,7 @@ public class AwardUI {
 		return awardPrefs;
 	}
 
-	private static void showHelp() {
+	protected static void showHelp() {
 		System.out.println();
 		System.out.println("ICPC Award Utility");
 		System.out.println();

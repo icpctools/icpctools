@@ -56,7 +56,7 @@ public class DiskContestSource extends ContestSource {
 	private String contestId;
 	private boolean expectFeed = true;
 	private Closeable parser;
-	private Validation configValidation;
+	private Validation configValidation = new Validation();
 
 	/**
 	 * Create a disk contest source at the specified folder.

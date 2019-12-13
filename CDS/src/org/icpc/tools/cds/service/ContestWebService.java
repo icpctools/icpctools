@@ -52,6 +52,7 @@ public class ContestWebService extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
+		response.setHeader("ICPC-Tools", "CDS");
 
 		String path = request.getPathInfo();
 		if (path == null || path.equals("/")) {
@@ -211,7 +212,7 @@ public class ContestWebService extends HttpServlet {
 					NDJSONFeedParser parserA = new NDJSONFeedParser();
 					Contest contestA = new Contest(false);
 					parserA.parse(contestA, in);
-					
+
 					Contest contestB = new Contest(false);
 					if (cc.getContestSource() instanceof RESTContestSource) {
 						RESTContestSource cs = (RESTContestSource) cc.getContestSource();
@@ -219,12 +220,12 @@ public class ContestWebService extends HttpServlet {
 						request.setAttribute("b", path);
 						in = getHTTPInputStream(path, cs.getUser(), cs.getPassword());
 						NDJSONFeedParser parserB = new NDJSONFeedParser();
-					
+
 						parserB.parse(contestB, in);
 					} else {
 						request.setAttribute("b", "same");
 					}
-					
+
 					Thread.sleep(5000);*/
 
 					request.setAttribute("info", EventFeedUtil.compareInfo(contestA, contestB).printSingletonSummaryHTML());

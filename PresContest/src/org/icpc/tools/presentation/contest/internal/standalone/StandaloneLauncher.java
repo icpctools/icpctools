@@ -1,12 +1,13 @@
 package org.icpc.tools.presentation.contest.internal.standalone;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.Presentation;
@@ -28,16 +29,45 @@ public class StandaloneLauncher {
 		}
 		sortPresentationsByCategory(presentations);
 
-		if (args == null || args.length == 0 || args[0].equals("--help")) {
-			showHelp(presentations);
+		List<String> presList = new ArrayList<String>();
+		String[] displayStr = new String[1];
+		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				if ("--p".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "pres:string", "*");
+					for (Object o : options)
+						presList.add((String) o);
+					return true;
+				} else if ("--display".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "#:string");
+					displayStr[0] = (String) options.get(0);
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public void showHelp() {
+				StandaloneLauncher.showHelp(presentations);
+			}
+		});
+
+		if (source == null) {
+			Trace.trace(Trace.ERROR, "Must provide a contest source");
+			return;
+		}
+
+		if (presList.isEmpty()) {
+			Trace.trace(Trace.ERROR, "Must provide one or more presentations");
 			return;
 		}
 
 		// load presentation(s)
-		StringTokenizer st = new StringTokenizer(args[0], "|");
+		Iterator<String> iter = presList.iterator();
 		List<PresentationInfo> list = new ArrayList<>();
-		while (st.hasMoreTokens()) {
-			PresentationInfo pi = findPresentation(presentations, st.nextToken());
+		while (iter.hasNext()) {
+			PresentationInfo pi = findPresentation(presentations, iter.next());
 			if (pi == null)
 				System.exit(0);
 			list.add(pi);
@@ -45,32 +75,26 @@ public class StandaloneLauncher {
 
 		PresentationInfo[] pres = list.toArray(new PresentationInfo[0]);
 
-		// connect to contest source
-		parseSource(args);
-
 		ContestSource.getInstance().outputValidation();
 
-		String displayStr = null;
-		if (args.length > 3 && "--display".equals(args[args.length - 2]))
-			displayStr = args[args.length - 1];
-
-		launch(pres, displayStr);
+		launch(pres, displayStr[0]);
 	}
 
-	public static void showHelp(List<PresentationInfo> presentations) {
-		System.out.println("Usage: standalone.bat/sh presentations contestSource [user] [password] [options]");
+	protected static void showHelp(List<PresentationInfo> presentations) {
+		System.out.println("Usage: standalone.bat/sh contestURL user password [options]");
+		System.out.println("   or: standalone.bat/sh contestPath [options]");
 		System.out.println();
-		System.out.println("   presentations");
-		System.out.println("      one or more presentation names or ids, separated by |");
-		System.out.println("   contestSource [user] [password]");
-		System.out.println("      \"http://\" to connect to a CDS, or");
-		System.out.println("      \"https:// [user] [password] to connect to a secure CDS, or");
-		System.out.println("      \"[folder]\" to load from a contest data package archive folder");
-		System.out.println("   options");
-		System.out.println("      \"--display X\" display on screen X");
-		System.out.println();
-		System.out.println("Examples: standalone logo|photos https://cds tim pwd");
-		System.out.println("          standalone 1|3|16 c:\\myContestCDPfolder");
+		System.out.println("  Options:");
+		System.out.println("     --p pres1 pres2 ...");
+		System.out.println("         Loop through showing the specified presentation");
+		System.out.println("         names, ids, or numbers in order");
+		System.out.println("     --display #");
+		System.out.println("         Use the specified display");
+		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --help");
+		System.out.println("         Shows this message");
+		System.out.println("     --version");
+		System.out.println("         Displays version information");
 		System.out.println();
 
 		Trace.trace(Trace.USER, "Available presentations:");
@@ -153,17 +177,6 @@ public class StandaloneLauncher {
 		Trace.trace(Trace.ERROR, "Could not match '" + s + "' to a known presentation");
 		System.exit(1);
 		return null;
-	}
-
-	protected static void parseSource(String[] args) {
-		try {
-			if (args.length > 2)
-				ContestSource.parseSource(args[1], args[2], args[3]);
-			else
-				ContestSource.parseSource(args[1]);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
-		}
 	}
 
 	protected static void launch(PresentationInfo[] pres, String displayStr) {

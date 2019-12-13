@@ -36,7 +36,7 @@ public class Launcher {
 		}
 	}
 
-	public static void showHelp() {
+	protected static void showHelp() {
 		System.out.println("Usage: contestUtil.bat/sh [class] [options]");
 		System.out.println();
 		System.out.println("Where [class] is one of:");

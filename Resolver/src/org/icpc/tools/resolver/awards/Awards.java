@@ -16,6 +16,8 @@ import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.feed.XMLFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
 public class Awards {
@@ -32,17 +34,6 @@ public class Awards {
 			Trace.trace(Trace.ERROR, "Could not parse event feed: " + file);
 			System.exit(2);
 			return null;
-		}
-	}
-
-	private static void expectArgs(List<String> argList, String o, String... s) {
-		int num = s.length + 1;
-		if (argList.size() < num) {
-			Trace.trace(Trace.ERROR, "Missing arguments. " + o + " expects ");
-			for (String ss : s) {
-				Trace.trace(Trace.ERROR, "[" + ss + "] ");
-			}
-			System.exit(2);
 		}
 	}
 
@@ -95,96 +86,63 @@ public class Awards {
 			return;
 		}
 
-		List<String> argList = new ArrayList<>();
-		for (int i = 0; i < args.length; i++)
-			argList.add(args[i]);
-
-		String ef = argList.remove(0);
+		String ef = args[0];
 		Trace.trace(Trace.USER, "Reading event feed: " + ef);
 		Contest contest = loadEventFeed(new File(ef), null);
 		validateContest(contest);
-		boolean changed = false;
-
-		while (!argList.isEmpty()) {
-			switch (argList.get(0).toLowerCase()) {
-				case "--firstplacecitation": {
-					expectArgs(argList, "--firstPlaceCitation", "text");
-					Trace.trace(Trace.USER, "Assigning first place awards.");
-					AwardUtil.createFirstPlaceAward(contest, argList.get(1));
-					changed = true;
-					argList.remove(0);
-					argList.remove(0);
-					break;
-				}
-				case "--rank": {
-					expectArgs(argList, "--rank", "num(int)");
-					try {
-						int num = Integer.parseInt(argList.get(1));
+		boolean[] changed = new boolean[1];
+		ArgumentParser.parse(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				switch (option) {
+					case "--firstplacecitation": {
+						ArgumentParser.expectOptions(option, options, "text:string");
+						Trace.trace(Trace.USER, "Assigning first place awards.");
+						AwardUtil.createFirstPlaceAward(contest, (String) options.get(0));
+						changed[0] = true;
+						break;
+					}
+					case "--rank": {
+						ArgumentParser.expectOptions(option, options, "num:int");
+						int num = (int) options.get(0);
 						if (num < 1)
-							error("Invalid number of rank awards");
+							throw new IllegalArgumentException("Invalid number of rank awards");
 
 						Trace.trace(Trace.USER, "Assigning rank awards.");
 						AwardUtil.createRankAwards(contest, num);
-						changed = true;
-					} catch (NumberFormatException nfe) {
-						error("Could not parse rank arguments");
+						changed[0] = true;
+						break;
 					}
-					argList.remove(0);
-					argList.remove(0);
-					break;
-				}
-				case "--group": {
-					expectArgs(argList, "--group", "num(int)");
-					try {
-						int num = Integer.parseInt(argList.get(1));
+					case "--group": {
+						ArgumentParser.expectOptions(option, options, "num:int");
+						int num = (int) options.get(0);
 						if (num < 1 || num > 200)
-							error("Invalid number of group awards");
+							throw new IllegalArgumentException("Invalid number of group awards");
 
 						Trace.trace(Trace.USER, "Assigning group awards.");
 						AwardUtil.createGroupAwards(contest, num);
-						changed = true;
-					} catch (NumberFormatException nfe) {
-						error("Could not parse group arguments");
+						changed[0] = true;
+						break;
 					}
-
-					argList.remove(0);
-					argList.remove(0);
-					break;
-				}
-				case "--medals": {
-					expectArgs(argList, "--medals", "numGold(int)", "numSilver(int)", "numBronze(int)");
-					try {
+					case "--medals": {
+						ArgumentParser.expectOptions(option, options, "numGold:int", "numSilver:int", "numBronze:int");
 						Trace.trace(Trace.USER, "Assigning medal awards.");
-						AwardUtil.createMedalAwards(contest, Integer.parseInt(argList.get(1)),
-								Integer.parseInt(argList.get(2)), Integer.parseInt(argList.get(3)));
-						changed = true;
-					} catch (NumberFormatException nfe) {
-						error("Could not parse medal arguments");
+						AwardUtil.createMedalAwards(contest, (int) options.get(0), (int) options.get(1),
+								(int) options.get(2));
+						changed[0] = true;
+						break;
 					}
-					argList.remove(0);
-					argList.remove(0);
-					argList.remove(0);
-					argList.remove(0);
-					break;
-				}
-				case "--fts": {
-					expectArgs(argList, "--fts", "beforeFreeze(boolean)", "afterFreeze(boolean)");
-					try {
-						boolean showBeforeFreeze = Boolean.getBoolean(argList.get(1));
-						boolean showAfterFreeze = Boolean.getBoolean(argList.get(2));
+					case "--fts": {
+						ArgumentParser.expectOptions(option, options, "beforeFreeze:boolean", "afterFreeze:boolean");
+						boolean showBeforeFreeze = (boolean) options.get(0);
+						boolean showAfterFreeze = (boolean) options.get(1);
 						Trace.trace(Trace.USER, "Assigning first to solve awards.");
 						AwardUtil.createFirstToSolveAwards(contest, showBeforeFreeze, showAfterFreeze);
-						changed = true;
-					} catch (Exception e) {
-						error("Could not parse first-to-solve arguments");
+						changed[0] = true;
+						break;
 					}
-					argList.remove(0);
-					argList.remove(0);
-					argList.remove(0);
-					break;
-				}
-				case "--list": {
-					try {
+					case "--list": {
+						ArgumentParser.expectNoOptions(option, options);
 						IAward[] awards = contest.getAwards();
 						if (awards == null || awards.length == 0) {
 							Trace.trace(Trace.USER, "No awards found in feed, showing default awards");
@@ -198,30 +156,27 @@ public class Awards {
 						contest.officialResults();
 
 						AwardUtil.printAwards(contest);
-					} catch (Exception e) {
-						error("Could not list awards");
+						break;
 					}
-					argList.remove(0);
-					break;
+					case "--scoreboard": {
+						ArgumentParser.expectOptions(option, options, "scoreboard.json");
+						generateScoreboard((String) options.get(0), contest);
+						break;
+					}
+					default: {
+						return false;
+					}
 				}
-				case "--scoreboard": {
-					expectArgs(argList, "--scoreboard", "scoreboard.json");
-					generateScoreboard(argList.get(1), contest);
-					argList.remove(0);
-					argList.remove(0);
-					break;
-				}
-
-				default: {
-					error("Unrecognized option: " + argList.get(0));
-					break;
-				}
+				return true;
 			}
-		}
 
-		Trace.trace(Trace.INFO, "Assigning awards");
+			@Override
+			public void showHelp() {
+				Awards.showHelp();
+			}
+		});
 
-		if (changed) {
+		if (changed[0]) {
 			try {
 				ef = ef.substring(0, ef.length() - 4) + "-awards.json";
 				File f = new File(ef);
@@ -236,8 +191,10 @@ public class Awards {
 		}
 	}
 
-	public static void showHelp() {
-		System.out.println("Usage: awards.bat/sh [eventFeed.xml options]");
+	protected static void showHelp() {
+		System.out.println("Usage: awards.bat/sh [options]");
+		System.out.println("   or: awards.bat/sh contestURL user password [options]");
+		System.out.println("   or: awards.bat/sh contestPath [options]");
 		System.out.println();
 		System.out.println("  Options:");
 		System.out.println("     --medals lastGold lastSilver lastBronze");
@@ -253,6 +210,8 @@ public class Awards {
 		System.out.println("         Assigns group awards");
 		System.out.println("     --list");
 		System.out.println("         List current awards");
+		System.out.println("     --help");
+		System.out.println("         Shows this message");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
 	}
@@ -273,13 +232,6 @@ public class Awards {
 			NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
 			writer.writeContest(contest);
 		}
-	}
-
-	protected static void error(String s) {
-		Trace.trace(Trace.ERROR, s);
-		Trace.trace(Trace.ERROR, "");
-		showHelp();
-		System.exit(2);
 	}
 
 	protected static void generateScoreboard(String file, Contest contest) {

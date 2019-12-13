@@ -14,6 +14,10 @@ public class WelcomeServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		response.setHeader("Cache-Control", "no-cache");
+		response.setHeader("ICPC-Tools", "CDS");
 		request.getRequestDispatcher("/WEB-INF/jsps/welcome.jsp").forward(request, response);
 	}
 }

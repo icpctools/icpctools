@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -22,6 +22,8 @@ import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
@@ -45,7 +47,6 @@ import org.icpc.tools.resolver.ResolverUI.Screen;
  */
 public class Resolver {
 	private static final int DEFAULT_ROW_OFFSET_WHEN_ENABLED = 4;
-	private static final double FAST_FACTOR = 0.15;
 
 	private static final String DATA_RESOLVER_CLICKS = "org.icpc.tools.presentation.contest.resolver.clicks";
 	private static final String DATA_RESOLVER_SETTINGS = "org.icpc.tools.presentation.contest.resolver.settings";
@@ -73,59 +74,55 @@ public class Resolver {
 	// client/server variables
 	private PresentationClient client;
 	private int[] clients;
-	// clientArgs what we might need to send to our clients (if presenter mode enabled)
-	private static String clientArgs = "";
 
 	private List<PredeterminedStep> predeterminedSteps = new ArrayList<>();
 
-	public static void showHelp() {
-		System.out.println("Usage: resolver.bat/sh contestSource [user] [password] [options]");
+	protected static void showHelp() {
+		System.out.println("Usage: resolver.bat/sh contestURL user password [options]");
+		System.out.println("   or: resolver.bat/sh contestPath [options]");
 		System.out.println();
 		System.out.println("  General options:");
 		System.out.println("     --info");
 		System.out.println("         Show additional info to presenter client");
-		System.out.println("     --speed [speedFactor]");
+		System.out.println("     --speed speedFactor");
 		System.out.println("         Resolution delay multiplier. e.g. 0.5 will be twice");
 		System.out.println("         as fast, 2 will be twice as slow");
-		System.out.println("     --singleStep [startRow]");
+		System.out.println("     --singleStep startRow");
 		System.out.println("         Require a click for each step starting at a specific");
 		System.out.println("         row, or for entire contest if no row specified");
-		System.out.println("     --rowDisplayOffset [numRows]");
+		System.out.println("     --rowDisplayOffset numRows");
 		System.out.println("         Move the display up the screen by some number of");
 		System.out.println("         rows (default 4)");
-		System.out.println("     --display [#]");
-		System.out.println("         Shows the Resolver on the specified display");
+		System.out.println("     --display #");
+		System.out.println("         Uses the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
-		System.out.println("     --style [style]");
+		System.out.println("     --style style");
 		System.out.println("         Change the display of team names. Must be one of:");
 		System.out.println("         team_name, org_name, org_formal_name, or team_and_org_name");
 		System.out.println("     --groups");
 		System.out.println("         Resolve only the teams in the specified list of comma separated group ids.");
 		System.out.println("         If multiple groups are given, each is resolved separately");
-		System.out.println("     --file file");
-		System.out.println("         Load these options from a file. Every option and");
-		System.out.println("         parameter must be on a separate line");
-		System.out.println("     --pause [#]");
+		System.out.println("     --pause #");
 		System.out.println("         Start at the given pause #. Useful for testing/preview");
 		System.out.println("     --bill");
 		System.out.println("         Temporary option to test features for ICPC 2017/2018");
 		System.out.println("     --test");
 		System.out.println("         Test on an unfinished contest. Ignores (removes) all unjudged runs");
 		System.out.println("     --help");
-		System.out.println("         Show this message");
+		System.out.println("         Shows this message");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
 		System.out.println();
 		System.out.println("  Client options:");
 		System.out.println("     --presenter");
 		System.out.println("         connect to a CDS and control it");
-		System.out.println("     --connect");
+		System.out.println("     --client");
 		System.out.println("         connect to a CDS in slave (view-only) mode");
 		System.out.println("     --side");
-		System.out.println("         same as --connect, but displays logos suitable for");
+		System.out.println("         same as --client, but displays logos suitable for");
 		System.out.println("         a lower resolution/side display");
 		System.out.println("     --team");
-		System.out.println("         same as --connect, but displays minimal content, e.g.");
+		System.out.println("         same as --client, but displays minimal content, e.g.");
 		System.out.println("         to display on all team machines");
 
 		System.out.println();
@@ -143,6 +140,20 @@ public class Resolver {
 	}
 
 	public static void main(String[] args) {
+		// create the Resolver object
+		final Resolver r = new Resolver();
+		ContestSource[] contestSource = ArgumentParser.parseMulti(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				return r.processArg(option, options);
+			}
+
+			@Override
+			public void showHelp() {
+				Resolver.showHelp();
+			}
+		});
+
 		// if no command-line arguments were supplied, print usage and quit
 		// (minimum command args include event-feed file name)
 		if (args == null || args.length == 0) {
@@ -150,36 +161,17 @@ public class Resolver {
 			return;
 		}
 
-		// convert arg array to list
-		List<String> argList = new ArrayList<>();
-		for (String arg : args)
-			argList.add(arg);
-
 		String log = "resolver";
-		if (argList.contains("--connect"))
+		List<String> argList = Arrays.asList(args);
+		if (argList.contains("--client"))
 			log += "-client";
 		else if (argList.contains("--team"))
 			log += "-team";
 		Trace.init("ICPC Resolver", log, args);
 		System.setProperty("apple.awt.application.name", "Resolver");
 
-		ContestSource[] contestSource = parseSource(args);
 		for (ContestSource cs : contestSource)
 			cs.outputValidation();
-
-		// remove the contest source args
-		argList.remove(0);
-		for (int i = 0; i < 2; i++) {
-			if (!argList.isEmpty() && !argList.get(0).startsWith("--"))
-				argList.remove(0);
-		}
-
-		// create the actual Resolver object
-		final Resolver r = new Resolver();
-
-		// common function for all 3 modes
-		if (!r.processArgs(contestSource, argList))
-			return;
 
 		List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
 		for (ContestSource cs : contestSource) {
@@ -194,19 +186,6 @@ public class Resolver {
 			Trace.trace(Trace.INFO, "  " + step);
 
 		r.launch(steps);
-	}
-
-	public static ContestSource[] parseSource(String[] args) {
-		try {
-			if (args.length > 2 && !args[1].startsWith("--"))
-				return ContestSource.parseMultiSource(args[0], args[1], args[2]);
-
-			return ContestSource.parseMultiSource(args[0]);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
-			System.exit(1);
-			return null;
-		}
 	}
 
 	private void connectToCDS(ContestSource[] source) {
@@ -231,9 +210,8 @@ public class Resolver {
 						c[i] = cl[i].uid;
 					clients = c;
 
-					// re-send the settings to all the clients if there are args to send
-					if (clientArgs != null && !clientArgs.equals(""))
-						sendSettings();
+					// re-send the settings to all the clients
+					sendSettings();
 
 					// click count too
 					sendClicks();
@@ -246,6 +224,7 @@ public class Resolver {
 
 		try {
 			client.addListener(new IPropertyListener() {
+
 				@Override
 				public void propertyUpdated(String key, String value) {
 					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
@@ -262,39 +241,10 @@ public class Resolver {
 						if (ui != null)
 							ui.setSpeedFactor(sf);
 					} else if (DATA_RESOLVER_SETTINGS.equals(key)) {
-						List<String> argList = new ArrayList<>();
-						boolean inQuotes = false;
-						StringBuilder b = new StringBuilder();
-						for (char c : value.toCharArray()) {
-							switch (c) {
-								case ',':
-									if (inQuotes) {
-										b.append(c);
-									} else {
-										argList.add(b.toString());
-										b = new StringBuilder();
-									}
-									break;
-								case ' ':
-									// end of this arg if not in quotes
-									if (inQuotes) {
-										b.append(c);
-									} else {
-										argList.add(b.toString());
-										b = new StringBuilder();
-									}
-									break;
-								case '\"':
-									/* note quotes in quotes are not allowed.... */
-									inQuotes = !inQuotes;
-									break;
-								default:
-									b.append(c);
-									break;
-							}
-						}
-						argList.add(b.toString());
-						processArgs(source, argList);
+						String[] clientArgs = value.split(",");
+						ui.setSpeedFactor(Double.parseDouble(clientArgs[0]));
+						singleStepStartRow = Integer.parseInt(clientArgs[1]);
+						rowOffset = Integer.parseInt(clientArgs[2]);
 					}
 				}
 			});
@@ -305,198 +255,105 @@ public class Resolver {
 		}
 	} // end connectToServer
 
-	private boolean processArgs(ContestSource[] source, List<String> inArgList) {
-		List<String> argList = inArgList;
-		clientArgs = ""; // reset
-		// TODO some options conflict, e.g. setting anything on a client
-		// should warn and ignore or error-out when this occurs
+	private boolean processArg(String option, List<Object> options) {
+		ContestSource[] source = null; // TODO
 
-		// extract each command-line argument and process it
-		while (!argList.isEmpty()) {
+		if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
+			// --fast varies the speed at which the resolving process should run (useful for
+			// previewing results).
+			// This option allows for an float parameter following --fast that is used as the
+			// speed multiplier; SpeedFactor values greater than zero but less than one
+			// INCREASE
+			// the resolution speed; values greater than one DECREASE the speed; values <= zero are
+			// ignored.
+			ArgumentParser.expectOptions(option, options, "speedFactor:float");
+			float fastVal = (float) options.get(0);
+			if (fastVal <= 0) {
+				// illegal value; ignore and use default
+				Trace.trace(Trace.ERROR, "Illegal --fast value ignored (must be positive)");
+			} else
+				speedFactor = fastVal;
+		} else if ("--singlestep".equalsIgnoreCase(option)) {
+			// --singleStep option: indicate row where single-stepping should start
+			ArgumentParser.expectOptions(option, options, "startRow:int");
 
-			// get the next command-line argument (option)
-			String option = argList.remove(0);
+			// Default to single-stepping from the very beginning (bottom)
+			singleStepStartRow = Integer.MAX_VALUE;
 
-			if ("--help".equalsIgnoreCase(option)) {
-				showHelp();
-				return false;
-			} else if ("--file".equals(option)) {
-				// --file: indicates a list of Resolver options is provided in a separate file
-				if (argList.isEmpty()) {
-					Trace.trace(Trace.ERROR, "--file argument missing file");
-					return false;
-				}
+			// check if arguments specify a specific row on which to start single-stepping
+			// get the row on which single-stepping should start; subtract 1 for zero-base
+			singleStepStartRow = (int) options.get(0) - 1;
+			if (singleStepStartRow <= 0)
+				Trace.trace(Trace.ERROR, "Illegal --singleStep value ignored");
+		} else if ("--info".equalsIgnoreCase(option)) {
+			ArgumentParser.expectNoOptions(option, options);
+			// --info option: display extra commentary information visible only on the Presenter
+			show_info = true;
+		} else if ("--pause".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "#:int");
+			clicks = (int) options.get(0);
+		} else if ("--client".equalsIgnoreCase(option) || "--presenter".equalsIgnoreCase(option)
+				|| "--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)) {
+			ArgumentParser.expectNoOptions(option, options);
+			if ("--presenter".equalsIgnoreCase(option))
+				isPresenter = true;
+			else if ("--team".equalsIgnoreCase(option))
+				screen = Screen.TEAM;
+			else if ("--side".equalsIgnoreCase(option))
+				screen = Screen.SIDE;
 
-				// get the name of the Options file
-				String s = argList.remove(0);
-				File optionsFile = new File(s);
-				if (!optionsFile.exists()) {
-					Trace.trace(Trace.ERROR, "Options file could not be found");
-					return false;
-				}
-
-				// create a list of Strings containing the options given in the Options file
-				List<String> list = new ArrayList<>();
-				BufferedReader br = null;
-				try {
-					br = new BufferedReader(new FileReader(optionsFile));
-					s = br.readLine();
-					while (s != null) {
-						s = s.trim();
-						if (!s.isEmpty())
-							list.add(s);
-						s = br.readLine();
-					}
-				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Problem reading options file: " + e.getMessage());
-					// ignore
-				} finally {
-					try {
-						if (br != null)
-							br.close();
-					} catch (Exception e) {
-						// ignore
-					}
-				}
-
-				// replace the command-line argument list with the list of options from the Options
-				// file
-				// (note that this implicitly discards any command-line options following the --file
-				// option)
-				if (!argList.isEmpty()) {
-					Trace.trace(Trace.WARNING, "Warning:  --file option is discarding trailing command-line options");
-				}
-				argList = list;
-			} else if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
-				// --fast varies the speed at which the resolving process should run (useful for
-				// previewing results).
-				// This option allows for an optional float parameter following --fast; if present
-				// (next argument does NOT
-				// start with "--") the float value is used as the speed multiplier; if absent, the
-				// constant FAST_FACTOR is
-				// used as the speed multiplier. SpeedFactor values greater than zero but less than one
-				// INCREASE
-				// the resolution speed; values greater than one DECREASE the speed; values <= zero are
-				// ignored.
-				clientArgs = clientArgs.concat(option + " ");
-				if (!argList.isEmpty() && !argList.get(0).startsWith("--")) {
-					try {
-						float fastVal = Float.parseFloat(argList.remove(0));
-						if (fastVal <= 0) {
-							// illegal value; ignore and use default
-							Trace.trace(Trace.ERROR, "Illegal --fast value ignored (must be positive)");
-							speedFactor = FAST_FACTOR;
-						} else {
-							speedFactor = fastVal;
-							clientArgs = clientArgs.concat(speedFactor + " ");
-						}
-					} catch (NumberFormatException e) {
-						Trace.trace(Trace.ERROR, "Could not parse --fast [speedFactor]");
-						return false;
-					}
-				} else
-					speedFactor = FAST_FACTOR;
-			} else if ("--singlestep".equalsIgnoreCase(option)) {
-				// --singleStep option: indicate row where single-stepping should start
-
-				// Default to single-stepping from the very beginning (bottom)
-				singleStepStartRow = Integer.MAX_VALUE;
-
-				// check if arguments specify a specific row on which to start single-stepping
-				if (!argList.isEmpty() && !argList.get(0).startsWith("--")) {
-					try {
-						// get the row on which single-stepping should start; subtract 1 for zero-base
-						singleStepStartRow = Integer.parseInt(argList.remove(0)) - 1;
-						if (singleStepStartRow <= 0)
-							Trace.trace(Trace.ERROR, "Illegal --singleStep value ignored");
-					} catch (NumberFormatException e) {
-						Trace.trace(Trace.ERROR, "Could not parse --singleStep [startRow]");
-						return false;
-					}
-				}
-				clientArgs = clientArgs.concat(option + " " + (singleStepStartRow + 1) + " ");
-			} else if ("--info".equalsIgnoreCase(option)) {
-				// --info option: display extra commentary information visible only on the Presenter
-				show_info = true;
-			} else if ("--pause".equalsIgnoreCase(option)) {
-				try {
-					clicks = Integer.parseInt(argList.remove(0));
-				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Could not parse --pause [#]");
-				}
-			} else if ("--connect".equalsIgnoreCase(option) || "--presenter".equalsIgnoreCase(option)
-					|| "--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)) {
-
-				if ("--presenter".equalsIgnoreCase(option))
-					isPresenter = true;
-				else if ("--team".equalsIgnoreCase(option))
-					screen = Screen.TEAM;
-				else if ("--side".equalsIgnoreCase(option))
-					screen = Screen.SIDE;
-
-				try {
-					// we are either a (viewer) client or a presenter; connect to the server
-					// TODO: this connection call is being made while still processing command
-					// arguments;
-					// is there a timing-dependency with connecting to the server (and having it
-					// possibly sending data back as a result of the connection) when we haven't
-					// processed all args yet?
-					connectToCDS(source);
-				} catch (NumberFormatException e) {
-					Trace.trace(Trace.ERROR, "Invalid host or port");
-					return false;
-				}
-			} else if ("--display".equalsIgnoreCase(option)) {
-				// --display allows to specify which display to use in full-screen exclusive mode.
-				// The value is used as follows:
-				// 1 --> run presentation full-screen on the primary display (the default)
-				// 2 --> run presentation full-screen on display 2
-				// 3 --> run presentation full-screen on display 3
-				// 1a --> run presentation in the top-left corner of the display (for testing)
-				// 1b --> run presentation in the top-right corner of the display (for testing)
-				// 2a --> run presentation in the top-left corner of display 2 ...
-				displayStr = argList.remove(0);
-			} else if ("--style".equalsIgnoreCase(option)) {
-				style = TeamUtil.getStyleByString(argList.remove(0));
-			} else if ("--groups".equalsIgnoreCase(option)) {
-				groups = argList.remove(0).split(",");
-			} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
-				// causes rows to be moved up the screen so they are not blocked by people on
-				// stage
-
-				if (!argList.isEmpty() && !argList.get(0).startsWith("--")) {
-					// get the number of rows to move row displays up
-					try {
-						int numRows = Integer.parseInt(argList.remove(0));
-						if (numRows <= 0) {
-							// illegal value; ignore and use default
-							Trace.trace(Trace.ERROR, "Illegal --rowDisplayOffset value ignored (must be positive)");
-							rowOffset = DEFAULT_ROW_OFFSET_WHEN_ENABLED;
-						} else {
-							rowOffset = numRows;
-						}
-					} catch (NumberFormatException e) {
-						Trace.trace(Trace.ERROR, "Could not parse --rowDisplayOffset [numRows]");
-						return false;
-					}
-				} else
-					rowOffset = DEFAULT_ROW_OFFSET_WHEN_ENABLED;
-
-				clientArgs = clientArgs.concat(option + " ");
-				clientArgs = clientArgs.concat(rowOffset + " ");
-			} else if ("--bill".equalsIgnoreCase(option)) {
-				bill = true;
-			} else if ("--test".equalsIgnoreCase(option)) {
-				test = true;
-			} else {
-				// the argument read from the command line was unrecognized...
-				Trace.trace(Trace.ERROR, "Unknown option: '" + option + "'");
+			try {
+				// we are either a (viewer) client or a presenter; connect to the server
+				// TODO: this connection call is being made while still processing command
+				// arguments;
+				// is there a timing-dependency with connecting to the server (and having it
+				// possibly sending data back as a result of the connection) when we haven't
+				// processed all args yet?
+				connectToCDS(source);
+			} catch (NumberFormatException e) {
+				Trace.trace(Trace.ERROR, "Invalid host or port");
 				return false;
 			}
-		} // end while !arglist.isEmpty()
+		} else if ("--display".equalsIgnoreCase(option)) {
+			// --display allows to specify which display to use in full-screen exclusive mode.
+			// The value is used as follows:
+			// 1 --> run presentation full-screen on the primary display (the default)
+			// 2 --> run presentation full-screen on display 2
+			// 3 --> run presentation full-screen on display 3
+			// 1a --> run presentation in the top-left corner of the display (for testing)
+			// 1b --> run presentation in the top-right corner of the display (for testing)
+			// 2a --> run presentation in the top-left corner of display 2 ...
+			ArgumentParser.expectOptions(option, options, "screen:string");
+			displayStr = (String) options.get(0);
+		} else if ("--style".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "style:string");
+			style = TeamUtil.getStyleByString((String) options.get(0));
+		} else if ("--groups".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "group-id:string", "*");
+			groups = options.toArray(new String[0]);
+		} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
+			// causes rows to be moved up the screen so they are not blocked by people on
+			// stage
 
-		clientArgs = clientArgs.trim();
-		Trace.trace(Trace.INFO, "clientArgs='" + clientArgs + "'");
+			ArgumentParser.expectOptions(option, options, "rows:int");
+			// get the number of rows to move row displays up
+			int numRows = (int) options.get(0);
+			if (numRows <= 0) {
+				// illegal value; ignore and use default
+				Trace.trace(Trace.ERROR, "Illegal --rowDisplayOffset value ignored (must be positive)");
+				rowOffset = DEFAULT_ROW_OFFSET_WHEN_ENABLED;
+			} else
+				rowOffset = numRows;
+		} else if ("--bill".equalsIgnoreCase(option)) {
+			ArgumentParser.expectNoOptions(option, options);
+			bill = true;
+		} else if ("--test".equalsIgnoreCase(option)) {
+			ArgumentParser.expectNoOptions(option, options);
+			test = true;
+		} else {
+			// the argument read from the command line was unrecognized...
+			return false;
+		}
 
 		return true;
 	}
@@ -717,8 +574,9 @@ public class Resolver {
 
 	private void sendSettings() {
 		try {
-			Trace.trace(Trace.INFO, "Sending settings: " + clientArgs);
+			String clientArgs = speedFactor + "," + singleStepStartRow + "," + rowOffset;
 
+			Trace.trace(Trace.INFO, "Sending settings: " + clientArgs);
 			client.sendProperty(clients, DATA_RESOLVER_SETTINGS, clientArgs);
 		} catch (Exception ex) {
 			Trace.trace(Trace.WARNING, "Failed to send settings", ex);
