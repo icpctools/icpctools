@@ -9,7 +9,6 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -167,22 +166,6 @@ public class Trace {
 		if (args != null && args.length == 1) {
 			if ("--version".equals(args[0])) {
 				System.out.println(name + " " + verAndBuild);
-				System.exit(0);
-			} else if ("--help".equals(args[0])) {
-				try {
-					Method m = null;
-					try {
-						Class<?> c = getCallerClass();
-						m = c.getDeclaredMethod("showHelp");
-					} catch (NoSuchMethodException ex) {
-						System.out.println("Command doesn't provide help");
-						System.exit(0);
-					}
-
-					m.invoke(null);
-				} catch (Exception e) {
-					System.out.println("Command doesn't provide help: " + e.getMessage());
-				}
 				System.exit(0);
 			}
 		}

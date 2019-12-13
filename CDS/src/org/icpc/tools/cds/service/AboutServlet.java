@@ -23,6 +23,7 @@ public class AboutServlet extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/json");
+		response.setHeader("ICPC-Tools", "CDS");
 
 		request.getRequestDispatcher("/WEB-INF/jsps/about.jsp").forward(request, response);
 	}

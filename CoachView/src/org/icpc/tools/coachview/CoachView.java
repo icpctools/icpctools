@@ -31,7 +31,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,6 +58,8 @@ import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 
 import com.sun.jna.Memory;
 
@@ -471,33 +472,6 @@ public class CoachView extends Panel {
 		}
 	}
 
-	public void parseSource(String[] args) {
-		ContestSource source = null;
-		try {
-			if (args.length > 2) {
-				user = args[1];
-				pwd = args[2];
-				source = ContestSource.parseSource(args[0], user, pwd);
-			} else
-				source = ContestSource.parseSource(args[0]);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
-			System.exit(1);
-		}
-
-		if (source instanceof RESTContestSource) {
-			contestSource = (RESTContestSource) source;
-			contestSource.outputValidation();
-			contestSource.checkForUpdates("coachview-");
-
-			contest = contestSource.getContest();
-			return;
-		}
-
-		Trace.trace(Trace.ERROR, "Source argument must be a CDS");
-		System.exit(1);
-	}
-
 	protected void loadTeamList() {
 		ITeam[] newTeams = contest.getTeams();
 		if (newTeams == null)
@@ -813,35 +787,49 @@ public class CoachView extends Panel {
 		return mediaPlayerFactory.newDirectMediaPlayer(bufferCallback, renderCallback);
 	}
 
-	public static void showHelp() {
-		System.out.println("Usage: coachView.bat/sh");
+	protected static void showHelp() {
+		System.out.println("Usage: coachView.bat/sh contestURL user password [options]");
 		System.out.println();
-		System.out.println("  (no options)");
-
-		System.out.println("Usage: coachView.bat/sh contestSource [user] [password] [options]");
-		System.out.println();
-		System.out.println("   options");
-		System.out.println("      \"--display X\" display on screen X");
-		System.out.println();
-		System.out.println("Example: coachView https://cds/api/contests/test coach2 passw0rd");
+		System.out.println("  Options:");
+		System.out.println("     --display #");
+		System.out.println("         Use the specified display");
+		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --help");
+		System.out.println("         Shows this message");
+		System.out.println("     --version");
+		System.out.println("         Displays version information");
 	}
 
 	public static void main(String[] args) {
 		Trace.init("ICPC Coach View", "coachView", args);
 
-		if (args == null || args.length == 0 || args[0].equals("--help")) {
-			showHelp();
-			return;
-		}
+		String[] displayStr2 = new String[1];
+		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				if ("--display".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "#:string");
+					displayStr2[0] = (String) options.get(0);
+					return true;
+				}
+				return false;
+			}
 
-		String displayStr = null;
-		if (args.length > 4 && "--display".equals(args[args.length - 2]))
-			displayStr = args[args.length - 1];
-		else if (args.length > 2 && "--display".equals(args[args.length - 2]))
-			displayStr = args[args.length - 1];
+			@Override
+			public void showHelp() {
+				CoachView.showHelp();
+			}
+		});
+		String displayStr = displayStr2[0];
+
+		RESTContestSource restSource = RESTContestSource.ensureContestAPI(contestSource);
+		restSource.outputValidation();
+		if (restSource.isCDS())
+			restSource.checkForUpdates("coachview-");
 
 		CoachView cv = new CoachView();
-		cv.parseSource(args);
+		cv.contestSource = restSource;
+		cv.contest = contestSource.getContest();
 
 		Frame frame = new Frame("Coach View");
 		frame.setUndecorated(true);
@@ -893,7 +881,7 @@ public class CoachView extends Panel {
 					r = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 					frame.setBounds(r.x, r.y, r.width, r.height * 7 / 8);
 				} else
-					throw new IllegalArgumentException("Invalid test option: " + c);
+					throw new IllegalArgumentException("Invalid display option: " + c);
 			} else
 				cv.setFullScreen(frame, display);
 		} catch (Exception e) {

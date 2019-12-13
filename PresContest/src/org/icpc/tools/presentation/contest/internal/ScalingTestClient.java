@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.presentation.core.PresentationWindow;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
@@ -16,11 +17,11 @@ public class ScalingTestClient {
 
 	protected static PresentationClient[] clients;
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws Exception {
 		Trace.init("ICPC Client Scaling Test", "scalingTest", args);
 		System.setProperty("apple.awt.application.name", "Scaling Test Client");
 
-		RESTContestSource source = ClientLauncher.parseSource(args);
+		RESTContestSource source = (RESTContestSource) ContestSource.parseSource(args[0], args[1], args[2]);
 
 		int START = 0;
 

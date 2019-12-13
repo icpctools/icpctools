@@ -28,6 +28,7 @@ public class SearchService extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
+		response.setHeader("ICPC-Tools", "CDS");
 		String searchTerm = request.getParameter("value");
 		if (searchTerm != null) {
 			request.getRequestDispatcher("/WEB-INF/jsps/search.jsp").forward(request, response);

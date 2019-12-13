@@ -26,7 +26,7 @@ public class ScoreboardUtil {
 		}
 	}
 
-	public static void showHelp() {
+	protected static void showHelp() {
 		System.out.println("Usage: scoreboardUtil [scoreboard1.json] [scoreboard2.json]");
 		System.out.println();
 		System.out.println("   Performs a logical comparison of two scoreboards");

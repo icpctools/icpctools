@@ -211,6 +211,48 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
+	public static RESTContestSource ensureContestAPI(ContestSource source) {
+		if (source == null || !(source instanceof RESTContestSource)) {
+			Trace.trace(Trace.ERROR, "Source argument must be a Contest API");
+			System.exit(1);
+		}
+		return (RESTContestSource) source;
+	}
+
+	public static RESTContestSource ensureCDS(ContestSource source) {
+		if (source == null || !(source instanceof RESTContestSource)) {
+			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
+			System.exit(1);
+		}
+		RESTContestSource restSource = (RESTContestSource) source;
+
+		try {
+			HttpURLConnection conn = restSource.createConnection("");
+			int response = conn.getResponseCode();
+			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
+				restSource.isCDS = true;
+
+			if (response == HttpURLConnection.HTTP_UNAUTHORIZED) {
+				// v.err("Invalid user or password");
+			} else if (response != HttpURLConnection.HTTP_OK) {
+				// v.err("Invalid response code: " + response);
+			}
+		} catch (SocketException se) {
+			Trace.trace(Trace.INFO, "Socket error", se);
+			// v.err("Socket error, may be due to invalid URL, user, or password");
+		} catch (Exception e) {
+			// v.err("Unexpected error during validation: " + e.getMessage());
+			Trace.trace(Trace.INFO, "Validation error", e);
+		}
+
+		// restSource.outputValidation();
+		if (!restSource.isCDS()) {
+			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
+			System.exit(1);
+		}
+		return restSource;
+	}
+
 	public URL getURL() {
 		return url;
 	}
@@ -923,6 +965,9 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	protected void validateContent(HttpURLConnection conn, Validation v, String postURL) throws Exception {
+		if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
+			isCDS = true;
+
 		InputStream in = conn.getInputStream();
 		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 		StringBuilder sb = new StringBuilder();
@@ -960,8 +1005,11 @@ public class RESTContestSource extends DiskContestSource {
 			if (bestContest != null) {
 				url2 = new URL(ensureTrailingSlash(url2), bestContest.getId());
 				this.url = url2;
-				Trace.trace(Trace.USER,
-						"The URL did not point to a specific contest, but " + infos.length + " contest(s) were found.");
+				if (infos.length == 1)
+					Trace.trace(Trace.USER, "The URL did not point to a specific contest, but one contest was found.");
+				else
+					Trace.trace(Trace.USER,
+							"The URL did not point to a specific contest, but " + infos.length + " contests were found.");
 				Trace.trace(Trace.USER, "Auto-connecting to: " + url);
 				return;
 			}
@@ -1168,6 +1216,9 @@ public class RESTContestSource extends DiskContestSource {
 	 * @param prefix the file pattern, e.g. "presentations-".
 	 */
 	public void checkForUpdates(String prefix) {
+		if (!isCDS())
+			return;
+
 		try {
 			// remove any previous updates
 			File updateDir = new File("update");

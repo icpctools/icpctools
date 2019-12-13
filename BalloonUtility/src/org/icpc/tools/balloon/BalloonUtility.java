@@ -1,6 +1,5 @@
 package org.icpc.tools.balloon;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -61,9 +60,10 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
 import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
-import org.icpc.tools.contest.model.feed.ContestSource.Validation;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -89,7 +89,6 @@ public class BalloonUtility {
 
 	protected BalloonContest bc = new BalloonContest();
 
-	protected Button connect;
 	protected Label contestNameLabel;
 	protected Label contestStartLabel;
 	protected Label contestLengthLabel;
@@ -640,7 +639,7 @@ public class BalloonUtility {
 		data.horizontalSpan = 2;
 		contestGroup.setLayoutData(data);
 
-		GridLayout layout = new GridLayout(5, false);
+		GridLayout layout = new GridLayout(4, false);
 		contestGroup.setLayout(layout);
 
 		Label label = new Label(contestGroup, SWT.NONE);
@@ -656,67 +655,6 @@ public class BalloonUtility {
 
 		contestStartLabel = new Label(contestGroup, SWT.NONE);
 		contestStartLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-		if (contestSource != null) {
-			label = new Label(contestGroup, SWT.NONE);
-			data = new GridData(SWT.END, SWT.FILL, false, true);
-			data.verticalSpan = 2;
-			// data.widthHint = SWTUtil.getButtonWidthHint(connect);
-			label.setLayoutData(data);
-		} else {
-			connect = new Button(contestGroup, SWT.PUSH);
-			connect.setText("   Connect...   ");
-			data = new GridData(SWT.END, SWT.FILL, false, true);
-			data.verticalSpan = 2;
-			data.widthHint = SWTUtil.getButtonWidthHint(connect);
-			connect.setLayoutData(data);
-			connect.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent event) {
-					try {
-						ContestConnectionDialog connectDialog = new ContestConnectionDialog(parent.getShell());
-						if (connectDialog.open() == 0) {
-							connect.setEnabled(false);
-
-							if (autoPrint && printerData != null) {
-								Shell shell = connect.getShell();
-								MessageBox dialog = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-								dialog.setText(shell.getText());
-								dialog.setMessage(
-										"Automatic printing is currently enabled, which may cause excessive printing when connecting to an existing contest if it has lots of unprinted balloons. Do you want to disable auto-printing?");
-								if (dialog.open() == SWT.YES) {
-									autoPrintButton.setSelection(false);
-									autoPrint = false;
-								}
-							}
-
-							contestSource = connectDialog.getContestSource();
-							Validation v = contestSource.validate();
-							if (!v.isValid) {
-								String message = String.join("\n", v.messages);
-
-								runAsync(() -> {
-									Shell shell = connect.getShell();
-									MessageBox dialog = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-									dialog.setText(shell.getText());
-									dialog.setMessage(message);
-									dialog.open();
-								});
-								connect.setEnabled(true);
-								return;
-							}
-
-							if (contestSource instanceof RESTContestSource)
-								((RESTContestSource) contestSource).checkForUpdates("balloonUtil-");
-							connectToContest();
-						}
-					} catch (Exception e) {
-						ErrorHandler.error("Error connecting to server", e);
-						connect.setEnabled(true);
-					}
-				}
-			});
-		}
 
 		label = new Label(contestGroup, SWT.NONE);
 		label.setText("Duration:");
@@ -1041,52 +979,64 @@ public class BalloonUtility {
 		return null;
 	}
 
-	public static void showHelp() {
+	protected static void showHelp() {
 		System.out.println("Usage: balloon.bat/sh [options]");
-		System.out.println("    or balloon.bat/sh contestSource [user] [password] [options]");
+		System.out.println("   or: balloon.bat/sh contestURL user password [options]");
+		System.out.println("   or: balloon.bat/sh contestPath [options]");
 		System.out.println();
 		System.out.println("  Options:");
 		System.out.println("     --clean");
 		System.out.println("         Removes all saved balloon data");
+		System.out.println("     --help");
+		System.out.println("         Shows this message");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
-	}
-
-	protected void parseSource(String[] args) {
-		try {
-			if (args.length > 2)
-				contestSource = ContestSource.parseSource(args[0], args[1], args[2]);
-			else
-				contestSource = ContestSource.parseSource(args[0]);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
-			System.exit(1);
-		}
-
-		contestSource.outputValidation();
-		if (contestSource instanceof RESTContestSource)
-			((RESTContestSource) contestSource).checkForUpdates("balloonUtil-");
 	}
 
 	public static void main(String[] args) {
 		Trace.init("ICPC Balloon Utility", "balloon", args);
 
-		BalloonUtility ui = new BalloonUtility();
-		if (args != null && (args.length > 1 || (args.length == 1 && !args[0].startsWith("--")))) {
-			ui.parseSource(args);
-		} else if (args != null && args.length > 0) {
-			if (args.length == 1 && "--clean".equals(args[0])) {
-				BalloonFileUtil.cleanAll();
-			} else {
-				System.err.println("Unrecognized option(s)");
-				showHelp();
-				System.exit(1);
+		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				if ("--clean".equals(option)) {
+					BalloonFileUtil.cleanAll();
+					return true;
+				}
+				return false;
 			}
-		}
+
+			@Override
+			public void showHelp() {
+				BalloonUtility.showHelp();
+			}
+		});
 
 		Display.setAppName("Balloon Utility");
 		Display display = new Display();
 		final Shell shell = new Shell(display);
+		if (contestSource == null) {
+			try {
+				ContestConnectionDialog cfd = new ContestConnectionDialog(shell);
+				if (cfd.open() != 0)
+					return;
+
+				contestSource = cfd.getContestSource();
+			} catch (Exception e) {
+				ErrorHandler.error("Error connecting to contest", e);
+			}
+		}
+
+		contestSource.outputValidation();
+		if (contestSource instanceof RESTContestSource) {
+			RESTContestSource restSource = (RESTContestSource) contestSource;
+			if (restSource.isCDS())
+				restSource.checkForUpdates("balloonUtil-");
+		}
+
+		BalloonUtility ui = new BalloonUtility();
+		ui.contestSource = contestSource;
+
 		Menu sysMenu = display.getSystemMenu();
 		if (sysMenu != null) {
 			for (MenuItem m : sysMenu.getItems()) {
@@ -1128,8 +1078,7 @@ public class BalloonUtility {
 		shell.pack();
 		shell.open();
 
-		if (ui.contestSource != null)
-			ui.connectToContest();
+		ui.connectToContest();
 
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())

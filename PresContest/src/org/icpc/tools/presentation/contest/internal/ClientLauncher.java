@@ -1,12 +1,14 @@
 package org.icpc.tools.presentation.contest.internal;
 
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.util.List;
 
 import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.util.ArgumentParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.presentation.contest.internal.standalone.TeamUtil;
 import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.PresentationWindow;
@@ -19,70 +21,73 @@ public class ClientLauncher {
 		return instance;
 	}
 
-	public static RESTContestSource parseSource(String[] args) {
-		ContestSource source = null;
-		try {
-			if (args.length == 4)
-				source = ContestSource.parseSource(args[1], args[2], args[3]);
-			else
-				source = ContestSource.parseSource(args[1]);
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
-			System.exit(1);
-		}
-
-		if (source instanceof RESTContestSource)
-			return (RESTContestSource) source;
-
-		Trace.trace(Trace.ERROR, "Source argument must be a CDS");
-		System.exit(1);
-		return null;
-	}
-
-	public static void showHelp() {
-		System.out.println("Usage: client.bat/sh id cdsURL user password");
+	protected static void showHelp() {
+		System.out.println("Usage: client.bat/sh cdsURL user password [options]");
 		System.out.println();
-		System.out.println("   cdsURL");
-		System.out.println("      an HTTP(S) URL to a CDS");
-		System.out.println("   [user/password]");
-		System.out.println("      HTTPS authentication");
+		System.out.println("  Options:");
+		System.out.println("     --name name");
+		System.out.println("         Give this client a name, e.g. \"Stage right\"");
+		System.out.println("     --display #");
+		System.out.println("         Use the specified display");
+		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --help");
+		System.out.println("         Shows this message");
+		System.out.println("     --version");
+		System.out.println("         Displays version information");
 	}
 
 	public static void main(final String[] args) {
 		Trace.init("ICPC Presentation Client", "client", args);
 		System.setProperty("apple.awt.application.name", "Presentation Client");
 
-		if (args == null || !(args.length == 2 || args.length == 4)) {
-			showHelp();
-			return;
+		String[] nameStr = new String[1];
+		final String[] displayStr = new String[1];
+		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
+			@Override
+			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				if ("--name".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "name:string");
+					nameStr[0] = (String) options.get(0);
+					return true;
+				} else if ("--display".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "#:string");
+					displayStr[0] = (String) options.get(0);
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public void showHelp() {
+				ClientLauncher.showHelp();
+			}
+		});
+
+		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
+		cdsSource.outputValidation();
+		cdsSource.checkForUpdates("presentations-");
+
+		String name = nameStr[0];
+		if (name == null) {
+			Trace.trace(Trace.ERROR, "--name must be specified");
+			System.exit(2);
 		}
 
-		RESTContestSource source = parseSource(args);
-		source.outputValidation();
-
-		source.checkForUpdates("presentations-");
-
-		String id = args[0];
 		PresentationClient client = null;
 		int uid = -1;
-		if ("team".equals(id)) {
+		if ("team".equals(name)) {
 			String teamLabel = TeamUtil.getTeamId();
 			uid = Integer.parseInt(teamLabel);
-			client = new PresentationClient(source, teamLabel, uid, "!admin");
+			client = new PresentationClient(cdsSource, teamLabel, uid, "!admin");
 		} else
-			client = new PresentationClient(id, "!admin", source);
+			client = new PresentationClient(name, "!admin", cdsSource);
 		instance = client;
 
 		// open window
 		createWindow(client, true);
-		Trace.trace(Trace.INFO, client + " connecting to " + source);
+		Trace.trace(Trace.INFO, client + " connecting to " + cdsSource);
 		final PresentationClient client2 = client;
-		String arg = args[0];
-		String displayStr2 = null;
-		if (arg != null && arg.startsWith("test"))
-			displayStr2 = arg.substring(4);
 
-		final String displayStr = displayStr2;
 		client.addListener(new IConnectionListener() {
 			@Override
 			public void connectionStateChanged(boolean connected) {
@@ -92,7 +97,7 @@ public class ClientLauncher {
 				if (client2.getUID() != -1)
 					windowImpl.reduceThumbnails();
 				if (connected && !windowImpl.isVisible()) {
-					windowImpl.setWindow(new DeviceMode(displayStr));
+					windowImpl.setWindow(new DeviceMode(displayStr[0]));
 					windowImpl.openIt();
 				}
 			}

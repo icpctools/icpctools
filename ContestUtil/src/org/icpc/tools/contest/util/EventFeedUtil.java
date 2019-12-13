@@ -46,7 +46,7 @@ import org.icpc.tools.contest.model.util.AwardUtil;
  */
 public class EventFeedUtil {
 
-	public static void showHelp() {
+	protected static void showHelp() {
 		System.out.println("Usage: [options]");
 		System.out.println();
 		System.out.println("  Options:");
