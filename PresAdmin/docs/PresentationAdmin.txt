@@ -165,10 +165,6 @@ the presentation client).
 ** _Restart_ instructs the JVM running the presentation to restart.  This causes the client to 
 lose its current presentation and re-register with the Presentation Admin.
 
-** _Update Archive_ sends an updated copy of the _presentContest.jar_ archive (see above)
-from the CDS to the selected client(s). This can be used to update remote client machines without having to
-physically go to the machine. 
-
 
 ==== Display Plans
 
