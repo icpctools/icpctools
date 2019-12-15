@@ -6,6 +6,8 @@ weight: 1
 icon: fas fa-home
 ---
 
+![ICPC Tools logo](/img/logo-full.png)
+
 Welcome to the ICPC Tools web page! This page contains a variety of tools implemented by the International Collegiate Programming Contest (ICPC) Tools Group, most of of which were originally developed for use at the ICPC World Finals and have been adapted for use at other programming contests.
 These tools have been used to support a wide variety of programming contests including local contests at Universities world-wide, multiple ICPC Regional Contests around the world, and a number of ICPC World Finals.
 
