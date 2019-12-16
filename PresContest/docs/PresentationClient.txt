@@ -208,12 +208,12 @@ from the Contest Data Package whose root is the folder "c:\\myContestCDP", and b
 alternating between presentations 1, 3, and 16.
 
 [source]
-  client.sh https://contestDataServer user pwd --name Client1
+  client.sh https://contestDataServer user pwd --name "Site 2"
 
 The above command starts a Presentation Client in admin-controlled mode, causing it
 to connect to the CDS specified by the URL _https://contestDataServer_ logging in 
 with the name "user" and the password "pwd" and registering itself with the Presentation
-Admin as "Client1".  The Presentation Client then remains
+Admin as "Site 2".  The Presentation Client then remains
 quiescent with a blank screen until it receives a command from a Presentation Admin
 (forwarded via the CDS) telling it what to display.
 

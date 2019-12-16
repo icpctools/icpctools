@@ -26,7 +26,7 @@ public class ClientLauncher {
 		System.out.println();
 		System.out.println("  Options:");
 		System.out.println("     --name name");
-		System.out.println("         Give this client a name, e.g. \"Stage right\"");
+		System.out.println("         Give this client a name, e.g. \"Stage right\" or \"Site 2\"");
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
@@ -66,12 +66,6 @@ public class ClientLauncher {
 		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
 		cdsSource.outputValidation();
 		cdsSource.checkForUpdates("presentations-");
-
-		String name = nameStr[0];
-		if (name == null) {
-			Trace.trace(Trace.ERROR, "--name must be specified");
-			System.exit(2);
-		}
 
 		PresentationClient client = null;
 		int uid = -1;
