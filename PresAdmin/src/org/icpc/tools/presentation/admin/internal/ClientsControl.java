@@ -653,7 +653,7 @@ public class ClientsControl extends Canvas {
 				else
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
-				// id & current resolution/fps
+				// name & current resolution/fps
 				gc.drawString(c.name, rr.x, rr.y + rr.height - fh, true);
 				if (c.contestIds != null && c.contestIds.length > 0)
 					gc.drawString(c.contestIds[0], rr.x + (rr.width - gc.textExtent(c.contestIds[0]).x) / 2,

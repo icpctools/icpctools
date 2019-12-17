@@ -67,6 +67,7 @@ public class ClientLauncher {
 		cdsSource.outputValidation();
 		cdsSource.checkForUpdates("presentations-");
 
+		String name = nameStr[0];
 		PresentationClient client = null;
 		int uid = -1;
 		if ("team".equals(name)) {

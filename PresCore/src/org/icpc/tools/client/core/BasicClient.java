@@ -1,6 +1,5 @@
 package org.icpc.tools.client.core;
 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -131,7 +130,7 @@ public class BasicClient {
 	}
 
 	private String clientType = "Unknown";
-	private String clientId = "Unknown";
+	private String name = "Unknown";
 	private int uid;
 	private RESTContestSource contestSource;
 	private String role;
@@ -142,12 +141,14 @@ public class BasicClient {
 
 	private WSClientEndpoint clientEndpoint;
 
-	public BasicClient(RESTContestSource contestSource, String clientId, int uid, String role, String type) {
+	public BasicClient(RESTContestSource contestSource, String name, int uid, String role, String type) {
 		this.contestSource = contestSource;
-		this.clientId = clientId;
+		this.name = name;
 		this.uid = uid;
 		this.role = role;
 		this.clientType = type;
+		if (this.name == null)
+			this.name = NetworkUtil.getLocalAddress();
 	}
 
 	/**
@@ -158,11 +159,11 @@ public class BasicClient {
 	 */
 	public BasicClient(RESTContestSource contestSource, String clientType) {
 		this.contestSource = contestSource;
-		this.clientId = clientType;
+		this.name = clientType;
 		this.clientType = clientType.toLowerCase();
 
 		String s = contestSource.getUser();
-		clientId += NetworkUtil.getLocalAddress();
+		name += NetworkUtil.getLocalAddress();
 		uid = s.hashCode();
 	}
 
@@ -395,29 +396,6 @@ public class BasicClient {
 		// do nothing
 	}
 
-	protected void sendInfo(Dimension d, int fps, boolean hidden, String pres, String name, int[] displays)
-			throws IOException {
-		createJSON(Type.INFO, je -> {
-			je.encode("source", Integer.toHexString(uid));
-			je.encode("width", d.width);
-			je.encode("height", d.height);
-			je.encode("fps", fps);
-			je.encode("hidden", hidden);
-			if (pres != null)
-				je.encode("presentation", pres);
-			je.encode("name", name);
-
-			// int[] temp = getGraphicsInfo();
-			int num = displays.length / 3;
-			je.encode("num", num);
-			for (int i = 0; i < num; i++) {
-				je.encode("width" + i, displays[i * 3]);
-				je.encode("height" + i, displays[i * 3 + 1]);
-				je.encode("refresh" + i, displays[i * 3 + 2]);
-			}
-		});
-	}
-
 	protected byte[] imageToBytes(BufferedImage image) throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		ImageIO.write(image, "jpg", bout);
@@ -527,7 +505,7 @@ public class BasicClient {
 			@Override
 			public void run() {
 				while (true) {
-					Trace.trace(Trace.USER, clientId + " connecting...");
+					Trace.trace(Trace.USER, name + " connecting...");
 					connectImpl();
 					try {
 						sleep(5000);
@@ -559,7 +537,7 @@ public class BasicClient {
 			ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create()
 					.configurator(new AuthorizationConfigurator(contestSource.getAuth())).build();
 			StringBuilder sb = new StringBuilder("/presentation/ws");
-			sb.append("?id=" + URLEncoder.encode(clientId, "UTF-8"));
+			sb.append("?name=" + URLEncoder.encode(name, "UTF-8"));
 			sb.append("&uid=" + Integer.toHexString(uid));
 			if (role == null)
 				sb.append("&role=any");
@@ -571,7 +549,7 @@ public class BasicClient {
 			client.setDefaultMaxSessionIdleTimeout(60000L);
 			client.connectToServer(clientEndpoint, endpointConfig, uri);
 
-			Trace.trace(Trace.USER, clientId + " connected");
+			Trace.trace(Trace.USER, name + " connected");
 			fireConnectionStateEvent(true);
 			sendClientInfo();
 
@@ -601,7 +579,7 @@ public class BasicClient {
 				// ignore
 			}*/
 		}
-		Trace.trace(Trace.USER, clientId + " disconnected");
+		Trace.trace(Trace.USER, name + " disconnected");
 		fireConnectionStateEvent(false);
 	}
 
@@ -718,11 +696,11 @@ public class BasicClient {
 	}
 
 	public String getClientId() {
-		return clientId;
+		return name;
 	}
 
 	@Override
 	public String toString() {
-		return "Basic Client [" + clientId + "]";
+		return "Basic Client [" + name + "/uid " + Integer.toHexString(uid) + "]";
 	}
 }

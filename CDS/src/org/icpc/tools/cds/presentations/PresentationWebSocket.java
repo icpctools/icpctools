@@ -29,21 +29,20 @@ public class PresentationWebSocket {
 		// set buffer to 500k. thumbnails are usually under 20k, but snapshots can be much bigger
 		session.setMaxTextMessageBufferSize(500 * 1024);
 
-		String id = getParam(session, "id");
-		if (id == null) {
+		String name = getParam(session, "name");
+		if (name == null) {
 			try {
-				Trace.trace(Trace.INFO, "Disconnecting client with no id");
-				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client is missing required id"));
+				Trace.trace(Trace.INFO, "Disconnecting client with no name");
+				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client is missing required name"));
 			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Error disconnecting websocket with no id");
+				Trace.trace(Trace.ERROR, "Error disconnecting websocket with no name");
 			}
 			return;
 		}
 
-		String uidStr = null;
+		String uidStr = getParam(session, "uid");
 		int uid = 0;
 		try {
-			uidStr = getParam(session, "uid");
 			uid = Integer.parseUnsignedInt(uidStr, 16);
 		} catch (Exception e) {
 			Trace.trace(Trace.INFO, "Could not find or parse uid: " + uidStr);
@@ -58,11 +57,11 @@ public class PresentationWebSocket {
 			}
 			return;
 		}
+
 		if (PresentationServer.getInstance().doesClientExist(uid)) {
 			try {
-				Trace.trace(Trace.INFO, "Disconnecting client with existing uid: " + uid);
-				session
-						.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client id " + id + " is already logged in"));
+				Trace.trace(Trace.INFO, "Disconnecting client with existing uid " + Integer.toHexString(uid));
+				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client is already logged in"));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error disconnecting websocket with existing uid");
 			}
@@ -73,7 +72,8 @@ public class PresentationWebSocket {
 		String version = getParam(session, "version");
 		if (version == null || !version.equals("1.0")) {
 			try {
-				Trace.trace(Trace.INFO, "Disconnecting client " + id + " with invalid version: " + version);
+				Trace.trace(Trace.INFO,
+						"Disconnecting client " + Integer.toHexString(uid) + " with invalid version: " + version);
 				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
 						"CDS: Client version " + version + " is incompatible with CDS"));
 			} catch (Exception e) {
@@ -117,7 +117,7 @@ public class PresentationWebSocket {
 			}
 		}
 
-		Client c = new Client(session, user, uid, id, isAdmin);
+		Client c = new Client(session, user, uid, name, isAdmin);
 		PresentationServer.getInstance().addClient(c);
 	}
 
