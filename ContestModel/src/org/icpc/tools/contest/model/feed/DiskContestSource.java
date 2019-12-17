@@ -869,6 +869,10 @@ public class DiskContestSource extends ContestSource {
 		return new File(root, "config" + File.separator + file);
 	}
 
+	private static File getRegistrationFile(File root, String file) {
+		return new File(root, "registration" + File.separator + file);
+	}
+
 	protected void loadConfigFiles() {
 		if (isCache())
 			return;
@@ -901,7 +905,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			Trace.trace(Trace.INFO, "Importing groups");
-			File f = getConfigFile(root, "groups.json");
+			File f = getRegistrationFile(root, "groups.json");
 			if (f.exists())
 				loadFile(contest, f, "groups");
 			else {
@@ -918,7 +922,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			Trace.trace(Trace.INFO, "Importing institutions");
-			File f = getConfigFile(root, "institutions.json");
+			File f = getRegistrationFile(root, "institutions.json");
 			if (f.exists())
 				loadFile(contest, f, "institutions");
 			else {
@@ -939,7 +943,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			Trace.trace(Trace.INFO, "Importing teams");
-			File f = getConfigFile(root, "teams.json");
+			File f = getRegistrationFile(root, "teams.json");
 			if (f.exists())
 				loadFile(contest, f, "teams");
 			else {
@@ -960,7 +964,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			Trace.trace(Trace.INFO, "Importing team-members");
-			File f = getConfigFile(root, "members.json");
+			File f = getRegistrationFile(root, "members.json");
 			if (f.exists())
 				loadFile(contest, f, "members");
 			else {
