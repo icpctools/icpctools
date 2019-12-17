@@ -63,7 +63,7 @@ public class Resolver {
 	private double speedFactor = 1;
 	private int clicks;
 	private boolean isPresenter;
-	private Screen screen = Screen.MAIN;
+	private Screen screen = null;
 	private String displayStr;
 	private boolean show_info;
 	private boolean bill;
@@ -73,7 +73,7 @@ public class Resolver {
 
 	// client/server variables
 	private PresentationClient client;
-	private int[] clients;
+	private int[] clients = new int[0];
 
 	private List<PredeterminedStep> predeterminedSteps = new ArrayList<>();
 
@@ -145,7 +145,7 @@ public class Resolver {
 		ContestSource[] contestSource = ArgumentParser.parseMulti(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
-				return r.processArg(option, options);
+				return r.processOption(option, options);
 			}
 
 			@Override
@@ -153,13 +153,6 @@ public class Resolver {
 				Resolver.showHelp();
 			}
 		});
-
-		// if no command-line arguments were supplied, print usage and quit
-		// (minimum command args include event-feed file name)
-		if (args == null || args.length == 0) {
-			showHelp();
-			return;
-		}
 
 		String log = "resolver";
 		List<String> argList = Arrays.asList(args);
@@ -185,16 +178,26 @@ public class Resolver {
 		for (ResolutionStep step : steps)
 			Trace.trace(Trace.INFO, "  " + step);
 
+		try {
+			r.connectToCDS(contestSource[0]);
+		} catch (NumberFormatException e) {
+			Trace.trace(Trace.ERROR, "Could not connect to CDS");
+			System.exit(2);
+		}
+
 		r.launch(steps);
 	}
 
-	private void connectToCDS(ContestSource[] source) {
-		if (!(source[0] instanceof RESTContestSource)) {
+	private void connectToCDS(ContestSource source) {
+		if (!isPresenter && screen == null)
+			return;
+
+		if (!(source instanceof RESTContestSource)) {
 			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
 			System.exit(1);
 		}
 
-		RESTContestSource cdsSource = (RESTContestSource) source[0];
+		RESTContestSource cdsSource = (RESTContestSource) source;
 		try {
 			String role = "blue";
 			if (isPresenter)
@@ -224,7 +227,6 @@ public class Resolver {
 
 		try {
 			client.addListener(new IPropertyListener() {
-
 				@Override
 				public void propertyUpdated(String key, String value) {
 					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
@@ -255,9 +257,7 @@ public class Resolver {
 		}
 	} // end connectToServer
 
-	private boolean processArg(String option, List<Object> options) {
-		ContestSource[] source = null; // TODO
-
+	private boolean processOption(String option, List<Object> options) {
 		if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
 			// --fast varies the speed at which the resolving process should run (useful for
 			// previewing results).
@@ -301,19 +301,8 @@ public class Resolver {
 				screen = Screen.TEAM;
 			else if ("--side".equalsIgnoreCase(option))
 				screen = Screen.SIDE;
-
-			try {
-				// we are either a (viewer) client or a presenter; connect to the server
-				// TODO: this connection call is being made while still processing command
-				// arguments;
-				// is there a timing-dependency with connecting to the server (and having it
-				// possibly sending data back as a result of the connection) when we haven't
-				// processed all args yet?
-				connectToCDS(source);
-			} catch (NumberFormatException e) {
-				Trace.trace(Trace.ERROR, "Invalid host or port");
-				return false;
-			}
+			else
+				screen = Screen.MAIN;
 		} else if ("--display".equalsIgnoreCase(option)) {
 			// --display allows to specify which display to use in full-screen exclusive mode.
 			// The value is used as follows:
