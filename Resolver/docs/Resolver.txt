@@ -191,7 +191,8 @@ Note also that  "--presenter" and "--client" are mutually exclusive.
 
 Starts a Resolver in "presenter" mode. A Resolver running
 in presenter mode has control over the Resolver operation, and its control commands are
-forwarded to the server for distribution to viewer clients.
+forwarded to the server for distribution to viewer clients. The user running the presenter
+must have the admin role.
 
 [source]
 --client
@@ -199,7 +200,8 @@ forwarded to the server for distribution to viewer clients.
 Starts a Resolver in "viewer" mode, instructing it to connect to a server at the specified
 URL.  A Resolver running
 in viewer mode updates itself based on commands received via the server from a presenter, but has
-no control over the resolving process (for example, cannot "click to continue").
+no control over the resolving process (for example, cannot "click to continue"). The user used to
+start the client must have the blue access role.
 
 ===== Control Commands
 The following command line options control various aspects of the Resolver's operation; they may be used in
