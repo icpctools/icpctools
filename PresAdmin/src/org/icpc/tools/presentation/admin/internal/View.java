@@ -583,7 +583,7 @@ public class View {
 
 		final Button button = new Button(buttonComp, SWT.PUSH);
 		button.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_FILL));
-		button.setText("Enter Full Screen");
+		button.setText("Full Screen");
 		button.setToolTipText("Switch to full screen exclusive mode on the selected clients");
 		registerAction(button, new ClientAction() {
 			@Override
@@ -852,6 +852,7 @@ public class View {
 		});
 	}
 
+	@SuppressWarnings("unused")
 	private void createMenu(final Shell shell) {
 		Menu m = new Menu(shell, SWT.BAR);
 		shell.setMenuBar(m);
@@ -876,6 +877,50 @@ public class View {
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error setting small thumbnails", e);
 				}
+			}
+		});
+
+		new MenuItem(submenu, SWT.SEPARATOR);
+
+		MenuItem presFilterMenu = new MenuItem(submenu, SWT.CHECK);
+		presFilterMenu.setText("Show presentation clients");
+		presFilterMenu.setToolTipText("Show connected presentation clients");
+		presFilterMenu.setSelection(true);
+		presFilterMenu.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				if (presFilterMenu.getSelection())
+					clientsControl.removeTypeFilter("presentation");
+				else
+					clientsControl.addTypeFilter("presentation");
+			}
+		});
+
+		MenuItem balloonFilterMenu = new MenuItem(submenu, SWT.CHECK);
+		balloonFilterMenu.setText("Show balloon clients");
+		balloonFilterMenu.setToolTipText("Show connected balloon printer clients");
+		balloonFilterMenu.setSelection(true);
+		balloonFilterMenu.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				if (balloonFilterMenu.getSelection())
+					clientsControl.removeTypeFilter("balloon");
+				else
+					clientsControl.addTypeFilter("balloon");
+			}
+		});
+
+		MenuItem coachFilterMenu = new MenuItem(submenu, SWT.CHECK);
+		coachFilterMenu.setText("Show coach clients");
+		coachFilterMenu.setToolTipText("Show connected coach view clients");
+		coachFilterMenu.setSelection(true);
+		coachFilterMenu.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				if (coachFilterMenu.getSelection())
+					clientsControl.removeTypeFilter("coach");
+				else
+					clientsControl.addTypeFilter("coach");
 			}
 		});
 

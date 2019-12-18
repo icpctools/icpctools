@@ -74,6 +74,7 @@ public class ClientsControl extends Canvas {
 	protected List<Integer> selection = new ArrayList<>();
 	protected int yOrigin = 0;
 	private boolean waitingForRedraw;
+	protected List<String> filter = new ArrayList<>();
 
 	class ClientInfo {
 		int width;
@@ -248,6 +249,34 @@ public class ClientsControl extends Canvas {
 				resize();
 			}
 		});
+	}
+
+	public void addTypeFilter(String type) {
+		filter.add(type);
+
+		// check for current selection
+		Client[] temp = clients;
+		List<Integer> remove = new ArrayList<>();
+		for (Integer in : selection) {
+			for (Client c : temp) {
+				if (c.uid == in)
+					remove.add(in);
+			}
+		}
+		if (!remove.isEmpty()) {
+			for (Integer in : remove)
+				selection.remove(in);
+			fireEvent(0, 0);
+		}
+
+		resizeRects();
+		doRedraw();
+	}
+
+	public void removeTypeFilter(String type) {
+		filter.remove(type);
+		resizeRects();
+		doRedraw();
 	}
 
 	private void doRedraw() {
@@ -480,6 +509,9 @@ public class ClientsControl extends Canvas {
 		int numColumns = Math.max(1, rect.width / (IMG_DIM.width + GAP));
 
 		for (Client c : clients) {
+			if (filter.contains(c.type))
+				continue;
+
 			Rectangle rr = new Rectangle(i, j, IMG_DIM.width, IMG_DIM.height + fh + TEXT_GAP);
 			maxHeight = Math.max(maxHeight, rr.height);
 			map.put(c.uid, rr);
@@ -554,8 +586,10 @@ public class ClientsControl extends Canvas {
 	protected void selectAll() {
 		List<Integer> sel = new ArrayList<>();
 
-		for (Client c : clients)
-			sel.add(c.uid);
+		for (Client c : clients) {
+			if (clientRects.containsKey(c.uid))
+				sel.add(c.uid);
+		}
 
 		selection = sel;
 		fireEvent(0, 0);

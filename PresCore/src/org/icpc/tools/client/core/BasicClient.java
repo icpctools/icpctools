@@ -163,7 +163,7 @@ public class BasicClient {
 		this.clientType = clientType.toLowerCase();
 
 		String s = contestSource.getUser();
-		name += NetworkUtil.getLocalAddress();
+		name += " " + NetworkUtil.getLocalAddress();
 		uid = s.hashCode();
 	}
 
