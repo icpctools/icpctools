@@ -31,6 +31,10 @@ test:
 
 push release to GitHub:
   stage: deploy
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: never
   before_script:
     - apt install -y httpie jq
     - eval $(ssh-agent -s)
@@ -86,6 +90,10 @@ push release to GitHub:
 
 deploy to CSUS:
   stage: deploy
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: never
   script:
     - apt-get install -y curl
     - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
