@@ -29,9 +29,10 @@ test:
   script:
     - echo "Future tests here"
 
-add release commit to GitHub builds repo:
+push release to GitHub:
   stage: deploy
   before_script:
+    - apt install -y httpie jq
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -46,6 +47,42 @@ add release commit to GitHub builds repo:
     - git clone git@github.com:icpctools/builds.git .
     - git commit --allow-empty -m "Add build $VERSION"
     - git push
+    - RELEASE_COMMIT=$(git rev-parse HEAD)
+    - |
+      http --ignore-stdin POST \
+        https://api.github.com/repos/icpctools/builds/releases \
+        "Authorization: token $GITHUB_TOKEN" \
+        "Accept: application/vnd.github.v3+json" \
+        tag_name=v$VERSION \
+        target_commitish=$RELEASE_COMMIT \
+        name=v$VERSION \
+        prerelease:=true | tee ~/new-release.txt
+    - RELEASE_ID=$(cat ~/new-release.txt | jq .id)
+    - RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/icpctools/builds/releases/${RELEASE_ID}/assets
+    - cd $CI_PROJECT_DIR/dist
+    - echo "Uploading release $VERSION"
+    - |
+      for zip in *.zip
+      do
+        if [[ $zip != "ToolsWebsite.zip" ]]
+        then
+          echo $zip...
+          cat $zip | http --timeout 300 POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
+            "Authorization: token $GITHUB_TOKEN" \
+            'Accept: application/vnd.github.v3+json' \
+            'Content-Type: application/zip' | jq .state
+          echo $zip.sha256...
+          cat $zip.sha256 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
+            "Authorization: token $GITHUB_TOKEN" \
+            'Accept: application/vnd.github.v3+json' \
+            'Content-Type: text/plain' | jq .state
+          echo $zip.sha512...
+          cat $zip.sha512 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
+            "Authorization: token $GITHUB_TOKEN" \
+            'Accept: application/vnd.github.v3+json' \
+            'Content-Type: text/plain' | jq .state
+        fi
+      done
 
 deploy to CSUS:
   stage: deploy
