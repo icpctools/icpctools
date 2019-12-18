@@ -29,7 +29,25 @@ test:
   script:
     - echo "Future tests here"
 
-deploy:
+add release commit to GitHub builds repo:
+  stage: deploy
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    - git config --global user.email "bot@icpctools.org"
+    - git config --global user.name "ICPC Tools bot"
+  script:
+    - VERSION=2.2.$(git rev-list $CI_COMMIT_SHA --count)
+    - mkdir ~/builds
+    - cd ~/builds
+    - git clone git@github.com:icpctools/builds.git .
+    - git commit --allow-empty -m "Add build $VERSION"
+    - git push
+
+deploy to CSUS:
   stage: deploy
   script:
     - apt-get install -y curl
