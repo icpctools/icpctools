@@ -70,10 +70,10 @@ In distributed mode, the Resolver is run on several machines.
 One machine (the _presenter_ client) acts as the controller for the flow of events 
 (the Contest Administrator uses keyboard/mouse input to control Resolver operation, 
 similar to stand-alone mode). 
-A second machine runs a server; and one or more additional machines act as _viewer_ clients.  
+A second machine runs a CDS server; and one or more additional machines act as _viewer_ clients.  
 The server is started first and listens for connections from clients; 
-presenter and viewer clients connect to the server through a configurable port. 
-  
+presenter and viewer clients connect to the server over HTTPS. 
+
 Distributed mode is typically used in contests where teams are competing at different 
 (physically remote) sites, 
 or where the Contest Administrator wishes to see a different view of the resolving
@@ -86,6 +86,14 @@ is selected it can show a small dialog saying something like
 "if the team solves this run then they will jump up into 3rd place").  
 This extra information display is only visible on the presenter client; 
 the viewer clients see only the main Resolver output.
+
+Based on the access roles provided by the CDS and Contest API, the resolver requires the
+presenter client to have the admin role and each of the clients to have the blue access role.
+All of the clients work by downloading the final contest results, internally 'rewinding' to the contest
+freeze, and then determining the sequence of steps to get from the freeze to the final contest.
+The presenter client then sends out a step count to drive the UI of all clients.
+Due to the requirement of blue access privileges it is expected that the resolver client
+credentials are only given to trusted contest staff or not distributed until the last minute.
 
 === Input Data Sources
 
