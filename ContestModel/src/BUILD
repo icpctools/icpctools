@@ -11,6 +11,6 @@ java_test(
     srcs = ["org/icpc/tools/contest/model/internal/YamlParserTest.java"],
     deps = [
         ":contestModel",
-        "//lib:guava_junit_truth",
+        "//testlib:guava_junit_truth",
     ],
 )
