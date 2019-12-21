@@ -38,7 +38,7 @@ public class YamlParser {
 		return info;
 	}
 
-	 private static int parseTime(String value) {
+	 protected static int parseTime(String value) {
 		  int ind = value.indexOf(":");
 		  int h = Integer.parseInt(value.substring(0, ind));
 		  int ind2 = value.indexOf(":", ind + 1);

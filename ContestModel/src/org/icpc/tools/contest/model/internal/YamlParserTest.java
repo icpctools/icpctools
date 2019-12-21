@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 @RunWith(JUnit4.class)
 public class YamlParserTest {
@@ -54,5 +55,18 @@ public class YamlParserTest {
 		Reader reader = new StringReader(exampleYaml);
 		Info info = YamlParser.parseInfo(reader);
 		assertThat(info.getPenaltyTime()).isEqualTo(20);
+	}
+
+	@Test
+	public void testParseTime() throws Exception {
+		assertThat(YamlParser.parseTime("5:00:00")).isEqualTo(5 * 3600);
+		assertThat(YamlParser.parseTime("05:00:00")).isEqualTo(5 * 3600);
+		assertThat(YamlParser.parseTime("2:30:00")).isEqualTo(2 * 3600 + 30 * 60);
+		assertThat(YamlParser.parseTime("1:23:42")).isEqualTo(1 * 3600 + 23 * 60 + 42);
+	}
+
+	@Test(expected = Exception.class)
+	public void testParseTimeWithoutSeconds() {
+		YamlParser.parseTime("5:00");
 	}
 }
