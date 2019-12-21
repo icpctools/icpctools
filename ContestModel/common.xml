@@ -29,7 +29,8 @@
          </fileset>
       </copy>
       <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
-         <src path="src"/>
+	 <src path="src"/>
+	 <exclude name="**/*Test.java"/>
          <classpath>
            <fileset dir="lib" erroronmissingdir="false">
              <include name="**/*.jar"/>
