@@ -1,0 +1,18 @@
+{{ $stableRelease := index $.Site.Data.releases.stable }}
+{{ $preRelease := index $.Site.Data.releases.prerelease }}
+{{ $stableTool := index $stableRelease.downloads (.Get "toolname") }}
+{{ $prerelaseTool := index $preRelease.downloads (.Get "toolname") }}
+
+<h2>Download</h2>
+<p>
+    The latest stable {{ .Get "name" }} version is {{ $stableTool.version }}, released on {{ $stableRelease.date }}.
+</p>
+<p>
+    <a class="btn btn-primary" href="{{ $stableTool.urls.zip }}"><i class="fas fa-download"></i> Download stable {{ .Get "name" }} (version {{ $stableTool.version }})</a>
+</p>
+<p>
+    The latest prerelease {{ .Get "name" }} version is {{ $prerelaseTool.version }}, released on {{ $preRelease.date }}.
+</p>
+<p>
+    <a class="btn btn-danger" href="{{ $prerelaseTool.urls.zip }}"><i class="fas fa-download"></i> Download prerelease {{ .Get "name" }} (version {{ $prerelaseTool.version }})</a>
+</p>

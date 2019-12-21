@@ -10,3 +10,5 @@ The ICPC Problem Set Editor is a tool for creating and editing `problemset.yaml`
 which define the list of contest problems
 and their colors for a [CLICS-compliant](https://clics.ecs.baylor.edu/index.php/Contest_Control_System)
 Contest Control System (CCS).
+
+{{< tooldownload name="problem set editor" toolname=problemset >}}

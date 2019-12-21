@@ -46,3 +46,5 @@ A variety of options are available, including managing the speed at which the
 Resolver runs, controlling various "single-step" operations,
 configuring categories of awards to be acknowledged during the resolving
 process, and controlling simultaneous Resolver operations at multiple contest sites.
+
+{{< tooldownload name="resolver" toolname=resolver >}}

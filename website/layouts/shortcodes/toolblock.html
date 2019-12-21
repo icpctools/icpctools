@@ -1,0 +1,18 @@
+{{ $stableRelease := index $.Site.Data.releases.stable }}
+{{ $preRelease := index $.Site.Data.releases.prerelease }}
+{{ $stableTool := index $stableRelease.downloads (.Get "toolname") }}
+{{ $prerelaseTool := index $preRelease.downloads (.Get "toolname") }}
+<div class="col-md-6 mb-3">
+    <h4>{{ .Get "name" }}</h4>
+    <p>
+        {{ .Get "description" }}
+    </p>
+    <p>
+        Downloads: <br/> 
+        Stable: <a href="{{ $stableTool.urls.zip }}">{{ .Get "shortname" }} version {{ $stableTool.version }}</a><br />
+        Prerelease: <a href="{{ $prerelaseTool.urls.zip }}">{{ .Get "shortname" }} version {{ $prerelaseTool.version }}</a><br />
+    </p>
+    <p>
+        <a href="{{ .Get "page" }}">More information</a>
+    </p>
+</div>

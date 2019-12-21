@@ -13,6 +13,29 @@ These tools have been used to support a wide variety of programming contests inc
 
 All of the ICPC tools are designed to work together, and where applicable they are based on published ICPC standards. In particular, many of the tools are derived from and based on the specifications published under the auspices of the *Competitive Learning Initiative* as posted on the [CLI Wiki](https://clics.ecs.baylor.edu/index.php).
 
+## The Tools
+
+Follow the links below to download any of the tools. Click on the "More information" link to get more information for each tool.
+
+<div class="row">
+    {{< toolblock shortname=CDS name="Contest Data Server" description="Single-point URL services for accessing contest data" toolname=wlp.CDS page=cds >}}
+    {{< toolblock shortname=Resolver name=Resolver description="Animated reveal of final contest results" toolname=resolver page=resolver >}}
+</div>
+<div class="row">
+    {{< toolblock shortname="Presentation admin" name="Presentation Admin" description="Remote administration of multiple presentations (requires CDS)" toolname=presentationAdmin page=pres-admin >}}
+    {{< toolblock shortname="Presentation client" name="Presentation Client" description="Animated reveal of final contest results" toolname=presentations page=pres-client >}}
+</div>
+<div class="row">
+    {{< toolblock shortname="Balloon utility" name="Balloon Utility" description="Manages and prints which teams to award a balloon" toolname=balloonUtil page=balloon-util >}}
+    {{< toolblock shortname="Coach view" name="Coach View" description="Ability to remotely see the camera and desktop of a team" toolname=coachview page=coach-view >}}
+</div>
+<div class="row">
+    {{< toolblock shortname="Problem set editor" name="Problem Set Editor" description="Generate/Edit YAML descriptions of problem sets for input to CLICS-compatible CCS's" toolname=problemset page=problem-set-editor >}}
+    {{< toolblock shortname="Contest utilities" name="Contest Utilities" description="A variety of useful contest-related utilities: event feed checkers, floor map generators, submission extractors, and more!" toolname=contestUtil page=contest-utils >}}
+</div>
+
+{{< lastbuilds >}}
+
 ## Disclaimer
 
 The tools on this page are provided free and "as is", with the usual disclaimers: lack of guarantee of suitability for any particular purpose, no stated or implied responsibility for the results of their use, etc.
