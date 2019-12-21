@@ -1,5 +1,5 @@
 ---
-title: "Presentation admin"
+title: "Presentation Admin"
 date: 2019-12-15T11:40:23+01:00
 draft: false
 weight: 4
@@ -35,4 +35,4 @@ Systems known to produce compliant event feeds include
 other Contest Control Systems may also produce compatible event feeds and
 hence work with the Presentation System.
 
-{{< tooldownload name="presentation admin" toolname=presentationAdmin >}}
+{{< tooldownload name="Presentation Admin" toolname=presentationAdmin >}}

@@ -6,7 +6,8 @@ weight: 1
 icon: fas fa-home
 ---
 
-![ICPC Tools logo](/img/logo-full.png)
+{{< figure src="/img/logo-full.png" alt="ICPC Tools logo" class="float-right" >}}
+
 
 Welcome to the ICPC Tools web page! This page contains a variety of tools implemented by the International Collegiate Programming Contest (ICPC) Tools Group, most of of which were originally developed for use at the ICPC World Finals and have been adapted for use at other programming contests.
 These tools have been used to support a wide variety of programming contests including local contests at Universities world-wide, multiple ICPC Regional Contests around the world, and a number of ICPC World Finals.
@@ -22,16 +23,16 @@ Follow the links below to download any of the tools. Click on the "More informat
     {{< toolblock shortname=Resolver name=Resolver description="Animated reveal of final contest results" toolname=resolver page=resolver >}}
 </div>
 <div class="row">
-    {{< toolblock shortname="Presentation admin" name="Presentation Admin" description="Remote administration of multiple presentations (requires CDS)" toolname=presentationAdmin page=pres-admin >}}
-    {{< toolblock shortname="Presentation client" name="Presentation Client" description="Animated reveal of final contest results" toolname=presentations page=pres-client >}}
+    {{< toolblock shortname="Presentation Admin" name="Presentation Admin" description="Remote administration of multiple presentations (requires CDS)" toolname=presentationAdmin page=pres-admin >}}
+    {{< toolblock shortname="Presentation Client" name="Presentation Client" description="Animated reveal of final contest results" toolname=presentations page=pres-client >}}
 </div>
 <div class="row">
-    {{< toolblock shortname="Balloon utility" name="Balloon Utility" description="Manages and prints which teams to award a balloon" toolname=balloonUtil page=balloon-util >}}
-    {{< toolblock shortname="Coach view" name="Coach View" description="Ability to remotely see the camera and desktop of a team" toolname=coachview page=coach-view >}}
+    {{< toolblock shortname="Balloon Utility" name="Balloon Utility" description="Manages and prints which teams to award a balloon" toolname=balloonUtil page=balloon-util >}}
+    {{< toolblock shortname="Coach View" name="Coach View" description="Ability to remotely see the camera and desktop of a team" toolname=coachview page=coach-view >}}
 </div>
 <div class="row">
-    {{< toolblock shortname="Problem set editor" name="Problem Set Editor" description="Generate/Edit YAML descriptions of problem sets for input to CLICS-compatible CCS's" toolname=problemset page=problem-set-editor >}}
-    {{< toolblock shortname="Contest utilities" name="Contest Utilities" description="A variety of useful contest-related utilities: event feed checkers, floor map generators, submission extractors, and more!" toolname=contestUtil page=contest-utils >}}
+    {{< toolblock shortname="Problem Set Editor" name="Problem Set Editor" description="Generate/Edit YAML descriptions of problem sets for input to CLICS-compatible CCS's" toolname=problemset page=problem-set-editor >}}
+    {{< toolblock shortname="Contest Utilities" name="Contest Utilities" description="A variety of useful contest-related utilities: event feed checkers, floor map generators, submission extractors, and more!" toolname=contestUtil page=contest-utils >}}
 </div>
 
 {{< lastbuilds >}}
