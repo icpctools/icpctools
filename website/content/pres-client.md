@@ -31,3 +31,5 @@ another shows the runs currently in the "judge's queue" and the judgment each ru
 as it exits the queue;
 still another presentation shows the current contest clock (remaining time);
 and so forth.
+
+{{< tooldownload name="presentation client" toolname=presentations >}}

@@ -34,3 +34,5 @@ Systems known to produce compliant event feeds include
 [Kattis](https://www.kattis.com/) and [DOMjudge](https://www.domjudge.org);
 other Contest Control Systems may also produce compatible event feeds and
 hence work with the Presentation System.
+
+{{< tooldownload name="presentation admin" toolname=presentationAdmin >}}

@@ -1,0 +1,19 @@
+# Mapping from tool index from JSON files to name to display on all-builds page
+- tool: wlp.CDS
+  name: CDS (WLP)
+- tool: CDS
+  name: CDS (JAR)
+- tool: resolver
+  name: Resolver
+- tool: presentationAdmin
+  name: Presentation admin
+- tool: presentations
+  name: Presentation client
+- tool: balloonUtil
+  name: Balloon utility
+- tool: coachView
+  name: Coach view
+- tool: problemset
+  name: Problem set editor
+- tool: contestUtil
+  name: Contest utilities

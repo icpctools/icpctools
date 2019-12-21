@@ -1,0 +1,46 @@
+{{ range $build := $.Site.Data.releases.all }}
+<table class="table table-hover table-striped">
+    <tbody>
+        <tr>
+            <th>Version</th>
+            <td>{{ $build.version }}</td>
+        </tr>
+        <tr>
+            <th>Build date</th>
+            <td>{{ $build.date }}</td>
+        </tr>
+        <tr>
+            <th>Build time</th>
+            <td>{{ $build.time }}</td>
+        </tr>
+    </tbody>
+</table>
+    
+<table class="table table-hover table-striped">
+    <thead>
+        <tr>
+            <th style="width: 200px;">Tool</th>
+            <th style="width: 200px;">Size</th>
+            <th>Downloads</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ range $tool := $.Site.Data.tools }}
+            {{ if isset $build.downloads $tool.tool }}
+            {{ $download := index $build.downloads $tool.tool }}
+            <tr>
+                <th>{{ $tool.name }}</th>
+                <td>{{ $download.size }} MB</td>
+                <td>
+                    <a href="{{ $download.urls.zip }}">{{ $tool.tool }}-{{ $download.version }}.zip</a>
+                    {{ if and (isset $download.urls "sha256") (isset $download.urls "sha512") }}
+                    (<a href="{{ $download.urls.sha256 }}">sha256</a>, <a href="{{ $download.urls.sha512 }}">sha512</a>)
+                    {{ end }}
+                </td>
+            </tr>
+            {{ end }}
+        {{ end }}
+    </tbody>
+</table>
+
+{{ end }}
