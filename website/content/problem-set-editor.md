@@ -1,5 +1,5 @@
 ---
-title: "Problem set editor"
+title: "Problem Set Editor"
 date: 2019-12-15T11:50:32+01:00
 draft: false
 weight: 8
@@ -11,4 +11,4 @@ which define the list of contest problems
 and their colors for a [CLICS-compliant](https://clics.ecs.baylor.edu/index.php/Contest_Control_System)
 Contest Control System (CCS).
 
-{{< tooldownload name="problem set editor" toolname=problemset >}}
+{{< tooldownload name="Problem Set Editor" toolname=problemset >}}
