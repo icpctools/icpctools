@@ -26,6 +26,7 @@
       <copy includeemptydirs="false" todir="bin">
          <fileset dir="src">
             <exclude name="**/*.java" />
+            <exclude name="**/BUILD" />
          </fileset>
       </copy>
       <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
