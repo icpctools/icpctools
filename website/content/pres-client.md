@@ -1,5 +1,5 @@
 ---
-title: "Presentation client"
+title: "Presentation Client"
 date: 2019-12-15T11:42:54+01:00
 draft: false
 weight: 5
@@ -32,4 +32,4 @@ as it exits the queue;
 still another presentation shows the current contest clock (remaining time);
 and so forth.
 
-{{< tooldownload name="presentation client" toolname=presentations >}}
+{{< tooldownload name="Presentation Client" toolname=presentations >}}

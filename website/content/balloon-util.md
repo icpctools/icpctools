@@ -1,5 +1,5 @@
 ---
-title: "Balloon utility"
+title: "Balloon Utility"
 date: 2019-12-15T11:45:34+01:00
 draft: false
 weight: 6
@@ -16,4 +16,4 @@ capable of printing maps showing runners where to go find the appropriate balloo
 and where on the contest floor the receiving team is located (although instructions
 for configuring it to do that are beyond the scope of this introductory guide).
 
-{{< tooldownload name="balloon utility" toolname=balloonUtil >}}
+{{< tooldownload name="Balloon Utility" toolname=balloonUtil >}}

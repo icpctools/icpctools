@@ -6,14 +6,14 @@
 - tool: resolver
   name: Resolver
 - tool: presentationAdmin
-  name: Presentation admin
+  name: Presentation Admin
 - tool: presentations
-  name: Presentation client
+  name: Presentation Client
 - tool: balloonUtil
-  name: Balloon utility
+  name: Balloon Utility
 - tool: coachView
-  name: Coach view
+  name: Coach View
 - tool: problemset
-  name: Problem set editor
+  name: Problem Set Editor
 - tool: contestUtil
-  name: Contest utilities
+  name: Contest Utilities
