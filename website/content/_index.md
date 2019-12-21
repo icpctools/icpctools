@@ -24,7 +24,7 @@ Follow the links below to download any of the tools. Click on the "More informat
 </div>
 <div class="row">
     {{< toolblock shortname="Presentation Admin" name="Presentation Admin" description="Remote administration of multiple presentations (requires CDS)" toolname=presentationAdmin page=pres-admin >}}
-    {{< toolblock shortname="Presentation Client" name="Presentation Client" description="Animated reveal of final contest results" toolname=presentations page=pres-client >}}
+    {{< toolblock shortname="Presentation Client" name="Presentation Client" description="Animated display of scoreboard and other contest data" toolname=presentations page=pres-client >}}
 </div>
 <div class="row">
     {{< toolblock shortname="Balloon Utility" name="Balloon Utility" description="Manages and prints which teams to award a balloon" toolname=balloonUtil page=balloon-util >}}
