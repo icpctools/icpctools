@@ -1,11 +1,12 @@
 ---
 # GitLab build configuration
-image: icpctools/build:servlet4
+image: nickygerritsen/icpctools-build:servlet4
 
 stages:
   - build
   - test
   - deploy
+  - website
 
 before_script:
   - echo "No more setup, it's all in docker"
@@ -97,3 +98,29 @@ deploy to CSUS:
     - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
     - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
     - curl "http://pc2.ecs.csus.edu/cgi-bin/grabgitlab_icpctools_artifacts.cgi?authkey=$AUTHKEY&url=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/jobs/$BUILD_JOB_ID/artifacts&buildnumber=$BUILDNUMBER"
+
+update website:
+  stage: website
+  # rules:
+  #   - if: '$CI_COMMIT_REF_NAME == "master"'
+  #     when: always
+  #   - when: never
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY_WEBSITE" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    - git config --global user.email "bot@icpctools.org"
+    - git config --global user.name "ICPC Tools bot"
+  script:
+    - website/scripts/populate-releases.py
+    - mkdir ~/website
+    - git clone git@github.com:icpctools/icpctools.github.io.git ~/website
+    - ln -s ~/website $CI_PROJECT_DIR/website/public
+    - cd $CI_PROJECT_DIR/website
+    - hugo
+    - cd ~/website
+    - git add .
+    - git commit --allow-empty -m "Update website for icpctools commit $CI_COMMIT_SHA"
+    - git push
