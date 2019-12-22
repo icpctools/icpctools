@@ -1,6 +1,6 @@
 ---
 # GitLab build configuration
-image: nickygerritsen/icpctools-build:servlet4
+image: icpctools/build:servlet4
 
 stages:
   - build
@@ -101,10 +101,10 @@ deploy to CSUS:
 
 update website:
   stage: website
-  # rules:
-  #   - if: '$CI_COMMIT_REF_NAME == "master"'
-  #     when: always
-  #   - when: never
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: never
   before_script:
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY_WEBSITE" | tr -d '\r' | ssh-add -
