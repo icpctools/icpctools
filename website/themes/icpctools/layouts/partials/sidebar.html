@@ -9,7 +9,7 @@
                 {{ $currentPage := . }}
                 {{ range .Site.Pages }}
                     <li class="nav-item">
-                        <a class="nav-link {{ if eq $currentPage.Path .Path }}active{{ end }}" href="{{ .URL }}">
+                        <a class="nav-link {{ if eq $currentPage.Path .Path }}active{{ end }}" href="{{ .Permalink }}">
                             {{ if .Params.Icon }}<i class="{{ .Params.Icon }}"></i>{{ end }}
                             <p>{{ .LinkTitle }}</p>
                         </a>
