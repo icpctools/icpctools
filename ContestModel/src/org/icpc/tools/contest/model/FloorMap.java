@@ -150,7 +150,7 @@ public class FloorMap {
 	private IPrinter printer;
 
 	// computed
-	private List<AisleIntersection> aisleIntersections;
+	private List<AisleIntersection> aisleIntersections = new ArrayList<>();
 
 	private FloorMap() {
 		// used internally
@@ -1177,6 +1177,11 @@ public class FloorMap {
 			oy = Math.min(oy, a.y1);
 			ox = Math.min(ox, a.x2);
 			oy = Math.min(oy, a.y2);
+		}
+
+		for (ITeam t : teams) {
+			ox = Math.min(ox, t.getX());
+			oy = Math.min(oy, t.getY());
 		}
 
 		if (ox == 0 && oy == 0)
