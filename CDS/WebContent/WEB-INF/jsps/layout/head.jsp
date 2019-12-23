@@ -88,8 +88,7 @@
                 IContest contest3 = cc3.getContest();
                 String webroot3 = request.getContextPath() + "/contests/" + cc3.getId(); %>
 
-            <li
-              class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().startsWith(webroot3)) { %>open<% } else { %>closed<% } %>">
+            <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().startsWith(webroot3)) { %>open<% } else { %>closed<% } %>">
               <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
@@ -97,8 +96,6 @@
                   <i class="right fas fa-angle-left"></i>
                 </p>
               </a>
-
-
 
               <ul class="nav nav-treeview">
                 <% for (int i = 0; i < menuPages.length; i++) { %>
@@ -112,8 +109,9 @@
                 <% } %>
               </ul>
 
-              <% } } %>
             </li>
+            <% } } %>
+            
             <li class="nav-item">
               <a href="/presentation/admin/web"
                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("presentation/admin/web")) { %> active<% } %>">
@@ -122,8 +120,7 @@
               </a>
             </li>
 
-            <li
-              class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
+            <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
               <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-video"></i>
                 <p>
