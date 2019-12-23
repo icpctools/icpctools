@@ -120,6 +120,9 @@ public class PresentationCache {
 	}
 
 	private static void createAdminArchive(File from, File toAdmin) {
+		if (toAdmin.exists() && toAdmin.lastModified() >= from.lastModified())
+			return;
+
 		File toCache = from.getParentFile();
 		ZipFile zipFileFrom = null;
 		ZipOutputStream zipOutAdmin = null;
