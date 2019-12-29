@@ -1,5 +1,6 @@
 ---
 title: "Balloon Utility"
+description: "The ICPC Balloon Utility is a tool for keeping track of balloons earned by contest teams for successful run submissions"
 date: 2019-12-15T11:45:34+01:00
 draft: false
 weight: 6

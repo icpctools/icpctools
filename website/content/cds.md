@@ -1,5 +1,6 @@
 ---
 title: "CDS"
+description: "The Contest Data Server is a software component designed to allow secure, authenticated HTTP connections to contest data residing on a contest network"
 date: 2019-11-12T21:20:38+01:00
 draft: false
 weight: 2

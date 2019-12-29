@@ -1,5 +1,6 @@
 ---
 title: "Coach View"
+description: "The Coach View is a software component designed to provide the ability for spectators to view either or both of a selected team's desktop or web camera during a contest"
 date: 2019-12-15T11:46:23+01:00
 draft: false
 weight: 7

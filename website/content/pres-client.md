@@ -1,5 +1,6 @@
 ---
 title: "Presentation Client"
+description: "The ICPC Presentation System provides a mechanism for generating slide show presentations containing user-provided images, photos, and a variety of live data from a running contest"
 date: 2019-12-15T11:42:54+01:00
 draft: false
 weight: 5

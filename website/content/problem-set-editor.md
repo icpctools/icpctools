@@ -1,5 +1,6 @@
 ---
 title: "Problem Set Editor"
+description: "The ICPC Problem Set Editor is a tool for creating and editing problemset.yaml files"
 date: 2019-12-15T11:50:32+01:00
 draft: false
 weight: 8

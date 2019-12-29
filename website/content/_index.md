@@ -1,5 +1,6 @@
 ---
 title: "Home"
+description: "The ICPC Tools are a variety of tools implemented by the  ICPC Tools Group for use at the ICPC World Finals and other programming contests"
 date: 2019-11-12T21:10:52+01:00
 draft: false
 weight: 1

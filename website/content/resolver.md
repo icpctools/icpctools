@@ -1,5 +1,6 @@
 ---
 title: "Resolver"
+description: "The ICPC Resolver is a tool for graphical animation of contest results. It shows the final runs submitted during a contest in an interesting way, and leads up to display of the award winners"
 date: 2019-11-12T21:20:38+01:00
 draft: false
 weight: 3
