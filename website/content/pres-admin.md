@@ -1,5 +1,6 @@
 ---
 title: "Presentation Admin"
+description: "The Presentation Admin is one of the components comprising the ICPC Presentation System"
 date: 2019-12-15T11:40:23+01:00
 draft: false
 weight: 4
