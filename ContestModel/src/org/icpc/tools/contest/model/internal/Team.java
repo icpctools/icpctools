@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Team extends ContestObject implements ITeam {
 	private static final String NAME = "name";
@@ -19,6 +22,7 @@ public class Team extends ContestObject implements ITeam {
 	private static final String X = "x";
 	private static final String Y = "y";
 	private static final String ROTATION = "rotation";
+	private static final String LOCATION = "location";
 	private static final String PHOTO = "photo";
 	private static final String VIDEO = "video";
 	private static final String BACKUP = "backup";
@@ -201,7 +205,7 @@ public class Team extends ContestObject implements ITeam {
 				}
 				return true;
 			}
-			case "group_id": { /// TODO - temporary support for Nov 2017 feeds
+			case "group_id": { /// deprecated - temporary support for Nov 2017 feeds
 				groupIds = new String[] { (String) value };
 				return true;
 			}
@@ -221,16 +225,23 @@ public class Team extends ContestObject implements ITeam {
 				displayName = (String) value;
 				return true;
 			}
-			case X: {
+			case X: { // deprecated - use child location object
 				x = parseDouble(value);
 				return true;
 			}
-			case Y: {
+			case Y: { // deprecated - use child location object
 				y = parseDouble(value);
 				return true;
 			}
-			case ROTATION: {
+			case ROTATION: { // deprecated - use child location object
 				rotation = parseInt(value);
+				return true;
+			}
+			case LOCATION: {
+				JsonObject obj = JSONParser.getOrReadObject(value);
+				x = obj.getDouble(X);
+				y = obj.getDouble(Y);
+				rotation = obj.getInt(ROTATION);
 				return true;
 			}
 			case PHOTO: {
@@ -288,17 +299,21 @@ public class Team extends ContestObject implements ITeam {
 		if (groupIds != null)
 			props.put(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
 		props.put(ORGANIZATION_ID, organizationId);
-		if (x != Double.MIN_VALUE)
-			props.put(X, round(x));
-		if (y != Double.MIN_VALUE)
-			props.put(Y, round(y));
-		if (rotation >= 0)
-			props.put(ROTATION, rotation);
 		props.put(PHOTO, photo);
 		props.put(VIDEO, video);
 		props.put(BACKUP, backup);
 		props.put(DESKTOP, desktop);
 		props.put(WEBCAM, webcam);
+		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation >= 0) {
+			List<String> attrs = new ArrayList<>(3);
+			if (x != Double.MIN_VALUE)
+				attrs.add("\"" + X + "\":" + round(x));
+			if (y != Double.MIN_VALUE)
+				attrs.add("\"" + Y + "\":" + round(y));
+			if (rotation >= 0)
+				attrs.add("\"" + ROTATION + "\":" + rotation);
+			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 	}
 
 	@Override
@@ -314,17 +329,22 @@ public class Team extends ContestObject implements ITeam {
 			je.encodePrimitive(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
 		if (organizationId != null)
 			je.encode(ORGANIZATION_ID, organizationId);
-		if (x != Double.MIN_VALUE)
-			je.encode(X, round(x));
-		if (y != Double.MIN_VALUE)
-			je.encode(Y, round(y));
-		if (rotation >= 0)
-			je.encode(ROTATION, rotation);
 		je.encode(PHOTO, photo, false);
 		je.encode(VIDEO, video, false);
 		je.encode(BACKUP, backup, false);
 		je.encodeSubs(DESKTOP, desktop, false);
 		je.encodeSubs(WEBCAM, webcam, false);
+
+		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation >= 0) {
+			List<String> attrs = new ArrayList<>(3);
+			if (x != Double.MIN_VALUE)
+				attrs.add("\"" + X + "\":" + round(x));
+			if (y != Double.MIN_VALUE)
+				attrs.add("\"" + Y + "\":" + round(y));
+			if (rotation >= 0)
+				attrs.add("\"" + ROTATION + "\":" + rotation);
+			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 	}
 
 	private static double round(double d) {

@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -176,8 +177,14 @@ public class Organization extends ContestObject implements IOrganization {
 		props.put(COUNTRY, country);
 		props.put(URL, url);
 		props.put(HASHTAG, hashtag);
-		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE)
-			props.put(LOCATION, "{\"latitude\":" + round(latitude) + ",\"longitude\":" + round(longitude) + "}");
+		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+			List<String> attrs = new ArrayList<>(2);
+			if (latitude != Double.MIN_VALUE)
+				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
+			if (longitude != Double.MIN_VALUE)
+				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
+			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 		props.put(LOGO, logo);
 	}
 
@@ -193,8 +200,15 @@ public class Organization extends ContestObject implements IOrganization {
 			je.encode(URL, url);
 		if (hashtag != null)
 			je.encode(HASHTAG, hashtag);
-		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE)
-			je.encodePrimitive(LOCATION, "{\"latitude\":" + round(latitude) + ",\"longitude\":" + round(longitude) + "}");
+		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+			List<String> attrs = new ArrayList<>(2);
+			if (latitude != Double.MIN_VALUE)
+				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
+			if (longitude != Double.MIN_VALUE)
+				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
+			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
+
 		je.encode(LOGO, logo, false);
 	}
 
