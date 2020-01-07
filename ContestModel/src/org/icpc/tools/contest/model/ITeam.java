@@ -50,12 +50,12 @@ public interface ITeam extends IContestObject, IPosition {
 	String getICPCId();
 
 	/**
-	 * The integer rotation of the team's desk in degrees, increasing counter-clockwise from 0 to
-	 * 359. 0 is a desk facing E, 90 for table facing N, 180 for table facing W, etc.
+	 * The rotation of the team's desk in degrees, increasing counter-clockwise in the range [0,
+	 * 360). 0 is a desk facing E, 90 for table facing N, 180 for table facing W, etc.
 	 *
 	 * @return the rotation
 	 */
-	int getRotation();
+	double getRotation();
 
 	File getPhoto(int width, int height, boolean force);
 

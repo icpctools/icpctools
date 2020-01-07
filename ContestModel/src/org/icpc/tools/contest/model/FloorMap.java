@@ -33,10 +33,10 @@ import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Team;
 
 public class FloorMap {
-	public static final short N = 90;
-	public static final short E = 0;
-	public static final short S = 270;
-	public static final short W = 180;
+	public static final double N = 90;
+	public static final double E = 0;
+	public static final double S = 270;
+	public static final double W = 180;
 
 	private static final String NO_ID = "<-1>";
 
@@ -115,10 +115,10 @@ public class FloorMap {
 	private static final String COMMA = ",";
 	private static final String TAB = "\t";
 
-	public float tableWidth;
-	public float tableDepth;
-	public float teamAreaWidth;
-	public float teamAreaDepth;
+	public double tableWidth;
+	public double tableDepth;
+	public double teamAreaWidth;
+	public double teamAreaDepth;
 	private Rectangle2D.Double tBounds;
 	private Rectangle2D.Double otBounds;
 
@@ -186,7 +186,7 @@ public class FloorMap {
 	/**
 	 * Create a new floor map.
 	 */
-	public FloorMap(float taw, float tad, float tw, float td) {
+	public FloorMap(double taw, double tad, double tw, double td) {
 		teamAreaWidth = taw;
 		teamAreaDepth = tad;
 		tableWidth = tw;
@@ -207,13 +207,13 @@ public class FloorMap {
 			AffineTransform transform = AffineTransform.getTranslateInstance(t.getX(), t.getY());
 			transform.concatenate(AffineTransform.getRotateInstance(Math.toRadians(t.getRotation())));
 
-			Rectangle2D.Float r = new Rectangle2D.Float(-tableDepth / 2f, -tableWidth / 2f, tableDepth, tableWidth);
+			Rectangle2D.Double r = new Rectangle2D.Double(-tableDepth / 2f, -tableWidth / 2f, tableDepth, tableWidth);
 			Shape s = transform.createTransformedShape(r);
 			Rectangle2D r2 = s.getBounds2D();
-			x1 = (float) Math.min(x1, r2.getMinX());
-			y1 = (float) Math.min(y1, r2.getMinY());
-			x2 = (float) Math.max(x2, r2.getMaxX());
-			y2 = (float) Math.max(y2, r2.getMaxY());
+			x1 = Math.min(x1, r2.getMinX());
+			y1 = Math.min(y1, r2.getMinY());
+			x2 = Math.max(x2, r2.getMaxX());
+			y2 = Math.max(y2, r2.getMaxY());
 		}
 
 		if (!onlyTeams) {
@@ -239,7 +239,7 @@ public class FloorMap {
 
 		// add small gap
 		// TODO gap should be configurable
-		float gap = 2f;
+		double gap = 2f;
 		x1 -= gap;
 		y1 -= gap;
 		x2 += gap;
@@ -468,7 +468,7 @@ public class FloorMap {
 
 			double dx = (x - xc);
 			double dy = (y - yc);
-			float dist2 = (float) Math.sqrt(dx * dx + dy * dy);
+			double dist2 = Math.sqrt(dx * dx + dy * dy);
 			// System.out.println("point: " + xc + "," + yc + " - " + dist);
 
 			if (dist2 < dist) {
@@ -589,7 +589,7 @@ public class FloorMap {
 
 			// chairs
 			double c = tableWidth * scale / 8f;
-			float rnd = 0f;// c * 0.5f;
+			double rnd = 0f;// c * 0.5f;
 			for (int i = 0; i < 3; i++) {
 				// RoundRectangle2D.Float tr = new RoundRectangle2D.Float(-tableDepth * scale * 0.75f,
 				// -tableWidth * scale
@@ -627,7 +627,7 @@ public class FloorMap {
 		}
 
 		for (IProblem b : balloons) {
-			float dim = 1.5f;
+			double dim = 1.5f;
 			double d = dim * scale;
 			int x = r.x + (int) ((b.getX() - bounds.x) * scale);
 			int y = r.y + (int) ((b.getY() - bounds.y) * scale);
@@ -861,7 +861,7 @@ public class FloorMap {
 					id = "";
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
-				int rotation = Short.parseShort(st.nextToken());
+				double rotation = Double.parseDouble(st.nextToken());
 				createTeam(id, x, y, rotation);
 			} else if ("balloon".equals(type)) {
 				String id = st.nextToken();
@@ -874,10 +874,10 @@ public class FloorMap {
 				createPrinter(x, y);
 			} else if ("aisle".equals(type)) {
 				Aisle a = new Aisle();
-				a.x1 = Float.parseFloat(st.nextToken());
-				a.y1 = Float.parseFloat(st.nextToken());
-				a.x2 = Float.parseFloat(st.nextToken());
-				a.y2 = Float.parseFloat(st.nextToken());
+				a.x1 = Double.parseDouble(st.nextToken());
+				a.y1 = Double.parseDouble(st.nextToken());
+				a.x2 = Double.parseDouble(st.nextToken());
+				a.y2 = Double.parseDouble(st.nextToken());
 				aisles.add(a);
 			}
 
@@ -886,13 +886,13 @@ public class FloorMap {
 		computeAisleIntersections();
 	}
 
-	public ITeam createTeam(int num, double x, double y, int rotation) {
+	public ITeam createTeam(int num, double x, double y, double rotation) {
 		if (num < 0)
 			return createTeam("", x, y, rotation);
 		return createTeam(num + "", x, y, rotation);
 	}
 
-	public ITeam createTeam(String id, double x, double y, int rotation) {
+	public ITeam createTeam(String id, double x, double y, double rotation) {
 		Team t = new Team();
 		t.add("id", id);
 		t.add("x", x + "");
@@ -941,7 +941,7 @@ public class FloorMap {
 			Team t = (Team) tt;
 			t.add("x", -t.getX() + "");
 			t.add("y", -t.getY() + "");
-			int r = t.getRotation() + 180;
+			double r = t.getRotation() + 180;
 			t.add("rotation", (r % 360) + "");
 		}
 
@@ -968,13 +968,13 @@ public class FloorMap {
 	}
 
 	public void writeCSV(PrintStream out) {
-		out.print(teamAreaWidth);
+		out.print(rnd(teamAreaWidth));
 		out.print(COMMA);
-		out.print(teamAreaDepth);
+		out.print(rnd(teamAreaDepth));
 		out.print(COMMA);
-		out.print(tableWidth);
+		out.print(rnd(tableWidth));
 		out.print(COMMA);
-		out.println(tableDepth);
+		out.println(rnd(tableDepth));
 
 		for (ITeam t : teams) {
 			out.print("team");
@@ -988,7 +988,7 @@ public class FloorMap {
 			out.print(COMMA);
 			out.print(rnd(t.getY()));
 			out.print(COMMA);
-			out.println(t.getRotation());
+			out.println(rnd(t.getRotation()));
 		}
 
 		for (IProblem b : balloons) {
@@ -1043,7 +1043,7 @@ public class FloorMap {
 			out.print(TAB);
 			out.print(rnd(t.getY()));
 			out.print(TAB);
-			out.println(t.getRotation());
+			out.println(rnd(t.getRotation()));
 		}
 
 		for (IProblem b : balloons) {
@@ -1106,19 +1106,15 @@ public class FloorMap {
 		out.append("\"");
 	}
 
-	private static void write(PrintStream out, String name, float value) {
-		write(out, name, value + "");
-	}
-
 	public void write(PrintStream out) {
 		out.append("\"floorMap\": {\n  ");
-		write(out, "teamWidth", teamAreaWidth);
+		write(out, "teamWidth", rnd(teamAreaWidth));
 		out.append(",\n  ");
-		write(out, "teamDepth", teamAreaDepth);
+		write(out, "teamDepth", rnd(teamAreaDepth));
 		out.append(",\n  ");
-		write(out, "tableWidth", tableWidth);
+		write(out, "tableWidth", rnd(tableWidth));
 		out.append(",\n  ");
-		write(out, "tableDepth", tableDepth);
+		write(out, "tableDepth", rnd(tableDepth));
 		out.append(",\n");
 
 		for (ITeam t : teams) {
@@ -1132,7 +1128,7 @@ public class FloorMap {
 			out.append(", ");
 			write(out, "y", rnd(t.getY()));
 			out.append(", ");
-			write(out, "angle", t.getRotation() + "");
+			write(out, "angle", rnd(t.getRotation()));
 			out.append("},\n");
 		}
 

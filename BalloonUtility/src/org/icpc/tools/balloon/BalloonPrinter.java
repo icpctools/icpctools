@@ -613,11 +613,11 @@ public class BalloonPrinter {
 			float yt = r.y + (int) ((team.getY() - bounds.y) * scale);
 
 			// team area
-			float teamAreaDepth = floor.teamAreaDepth;
-			float teamAreaWidth = floor.teamAreaWidth;
+			double teamAreaDepth = floor.teamAreaDepth;
+			double teamAreaWidth = floor.teamAreaWidth;
 			float dx = 1f;
 			transform.translate(xt, yt);
-			transform.rotate(-team.getRotation());
+			transform.rotate((float) -team.getRotation());
 			gc.setTransform(transform);
 
 			String id = team.getId();
@@ -631,8 +631,8 @@ public class BalloonPrinter {
 			gc.drawRectangle(tr1);
 
 			// chairs
-			float tableDepth = floor.tableDepth;
-			float tableWidth = floor.tableWidth;
+			double tableDepth = floor.tableDepth;
+			double tableWidth = floor.tableWidth;
 
 			// table
 			Rectangle tr = new Rectangle((int) (-tableDepth * scale / 2f), (int) (-tableWidth * scale / 2f),

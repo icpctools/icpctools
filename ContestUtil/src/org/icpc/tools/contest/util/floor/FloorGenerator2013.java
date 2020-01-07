@@ -2,10 +2,10 @@ package org.icpc.tools.contest.util.floor;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.FloorMap.Path;
 
 public class FloorGenerator2013 extends FloorGenerator {
 	private static final float tw = 1.8f; // table width
@@ -16,7 +16,8 @@ public class FloorGenerator2013 extends FloorGenerator {
 	private static FloorMap floor = new FloorMap(taw, tad, tw, td);
 	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	protected static void createTeamRow(int num, int startingId, float x, float y, float dx, float dy, short rotation) {
+	protected static void createTeamRow(int num, int startingId, double x, double y, double dx, double dy,
+			double rotation) {
 		for (int i = 0; i < num; i++) {
 			floor.createTeam(startingId + i, x + dx * i, y + dy * i, rotation);
 		}

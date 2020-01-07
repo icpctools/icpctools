@@ -37,7 +37,7 @@ public class Team extends ContestObject implements ITeam {
 	private String icpcId;
 	private double x = Double.MIN_VALUE;
 	private double y = Double.MIN_VALUE;
-	private int rotation = -1;
+	private double rotation = Double.MIN_VALUE;
 	private FileReferenceList photo;
 	private FileReferenceList video;
 	private FileReferenceList desktop;
@@ -93,7 +93,7 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
-	public int getRotation() {
+	public double getRotation() {
 		return rotation;
 	}
 
@@ -234,14 +234,14 @@ public class Team extends ContestObject implements ITeam {
 				return true;
 			}
 			case ROTATION: { // deprecated - use child location object
-				rotation = parseInt(value);
+				rotation = parseDouble(value);
 				return true;
 			}
 			case LOCATION: {
 				JsonObject obj = JSONParser.getOrReadObject(value);
 				x = obj.getDouble(X);
 				y = obj.getDouble(Y);
-				rotation = obj.getInt(ROTATION);
+				rotation = obj.getDouble(ROTATION);
 				return true;
 			}
 			case PHOTO: {
@@ -304,14 +304,14 @@ public class Team extends ContestObject implements ITeam {
 		props.put(BACKUP, backup);
 		props.put(DESKTOP, desktop);
 		props.put(WEBCAM, webcam);
-		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation >= 0) {
+		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation != Double.MIN_VALUE) {
 			List<String> attrs = new ArrayList<>(3);
 			if (x != Double.MIN_VALUE)
 				attrs.add("\"" + X + "\":" + round(x));
 			if (y != Double.MIN_VALUE)
 				attrs.add("\"" + Y + "\":" + round(y));
-			if (rotation >= 0)
-				attrs.add("\"" + ROTATION + "\":" + rotation);
+			if (rotation != Double.MIN_VALUE)
+				attrs.add("\"" + ROTATION + "\":" + round(rotation));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
 	}
@@ -335,14 +335,14 @@ public class Team extends ContestObject implements ITeam {
 		je.encodeSubs(DESKTOP, desktop, false);
 		je.encodeSubs(WEBCAM, webcam, false);
 
-		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation >= 0) {
+		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation != Double.MIN_VALUE) {
 			List<String> attrs = new ArrayList<>(3);
 			if (x != Double.MIN_VALUE)
 				attrs.add("\"" + X + "\":" + round(x));
 			if (y != Double.MIN_VALUE)
 				attrs.add("\"" + Y + "\":" + round(y));
-			if (rotation >= 0)
-				attrs.add("\"" + ROTATION + "\":" + rotation);
+			if (rotation != Double.MIN_VALUE)
+				attrs.add("\"" + ROTATION + "\":" + round(rotation));
 			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
 	}
