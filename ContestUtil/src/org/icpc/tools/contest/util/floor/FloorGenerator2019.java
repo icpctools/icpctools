@@ -29,14 +29,15 @@ public class FloorGenerator2019 extends FloorGenerator {
 
 	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	protected static void createTeamRow(int num, int startingId, float x, float y, float dx, float dy, short rotation) {
+	protected static void createTeamRow(int num, int startingId, double x, double y, double dx, double dy,
+			double rotation) {
 		for (int i = 0; i < num; i++) {
 			floor.createTeam(startingId + i, x + dx * i, y + dy * i, rotation);
 		}
 	}
 
-	protected static void createTeamRowRev(int num, int startingId, float x, float y, float dx, float dy,
-			short rotation) {
+	protected static void createTeamRowRev(int num, int startingId, double x, double y, double dx, double dy,
+			double rotation) {
 		for (int i = 0; i < num; i++) {
 			floor.createTeam(startingId - i, x + dx * i, y + dy * i, rotation);
 		}

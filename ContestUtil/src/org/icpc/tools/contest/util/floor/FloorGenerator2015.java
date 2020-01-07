@@ -2,8 +2,8 @@ package org.icpc.tools.contest.util.floor;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
-import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.FloorMap.Path;
+import org.icpc.tools.contest.model.IPrinter;
 
 public class FloorGenerator2015 extends FloorGenerator {
 	// table width (in meters). ICPC standard is 1.8
@@ -22,7 +22,8 @@ public class FloorGenerator2015 extends FloorGenerator {
 
 	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	protected static void createTeamRow(int num, int startingId, float x, float y, float dx, float dy, short rotation) {
+	protected static void createTeamRow(int num, int startingId, double x, double y, double dx, double dy,
+			double rotation) {
 		for (int i = 0; i < num; i++) {
 			floor.createTeam(startingId + i, x + dx * i, y + dy * i, rotation);
 		}

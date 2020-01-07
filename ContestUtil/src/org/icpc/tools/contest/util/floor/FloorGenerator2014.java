@@ -2,10 +2,10 @@ package org.icpc.tools.contest.util.floor;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.FloorMap.Path;
 
 public class FloorGenerator2014 extends FloorGenerator {
 	private static final float tw = 1.8f; // table width
@@ -18,13 +18,14 @@ public class FloorGenerator2014 extends FloorGenerator {
 	private static final int[] left = new int[] { 1, 7, 3, 8, 2, 9 };
 	private static final int[] right = new int[] { 4, 10, 5, 11, 6, 12 };
 
-	protected static void createTeamRow(int num, int startingId, float x, float y, float dx, float dy, short rotation) {
+	protected static void createTeamRow(int num, int startingId, double x, double y, double dx, double dy,
+			double rotation) {
 		for (int i = 0; i < num; i++) {
 			floor.createTeam(startingId + i, x + dx * i, y + dy * i, rotation);
 		}
 	}
 
-	protected static void createAdjacentTeam(int id, int newId, float dx, float dy) {
+	protected static void createAdjacentTeam(int id, int newId, double dx, double dy) {
 		ITeam t = floor.getTeam(id);
 		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
 	}
