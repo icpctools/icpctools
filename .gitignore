@@ -6,3 +6,4 @@
 **/*.pdf
 .vscode
 bazel-*
+!/website/static/docs/*.pdf

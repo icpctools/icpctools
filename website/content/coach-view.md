@@ -17,4 +17,4 @@ example the ICPC Tools [Contest Data Server](/cds).
 The Coach View provides the ability for a coach to select a specific team by name or team number and to view
 either or both of that team's desktop and webcam video feeds.
 
-{{< tooldownload name="Coach View" toolname=coachview >}}
+{{< tooldownload name="Coach View" toolname=coachview doc=CoachView >}}

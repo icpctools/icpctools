@@ -33,4 +33,4 @@ as it exits the queue;
 still another presentation shows the current contest clock (remaining time);
 and so forth.
 
-{{< tooldownload name="Presentation Client" toolname=presentations >}}
+{{< tooldownload name="Presentation Client" toolname=presentations doc=PresentationClient >}}
