@@ -16,3 +16,12 @@
 <p>
     <a class="btn btn-danger" href="{{ $prerelaseTool.urls.zip }}"><i class="fas fa-download"></i> Download prerelease <i>{{ .Get "name" }}</i> (version {{ $prerelaseTool.version }})</a>
 </p>
+
+<h2>Documentation</h2>
+
+<p>
+    The {{ .Get "name" }} documentation can also be downloaded.
+</p>
+<p>
+    <a class="btn btn-secondary" href="/docs/{{ .Get "doc" }}.pdf"><i class="fas fa-file-pdf"></i> Download / view documentation (PDF format)</a>
+</p>

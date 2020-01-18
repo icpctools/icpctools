@@ -20,20 +20,20 @@ All of the ICPC tools are designed to work together, and where applicable they a
 Follow the links below to download any of the tools. Click on the "More information" link to get more information for each tool.
 
 {{< toolrow >}}
-    {{< toolblock shortname=CDS name="Contest Data Server" description="Single-point URL services for accessing contest data" toolname=wlp.CDS page=cds >}}
-    {{< toolblock shortname=Resolver name=Resolver description="Animated reveal of final contest results" toolname=resolver page=resolver >}}
+    {{< toolblock shortname=CDS name="Contest Data Server" description="Single-point URL services for accessing contest data" toolname=wlp.CDS doc=ContestDataServer page=cds >}}
+    {{< toolblock shortname=Resolver name=Resolver description="Animated reveal of final contest results" toolname=resolver doc=Resolver page=resolver >}}
 {{</ toolrow >}}
 {{< toolrow >}}
-    {{< toolblock shortname="Presentation Admin" name="Presentation Admin" description="Remote administration of multiple presentations (requires CDS)" toolname=presentationAdmin page=pres-admin >}}
-    {{< toolblock shortname="Presentation Client" name="Presentation Client" description="Animated display of scoreboard and other contest data" toolname=presentations page=pres-client >}}
+    {{< toolblock shortname="Presentation Admin" name="Presentation Admin" description="Remote administration of multiple presentations (requires CDS)" toolname=presentationAdmin doc=PresentationAdmin page=pres-admin >}}
+    {{< toolblock shortname="Presentation Client" name="Presentation Client" description="Animated display of scoreboard and other contest data" toolname=presentations doc=PresentationClient page=pres-client >}}
 {{</ toolrow >}}
 {{< toolrow >}}
-    {{< toolblock shortname="Balloon Utility" name="Balloon Utility" description="Manages and prints which teams to award a balloon" toolname=balloonUtil page=balloon-util >}}
-    {{< toolblock shortname="Coach View" name="Coach View" description="Ability to remotely see the camera and desktop of a team" toolname=coachview page=coach-view >}}
+    {{< toolblock shortname="Balloon Utility" name="Balloon Utility" description="Manages and prints which teams to award a balloon" toolname=balloonUtil doc=BalloonUtil page=balloon-util >}}
+    {{< toolblock shortname="Coach View" name="Coach View" description="Ability to remotely see the camera and desktop of a team" toolname=coachview doc=CoachView page=coach-view >}}
 {{</ toolrow >}}
 {{< toolrow >}}
-    {{< toolblock shortname="Problem Set Editor" name="Problem Set Editor" description="Generate/Edit YAML descriptions of problem sets for input to CLICS-compatible CCS's" toolname=problemset page=problem-set-editor >}}
-    {{< toolblock shortname="Contest Utilities" name="Contest Utilities" description="A variety of useful contest-related utilities: event feed checkers, floor map generators, submission extractors, and more!" toolname=contestUtil page=contest-utils >}}
+    {{< toolblock shortname="Problem Set Editor" name="Problem Set Editor" description="Generate/Edit YAML descriptions of problem sets for input to CLICS-compatible CCS's" toolname=problemset doc=ProblemSet page=problem-set-editor >}}
+    {{< toolblock shortname="Contest Utilities" name="Contest Utilities" description="A variety of useful contest-related utilities: event feed checkers, floor map generators, submission extractors, and more!" toolname=contestUtil doc=ContestUtil page=contest-utils >}}
 {{</ toolrow >}}
 
 {{< lastbuilds >}}
