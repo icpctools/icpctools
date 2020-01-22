@@ -124,6 +124,8 @@ public class FloorGeneratorNAC extends FloorGenerator {
 
 			Printer p = floor.createPrinter(25, 5);
 
+			floor.rotate(-90);
+
 			floor.resetOrigin();
 
 			floor.writeTSV(System.out);

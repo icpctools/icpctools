@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Printer;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Team;
@@ -936,33 +937,44 @@ public class FloorMap {
 		return Math.round(d * 100.0) / 100.0 + "";
 	}
 
-	public void rotate180() {
+	private static void rotate(IPosition p, double rad) {
+		ContestObject co = (ContestObject) p;
+		double dx = Math.cos(rad) * p.getX() - Math.sin(rad) * p.getY();
+		double dy = Math.sin(rad) * p.getX() + Math.cos(rad) * p.getY();
+		co.add("x", dx + "");
+		co.add("y", dy + "");
+	}
+
+	/**
+	 * Rotate the floor map clockwise by the given number of degrees. The value should be between
+	 * -359 and 359.
+	 *
+	 * @param angle an angle in degrees
+	 */
+	public void rotate(int angle) {
+		double rad = Math.toRadians(angle);
 		for (ITeam tt : teams) {
-			Team t = (Team) tt;
-			t.add("x", -t.getX() + "");
-			t.add("y", -t.getY() + "");
-			double r = t.getRotation() + 180;
-			t.add("rotation", (r % 360) + "");
+			rotate(tt, rad);
+			double r = tt.getRotation() - angle + 720;
+			((Team) tt).add("rotation", (r % 360) + "");
 		}
 
-		for (IProblem pp : balloons) {
-			Problem p = (Problem) pp;
-			p.add("x", -p.getX() + "");
-			p.add("y", -p.getY() + "");
-		}
+		for (IProblem problem : balloons)
+			rotate(problem, rad);
 
 		for (Aisle a : aisles) {
-			a.x1 = -a.x1;
-			a.y1 = -a.y1;
-			a.x2 = -a.x2;
-			a.y2 = -a.y2;
+			double dx = Math.cos(rad) * a.x1 - Math.sin(rad) * a.y1;
+			double dy = Math.sin(rad) * a.x1 + Math.cos(rad) * a.y1;
+			a.x1 = dx;
+			a.y1 = dy;
+			dx = Math.cos(rad) * a.x2 - Math.sin(rad) * a.y2;
+			dy = Math.sin(rad) * a.x2 + Math.cos(rad) * a.y2;
+			a.x2 = dx;
+			a.y2 = dy;
 		}
 
-		if (printer != null) {
-			Printer p = (Printer) printer;
-			p.add("x", -p.getX() + "");
-			p.add("y", -p.getY() + "");
-		}
+		if (printer != null)
+			rotate(printer, rad);
 
 		computeAisleIntersections();
 	}
