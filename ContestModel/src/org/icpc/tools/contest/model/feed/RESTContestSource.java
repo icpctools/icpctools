@@ -168,10 +168,10 @@ public class RESTContestSource extends DiskContestSource {
 		File logFolder = new File("logs");
 		if (!logFolder.exists())
 			logFolder.mkdir();
-		feedCacheFile = new File(logFolder, "events-" + getRemoteContestId() + ".log");
+		feedCacheFile = new File(logFolder, "events-" + getRemoteContestId() + "-" + getUser() + ".log");
 		if (feedCacheFile.exists()) {
-			// delete if older than 6h
-			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 6 * 60 * 60 * 1000) {
+			// delete if older than 8h
+			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
 				feedCacheFile.delete();
 			}
 		}

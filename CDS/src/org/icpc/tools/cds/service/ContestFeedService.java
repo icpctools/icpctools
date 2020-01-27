@@ -1,5 +1,11 @@
 package org.icpc.tools.cds.service;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -8,16 +14,20 @@ import java.util.StringTokenizer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.service.ContestFeedExecutor.Feed;
 import org.icpc.tools.cds.service.ContestObjectQueue.ContestObjectDelta;
 import org.icpc.tools.cds.util.HttpHelper;
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
 import org.icpc.tools.contest.model.TypeFilter;
+import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 
@@ -133,5 +143,41 @@ public class ContestFeedService {
 			}
 		}
 		return filter;
+	}
+
+	protected static void reset(HttpServletResponse response, ConfiguredContest cc) throws IOException {
+		Trace.trace(Trace.USER, "Resetting contest event feed");
+		try {
+			ContestSource source = cc.getContestSource();
+			if (!(source instanceof DiskContestSource)) {
+				response.sendError(HttpServletResponse.SC_EXPECTATION_FAILED, "Contest not stored on disk");
+				return;
+			}
+			DiskContestSource diskSource = (DiskContestSource) source;
+			File root = diskSource.getRootFolder();
+			int hash = -1;
+			File hashFile = new File(root, "hash.txt");
+			if (hashFile.exists()) {
+				try (BufferedReader br = new BufferedReader(new FileReader(hashFile))) {
+					hash = Integer.parseInt(br.readLine());
+				} catch (Exception e) {
+					Trace.trace(Trace.WARNING, "Couldn't read contest hash file", e);
+				}
+			}
+
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(hashFile))) {
+				bw.write((hash + 1) + "");
+				Trace.trace(Trace.INFO, "Bumped up contest hash to " + hash + 1);
+			} catch (Exception e) {
+				Trace.trace(Trace.WARNING, "Couldn't write contest hash file", e);
+			}
+		} catch (IllegalArgumentException e) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+			return;
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			Trace.trace(Trace.ERROR, "Error updating contest hash", e);
+			return;
+		}
 	}
 }

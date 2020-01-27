@@ -121,7 +121,10 @@ public class ContestWebService extends HttpServlet {
 					return;
 				}
 
-				if (segments.length == 4) {
+				if (segments.length == 3) {
+					if (segments[2].equals("reset-feed"))
+						ContestFeedService.reset(response, cc);
+				} else if (segments.length == 4) {
 					String command = segments[3];
 					if (segments[2].equals("time"))
 						StartTimeService.doPut(response, command, cc);

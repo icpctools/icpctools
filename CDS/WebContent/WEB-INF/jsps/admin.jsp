@@ -88,7 +88,7 @@
       </div>
       <div class="row">
       <div class="col-9">
-                <div class="card">
+        <div class="card">
            <div class="card-header">
              <h3 class="card-title">Contest Readiness</h3>
            </div>
@@ -166,6 +166,25 @@
                 </table>
             </div>
             </div>
+            
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Event Feed Reset</h3>
+           </div>
+        <div class="card-body">
+          <p>If the contest data has changed in an incompatible way that makes past events invalid (e.g. if .tsv config files
+          are manually changed after a contest has started), the event feed id can be reset to notify clients that they should
+          throw out any cached information and reconnect.</p>
+          <span id="reset-status">&nbsp;</span>
+          <form>
+            <div class="form-group">
+            <button id="reset" class="btn btn-primary form-control" onclick="sendIdResetCommand()">
+                Reset
+            </button>
+            </div>
+            </form>
+        </div>
+        </div>
         </div>
 
         <div class="col-3">
@@ -362,7 +381,7 @@
         xmlhttp.open("GET", "<%= webroot %>/admin/status", true);
         xmlhttp.send();
     }
-    
+
     function sendFinalizeCommand(id, command) {
         document.getElementById(id).disabled = true;
 
@@ -387,6 +406,35 @@
             document.getElementById(id).disabled = false;
         };
         xmlhttp.open("PUT", "<%= webroot %>/admin/finalize/" + command, true);
+        xmlhttp.send();
+    }
+
+    function sendIdResetCommand() {
+    	var id = "reset";
+        document.getElementById(id).disabled = true;
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            document.getElementById("reset-status").innerHTML = "Resetting...";
+            if (xmlhttp.readyState == 4) {
+                var resp = xmlhttp.responseText;
+                if (xmlhttp.status == 200) {
+                    if (resp == null || resp.trim().length == 0)
+                        targetTime = null;
+                    else
+                        targetTime = parseInt(resp) / 1000.0;
+                    document.getElementById("reset-status").innerHTML = "Event feed successfully reset";
+                } else
+                    document.getElementById("reset-status").innerHTML = resp;
+                document.getElementById(id).disabled = false;
+            }
+        };
+        xmlhttp.timeout = 10000;
+        xmlhttp.ontimeout = function () {
+            document.getElementById("status").innerHTML = "Request timed out";
+            document.getElementById(id).disabled = false;
+        };
+        xmlhttp.open("PUT", "<%= webroot %>/admin/reset-feed/", true);
         xmlhttp.send();
     }
 
