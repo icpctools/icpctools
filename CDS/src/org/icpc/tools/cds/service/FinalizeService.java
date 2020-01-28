@@ -30,11 +30,9 @@ public class FinalizeService {
 			}
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-			return;
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			e.printStackTrace();
-			return;
+			Trace.trace(Trace.ERROR, "Error durng finalization", e);
 		}
 	}
 }
