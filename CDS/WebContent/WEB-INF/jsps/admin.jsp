@@ -8,7 +8,7 @@
              <h3 class="card-title">Countdown Control</h3>
            </div>
         <div class="card-body">
-          <b><font size="+7"><span id="countdown">unknown</span></font></b>
+          <b><font size="+7"><span id="countdown">unknown</span></font></b><span id="bg-status">&nbsp;</span>
         
            <p>You cannot change time in the final 30s before a contest starts.</p>
                 <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause
@@ -81,9 +81,8 @@
                     </tbody>
                 </table>
                 <p/>
-            <span id="status"></span>
-                </div></div>
-
+            <span id="status">&nbsp;</span>
+          </div></div>
       </div>
       </div>
       <div class="row">
@@ -163,6 +162,14 @@
                             </div>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <span id="ready-status">&nbsp;</span>
+                        </td>
+                        <td>
+                            <span id="bg-ready-status">&nbsp;</span>
+                        </td>
+                    </tr>
                 </table>
             </div>
             </div>
@@ -205,13 +212,13 @@
                     <option value="5">5</option>
                     <option value="6">6</option>
                 </select>
+                
+                <p><span id="final-status">&nbsp;</span></p>
             
-            <button id="set" class="btn btn-primary form-control"
-                    onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('set', 'b:' + e.options[e.selectedIndex].value)">
-                Apply
-            </button>
-
-            <span id="status"></span>
+                <button id="finalize" class="btn btn-primary form-control"
+                    onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('finalize', 'b:' + e.options[e.selectedIndex].value)">
+                    Apply
+                </button>
             </div>
             </form>
         </div>
@@ -281,7 +288,7 @@
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "";
+            document.getElementById("status").innerHTML = "Sending request...";
             if (xmlhttp.readyState == 4) {
                 var resp = xmlhttp.responseText;
                 if (xmlhttp.status == 200) {
@@ -289,6 +296,7 @@
                         targetTime = null;
                     else
                         targetTime = parseInt(resp) / 1000.0;
+                    document.getElementById("status").innerHTML = "Request successful";
                 } else
                     document.getElementById("status").innerHTML = resp;
                 document.getElementById(id).disabled = false;
@@ -320,18 +328,18 @@
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "";
+            document.getElementById("ready-status").innerHTML = "Sending request";
             if (xmlhttp.readyState == 4) {
-                if (xmlhttp.status == 200) {
-                    // do nothing
-                } else
-                    document.getElementById("status").innerHTML = xmlhttp.responseText;
+                if (xmlhttp.status == 200)
+                	document.getElementById("ready-status").innerHTML = "Request successful";
+                else
+                    document.getElementById("ready-status").innerHTML = xmlhttp.responseText;
                 document.getElementById(checkbox.id).disabled = false;
             }
         }
         xmlhttp.timeout = 10000;
         xmlhttp.ontimeout = function () {
-            document.getElementById("status").innerHTML = "Request timed out";
+            document.getElementById("ready-status").innerHTML = "Request timed out";
             document.getElementById(checkbox.id).disabled = false;
         }
         xmlhttp.open("PUT", "<%= webroot %>/admin/status/" + s, true);
@@ -341,7 +349,6 @@
     function updateCountdown() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "";
             if (xmlhttp.readyState == 4) {
                 var resp = xmlhttp.responseText;
                 if (xmlhttp.status == 200) {
@@ -349,13 +356,14 @@
                         targetTime = null;
                     else
                         targetTime = parseInt(resp) / 1000.0;
+                    document.getElementById("bg-status").innerHTML = "";
                 } else
-                    document.getElementById("status").innerHTML = resp;
+                    document.getElementById("bg-status").innerHTML = "Error updating: " + resp;
             }
         }
         xmlhttp.timeout = 10000;
         xmlhttp.ontimeout = function () {
-            document.getElementById("status").innerHTML = "Request timed out";
+            document.getElementById("bg-status").innerHTML = "Timed trying to update, may be offline";
         }
         xmlhttp.open("GET", "<%= webroot %>/admin/time", true);
         xmlhttp.send();
@@ -364,7 +372,6 @@
     function updateCountdownStatus() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "";
             if (xmlhttp.readyState == 4) {
                 if (xmlhttp.status == 200) {
                     var s = xmlhttp.responseText;
@@ -374,9 +381,14 @@
                         else
                             document.getElementById("s" + (i + 1)).checked = false;
                     }
+                    document.getElementById("bg-ready-status").innerHTML = "";
                 } else
-                    document.getElementById("status").innerHTML = xmlhttp.responseText;
+                    document.getElementById("bg-ready-status").innerHTML = "Error updating: " + xmlhttp.responseText;
             }
+        }
+        xmlhttp.timeout = 10000;
+        xmlhttp.ontimeout = function () {
+            document.getElementById("bg-ready-status").innerHTML = "Timed trying to update, may be offline";
         }
         xmlhttp.open("GET", "<%= webroot %>/admin/status", true);
         xmlhttp.send();
@@ -387,22 +399,19 @@
 
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "";
+            document.getElementById("final-status").innerHTML = "Sending request...";
             if (xmlhttp.readyState == 4) {
                 var resp = xmlhttp.responseText;
-                if (xmlhttp.status == 200) {
-                    if (resp == null || resp.trim().length == 0)
-                        targetTime = null;
-                    else
-                        targetTime = parseInt(resp) / 1000.0;
-                } else
-                    document.getElementById("status").innerHTML = resp;
+                if (xmlhttp.status == 200)
+                    document.getElementById("final-status").innerHTML = "Request successful";
+                else
+                    document.getElementById("final-status").innerHTML = resp;
                 document.getElementById(id).disabled = false;
             }
         };
         xmlhttp.timeout = 10000;
         xmlhttp.ontimeout = function () {
-            document.getElementById("status").innerHTML = "Request timed out";
+            document.getElementById("final-status").innerHTML = "Request timed out";
             document.getElementById(id).disabled = false;
         };
         xmlhttp.open("PUT", "<%= webroot %>/admin/finalize/" + command, true);
@@ -431,7 +440,7 @@
         };
         xmlhttp.timeout = 10000;
         xmlhttp.ontimeout = function () {
-            document.getElementById("status").innerHTML = "Request timed out";
+            document.getElementById("reset-status").innerHTML = "Request timed out";
             document.getElementById(id).disabled = false;
         };
         xmlhttp.open("PUT", "<%= webroot %>/admin/reset-feed/", true);
@@ -439,7 +448,7 @@
     }
 
     function updateInBackground() {
-        document.getElementById("status").innerHTML = "Updating status...";
+        document.getElementById("bg_status").innerHTML = "Updating status...";
         updateCountdown();
         updateCountdownStatus();
 

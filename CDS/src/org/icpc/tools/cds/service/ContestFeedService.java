@@ -173,11 +173,9 @@ public class ContestFeedService {
 			}
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-			return;
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			Trace.trace(Trace.ERROR, "Error updating contest hash", e);
-			return;
 		}
 	}
 }
