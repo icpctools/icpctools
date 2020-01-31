@@ -25,6 +25,7 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.internal.Award;
+import org.icpc.tools.contest.model.util.Messages;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.resolver.ResolutionUtil.AwardStep;
@@ -363,6 +364,8 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		int patternLen = IAward.FIRST_TO_SOLVE.getPattern("").length();
 		List<String> fts = new ArrayList<>();
 		List<IAward> list = new ArrayList<>();
+		boolean hasMedal = false;
+		boolean hasSolutionAward = false;
 		for (IAward a : currentCache.awards) {
 			if (a.getAwardType() == IAward.FIRST_TO_SOLVE) {
 				String pId = a.getId().substring(patternLen);
@@ -374,18 +377,34 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 				fts.add(p.getLabel());
 				if (a.showAward())
 					show = true;
-			} else
+			} else if (a.getId().contains("solution")) {
+				hasSolutionAward = true;
 				list.add(a);
+			} else {
+				if (a.getAwardType() == IAward.MEDAL)
+					hasMedal = true;
+				list.add(a);
+			}
 		}
 
-		if (fts.size() < 2)
-			return;
+		if (fts.size() >= 2) {
+			fts.sort((s1, s2) -> s1.compareTo(s2));
 
-		fts.sort((s1, s2) -> s1.compareTo(s2));
+			String citation = "First to solve problems " + String.join(", ", fts);
+			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId },
+					citation, show));
+		}
 
-		String citation = "First to solve problems " + String.join(", ", fts);
-		list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId }, citation,
-				show));
+		if (hasMedal && !hasSolutionAward) {
+			IContest contest = getContest();
+			ITeam team = contest.getTeamById(currentCache.teamId);
+			IStanding s = contest.getStanding(team);
+			if (s.getNumSolved() == 1)
+				list.add(new Award(IAward.OTHER, 0, currentCache.teamId, Messages.getString("awardSolvedOne"), false));
+			else if (s.getNumSolved() > 1)
+				list.add(new Award(IAward.OTHER, 0, currentCache.teamId,
+						Messages.getString("awardSolvedMultiple").replace("{0}", s.getNumSolved() + ""), false));
+		}
 
 		currentCache.awards = list;
 	}
