@@ -29,7 +29,7 @@ public class WorldFinalsAwardDialog extends AbstractAwardDialog {
 
 	@Override
 	protected AwardType[] getAwardTypes() {
-		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL, IAward.SOLUTION };
+		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL };
 	}
 
 	@Override

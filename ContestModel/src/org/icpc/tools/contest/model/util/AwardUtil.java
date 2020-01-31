@@ -131,8 +131,7 @@ public class AwardUtil {
 			}
 		}
 
-		contest.add(
-				new Award(IAward.GROUP_HIGHLIGHT, groupId2, teamIds.toArray(new String[0]), citation, show));
+		contest.add(new Award(IAward.GROUP_HIGHLIGHT, groupId2, teamIds.toArray(new String[0]), citation, show));
 	}
 
 	public static void createFirstPlaceAward(Contest contest, String citation) {
@@ -259,24 +258,6 @@ public class AwardUtil {
 		return num;
 	}
 
-	protected static void createSolutionAwards(Contest contest) {
-		ITeam[] teams = contest.getOrderedTeams();
-		if (teams.length == 0)
-			return;
-
-		int lastBronze = getLastBronze(contest);
-
-		for (int i = 0; i < lastBronze; i++) {
-			ITeam team = teams[i];
-			IStanding s = contest.getStanding(team);
-			if (s.getNumSolved() == 1)
-				contest.add(new Award(IAward.SOLUTION, i + 1, team.getId(), Messages.getString("awardSolvedOne"), false));
-			else if (s.getNumSolved() > 1)
-				contest.add(new Award(IAward.SOLUTION, i + 1, team.getId(),
-						Messages.getString("awardSolvedMultiple").replace("{0}", s.getNumSolved() + ""), false));
-		}
-	}
-
 	public static void createDefaultAwards(Contest contest) {
 		createWorldFinalsAwards(contest);
 	}
@@ -293,8 +274,6 @@ public class AwardUtil {
 		int silver = Math.min(4, Math.max(numTeams - 4, 0));
 		int bronze = Math.min(4 + b, Math.max(numTeams - 8, 0));
 		createMedalAwards(contest, gold, silver, bronze);
-
-		createSolutionAwards(contest);
 
 		createFirstToSolveAwards(contest, false, true);
 

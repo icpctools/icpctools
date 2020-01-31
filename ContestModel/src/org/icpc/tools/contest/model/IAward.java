@@ -34,11 +34,10 @@ public interface IAward extends IContestObject {
 	AwardType GROUP = new AwardType("Group Winner", "group-winner-.*");
 	AwardType ORGANIZATION = new AwardType("Organization Winner", "organization-winner-.*");
 	AwardType GROUP_HIGHLIGHT = new AwardType("Group Highlight", "group-highlight-.*");
-	AwardType SOLUTION = new AwardType("Solution", "solution-.*");
 	AwardType OTHER = new AwardType("Other", ".*");
 
-	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP,
-			ORGANIZATION, GROUP_HIGHLIGHT, SOLUTION, OTHER };
+	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP, ORGANIZATION,
+			GROUP_HIGHLIGHT, OTHER };
 
 	/**
 	 * Returns the ids of the teams that this award is for.
