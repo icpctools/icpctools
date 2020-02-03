@@ -1,6 +1,6 @@
 <cds>
   <!-- Configure your local contest and data folder (used to find or store config files, resources, etc.) -->
-  <contest location="/Users/me/contests/test" recordReactions="false">
+  <contest location="/home/myuser/contests/test" recordReactions="false">
     <!-- Configure your CCS via REST -->
     <!--
     <ccs url="https://my-ccs" user="" password=""/>
