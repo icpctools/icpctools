@@ -28,6 +28,7 @@ public class Team extends ContestObject implements ITeam {
 	private static final String BACKUP = "backup";
 	private static final String DESKTOP = "desktop";
 	private static final String WEBCAM = "webcam";
+	private static final String AUDIO = "audio";
 	private static final String KEY_LOG = "keylog";
 
 	private String name;
@@ -42,6 +43,7 @@ public class Team extends ContestObject implements ITeam {
 	private FileReferenceList video;
 	private FileReferenceList desktop;
 	private FileReferenceList webcam;
+	private FileReferenceList audio;
 	private FileReferenceList backup;
 	private FileReferenceList keylog;
 
@@ -186,9 +188,25 @@ public class Team extends ContestObject implements ITeam {
 		webcam = list;
 	}
 
+	public FileReferenceList getAudio() {
+		return audio;
+	}
+
+	@Override
+	public String getAudioURL() {
+		if (audio == null || audio.isEmpty())
+			return null;
+
+		return audio.first().href;
+	}
+
+	public void setAudio(FileReferenceList list) {
+		audio = list;
+	}
+
 	@Override
 	public Object resolveFileReference(String url) {
-		return FileReferenceList.resolve(url, photo, video, backup, desktop, webcam);
+		return FileReferenceList.resolve(url, photo, video, backup, desktop, webcam, audio, keylog);
 	}
 
 	@Override
@@ -264,6 +282,10 @@ public class Team extends ContestObject implements ITeam {
 				webcam = new FileReferenceList(value);
 				return true;
 			}
+			case AUDIO: {
+				audio = new FileReferenceList(value);
+				return true;
+			}
 		}
 
 		return false;
@@ -278,6 +300,7 @@ public class Team extends ContestObject implements ITeam {
 		t.backup = backup;
 		t.desktop = desktop;
 		t.webcam = webcam;
+		t.audio = audio;
 		t.name = name;
 		t.displayName = displayName;
 		t.groupIds = groupIds;
@@ -304,6 +327,7 @@ public class Team extends ContestObject implements ITeam {
 		props.put(BACKUP, backup);
 		props.put(DESKTOP, desktop);
 		props.put(WEBCAM, webcam);
+		props.put(AUDIO, audio);
 		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation != Double.MIN_VALUE) {
 			List<String> attrs = new ArrayList<>(3);
 			if (x != Double.MIN_VALUE)
@@ -334,6 +358,7 @@ public class Team extends ContestObject implements ITeam {
 		je.encode(BACKUP, backup, false);
 		je.encodeSubs(DESKTOP, desktop, false);
 		je.encodeSubs(WEBCAM, webcam, false);
+		je.encodeSubs(AUDIO, audio, false);
 
 		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation != Double.MIN_VALUE) {
 			List<String> attrs = new ArrayList<>(3);

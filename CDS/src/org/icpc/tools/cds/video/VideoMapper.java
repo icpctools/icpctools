@@ -25,8 +25,9 @@ public class VideoMapper {
 	private int order;
 	private Map<String, Integer> map = new HashMap<>();
 
-	public static final VideoMapper DESKTOP = new VideoMapper("Desktop {0}", 2000);
 	public static final VideoMapper WEBCAM = new VideoMapper("Webcam {0}", 1000);
+	public static final VideoMapper DESKTOP = new VideoMapper("Desktop {0}", 2000);
+	public static final VideoMapper AUDIO = new VideoMapper("Audio {0}", 3000);
 
 	private VideoMapper(String namePattern, int order) {
 		this.namePattern = namePattern;

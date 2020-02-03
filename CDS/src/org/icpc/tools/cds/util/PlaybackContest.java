@@ -331,6 +331,14 @@ public class PlaybackContest extends Contest {
 				team.setWebcam(new FileReferenceList(webcamRef));
 			} else
 				team.setWebcam(null);
+			if (cc.isAudioEnabled(teamId)) {
+				FileReference audioRef = new FileReference();
+				audioRef.href = "http://<host>/video/audio/" + team.getId();
+				audioRef.mime = "application/m2ts";
+				// webcamRef.data = "audio";
+				team.setAudio(new FileReferenceList(audioRef));
+			} else
+				team.setAudio(null);
 		}
 
 		if (obj instanceof Submission) {

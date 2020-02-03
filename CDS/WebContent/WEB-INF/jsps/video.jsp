@@ -21,9 +21,11 @@
                                 <th>Organization</th>
                                 <th colspan=3>Desktop</th>
                                 <th colspan=3>Webcam</th>
+                                <th colspan=3>Audio</th>
                             </tr>
                             <tr>
                                 <td colspan=3></td>
+                                <td colspan=3>Current / Max Current / Total</td>
                                 <td colspan=3>Current / Max Current / Total</td>
                                 <td colspan=3>Current / Max Current / Total</td>
                             </tr>
@@ -59,6 +61,12 @@
                                     <a
                                         href="javascript:request('<%= request.getContextPath() %>/video/webcam/<%= tId %>?reset=true');">Reset</a>
                                 </td>
+                                <td id="audio-<%= tId %>" class="text-center">-</td>
+                                <td id="audio-<%= tId %>m" class="text-center"></td>
+                                <td>
+                                    <a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/audio/<%= tId %>?reset=true');">Reset</a>
+                                </td>
                             </tr>
                             <% } else { %>
                             <tr>
@@ -68,6 +76,8 @@
                                 <td id="desktop<%= i %>" class="text-center">-</td>
                                 <td></td>
                                 <td id="webcam<%= i %>" class="text-center">-</td>
+                                <td></td>
+                                <td id="audio<%= i %>" class="text-center">-</td>
                                 <td></td>
                             </tr>
                             <% }
@@ -82,6 +92,8 @@
                                 <td></td>
                                 <td id="webcamStreams" class="text-center">-</td>
                                 <td></td>
+                                <td id="audioStreams" class="text-center">-</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -95,10 +107,11 @@
                                 <td><a
                                         href="javascript:request('<%= request.getContextPath() %>/video/webcam?resetAll=true');">Reset
                                         all</a></td>
+                                <td id="audioCurrent" class="text-center">-</td>
+                                <td><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/audio?resetAll=true');">Reset
+                                        all</a></td>
                             </tr>
-                            <!--  <tr><td></td><td></td><td class="text-right">Max concurrent:</td>
-                      <td id="desktopMax" class="text-center">-</td><td></td>
-                      <td id="webcamMax" class="text-center">-</td><td></td></tr> -->
                             <tr>
                                 <td></td>
                                 <td></td>
@@ -107,6 +120,8 @@
                                 <td></td>
                                 <td id="webcamTotal" class="text-center">-</td>
                                 <td></td>
+                                <td id="audioTotal" class="text-center">-</td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -114,6 +129,7 @@
                                 <td class="text-right">Total time:</td>
                                 <td id="desktopTotalTime" class="text-center" colspan="2">-</td>
                                 <td id="webcamTotalTime" class="text-center" colspan="2">-</td>
+                                <td id="audioTotalTime" class="text-center" colspan="2">-</td>
                             </tr>
                             <tr>
                                 <td></td>
@@ -132,6 +148,13 @@
                                         href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=eager');">Eager</a><br /><a
                                         href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=lazy');">Lazy</a><br><a
                                         href="javascript:request('<%= request.getContextPath() %>/video/webcam?mode=lazy_close');">Lazy
+                                        close</a></td>
+                                <td id="audioMode" class="text-center">-</td>
+                                <td>
+                                    <a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/audio?mode=eager');">Eager</a><br /><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/audio?mode=lazy');">Lazy</a><br><a
+                                        href="javascript:request('<%= request.getContextPath() %>/video/audio?mode=lazy_close');">Lazy
                                         close</a></td>
                             </tr>
                         </tfoot>
@@ -175,6 +198,8 @@
                         <a href="<%= webroot %>/video/map/desktop">Desktop map</a>
                         <br />
                         <a href="<%= webroot %>/video/map/webcam">Webcam map</a>
+                        <br />
+                        <a href="<%= webroot %>/video/map/audio">Audio map</a>
                     </p>
 
                     <h2>Status Key</h2>
@@ -264,18 +289,30 @@
 
         xmlhttp2.open("GET", "<%= request.getContextPath() %>/video/webcam");
         xmlhttp2.send();
-
+        
         var xmlhttp3 = new XMLHttpRequest();
         xmlhttp3.onreadystatechange = function () {
             if (xmlhttp3.readyState == 4) {
                 if (xmlhttp3.status == 200) {
-                    updateStatus2(JSON.parse(xmlhttp3.responseText));
+                    updateStatus("audio", JSON.parse(xmlhttp3.responseText));
                 }
             }
         };
 
-        xmlhttp3.open("GET", "<%= request.getContextPath() %>/video");
+        xmlhttp3.open("GET", "<%= request.getContextPath() %>/video/audio");
         xmlhttp3.send();
+
+        var xmlhttp4 = new XMLHttpRequest();
+        xmlhttp4.onreadystatechange = function () {
+            if (xmlhttp4.readyState == 4) {
+                if (xmlhttp4.status == 200) {
+                    updateStatus2(JSON.parse(xmlhttp4.responseText));
+                }
+            }
+        };
+
+        xmlhttp4.open("GET", "<%= request.getContextPath() %>/video");
+        xmlhttp4.send();
     }
 
     function request(url) {

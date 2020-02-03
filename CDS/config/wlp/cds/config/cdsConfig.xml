@@ -1,6 +1,6 @@
 <cds>
   <!-- Configure your local contest and data folder (used to find or store config files, resources, etc.) -->
-  <contest location="C:\icpc\contestData" recordReactions="false">
+  <contest location="/Users/me/contests/test" recordReactions="false">
     <!-- Configure your CCS via REST -->
     <!--
     <ccs url="https://my-ccs" user="" password=""/>
@@ -16,9 +16,13 @@
     <test countdown="30" startTime="2020-02-19T12:30:00.000-05" multiplier="10.0"/>
     -->
   
-    <!-- Uncomment and configure if your contest has team desktop or webcam streaming -->
+    <!-- Uncomment and configure if your contest has team desktop, webcam, or audio streaming -->
     <!--
-    <video desktop="http://10.1.1.20{0}:9090" webcam="http://10.1.1.20{0}:8080"/>
+    <video desktop="http://10.1.1.20{0}:9090" webcam="http://10.1.1.20{0}:8080" audio="http://10.1.1.20{0}:7070"/>
+    -->
+    <!-- Or map team desktop, webcam, or audio streaming individually to each team by id -->
+    <!--
+    <video id="3" desktop="http://10.1.1.20{0}:9090" webcam="http://10.1.1.20{0}:8080" audio="http://10.1.1.20{0}:7070"/>
     -->
   </contest>
 
