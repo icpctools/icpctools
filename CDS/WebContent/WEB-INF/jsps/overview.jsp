@@ -168,43 +168,39 @@
                         <tbody>
                             <tr>
                                 <td>REST:</td>
-                                <td><%= metrics[0] %>
-                                </td>
+                                <td><%= metrics[0] %></td>
                             </tr>
                             <tr>
                                 <td>Feed:</td>
-                                <td><%= metrics[1] %>
-                                </td>
+                                <td><%= metrics[1] %></td>
                             </tr>
                             <tr>
                                 <td>Websocket:</td>
-                                <td><%= metrics[2] %>
-                                </td>
+                                <td><%= metrics[2] %></td>
                             </tr>
                             <tr>
                                 <td>Web:</td>
-                                <td><%= metrics[3] %>
-                                </td>
+                                <td><%= metrics[3] %></td>
                             </tr>
                             <tr>
                                 <td>Download:</td>
-                                <td><%= metrics[4] %>
-                                </td>
+                                <td><%= metrics[4] %></td>
                             </tr>
                             <tr>
                                 <td>Scoreboard:</td>
-                                <td><%= metrics[5] %>
-                                </td>
+                                <td><%= metrics[5] %></td>
                             </tr>
                             <tr>
                                 <td>Desktop:</td>
-                                <td><%= metrics[7] %>
-                                </td>
+                                <td><%= metrics[7] %></td>
                             </tr>
                             <tr>
                                 <td>Webcam:</td>
-                                <td><%= metrics[8] %>
-                                </td>
+                                <td><%= metrics[8] %></td>
+                            </tr>
+                            <tr>
+                                <td>Audio:</td>
+                                <td><%= metrics[9] %></td>
                             </tr>
                         </tbody>
                     </table>

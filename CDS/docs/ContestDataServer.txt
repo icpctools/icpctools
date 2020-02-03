@@ -152,9 +152,8 @@ If you save changes to _cdsConfig.xml_ while the CDS is running the changes will
 A simple example of a _cdsConfig.xml_ file is shown below.  
 
 ....
-<cds>
   <!-- specify the location of the folder holding the contest data package (used to find config files, resources, etc.) -->
-  <contest location="C:\icpc\contestData" recordReactions="true">
+  <contest location="/Users/me/contests/test" recordReactions="true">
     <!-- Configure communication with the CCS -->
     <ccs url="http://myccs/api/contests/finals" user="admin" password="adm1n"/>
   </contest>
@@ -251,10 +250,12 @@ The return start time is expected to be in mSec since the start of the Unix epoc
     desktop="http://..."
     desktopMode="lazy"
     webcam="http://..."
-    webcamMode="eager"/>
+    webcamMode="eager"
+    audio="http://..."
+    audioMode="eager"/>
 ....
 
-The <video> element is used if your contest supports team desktop (screen) and/or webcam streaming, in which case
+The <video> element is used if your contest supports team desktop (screen), webcam, and/or audio streaming, in which case
 the CDS can make these streams available to clients.  
 Also, if the contest does support team webcam streaming, then the CDS can be instructed to record "reaction videos", which are 60-second
 snippets of webcam video started at the moment a team submits a run to be judged (which, assuming the automated judging result is
@@ -265,7 +266,7 @@ The attributes associated with the <video> element are as follows:
 ** id: an optional team id. If this is specified, the video URLs below will be configured only for the given team. If not specified then
 the video URLs will be configured for all teams.
 
-** desktop: a template for the URL at which the CDS should access team desktop streams.  The URL template may include the characters _{0}_,
+** desktop: an optional template for the URL at which the CDS should access team desktop streams.  The URL template may include the characters _{0}_,
 which will be replaced with the team id by the CDS.
 +
 For example, if each team machine was on a single /24 subnet (i.e., the first three octets of the team machine IP addresses were
@@ -276,9 +277,9 @@ form _\http://a.b.c.{0}:9090_ would direct the CDS to access each team's desktop
 As another example, _webcam_ URL templates of the form _\http://host/{0}_ or _\http://host:{0}_ would direct the CDS to access each team's webcam
 at a different web-based context root or port, respectively.
 +  
-Note that the URL template mechanism works the same for the _desktop_ and _webcam_ attributes.
-In any case, it is the responsibility of the Contest Administrator to ensure that each team machine is actively outputting desktop video and/or
-webcam video streams at the specified URL.  (See the Appendices for information on setting up video streaming for team machines.)
+Note that the URL template mechanism works the same for the _desktop_, _webcam_, and _audio_ attributes.
+In any case, it is the responsibility of the Contest Administrator to ensure that each team machine is actively outputting desktop video,
+webcam video, and/or audio streams at the specified URL.  (See the Appendices for information on setting up video streaming for team machines.)
 
 In order to support easy testing, the desktop attribute may also point to a local file instead of a URL, e.g. "c:/desktop_sample.m2ts".
 Desktop and webcam files for testing should be roughly 1 min in length as they're streamed every 60s.
@@ -286,12 +287,18 @@ Desktop and webcam files for testing should be roughly 1 min in length as they'r
 ** desktopMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the desktop stream. "Lazy" will connect only
 when the first client requests the stream and disconnect when the last client drops. "Lazy close" will only connect when a client requests the
 stream but will stay connected afterward, thus allowing any subsequent clients to connect faster. "Eager" will connect immediately and stay
-connected even when there are no clients - using up lots of resources, but allowing all clients to connect as fast as possible.
+connected even when there are no clients - using up lots of resources, but allowing clients to always connect as fast as possible.
 
-** webcam: a template for the URL at which the CDS should access team webcam streams.  The URL template may include the characters _{0}_,
+** webcam: an optional template for the URL at which the CDS should access team webcam streams.  The URL template may include the characters _{0}_,
 which will be replaced with the team id by the CDS. See the desktop attribute for further details.
 
 ** webcamMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the webcam stream.
+See the desktopMode attribute for further details.
+
+** audio: an optional template for the URL at which the CDS should access team audio streams.  The URL template may include the characters _{0}_,
+which will be replaced with the team id by the CDS. See the desktop attribute for further details.
+
+** audioMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the audio stream.
 See the desktopMode attribute for further details.
 
 

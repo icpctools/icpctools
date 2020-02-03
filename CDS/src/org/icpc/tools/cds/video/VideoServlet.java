@@ -57,6 +57,9 @@ public class VideoServlet extends HttpServlet {
 		} else if (path.startsWith("/webcam")) {
 			map = VideoMapper.WEBCAM;
 			path = path.substring(7);
+		} else if (path.startsWith("/audio")) {
+			map = VideoMapper.AUDIO;
+			path = path.substring(6);
 		} else if (path.startsWith("/stream")) {
 			path = path.substring(7);
 		} else if (path.startsWith("/channel")) {

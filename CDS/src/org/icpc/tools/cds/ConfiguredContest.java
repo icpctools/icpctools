@@ -14,6 +14,7 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 
+import org.icpc.tools.cds.presentations.PresentationServer;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -41,6 +42,7 @@ import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.State;
 import org.w3c.dom.Element;
@@ -71,8 +73,8 @@ public class ConfiguredContest {
 	private Contest[] teamContests;
 
 	private Map<Object, String> clients = new HashMap<>();
-	private long[] metrics = new long[10]; // REST, feed, ws, web, download, scoreboard, XML,
-														// desktop, webcam, total
+	private long[] metrics = new long[11]; // REST, feed, ws, web, download, scoreboard, XML,
+														// desktop, webcam, audio, total
 
 	public static class Video {
 		private Element video;
@@ -91,6 +93,14 @@ public class ConfiguredContest {
 
 		public String getWebcamMode() {
 			return CDSConfig.getString(video, "webcamMode");
+		}
+
+		public String getAudio() {
+			return CDSConfig.getString(video, "audio");
+		}
+
+		public String getAudioMode() {
+			return CDSConfig.getString(video, "audioMode");
 		}
 
 		public String getDesktop() {
@@ -345,6 +355,16 @@ public class ConfiguredContest {
 				else
 					VideoMapper.WEBCAM.mapAllTeams(this, urlPattern, mode);
 			}
+
+			urlPattern = video.getAudio();
+			mode = VideoAggregator.getConnectionMode(video.getAudioMode());
+
+			if (urlPattern != null) {
+				if (teamId != null)
+					VideoMapper.AUDIO.mapTeam(teamId, urlPattern, mode);
+				else
+					VideoMapper.AUDIO.mapAllTeams(this, urlPattern, mode);
+			}
 		}
 	}
 
@@ -394,6 +414,21 @@ public class ConfiguredContest {
 
 		for (Video v : videos) {
 			if (v.getWebcam() == null || v.getWebcam().isEmpty())
+				continue;
+			if (v.getId() == null)
+				return true;
+			if (teamId.equals(v.getId()))
+				return true;
+		}
+		return false;
+	}
+
+	public boolean isAudioEnabled(String teamId) {
+		if (videos.isEmpty() || teamId == null || teamId.isEmpty())
+			return false;
+
+		for (Video v : videos) {
+			if (v.getAudio() == null || v.getAudio().isEmpty())
 				continue;
 			if (v.getId() == null)
 				return true;
@@ -795,10 +830,15 @@ public class ConfiguredContest {
 		incrementTotal();
 	}
 
-	private void incrementTotal() {
+	public void incrementAudio() {
 		metrics[9]++;
-		if (metrics[9] > 500) {
-			metrics[9] = 0;
+		incrementTotal();
+	}
+
+	private void incrementTotal() {
+		metrics[10]++;
+		if (metrics[10] > 500) {
+			metrics[10] = 0;
 			logMetrics();
 		}
 	}
@@ -819,6 +859,8 @@ public class ConfiguredContest {
 		sb.append("XML:" + metrics[6] + ",");
 		sb.append("Desktop:" + metrics[7] + ",");
 		sb.append("Webcam:" + metrics[8] + "]");
+		sb.append("Audio:" + metrics[9] + "]");
+		sb.append("Total:" + metrics[10] + "]");
 		Trace.trace(Trace.INFO, sb.toString());
 
 		PrintWriter pw = null;
