@@ -14,7 +14,6 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 
-import org.icpc.tools.cds.presentations.PresentationServer;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -42,7 +41,6 @@ import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.State;
 import org.w3c.dom.Element;
