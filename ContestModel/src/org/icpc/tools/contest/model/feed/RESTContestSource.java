@@ -168,7 +168,7 @@ public class RESTContestSource extends DiskContestSource {
 		File logFolder = new File("logs");
 		if (!logFolder.exists())
 			logFolder.mkdir();
-		feedCacheFile = new File(logFolder, "events-" + getRemoteContestId() + "-" + getUser() + ".log");
+		feedCacheFile = new File(logFolder, "events-" + getRemoteContestId() + "-" + user + ".log");
 		if (feedCacheFile.exists()) {
 			// delete if older than 8h
 			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
@@ -203,7 +203,7 @@ public class RESTContestSource extends DiskContestSource {
 
 		instance = this;
 
-		feedCacheFile = new File("events-" + getRemoteContestId() + ".log");
+		feedCacheFile = new File("events-" + getRemoteContestId() + "-" + user + ".log");
 		if (feedCacheFile.exists()) {
 			// delete if older than 6h
 			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 6 * 60 * 60 * 1000)
@@ -622,7 +622,7 @@ public class RESTContestSource extends DiskContestSource {
 		InputStream in = null;
 		NDJSONFeedLogParser tempParser = new NDJSONFeedLogParser();
 		try {
-			Trace.trace(Trace.INFO, "Checking feed cache");
+			Trace.trace(Trace.INFO, "Checking feed cache: " + feedCacheFile.getAbsolutePath());
 			in = new FileInputStream(feedCacheFile);
 			tempParser.parse(in);
 			String comment = tempParser.getFirstComment();
@@ -936,8 +936,8 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	protected boolean tryAlternateURLs(Validation v) {
-		String[] paths = new String[] { "/api/contests/", "contests/", "api/contests/", "/domjudge/api/contests/" };
-		// boolean redirected = false;
+		String[] paths = new String[] { "/api/contests/", "contests/", "api/contests/", "/domjudge/api/contests/",
+				"/clics-api/contests/" };
 		for (String path : paths) {
 			try {
 				HttpURLConnection conn = createConnection(path);
@@ -954,7 +954,6 @@ public class RESTContestSource extends DiskContestSource {
 						validateContent(conn, v, newPath);
 						return true;
 					}
-					// redirected = true;
 				}
 			} catch (Exception e) {
 				Trace.trace(Trace.INFO, "Check for " + path + " URL failed");

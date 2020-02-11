@@ -41,10 +41,12 @@ public class Scoreboard {
 		pw.write("{");
 		IContestObject obj = contest.getLastTimedObject();
 		int index = contest.getNumObjects();
+		pw.write(" \"event_id\":\"cds" + index + "\",\n");
 		if (obj == null) {
 			// do nothing
+			pw.write("  \"time\":\"" + Timestamp.format(System.currentTimeMillis()) + "\",\n");
+			pw.write("  \"contest_time\":\"" + RelativeTime.format(0) + "\",\n");
 		} else {
-			pw.write(" \"event_id\":\"cds" + index + "\",\n");
 			pw.write("  \"time\":\"" + Timestamp.format(ContestObject.getTime(obj)) + "\",\n");
 			pw.write("  \"contest_time\":\"" + RelativeTime.format(ContestObject.getContestTime(obj)) + "\",\n");
 		}
