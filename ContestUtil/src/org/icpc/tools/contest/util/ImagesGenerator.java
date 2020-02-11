@@ -27,13 +27,23 @@ import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.FileImageOutputStream;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Organization;
 
+/**
+ * Converts logos and other images from raw source (typically from the CMS attachments) to usable
+ * contest data.
+ *
+ * Arguments: cmsLocation contestRoot
+ *
+ * cmsLocation - the folder containing raw images (typically downloaded directly from CMS as
+ * Attachments and unzipped)
+ *
+ * contestRoot - a contest location, i.e. CDP/CAF root folder
+ */
 public class ImagesGenerator {
 	private static final String DEFAULT_NAME = "logo.png";
 	private static final int MAX_LOGO_SIZE = 1080;
@@ -63,6 +73,7 @@ public class ImagesGenerator {
 		}
 	}
 
+	private final File cmsRoot;
 	private final File contestRoot;
 	private Contest contest;
 	private Font masterFont;
@@ -71,13 +82,15 @@ public class ImagesGenerator {
 	public static void main(String[] args) {
 		Trace.init("ICPC Image Generator", "imageGenerator", args);
 
-		if (args == null || args.length != 1) {
-			Trace.trace(Trace.ERROR, "Missing argument, must point to a contest location");
+		if (args == null || args.length != 2) {
+			Trace.trace(Trace.ERROR, "Missing argument, must point to CMS source and a contest location");
 			System.exit(0);
 			return;
 		}
 
-		File contestRoot = new File(args[0]);
+		File cmsRoot = new File(args[0]);
+
+		File contestRoot = new File(args[1]);
 		if (!contestRoot.exists()) {
 			Trace.trace(Trace.ERROR, "Contest data package could not be found: " + contestRoot.getAbsolutePath());
 			System.exit(0);
@@ -85,9 +98,7 @@ public class ImagesGenerator {
 		}
 
 		long time = System.currentTimeMillis();
-		ImagesGenerator generator = new ImagesGenerator(contestRoot);
-		File orgFolder = new File(contestRoot, "organizations");
-		orgFolder.mkdirs();
+		ImagesGenerator generator = new ImagesGenerator(cmsRoot, contestRoot);
 
 		Trace.trace(Trace.USER, "----- Generating organization logos -----");
 		generator.generateOrganizationLogos();
@@ -122,12 +133,16 @@ public class ImagesGenerator {
 			e.printStackTrace();
 		}*/
 
-		Trace.trace(Trace.USER, "----- Generating ribbon -----");
+		File file = new File(contestRoot, "images");
+		if (!file.exists())
+			file.mkdir();
+
+		/*Trace.trace(Trace.USER, "----- Generating ribbon -----");
 		try {
 			generator.createRibbon();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 
 		Trace.trace(Trace.USER, "----- Generating preview -----");
 		try {
@@ -140,7 +155,8 @@ public class ImagesGenerator {
 		Trace.trace(Trace.USER, (System.currentTimeMillis() - time) + " ms");
 	}
 
-	protected ImagesGenerator(File contestRoot) {
+	protected ImagesGenerator(File cmsRoot, File contestRoot) {
+		this.cmsRoot = cmsRoot;
 		this.contestRoot = contestRoot;
 		init();
 	}
@@ -295,11 +311,13 @@ public class ImagesGenerator {
 	public void generateTeamDesktop() {
 		File desktopFolder = new File(contestRoot, "images" + File.separator + "desktop");
 		if (!desktopFolder.exists())
-			desktopFolder.mkdir();
+			desktopFolder.mkdirs();
 
 		File overlayFolder = new File(contestRoot, "images" + File.separator + "overlay");
 		if (!overlayFolder.exists())
 			overlayFolder.mkdir();
+
+		File orgRootFolder = new File(contestRoot, "organizations");
 
 		ITeam[] teams = contest.getTeams();
 		for (ITeam team : teams) {
@@ -317,7 +335,7 @@ public class ImagesGenerator {
 					if (contest.getNumTeams() == contest.getNumOrganizations())
 						name = org.getActualFormalName();
 
-					File orgFolder = new File(contestRoot, "organizations" + File.separator + org.getId());
+					File orgFolder = new File(orgRootFolder, org.getId());
 					File imgFile = new File(orgFolder, DEFAULT_NAME);
 					if (imgFile.exists()) {
 						mod = imgFile.lastModified();
@@ -356,12 +374,13 @@ public class ImagesGenerator {
 	}
 
 	public void generateOrganizationLogos() {
-		File sourceRoot = new File(contestRoot, "images" + File.separator + "logoSource");
+		File sourceRoot = new File(cmsRoot, "Institutions");
 		if (!sourceRoot.exists()) {
-			Trace.trace(Trace.ERROR, "Couldn't find images/logoSource folder. Exiting");
+			Trace.trace(Trace.ERROR, "Couldn't find CMS Institutions folder. Exiting");
 			return;
 		}
 
+		File orgRootFolder = new File(contestRoot, "organizations");
 		int numWarnings = 0;
 
 		// generate files
@@ -385,6 +404,8 @@ public class ImagesGenerator {
 					int ind = orgStr.indexOf("INST-");
 					if (ind >= 0)
 						orgStr = orgStr.substring(ind + 5);
+					while (orgStr.startsWith("0"))
+						orgStr = orgStr.substring(1);
 
 					IOrganization org = contest.getOrganizationById(orgStr);
 					if (org == null) {
@@ -401,7 +422,7 @@ public class ImagesGenerator {
 
 					img = removeBorders(img);
 
-					File orgFolder = new File(contestRoot, "organizations" + File.separator + orgStr);
+					File orgFolder = new File(orgRootFolder, orgStr);
 					if (!orgFolder.exists())
 						orgFolder.mkdirs();
 					else {
@@ -599,18 +620,18 @@ public class ImagesGenerator {
 			Trace.trace(Trace.ERROR, "Could not load font", e);
 		}
 
-		fonts = getFonts(masterFont, contest);
+		fonts = getFonts(masterFont);
 
 		try {
 			icpcLogo = ImageIO.read(getClass().getClassLoader().getResource("images/icpc-logo.png"));
-			File logoFile = new File(contestRoot, "logo.png");
+			File logoFile = new File(contestRoot, "config/logo.png");
 			logo = ImageIO.read(logoFile);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not load id image", e);
 		}
 	}
 
-	private static Font[] getFonts(Font masterFont, IContest contest) {
+	private static Font[] getFonts(Font masterFont) {
 		Font font1 = masterFont.deriveFont(Font.BOLD, 65f);
 		Font font2 = masterFont.deriveFont(Font.BOLD, 67.5f);
 
@@ -679,10 +700,15 @@ public class ImagesGenerator {
 		return Integer.parseInt(sb.toString());
 	}
 
-	private void createRibbon() throws IOException {
-		BufferedImage img = new BufferedImage(6250, 24, BufferedImage.TYPE_INT_BGR);
+	protected void createRibbon() throws IOException {
+		IOrganization[] orgs = contest.getOrganizations();
+		int numOrgs = orgs.length;
+		if (numOrgs == 0)
+			return;
 
 		int teamGap = 6;
+		BufferedImage img = new BufferedImage(numOrgs * 48 + 12, 24, BufferedImage.TYPE_INT_BGR);
+
 		int gap = 4;
 		Graphics2D g = (Graphics2D) img.getGraphics();
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -692,18 +718,20 @@ public class ImagesGenerator {
 		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, 6250, 24);
+		g.fillRect(0, 0, numOrgs * 48 + 12, 24);
 		g.setColor(new Color(200, 200, 200));
 		Font font = masterFont.deriveFont(Font.BOLD, 12f);
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 		int baseline = 12 + fm.getAscent() / 2;
 		int x = teamGap;
-		for (int i = 1; i < 134; i++) {
-			String s = i + "";
+		for (int i = 0; i < numOrgs; i++) {
+			String s = (i + 1) + "";
 			g.drawString(s, x, baseline);
 			x += fm.stringWidth(s) + gap;
-			File logoFile = new File(contestRoot, "images" + File.separator + "logo" + File.separator + i + ".png");
+			File logoFile = new File(contestRoot,
+					"organizations" + File.separator + orgs[i].getId() + File.separator + DEFAULT_NAME);
+
 			if (logoFile.exists()) {
 				BufferedImage logoImg = ImageIO.read(logoFile);
 				BufferedImage bImg = ImageScaler.scaleImage(logoImg, 24, 24);
@@ -738,7 +766,7 @@ public class ImagesGenerator {
 	}
 
 	private void createPreview() throws IOException {
-		int sq = 160;
+		int sq = 200;
 		IOrganization[] orgs = contest.getOrganizations();
 		Arrays.sort(orgs, new Comparator<IOrganization>() {
 			@Override
@@ -747,6 +775,9 @@ public class ImagesGenerator {
 			}
 		});
 		int numOrgs = orgs.length;
+		if (numOrgs == 0)
+			return;
+
 		int pad = 3;
 		int th = 25;
 		int w = (sq + pad * 2) * numOrgs;

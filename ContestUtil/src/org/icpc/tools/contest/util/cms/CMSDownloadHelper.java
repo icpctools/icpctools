@@ -8,12 +8,19 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * CMS download helper. Downloads all relevant contest data from the CMS.
+ *
+ * Place a file called login.tsv in the same folder as this class. It should contain 3
+ * tab-separated columns: folder-name, CMS-key, and CMS-access-token. If there is more than one
+ * line this utility will download each contest in order.
+ *
+ * Arguments: output folder
+ */
 public class CMSDownloadHelper {
 	private static final String ROOT_URL = "https://icpc.baylor.edu/cm5-contest-rest/rest/contest/myicpc/";
 	private static final String ROOT_URL_2 = "https://icpc.baylor.edu/cm5-contest-rest/rest/contest/export/CLICS/CONTEST/";
 	protected static File ROOT_FOLDER;
-	// https://icpc.baylor.edu/cm5-contest-rest/rest/contest/export/CLICS/CONTEST/
-	// https://icpc.baylor.edu/cm5-contest-rest/rest/contest/myicpc/World-Finals-2018/teams
 	protected static File TEAM_FOLDER;
 	protected static File INSTITUTION_FOLDER;
 
@@ -33,11 +40,15 @@ public class CMSDownloadHelper {
 
 	protected static void configure(String[] args) {
 		if (args == null || args.length != 1) {
-			System.err.println("Usage: command [folder]");
+			System.err.println("Usage: command [folder] [option]");
 			System.exit(1);
 		}
 
-		ROOT_FOLDER = new File(args[0]);
+		setRootFolder(args[0]);
+	}
+
+	protected static void setRootFolder(String f) {
+		ROOT_FOLDER = new File(f);
 		if (!ROOT_FOLDER.exists()) {
 			System.err.println("Root folder does not exist");
 			System.exit(1);
@@ -48,17 +59,11 @@ public class CMSDownloadHelper {
 	}
 
 	public static void main(String[] args) {
-		String token = "zNF8KadFqb7BzRIfrCmej5GVusjHCfTYw4U";
-		try {
-			getOAuthToken(token);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		configure(args);
 
 		for (int i = 0; i < CMSLogin.getContests().length; i++) {
 			ContestInfo contestInfo = CMSLogin.getContests()[i];
+			System.out.println(contestInfo.shortName);
 			downloadYear(contestInfo);
 		}
 
