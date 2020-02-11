@@ -555,20 +555,6 @@ public class DiskContestSource extends ContestSource {
 		return ref;
 	}
 
-	protected FileReference getOrgImage(String base, String orgId, String teamId) {
-		FileReference ref = getFileWithPattern("images" + File.separator + base, orgId + ".png",
-				"organizations/" + orgId + "/" + base);
-		if (ref != null)
-			return ref;
-
-		if (teamId == null)
-			return null;
-
-		ref = getFileWithPattern("images" + File.separator + base, teamId + ".png",
-				"organizations/" + orgId + "/" + base);
-		return ref;
-	}
-
 	@Override
 	protected void initializeContestImpl() throws Exception {
 		long time = System.currentTimeMillis();
@@ -639,6 +625,14 @@ public class DiskContestSource extends ContestSource {
 			parser.close();
 	}
 
+	/**
+	 * Returns a list of files if they match the pattern, or <code>null</code> if there are no
+	 * matching files.
+	 *
+	 * @param obj
+	 * @param property
+	 * @return
+	 */
 	public FileReferenceList getFilesWithPattern(IContestObject obj, String property) {
 		final String[] s = getLocalPattern(obj, property);
 		if (s == null) {
@@ -660,6 +654,15 @@ public class DiskContestSource extends ContestSource {
 		return getMetadata(url, files[0]);
 	}
 
+	/**
+	 * Returns a list of files if they match the pattern, or <code>null</code> if there are no
+	 * matching files.
+	 *
+	 * @param folderName
+	 * @param filename
+	 * @param url
+	 * @return
+	 */
 	public FileReferenceList getFilesWithPattern(String folderName, String filename, String url) {
 		File folder = getRootFolder();
 		if (folderName != null)
@@ -670,9 +673,12 @@ public class DiskContestSource extends ContestSource {
 		int ind = filename.indexOf("{0}");
 		if (ind < 0) { // no substitutions
 			FileReference ref = getFileWithPattern(folderName, filename, url);
-			if (ref != null)
-				refList.add(ref);
-			return refList;
+			if (ref == null)
+				return null;
+
+			FileReferenceList list = new FileReferenceList();
+			list.add(ref);
+			return list;
 		}
 
 		String start = filename.substring(0, ind);
@@ -680,7 +686,7 @@ public class DiskContestSource extends ContestSource {
 		File[] files = folder
 				.listFiles((dir, name) -> (name.toLowerCase().startsWith(start) && name.toLowerCase().endsWith(end)));
 
-		if (files == null)
+		if (files == null || files.length == 0)
 			return null;
 
 		for (File file : files) {
@@ -700,42 +706,44 @@ public class DiskContestSource extends ContestSource {
 	 * @return
 	 */
 	protected String[] getLocalPattern(IContestObject obj, String property) {
+		String reg = ""; // "registration" + File.separator;
+		String events = ""; // "events" + File.separator;
 		if (obj instanceof Info) {
 			if ("banner".equals(property))
-				return new String[] { null, "banner{0}.png", "banner{0}" };
+				return new String[] { "config", "banner{0}.png", "banner{0}" };
 			else if ("logo".equals(property))
-				return new String[] { null, "logo{0}.png", "logo{0}" };
+				return new String[] { "config", "logo{0}.png", "logo{0}" };
 		} else if (obj instanceof Team) {
 			if ("photo".equals(property))
-				return new String[] { "teams" + File.separator + obj.getId(), "photo{0}.jpg",
+				return new String[] { reg + "teams" + File.separator + obj.getId(), "photo{0}.jpg",
 						"teams/" + obj.getId() + "/photo{0}" };
 			if ("video".equals(property))
-				return new String[] { "teams" + File.separator + obj.getId(), "video.m2ts",
+				return new String[] { reg + "teams" + File.separator + obj.getId(), "video.m2ts",
 						"teams/" + obj.getId() + "/video" };
 			if ("backup".equals(property))
-				return new String[] { "teams" + File.separator + obj.getId(), "backup.zip",
+				return new String[] { reg + "teams" + File.separator + obj.getId(), "backup.zip",
 						"teams/" + obj.getId() + "/backup" };
 			if ("logkeys".equals(property))
-				return new String[] { "teams" + File.separator + obj.getId(), "logkeys.txt",
+				return new String[] { reg + "teams" + File.separator + obj.getId(), "logkeys.txt",
 						"teams/" + obj.getId() + "/logkeys" };
 		} else if (obj instanceof TeamMember) {
 			if ("photo".equals(property))
-				return new String[] { "team-members" + File.separator + obj.getId(), "photo{0}.jpg",
+				return new String[] { reg + "team-members" + File.separator + obj.getId(), "photo{0}.jpg",
 						"team-members/" + obj.getId() + "/photo{0}" };
 		} else if (obj instanceof Organization) {
 			if ("logo".equals(property))
-				return new String[] { "organizations" + File.separator + obj.getId(), "logo{0}.png",
+				return new String[] { reg + "organizations" + File.separator + obj.getId(), "logo{0}.png",
 						"organizations/" + obj.getId() + "/logo{0}" };
 		} else if (obj instanceof Submission) {
 			if ("files".equals(property))
-				return new String[] { "submissions" + File.separator + obj.getId(), "files.zip",
+				return new String[] { events + "submissions" + File.separator + obj.getId(), "files.zip",
 						"submissions/" + obj.getId() + "/files" };
 			if ("reaction".equals(property))
-				return new String[] { "submissions" + File.separator + obj.getId(), "reaction.m2ts",
+				return new String[] { events + "submissions" + File.separator + obj.getId(), "reaction.m2ts",
 						"submissions/" + obj.getId() + "/reaction" };
 		} else if (obj instanceof Group) {
 			if ("logo".equals(property))
-				return new String[] { "groups" + File.separator + obj.getId(), "logo{0}.png",
+				return new String[] { reg + "groups" + File.separator + obj.getId(), "logo{0}.png",
 						"groups/" + obj.getId() + "/logo{0}" };
 		}
 		return null;
@@ -747,102 +755,24 @@ public class DiskContestSource extends ContestSource {
 			info.setBanner(getFilesWithPattern(obj, "banner"));
 			info.setLogo(getFilesWithPattern(obj, "logo"));
 		} else if (obj instanceof Organization) {
-			FileReferenceList list = getFilesWithPattern(obj, "logo");
-			if (list == null)
-				list = new FileReferenceList();
-
 			Organization org = (Organization) obj;
-			String orgId = org.getId();
-			String teamId = null;
-			for (ITeam t : contest.getTeams()) {
-				if (orgId.equals(t.getOrganizationId())) {
-					teamId = t.getId();
-				}
-			}
-			FileReference ref = getOrgImage("logo", orgId, teamId);
-			if (ref != null)
-				list.add(ref);
-			ref = getOrgImage("tile", orgId, teamId);
-			if (ref != null)
-				list.add(ref);
-			ref = getOrgImage("icon", orgId, teamId);
-			if (ref != null)
-				list.add(ref);
-
-			if (!list.isEmpty())
-				org.setLogo(list);
-			else
-				org.setLogo(null);
+			org.setLogo(getFilesWithPattern(obj, "logo"));
 		} else if (obj instanceof Team) {
 			Team team = (Team) obj;
-			FileReferenceList list = getFilesWithPattern(obj, "photo");
-			if (list == null)
-				list = new FileReferenceList();
-			FileReference ref = getFileWithPattern("images" + File.separator + "team", obj.getId() + ".jpg",
-					"teams/" + obj.getId() + "/photo");
-			if (ref != null)
-				list.add(ref);
-			if (list.isEmpty())
-				team.setPhoto(null);
-			else
-				team.setPhoto(list);
-
-			ref = getFileWithPattern("video" + File.separator + "team", obj.getId() + ".m2ts",
-					"teams/" + obj.getId() + "/video");
-			if (ref != null)
-				team.setVideo(new FileReferenceList(ref));
-			else
-				team.setVideo(null);
-
-			list = getFilesWithPattern(obj, "backup");
-			if (list == null || list.isEmpty())
-				team.setBackup(null);
-			else
-				team.setBackup(list);
-
-			list = getFilesWithPattern(obj, "logkeys");
-			if (list == null || list.isEmpty())
-				team.setKeyLog(null);
-			else
-				team.setKeyLog(list);
+			team.setPhoto(getFilesWithPattern(obj, "photo"));
+			team.setVideo(getFilesWithPattern(obj, "video"));
+			team.setBackup(getFilesWithPattern(obj, "backup"));
+			team.setKeyLog(getFilesWithPattern(obj, "logkeys"));
 		} else if (obj instanceof TeamMember) {
 			TeamMember member = (TeamMember) obj;
-			FileReference ref = getFileWithPattern("images" + File.separator + "team-member", obj.getId() + ".jpg",
-					"team-members/" + obj.getId() + "/photo");
-			if (ref != null)
-				member.setPhoto(new FileReferenceList(ref));
-			else
-				member.setPhoto(null);
+			member.setPhoto(getFilesWithPattern(obj, "photo"));
 		} else if (obj instanceof Submission) {
-			Submission s = (Submission) obj;
-			FileReferenceList refList = getFilesWithPattern(obj, "files");
-			if (refList == null) {
-				FileReference ref = getFileWithPattern("submissions", obj.getId() + ".zip",
-						"submissions/" + obj.getId() + "/files");
-				if (ref != null) {
-					refList = new FileReferenceList();
-					refList.add(ref);
-				}
-			}
-
-			if (refList == null || refList.isEmpty())
-				s.setFiles(null);
-			else
-				s.setFiles(refList);
-
-			refList = getFilesWithPattern(obj, "reaction");
-			if (refList == null || refList.isEmpty())
-				s.setReaction(null);
-			else
-				s.setReaction(refList);
+			Submission submission = (Submission) obj;
+			submission.setFiles(getFilesWithPattern(obj, "files"));
+			submission.setReaction(getFilesWithPattern(obj, "reaction"));
 		} else if (obj instanceof Group) {
-			FileReferenceList list = getFilesWithPattern(obj, "logo");
-
 			Group group = (Group) obj;
-			if (list != null && !list.isEmpty())
-				group.setLogo(list);
-			else
-				group.setLogo(null);
+			group.setLogo(getFilesWithPattern(obj, "logo"));
 		}
 	}
 
@@ -865,6 +795,22 @@ public class DiskContestSource extends ContestSource {
 		}
 	}
 
+	private static void loadFileSingle(Contest contest, File f, String typeName) throws IOException {
+		Trace.trace(Trace.INFO, "Loading " + typeName);
+		if (f == null || !f.exists())
+			return;
+
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+			JSONParser parser = new JSONParser(new FileInputStream(f));
+			JsonObject data = parser.readObject();
+			ContestObject co = (ContestObject) IContestObject.createByName(typeName);
+			for (String key : data.props.keySet())
+				co.add(key, data.props.get(key));
+
+			contest.add(co);
+		}
+	}
+
 	private static File getConfigFile(File root, String file) {
 		return new File(root, "config" + File.separator + file);
 	}
@@ -880,8 +826,13 @@ public class DiskContestSource extends ContestSource {
 		configValidation = new Validation();
 		try {
 			Trace.trace(Trace.INFO, "Importing contest info");
-			Info info = YamlParser.importContestInfo(root);
-			contest.add(info);
+			File f = getConfigFile(root, "contest.json");
+			if (f.exists())
+				loadFileSingle(contest, f, "contests");
+			else {
+				Info info = YamlParser.importContestInfo(root);
+				contest.add(info);
+			}
 			configValidation.ok("Contest info loaded");
 		} catch (FileNotFoundException e) {
 			configValidation.ok("Contest info not found");
@@ -921,10 +872,10 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing institutions");
-			File f = getRegistrationFile(root, "institutions.json");
+			Trace.trace(Trace.INFO, "Importing organizations");
+			File f = getRegistrationFile(root, "organizations.json");
 			if (f.exists())
-				loadFile(contest, f, "institutions");
+				loadFile(contest, f, "organizations");
 			else {
 				f = getConfigFile(root, "institutions2.tsv");
 				if (!f.exists())
