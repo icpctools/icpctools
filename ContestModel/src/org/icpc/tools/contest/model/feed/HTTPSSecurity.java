@@ -46,8 +46,6 @@ public class HTTPSSecurity {
 
 	public static HttpURLConnection createConnection(URL url, String user, String password) throws IOException {
 		try {
-			System.setProperty("jsse.enableSNIExtension", "false");
-
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			ctx.init(null, new TrustManager[] { new ContestTrustManager() }, null);
 			SSLContext.setDefault(ctx);
@@ -73,8 +71,6 @@ public class HTTPSSecurity {
 
 	public static URLConnection createURLConnection(URL url, String user, String password) throws IOException {
 		try {
-			System.setProperty("jsse.enableSNIExtension", "false");
-
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			ctx.init(null, new TrustManager[] { new ContestTrustManager() }, null);
 			SSLContext.setDefault(ctx);

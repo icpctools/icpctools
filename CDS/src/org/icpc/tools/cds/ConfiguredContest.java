@@ -856,8 +856,8 @@ public class ConfiguredContest {
 		sb.append("Scr:" + metrics[5] + ",");
 		sb.append("XML:" + metrics[6] + ",");
 		sb.append("Desktop:" + metrics[7] + ",");
-		sb.append("Webcam:" + metrics[8] + "]");
-		sb.append("Audio:" + metrics[9] + "]");
+		sb.append("Webcam:" + metrics[8] + ",");
+		sb.append("Audio:" + metrics[9] + ",");
 		sb.append("Total:" + metrics[10] + "]");
 		Trace.trace(Trace.INFO, sb.toString());
 
