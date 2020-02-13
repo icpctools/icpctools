@@ -14,6 +14,7 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 
+import org.icpc.tools.cds.presentations.PresentationServer;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -41,6 +42,7 @@ import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.State;
 import org.w3c.dom.Element;
@@ -595,14 +597,15 @@ public class ConfiguredContest {
 				if (obj2 == null)
 					return;
 
+				long time = ContestObject.getContestTime(obj);
+				PresentationServer.getInstance().onTime(time);
+
 				// all - don't show any submissions or judgements from outside the contest
 				// public - show judgments until the freeze, only public clars, no runs
 				// balloon - show judgments until the freeze and then any after if the
 				// team has less than 3, only public clars, no runs
 				// trusted - show runs & judgments until the freeze, show all clars
 				if (obj instanceof ISubmission) {
-					ISubmission s = (ISubmission) obj;
-					int time = s.getContestTime();
 					if (time >= 0 && time < contest.getDuration()) {
 						trustedContest.add(obj2);
 						balloonContest.add(obj2);

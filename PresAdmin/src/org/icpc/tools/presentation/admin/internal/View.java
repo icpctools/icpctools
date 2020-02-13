@@ -1009,5 +1009,37 @@ public class View {
 				}
 			}
 		});
+
+		MenuItem timeSubmenu = new MenuItem(submenu, SWT.CASCADE);
+		timeSubmenu.setText("Set &Timed Presentation");
+		// submenu.setMenu(timeSubmenu);
+
+		submenu = new Menu(shell, SWT.DROP_DOWN);
+		timeSubmenu.setMenu(submenu);
+
+		for (int i = 0; i < 10; i++) {
+			final MenuItem timePres0Menu = new MenuItem(submenu, SWT.PUSH);
+			final int min = i * 30;
+			timePres0Menu.setText(min + " min contest time");
+			timePres0Menu.setToolTipText("Set a presentation to show at the given contest time");
+			registerAction(timePres0Menu, new ClientAction() {
+				@Override
+				public boolean isEnabled() {
+					return getSelectedClients() != null && getSelectedClients().length > 0
+							&& getSelectedPresentation() != null;
+				}
+
+				@Override
+				public void run() throws Exception {
+					PresentationInfo info = getSelectedPresentation();
+					String s = info.getClassName();
+					long timeMs = min * 60 * 1000;
+					writeProperty("time:" + timeMs + ":presentation", "1000|" + s);
+					if (propCombo.getText().length() > 0) {
+						writeProperty("time:" + timeMs + ":" + getPresentationKey(info.getClassName()), propCombo.getText());
+					}
+				}
+			});
+		}
 	}
 }

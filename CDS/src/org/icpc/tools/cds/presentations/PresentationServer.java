@@ -24,6 +24,16 @@ public class PresentationServer {
 	private static final String PREF_ID = "org.icpc.tools.cds";
 	private static final String PRES = "presentation";
 	private static final String DEFAULT_PREFIX = "default:";
+	private static final String TIME_PREFIX = "time:";
+
+	public class TimedEvent {
+		public long time;
+		public int[] ids;
+		public String key;
+		public String value;
+	}
+
+	private List<TimedEvent> events = new ArrayList<>();
 
 	private ScheduledExecutorService executor;
 
@@ -491,7 +501,7 @@ public class PresentationServer {
 				for (Object s : p.keySet()) {
 					String key = s.toString();
 					String value = p.getProperty(key);
-					if (!"control".equals(key) && !key.startsWith(DEFAULT_PREFIX)) {
+					if (!"control".equals(key) && !key.startsWith(DEFAULT_PREFIX) && !key.startsWith(TIME_PREFIX)) {
 						changed = true;
 						if (value == null || value.isEmpty())
 							prefs.remove(key);
@@ -539,6 +549,57 @@ public class PresentationServer {
 				for (String key : remove) {
 					p.remove(key);
 				}
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error storing default properties", e);
+		}
+
+		// and timed properties
+		try {
+			for (int id : cl) {
+				boolean timeChanged = false;
+				Preferences timePrefs = getPreferences().node("time" + id);
+				List<String> remove = new ArrayList<>();
+
+				for (Object s : p.keySet()) {
+					String key = s.toString();
+					String value = p.getProperty(key);
+					if (key.startsWith(TIME_PREFIX)) {
+						remove.add(key);
+						key = key.substring(TIME_PREFIX.length());
+						// parse time
+						int index = key.indexOf(":");
+						int time = 0;
+						if (index > 0) {
+							time = Integer.parseInt(key.substring(0, index));
+							key = key.substring(index + 1);
+						}
+						timeChanged = true;
+						if (value == null || value.isEmpty())
+							timePrefs.remove(key);
+						else
+							timePrefs.put(key, value);
+						Trace.trace(Trace.INFO, "Timed presentation: @" + time + " do " + key + " = " + value);
+
+						TimedEvent event = new TimedEvent();
+						event.ids = cl;
+						event.time = time;
+						event.key = key;
+						event.value = value;
+						events.add(event);
+					}
+				}
+				if (timeChanged) {
+					try {
+						timePrefs.flush();
+					} catch (Exception e) {
+						// ignore
+					}
+					for (String key : remove) {
+						p.remove(key);
+					}
+				}
+
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error storing default properties", e);
@@ -645,5 +706,25 @@ public class PresentationServer {
 		this.executor = executor;
 
 		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 15L, 15L, TimeUnit.SECONDS);
+	}
+
+	public void onTime(long timeMs) {
+		List<TimedEvent> remove = new ArrayList<>();
+		for (TimedEvent event : events) {
+			if (event.time <= timeMs) {
+				Trace.trace(Trace.INFO, "Timed event! " + timeMs + " > " + event.time);
+				remove.add(event);
+				Properties p = new Properties();
+				p.put(event.key, event.value);
+				forEachClient(getClients(event.ids), new ClientRun() {
+					@Override
+					public void run(Client cl) throws IOException {
+						cl.writeProperties(p);
+					}
+				});
+			}
+		}
+		if (!remove.isEmpty())
+			events.removeAll(remove);
 	}
 }
