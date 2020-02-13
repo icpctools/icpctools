@@ -29,7 +29,8 @@ public class Team extends ContestObject implements ITeam {
 	private static final String DESKTOP = "desktop";
 	private static final String WEBCAM = "webcam";
 	private static final String AUDIO = "audio";
-	private static final String KEY_LOG = "keylog";
+	private static final String KEY_LOG = "key_log";
+	private static final String TOOL_DATA = "tool_data";
 
 	private String name;
 	private String displayName;
@@ -46,6 +47,7 @@ public class Team extends ContestObject implements ITeam {
 	private FileReferenceList audio;
 	private FileReferenceList backup;
 	private FileReferenceList keylog;
+	private FileReferenceList tooldata;
 
 	@Override
 	public ContestType getType() {
@@ -152,6 +154,19 @@ public class Team extends ContestObject implements ITeam {
 		keylog = list;
 	}
 
+	public FileReferenceList getToolData() {
+		return tooldata;
+	}
+
+	@Override
+	public File getToolData(boolean force) {
+		return getFile(getBestFileReference(tooldata, null), TOOL_DATA, force);
+	}
+
+	public void setToolData(FileReferenceList list) {
+		tooldata = list;
+	}
+
 	public void setVideo(FileReferenceList list) {
 		video = list;
 	}
@@ -206,7 +221,7 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public Object resolveFileReference(String url) {
-		return FileReferenceList.resolve(url, photo, video, backup, desktop, webcam, audio, keylog);
+		return FileReferenceList.resolve(url, photo, video, backup, desktop, webcam, audio, keylog, tooldata);
 	}
 
 	@Override
@@ -274,6 +289,14 @@ public class Team extends ContestObject implements ITeam {
 				backup = new FileReferenceList(value);
 				return true;
 			}
+			case KEY_LOG: {
+				keylog = new FileReferenceList(value);
+				return true;
+			}
+			case TOOL_DATA: {
+				tooldata = new FileReferenceList(value);
+				return true;
+			}
 			case DESKTOP: {
 				desktop = new FileReferenceList(value);
 				return true;
@@ -298,6 +321,8 @@ public class Team extends ContestObject implements ITeam {
 		t.photo = photo;
 		t.video = video;
 		t.backup = backup;
+		t.keylog = keylog;
+		t.tooldata = tooldata;
 		t.desktop = desktop;
 		t.webcam = webcam;
 		t.audio = audio;
@@ -325,6 +350,8 @@ public class Team extends ContestObject implements ITeam {
 		props.put(PHOTO, photo);
 		props.put(VIDEO, video);
 		props.put(BACKUP, backup);
+		props.put(KEY_LOG, keylog);
+		props.put(TOOL_DATA, tooldata);
 		props.put(DESKTOP, desktop);
 		props.put(WEBCAM, webcam);
 		props.put(AUDIO, audio);
@@ -356,6 +383,8 @@ public class Team extends ContestObject implements ITeam {
 		je.encode(PHOTO, photo, false);
 		je.encode(VIDEO, video, false);
 		je.encode(BACKUP, backup, false);
+		je.encode(KEY_LOG, keylog, false);
+		je.encode(TOOL_DATA, tooldata, false);
 		je.encodeSubs(DESKTOP, desktop, false);
 		je.encodeSubs(WEBCAM, webcam, false);
 		je.encodeSubs(AUDIO, audio, false);

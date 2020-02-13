@@ -36,6 +36,13 @@ import org.icpc.tools.contest.model.internal.Team;
 import org.icpc.tools.contest.model.internal.TeamMember;
 
 public class PlaybackContest extends Contest {
+	private static final String LOGO = "logo";
+	private static final String PHOTO = "photo";
+	private static final String VIDEO = "video";
+	private static final String BANNER = "banner";
+	private static final String FILES = "files";
+	private static final String REACTION = "reaction";
+
 	protected ConfiguredContest cc;
 	protected String contestId;
 	protected boolean recordReactions;
@@ -131,19 +138,19 @@ public class PlaybackContest extends Contest {
 			return;
 
 		if (obj instanceof Info) {
-			downloadMissingFiles(src, obj, "logo", (o) -> ((Info) o).getLogo());
-			downloadMissingFiles(src, obj, "banner", (o) -> ((Info) o).getBanner());
+			downloadMissingFiles(src, obj, LOGO, (o) -> ((Info) o).getLogo());
+			downloadMissingFiles(src, obj, BANNER, (o) -> ((Info) o).getBanner());
 		} else if (obj instanceof Team) {
-			downloadMissingFiles(src, obj, "photo", (o) -> ((Team) o).getPhoto());
-			downloadMissingFiles(src, obj, "video", (o) -> ((Team) o).getVideo());
+			downloadMissingFiles(src, obj, PHOTO, (o) -> ((Team) o).getPhoto());
+			downloadMissingFiles(src, obj, VIDEO, (o) -> ((Team) o).getVideo());
 			// downloadMissingFiles(contest, src, obj, "backup", (o) -> ((Team) o).getBackup());
 		} else if (obj instanceof TeamMember) {
-			downloadMissingFiles(src, obj, "photo", (o) -> ((TeamMember) o).getPhoto());
+			downloadMissingFiles(src, obj, PHOTO, (o) -> ((TeamMember) o).getPhoto());
 		} else if (obj instanceof Organization) {
-			downloadMissingFiles(src, obj, "logo", (o) -> ((Organization) o).getLogo());
+			downloadMissingFiles(src, obj, LOGO, (o) -> ((Organization) o).getLogo());
 		} else if (obj instanceof Submission) {
-			downloadMissingFiles(src, obj, "files", (o) -> ((Submission) o).getFiles());
-			downloadMissingFiles(src, obj, "reaction", (o) -> ((Submission) o).getReaction());
+			downloadMissingFiles(src, obj, FILES, (o) -> ((Submission) o).getFiles());
+			downloadMissingFiles(src, obj, REACTION, (o) -> ((Submission) o).getReaction());
 		}
 	}
 
