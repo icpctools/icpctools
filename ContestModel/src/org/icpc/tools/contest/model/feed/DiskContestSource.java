@@ -51,6 +51,16 @@ public class DiskContestSource extends ContestSource {
 	private static final String CACHE_VERSION = "ICPC Tools Cache v1.0";
 	private static final Map<String, List<FileReference>> cache = new HashMap<>();
 
+	private static final String LOGO = "logo";
+	private static final String PHOTO = "photo";
+	private static final String VIDEO = "video";
+	private static final String BANNER = "banner";
+	private static final String BACKUP = "backup";
+	private static final String KEY_LOG = "key_log";
+	private static final String TOOL_DATA = "tool_data";
+	private static final String FILES = "files";
+	private static final String REACTION = "reaction";
+
 	private File root;
 	private boolean isCache;
 	private String contestId;
@@ -709,40 +719,43 @@ public class DiskContestSource extends ContestSource {
 		String reg = ""; // "registration" + File.separator;
 		String events = ""; // "events" + File.separator;
 		if (obj instanceof Info) {
-			if ("banner".equals(property))
-				return new String[] { "config", "banner{0}.png", "banner{0}" };
-			else if ("logo".equals(property))
+			if (LOGO.equals(property))
 				return new String[] { "config", "logo{0}.png", "logo{0}" };
+			if (BANNER.equals(property))
+				return new String[] { "config", "banner{0}.png", "banner{0}" };
 		} else if (obj instanceof Team) {
-			if ("photo".equals(property))
+			if (PHOTO.equals(property))
 				return new String[] { reg + "teams" + File.separator + obj.getId(), "photo{0}.jpg",
 						"teams/" + obj.getId() + "/photo{0}" };
-			if ("video".equals(property))
+			if (VIDEO.equals(property))
 				return new String[] { reg + "teams" + File.separator + obj.getId(), "video.m2ts",
 						"teams/" + obj.getId() + "/video" };
-			if ("backup".equals(property))
+			if (BACKUP.equals(property))
 				return new String[] { reg + "teams" + File.separator + obj.getId(), "backup.zip",
 						"teams/" + obj.getId() + "/backup" };
-			if ("logkeys".equals(property))
-				return new String[] { reg + "teams" + File.separator + obj.getId(), "logkeys.txt",
-						"teams/" + obj.getId() + "/logkeys" };
+			if (KEY_LOG.equals(property))
+				return new String[] { reg + "teams" + File.separator + obj.getId(), "keys.log",
+						"teams/" + obj.getId() + "/keylog" };
+			if (TOOL_DATA.equals(property))
+				return new String[] { reg + "teams" + File.separator + obj.getId(), "tools.txt",
+						"teams/" + obj.getId() + "/tooldata" };
 		} else if (obj instanceof TeamMember) {
-			if ("photo".equals(property))
+			if (PHOTO.equals(property))
 				return new String[] { reg + "team-members" + File.separator + obj.getId(), "photo{0}.jpg",
 						"team-members/" + obj.getId() + "/photo{0}" };
 		} else if (obj instanceof Organization) {
-			if ("logo".equals(property))
+			if (LOGO.equals(property))
 				return new String[] { reg + "organizations" + File.separator + obj.getId(), "logo{0}.png",
 						"organizations/" + obj.getId() + "/logo{0}" };
 		} else if (obj instanceof Submission) {
-			if ("files".equals(property))
+			if (FILES.equals(property))
 				return new String[] { events + "submissions" + File.separator + obj.getId(), "files.zip",
 						"submissions/" + obj.getId() + "/files" };
-			if ("reaction".equals(property))
+			if (REACTION.equals(property))
 				return new String[] { events + "submissions" + File.separator + obj.getId(), "reaction.m2ts",
 						"submissions/" + obj.getId() + "/reaction" };
 		} else if (obj instanceof Group) {
-			if ("logo".equals(property))
+			if (LOGO.equals(property))
 				return new String[] { reg + "groups" + File.separator + obj.getId(), "logo{0}.png",
 						"groups/" + obj.getId() + "/logo{0}" };
 		}
@@ -752,27 +765,28 @@ public class DiskContestSource extends ContestSource {
 	public void attachLocalResources(IContestObject obj) {
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
-			info.setBanner(getFilesWithPattern(obj, "banner"));
-			info.setLogo(getFilesWithPattern(obj, "logo"));
+			info.setLogo(getFilesWithPattern(obj, LOGO));
+			info.setBanner(getFilesWithPattern(obj, BANNER));
 		} else if (obj instanceof Organization) {
 			Organization org = (Organization) obj;
-			org.setLogo(getFilesWithPattern(obj, "logo"));
+			org.setLogo(getFilesWithPattern(obj, LOGO));
 		} else if (obj instanceof Team) {
 			Team team = (Team) obj;
-			team.setPhoto(getFilesWithPattern(obj, "photo"));
-			team.setVideo(getFilesWithPattern(obj, "video"));
-			team.setBackup(getFilesWithPattern(obj, "backup"));
-			team.setKeyLog(getFilesWithPattern(obj, "logkeys"));
+			team.setPhoto(getFilesWithPattern(obj, PHOTO));
+			team.setVideo(getFilesWithPattern(obj, VIDEO));
+			team.setBackup(getFilesWithPattern(obj, BACKUP));
+			team.setKeyLog(getFilesWithPattern(obj, KEY_LOG));
+			team.setToolData(getFilesWithPattern(obj, TOOL_DATA));
 		} else if (obj instanceof TeamMember) {
 			TeamMember member = (TeamMember) obj;
-			member.setPhoto(getFilesWithPattern(obj, "photo"));
+			member.setPhoto(getFilesWithPattern(obj, PHOTO));
 		} else if (obj instanceof Submission) {
 			Submission submission = (Submission) obj;
-			submission.setFiles(getFilesWithPattern(obj, "files"));
-			submission.setReaction(getFilesWithPattern(obj, "reaction"));
+			submission.setFiles(getFilesWithPattern(obj, FILES));
+			submission.setReaction(getFilesWithPattern(obj, REACTION));
 		} else if (obj instanceof Group) {
 			Group group = (Group) obj;
-			group.setLogo(getFilesWithPattern(obj, "logo"));
+			group.setLogo(getFilesWithPattern(obj, LOGO));
 		}
 	}
 

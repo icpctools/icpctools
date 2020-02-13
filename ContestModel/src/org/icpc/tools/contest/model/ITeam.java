@@ -93,6 +93,13 @@ public interface ITeam extends IContestObject, IPosition {
 	File getKeyLog(boolean force);
 
 	/**
+	 * The tool usage data.
+	 *
+	 * @return the tool usage data file
+	 */
+	File getToolData(boolean force);
+
+	/**
 	 * The desktop stream.
 	 *
 	 * @return the desktop stream
