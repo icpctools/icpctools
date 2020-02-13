@@ -226,10 +226,7 @@ public class JsonToTSVConverter {
 				System.err.println("Team with no group: " + team.id + " - " + team.name);
 			fw.write("\t");
 			if (inst != null) {
-				if (FINALS_NAMING)
-					fw.write(inst.name);
-				else
-					fw.write(team.name);
+				fw.write(team.name);
 				fw.write("\t");
 				fw.write(inst.name);
 				fw.write("\t");
@@ -264,11 +261,7 @@ public class JsonToTSVConverter {
 			fw.write("\t");
 
 			if (inst != null) {
-				if (FINALS_NAMING)
-					fw.write(inst.name);
-				else
-					fw.write(team.name);
-
+				fw.write(team.name);
 				fw.write("\t");
 				fw.write(inst.name);
 				fw.write("\t");
@@ -600,13 +593,13 @@ public class JsonToTSVConverter {
 		for (JsonObject result : arr.getValuesAs(JsonObject.class)) {
 			// String name = team.getString("name");
 			// String cId = result.getInt("externalContestId") + "";
-
+		
 			// String rank = result.getInt("rank") + "";
 			// String problemssolved = result.getInt("problemssolved") + "";
 			// String totaltime = result.getInt("totaltime") + "";
 			// String lastproblemtime = result.getInt("lastproblemtime") + "";
 			// CMSTeam t = getTeam(tId);
-
+		
 			// System.out.println(id + " " + cId + " " + rank + " " + contestIdList.contains(cId));
 		}*/
 	}
@@ -740,7 +733,7 @@ public class JsonToTSVConverter {
 				for (JsonObject member : teamMembers.getValuesAs(JsonObject.class)) {
 					String firstName = member.getString("firstName");
 					String lastName = member.getString("lastName");
-
+				
 					CMSMember m = getMember(firstName, lastName);
 					m.role = member.getString("teamRole");
 					m.team = t;
