@@ -26,7 +26,8 @@
     -->
   </contest>
 
-  <!-- Administrative domains. Uncomment to set up multiple presentation domains -->
+  <!-- Administrative domains. Uncomment and duplicate to set up multiple presentation domains.
+       Each domain must have one or more admins and one or more clients -->
   <!--
   <domain>
     <user name="presAdmin"/>

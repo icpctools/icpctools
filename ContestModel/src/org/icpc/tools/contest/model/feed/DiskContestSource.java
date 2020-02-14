@@ -541,6 +541,10 @@ public class DiskContestSource extends ContestSource {
 			return "image/jpg";
 		else if (name.endsWith(".m2ts"))
 			return "video/MP2T";
+		else if (name.endsWith(".txt"))
+			return "text/plain";
+		else if (name.endsWith(".log"))
+			return "text/plain";
 		return null;
 	}
 
