@@ -80,6 +80,7 @@ public class AwardUI {
 	protected Button groupHighlightAwards;
 	protected Button ftsAwards;
 	protected Button finalsAwards;
+	protected Button templateAwards;
 	protected Button save;
 
 	private Map<String, List<IAward>> awards;
@@ -221,6 +222,15 @@ public class AwardUI {
 				launchAwardDialog(new WorldFinalsAwardDialog(shell, contest));
 			}
 		});
+
+		templateAwards = SWTUtil.createButton(awardGroup, "Load from Template...");
+		templateAwards.setEnabled(false);
+		templateAwards.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				launchAwardDialog(new LoadTemplateAwardDialog(shell, contest));
+			}
+		});
 	}
 
 	protected void launchAwardDialog(AbstractAwardDialog dialog) {
@@ -344,6 +354,7 @@ public class AwardUI {
 						groupHighlightAwards.setEnabled(true);
 						ftsAwards.setEnabled(true);
 						finalsAwards.setEnabled(true);
+						templateAwards.setEnabled(true);
 
 						save.setEnabled(true);
 

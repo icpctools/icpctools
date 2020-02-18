@@ -212,7 +212,7 @@ public class ContestConnectionDialog extends Dialog {
 				validate();
 			}
 		});
-		userText.setText(prefs.get(PREF_USER, "balloon"));
+		userText.setText(prefs.get(PREF_USER, "admin"));
 
 		Label passLabel = new Label(composite, SWT.NONE);
 		passLabel.setText("&Password:");

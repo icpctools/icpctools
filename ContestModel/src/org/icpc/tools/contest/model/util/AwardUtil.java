@@ -22,12 +22,7 @@ public class AwardUtil {
 	private static final String[][] GROUPS = new String[][] { { "Asia", "Asian Champions" },
 			{ "North America", "North American Champions" }, { "South America", "South American Champions" },
 			{ "Europe", "European Champions" }, { "Africa", "African Champions" },
-			{ "Africa and the Middle East", "Africa and Middle East Champions" },
-			{ "Latin America", "Latin American Champions" }, { "South Pacific", "South Pacific Champions" } };
-
-	protected static String FIRST_PLACE_CITATION = Messages.getString("awardWorldChampion");
-	private static final String[] MEDAL_NAMES = new String[] { Messages.getString("awardMedalGold"),
-			Messages.getString("awardMedalSilver"), Messages.getString("awardMedalBronze") };
+			{ "Latin America", "Latin American Champions" } };
 
 	public static String getAwardTypeNames(List<AwardType> types) {
 		List<String> names = new ArrayList<>();
@@ -78,36 +73,115 @@ public class AwardUtil {
 		}
 	}
 
-	public static void createGroupAwards(Contest contest, int numPerGroup) {
-		for (IGroup group : contest.getGroups()) {
-			if (group.isHidden())
-				continue;
+	private static void assignGroup(Contest contest, Award a, int numPerGroup) {
+		// assign award to one group
+		String awardGroupId = a.getId().substring(13);
+		a.setTeamIds(new String[0]);
+		// int numPerGroup = Integer.parseInt(a.getCount());
 
-			int count = 0;
-			String lastRank = null;
-			List<String> teamIds = new ArrayList<>();
-			for (ITeam team : contest.getOrderedTeams()) {
-				String[] groupIds = team.getGroupIds();
-				boolean teamInGroup = false;
-				for (String groupId : groupIds)
-					if (groupId.equals(group.getId()))
-						teamInGroup = true;
+		int count = 0;
+		String lastRank = null;
+		List<String> teamIds = new ArrayList<>();
+		for (ITeam team : contest.getOrderedTeams()) {
+			String[] groupIds = team.getGroupIds();
+			boolean teamInGroup = false;
+			for (String groupId : groupIds)
+				if (groupId.equals(awardGroupId)) {
+					teamInGroup = true;
+					break;
+				}
 
-				if (teamInGroup) {
-					String rank = contest.getStanding(team).getRank();
-					if (count <= numPerGroup && rank.equals(lastRank)) {
-						teamIds.add(team.getId());
-					} else if (count < numPerGroup) {
-						teamIds.add(team.getId());
-						lastRank = rank;
-						count++;
-					}
+			if (teamInGroup) {
+				String rank = contest.getStanding(team).getRank();
+				if (count <= numPerGroup && rank.equals(lastRank)) {
+					teamIds.add(team.getId());
+				} else if (count < numPerGroup) {
+					teamIds.add(team.getId());
+					lastRank = rank;
+					count++;
 				}
 			}
+		}
 
-			if (!teamIds.isEmpty())
-				contest.add(new Award(IAward.GROUP, group.getId(), teamIds.toArray(new String[0]),
-						getGroupCitation(contest, group.getName(), 1), true));
+		if (!teamIds.isEmpty()) {
+			IGroup group = contest.getGroupById(awardGroupId);
+			a.setTeamIds(teamIds.toArray(new String[0]));
+			if (a.getCitation() == null)
+				a.setCitation(getGroupCitation(contest, group.getName(), 1));
+		}
+	}
+
+	public static void createGroupAwards(Contest contest, int numPerGroup) {
+		Award group = new Award(IAward.GROUP, "*", null, true);
+		group.setCount(numPerGroup);
+		createGroupAwards(contest, group);
+	}
+
+	public static void createGroupAwards(Contest contest, IAward awardTemplate) {
+		int numPerGroup = awardTemplate.getCount();
+		if (numPerGroup < 0)
+			numPerGroup = 1;
+		if (awardTemplate.getId().equals("group-winner-*")) {
+			// to all groups
+			for (IGroup group : contest.getGroups()) {
+				if (group.isHidden())
+					continue;
+
+				Award groupAward = new Award(IAward.GROUP, group.getId(), null, null, true);
+				// groupAward.setCount("1");
+				contest.add(groupAward);
+				assignGroup(contest, groupAward, numPerGroup);
+			}
+		} else {
+			assignGroup(contest, (Award) awardTemplate, numPerGroup);
+		}
+	}
+
+	private static void assignFirstToSolve(Contest contest, Award a) {
+		String problemId = a.getId().substring(15);
+		a.setTeamIds(new String[0]);
+		boolean showBeforeFreeze = true;
+		boolean showAfterFreeze = true;
+		// assign award to one problem
+		ISubmission[] submissions = contest.getSubmissions();
+		for (ISubmission s : submissions) {
+			if (problemId.equals(s.getProblemId()) && contest.isSolved(s) && contest.isFirstToSolve(s)) {
+				ITeam team = contest.getTeamById(s.getTeamId());
+				IProblem p = contest.getProblemById(s.getProblemId());
+
+				boolean beforeFreeze = false;
+				boolean afterFreeze = false;
+
+				if (contest.getFreezeDuration() > 0) {
+					int freezeMin = (contest.getDuration() - contest.getFreezeDuration()) / 60000;
+					if (ContestUtil.getTimeInMin(s.getContestTime()) < freezeMin)
+						beforeFreeze = true;
+					else
+						afterFreeze = true;
+				} else
+					beforeFreeze = true;
+
+				boolean show = false;
+				if ((beforeFreeze && showBeforeFreeze) || (afterFreeze && showAfterFreeze))
+					show = true;
+
+				a.setTeamIds(new String[] { team.getId() });
+				if (a.getCitation() == null)
+					a.setCitation(Messages.getString("awardFTS").replace("{0}", p.getLabel()));
+				a.setShowAward(show);
+			}
+		}
+	}
+
+	public static void createFirstToSolveAwards(Contest contest, IAward awardTemplate) {
+		if (awardTemplate.getId().equals("first-to-solve-*")) {
+			for (IProblem problem : contest.getProblems()) {
+				Award ftsAward = new Award(IAward.FIRST_TO_SOLVE, problem.getId(), null, null, true);
+				contest.add(ftsAward);
+				assignFirstToSolve(contest, ftsAward);
+			}
+		} else {
+			assignFirstToSolve(contest, (Award) awardTemplate);
 		}
 	}
 
@@ -144,14 +218,31 @@ public class AwardUtil {
 		contest.add(new Award(IAward.WINNER, team.getId(), citation, true));
 	}
 
+	public static void createWinnerAward(Contest contest, IAward awardTemplate) {
+		ITeam[] teams = contest.getOrderedTeams();
+		if (teams.length == 0)
+			return;
+
+		String citation = awardTemplate.getCitation();
+		if (citation == null)
+			citation = Messages.getString("awardWorldChampion");
+		contest.add(new Award(IAward.WINNER, teams[0].getId(), citation, true));
+	}
+
 	public static void createRankAwards(Contest contest, int num) {
-		if (num < 1)
+		Award rank = new Award(IAward.RANK, "*", null, true);
+		rank.setCount(num);
+		createRankAwards(contest, rank);
+	}
+
+	public static void createRankAwards(Contest contest, IAward template) {
+		if (template.getCount() < 1)
 			return;
 
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
-		int n = Math.min(num, teams.length);
+		int n = Math.min(template.getCount(), teams.length);
 
 		for (int i = 0; i < n; i++) {
 			ITeam team = teams[i];
@@ -203,7 +294,7 @@ public class AwardUtil {
 			int count = 0;
 			while (nextAwardNum < numGold2 && nextAwardNum < teams.length)
 				teamIds[count++] = teams[nextAwardNum++].getId();
-			contest.add(new Award(IAward.MEDAL, "gold", teamIds, MEDAL_NAMES[0], true));
+			contest.add(new Award(IAward.MEDAL, "gold", teamIds, Messages.getString("awardMedalGold"), true));
 		}
 
 		// silver medals
@@ -212,7 +303,7 @@ public class AwardUtil {
 			int count = 0;
 			while (nextAwardNum < numGold2 + numSilver2 && nextAwardNum < teams.length)
 				teamIds[count++] = teams[nextAwardNum++].getId();
-			contest.add(new Award(IAward.MEDAL, "silver", teamIds, MEDAL_NAMES[1], true));
+			contest.add(new Award(IAward.MEDAL, "silver", teamIds, Messages.getString("awardMedalSilver"), true));
 		}
 
 		// bronze medals
@@ -221,8 +312,44 @@ public class AwardUtil {
 			int count = 0;
 			while (nextAwardNum < numGold2 + numSilver2 + numBronze2 && nextAwardNum < teams.length)
 				teamIds[count++] = teams[nextAwardNum++].getId();
-			contest.add(new Award(IAward.MEDAL, "bronze", teamIds, MEDAL_NAMES[2], true));
+			contest.add(new Award(IAward.MEDAL, "bronze", teamIds, Messages.getString("awardMedalBronze"), true));
 		}
+	}
+
+	private static int assignMedal(IAward award, int firstTeamIndex, ITeam[] teams, String citation) {
+		if (award == null)
+			return firstTeamIndex;
+
+		int numTeamIds = award.getCount();
+		if (numTeamIds <= 0)
+			numTeamIds = 1;
+
+		numTeamIds = Math.min(numTeamIds, teams.length - firstTeamIndex);
+		if (numTeamIds == 0)
+			return firstTeamIndex;
+
+		int count = 0;
+		String[] teamIds = new String[numTeamIds];
+		while (count < numTeamIds) {
+			teamIds[count] = teams[firstTeamIndex + count].getId();
+			count++;
+		}
+		((Award) award).setTeamIds(teamIds);
+		if (award.getCitation() == null)
+			((Award) award).setCitation(citation);
+
+		return firstTeamIndex + numTeamIds;
+	}
+
+	public static void createMedalAwards(Contest contest, IAward gold, IAward silver, IAward bronze) {
+		ITeam[] teams = contest.getOrderedTeams();
+		if (teams.length == 0)
+			return;
+
+		int nextTeam = 0;
+		nextTeam = assignMedal(gold, nextTeam, teams, Messages.getString("awardMedalGold"));
+		nextTeam = assignMedal(silver, nextTeam, teams, Messages.getString("awardMedalSilver"));
+		assignMedal(bronze, nextTeam, teams, Messages.getString("awardMedalBronze"));
 	}
 
 	public static int getLastBronze(IContest contest) {
@@ -267,17 +394,91 @@ public class AwardUtil {
 	}
 
 	public static void createWorldFinalsAwards(Contest contest, int b) {
-		createFirstPlaceAward(contest, FIRST_PLACE_CITATION);
-
-		int numTeams = contest.getNumTeams();
-		int gold = Math.min(4, numTeams);
-		int silver = Math.min(4, Math.max(numTeams - 4, 0));
-		int bronze = Math.min(4 + b, Math.max(numTeams - 8, 0));
+		Award gold = new Award(IAward.MEDAL, "gold", null, null, true);
+		gold.setCount(4);
+		Award silver = new Award(IAward.MEDAL, "silver", null, null, true);
+		silver.setCount(4);
+		Award bronze = new Award(IAward.MEDAL, "bronze", null, null, true);
+		bronze.setCount(4 + b);
 		createMedalAwards(contest, gold, silver, bronze);
 
-		createFirstToSolveAwards(contest, false, true);
+		Award group = new Award(IAward.GROUP, "*", null, null, true);
+		group.setCount(1);
+		createGroupAwards(contest, group);
 
-		createGroupAwards(contest, 1);
+		Award fts = new Award(IAward.FIRST_TO_SOLVE, "*", null, null, true);
+		createFirstToSolveAwards(contest, fts);
+	}
+
+	public static void applyAwards(Contest contest, IAward[] awardTemplate) {
+		IAward gold = null;
+		IAward silver = null;
+		IAward bronze = null;
+
+		for (IAward award : awardTemplate) {
+			if (award.getAwardType() == IAward.WINNER) {
+				createWinnerAward(contest, award);
+			} else if (award.getAwardType() == IAward.GROUP) {
+				createGroupAwards(contest, award);
+			} else if (award.getAwardType() == IAward.RANK) {
+				createRankAwards(contest, award);
+			} else if (award.getAwardType() == IAward.FIRST_TO_SOLVE) {
+				createFirstToSolveAwards(contest, award);
+			} else if (award.getAwardType() == IAward.MEDAL) {
+				if (award.getId().contains("gold"))
+					gold = award;
+				else if (award.getId().contains("silver"))
+					silver = award;
+				else if (award.getId().contains("bronze"))
+					bronze = award;
+			}
+		}
+
+		if (gold != null || silver != null || bronze != null)
+
+			createMedalAwards(contest, gold, silver, bronze);
+	}
+
+	public static void applyAward(Contest contest, IAward awardTemplate) {
+		if (awardTemplate.getAwardType() == IAward.GROUP) {
+			createGroupAwards(contest, awardTemplate);
+		} else if (awardTemplate.getAwardType() == IAward.FIRST_TO_SOLVE) {
+			createFirstToSolveAwards(contest, awardTemplate);
+		} else if (awardTemplate.getAwardType() == IAward.MEDAL) {
+			// createFirstToSolveAwards(contest, awardTemplate);
+		} else if (awardTemplate.getAwardType() == IAward.WINNER) {
+			createWinnerAward(contest, awardTemplate);
+		}
+	}
+
+	private static String appendCitation(IAward awardTemplate, String s) {
+		String citation = awardTemplate.getCitation();
+		if (citation == null)
+			return s;
+
+		return s + " (citation: " + citation + ")";
+	}
+
+	public static String getAwardText(IAward awardTemplate) {
+		String id = awardTemplate.getId();
+		int count = awardTemplate.getCount();
+		if (awardTemplate.getAwardType() == IAward.WINNER) {
+			return appendCitation(awardTemplate, "1st place team");
+		} else if (awardTemplate.getAwardType() == IAward.GROUP) {
+			return appendCitation(awardTemplate, "Group");
+		} else if (awardTemplate.getAwardType() == IAward.FIRST_TO_SOLVE) {
+			return "First to solve " + id;
+		} else if (awardTemplate.getAwardType() == IAward.MEDAL) {
+			String type = "gold";
+			if (id.endsWith("silver"))
+				type = "silver";
+			else if (id.endsWith("bronze"))
+				type = "bronze";
+			if (count <= 2)
+				return "1 " + type + " medal";
+			return "";
+		}
+		return "";
 	}
 
 	public static void sortAwards(IContest contest, IAward[] awards) {

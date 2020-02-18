@@ -219,6 +219,10 @@
                     onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('finalize', 'b:' + e.options[e.selectedIndex].value)">
                     Apply
                 </button>
+                <button id="finalize" class="btn btn-primary form-control"
+                    onclick="sendFinalizeCommand('finalize', 'template')">
+                    Template
+                </button>
             </div>
             </form>
         </div>

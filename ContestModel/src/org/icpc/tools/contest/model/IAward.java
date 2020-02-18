@@ -54,6 +54,13 @@ public interface IAward extends IContestObject {
 	AwardType getAwardType();
 
 	/**
+	 * Return the number of awards given.
+	 *
+	 * @return
+	 */
+	int getCount();
+
+	/**
 	 * Return the citation for this award.
 	 *
 	 * @return

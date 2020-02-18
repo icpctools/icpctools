@@ -13,10 +13,12 @@ public class Award extends ContestObject implements IAward {
 	public static final String CITATION = "citation";
 	public static final String TEAM_IDS = "team_ids";
 	public static final String SHOW = "show";
+	public static final String COUNT = "count";
 
 	private String[] teamIds;
 	private boolean show = true;
 	private String citation;
+	private int count = -1;
 
 	public Award() {
 		// create an empty award
@@ -77,6 +79,10 @@ public class Award extends ContestObject implements IAward {
 		this.citation = citation;
 	}
 
+	public void setCount(int count) {
+		this.count = count;
+	}
+
 	@Override
 	public boolean showAward() {
 		return show;
@@ -84,6 +90,11 @@ public class Award extends ContestObject implements IAward {
 
 	public void setShowAward(boolean b) {
 		this.show = b;
+	}
+
+	@Override
+	public int getCount() {
+		return count;
 	}
 
 	@Override
@@ -100,6 +111,9 @@ public class Award extends ContestObject implements IAward {
 		} else if (name.equals(SHOW)) {
 			show = parseBoolean(value);
 			return true;
+		} else if (name.equals(COUNT)) {
+			count = parseInt(value);
+			return true;
 		}
 
 		return false;
@@ -108,19 +122,34 @@ public class Award extends ContestObject implements IAward {
 	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
-		props.put(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
+		if (teamIds != null) {
+			if (teamIds.length == 0)
+				props.put(TEAM_IDS, "[]");
+			else
+				props.put(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
+		}
 		props.put(CITATION, citation);
 		if (show == false)
 			props.put(SHOW, show);
+		if (count >= 0)
+			props.put(COUNT, count);
 	}
 
 	@Override
 	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
-		je.encode(CITATION, citation);
-		je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
+		if (citation != null)
+			je.encode(CITATION, citation);
+		if (teamIds != null) {
+			if (teamIds.length == 0)
+				je.encodePrimitive(TEAM_IDS, "[]");
+			else
+				je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
+		}
 		if (show == false)
 			je.encode(SHOW, show);
+		if (count >= 0)
+			je.encode(COUNT, count);
 	}
 
 	@Override
