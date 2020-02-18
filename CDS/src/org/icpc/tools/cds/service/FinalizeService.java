@@ -1,12 +1,19 @@
 package org.icpc.tools.cds.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -27,6 +34,12 @@ public class FinalizeService {
 			if (command.startsWith("b:")) {
 				int b = Integer.parseInt(command.substring(2));
 				AwardUtil.createWorldFinalsAwards(c, b);
+			} else if ("template".equals(command)) {
+
+				Award[] template = loadFromFile(
+						cc.getLocation() + File.separator + "config" + File.separator + "award-template.json");
+				Trace.trace(Trace.USER, "Assigning awasrds: " + template.length);
+				AwardUtil.applyAwards(c, template);
 			}
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
@@ -34,5 +47,20 @@ public class FinalizeService {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			Trace.trace(Trace.ERROR, "Error durng finalization", e);
 		}
+	}
+
+	protected static Award[] loadFromFile(String name) throws IOException {
+		JSONParser parser = new JSONParser(new FileInputStream(name));
+		Object[] arr = parser.readArray();
+		List<Award> list = new ArrayList<>();
+		for (Object obj : arr) {
+			JsonObject data = (JsonObject) obj;
+			Award award = new Award();
+			for (String key : data.props.keySet())
+				award.add(key, data.props.get(key));
+
+			list.add(award);
+		}
+		return list.toArray(new Award[0]);
 	}
 }

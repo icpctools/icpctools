@@ -92,19 +92,19 @@ public abstract class ContestObject implements IContestObject {
 		return Boolean.parseBoolean((String) value);
 	}
 
-	protected static int parseInt(Object value) {
+	protected static int parseInt(Object value) throws NumberFormatException {
 		if (value instanceof Integer)
 			return (Integer) value;
 		return Integer.parseInt((String) value);
 	}
 
-	protected static long parseLong(Object value) {
+	protected static long parseLong(Object value) throws NumberFormatException {
 		if (value instanceof Long)
 			return (Long) value;
 		return Long.parseLong((String) value);
 	}
 
-	protected static double parseDouble(Object value) {
+	protected static double parseDouble(Object value) throws NumberFormatException {
 		if (value instanceof Double)
 			return (Double) value;
 		return Double.parseDouble((String) value);

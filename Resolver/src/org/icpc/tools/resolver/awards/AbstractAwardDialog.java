@@ -122,7 +122,7 @@ public abstract class AbstractAwardDialog extends Dialog {
 		label.setLayoutData(data);
 
 		Composite comp2 = new Composite(comp, SWT.NONE);
-		data = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false);
+		data = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		comp2.setLayoutData(data);
 		layout = new GridLayout(3, false);
 		layout.marginWidth = 10;
