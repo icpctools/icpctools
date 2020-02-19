@@ -9,7 +9,6 @@ import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Printer;
-import org.icpc.tools.contest.model.internal.Team;
 
 public class FloorGeneratorNAC extends FloorGenerator {
 	// table width (in meters). ICPC standard is 1.8
@@ -28,12 +27,16 @@ public class FloorGeneratorNAC extends FloorGenerator {
 
 	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	protected static void createTeamPod(int num, int startingId, float x, float y) {
+	protected static void createTeamPod(int num, int startingId, float x, float y, int skipTable) {
+		int teamId = startingId;
 		for (int i = 0; i < num; i++) {
 			short rotation = (short) ((45 * i + 135) % 360);
 			double tx = x + 3.2 * Math.sin(Math.toRadians(rotation));
 			double ty = y + 3.2 * Math.cos(Math.toRadians(rotation));
-			floor.createTeam(startingId + i, tx, ty, (rotation + 90) % 360);
+			if (skipTable == i)
+				continue;
+			floor.createTeam(teamId, tx, ty, (rotation + 90) % 360);
+			teamId++;
 		}
 	}
 
@@ -71,20 +74,20 @@ public class FloorGeneratorNAC extends FloorGenerator {
 			double leftAisle = x - 19.5 * taw - centerAisleWidth * 3 / 2;*/
 
 			float GAP = 17;
-			createTeamPod(7, 1, x, y);
-			createTeamPod(7, 8, x + GAP, y);
+			createTeamPod(7, 8, x, y, 3);
+			createTeamPod(7, 1, x + GAP, y, -1);
 
-			createTeamPod(7, 15, x + GAP / 2, y + GAP / 2);
+			createTeamPod(7, 14, x + GAP / 2, y + GAP / 2, -1);
 
-			createTeamPod(7, 22, x, y + GAP);
-			createTeamPod(7, 29, x + GAP, y + GAP);
+			createTeamPod(7, 28, x, y + GAP, 3);
+			createTeamPod(7, 21, x + GAP, y + GAP, -1);
 
-			createTeamPod(7, 36, x + GAP / 2, y + GAP * 3 / 2);
+			createTeamPod(7, 34, x + GAP / 2, y + GAP * 3 / 2, -1);
 
-			createTeamPod(7, 43, x, y + GAP * 2);
-			createTeamPod(7, 50, x + GAP, y + GAP * 2);
+			createTeamPod(7, 48, x, y + GAP * 2, 3);
+			createTeamPod(7, 41, x + GAP, y + GAP * 2, -1);
 
-			createTeamPod(7, 57, x + GAP / 2, y + GAP * 5 / 2);
+			createTeamPod(7, 55, x + GAP / 2, y + GAP * 5 / 2, 0);
 
 			List<Point2D.Double> ai = new ArrayList<>();
 			createTeamPodAisles(x, y, ai);
@@ -126,10 +129,10 @@ public class FloorGeneratorNAC extends FloorGenerator {
 			Printer p = floor.createPrinter(25, 5);
 
 			// fix teams
-			((Team) floor.getTeam(54)).add("id", "<-1>");
-			((Team) floor.getTeam(61)).add("id", "<-1>");
-			((Team) floor.getTeam(62)).add("id", "<-1>");
-			((Team) floor.getTeam(63)).add("id", "<-1>");
+			// ((Team) floor.getTeam(54)).add("id", "<-1>");
+			// ((Team) floor.getTeam(61)).add("id", "<-1>");
+			// ((Team) floor.getTeam(62)).add("id", "<-1>");
+			// ((Team) floor.getTeam(63)).add("id", "<-1>");
 
 			floor.rotate(-90);
 
