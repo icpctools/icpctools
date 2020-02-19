@@ -100,7 +100,7 @@
               <ul class="nav nav-treeview">
                 <% for (int i = 0; i < menuPages.length; i++) { %>
                 <li class="nav-item">
-                  <a href="/contests/<%= contest3.getId() %><%= menuPages[i] %>"
+                  <a href="/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
                     <i class="far fa-circle nav-icon"></i>
                     <p><%= menuTitles[i] %></p>
