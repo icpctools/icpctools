@@ -123,6 +123,10 @@ public class ConfiguredContest {
 			sb.append(getDesktop());
 			if (getDesktopMode() != null)
 				sb.append(":" + getDesktopMode());
+			sb.append("/");
+			sb.append(getAudio());
+			if (getAudioMode() != null)
+				sb.append(":" + getAudioMode());
 			sb.append("]");
 			return sb.toString();
 		}

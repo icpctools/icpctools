@@ -230,7 +230,7 @@
             if (d == null)
                 continue;
 
-            var link = "<a href='<%= request.getContextPath() %>/video/" + base + "/" + i + "'>link</a>";
+            var link = "<a href='<%= request.getContextPath() %>/video/" + base + "/" + id + "'>link</a>";
             d.innerHTML = str.current + " / " + str.max_current + " / " + str.total_listeners + "  " + link;
             document.getElementById(base + "-" + id + "m").innerHTML = str.mode;
 
