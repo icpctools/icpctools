@@ -181,7 +181,7 @@
 
             // sort
             clients.sort(function (a, b) {
-                return a.id.localeCompare(b.id);
+                return a.name.localeCompare(b.name);
             });
 
             var map = new Map();
