@@ -24,6 +24,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
+import org.icpc.tools.contest.model.ICommentary;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
@@ -595,6 +596,15 @@ public class ConfiguredContest {
 				// filter awards from a role below blue
 				if (obj instanceof IAward)
 					return;
+
+				if (obj instanceof ICommentary) {
+					ICommentary c = (ICommentary) obj;
+					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
+					if (c.getContestTime() >= freezeTime)
+						return;
+					trustedContest.add(obj);
+					return;
+				}
 
 				// filter out hidden groups and dependencies
 				IContestObject obj2 = filterHidden(obj);

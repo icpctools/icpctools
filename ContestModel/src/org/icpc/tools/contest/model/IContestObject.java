@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Clarification;
+import org.icpc.tools.contest.model.internal.Commentary;
 import org.icpc.tools.contest.model.internal.Countdown;
 import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.Group;
@@ -23,12 +24,12 @@ import org.icpc.tools.contest.model.internal.TeamMember;
 
 public interface IContestObject {
 	enum ContestType {
-		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, PRINTER, COUNTDOWN, DELETE
+		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, PRINTER, COUNTDOWN, COMMENTARY, DELETE
 	}
 
-	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations",
-			"teams", "state", "runs", "submissions", "judgements", "clarifications", "awards", "judgement-types",
-			"testdata", "problems", "pause", "team-members", "printers", "countdown", "delete" };
+	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations", "teams", "state",
+			"runs", "submissions", "judgements", "clarifications", "awards", "judgement-types", "testdata", "problems",
+			"pause", "team-members", "printers", "countdown", "commentary", "delete" };
 
 	static String getTypeName(ContestType type) {
 		return ContestTypeNames[type.ordinal()];
@@ -82,6 +83,8 @@ public interface IContestObject {
 			return new Countdown();
 		else if (ContestType.PAUSE.equals(type))
 			return new Pause();
+		else if (ContestType.COMMENTARY.equals(type))
+			return new Commentary();
 		else if (ContestType.DELETE.equals(type))
 			return new Deletion();
 
