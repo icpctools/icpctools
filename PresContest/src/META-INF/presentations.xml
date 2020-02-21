@@ -53,6 +53,13 @@
       image="images/presentations/promo.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.PromoPresentation"/>
    <presentation
+      id="org.icpc.tools.presentation.contest.ccs"
+      name="CCS"
+      category="Logos and Messages"
+      description="Displays the primary (and optional shadow) CCS images found in CDP/present/ccs/primary.png and shadow.png."
+      image="images/presentations/ccs.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.CCSPresentation"/>
+   <presentation
       id="org.icpc.tools.presentation.contest.single.photo"
       name="Photo and caption"
       category="ICPC"
