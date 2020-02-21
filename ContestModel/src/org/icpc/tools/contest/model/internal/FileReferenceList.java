@@ -75,9 +75,11 @@ public class FileReferenceList implements Iterable<FileReference> {
 	public String getJSON() {
 		StringBuilder sb = new StringBuilder();
 		for (FileReference ref : refs) {
-			if (sb.length() != 0)
-				sb.append(",");
-			sb.append(ref.getJSON());
+			if (ref != null) {
+				if (sb.length() != 0)
+					sb.append(",");
+				sb.append(ref.getJSON());
+			}
 		}
 		return "[" + sb.toString() + "]";
 	}
