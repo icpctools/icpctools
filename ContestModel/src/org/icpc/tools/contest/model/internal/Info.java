@@ -213,7 +213,8 @@ public class Info extends ContestObject implements IInfo {
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
 		props.put(NAME, name);
-		props.put(FORMAL_NAME, formalName);
+		if (formalName != null)
+			props.put(FORMAL_NAME, formalName);
 
 		if (startTime != null)
 			props.put(START_TIME, Timestamp.format(startTime.longValue()));

@@ -210,7 +210,12 @@ public class ScoreboardUtil {
 			cc.different++;
 		} else {
 			for (int j = 0; j < t1.problems.length; j++) {
-				compareScoreboardProblem(cc, row, t1.problems[j], t2.problems[j]);
+				SProblem prob = t2.problems[j];
+				for (int k = 0; k < t1.problems.length; k++) {
+					if (t1.problems[j].problemId != null && t1.problems[j].problemId.equals(t2.problems[k].problemId))
+						prob = t2.problems[k];
+				}
+				compareScoreboardProblem(cc, row, t1.problems[j], prob);
 			}
 		}
 

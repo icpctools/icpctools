@@ -38,7 +38,7 @@ public class FinalizeService {
 
 				Award[] template = loadFromFile(
 						cc.getLocation() + File.separator + "config" + File.separator + "award-template.json");
-				Trace.trace(Trace.USER, "Assigning awasrds: " + template.length);
+				Trace.trace(Trace.USER, "Assigning awards: " + template.length);
 				AwardUtil.applyAwards(c, template);
 			}
 		} catch (IllegalArgumentException e) {
