@@ -47,8 +47,7 @@ public class Client {
 
 	protected class TimeSync {
 		public long sentAt;
-		public long deltaGuess = -1;
-		public long deltaReal = -1;
+		public long delta = -1;
 
 		public TimeSync() {
 			sentAt = System.currentTimeMillis();
@@ -73,6 +72,7 @@ public class Client {
 	private String[] contestIds;
 	private String clientType;
 	private String version;
+	private long lastTimeSync = -1;
 
 	public Client(Session session, String user, int uid, String name, boolean isAdmin) {
 		this.session = session;
@@ -163,13 +163,13 @@ public class Client {
 		}
 
 		while (message != null) {
-			if (message.type == Type.PING) {
+			if (message.type == Type.PING || message.type == Type.TIME) {
 				// log when a ping went out
 				synchronized (timeSync) {
 					timeSync.add(new TimeSync());
 				}
 			}
-			PresentationServer.trace("< " + message.message, uid);
+			PresentationServer.trace("> " + message.message, uid);
 
 			session.getBasicRemote().sendText(message.message);
 			if (message.type == Type.STOP || message.type == Type.RESTART)
@@ -183,72 +183,65 @@ public class Client {
 	}
 
 	private void writeTime(long delta) throws IOException {
-		TimeSync ts = new TimeSync();
-		ts.deltaGuess = delta;
-		synchronized (timeSync) {
-			timeSync.add(ts);
-		}
-
+		lastTimeSync = delta;
 		createJSON(Type.TIME, je -> {
-			je.encode("time", ts.sentAt + ts.deltaGuess);
+			je.encode("time", System.currentTimeMillis() + delta);
 		});
 	}
 
-	protected boolean handlePing() throws IOException {
+	protected long handlePing() throws IOException {
 		int count = 0;
 		int total = 0;
-		long lastGuess = -1;
 		long min = Long.MAX_VALUE;
 		long max = 0;
+		StringBuilder sb = new StringBuilder();
 		synchronized (timeSync) {
 			while (timeSync.size() > 5)
 				timeSync.remove(0);
 
 			for (TimeSync ts : timeSync) {
+				count++;
 				boolean last = false;
-				if (ts.deltaReal == -1) {
-					ts.deltaReal = (System.currentTimeMillis() - ts.sentAt) / 2;
+				if (ts.delta == -1) {
+					ts.delta = (System.currentTimeMillis() - ts.sentAt) / 2;
 					last = true;
 				}
-				count++;
-				total += ts.deltaReal;
-				min = Math.min(min, ts.deltaReal);
-				max = Math.max(max, ts.deltaReal);
-				if (ts.deltaGuess >= 0)
-					lastGuess = ts.deltaGuess;
-				else
-					ts.deltaGuess = lastGuess;
+
+				if (count > 1)
+					sb.append(", ");
+				sb.append(ts.delta + "ms");
+				total += ts.delta;
+				min = Math.min(min, ts.delta);
+				max = Math.max(max, ts.delta);
 
 				if (last)
 					break;
 			}
 		}
 
-		if (count < 2) {
-			// not enough response time data yet
+		if (count < 3) {
+			// not enough response time data yet, ping again in 500ms
 			writePing();
-			return true;
+			return 500;
 		}
 
-		if (count == 2 && max - min > 50) {
-			// very inconsistent response times, ping again
+		if (count == 3 && max - min > 50) {
+			// very inconsistent response times, ping again in 500ms
 			writePing();
-			return true;
+			return 500;
 		}
 
-		// get rid of 'worst' time outlier
-		total -= max;
-		count--;
+		// get rid of 'worst' time outlier and determine new average time sync
+		long newTimeSync = (total - max) / (count - 1);
 
-		// if last guess time is still good enough, return
-		final long bestGuess = total / count / 2;
-		long networkTolerance = max - min + 10;
-		if (lastGuess >= 0 && Math.abs(bestGuess - lastGuess) < networkTolerance)
-			return false;
+		// if last guess time is still good enough, return w/o pinging again
+		if (lastTimeSync >= 0 && Math.abs(newTimeSync - lastTimeSync) < 25)
+			return 0;
 
-		Trace.trace(Trace.INFO, "Syncing time: " + bestGuess + " with " + toString());
-		writeTime(bestGuess);
-		return true;
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time to " + newTimeSync + "ms. Recent pings: ["
+				+ sb.toString() + "]");
+		writeTime(newTimeSync);
+		return 10;
 	}
 
 	protected void queueSimpleMessage(Type type) {

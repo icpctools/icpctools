@@ -96,7 +96,7 @@ public class PresentationServer {
 		if (c == null)
 			throw new IOException("Client " + s.getId() + " does not exist");
 
-		trace("> " + message, c.getUID());
+		trace("< " + message, c.getUID());
 
 		int sourceUID = c.getUID();
 
@@ -157,8 +157,9 @@ public class PresentationServer {
 					return;
 				}
 				case PING: {
-					if (c.handlePing())
-						scheduleClient(c);
+					long delay = c.handlePing();
+					if (delay > 0)
+						scheduleClient(c, delay);
 					return;
 				}
 				default: {
@@ -239,6 +240,7 @@ public class PresentationServer {
 			}
 
 			c.writePing();
+			scheduleClient(c);
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Client connection failure", e);
 		}
@@ -400,12 +402,16 @@ public class PresentationServer {
 	}
 
 	protected void scheduleClient(Client cl) {
+		scheduleClient(cl, cl.isAdmin() ? 500 : 25);
+	}
+
+	protected void scheduleClient(Client cl, long delay) {
 		synchronized (pendingClients) {
 			if (pendingClients.contains(cl))
 				return;
 
 			pendingClients.add(cl);
-			executor.schedule(() -> sendData(cl), cl.isAdmin() ? 500 : 25, TimeUnit.MILLISECONDS);
+			executor.schedule(() -> sendData(cl), delay, TimeUnit.MILLISECONDS);
 		}
 	}
 
@@ -705,7 +711,7 @@ public class PresentationServer {
 	public void setExecutor(ScheduledExecutorService executor) {
 		this.executor = executor;
 
-		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 15L, 15L, TimeUnit.SECONDS);
+		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 30L, TimeUnit.SECONDS);
 	}
 
 	public void onTime(long timeMs) {
