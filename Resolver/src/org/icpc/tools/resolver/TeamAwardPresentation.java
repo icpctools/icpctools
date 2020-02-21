@@ -387,12 +387,25 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			}
 		}
 
-		if (fts.size() >= 2) {
+		int numFTS = fts.size();
+		if (numFTS == 1) {
+			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), new String[] { currentCache.teamId },
+					"First to solve problem " + fts.get(0), show));
+		} else if (numFTS >= 2) {
 			fts.sort((s1, s2) -> s1.compareTo(s2));
+			fts.set(numFTS - 1, "and " + fts.get(numFTS - 1));
 
-			String citation = "First to solve problems " + String.join(", ", fts);
+			String citation = null;
+			if (numFTS == 2)
+				citation = "First to solve problems " + fts.get(0) + " " + fts.get(1);
+			else
+				citation = "First to solve problems " + String.join(", ", fts);
+
 			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId },
 					citation, show));
+		} else if (fts.size() == 1) {
+			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId },
+					"First to solve problem " + fts.get(0), show));
 		}
 
 		if (hasMedal && !hasSolutionAward) {
