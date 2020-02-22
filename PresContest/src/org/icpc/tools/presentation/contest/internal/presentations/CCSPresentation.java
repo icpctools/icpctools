@@ -30,7 +30,6 @@ public class CCSPresentation extends AbstractICPCPresentation {
 		try {
 			primaryImage = ImageHelper.loadImage("/presentation/ccs/primary.png");
 		} catch (Exception e) {
-			e.printStackTrace();
 			Trace.trace(Trace.ERROR, "Error loading primary image", e);
 		}
 
