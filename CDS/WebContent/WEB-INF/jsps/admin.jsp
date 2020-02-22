@@ -452,7 +452,7 @@
     }
 
     function updateInBackground() {
-        document.getElementById("bg_status").innerHTML = "Updating status...";
+        document.getElementById("bg-status").innerHTML = "Updating status...";
         updateCountdown();
         updateCountdownStatus();
 
