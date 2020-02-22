@@ -181,6 +181,13 @@
 
             // sort
             clients.sort(function (a, b) {
+                try {
+					var in1 = parseInt(a.name);
+					var in2 = parseInt(b.name);
+					return in1.compareTo(in2);
+				} catch(err) {
+					// ignore
+				}
                 return a.name.localeCompare(b.name);
             });
 
