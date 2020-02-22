@@ -7,7 +7,7 @@ import org.icpc.tools.cds.CDSConfig;
 public class PresentationFilesHelper {
 	private static final String[] ALLOWED_FILES = new String[] { "" };
 	private static final String[] ALLOWED_PREFIX = new String[] { "promo", "fts", "build", "photo", "historical",
-			"presentations-", "coachview-", "presentationAdmin", "balloonUtil" };
+			"presentations-", "coachview-", "presentationAdmin", "balloonUtil", "ccs" };
 
 	/**
 	 * Return the given config file, which may not exist. Returns null if the folder or CDS config
