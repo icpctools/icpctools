@@ -509,6 +509,26 @@ public class Contest implements IContest {
 	}
 
 	/**
+	 * The latitude of the contest location.
+	 *
+	 * @return the latitude
+	 */
+	@Override
+	public double getLatitude() {
+		return info.getLatitude();
+	}
+
+	/**
+	 * The longitude of the contest location.
+	 *
+	 * @return the longitude
+	 */
+	@Override
+	public double getLongitude() {
+		return info.getLongitude();
+	}
+
+	/**
 	 * Returns the logo file.
 	 *
 	 * @return

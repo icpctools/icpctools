@@ -99,6 +99,20 @@ public interface IContest {
 	double getTimeMultiplier();
 
 	/**
+	 * The latitude of the contest location.
+	 *
+	 * @return the latitude
+	 */
+	double getLatitude();
+
+	/**
+	 * The longitude of the contest location.
+	 *
+	 * @return the longitude
+	 */
+	double getLongitude();
+
+	/**
 	 * Returns the logo file.
 	 *
 	 * @return
