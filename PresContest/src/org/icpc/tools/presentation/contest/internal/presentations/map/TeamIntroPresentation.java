@@ -152,7 +152,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 					minLon = Math.min(minLon, lon);
 					maxLon = Math.max(maxLon, lon);
 				}
-				String label = t.getId() + " - " + org.getActualFormalName();
+				String label = t.getId() + " - " + t.getActualDisplayName();
 				Position p = new Position(lon, lat, 1, label);
 				createOrgLogo(p, org);
 				pos.add(p);
