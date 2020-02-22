@@ -200,8 +200,8 @@ public class PresentationClient extends BasicClient {
 		}
 
 		try {
-			window.setPresentations(time, pres.toArray(new Presentation[0]),
-					trans.toArray(new Transition[0]));
+			if (window != null)
+				window.setPresentations(time, pres.toArray(new Presentation[0]), trans.toArray(new Transition[0]));
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
