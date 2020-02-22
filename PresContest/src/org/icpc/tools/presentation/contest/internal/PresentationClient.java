@@ -347,6 +347,13 @@ public class PresentationClient extends BasicClient {
 		});
 	}
 
+	@Override
+	protected void handleTime(long time) {
+		super.handleTime(time);
+		if (window != null && window instanceof PresentationWindowImpl)
+			((PresentationWindowImpl) window).setZeroTimeMs(time);
+	}
+
 	protected void writeSnapshot(final BufferedImage image) {
 		execute(new Runnable() {
 			@Override
