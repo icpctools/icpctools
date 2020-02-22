@@ -31,8 +31,6 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
 	private static final long TIME_TO_FADE_RECENT = 2000;
-	private static final double o_lon = -8.6178885;
-	private static final double o_lat = 41.1465519;
 	private static final int NUM_SEGMENTS = 15;
 
 	private static final Movement SUBMISSION_MOVEMENT = new Movement(0.1, 0.1);
@@ -172,6 +170,14 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 		submissions.add(sr);
 
 		IContest contest = getContest();
+
+		double o_lon = contest.getLongitude();
+		if (o_lon == Double.NaN)
+			o_lon = -8.6178885;
+		double o_lat = contest.getLatitude();
+		if (o_lat == Double.NaN)
+			o_lat = 41.1465519;
+
 		ITeam team = contest.getTeamById(submission.getTeamId());
 
 		sr.anim = new Animator(0, SUBMISSION_MOVEMENT);

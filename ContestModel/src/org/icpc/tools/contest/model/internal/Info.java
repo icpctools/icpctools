@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
@@ -23,6 +26,9 @@ public class Info extends ContestObject implements IInfo {
 	private static final String BANNER = "banner";
 	private static final String TIME_MULTIPLIER = "time_multiplier";
 	private static final String COUNTDOWN_PAUSE_TIME = "countdown_pause_time";
+	private static final String LOCATION = "location";
+	private static final String LATITUDE = "latitude";
+	private static final String LONGITUDE = "longitude";
 
 	private String name;
 	private String formalName;
@@ -33,6 +39,8 @@ public class Info extends ContestObject implements IInfo {
 	private int freezeDuration;
 	private int penalty;
 	private double timeMultiplier = Double.NaN;
+	private double latitude = Double.MIN_VALUE;
+	private double longitude = Double.MIN_VALUE;
 	private FileReferenceList banner;
 	private FileReferenceList logo;
 
@@ -113,6 +121,14 @@ public class Info extends ContestObject implements IInfo {
 		pauseTime = time;
 	}
 
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
 	public void setLogo(FileReferenceList list) {
 		logo = list;
 	}
@@ -177,6 +193,11 @@ public class Info extends ContestObject implements IInfo {
 		} else if (name2.equals(TIME_MULTIPLIER)) {
 			timeMultiplier = parseDouble(value);
 			return true;
+		} else if (name2.equals(LOCATION)) {
+			JsonObject obj = JSONParser.getOrReadObject(value);
+			latitude = obj.getDouble(LATITUDE);
+			longitude = obj.getDouble(LONGITUDE);
+			return true;
 		} else if (name2.equals(LOGO)) {
 			logo = new FileReferenceList(value);
 			return true;
@@ -200,6 +221,8 @@ public class Info extends ContestObject implements IInfo {
 		i.duration = duration;
 		i.freezeDuration = freezeDuration;
 		i.penalty = penalty;
+		i.latitude = latitude;
+		i.longitude = longitude;
 		return i;
 	}
 
@@ -207,6 +230,10 @@ public class Info extends ContestObject implements IInfo {
 		if (n < 10)
 			return "0" + n;
 		return n + "";
+	}
+
+	private static double round(double d) {
+		return Math.round(d * 10000.0) / 10000.0;
 	}
 
 	@Override
@@ -229,6 +256,15 @@ public class Info extends ContestObject implements IInfo {
 
 		if (!Double.isNaN(timeMultiplier))
 			props.put(TIME_MULTIPLIER, timeMultiplier);
+
+		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+			List<String> attrs = new ArrayList<>(2);
+			if (latitude != Double.MIN_VALUE)
+				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
+			if (longitude != Double.MIN_VALUE)
+				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
+			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 
 		props.put(LOGO, logo);
 		props.put(BANNER, banner);
@@ -256,6 +292,15 @@ public class Info extends ContestObject implements IInfo {
 
 		if (!Double.isNaN(timeMultiplier))
 			je.encode(TIME_MULTIPLIER, timeMultiplier);
+
+		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+			List<String> attrs = new ArrayList<>(2);
+			if (latitude != Double.MIN_VALUE)
+				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
+			if (longitude != Double.MIN_VALUE)
+				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
+			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 
 		je.encode(LOGO, logo, false);
 		je.encode(BANNER, banner, false);
