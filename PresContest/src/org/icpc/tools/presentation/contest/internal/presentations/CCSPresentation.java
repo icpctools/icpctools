@@ -83,11 +83,5 @@ public class CCSPresentation extends AbstractICPCPresentation {
 			g.drawString(SECONDARY_TEXT, (width * 3 / 2 - fm.stringWidth(SECONDARY_TEXT)) / 2,
 					height - BORDER - fm.getDescent());
 		}
-		/*int border = width / 20;
-		
-		String fullText = sb.toString();
-		
-		g.setColor(Color.white);
-		g.drawString(sb.toString(), (width - fm.stringWidth(fullText)) / 2, height - border);*/
 	}
 }
