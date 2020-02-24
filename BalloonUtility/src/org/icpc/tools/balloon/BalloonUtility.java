@@ -104,6 +104,7 @@ public class BalloonUtility {
 	protected List<String> filter; // null = all, empty = none
 	protected BalloonPrinter balloonPrinter = new BalloonPrinter();
 	protected MenuItem printSummary;
+	protected long nanoTimeDelta;
 
 	protected Table balloonTable;
 	protected int sortColumn;
@@ -775,7 +776,13 @@ public class BalloonUtility {
 			RESTContestSource restContestSource = (RESTContestSource) contestSource;
 
 			if (restContestSource.isCDS()) {
-				BasicClient client = new BasicClient(restContestSource, "Balloon");
+				BasicClient client = new BasicClient(restContestSource, "Balloon") {
+					@Override
+					protected void handleTime(long time) {
+						super.handleTime(time);
+						nanoTimeDelta = getTimeDeltaNano();
+					}
+				};
 				client.connect(true);
 			}
 		}
@@ -1342,12 +1349,12 @@ public class BalloonUtility {
 		if (time < 0)
 			return getTime(-time) + " (paused)";
 
-		time = System.currentTimeMillis() - time;
+		time = System.currentTimeMillis() - time + nanoTimeDelta;
 		if (time < 0)
 			return "-" + getTime(-time);
 		if (time > contest.getDuration())
 			return "contest over";
-		return getTime(time) + " (unofficial)";
+		return getTime(time);
 	}
 
 	private static String getTime(long s2) {

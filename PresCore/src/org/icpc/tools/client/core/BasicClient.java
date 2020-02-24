@@ -597,6 +597,10 @@ public class BasicClient {
 		nanoTimeDelta = newNanoTimeDelta;
 	}
 
+	protected long getTimeDeltaNano() {
+		return nanoTimeDelta;
+	}
+
 	private static void trace(String message, boolean user) {
 		String s = message;
 		if (s.length() > 150)
