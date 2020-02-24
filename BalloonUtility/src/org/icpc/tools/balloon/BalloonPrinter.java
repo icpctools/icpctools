@@ -238,6 +238,10 @@ public class BalloonPrinter {
 		ISubmission submisssion = c.getSubmissionById(submisssionId);
 		ITeam team = c.getTeamById(submisssion.getTeamId());
 		IProblem problem = c.getProblemById(submisssion.getProblemId());
+		if (problem == null) {
+			Trace.trace(Trace.ERROR, "Submission for a missing problem; likely invalid contest");
+			return;
+		}
 		int bId = b.getId();
 
 		Point dpi = device.getDPI();
