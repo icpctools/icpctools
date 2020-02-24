@@ -152,6 +152,12 @@ public class BalloonPrinter {
 			gc = new GC(printer);
 
 			printPage(bc2, b2, printer, gc, r, messages == null ? DEFAULT_MESSAGES : messages);
+
+			// print some sample messages so that nobody gets confused among other printouts
+			gc.setFont(hugeFont);
+			printSample(gc, printer, r.x + r.width / 2, r.y + 50);
+			printSample(gc, printer, r.x + r.width / 2, r.y + r.height / 2);
+			printSample(gc, printer, r.x + r.width / 2, r.y + r.height - 50);
 		} finally {
 			if (gc != null)
 				gc.dispose();
@@ -163,6 +169,20 @@ public class BalloonPrinter {
 
 		if (bc == null)
 			map = null;
+	}
+
+	private static void printSample(GC gc, Device device, int x, int y) {
+		String s = "SAMPLE";
+		Point p = gc.stringExtent(s);
+
+		gc.setForeground(device.getSystemColor(SWT.COLOR_WHITE));
+		gc.drawString(s, x - p.x / 2 - 1, y - p.y / 2 - 1, true);
+		gc.drawString(s, x - p.x / 2 - 1, y - p.y / 2 + 1, true);
+		gc.drawString(s, x - p.x / 2 + 1, y - p.y / 2 - 1, true);
+		gc.drawString(s, x - p.x / 2 + 1, y - p.y / 2 + 1, true);
+
+		gc.setForeground(device.getSystemColor(SWT.COLOR_RED));
+		gc.drawString(s, x - p.x / 2, y - p.y / 2, true);
 	}
 
 	private static String getLabelColor(IProblem p) {
