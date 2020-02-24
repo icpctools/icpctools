@@ -50,7 +50,7 @@ public class TeamSummaryPrint {
 		headerFont = new Font(printer, fontData);
 
 		for (int i = 0; i < fontData.length; ++i) {
-			fontData[i].setHeight(10);
+			fontData[i].setHeight(9);
 			fontData[i].setStyle(SWT.NORMAL);
 		}
 		regularFont = new Font(printer, fontData);
@@ -89,7 +89,7 @@ public class TeamSummaryPrint {
 		IProblem[] problems = contest.getProblems();
 		int numProblems = problems.length;
 		int[] col = new int[1 + numProblems];
-		float teamWidth = r.width * 0.375f;
+		float teamWidth = r.width * 0.45f;
 		col[0] = 0;
 		float problemWidth = (r.width - col[0] - teamWidth) / numProblems;
 		for (int i = 0; i < numProblems; i++)
@@ -106,9 +106,11 @@ public class TeamSummaryPrint {
 		int page = 1;
 		String date = BalloonUtility.getDateString();
 		printHeader(gc, r, problems, col, (int) problemWidth, page++, date);
-		y += fm.getHeight();
 
 		for (ITeam team : teams) {
+			if (contest.isTeamHidden(team))
+				continue;
+
 			if (h * (i + 5) > r.height) {
 				printer.endPage();
 				printer.startPage();
@@ -130,7 +132,7 @@ public class TeamSummaryPrint {
 					if (sub.getTeamId().equals(team.getId()) && sub.getProblemId().equals(problems[pInd].getId())) {
 						IJudgementType jt = contest.getJudgementType(sub);
 						if (jt != null && jt.isSolved()) {
-							s = sub.getId();
+							s = "x";
 							break;
 						}
 					}
@@ -139,13 +141,13 @@ public class TeamSummaryPrint {
 
 				gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_BLACK));
 				if (result.isFirstToSolve())
-					s += " (FTS)";
+					s = "FTS";
 				else if (result.getStatus() == Status.SUBMITTED) {
-					s = "(pend)";
+					s = "pend";
 					gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_GRAY));
 				}
 
-				if (s != null && !s.isEmpty())
+				if (s != null)
 					gc.drawString(s, r.x + col[pInd + 1] + ((int) problemWidth - gc.stringExtent(s).x) / 2, yy, true);
 			}
 
@@ -215,7 +217,7 @@ public class TeamSummaryPrint {
 		gc.setFont(headerFont);
 		gc.drawString("Problem", r.x, yy, true);
 		gc.drawString("Color", r.x + (int) (r.width * 0.3f), yy, true);
-		gc.drawString("Balloons", r.x + (int) (r.width * 0.45f), yy, true);
+		gc.drawString("Balloons", r.x + (int) (r.width * 0.5f), yy, true);
 
 		Point dpi = gc.getDevice().getDPI();
 		FontMetrics fm = gc.getFontMetrics();
@@ -224,14 +226,17 @@ public class TeamSummaryPrint {
 
 		yy += h * 2;
 
+		int px = (int) (fm.getAverageCharacterWidth() * 2.5);
 		gc.setFont(regularFont);
 		for (int i = 0; i < numProblems; i++) {
-			gc.drawString(problems[i].getLabel() + ": " + problems[i].getName(), r.x, yy, true);
+			int x = px - gc.textExtent(problems[i].getLabel() + ":").x;
+			gc.drawString(problems[i].getLabel() + ": " + problems[i].getName(), r.x + x, yy, true);
 			if (problems[i].getColor() != null)
 				gc.drawString(problems[i].getColor(), r.x + (int) (r.width * 0.3f), yy, true);
 			else
 				gc.drawString("unknown", r.x + (int) (r.width * 0.3f), yy, true);
-			gc.drawString(totals[i] + "", r.x + (int) (r.width * 0.45f), yy, true);
+			x = gc.textExtent("99999").x - gc.textExtent(totals[i] + "").x;
+			gc.drawString(totals[i] + "", r.x + (int) (r.width * 0.5f) + x, yy, true);
 			yy += h;
 		}
 
@@ -242,18 +247,15 @@ public class TeamSummaryPrint {
 			String date) {
 		gc.setFont(headerFont);
 		FontMetrics fm = gc.getFontMetrics();
-		gc.drawString("Team", r.x + col[0], r.y + fm.getHeight(), true);
+		gc.drawString("Team", r.x + col[0], r.y, true);
 
 		for (int i = 0; i < problems.length; i++) {
 			String s = problems[i].getLabel();
 			gc.drawString(s, r.x + col[i + 1] + (problemWidth - gc.stringExtent(s).x) / 2, r.y, true);
-			s = problems[i].getColor();
-			if (s != null)
-				gc.drawString(s, r.x + col[i + 1] + (problemWidth - gc.stringExtent(s).x) / 2, r.y + fm.getHeight(), true);
 		}
 
 		Point dpi = gc.getDevice().getDPI();
-		int y = r.y + fm.getHeight() + fm.getAscent() + (dpi.y / 18);
+		int y = r.y + fm.getAscent() + (dpi.y / 18);
 		gc.drawLine(r.x, y, r.x + r.width, y);
 
 		gc.setFont(regularFont);
