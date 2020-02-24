@@ -195,7 +195,7 @@ public class ContestConnectionDialog extends Dialog {
 				validate();
 			}
 		});
-		urlText.setText(prefs.get(PREF_URL, "https://cds/api/contests/finals"));
+		urlText.setText(prefs.get(PREF_URL, "https://cds/api/contests"));
 
 		Label userLabel = new Label(composite, SWT.NONE);
 		userLabel.setText("Us&er:");
@@ -255,7 +255,7 @@ public class ContestConnectionDialog extends Dialog {
 				validate();
 			}
 		});
-		fileText.setText(prefs.get(PREF_FILE, "events.xml"));
+		fileText.setText(prefs.get(PREF_FILE, "event-feed.json"));
 
 		Button fileBrowse = new Button(composite, SWT.PUSH);
 		fileBrowse.setText("&Browse...");
@@ -268,7 +268,7 @@ public class ContestConnectionDialog extends Dialog {
 				FileDialog dialog = new FileDialog(fileBrowse.getShell(), SWT.OPEN);
 				dialog.setFileName(fileText.getText());
 				dialog.setText("Select JSON or XML event feed");
-				dialog.setFilterExtensions(new String[] { "*.xml;*.json", "*.*" });
+				dialog.setFilterExtensions(new String[] { "*.json;*.xml", "*.*" });
 				String f = dialog.open();
 				if (f != null) {
 					fileText.setText(f);
