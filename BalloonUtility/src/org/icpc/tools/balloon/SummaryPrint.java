@@ -48,7 +48,7 @@ public class SummaryPrint {
 		headerFont = new Font(printer, fontData);
 
 		for (int i = 0; i < fontData.length; ++i) {
-			fontData[i].setHeight(10);
+			fontData[i].setHeight(9);
 			fontData[i].setStyle(SWT.NORMAL);
 		}
 		regularFont = new Font(printer, fontData);
