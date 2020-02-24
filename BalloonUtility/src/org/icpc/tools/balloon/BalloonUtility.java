@@ -495,6 +495,8 @@ public class BalloonUtility {
 	}
 
 	protected void updateOnSolvedJudgement(IContest contest, final IJudgement sj) {
+		bc.setContest(contest);
+
 		IJudgementType jt = contest.getJudgementTypeById(sj.getJudgementTypeId());
 		if (jt == null || !jt.isSolved())
 			return;
@@ -522,8 +524,8 @@ public class BalloonUtility {
 			return;
 		}
 
-		IContest c = bc.getContest();
-		if (c.getFreezeDuration() >= 0 && submission.getContestTime() > (c.getDuration() - c.getFreezeDuration())) {
+		if (contest.getFreezeDuration() >= 0
+				&& submission.getContestTime() > (contest.getDuration() - contest.getFreezeDuration())) {
 			if (bc.getNumBalloons(submission.getTeamId()) > 2) {
 				return;
 			}
