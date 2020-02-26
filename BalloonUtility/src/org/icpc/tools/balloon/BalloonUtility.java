@@ -55,6 +55,7 @@ import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
@@ -104,7 +105,7 @@ public class BalloonUtility {
 	protected List<String> filter; // null = all, empty = none
 	protected BalloonPrinter balloonPrinter = new BalloonPrinter();
 	protected MenuItem printSummary;
-	protected long nanoTimeDelta;
+	protected long msTimeDelta;
 
 	protected Table balloonTable;
 	protected int sortColumn;
@@ -677,7 +678,7 @@ public class BalloonUtility {
 			@Override
 			public void run() {
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(4000);
 				} catch (Exception e) {
 					// ignore
 				}
@@ -780,7 +781,7 @@ public class BalloonUtility {
 					@Override
 					protected void handleTime(long time) {
 						super.handleTime(time);
-						nanoTimeDelta = getTimeDeltaNano();
+						msTimeDelta = time - System.currentTimeMillis();
 					}
 				};
 				client.connect(true);
@@ -1331,6 +1332,10 @@ public class BalloonUtility {
 		});
 	}
 
+	protected long getTimeMs() {
+		return System.currentTimeMillis() + msTimeDelta;
+	}
+
 	/**
 	 * Format contest time as a string.
 	 *
@@ -1341,29 +1346,36 @@ public class BalloonUtility {
 		if (contest == null)
 			return "";
 
+		double timeMultiplier = contest.getTimeMultiplier();
 		Long startTime = contest.getStartStatus();
 		if (startTime == null)
 			return "";
 
-		long time = startTime.longValue();
-		if (time < 0)
-			return getTime(-time) + " (paused)";
+		if (startTime < 0)
+			return "Paused @ " + getTime(startTime * timeMultiplier, true);
 
-		time = System.currentTimeMillis() - time + nanoTimeDelta;
-		if (time < 0)
-			return "-" + getTime(-time);
-		if (time > contest.getDuration())
-			return "contest over";
-		return getTime(time);
+		IState state = contest.getState();
+		if (state.getEnded() != null)
+			return "Contest is over";
+		else if (state.getStarted() == null)
+			return getTime((getTimeMs() - contest.getStartTime()) * timeMultiplier, true);
+
+		return getTime((getTimeMs() - state.getStarted()) * timeMultiplier, true);
 	}
 
-	private static String getTime(long s2) {
-		int ss = (int) Math.floor(s2 / 1000.0);
-		int m = (ss / 60) % 60;
+	private static String getTime(double ms, boolean floor) {
+		int ss = 0;
+		if (floor)
+			ss = (int) Math.floor(ms / 1000.0);
+		else
+			ss = (int) Math.ceil(ms / 1000.0);
 		int h = (ss / 3600) % 48;
-		int s = (ss % 60);
+		int m = (Math.abs(ss) / 60) % 60;
+		int s = (Math.abs(ss) % 60);
 
 		StringBuilder sb = new StringBuilder();
+		if (ms < 0 && h == 0)
+			sb.append("-");
 		sb.append(h + ":");
 		if (m < 10)
 			sb.append("0");
