@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.icpc.tools.contest.model.feed.HTTPSSecurity;
+
 /**
  * CMS download helper. Downloads all relevant contest data from the CMS.
  *
@@ -163,7 +165,7 @@ public class CMSDownloadHelper {
 			return;
 
 		System.out.print("   " + f.getName() + " (" + url + ") [");
-		HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url));
+		HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url), null, null);
 		if ("wf.json".equals(f.getName()))
 			conn.setRequestProperty("Accept", "application/json");
 		// String auth = Base64.getEncoder().encodeToString((token + ":").getBytes("UTF-8"));
@@ -207,7 +209,7 @@ public class CMSDownloadHelper {
 		System.out.print("token");
 		// System.out.println(url);
 		// System.out.println(body);
-		HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url));
+		HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url), null, null);
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 		/*conn.setRequestProperty("client_id", "cm5-token");
 		String auth = Base64.getEncoder().encodeToString((token + ":").getBytes("UTF-8"));

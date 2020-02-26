@@ -523,8 +523,6 @@ public class BasicClient {
 
 	protected void connectImpl() {
 		try {
-			System.setProperty("jsse.enableSNIExtension", "false");
-
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			ctx.init(null, new TrustManager[] { new HTTPSSecurity.ContestTrustManager() }, null);
 			SslEngineConfigurator sslEngineConfigurator = new SslEngineConfigurator(ctx, true, false, false);
