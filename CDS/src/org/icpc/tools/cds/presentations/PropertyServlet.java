@@ -174,6 +174,17 @@ public class PropertyServlet extends HttpServlet {
 
 			Trace.trace(Trace.INFO, "Restarting client " + Integer.toHexString(clientUID));
 			ps.restart(uids);
+		} else if (path.equals("/restart-all")) {
+			PresentationServer ps = PresentationServer.getInstance();
+			List<Client> clients = ps.getClients();
+
+			int size = clients.size();
+			int[] uids = new int[size];
+			for (int i = 0; i < size; i++)
+				uids[i] = clients.get(i).getUID();
+
+			Trace.trace(Trace.INFO, "Restarting all clients");
+			ps.restart(uids);
 		} else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
