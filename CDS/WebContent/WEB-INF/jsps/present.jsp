@@ -52,6 +52,9 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Clients</h3>&nbsp;(<span id="client-count">0</span>)
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool"
+                            onclick="javascript:restartAll()">Restart All</button></div>
                 </div>
                 <div class="card-body p-0">
                     <table id="client-table" class="table table-sm table-hover table-striped">
@@ -86,10 +89,7 @@
     var last;
 
     function setPresentation(id) {
-        //document.getElementById("team"+id).disabled = true;
-
         var xmlhttp = new XMLHttpRequest();
-
         xmlhttp.onreadystatechange = function () {
             document.getElementById("status").innerHTML = "Changing to " + id;
             if (xmlhttp.readyState == 4) {
@@ -97,7 +97,6 @@
                     document.getElementById("status").innerHTML = "Success";
                 } else
                     document.getElementById("status").innerHTML = xmlhttp.responseText;
-                //document.getElementById("team"+id).disabled = false;
             }
         };
 
@@ -107,9 +106,8 @@
 
     function stop(id) {
         var xmlhttp = new XMLHttpRequest();
-
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "Changing to " + id;
+            document.getElementById("status").innerHTML = "Stopping " + id;
             if (xmlhttp.readyState == 4) {
                 if (xmlhttp.status == 200) {
                     document.getElementById("status").innerHTML = "Success";
@@ -124,9 +122,8 @@
 
     function restart(id) {
         var xmlhttp = new XMLHttpRequest();
-
         xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "Changing to " + id;
+            document.getElementById("status").innerHTML = "Restarting " + id;
             if (xmlhttp.readyState == 4) {
                 if (xmlhttp.status == 200) {
                     document.getElementById("status").innerHTML = "Success";
@@ -139,6 +136,21 @@
         xmlhttp.send();
     }
 
+    function restartAll() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            document.getElementById("status").innerHTML = "Restarting all";
+            if (xmlhttp.readyState == 4) {
+                if (xmlhttp.status == 200) {
+                    document.getElementById("status").innerHTML = "Success";
+                } else
+                    document.getElementById("status").innerHTML = xmlhttp.responseText;
+            }
+        };
+
+        xmlhttp.open("PUT", "restart-all", true);
+        xmlhttp.send();
+    }
 
     $(document).ready(function () {
         var pres;
@@ -179,15 +191,15 @@
 
             $('#client-count').text(clients.length);
 
-            // sort
+            // sort the clients. try numerically first (1,2,11), then alphabetically
             clients.sort(function (a, b) {
                 try {
-					var in1 = parseInt(a.name);
-					var in2 = parseInt(b.name);
-					return in1.compareTo(in2);
-				} catch(err) {
-					// ignore
-				}
+                   var in1 = parseInt(a.name);
+                   var in2 = parseInt(b.name);
+                   return in1.compareTo(in2);
+                } catch(err) {
+                   // ignore
+                }
                 return a.name.localeCompare(b.name);
             });
 
@@ -235,7 +247,14 @@
                 $('#client-summary-table tbody').append(row);
                 count += value;
             }
-            col = '<td class="text-right"><b>Total</b></td><td>' + count + '</td>';
+            if (count < clients.length) {
+                var col = '<td>(no presentation)</td><td>' + (clients.length - count) + '</td>';
+                row = $('<tr></tr>');
+                row.append($(col));
+                $('#client-summary-table tbody').append(row);
+                count += value;
+            }
+            col = '<td class="text-right"><b>Total</b></td><td>' + clients.length + '</td>';
             row = $('<tr></tr>');
             row.append($(col));
             $('#client-summary-table tfoot').append(row);
@@ -264,7 +283,6 @@
         })
 
         function repeatIt() {
-            console.log("repeat!");
             loadClients2();
             fillClientsTable();
             setTimeout(arguments.callee, 2500);
