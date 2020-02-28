@@ -49,8 +49,7 @@
         $.when(contest.loadGroups()).done(function () {
             fillContestObjectTable("groups", contest.getGroups(), groupTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
-            console.log(result);
+        	console.log("Error loading groups: " + result);
         });
     });
 </script>

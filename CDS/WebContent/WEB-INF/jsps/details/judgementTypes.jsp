@@ -44,8 +44,7 @@
         $.when(contest.loadJudgementTypes()).done(function () {
             fillContestObjectTable("judgement-types", contest.getJudgementTypes(), judgementTypeTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
-            console.log(result);
+        	console.log("Error loading judgement types: " + result);
         });
     });
 </script>

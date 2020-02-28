@@ -49,8 +49,7 @@
         $.when(contest.loadAwards(), contest.loadTeams()).done(function () {
             fillContestObjectTable("awards", contest.getAwards(), awardTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
-            console.log(result);
+        	console.log("Error loading awards: " + result);
         });
     });
 </script>
