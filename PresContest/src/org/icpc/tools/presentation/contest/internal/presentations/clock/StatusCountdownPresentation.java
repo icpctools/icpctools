@@ -5,38 +5,29 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.ICountdown;
+import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 
 public class StatusCountdownPresentation extends CountdownPresentation {
 	private static final int YES = 100;
+	private static final int UNDECIDED = 50;
 	private static final int NO = 0;
 	private static final Movement SLIDER_ANIM = new Movement(150, 300);
 
-	static class Status {
-		String name;
-		Animator m = new Animator(0, SLIDER_ANIM);
-
-		public Status(String name) {
-			this.name = name;
-		}
-	}
-
-	private final Status[] status = new Status[] { new Status("Security"), new Status("Sysops"),
-			new Status("Contest Control"), new Status("Judges"), new Status("Network Control"), new Status("Marshalls"),
-			new Status("Operations"), new Status("Executive Director"), new Status("Contest Director") };
+	private Map<String, Animator> animMap = new HashMap<>();
 
 	private static boolean showStatus = true;
 
-	protected Font font;
+	private Font font;
 
 	public StatusCountdownPresentation() {
-		//
+		// do nothing
 	}
 
 	@Override
@@ -60,52 +51,61 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 
 	@Override
 	public void incrementTimeMs(long dt) {
-		try {
-			if (getContest() != null) {
-				ICountdown countdown = getContest().getCountdown();
-				if (countdown != null) {
-					boolean[] b = countdown.getStatus();
-					for (int i = 0; i < b.length; i++) {
-						if (b[i])
-							status[i].m.setTarget(YES);
-						else
-							status[i].m.setTarget(NO);
-					}
-				}
-			}
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Problem updating status targets: " + e.getMessage());
-		}
-
-		for (Status s : status)
-			s.m.incrementTimeMs(dt);
-
 		super.incrementTimeMs(dt);
+
+		if (getContest() == null)
+			return;
+
+		IStartStatus[] startStatus = getContest().getStartStatuses();
+		if (startStatus == null)
+			return;
+
+		for (IStartStatus ss : startStatus) {
+			Animator an = animMap.get(ss.getLabel());
+			if (an == null) {
+				an = new Animator(0, SLIDER_ANIM);
+				animMap.put(ss.getLabel(), an);
+			}
+			int status = ss.getStatus();
+			if (status == 0)
+				an.setTarget(NO);
+			else if (status == 1)
+				an.setTarget(UNDECIDED);
+			else if (status == 2)
+				an.setTarget(YES);
+
+			an.incrementTimeMs(dt);
+		}
 	}
 
 	@Override
 	public void aboutToShow() {
 		super.aboutToShow();
 
-		try {
-			if (getContest() != null) {
-				ICountdown countdown = getContest().getCountdown();
-				if (countdown != null) {
-					boolean[] b = countdown.getStatus();
-					for (int i = 0; i < b.length; i++) {
-						if (b[i])
-							status[i].m.reset(YES);
-						else
-							status[i].m.reset(NO);
-					}
-				}
+		if (getContest() == null)
+			return;
+
+		IStartStatus[] startStatus = getContest().getStartStatuses();
+		if (startStatus == null)
+			return;
+
+		for (IStartStatus ss : startStatus) {
+			Animator an = animMap.get(ss.getId());
+			if (an == null) {
+				an = new Animator(0, SLIDER_ANIM);
+				animMap.put(ss.getId(), an);
 			}
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Problem updating status targets: " + e.getMessage());
+			int status = ss.getStatus();
+			if (status == 0)
+				an.reset(NO);
+			else if (status == 1)
+				an.reset(UNDECIDED);
+			else if (status == 2)
+				an.reset(YES);
 		}
 	}
 
-	protected void drawStatus(Graphics2D g, int px, int py, Status s) {
+	protected void drawStatus(Graphics2D g, int px, int py, IStartStatus ss) {
 		// int o = 7;
 		int o = height / 42;
 		g.setColor(Color.GRAY);
@@ -115,7 +115,10 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		g.drawOval(x + o * 3, y, o, o);
 		// g.drawLine(px + o / 2, py, px + 50 - o / 2, py);
 
-		double val = s.m.getValue();
+		double val = 50;
+		Animator an = animMap.get(ss.getLabel());
+		if (an != null)
+			val = an.getValue();
 		if (val < 5)
 			g.setColor(Color.RED);
 		else if (val > 95)
@@ -130,29 +133,12 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		g.drawOval(x, y, o, o);
 
 		FontMetrics fm = g.getFontMetrics();
-		g.drawString(s.name, px + o * 5, py + (int) (fm.getAscent() / 2.2f));
+		g.drawString(ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f));
 	}
 
 	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
-
-		if (!showStatus)
-			return;
-
-		int n = 0;
-		int px = width / 20;
-		int py = 40;
-		g.setFont(font);
-		for (Status s : status) {
-			drawStatus(g, px, py, s);
-			py += (int) (height / 18f);
-			n++;
-			if (n == 3 || n == 6) {
-				px += width * 4 / 14;
-				py = 40;
-			}
-		}
 
 		g.setFont(font);
 		String s = "Status: Go";
@@ -167,5 +153,24 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(s, (width - fm.stringWidth(s)) / 2, (int) ((height + height / 2.5f) / 2f) + fm.getHeight() * 2);
+
+		if (!showStatus)
+			return;
+
+		if (getContest() == null)
+			return;
+
+		IStartStatus[] startStatus = getContest().getStartStatuses();
+		if (startStatus == null)
+			return;
+
+		int n = 0;
+		g.setFont(font);
+		for (IStartStatus ss : startStatus) {
+			int x = width / 20 + (n % 3) * width * 4 / 14;
+			int y = 40 + (n / 3) * (int) (height / 18f);
+			drawStatus(g, x, y, ss);
+			n++;
+		}
 	}
 }

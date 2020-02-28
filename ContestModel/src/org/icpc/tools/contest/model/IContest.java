@@ -51,18 +51,16 @@ public interface IContest {
 	String getActualFormalName();
 
 	/**
-	 * A positive # indicates a contest start time in seconds from the Unix epoch (Jan 1, 1970). A
-	 * negative # indicates that the contest start is paused and gives the negative time of the
-	 * pause, in seconds (e.g. -65 means it is paused 1m 5s before the start of the contest). Null
-	 * indicates that the start time is not known or set.
+	 * The contest start time in ms from the Unix epoch (Jan 1, 1970). Null indicates that the start
+	 * time is not known or set.
 	 *
-	 * @return the start time
+	 * @return the start time, in ms since the epoch
 	 */
 	Long getStartTime();
 
 	/**
 	 * Returns the time the countdown is paused at, or null if there is no pause. Only one of the
-	 * state time and pause time may be non-null at a time.
+	 * start time and pause time may be non-null at a time.
 	 *
 	 * @return the time remaining before the contest, in ms
 	 */
@@ -181,7 +179,15 @@ public interface IContest {
 	 *
 	 * @return the countdown status
 	 */
-	ICountdown getCountdown();
+	IStartStatus[] getStartStatuses();
+
+	/**
+	 * Returns the start-status with the given id.
+	 *
+	 * @param id an identifier
+	 * @return a start-status, or <code>null</code> if the id was invalid or doesn't exist
+	 */
+	IStartStatus getStartStatusById(String id);
 
 	/**
 	 * Returns a start status for the contest time. Null indicates the contest start is not set.

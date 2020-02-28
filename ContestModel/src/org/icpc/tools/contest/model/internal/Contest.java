@@ -19,7 +19,6 @@ import org.icpc.tools.contest.model.IContestListener.Delta;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
-import org.icpc.tools.contest.model.ICountdown;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
@@ -31,6 +30,7 @@ import org.icpc.tools.contest.model.IProblemSummary;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.IStanding;
+import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
@@ -58,7 +58,7 @@ public class Contest implements IContest {
 	private IJudgement[] judgements;
 	private IClarification[] clars;
 	private IRun[] runs;
-	private ICountdown countdown;
+	private IStartStatus[] startStatus;
 	private IAward[] awards;
 	private IPause[] pauses;
 
@@ -171,7 +171,7 @@ public class Contest implements IContest {
 			submissions = null;
 			awards = null;
 			pauses = null;
-			countdown = null;
+			startStatus = null;
 			members = null;
 			runs = null;
 			clars = null;
@@ -261,8 +261,8 @@ public class Contest implements IContest {
 			fts = null;
 		} else if (e instanceof ITeamMember) {
 			members = null;
-		} else if (e instanceof ICountdown) {
-			countdown = null;
+		} else if (e instanceof IStartStatus) {
+			startStatus = null;
 		} else if (e instanceof IAward) {
 			awards = null;
 		} else if (e instanceof IPause) {
@@ -617,19 +617,30 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public ICountdown getCountdown() {
-		if (countdown != null)
-			return countdown;
+	public IStartStatus[] getStartStatuses() {
+		if (startStatus != null)
+			return startStatus;
 
 		synchronized (data) {
-			if (countdown != null)
-				return countdown;
+			if (startStatus != null)
+				return startStatus;
 
-			ICountdown[] counts = data.getByType(ICountdown.class, ContestType.COUNTDOWN);
-			if (counts != null && counts.length > 0)
-				countdown = counts[0];
-			return countdown;
+			startStatus = data.getByType(IStartStatus.class, ContestType.START_STATUS);
+			return startStatus;
 		}
+	}
+
+	@Override
+	public IStartStatus getStartStatusById(String id) {
+		if (id == null)
+			return null;
+
+		IStartStatus[] temp = getStartStatuses();
+		for (IStartStatus c : temp) {
+			if (c.getId().equals(id))
+				return c;
+		}
+		return null;
 	}
 
 	@Override

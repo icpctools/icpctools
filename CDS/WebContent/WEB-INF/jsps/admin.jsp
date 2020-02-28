@@ -1,8 +1,10 @@
 <% request.setAttribute("title", "Admin"); %>
 <%@ include file="layout/head.jsp" %>
+<script src="${pageContext.request.contextPath}/js/contest.js"></script>
+<script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
+        <div class="col-8">
         <div class="card">
            <div class="card-header">
              <h3 class="card-title">Countdown Control</h3>
@@ -84,122 +86,45 @@
             <span id="status">&nbsp;</span>
           </div></div>
       </div>
-      </div>
-      <div class="row">
-      <div class="col-9">
+
+      <div class="col-4">
         <div class="card">
            <div class="card-header">
-             <h3 class="card-title">Contest Readiness</h3>
+             <h3 class="card-title">Start Status</h3>
            </div>
         <div class="card-body p-0">
-                <table class="table table-sm table-hover table-striped">
-                    <tr>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s1" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '1')"/>
-                                <label class="custom-control-label" for="s1">Security</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s4" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '4')"/>
-                                <label class="custom-control-label" for="s4">Judges</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s7" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '7')"/>
-                                <label class="custom-control-label" for="s7">Operations</label>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s2" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '2')"/>
-                                <label class="custom-control-label" for="s2">Sysops</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s5" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '5')"/>
-                                <label class="custom-control-label" for="s5">Network Control</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s8" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '8')"/>
-                                <label class="custom-control-label" for="s8">Executive Director</label>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s3" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '3')"/>
-                                <label class="custom-control-label" for="s3">Contest Control</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s6" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '6')"/>
-                                <label class="custom-control-label" for="s6">Marshalls</label>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" id="s9" class="custom-control-input"
-                                       onclick="sendCountdownStatusCommand(this, '9')"/>
-                                <label class="custom-control-label" for="s9">Contest Director</label>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <span id="ready-status">&nbsp;</span>
-                        </td>
-                        <td>
-                            <span id="bg-ready-status">&nbsp;</span>
-                        </td>
-                    </tr>
+                <table id="start-status-table" class="table table-sm table-hover table-striped">
+                  <thead>
+                <tr>
+                    <th>Label</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan=3>
+                        <div class="spinner-border"></div>
+                    </td>
+                </tr>
+            </tbody>
                 </table>
+                <div class="input-group margin">
+               <input id="add-status" type="text" class="form-control input-sm"/>
+               <span class="input-group-btn">
+               <button type="button" class="btn btn-info btn-flat" onclick="addStartStatus($('#add-status').val(),0)">Add</button>
+               </span></div>
             </div>
             </div>
-            
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Event Feed Reset</h3>
-           </div>
-        <div class="card-body">
-          <p>If the contest data has changed in an incompatible way that makes past events invalid (e.g. if .tsv config files
-          are manually changed after a contest has started), the event feed id can be reset to notify clients that they should
-          throw out any cached information and reconnect.</p>
-          <span id="reset-status">&nbsp;</span>
-          <form>
-            <div class="form-group">
-            <button id="reset" class="btn btn-primary form-control" onclick="sendIdResetCommand()">
-                Reset
-            </button>
-            </div>
-            </form>
-        </div>
-        </div>
-        </div>
-
-        <div class="col-3">
+     </div></div>
+     
+     <div class="row">
+        <div class="col-5">
         <div class="card">
            <div class="card-header">
              <h3 class="card-title">Finalization</h3>
            </div>
         <div class="card-body">
+          Finalize (signal end of updates for) the contest.
           <form>
             <div class="form-group">
                 <label for="bSelect">Value of b:</label>
@@ -227,6 +152,27 @@
             </form>
         </div>
         </div></div>
+        
+        <div class="col-7">
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Event Feed Reset</h3>
+           </div>
+        <div class="card-body">
+          <p>If the contest data has changed in an incompatible way that makes past events invalid (e.g. if .tsv config files
+          are manually changed after a contest has started), the event feed id can be reset to notify clients that they should
+          throw out any cached information and reconnect.</p>
+          <span id="reset-status">&nbsp;</span>
+          <form>
+            <div class="form-group">
+            <button id="reset" class="btn btn-primary btn-danger form-control" onclick="sendIdResetCommand()">
+                Reset
+            </button>
+            </div>
+            </form>
+        </div>
+        </div>
+        </div>
     </div>
 </div>
 <script>
@@ -315,41 +261,6 @@
         xmlhttp.send();
     }
 
-    function sendCountdownStatusCommand(checkbox, command) {
-        document.getElementById(checkbox.id).disabled = true;
-
-        var s = "";
-        for (i = 1; i < command; i++)
-            s += "-";
-
-        if (checkbox.checked)
-            s += "Y";
-        else
-            s += "N";
-
-        for (i = command; i < 9; i++)
-            s += "-";
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            document.getElementById("ready-status").innerHTML = "Sending request";
-            if (xmlhttp.readyState == 4) {
-                if (xmlhttp.status == 200)
-                	document.getElementById("ready-status").innerHTML = "Request successful";
-                else
-                    document.getElementById("ready-status").innerHTML = xmlhttp.responseText;
-                document.getElementById(checkbox.id).disabled = false;
-            }
-        }
-        xmlhttp.timeout = 10000;
-        xmlhttp.ontimeout = function () {
-            document.getElementById("ready-status").innerHTML = "Request timed out";
-            document.getElementById(checkbox.id).disabled = false;
-        }
-        xmlhttp.open("PUT", "<%= webroot %>/admin/status/" + s, true);
-        xmlhttp.send();
-    }
-
     function updateCountdown() {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
@@ -373,29 +284,92 @@
         xmlhttp.send();
     }
 
-    function updateCountdownStatus() {
+    function addStartStatusDefaults() {
+    	addStartStatus("Security", 0);
+    	addStartStatus("Sysops", 0);
+    	addStartStatus("Contest Control", 0);
+    	addStartStatus("Judges", 0);
+    	addStartStatus("Network Control", 0);
+    	addStartStatus("Marshalls", 0);
+    	addStartStatus("Operations", 0);
+    	addStartStatus("Executive Director", 0);
+    	addStartStatus("Contest Director", 0);
+    }
+
+    function addStartStatus(id, status) {
+    	console.log("Add: " + id + ", " + status);
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == 4) {
-                if (xmlhttp.status == 200) {
-                    var s = xmlhttp.responseText;
-                    for (i = 0; i < 9; i++) {
-                        if (s.charAt(i) == 'Y')
-                            document.getElementById("s" + (i + 1)).checked = true;
-                        else
-                            document.getElementById("s" + (i + 1)).checked = false;
-                    }
-                    document.getElementById("bg-ready-status").innerHTML = "";
-                } else
-                    document.getElementById("bg-ready-status").innerHTML = "Error updating: " + xmlhttp.responseText;
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+            	updateStartStatusTable();
             }
         }
-        xmlhttp.timeout = 10000;
-        xmlhttp.ontimeout = function () {
-            document.getElementById("bg-ready-status").innerHTML = "Timed trying to update, may be offline";
+        xmlhttp.open("PUT", "<%= apiRoot %>/start-status/" + id, true);
+        xmlhttp.send('{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}');
+    }
+
+    function updateStartStatus(id, status) {
+    	if (id == null)
+    		return;
+    	
+    	console.log(id + " -> " + status);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+            	updateStartStatusTable();
+            }
         }
-        xmlhttp.open("GET", "<%= webroot %>/admin/status", true);
+        xmlhttp.open("PATCH", "<%= apiRoot %>/start-status/" + id, true);
+        xmlhttp.send('{"id":"' + id + '","status":"' + status + '"}');
+    }
+
+    function removeStartStatus(id) {
+    	console.log("Remove: " + id);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+            	updateStartStatusTable();
+            }
+        }
+        xmlhttp.open("DELETE", "<%= apiRoot %>/start-status/" + id, true);
         xmlhttp.send();
+    }
+
+    function startStatusTd(startStatus) {
+    	var id = "\'" + startStatus.id + "\'";
+    	var a = 'default';
+    	var b = 'default';
+    	var c = 'default';
+    	if (startStatus.status == 0)
+    		a = 'danger';
+    	else if (startStatus.status == 1)
+    		b = 'warning';
+    	else if (startStatus.status == 2)
+    		c = 'success';
+        return $('<td>' + startStatus.label + '</td><td><div class="btn-group">'
+           + '<button type="button" class="btn btn-sm btn-flat btn-'+a+'" onclick="updateStartStatus(' + id + ',0)">No</button>'
+           + '<button type="button" class="btn btn-sm btn-'+b+'" onclick="updateStartStatus(' + id + ',1)">Unknown</button>'
+           + '<button type="button" class="btn btn-sm btn-'+c+'" onclick="updateStartStatus(' + id + ',2)">Yes</button>'
+           + '</div> &nbsp; &nbsp;'
+           + '<button type="button" class="btn btn-sm btn-danger" onclick="removeStartStatus(' + id + ')">Remove</button>'
+           + '</td>');
+    }
+
+    function updateStartStatusTable() {
+    	contest.setContestId("<%= cc.getId() %>");
+    	contest.clear();
+    	$.when(contest.loadStartStatus()).done(function () {
+            fillContestObjectTable("start-status", contest.getStartStatus(), startStatusTd);
+            
+            if (contest.getStartStatus().length == 0) {
+              col = $('<td colspan="2"><button type="button" class="btn btn-sm btn-default" onclick="addStartStatusDefaults()">Add default statuses</button></td>');
+              row = $('<tr></tr>');
+              row.append(col);
+              $("#start-status-table tbody").append(row);
+            }
+        }).fail(function (result) {
+            console.log("Error loading start-status: " + result);
+        });
     }
 
     function sendFinalizeCommand(id, command) {
@@ -454,10 +428,10 @@
     function updateInBackground() {
         document.getElementById("bg-status").innerHTML = "Updating status...";
         updateCountdown();
-        updateCountdownStatus();
+        updateStartStatus();
 
         setInterval(updateCountdown, 5000);
-        setInterval(updateCountdownStatus, 5000);
+        setInterval(updateStartStatusTable, 5000);
     }
 
     $(document).ready(updateInBackground);
