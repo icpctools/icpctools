@@ -57,7 +57,7 @@
         $.when(contest.loadOrganizations()).done(function () {
             fillContestObjectTable("organizations", contest.getOrganizations(), orgTd);
         }).fail(function (result) {
-            alert("Error loading page: " + result);
+        	console.log("Error loading orgs: " + result);
         })
     })
 </script>

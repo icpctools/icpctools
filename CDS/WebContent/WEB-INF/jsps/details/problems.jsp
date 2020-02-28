@@ -44,8 +44,7 @@
         $.when(contest.loadProblems()).done(function () {
             fillContestObjectTable("problems", contest.getProblems(), problemTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
-            console.log(result);
+        	console.log("Error loading problems: " + result);
         });
     });
 </script>

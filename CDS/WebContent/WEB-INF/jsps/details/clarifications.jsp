@@ -72,7 +72,7 @@
         $.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
             fillContestObjectTable("clarifications", contest.getClarifications(), clarTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
+        	console.log("Error loading clarifications: " + result);
         })
     })
 </script>

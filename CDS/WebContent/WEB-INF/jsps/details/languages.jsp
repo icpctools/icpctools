@@ -39,8 +39,7 @@
         $.when(contest.loadLanguages()).done(function () {
             fillContestObjectTable("languages", contest.getLanguages(), langTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
-            console.log(result);
+        	console.log("Error loading languages: " + result);
         });
     });
 </script>

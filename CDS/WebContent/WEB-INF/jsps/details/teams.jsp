@@ -72,8 +72,7 @@
         $.when(contest.loadTeams(), contest.loadOrganizations(), contest.loadGroups()).done(function () {
             fillContestObjectTable("teams", contest.getTeams(), teamTd)
         }).fail(function (result) {
-            alert("Error loading page: " + result);
-            console.log(result);
+        	console.log("Error loading teams: " + result);
         })
 
     })
