@@ -128,8 +128,6 @@ public class ContestWebService extends HttpServlet {
 					String command = segments[3];
 					if (segments[2].equals("time"))
 						StartTimeService.doPut(response, command, cc);
-					else if (segments[2].equals("status"))
-						CountdownStatusService.doPut(response, command, cc);
 					else if (segments[2].equals("finalize"))
 						FinalizeService.doPut(response, command, cc);
 				}
@@ -215,7 +213,7 @@ public class ContestWebService extends HttpServlet {
 					NDJSONFeedParser parserA = new NDJSONFeedParser();
 					Contest contestA = new Contest(false);
 					parserA.parse(contestA, in);
-
+					
 					Contest contestB = new Contest(false);
 					if (cc.getContestSource() instanceof RESTContestSource) {
 						RESTContestSource cs = (RESTContestSource) cc.getContestSource();
@@ -223,12 +221,12 @@ public class ContestWebService extends HttpServlet {
 						request.setAttribute("b", path);
 						in = getHTTPInputStream(path, cs.getUser(), cs.getPassword());
 						NDJSONFeedParser parserB = new NDJSONFeedParser();
-
+					
 						parserB.parse(contestB, in);
 					} else {
 						request.setAttribute("b", "same");
 					}
-
+					
 					Thread.sleep(5000);*/
 
 					request.setAttribute("info", EventFeedUtil.compareInfo(contestA, contestB).printSingletonSummaryHTML());
@@ -302,9 +300,6 @@ public class ContestWebService extends HttpServlet {
 				if (segments.length == 3) {
 					if (segments[2].equals("time")) {
 						StartTimeService.doGet(response, cc);
-						return;
-					} else if (segments[2].equals("status")) {
-						CountdownStatusService.doGet(response, cc);
 						return;
 					}
 				}

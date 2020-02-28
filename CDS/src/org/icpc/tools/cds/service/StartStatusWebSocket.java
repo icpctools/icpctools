@@ -13,9 +13,10 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.icpc.tools.cds.CDSConfig;
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestListener;
-import org.icpc.tools.contest.model.ICountdown;
+import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.IState;
 
 @ServerEndpoint(value = "/contests/{id}/startstatus")
@@ -35,7 +36,7 @@ public class StartStatusWebSocket {
 					lastRunning = running;
 				}
 			}
-			if (obj instanceof ICountdown) {
+			if (obj instanceof IStartStatus) {
 				Long start = contest.getStartStatus();
 				if ((start == null && lastStart != null) || (start != null && !start.equals(lastStart))) {
 					sendToAll(start + "", contest.getId());
@@ -67,7 +68,7 @@ public class StartStatusWebSocket {
 
 	@OnOpen
 	public void onOpen(Session session, EndpointConfig config, @PathParam("id") String id) {
-		System.out.println("New ws: " + id);
+		Trace.trace(Trace.INFO, "New ws: " + id);
 		synchronized (map) {
 			IContest contest = CDSConfig.getContest(id).getContest();
 			List<Session> sessions = map.get(id);

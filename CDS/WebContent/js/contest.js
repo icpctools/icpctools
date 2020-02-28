@@ -8,6 +8,7 @@ var contest=(function() {
 	var problems;
 	var clarifications;
 	var awards;
+	var startStatus;
 	var scoreboard;
 	
 	var urlPrefix;
@@ -167,6 +168,22 @@ var contest=(function() {
 		}
 	}
 
+	var loadStartStatus = function() {
+		console.log("Loading start-status: " + startStatus);
+		var deferred = new $.Deferred();
+		if (startStatus != null) {
+			deferred.resolve();
+			return deferred;
+		} else {
+			return $.ajax({
+			  url: urlPrefix + 'start-status',
+			  success: function(result) {
+				  startStatus = result;
+			  }
+			});
+		}
+	}
+
 	var loadScoreboard = function() {
 		console.log("Loading scoreboard: " + scoreboard);
 		var deferred = new $.Deferred();
@@ -210,6 +227,9 @@ var contest=(function() {
 	var getAwards = function() {
 		return awards;
 	}
+	var getStartStatus = function() {
+		return startStatus;
+	}
 	var getTeams = function() {
 		return teams;
 	}
@@ -220,7 +240,10 @@ var contest=(function() {
 		}
 		return null;
 	}
-	
+	var clear = function() {
+		startStatus = null;
+	}
+
 	return {
 		setContestId: setContestId,
 		loadInfo: loadInfo,
@@ -232,6 +255,7 @@ var contest=(function() {
 		loadProblems: loadProblems,
 		loadClarifications: loadClarifications,
 		loadAwards: loadAwards,
+		loadStartStatus: loadStartStatus,
 		loadScoreboard: loadScoreboard,
 		getInfo: getInfo,
 		getLanguages: getLanguages,
@@ -242,7 +266,9 @@ var contest=(function() {
 		getTeams: getTeams,
 		getClarifications: getClarifications,
 		getAwards: getAwards,
+		getStartStatus: getStartStatus,
 		getScoreboard: getScoreboard,
-		getTeamById: getTeamById
+		getTeamById: getTeamById,
+		clear: clear
 	};
 })();

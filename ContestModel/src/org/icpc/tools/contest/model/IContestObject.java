@@ -6,7 +6,6 @@ import java.util.Map;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Clarification;
 import org.icpc.tools.contest.model.internal.Commentary;
-import org.icpc.tools.contest.model.internal.Countdown;
 import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Info;
@@ -17,6 +16,7 @@ import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Pause;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Run;
+import org.icpc.tools.contest.model.internal.StartStatus;
 import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
@@ -24,12 +24,12 @@ import org.icpc.tools.contest.model.internal.TeamMember;
 
 public interface IContestObject {
 	enum ContestType {
-		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, PRINTER, COUNTDOWN, COMMENTARY, DELETE
+		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, PRINTER, START_STATUS, COMMENTARY, DELETE
 	}
 
 	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations", "teams", "state",
 			"runs", "submissions", "judgements", "clarifications", "awards", "judgement-types", "testdata", "problems",
-			"pause", "team-members", "printers", "countdown", "commentary", "delete" };
+			"pause", "team-members", "printers", "start-status", "commentary", "delete" };
 
 	static String getTypeName(ContestType type) {
 		return ContestTypeNames[type.ordinal()];
@@ -79,8 +79,8 @@ public interface IContestObject {
 			return new Award();
 		else if (ContestType.CLARIFICATION.equals(type))
 			return new Clarification();
-		else if (ContestType.COUNTDOWN.equals(type))
-			return new Countdown();
+		else if (ContestType.START_STATUS.equals(type))
+			return new StartStatus();
 		else if (ContestType.PAUSE.equals(type))
 			return new Pause();
 		else if (ContestType.COMMENTARY.equals(type))
