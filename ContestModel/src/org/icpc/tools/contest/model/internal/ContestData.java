@@ -129,7 +129,7 @@ public class ContestData implements Iterable<IContestObject> {
 
 			if (keepHistory) {
 				deleteWhileKeepingHistory((Deletion) obj);
-				return Delta.ADD;
+				return Delta.DELETE;
 			}
 			removeImpl(obj);
 			return Delta.DELETE;

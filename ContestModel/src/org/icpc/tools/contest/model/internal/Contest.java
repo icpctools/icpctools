@@ -147,11 +147,15 @@ public class Contest implements IContest {
 		return lastTimedEventIndex;
 	}
 
-	private void clearCaches(IContestObject e, Delta delta) {
+	private void clearCaches(IContestObject obj, Delta delta) {
 		if (delta == Delta.NOOP)
 			return;
 
-		if (e == null) {
+		ContestType type = null;
+		if (obj != null)
+			type = obj.getType();
+
+		if (obj == null) {
 			Info[] infos = data.getByType(Info.class, ContestType.CONTEST);
 			if (infos.length > 0)
 				info = infos[infos.length - 1];
@@ -184,11 +188,11 @@ public class Contest implements IContest {
 			submissionStatus = null;
 			recentActivity = null;
 			fts = null;
-		} else if (e instanceof Info) {
-			info = (Info) e;
-		} else if (e instanceof State) {
-			state = (State) e;
-		} else if (e instanceof IProblem) {
+		} else if (type == ContestType.CONTEST) {
+			info = (Info) obj;
+		} else if (type == ContestType.STATE) {
+			state = (State) obj;
+		} else if (type == ContestType.PROBLEM) {
 			problems = null;
 
 			order = null;
@@ -199,15 +203,15 @@ public class Contest implements IContest {
 			submissionStatus = null;
 			recentActivity = null;
 			fts = null;
-		} else if (e instanceof ILanguage) {
+		} else if (type == ContestType.LANGUAGE) {
 			languages = null;
-		} else if (e instanceof IGroup) {
+		} else if (type == ContestType.GROUP) {
 			groups = null;
-		} else if (e instanceof IOrganization) {
+		} else if (type == ContestType.ORGANIZATION) {
 			organizations = null;
-		} else if (e instanceof IJudgementType) {
+		} else if (type == ContestType.JUDGEMENT_TYPE) {
 			judgementTypes = null;
-		} else if (e instanceof ISubmission) {
+		} else if (type == ContestType.SUBMISSION) {
 			submissions = null;
 
 			order = null;
@@ -217,7 +221,7 @@ public class Contest implements IContest {
 			standings = null;
 			if (submissionStatus != null) {
 				if (delta == Delta.ADD) {
-					ISubmission s = (ISubmission) e;
+					ISubmission s = (ISubmission) obj;
 					int sInd = getSubmissionIndex(s.getId());
 					if (sInd >= submissionStatus.length)
 						submissionStatus = null;
@@ -226,7 +230,7 @@ public class Contest implements IContest {
 			}
 			recentActivity = null;
 			fts = null;
-		} else if (e instanceof IJudgement) {
+		} else if (type == ContestType.JUDGEMENT) {
 			judgements = null;
 
 			order = null;
@@ -236,7 +240,7 @@ public class Contest implements IContest {
 			standings = null;
 			if (submissionStatus != null) {
 				if (delta == Delta.ADD) {
-					IJudgement sj = (IJudgement) e;
+					IJudgement sj = (IJudgement) obj;
 					IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
 					if (jt != null) {
 						int sInd2 = getSubmissionIndex(sj.getSubmissionId());
@@ -248,7 +252,7 @@ public class Contest implements IContest {
 			}
 			recentActivity = null;
 			fts = null;
-		} else if (e instanceof ITeam) {
+		} else if (type == ContestType.TEAM) {
 			teams = null;
 
 			order = null;
@@ -259,17 +263,17 @@ public class Contest implements IContest {
 			submissionStatus = null;
 			recentActivity = null;
 			fts = null;
-		} else if (e instanceof ITeamMember) {
+		} else if (type == ContestType.TEAM_MEMBER) {
 			members = null;
-		} else if (e instanceof IStartStatus) {
+		} else if (type == ContestType.START_STATUS) {
 			startStatus = null;
-		} else if (e instanceof IAward) {
+		} else if (type == ContestType.AWARD) {
 			awards = null;
-		} else if (e instanceof IPause) {
+		} else if (type == ContestType.PAUSE) {
 			pauses = null;
-		} else if (e instanceof IRun) {
+		} else if (type == ContestType.RUN) {
 			runs = null;
-		} else if (e instanceof IClarification) {
+		} else if (type == ContestType.CLARIFICATION) {
 			clars = null;
 		}
 	}
