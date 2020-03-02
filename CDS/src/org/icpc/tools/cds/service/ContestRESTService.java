@@ -576,26 +576,33 @@ public class ContestRESTService extends HttpServlet {
 
 		String id2 = segments[2];
 
-		InputStream is = request.getInputStream();
-		JSONParser parser = new JSONParser(is);
-		JsonObject obj = parser.readObject();
+		JsonObject obj = null;
+		try {
+			Trace.trace(Trace.USER, "Adding contest object: " + type + "/" + id2);
 
-		// confirm the id is correct
-		String id = obj.getString("id");
-		if (id == null || !id.equals(id2)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
-			return;
+			InputStream is = request.getInputStream();
+			JSONParser parser = new JSONParser(is);
+			obj = parser.readObject();
+
+			// confirm the id is correct
+			String id = obj.getString("id");
+			if (id == null || !id.equals(id2)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+				return;
+			}
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse object");
 		}
 
-		for (String key : obj.props.keySet())
-			co.add(key, obj.props.get(key));
-
 		try {
-			Trace.trace(Trace.USER, "Adding contest object: " + type + "/" + id);
+			for (String key : obj.props.keySet())
+				co.add(key, obj.props.get(key));
+
 			Contest contest = cc.getContest();
 			contest.add(co);
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Could not add event to contest! " + id, e);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
+			Trace.trace(Trace.ERROR, "Could not add to contest " + id2, e);
 		}
 	}
 
@@ -647,6 +654,7 @@ public class ContestRESTService extends HttpServlet {
 			Contest contest = cc.getContest();
 			contest.add(d);
 		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not remove object");
 			Trace.trace(Trace.ERROR, "Could not add event to contest! " + id, e);
 		}
 	}

@@ -8,17 +8,22 @@
         <div class="card">
            <div class="card-header">
              <h3 class="card-title">Countdown Control</h3>
+             <div class="card-tools">
+               <div class="btn-group-toggle" data-toggle="buttons">
+                 <label class="btn btn-secondary active fa fa-lock" id="locker">
+                 <input id="lock" type="checkbox" autocomplete="off">Lock
+                 </label>
+               </div>
+             </div>
            </div>
-        <div class="card-body">
+        <div class="card-body" id="lock-group">
           <b><font size="+7"><span id="countdown">unknown</span></font></b><span id="bg-status">&nbsp;</span>
         
            <p>You cannot change time in the final 30s before a contest starts.</p>
-                <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause
-                </button>
-                <button id="resume" class="btn btn-secondary" onclick="sendCommand('resume', 'resume')">Resume
-                </button>
-                <button id="clear" class="btn btn-secondary" onclick="sendCommand('clear', 'clear')">Clear
-                </button>
+                <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause</button>
+                <button id="resume" class="btn btn-secondary" onclick="sendCommand('resume', 'resume')">Resume</button>
+                <button id="clear" class="btn btn-secondary" onclick="sendCommand('clear', 'clear')">Clear</button>
+                <span id="status">&nbsp;</span>
 
                 <table class="table table-sm table-hover table-striped">
                     <tbody>
@@ -38,23 +43,13 @@
                             </select>
                         </td>
                         <td>
-                            <button id="set" class="btn btn-secondary"
-                                    onclick="var e = document.getElementById('timeSelect'); sendCommand('set', 'set: ' + e.options[e.selectedIndex].value)">
-                                Set
-                            </button>
+                            <button id="set" class="btn btn-secondary" onclick="sendCommand('set', 'set: ' + $('#timeSelect').children('option:selected').val())">Set</button>
                         </td>
                         <td>
-                            <button id="add" class="btn btn-secondary"
-                                    onclick="var e = document.getElementById('timeSelect'); sendCommand('add', 'add: ' + e.options[e.selectedIndex].value)">
-                                Add
-                            </button>
+                            <button id="add" class="btn btn-secondary" onclick="sendCommand('add', 'add: ' + $('#timeSelect').children('option:selected').val())">Add</button>
                         </td>
                         <td>
-                            <button id="remove" class="btn btn-secondary"
-                                    onclick="var e = document.getElementById('timeSelect'); sendCommand('remove', 'remove: ' + e.options[e.selectedIndex].value)">
-                                Remove
-                            </button>
-
+                            <button id="remove" class="btn btn-secondary" onclick="sendCommand('remove', 'remove: ' + $('#timeSelect').children('option:selected').val())">Remove</button>
                         </td>
                     </tr>
                     <tr>
@@ -62,28 +57,17 @@
                             <input type="text" id="timeSelect2" value="0:01:00" class="form-control"/>
                         </td>
                         <td>
-                            <button id="set2" class="btn btn-secondary"
-                                    onclick="var e = document.getElementById('timeSelect2'); sendCommand('set', 'set: ' + e.value)">
-                                Set
-                            </button>
+                            <button id="set2" class="btn btn-secondary" onclick="sendCommand('set', 'set: ' + $('#timeSelect2').val())">Set</button>
                         </td>
                         <td>
-                            <button id="add2" class="btn btn-secondary"
-                                    onclick="var e = document.getElementById('timeSelect2'); sendCommand('add', 'add: ' + e.value)">
-                                Add
-                            </button>
+                            <button id="add2" class="btn btn-secondary" onclick="sendCommand('add', 'add: ' + $('#timeSelect2').val())">Add</button>
                         </td>
                         <td>
-                            <button id="remove3" class="btn btn-secondary"
-                                    onclick="var e = document.getElementById('timeSelect2'); sendCommand('remove', 'remove: ' + e.value)">
-                                Remove
-                            </button>
+                            <button id="remove3" class="btn btn-secondary" onclick="sendCommand('remove', 'remove: ' + $('#timeSelect2').val())">Remove</button>
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <p/>
-            <span id="status">&nbsp;</span>
           </div></div>
       </div>
 
@@ -111,7 +95,7 @@
                 <div class="input-group margin">
                <input id="add-status" type="text" class="form-control input-sm"/>
                <span class="input-group-btn">
-               <button type="button" class="btn btn-info btn-flat" onclick="addStartStatus($('#add-status').val(),0)">Add</button>
+               <button type="button" class="btn btn-info btn-flat" onclick="addStartStatus($('#add-status').val(), 0)">Add</button>
                </span></div>
             </div>
             </div>
@@ -125,10 +109,9 @@
            </div>
         <div class="card-body">
           Finalize (signal end of updates for) the contest.
-          <form>
             <div class="form-group">
                 <label for="bSelect">Value of b:</label>
-                <select id="bSelect" class="custom-select form-control">
+                <select id="bSelect" class="form-control">
                     <option value="0">0</option>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -137,19 +120,13 @@
                     <option value="5">5</option>
                     <option value="6">6</option>
                 </select>
-                
-                <p><span id="final-status">&nbsp;</span></p>
             
-                <button id="finalize" class="btn btn-primary form-control"
-                    onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('finalize', 'b:' + e.options[e.selectedIndex].value)">
-                    Apply
-                </button>
-                <button id="finalize" class="btn btn-primary form-control"
-                    onclick="sendFinalizeCommand('finalize', 'template')">
-                    Template
-                </button>
+                <button id="finalize" class="btn btn-info"
+                    onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('finalize', 'b:' + e.options[e.selectedIndex].value)">Apply</button>
+                <button id="finalize" class="btn btn-info"
+                    onclick="sendFinalizeCommand('finalize', 'template')">Template</button>
+                <span id="final-status">&nbsp;</span>
             </div>
-            </form>
         </div>
         </div></div>
         
@@ -159,20 +136,56 @@
              <h3 class="card-title">Event Feed Reset</h3>
            </div>
         <div class="card-body">
-          <p>If the contest data has changed in an incompatible way that makes past events invalid (e.g. if .tsv config files
-          are manually changed after a contest has started), the event feed id can be reset to notify clients that they should
-          throw out any cached information and reconnect.</p>
-          <span id="reset-status">&nbsp;</span>
-          <form>
-            <div class="form-group">
-            <button id="reset" class="btn btn-primary btn-danger form-control" onclick="sendIdResetCommand()">
-                Reset
-            </button>
+            <div class="box-body">
+            If the contest data has changed in an incompatible way that makes past events invalid (e.g. if .tsv config files
+            are manually changed after a contest has started), the event feed id can be reset to notify clients that they should
+            throw out any cached information and reconnect.</div>
+            <div class="box-footer">
+              <button id="reset" class="btn btn-danger pull-right" onclick="sendIdResetCommand()">Reset</button>
+              <span id="reset-status">&nbsp;</span>
             </div>
-            </form>
         </div>
         </div>
         </div>
+    </div>
+    
+    <div class="row"> 
+    <div class="col-7">
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Contest Object Control</h3>
+           </div>
+        <div class="card-body">
+            <p>In case of emergency - e.g. a missed event from a CCS - this form can be used to manually add or remove objects from the
+               contest event feed. Use vary carefully and sparingly! Adding requires all three inputs, removal only requires type and id.</p>
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="input-type" class="col-sm-2 control-label">Type</label>
+                  <div class="col-sm-10">
+                    <input class="form-control" id="input-type" placeholder="contest element type">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="input-id" class="col-sm-2 control-label">Id</label>
+                  <div class="col-sm-10">
+                    <input class="form-control" id="input-id" placeholder="id">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="input-body" class="col-sm-2 control-label">Body</label>
+                  <div class="col-sm-10">
+                    <textarea class="form-control" rows="3" id="input-body" placeholder="JSON body"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="box-footer">
+                <button type="submit" class="btn btn-danger pull-right" onclick="addContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Add</button>
+                <button type="submit" class="btn btn-danger pull-right" onclick="removeContestObject($('#input-type').val(),$('#input-id').val())">Remove</button>
+                <span id="object-status">&nbsp;</span>
+              </div>
+         </div>
+         </div>
+     </div>
     </div>
 </div>
 <script>
@@ -234,6 +247,9 @@
     }, 300);
 
     function sendCommand(id, command) {
+    	if ($("#locker").hasClass('btn-danger'))
+    		return;
+    	
         document.getElementById(id).disabled = true;
 
         var xmlhttp = new XMLHttpRequest();
@@ -297,15 +313,7 @@
     }
 
     function addStartStatus(id, status) {
-    	console.log("Add: " + id + ", " + status);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-            	updateStartStatusTable();
-            }
-        }
-        xmlhttp.open("PUT", "<%= apiRoot %>/start-status/" + id, true);
-        xmlhttp.send('{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}');
+    	contest.add("start-status", id, '{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
     }
 
     function updateStartStatus(id, status) {
@@ -324,15 +332,7 @@
     }
 
     function removeStartStatus(id) {
-    	console.log("Remove: " + id);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-            	updateStartStatusTable();
-            }
-        }
-        xmlhttp.open("DELETE", "<%= apiRoot %>/start-status/" + id, true);
-        xmlhttp.send();
+    	contest.remove("start-status", id, function() { updateStartStatusTable(); });
     }
 
     function startStatusTd(startStatus) {
@@ -425,13 +425,39 @@
         xmlhttp.send();
     }
 
+    function addContestObject(type, id, body) {
+    	contest.add(type, id, body, function() {
+    		$('#object-status').text(id + " added successfully");
+    	}, function(result) {
+    		$('#object-status').text(id + " add failed: " + result.statusText);
+    	})
+    }
+
+    function removeContestObject(type, id) {
+    	contest.remove(type, id, function() {
+    		$('#object-status').text(id + " deleted successfully");
+    	}, function(result) {
+    		$('#object-status').text(id + " delete failed: " + result.statusText);
+    	})
+    }
+
     function updateInBackground() {
         document.getElementById("bg-status").innerHTML = "Updating status...";
         updateCountdown();
-        updateStartStatus();
+        updateStartStatusTable();
 
         setInterval(updateCountdown, 5000);
         setInterval(updateStartStatusTable, 5000);
+        
+        $('#lock').change(function() {
+        	  if (!$(this).prop('checked')) {
+            	  $("#locker").removeClass('btn-secondary').addClass('btn-danger');
+            	  $("#lock-group").find('*').addClass("disabled");
+        	  } else {
+        	      $("#locker").removeClass('btn-danger').addClass('btn-secondary');
+        	      $("#lock-group").find('*').removeClass("disabled");
+        	  }
+        	})
     }
 
     $(document).ready(updateInBackground);
