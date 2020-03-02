@@ -114,12 +114,12 @@
                             </tr>
                             <tr>
                                 <td><b>CCS:</b></td>
-                                <td><%= cc.getCCS() %>
+                                <td><%= cc.getCCSString() %>
                                 </td>
                             </tr>
                             <tr>
                                 <td><b>Test:</b></td>
-                                <td><%= cc.getTest() %>
+                                <td><%= cc.getTestString() %>
                                 </td>
                             </tr>
                             <tr>

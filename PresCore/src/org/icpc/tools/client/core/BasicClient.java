@@ -344,7 +344,8 @@ public class BasicClient {
 		createJSON(Type.THUMBNAIL, je -> {
 			je.encode("source", Integer.toHexString(uid));
 			je.encode("fps", fps);
-			je.encode("hidden", isHidden);
+			if (isHidden)
+				je.encode("hidden", isHidden);
 			encodeImage(je, imageToBytes(image));
 		});
 	}

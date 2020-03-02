@@ -24,6 +24,7 @@ public class AboutServlet extends HttpServlet {
 		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/json");
 		response.setHeader("ICPC-Tools", "CDS");
+		response.setHeader("X-Frame-Options", "sameorigin");
 
 		request.getRequestDispatcher("/WEB-INF/jsps/about.jsp").forward(request, response);
 	}
