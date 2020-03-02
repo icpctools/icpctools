@@ -243,6 +243,34 @@ var contest=(function() {
 	var clear = function() {
 		startStatus = null;
 	}
+	var add = function(type, id, body, ok, fail) {
+ 	    console.log("Adding contest object: " + type + "/" + id + ", " + body);
+ 	    return $.ajax({
+		    url: urlPrefix + type + '/' + id,
+		    method: 'PUT',
+		    data: body,
+		    success: function(result) {
+		    	ok(result);
+		    },
+		    error: function(result) {
+			    fail(result);
+		    }
+		});
+    }
+
+	var remove = function(type, id, ok, fail) {
+        console.log("Deleting contest object: " + type + "/" + id);
+        return $.ajax({
+		    url: urlPrefix + type + '/' + id,
+		    method: 'DELETE',
+		    success: function(result) {
+		    	ok(result);
+		    },
+		    error: function(result) {
+			    fail(result);
+		    }
+		});
+	}
 
 	return {
 		setContestId: setContestId,
@@ -269,6 +297,8 @@ var contest=(function() {
 		getStartStatus: getStartStatus,
 		getScoreboard: getScoreboard,
 		getTeamById: getTeamById,
-		clear: clear
+		clear: clear,
+		add: add,
+		remove: remove
 	};
 })();
