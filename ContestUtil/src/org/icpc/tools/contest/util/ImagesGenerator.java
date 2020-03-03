@@ -151,6 +151,12 @@ public class ImagesGenerator {
 			e.printStackTrace();
 		}
 
+		try {
+			generator.createContestPreview();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		Trace.trace(Trace.USER, "----- Done generating -----");
 		Trace.trace(Trace.USER, (System.currentTimeMillis() - time) + " ms");
 	}
@@ -828,6 +834,53 @@ public class ImagesGenerator {
 		g.dispose();
 
 		File file = new File(contestRoot, "images" + File.separator + "preview.png");
+
+		ImageIO.write(img, "png", file);
+	}
+
+	private void createContestPreview() throws IOException {
+		int sq = 300;
+
+		BufferedImage lImg = contest.getLogoImage(sq * 5, sq, true, true);
+		BufferedImage bImg = contest.getBannerImage(sq * 5, sq, true, true);
+
+		int pad = 25;
+		int w = (pad * 3);
+		if (lImg != null)
+			w += lImg.getWidth();
+		if (bImg != null)
+			w += bImg.getWidth();
+		int h = (sq + pad * 2) * 3;
+		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
+
+		Graphics2D g = (Graphics2D) img.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, w, sq + pad * 2);
+		g.setColor(Color.GRAY);
+		g.fillRect(0, sq + pad * 2, w, sq + pad * 2);
+		g.setColor(Color.WHITE);
+		g.fillRect(0, sq * 2 + pad * 4, w, sq + pad * 2);
+
+		int xx = 0;
+		if (lImg != null) {
+			for (int j = 0; j < 3; j++)
+				g.drawImage(lImg, pad, pad + (sq + pad * 2) * j + (sq - lImg.getHeight()) / 2, null);
+			xx += lImg.getWidth();
+		}
+
+		if (bImg != null)
+			for (int j = 0; j < 3; j++)
+				g.drawImage(bImg, xx + pad * 2, pad + (sq + pad * 2) * j + (sq - bImg.getHeight()) / 2, null);
+
+		g.dispose();
+
+		File file = new File(contestRoot, "images" + File.separator + "contest-preview.png");
 
 		ImageIO.write(img, "png", file);
 	}
