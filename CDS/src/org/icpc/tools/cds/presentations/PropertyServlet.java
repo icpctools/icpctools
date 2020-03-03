@@ -35,6 +35,7 @@ public class PropertyServlet extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/json");
+		response.setHeader("X-Frame-Options", "sameorigin");
 		if ("/clients".equals(path)) {
 			PrintWriter pw = response.getWriter();
 			outputClients(pw);

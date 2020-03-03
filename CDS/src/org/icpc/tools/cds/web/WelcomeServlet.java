@@ -18,6 +18,7 @@ public class WelcomeServlet extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("ICPC-Tools", "CDS");
+		response.setHeader("X-Frame-Options", "sameorigin");
 		request.getRequestDispatcher("/WEB-INF/jsps/welcome.jsp").forward(request, response);
 	}
 }

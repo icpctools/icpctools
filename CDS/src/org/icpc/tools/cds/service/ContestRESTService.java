@@ -31,6 +31,7 @@ import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.JSONArrayWriter;
 import org.icpc.tools.contest.model.feed.JSONParser;
@@ -56,6 +57,7 @@ public class ContestRESTService extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("ICPC-Tools", "CDS");
+		response.setHeader("X-Frame-Options", "sameorigin");
 
 		String path = request.getPathInfo();
 		if (path == null || !path.startsWith("/contests")) {
@@ -376,6 +378,12 @@ public class ContestRESTService extends HttpServlet {
 				}
 			}
 
+			if (obj instanceof ITeam) {
+				if (!Role.isTrusted(request) && ("key_log".equals(url) || "tool_data".equals(url))) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+					return true;
+				}
+			}
 			cc.incrementDownload();
 			HttpHelper.sendFile(request, response, (File) ext);
 			return true;
@@ -394,7 +402,7 @@ public class ContestRESTService extends HttpServlet {
 				aggregator = WebcamAggregator.getInstance();
 			else
 				return false;
-
+			
 			int num = -1;
 			try {
 				num = Integer.parseInt(id);

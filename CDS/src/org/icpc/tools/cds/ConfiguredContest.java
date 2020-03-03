@@ -405,6 +405,12 @@ public class ConfiguredContest {
 		return ccs;
 	}
 
+	public String getCCSString() {
+		if (ccs == null)
+			return "Not configured";
+		return ccs.toString();
+	}
+
 	public String getVideo() {
 		if (videos.isEmpty())
 			return "Not configured";
@@ -460,6 +466,12 @@ public class ConfiguredContest {
 
 	public Test getTest() {
 		return test;
+	}
+
+	public String getTestString() {
+		if (test == null)
+			return "N/A";
+		return test.toString();
 	}
 
 	public View getView() {
@@ -575,6 +587,9 @@ public class ConfiguredContest {
 
 			contestSource.setInitialContest(pc);
 			contest = contestSource.getContest();
+
+			if (isTesting())
+				contest.setHashCode(contest.hashCode() + (int) (Math.random() * 500.0));
 
 			publicContest = new Contest();
 			publicContest.setHashCode(contest.hashCode());
