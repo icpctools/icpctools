@@ -14,7 +14,7 @@
                     <h3 class="card-title">Overview</h3>
                 </div>
                 <div class="card-body p-0">
-                <% String validation = null;
+                <% String validation = "";
                 List<String> validationList = contest.validate();
                 if (validationList != null) {
                     if (validationList.size() < 20) {
@@ -24,7 +24,7 @@
                     validation = validationList.size() + " errors";
                 }
                     
-                if (validation == null)
+                if (validation == null || validation.isEmpty())
                     validation = "No errors";
                 else
                     validation = "<a href='" + request.getContextPath() + "/contests/" + cc.getId() + "/validation'>" + validation + "</a>"; %>
