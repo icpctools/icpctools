@@ -176,7 +176,7 @@
         $.when(contest.loadInfo()).done(function () {
             update()
         }).fail(function (result) {
-            alert("Error loading page: " + result);
+            console.log("Error loading page: " + result);
         })
     })
 </script>

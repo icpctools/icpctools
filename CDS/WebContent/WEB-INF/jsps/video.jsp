@@ -323,7 +323,7 @@
                     //window.location.reload(false);
                     verifyVideo();
                 } else {
-                    alert(xmlhttp.status + ": " + xmlhttp.responseText)
+                	console.log("Error checking video - " xmlhttp.status + ": " + xmlhttp.responseText)
                 }
             }
         };
