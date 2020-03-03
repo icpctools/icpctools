@@ -1,4 +1,4 @@
-package org.icpc.tools.presentation.contest.internal.presentations;
+package org.icpc.tools.contest.model.util;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
