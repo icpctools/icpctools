@@ -126,7 +126,7 @@
         $.when(loadStreams).done(function () {
             fillTable()
         }).fail(function (result) {
-            alert("Could not load page!");
+            console.log("Could not load page!");
         });
     })
 </script>

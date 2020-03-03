@@ -279,7 +279,7 @@
         $.when(loadPres).done(function () {
             fillPresTable()
         }).fail(function (result) {
-            alert("Could not load page! " + result);
+            console.log("Could not load presentations! " + result);
         })
 
         function repeatIt() {
@@ -293,7 +293,7 @@
         $.when(loadClients2()).done(function () {
             fillClientsTable()
         }).fail(function (result) {
-            alert("Could not load page! " + result);
+            console.log("Could not load clients! " + result);
         })
     })
 </script>

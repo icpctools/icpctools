@@ -133,7 +133,7 @@
         $.when(contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadScoreboard()).done(function () {
             fillTable()
         }).fail(function (result) {
-            alert("Error loading page: " + result);
+        	console.log("Error loading scoreboard: " + result);
         })
     })
 </script>

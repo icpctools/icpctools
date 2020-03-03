@@ -71,7 +71,7 @@
                 fillTable('#langs-table', result);
             },
             failure: function (result) {
-                alert("Error loading page: " + result);
+            	console.log("Error loading languages: " + result);
             }
         });
         $.ajax({
@@ -80,7 +80,7 @@
                 fillTable('#runs-table', result);
             },
             failure: function (result) {
-                alert("Error loading page: " + result);
+            	console.log("Error loading runs: " + result);
             }
         });
         $.ajax({
@@ -89,7 +89,7 @@
                 fillTable('#problems-table', result);
             },
             failure: function (result) {
-                alert("Error loading page: " + result);
+            	console.log("Error loading problems: " + result);
             }
         });
     });
