@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.util.Balloon;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;

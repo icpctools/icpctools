@@ -19,12 +19,12 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.util.Balloon;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
-import org.icpc.tools.presentation.contest.internal.presentations.Balloon;
 
 public class BalloonMapPresentation extends AbstractICPCPresentation {
 	private static final long TIME_TO_KEEP_SOLVED = 11000;
