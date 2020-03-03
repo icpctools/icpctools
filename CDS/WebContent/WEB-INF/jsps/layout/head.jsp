@@ -92,7 +92,7 @@
               <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
-                  <%= contest3.getName() %>
+                  <%= contest3.getName() != null ? contest3.getName() : "(unnamed contest)" %>
                   <i class="right fas fa-angle-left"></i>
                 </p>
               </a>
@@ -164,8 +164,8 @@
           <div class="row mb-2">
             <div class="col-sm-10">
               <% String contestName = "";
-             if (contest != null)
-            	 contestName = contest.getName() + " "; %>
+               if (contest != null && contest.getName() != null)
+                   contestName = contest.getName() + " "; %>
               <h1 class="m-0 text-dark"><%= contestName %><%= request.getAttribute("title") %></h1>
             </div><!-- /.col -->
           </div><!-- /.row -->
