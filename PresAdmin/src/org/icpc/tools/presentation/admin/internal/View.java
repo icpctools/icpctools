@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,8 @@ public class View {
 			@Override
 			protected void handleLogResponse(JsonObject obj) throws IOException {
 				int sourceUID = getUID(obj, "source");
-				clientsControl.handleLog(sourceUID, obj.getString("data"));
+				byte[] b = Base64.getDecoder().decode(obj.getString("data"));
+				clientsControl.handleLog(sourceUID, new String(b));
 			}
 
 			@Override

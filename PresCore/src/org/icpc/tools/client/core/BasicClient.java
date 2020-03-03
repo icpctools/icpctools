@@ -365,7 +365,7 @@ public class BasicClient {
 		createJSON(Type.LOG, je -> {
 			je.encode("source", Integer.toHexString(uid));
 			je.encode("target", Integer.toHexString(toUID));
-			je.encode("data", Trace.getLogContents2());
+			je.encode("data", Base64.getEncoder().encodeToString(Trace.getLogContents2().getBytes()));
 		});
 	}
 
