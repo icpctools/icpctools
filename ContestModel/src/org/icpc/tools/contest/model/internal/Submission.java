@@ -7,6 +7,7 @@ import java.util.Map;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Submission extends TimedEvent implements ISubmission {
@@ -161,8 +162,14 @@ public class Submission extends TimedEvent implements ISubmission {
 		if (c.getProblemById(problemId) == null)
 			errors.add("Invalid problem " + problemId);
 
-		if (c.getTeamById(teamId) == null)
+		ITeam team = c.getTeamById(teamId);
+		if (team == null)
 			errors.add("Invalid team " + teamId);
+		else if (!c.isTeamHidden(team)) {
+			// check that the submission is after the start of the contest if it is a public team)
+			if (c.getStartTime() == null || c.getStartTime() > getTime())
+				errors.add("Submission occured before the contest started");
+		}
 
 		if (errors.isEmpty())
 			return null;

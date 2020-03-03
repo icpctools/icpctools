@@ -470,7 +470,7 @@ public class ConfiguredContest {
 
 	public String getTestString() {
 		if (test == null)
-			return "N/A";
+			return "Not configured";
 		return test.toString();
 	}
 
