@@ -134,6 +134,11 @@ public abstract class AbstractChartPresentation extends Presentation {
 		initLines();
 	}
 
+	@Override
+	public long getRepeat() {
+		return 15000; // 15s
+	}
+
 	// create series, set labels, etc.
 	protected abstract void setupChart();
 
