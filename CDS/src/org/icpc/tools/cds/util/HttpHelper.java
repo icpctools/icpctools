@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class HttpHelper {
+	private static final String OK_CHARS = new String("[]{},.~`?!@#$^&*()-_=+;:'\"|");
+
 	public static void setThreadHost(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder(request.getServerName());
 		if (true) {
@@ -85,5 +87,37 @@ public class HttpHelper {
 		}
 
 		bin.close();
+	}
+
+	/**
+	 * Sanitize a string to avoid cross-site scripting attacks.
+	 *
+	 * @param s
+	 * @return a sanitized version where all non-valid characters are changed to '-'.
+	 */
+	public static String sanitize(String s) {
+		StringBuilder sb = new StringBuilder();
+		for (char c : s.toCharArray()) {
+			if (Character.isAlphabetic(c) || Character.isDigit(c) || Character.isWhitespace(c) || OK_CHARS.indexOf(c) >= 0)
+				sb.append(c);
+			else
+				sb.append("-");
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Strip any non-valid characters from a string to avoid cross-site scripting attacks.
+	 *
+	 * @param s
+	 * @return a sanitized version where all non-valid characters are removed.
+	 */
+	public static String strip(String s) {
+		StringBuilder sb = new StringBuilder();
+		for (char c : s.toCharArray()) {
+			if (Character.isAlphabetic(c) || Character.isDigit(c) || Character.isWhitespace(c) || OK_CHARS.indexOf(c) >= 0)
+				sb.append(c);
+		}
+		return sb.toString();
 	}
 }

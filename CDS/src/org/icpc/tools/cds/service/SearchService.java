@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
+import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
@@ -35,14 +36,7 @@ public class SearchService extends HttpServlet {
 
 		String searchTerm = request.getParameter("value");
 		if (searchTerm != null) {
-			StringBuilder sb = new StringBuilder();
-			for (char c : searchTerm.toCharArray()) {
-				if (Character.isAlphabetic(c) || Character.isDigit(c) || Character.isWhitespace(c))
-					sb.append(c);
-				else
-					sb.append("-");
-			}
-			request.setAttribute("value", sb.toString());
+			request.setAttribute("value", HttpHelper.strip(searchTerm));
 			request.getRequestDispatcher("/WEB-INF/jsps/search.jsp").forward(request, response);
 			return;
 		}
@@ -108,39 +102,41 @@ public class SearchService extends HttpServlet {
 			try {
 				ILanguage[] langs = contest.getLanguages();
 				for (ILanguage lang : langs) {
-					if (lang.getName().toLowerCase().contains(search)) {
+					if (lang.getName() != null && lang.getName().toLowerCase().contains(search)) {
 						write(en, lang, lang.getName());
 					}
 				}
 
 				IProblem[] probs = contest.getProblems();
 				for (IProblem prob : probs) {
-					if (prob.getName().toLowerCase().contains(search)) {
+					if (prob.getName() != null && prob.getName().toLowerCase().contains(search)) {
 						write(en, prob, prob.getName());
 					}
 				}
 
 				IOrganization[] orgs = contest.getOrganizations();
 				for (IOrganization org : orgs) {
-					if (org.getName().toLowerCase().contains(search)) {
+					if (org.getName() != null && org.getName().toLowerCase().contains(search)) {
 						write(en, org, org.getName());
-					} else if (org.getFormalName() != null && org.getFormalName().toLowerCase().contains(search)) {
+					} else if (org.getFormalName() != null && org.getFormalName() != null
+							&& org.getFormalName().toLowerCase().contains(search)) {
 						write(en, org, org.getFormalName());
-					} else if (org.getCountry() != null && org.getCountry().toLowerCase().contains(search)) {
+					} else if (org.getCountry() != null && org.getCountry() != null
+							&& org.getCountry().toLowerCase().contains(search)) {
 						write(en, org, org.getCountry());
 					}
 				}
 
 				IGroup[] groups = contest.getGroups();
 				for (IGroup group : groups) {
-					if (group.getName().toLowerCase().contains(search)) {
+					if (group.getName() != null && group.getName().toLowerCase().contains(search)) {
 						write(en, group, group.getName());
 					}
 				}
 
 				ITeam[] teams = contest.getTeams();
 				for (ITeam team : teams) {
-					if (team.getName().toLowerCase().contains(search)) {
+					if (team.getName() != null && team.getName().toLowerCase().contains(search)) {
 						write(en, team, team.getName());
 					} else if (team.getDisplayName() != null && team.getDisplayName().toLowerCase().contains(search)) {
 						write(en, team, team.getDisplayName());
@@ -149,12 +145,12 @@ public class SearchService extends HttpServlet {
 
 				IClarification[] clars = contest.getClarifications();
 				for (IClarification clar : clars) {
-					if (clar.getText().toLowerCase().contains(search)) {
+					if (clar.getText() != null && clar.getText().toLowerCase().contains(search)) {
 						write(en, clar, clar.getText());
 					}
 				}
 			} catch (Exception e) {
-				System.err.println("Could not search " + cc.getId() + ": " + e.getMessage());
+				Trace.trace(Trace.ERROR, "Could not search " + cc.getId() + ": " + e.getMessage(), e);
 			}
 			en.closeArray();
 			en.close();
