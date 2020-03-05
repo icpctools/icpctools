@@ -28,9 +28,21 @@ public class SearchService extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("ICPC-Tools", "CDS");
+		response.setHeader("X-Frame-Options", "sameorigin");
+
 		String searchTerm = request.getParameter("value");
 		if (searchTerm != null) {
+			StringBuilder sb = new StringBuilder();
+			for (char c : searchTerm.toCharArray()) {
+				if (Character.isAlphabetic(c) || Character.isDigit(c) || Character.isWhitespace(c))
+					sb.append(c);
+				else
+					sb.append("-");
+			}
+			request.setAttribute("value", sb.toString());
 			request.getRequestDispatcher("/WEB-INF/jsps/search.jsp").forward(request, response);
 			return;
 		}
@@ -54,6 +66,11 @@ public class SearchService extends HttpServlet {
 
 		if (searchTerm.length() < 3) {
 			response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "Search string too short");
+			return;
+		}
+
+		if (!searchTerm.matches("[\\w*\\s*]*")) {
+			response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "Please enter only letters, numbers, and spaces.");
 			return;
 		}
 

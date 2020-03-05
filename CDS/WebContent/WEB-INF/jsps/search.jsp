@@ -1,4 +1,4 @@
-<% request.setAttribute("title", "Search for '" + request.getParameter("value") + "'"); %>
+<% request.setAttribute("title", "Search for '" + request.getAttribute("value") + "'"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
     <div class="row">
@@ -35,7 +35,10 @@
             fillTable();
         }).fail(function (result) {
             console.log(result);
-            alert("Could not perform search (" + result.status + ":" + result.statusText + ")");
+            var col = $('<td colspan=4>Could not perform search (' + result.status + ':' + result.statusText + ')</td>');
+            var row = $('<tr></tr>');
+            row.append(col);
+            $('#search-table tbody').append(row);
         })
     }
 

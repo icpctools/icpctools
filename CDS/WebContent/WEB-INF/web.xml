@@ -2,11 +2,11 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
   <display-name>CDS</display-name>
   <error-page>
-    <location>/errorPage.jsp</location>
+    <location>/WEB-INF/jsps/errorPage.jsp</location>
   </error-page>
   <error-page>
     <exception-type>java.lang.Throwable</exception-type>
-    <location>/errorPage.jsp</location>
+    <location>/WEB-INF/jsps/errorPage.jsp</location>
   </error-page>
   <welcome-file-list>
   	<welcome-file>/welcome</welcome-file>
