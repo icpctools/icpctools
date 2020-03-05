@@ -74,7 +74,7 @@
     };
 
     window.onload = function () {
-        var term = '<%= request.getParameter("value") %>';
+        var term = '<%= request.getAttribute("value") %>';
         if (term != null && term.length > 0)
             searchFor(term);
     };
