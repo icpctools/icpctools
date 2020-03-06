@@ -39,8 +39,8 @@ public class Info extends ContestObject implements IInfo {
 	private int freezeDuration;
 	private int penalty;
 	private double timeMultiplier = Double.NaN;
-	private double latitude = Double.MIN_VALUE;
-	private double longitude = Double.MIN_VALUE;
+	private double latitude = Double.NaN;
+	private double longitude = Double.NaN;
 	private FileReferenceList banner;
 	private FileReferenceList logo;
 
@@ -257,11 +257,11 @@ public class Info extends ContestObject implements IInfo {
 		if (!Double.isNaN(timeMultiplier))
 			props.put(TIME_MULTIPLIER, timeMultiplier);
 
-		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
 			List<String> attrs = new ArrayList<>(2);
-			if (latitude != Double.MIN_VALUE)
+			if (!Double.isNaN(latitude))
 				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (longitude != Double.MIN_VALUE)
+			if (!Double.isNaN(longitude))
 				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
@@ -293,11 +293,11 @@ public class Info extends ContestObject implements IInfo {
 		if (!Double.isNaN(timeMultiplier))
 			je.encode(TIME_MULTIPLIER, timeMultiplier);
 
-		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
 			List<String> attrs = new ArrayList<>(2);
-			if (latitude != Double.MIN_VALUE)
+			if (!Double.isNaN(latitude))
 				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (longitude != Double.MIN_VALUE)
+			if (!Double.isNaN(longitude))
 				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
 			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
 		}

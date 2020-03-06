@@ -31,8 +31,8 @@ public class Organization extends ContestObject implements IOrganization {
 	private String country;
 	private String url;
 	private String hashtag;
-	private double latitude = Double.MIN_VALUE;
-	private double longitude = Double.MIN_VALUE;
+	private double latitude = Double.NaN;
+	private double longitude = Double.NaN;
 	private FileReferenceList logo;
 
 	@Override
@@ -177,11 +177,11 @@ public class Organization extends ContestObject implements IOrganization {
 		props.put(COUNTRY, country);
 		props.put(URL, url);
 		props.put(HASHTAG, hashtag);
-		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
 			List<String> attrs = new ArrayList<>(2);
-			if (latitude != Double.MIN_VALUE)
+			if (!Double.isNaN(latitude))
 				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (longitude != Double.MIN_VALUE)
+			if (!Double.isNaN(Double.NaN))
 				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
@@ -200,11 +200,11 @@ public class Organization extends ContestObject implements IOrganization {
 			je.encode(URL, url);
 		if (hashtag != null)
 			je.encode(HASHTAG, hashtag);
-		if (latitude != Double.MIN_VALUE || longitude != Double.MIN_VALUE) {
+		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
 			List<String> attrs = new ArrayList<>(2);
-			if (latitude != Double.MIN_VALUE)
+			if (!Double.isNaN(latitude))
 				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (longitude != Double.MIN_VALUE)
+			if (!Double.isNaN(longitude))
 				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
 			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
 		}

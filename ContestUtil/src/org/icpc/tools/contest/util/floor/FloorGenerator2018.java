@@ -120,7 +120,7 @@ public class FloorGenerator2018 extends FloorGenerator {
 			floor.createAisle(x + taw + 1, y, x + taw + 1, 0);
 			floor.createAisle(x - 10 * taw, y, x - 10 * taw, 0);
 
-			floor.writeCSV(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

@@ -133,7 +133,7 @@ public class FloorGenerator2013 extends FloorGenerator {
 
 			IPrinter p = floor.createPrinter(rowX, topAisleY - rowDelta / 3f);
 
-			floor.write(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

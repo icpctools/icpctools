@@ -175,11 +175,14 @@ public class Problem extends ContestObject implements IProblem {
 		je.encode(ID, id);
 		if (label != null)
 			je.encode(LABEL, label);
-		je.encode(NAME, name);
+		if (name != null)
+			je.encode(NAME, name);
 		if (ordinal != Integer.MIN_VALUE)
 			je.encode(ORDINAL, ordinal);
-		je.encode(COLOR, color);
-		je.encode(RGB, rgb);
+		if (color != null)
+			je.encode(COLOR, color);
+		if (rgb != null)
+			je.encode(RGB, rgb);
 		if (x != Double.MIN_VALUE)
 			je.encode(X, round(x));
 		if (y != Double.MIN_VALUE)

@@ -138,7 +138,7 @@ public class FloorGenerator2016 extends FloorGenerator {
 			/*floor.createBalloon("A", x + tx, y - dyRow + 0.5f);
 			floor.createBalloon("D", x + tx, y - dyRow + 2.25f);*/
 
-			floor.write(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

@@ -7,8 +7,8 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.FloorMap.Path;
+import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.internal.Printer;
 
 public class FloorGeneratorNAC extends FloorGenerator {
 	// table width (in meters). ICPC standard is 1.8
@@ -126,7 +126,7 @@ public class FloorGeneratorNAC extends FloorGenerator {
 			for (int i = 0; i < 10; i++)
 				floor.createBalloon(balloon.charAt(i) + "", bx + i * 2, -8);
 
-			Printer p = floor.createPrinter(25, 5);
+			IPrinter p = floor.createPrinter(25, 5);
 
 			// fix teams
 			// ((Team) floor.getTeam(54)).add("id", "<-1>");

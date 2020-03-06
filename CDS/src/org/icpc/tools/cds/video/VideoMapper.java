@@ -7,6 +7,7 @@ import java.util.Map;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
+import org.icpc.tools.cds.video.VideoAggregator.Status;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
@@ -32,6 +33,18 @@ public class VideoMapper {
 	private VideoMapper(String namePattern, int order) {
 		this.namePattern = namePattern;
 		this.order = order;
+	}
+
+	public Status getStatus(String teamId) {
+		if (teamId == null)
+			return null;
+
+		Integer in = map.get(teamId);
+		if (in == null)
+			return null;
+		int stream = in;
+		VideoStream vi = va.getVideoInfo().get(stream);
+		return vi.getStatus();
 	}
 
 	public void writeStatus(JSONEncoder je) {

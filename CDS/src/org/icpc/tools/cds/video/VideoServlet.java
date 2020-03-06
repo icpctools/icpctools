@@ -1,9 +1,15 @@
 package org.icpc.tools.cds.video;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import javax.imageio.ImageIO;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.ServletException;
@@ -18,8 +24,11 @@ import org.icpc.tools.cds.service.AppAsyncListener;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
+import org.icpc.tools.cds.video.VideoAggregator.Status;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
+import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
@@ -38,7 +47,22 @@ public class VideoServlet extends HttpServlet {
 	private static final String RESET = "reset";
 	private static final String MODE = "mode";
 
+	private static final Dimension SIZE = new Dimension(800, 600);
+
+	private static final Color[] STATUS_COLORS = new Color[] { Color.WHITE, new Color(230, 63, 63),
+			new Color(95, 95, 230), new Color(63, 230, 63) };
+
 	private static VideoAggregator va = VideoAggregator.getInstance();
+
+	public static VideoMapper getMapper(String s) {
+		if (s.equals("desktop"))
+			return VideoMapper.DESKTOP;
+		else if (s.equals("webcam"))
+			return VideoMapper.WEBCAM;
+		else if (s.equals("audio"))
+			return VideoMapper.AUDIO;
+		return null;
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -68,6 +92,10 @@ public class VideoServlet extends HttpServlet {
 		}
 
 		if (path == null || !path.startsWith("/")) {
+			if (!Role.isBlue(request)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
 			String resetAll = request.getParameter(RESET_ALL);
 			String modeParam = request.getParameter(MODE);
 			if ((resetAll != null || modeParam != null) && !Role.isAdmin(request)) {
@@ -222,5 +250,24 @@ public class VideoServlet extends HttpServlet {
 		je.encode("total_listeners", va.getTotal());
 		je.encode("total_time", ContestUtil.formatTime(va.getTotalTime()));
 		je.close();
+	}
+
+	public static void writeStatusImage(IContest contest, VideoMapper mapper, OutputStream out) throws IOException {
+		FloorMap map = new FloorMap(contest);
+		Rectangle r = new Rectangle(SIZE);
+		BufferedImage image = new BufferedImage(SIZE.width, SIZE.height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) image.getGraphics();
+		map.drawFloor(g, r, new FloorMap.FloorColors() {
+			@Override
+			public Color getDeskFillColor(String teamId) {
+				Status status = mapper.getStatus(teamId);
+				if (status == null)
+					return null;
+				return STATUS_COLORS[status.ordinal()];
+			}
+		}, false);
+		g.dispose();
+
+		ImageIO.write(image, "png", out);
 	}
 }

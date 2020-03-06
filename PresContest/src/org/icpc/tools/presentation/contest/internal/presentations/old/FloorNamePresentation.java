@@ -26,7 +26,7 @@ public class FloorNamePresentation extends AbstractICPCPresentation {
 	public void paint(Graphics2D g) {
 		IContest contest = getContest();
 		if (floor == null)
-			floor = FloorMap.getInstance(contest);
+			floor = new FloorMap(contest);
 
 		final ITeam team = contest.getTeams()[((int) (getTimeMs() / 2000f)) % contest.getNumTeams()];
 

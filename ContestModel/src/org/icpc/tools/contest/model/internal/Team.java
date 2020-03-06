@@ -37,9 +37,9 @@ public class Team extends ContestObject implements ITeam {
 	private String[] groupIds;
 	private String organizationId;
 	private String icpcId;
-	private double x = Double.MIN_VALUE;
-	private double y = Double.MIN_VALUE;
-	private double rotation = Double.MIN_VALUE;
+	private double x = Double.NaN;
+	private double y = Double.NaN;
+	private double rotation = Double.NaN;
 	private FileReferenceList photo;
 	private FileReferenceList video;
 	private FileReferenceList desktop;
@@ -355,13 +355,13 @@ public class Team extends ContestObject implements ITeam {
 		props.put(DESKTOP, desktop);
 		props.put(WEBCAM, webcam);
 		props.put(AUDIO, audio);
-		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation != Double.MIN_VALUE) {
+		if (!Double.isNaN(x) || !Double.isNaN(y) || !Double.isNaN(rotation)) {
 			List<String> attrs = new ArrayList<>(3);
-			if (x != Double.MIN_VALUE)
+			if (!Double.isNaN(x))
 				attrs.add("\"" + X + "\":" + round(x));
-			if (y != Double.MIN_VALUE)
+			if (!Double.isNaN(y))
 				attrs.add("\"" + Y + "\":" + round(y));
-			if (rotation != Double.MIN_VALUE)
+			if (!Double.isNaN(rotation))
 				attrs.add("\"" + ROTATION + "\":" + round(rotation));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
@@ -371,7 +371,8 @@ public class Team extends ContestObject implements ITeam {
 	public void writeBody(JSONEncoder je) {
 		je.encode(ID, id);
 
-		je.encode(NAME, name);
+		if (name != null)
+			je.encode(NAME, name);
 		if (displayName != null)
 			je.encode(DISPLAY_NAME, displayName);
 		if (icpcId != null)
@@ -389,13 +390,13 @@ public class Team extends ContestObject implements ITeam {
 		je.encodeSubs(WEBCAM, webcam, false);
 		je.encodeSubs(AUDIO, audio, false);
 
-		if (x != Double.MIN_VALUE || y != Double.MIN_VALUE || rotation != Double.MIN_VALUE) {
+		if (!Double.isNaN(x) || !Double.isNaN(y) || !Double.isNaN(rotation)) {
 			List<String> attrs = new ArrayList<>(3);
-			if (x != Double.MIN_VALUE)
+			if (!Double.isNaN(x))
 				attrs.add("\"" + X + "\":" + round(x));
-			if (y != Double.MIN_VALUE)
+			if (!Double.isNaN(y))
 				attrs.add("\"" + Y + "\":" + round(y));
-			if (rotation != Double.MIN_VALUE)
+			if (!Double.isNaN(rotation))
 				attrs.add("\"" + ROTATION + "\":" + round(rotation));
 			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
 		}

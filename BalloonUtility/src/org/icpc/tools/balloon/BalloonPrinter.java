@@ -34,13 +34,14 @@ import org.icpc.tools.contest.model.FloorMap.AisleIntersection;
 import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
+import org.icpc.tools.contest.model.IMapInfo;
 import org.icpc.tools.contest.model.IOrganization;
-import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.contest.model.feed.XMLFeedParser;
+import org.icpc.tools.contest.model.feed.NDJSONFeedParser;
+import org.icpc.tools.contest.model.internal.Contest;
 
 public class BalloonPrinter {
 	public static final String[] DEFAULT_MESSAGES = new String[] { "First balloon in contest!",
@@ -104,16 +105,14 @@ public class BalloonPrinter {
 		if (bc2 == null) {
 			bc2 = new BalloonContest();
 
-			try (InputStream in = getClass().getResourceAsStream("/sample/events.xml")) {
-				bc2.setContest(XMLFeedParser.importFromStream(in, null));
+			try (InputStream in = getClass().getResourceAsStream("/sample/event-feed.json")) {
+				Contest contest = new Contest();
+				bc2.setContest(contest);
+				NDJSONFeedParser parser = new NDJSONFeedParser();
+				parser.parse(contest, in);
+				map = new FloorMap(contest);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading sample contest", e);
-			}
-
-			try (InputStream in = getClass().getResourceAsStream("/sample/contestFloor.txt")) {
-				map = new FloorMap(in);
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Error loading floor map", e);
 			}
 
 			b2 = new Balloon("1", null);
@@ -527,17 +526,14 @@ public class BalloonPrinter {
 
 		try {
 			if (map == null)
-				map = FloorMap.getInstance(c);
+				map = new FloorMap(c);
 
-			IPrinter printer = map.getPrinter();
-			IProblem balloon = map.getBalloon(problem.getLabel());
 			Path path1 = null;
-			Path path2 = null;
-			if (balloon != null) {
-				path1 = map.getPath(printer, balloon);
-				path2 = map.getPath(balloon, team);
-			}
-			drawFloorImpl(device, gc, map, new Rectangle(r.x, yy, r.width, r.height - yy - p.y), path1, path2,
+			IMapInfo mapInfo = c.getMapInfo();
+			if (mapInfo != null && mapInfo.getPrinter() != null)
+				path1 = map.getPath(mapInfo.getPrinter(), problem);
+			Path path2 = map.getPath(problem, team);
+			drawFloorImpl(device, gc, c, map, new Rectangle(r.x, yy, r.width, r.height - yy - p.y), path1, path2,
 					team.getId());
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error drawing map", e);
@@ -585,7 +581,7 @@ public class BalloonPrinter {
 		return (yy + fm.getHeight());
 	}
 
-	protected void drawFloorImpl(Device device, GC gc, FloorMap floor, Rectangle r, Path path1, Path path2,
+	protected void drawFloorImpl(Device device, GC gc, IContest c, FloorMap floor, Rectangle r, Path path1, Path path2,
 			String teamId) {
 		Rectangle2D.Double bounds = floor.getBounds(false);
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
@@ -626,8 +622,20 @@ public class BalloonPrinter {
 			gc.setLineWidth(1);
 		}
 
+		IMapInfo mapInfo = c.getMapInfo();
+		if (mapInfo == null)
+			return;
+
+		double tableWidth = mapInfo.getTableWidth();
+		double tableDepth = mapInfo.getTableDepth();
+		double teamAreaWidth = mapInfo.getTeamAreaWidth();
+		double teamAreaDepth = mapInfo.getTeamAreaDepth();
+
 		gc.setForeground(device.getSystemColor(SWT.COLOR_BLACK));
-		for (ITeam team : floor.teams) {
+		for (ITeam team : c.getTeams()) {
+			if (Double.isNaN(team.getX()) || Double.isNaN(team.getY()))
+				continue;
+
 			Transform oldTrans = new Transform(device);
 			gc.getTransform(oldTrans);
 			Transform transform = new Transform(device);
@@ -637,8 +645,6 @@ public class BalloonPrinter {
 			float yt = r.y + (int) ((team.getY() - bounds.y) * scale);
 
 			// team area
-			double teamAreaDepth = floor.teamAreaDepth;
-			double teamAreaWidth = floor.teamAreaWidth;
 			float dx = 1f;
 			transform.translate(xt, yt);
 			transform.rotate((float) -team.getRotation());
@@ -655,8 +661,6 @@ public class BalloonPrinter {
 			gc.drawRectangle(tr1);
 
 			// chairs
-			double tableDepth = floor.tableDepth;
-			double tableWidth = floor.tableWidth;
 
 			// table
 			Rectangle tr = new Rectangle((int) (-tableDepth * scale / 2f), (int) (-tableWidth * scale / 2f),
@@ -691,7 +695,7 @@ public class BalloonPrinter {
 		}
 
 		gc.setForeground(device.getSystemColor(SWT.COLOR_BLACK));
-		for (IProblem b : floor.balloons) {
+		for (IProblem b : c.getProblems()) {
 			float dim = 1.7f;
 			double d = dim * scale;
 			int x = r.x + (int) ((b.getX() - bounds.x) * scale);
@@ -713,16 +717,14 @@ public class BalloonPrinter {
 		if (bc2 == null) {
 			bc2 = new BalloonContest();
 
-			try (InputStream in = getClass().getResourceAsStream("/sample/events.xml")) {
-				bc2.setContest(XMLFeedParser.importFromStream(in, null));
+			try (InputStream in = getClass().getResourceAsStream("/sample/event-feed.json")) {
+				Contest contest = new Contest();
+				bc2.setContest(contest);
+				NDJSONFeedParser parser = new NDJSONFeedParser();
+				parser.parse(contest, in);
+				map = new FloorMap(contest);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading sample contest", e);
-			}
-
-			try (InputStream in = getClass().getResourceAsStream("/sample/contestFloor.txt")) {
-				map = new FloorMap(in);
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Error loading floor map", e);
 			}
 
 			b2 = new Balloon("1", null);
