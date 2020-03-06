@@ -50,7 +50,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 		if (floor == null)
-			floor = FloorMap.getInstance(contest);
+			floor = new FloorMap(contest);
 		ITeam[] teams = contest.getTeams();
 		ContestUtil.sort(teams);
 		ITeam team = teams[(int) (getRepeatTimeMs() / MS_PER_TEAM)];

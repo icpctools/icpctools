@@ -55,7 +55,7 @@ public class FloorPresentation extends AbstractICPCPresentation {
 			return;
 
 		if (floor == null)
-			floor = FloorMap.getInstance(contest);
+			floor = new FloorMap(contest);
 
 		int h = fm.getHeight() + 20;
 		g.setFont(tableFont);

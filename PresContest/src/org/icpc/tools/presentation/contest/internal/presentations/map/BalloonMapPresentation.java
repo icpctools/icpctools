@@ -85,16 +85,16 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 	public void init() {
 		WorldMap.load(getClass());
 
-		getContest().addListener(listener);
+		IContest contest = getContest();
+		if (contest == null)
+			return;
+
+		contest.addListener(listener);
 
 		if (balloonImages != null)
 			return;
 
 		Balloon.load(getClass());
-
-		IContest contest = getContest();
-		if (contest == null)
-			return;
 
 		IProblem[] problems = contest.getProblems(); // TODO update at contest start
 		BufferedImage[] temp = new BufferedImage[problems.length];
@@ -172,10 +172,10 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 		IContest contest = getContest();
 
 		double o_lon = contest.getLongitude();
-		if (o_lon == Double.NaN)
+		if (Double.isNaN(o_lon))
 			o_lon = -8.6178885;
 		double o_lat = contest.getLatitude();
-		if (o_lat == Double.NaN)
+		if (Double.isNaN(o_lat))
 			o_lat = 41.1465519;
 
 		ITeam team = contest.getTeamById(submission.getTeamId());
@@ -264,13 +264,13 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 			IOrganization org = contest.getOrganizationById(t.getOrganizationId());
 			if (org != null) {
 				double lat = org.getLatitude();
-				if (lat != Double.MIN_VALUE) {
+				if (!Double.isNaN(lat)) {
 					minLat = Math.min(minLat, lat);
 					maxLat = Math.max(maxLat, lat);
 				}
 
 				double lon = org.getLongitude();
-				if (lon != Double.MIN_VALUE) {
+				if (!Double.isNaN(lon)) {
 					minLon = Math.min(minLon, lon - 3);
 					maxLon = Math.max(maxLon, lon + 3);
 				}

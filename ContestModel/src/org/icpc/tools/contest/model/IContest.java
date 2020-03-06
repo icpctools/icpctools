@@ -554,6 +554,13 @@ public interface IContest {
 	IAward getAwardById(String id);
 
 	/**
+	 * Return the extended map info for this contest.
+	 *
+	 * @return the map info
+	 */
+	IMapInfo getMapInfo();
+
+	/**
 	 * Validate all contest objects that can be validated.
 	 *
 	 * @return a list of validation issues

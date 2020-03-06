@@ -157,7 +157,7 @@ public class FloorGenerator2017 extends FloorGenerator {
 			// for (int i = 0; i < 7; i++)
 			// floor.createBalloon(balloon.charAt(6 - i) + "", x + bx, y - by * i);
 
-			floor.writeCSV(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
@@ -30,12 +30,12 @@ public class WavePresentation extends AbstractICPCPresentation {
 		min = 100000;
 		max = -100000;
 		String teamId = TeamUtil.getTeamId();
-		FloorMap map = FloorMap.getInstance(getContest());
-		for (ITeam t : map.getTeams()) {
+		IContest contest = getContest();
+		for (ITeam t : contest.getTeams()) {
 			min = Math.min(min, t.getX());
 			max = Math.max(max, t.getX());
 		}
-		ITeam t = map.getTeamById(teamId);
+		ITeam t = contest.getTeamById(teamId);
 		if (t != null)
 			x = t.getX();
 		Trace.trace(Trace.INFO, "Floor map team: " + min + " -> " + max + " " + x);

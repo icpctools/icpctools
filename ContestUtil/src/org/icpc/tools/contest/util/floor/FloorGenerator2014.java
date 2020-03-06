@@ -148,7 +148,7 @@ public class FloorGenerator2014 extends FloorGenerator {
 			IPrinter p = floor.createPrinter(wid - aisleWidth / 2, bottomAisleY);
 
 			floor.rotate(180);
-			floor.write(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

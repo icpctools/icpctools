@@ -210,7 +210,7 @@ public class ContestRESTService extends HttpServlet {
 		CompositeFilter filter = new CompositeFilter();
 
 		boolean isArray = true;
-		if (segments.length == 1 || type2 == ContestType.STATE)
+		if (segments.length == 1 || type2 == ContestType.STATE || type2 == ContestType.MAP_INFO)
 			isArray = false;
 		if (ind == 3 && segments.length == 3) {
 			// id filtering

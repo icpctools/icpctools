@@ -81,16 +81,17 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 	public void init() {
 		super.init();
 
-		getContest().addListener(listener);
+		IContest contest = getContest();
+		if (contest == null)
+			return;
+
+		floor = new FloorMap(contest);
+		contest.addListener(listener);
 
 		if (balloonImages != null)
 			return;
 
 		Balloon.load(getClass());
-
-		IContest contest = getContest();
-		if (contest == null)
-			return;
 
 		IProblem[] problems = contest.getProblems(); // TODO update at contest start
 		BufferedImage[] temp = new BufferedImage[problems.length];
@@ -163,9 +164,6 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		IContest contest = getContest();
 		IProblem problem = contest.getProblemById(submission.getProblemId());
 		ITeam team = contest.getTeamById(submission.getTeamId());
-		if (floor == null)
-			floor = FloorMap.getInstance(contest);
-
 		sr.path = floor.getPath(problem, team);
 		sr.anim = new Animator(0, SUBMISSION_MOVEMENT);
 		sr.anim.setTarget(sr.path.getDistance());
@@ -233,8 +231,6 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		IContest contest = getContest();
-		if (floor == null)
-			floor = FloorMap.getInstance(contest);
 		if (balloonImages == null)
 			return;
 
@@ -283,7 +279,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 				if (teamIds.contains(sr.team.getId()))
 					continue;
 				teamIds.add(sr.team.getId());
-				ITeam team = floor.getTeamById(sr.submission.getTeamId());
+				ITeam team = contest.getTeamById(sr.submission.getTeamId());
 				if (team != null) {
 					Point2D p2 = floor.getPosition(r, team.getX(), team.getY());
 					if (sr.fullAge < 3000) {

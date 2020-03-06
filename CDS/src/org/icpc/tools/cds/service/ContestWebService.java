@@ -27,7 +27,8 @@ import org.icpc.tools.cds.RSSWriter;
 import org.icpc.tools.cds.presentations.PresentationFilesServlet;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.util.Role;
-import org.icpc.tools.cds.web.VideoStatusServlet;
+import org.icpc.tools.cds.video.VideoMapper;
+import org.icpc.tools.cds.video.VideoServlet;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IProblem;
@@ -330,15 +331,20 @@ public class ContestWebService extends HttpServlet {
 
 				writer.writePostlude();
 				return;
-			} else if (segments.length == 3 && segments[1].equals("video") && segments[2].equals("status")) {
-				VideoStatusServlet.doGet(cc, request, response);
-				return;
+			} else if (segments[1].equals("video")) {
+				if (segments.length == 3 && segments[2].equals("status")) {
+					request.getRequestDispatcher("/WEB-INF/jsps/video.jsp").forward(request, response);
+					return;
+				} else if (segments.length == 4 && segments[2].equals("map")) {
+					VideoMapper map = VideoServlet.getMapper(segments[3]);
+					if (map != null) {
+						response.setContentType("image/png");
+						VideoServlet.writeStatusImage(cc.getContestByRole(request), map, response.getOutputStream());
+						return;
+					}
+				}
 			} else if (segments[1].equals("reports")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/reports.jsp").forward(request, response);
-				return;
-			} else if (segments[1].equals("floor-map.tsv")) {
-				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "floor-map.tsv");
-				PresentationFilesServlet.sendFile(f, request, response);
 				return;
 			} else if (segments[1].equals("staff-members.tsv")) {
 				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "staff-members.tsv");

@@ -2,9 +2,9 @@ package org.icpc.tools.contest.util;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.util.floor.FloorGenerator;
 
 public class FloorGeneratorTest extends FloorGenerator {
@@ -62,7 +62,7 @@ public class FloorGeneratorTest extends FloorGenerator {
 				floor.createBalloon(balloon.charAt(i - 1) + "", bx, by);
 			}
 
-			floor.writeCSV(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

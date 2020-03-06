@@ -25,7 +25,6 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IProblem;
-import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.TSVImporter;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -36,7 +35,6 @@ import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.IContestModifier;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
-import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
 import org.icpc.tools.contest.model.internal.TeamMember;
@@ -950,27 +948,10 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			Trace.trace(Trace.INFO, "Importing contest floor map");
-			FloorMap map = FloorMap.importMap(root);
-			if (map != null) {
-				List<ITeam> teams = map.getTeams();
-				for (ITeam t : teams) {
-					ITeam tt = contest.getTeamById(t.getId());
-					if (tt != null) {
-						((ContestObject) tt).add("x", t.getX() + "");
-						((ContestObject) tt).add("y", t.getY() + "");
-						((ContestObject) tt).add("rotation", t.getRotation() + "");
-					}
-				}
-
-				List<IProblem> problems = map.getProblems();
-				for (IProblem p : problems) {
-					for (IProblem pp : contest.getProblems()) {
-						if (pp.getLabel().equals(p.getLabel())) {
-							((Problem) pp).add("x", p.getX() + "");
-							((Problem) pp).add("y", p.getY() + "");
-						}
-					}
-				}
+			File f = getConfigFile(root, "floor-map.tsv");
+			if (f.exists()) {
+				FloorMap map = new FloorMap(contest);
+				map.load(new FileInputStream(f));
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing floor map: " + e.getMessage());

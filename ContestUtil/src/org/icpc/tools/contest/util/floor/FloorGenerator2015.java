@@ -92,7 +92,7 @@ public class FloorGenerator2015 extends FloorGenerator {
 			for (int i = 0; i < max; i++)
 				floor.createBalloon(balloon.substring(i, i + 1), -b * 3, maxY * i / (max - 1));
 
-			floor.write(System.out);
+			floor.writeTSV(System.out);
 
 			Trace.trace(Trace.USER, "------------------");
 

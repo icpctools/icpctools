@@ -3,6 +3,6 @@ package org.icpc.tools.contest.model;
 /**
  * A printer.
  */
-public interface IPrinter extends IContestObject, IPosition {
+public interface IPrinter extends IPosition {
 	// empty
 }

@@ -13,9 +13,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,10 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
-import org.icpc.tools.contest.model.internal.Printer;
+import org.icpc.tools.contest.model.internal.MapInfo;
+import org.icpc.tools.contest.model.internal.MapInfo.Aisle;
+import org.icpc.tools.contest.model.internal.MapInfo.Printer;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Team;
 
@@ -40,6 +38,7 @@ public class FloorMap {
 	public static final double W = 180;
 
 	private static final String NO_ID = "<-1>";
+	private static final String TAB = "\t";
 
 	// default colors for printing
 	public static class FloorColors {
@@ -113,29 +112,25 @@ public class FloorMap {
 		}
 	}
 
-	private static final String COMMA = ",";
-	private static final String TAB = "\t";
+	// table width (in meters). ICPC standard is 1.8
+	// public double tableWidth = 1.8;
 
-	public double tableWidth;
-	public double tableDepth;
-	public double teamAreaWidth;
-	public double teamAreaDepth;
+	// table depth (in meters). ICPC standard is 0.8
+	// public double tableDepth = 0.8;
+
+	// team area width (in meters). ICPC standard is 3.0
+	// public double teamAreaWidth = 3.0;
+
+	// team area depth (in meters). ICPC standard is 2.
+	// public double teamAreaDepth = 2.0;
+
 	private Rectangle2D.Double tBounds;
 	private Rectangle2D.Double otBounds;
-
-	static class Aisle {
-		double x1, y1;
-		double x2, y2;
-
-		@Override
-		public String toString() {
-			return "Aisle: " + x1 + "," + y1 + " -> " + x2 + "," + y2;
-		}
-	}
+	private int aisleCounter;
 
 	public static class AisleIntersection {
-		Aisle a1;
-		Aisle a2;
+		IAisle a1;
+		IAisle a2;
 		public double x;
 		public double y;
 
@@ -145,53 +140,22 @@ public class FloorMap {
 		}
 	}
 
-	public final List<ITeam> teams = new ArrayList<>();
-	public final List<IProblem> balloons = new ArrayList<>();
-	private final List<Aisle> aisles = new ArrayList<>();
-	private IPrinter printer;
+	protected IContest contest;
 
 	// computed
 	private List<AisleIntersection> aisleIntersections = new ArrayList<>();
 
-	private FloorMap() {
-		// used internally
-	}
-
-	public FloorMap(InputStream in) throws IOException {
-		load(in);
-	}
-
-	private static FloorMap instance;
-
-	/**
-	 * Load a floor map from disk.
-	 */
-	public static FloorMap getInstance() {
-		if (instance != null)
-			return instance;
-
-		instance = new FloorMap();
-		instance.loadFromContest(null);
-		return instance;
-	}
-
-	public static FloorMap getInstance(IContest c) {
-		if (instance != null)
-			return instance;
-
-		instance = new FloorMap();
-		instance.loadFromContest(c);
-		return instance;
+	public FloorMap(IContest c) {
+		contest = c;
+		computeAisleIntersections();
 	}
 
 	/**
 	 * Create a new floor map.
 	 */
 	public FloorMap(double taw, double tad, double tw, double td) {
-		teamAreaWidth = taw;
-		teamAreaDepth = tad;
-		tableWidth = tw;
-		tableDepth = td;
+		contest = new Contest();
+		createMapInfo(taw, tad, tw, td);
 	}
 
 	public Rectangle2D.Double getBounds(boolean onlyTeams) {
@@ -204,7 +168,17 @@ public class FloorMap {
 		double x2 = 0;
 		double y2 = 0;
 
-		for (ITeam t : teams) {
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return null;
+
+		double tableWidth = mapInfo.getTableWidth();
+		double tableDepth = mapInfo.getTableDepth();
+
+		for (ITeam t : contest.getTeams()) {
+			if (Double.isNaN(t.getX()) || Double.isNaN(t.getY()))
+				continue;
+
 			AffineTransform transform = AffineTransform.getTranslateInstance(t.getX(), t.getY());
 			transform.concatenate(AffineTransform.getRotateInstance(Math.toRadians(t.getRotation())));
 
@@ -219,22 +193,22 @@ public class FloorMap {
 
 		if (!onlyTeams) {
 			int bd = 2;
-			for (IProblem b : balloons) {
+			for (IProblem b : contest.getProblems()) {
 				x1 = Math.min(x1, b.getX() - bd);
 				y1 = Math.min(y1, b.getY() - bd);
 				x2 = Math.max(x2, b.getX() + bd);
 				y2 = Math.max(y2, b.getY() + bd);
 			}
 
-			for (Aisle a : aisles) {
-				x1 = Math.min(x1, a.x1);
-				y1 = Math.min(y1, a.y1);
-				x2 = Math.max(x2, a.x1);
-				y2 = Math.max(y2, a.y1);
-				x1 = Math.min(x1, a.x2);
-				y1 = Math.min(y1, a.y2);
-				x2 = Math.max(x2, a.x2);
-				y2 = Math.max(y2, a.y2);
+			for (IAisle a : mapInfo.getAisles()) {
+				x1 = Math.min(x1, a.getX1());
+				y1 = Math.min(y1, a.getY1());
+				x2 = Math.max(x2, a.getX1());
+				y2 = Math.max(y2, a.getY1());
+				x1 = Math.min(x1, a.getX2());
+				y1 = Math.min(y1, a.getY2());
+				x2 = Math.max(x2, a.getX2());
+				y2 = Math.max(y2, a.getY2());
 			}
 		}
 
@@ -255,17 +229,22 @@ public class FloorMap {
 
 	private void computeAisleIntersections() {
 		aisleIntersections = new ArrayList<>();
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return;
+
+		List<IAisle> aisles = mapInfo.getAisles();
 		int size = aisles.size();
 		for (int i = 0; i < size - 1; i++) {
 			for (int j = i + 1; j < size; j++) {
-				Aisle a1 = aisles.get(i);
-				Aisle a2 = aisles.get(j);
+				IAisle a1 = aisles.get(i);
+				IAisle a2 = aisles.get(j);
 
-				double xd1 = a1.x2 - a1.x1;
-				double yd1 = a1.y2 - a1.y1;
+				double xd1 = a1.getX2() - a1.getX1();
+				double yd1 = a1.getY2() - a1.getY1();
 
-				double xd2 = a2.x2 - a2.x1;
-				double yd2 = a2.y2 - a2.y1;
+				double xd2 = a2.getX2() - a2.getX1();
+				double yd2 = a2.getY2() - a2.getY1();
 
 				double denom = xd2 * yd1 - yd2 * xd1;
 
@@ -273,13 +252,13 @@ public class FloorMap {
 					AisleIntersection ai = new AisleIntersection();
 					ai.a1 = a1;
 					ai.a2 = a2;
-					double s1 = (yd2 * (a1.x1 - a2.x1) - xd2 * (a1.y1 - a2.y1)) / denom;
+					double s1 = (yd2 * (a1.getX1() - a2.getX1()) - xd2 * (a1.getY1() - a2.getY1())) / denom;
 
 					if (s1 >= 0f && s1 <= 1f) {
-						double s2 = (yd1 * (a1.x1 - a2.x1) - xd1 * (a1.y1 - a2.y1)) / denom;
+						double s2 = (yd1 * (a1.getX1() - a2.getX1()) - xd1 * (a1.getY1() - a2.getY1())) / denom;
 						if (s2 >= 0f && s2 <= 1f) {
-							ai.x = a1.x1 + s1 * xd1;
-							ai.y = a1.y1 + s1 * yd1;
+							ai.x = a1.getX1() + s1 * xd1;
+							ai.y = a1.getY1() + s1 * yd1;
 							aisleIntersections.add(ai);
 						}
 					}
@@ -290,7 +269,7 @@ public class FloorMap {
 		}
 	}
 
-	protected List<AisleIntersection> getIntersections(Aisle a) {
+	protected List<AisleIntersection> getIntersections(IAisle a) {
 		List<AisleIntersection> list = new ArrayList<>(3);
 		if (a == null)
 			return list;
@@ -452,11 +431,15 @@ public class FloorMap {
 	public AisleIntersection getClosestAisle(double x, double y) {
 		AisleIntersection ai = new AisleIntersection();
 		double dist = Double.MAX_VALUE;
-		for (Aisle a : aisles) {
-			double xd = a.x2 - a.x1;
-			double yd = a.y2 - a.y1;
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return null;
 
-			double k = xd * x - xd * a.x1 + yd * y - yd * a.y1;
+		for (IAisle a : mapInfo.getAisles()) {
+			double xd = a.getX2() - a.getX1();
+			double yd = a.getY2() - a.getY1();
+
+			double k = xd * x - xd * a.getX1() + yd * y - yd * a.getY1();
 			k /= (xd * xd + yd * yd);
 
 			if (k < 0f)
@@ -464,8 +447,8 @@ public class FloorMap {
 			else if (k > 1f)
 				k = 1f;
 
-			double xc = a.x1 + k * xd;
-			double yc = a.y1 + k * yd;
+			double xc = a.getX1() + k * xd;
+			double yc = a.getY1() + k * yd;
 
 			double dx = (x - xc);
 			double dy = (y - yc);
@@ -483,41 +466,8 @@ public class FloorMap {
 		return ai;
 	}
 
-	public List<ITeam> getTeams() {
-		return teams;
-	}
-
-	public List<IProblem> getProblems() {
-		return balloons;
-	}
-
 	public ITeam getTeam(int teamNum) {
-		return getTeamById(teamNum + "");
-	}
-
-	public ITeam getTeamById(String id) {
-		if (id == null)
-			return null;
-
-		for (ITeam t : teams) {
-			if (id.equals(t.getId()))
-				return t;
-		}
-		return null;
-	}
-
-	public IProblem getBalloon(String problemLabel) {
-		if (problemLabel == null)
-			return null;
-		for (IProblem b : balloons) {
-			if (problemLabel.equals(b.getId()))
-				return b;
-		}
-		return null;
-	}
-
-	public IPrinter getPrinter() {
-		return printer;
+		return contest.getTeamById(teamNum + "");
 	}
 
 	public void drawFloor(Graphics2D g, Rectangle r, String teamId, boolean showAisles, Path... paths) {
@@ -526,13 +476,17 @@ public class FloorMap {
 		int x1 = r.x - (int) (bounds.x * scale);
 		int y1 = r.y - (int) (bounds.y * scale);
 
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return;
+
 		if (showAisles) {
 			g.setColor(Color.LIGHT_GRAY);
-			for (Aisle a : aisles) {
-				int ax1 = r.x + (int) ((a.x1 - bounds.x) * scale);
-				int ay1 = r.y + (int) ((a.y1 - bounds.y) * scale);
-				int ax2 = r.x + (int) ((a.x2 - bounds.x) * scale);
-				int ay2 = r.y + (int) ((a.y2 - bounds.y) * scale);
+			for (IAisle a : mapInfo.getAisles()) {
+				int ax1 = r.x + (int) ((a.getX1() - bounds.x) * scale);
+				int ay1 = r.y + (int) ((a.getY1() - bounds.y) * scale);
+				int ax2 = r.x + (int) ((a.getX2() - bounds.x) * scale);
+				int ay2 = r.y + (int) ((a.getY2() - bounds.y) * scale);
 				g.drawLine(ax1, ay1, ax2, ay2);
 			}
 
@@ -571,8 +525,16 @@ public class FloorMap {
 			}
 		}
 
+		double tableWidth = mapInfo.getTableWidth();
+		double tableDepth = mapInfo.getTableDepth();
+		double teamAreaWidth = mapInfo.getTeamAreaWidth();
+		double teamAreaDepth = mapInfo.getTeamAreaDepth();
+
 		g.setColor(Color.BLACK);
-		for (ITeam t : teams) {
+		for (ITeam t : contest.getTeams()) {
+			if (Double.isNaN(t.getX()) || Double.isNaN(t.getY()))
+				continue;
+
 			Graphics2D gg = createGraphics(g, t, x1, y1, scale);
 
 			// team area
@@ -627,18 +589,18 @@ public class FloorMap {
 			gg.dispose();
 		}
 
-		for (IProblem b : balloons) {
+		for (IProblem p : contest.getProblems()) {
 			double dim = 1.5f;
 			double d = dim * scale;
-			int x = r.x + (int) ((b.getX() - bounds.x) * scale);
-			int y = r.y + (int) ((b.getY() - bounds.y) * scale);
+			int x = r.x + (int) ((p.getX() - bounds.x) * scale);
+			int y = r.y + (int) ((p.getY() - bounds.y) * scale);
 			g.setColor(Color.WHITE);
 			g.fillOval(x - (int) (d / 2f), y - (int) (d / 2f), (int) d, (int) d);
 			g.setColor(Color.BLACK);
 			g.drawOval(x - (int) (d / 2f), y - (int) (d / 2f), (int) d, (int) d);
 			FontMetrics fm = g.getFontMetrics();
 			g.setColor(Color.BLACK);
-			g.drawString(b.getId(), x - fm.stringWidth(b.getId()) / 2f, y + (fm.getAscent() / 2.5f));
+			g.drawString(p.getId(), x - fm.stringWidth(p.getId()) / 2f, y + (fm.getAscent() / 2.5f));
 		}
 	}
 
@@ -734,10 +696,22 @@ public class FloorMap {
 		int x1 = (r.width - ww) / 2 + r.x - (int) (bounds.x * scale);
 		int y1 = (r.height - hh) / 2 + r.y - (int) (bounds.y * scale);
 
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return;
+
+		double tableWidth = mapInfo.getTableWidth();
+		double tableDepth = mapInfo.getTableDepth();
+		double teamAreaWidth = mapInfo.getTeamAreaWidth();
+		double teamAreaDepth = mapInfo.getTeamAreaDepth();
+
 		g.setFont(g.getFont().deriveFont((float) (tableWidth * scale / 2.75f)));
 		FontMetrics fm = g.getFontMetrics();
 
-		for (ITeam t : teams) {
+		for (ITeam t : contest.getTeams()) {
+			if (Double.isNaN(t.getX()) || Double.isNaN(t.getY()))
+				continue;
+
 			Graphics2D gg = createGraphics(g, t, x1, y1, scale);
 
 			Rectangle2D.Double tr1 = new Rectangle2D.Double(-(teamAreaDepth + 1.0f) * scale / 2f,
@@ -799,57 +773,42 @@ public class FloorMap {
 		if (current == null)
 			return null;
 
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return null;
+
+		double tableDepth = mapInfo.getTableDepth();
+		double teamAreaWidth = mapInfo.getTeamAreaWidth();
+
 		double rad = Math.toRadians(current.getRotation() + angle);
 		float x = (float) (current.getX() + Math.cos(rad) * teamAreaWidth);
 		float y = (float) (current.getY() - Math.sin(rad) * teamAreaWidth);
-		for (ITeam t : teams) {
+		for (ITeam t : contest.getTeams()) {
 			if (!current.equals(t) && Math.abs(t.getX() - x) < tableDepth && Math.abs(t.getY() - y) < tableDepth)
 				return t;
 		}
 		return null;
 	}
 
-	public static FloorMap importMap(File root) throws IOException {
-		File f = new File(root, "config" + File.separator + "floor-map.tsv");
-		if (!f.exists()) {
-			Trace.trace(Trace.USER, "No floor map found");
-			return null;
-		}
-
-		FloorMap map = new FloorMap();
-		map.load(new FileInputStream(f));
-		return map;
-	}
-
-	private void loadFromContest(IContest contest) {
-		ContestSource source = ContestSource.getInstance();
-		if (source == null)
-			return;
-
-		try {
-			File f = source.getFile("/contests/" + source.getContestId() + "/floor-map.tsv");
-			if (f == null || !f.exists()) {
-				Trace.trace(Trace.WARNING, "No floor map found");
-				return;
-			}
-
-			load(new FileInputStream(f));
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.WARNING, "Floor map does not exist");
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Error reading floor map", e);
-		}
-	}
-
-	private void load(InputStream in) throws IOException {
+	public void load(InputStream in) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
 		String s = br.readLine();
 		StringTokenizer st = new StringTokenizer(s, ",\t", false);
-		teamAreaWidth = Float.parseFloat(st.nextToken());
-		teamAreaDepth = Float.parseFloat(st.nextToken());
-		tableWidth = Float.parseFloat(st.nextToken());
-		tableDepth = Float.parseFloat(st.nextToken());
+		double teamAreaWidth = Float.parseFloat(st.nextToken());
+		double teamAreaDepth = Float.parseFloat(st.nextToken());
+		double tableWidth = Float.parseFloat(st.nextToken());
+		double tableDepth = Float.parseFloat(st.nextToken());
+
+		MapInfo mapInfo = (MapInfo) contest.getMapInfo();
+		if (mapInfo == null)
+			mapInfo = new MapInfo();
+		mapInfo.add("table_width", tableWidth + "");
+		mapInfo.add("table_depth", tableDepth + "");
+		mapInfo.add("team_area_width", teamAreaWidth + "");
+		mapInfo.add("team_area_depth", teamAreaDepth + "");
+		((Contest) contest).add(mapInfo);
+
 		s = br.readLine();
 
 		while (s != null) {
@@ -863,28 +822,52 @@ public class FloorMap {
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
 				double rotation = Double.parseDouble(st.nextToken());
-				createTeam(id, x, y, rotation);
+				ITeam tt = contest.getTeamById(id);
+				if (tt != null) {
+					((ContestObject) tt).add("x", x + "");
+					((ContestObject) tt).add("y", y + "");
+					((ContestObject) tt).add("rotation", rotation + "");
+				} // else
+					// createTeam(id, x, y, rotation); // TODO make spare team
 			} else if ("balloon".equals(type)) {
-				String id = st.nextToken();
+				String label = st.nextToken();
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
-				createBalloon(id, x, y);
+				IProblem pr = null;
+				for (IProblem pp : contest.getProblems()) {
+					if (pp.getLabel().equals(label))
+						pr = pp;
+				}
+				if (pr != null) {
+					((Problem) pr).add("x", x + "");
+					((Problem) pr).add("y", y + "");
+				} // else
+					// createBalloon(label, x, y);
 			} else if ("printer".equals(type)) {
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
 				createPrinter(x, y);
 			} else if ("aisle".equals(type)) {
-				Aisle a = new Aisle();
-				a.x1 = Double.parseDouble(st.nextToken());
-				a.y1 = Double.parseDouble(st.nextToken());
-				a.x2 = Double.parseDouble(st.nextToken());
-				a.y2 = Double.parseDouble(st.nextToken());
-				aisles.add(a);
+				double x1 = Double.parseDouble(st.nextToken());
+				double y1 = Double.parseDouble(st.nextToken());
+				double x2 = Double.parseDouble(st.nextToken());
+				double y2 = Double.parseDouble(st.nextToken());
+				createAisle("aisle" + ++aisleCounter, x1, y1, x2, y2);
 			}
 
 			s = br.readLine();
 		}
 		computeAisleIntersections();
+	}
+
+	public IMapInfo createMapInfo(double taw, double tad, double tw, double td) {
+		MapInfo mapInfo = new MapInfo();
+		mapInfo.add("table_width", tw + "");
+		mapInfo.add("table_depth", td + "");
+		mapInfo.add("team_area_width", taw + "");
+		mapInfo.add("team_area_depth", tad + "");
+		((Contest) contest).add(mapInfo);
+		return mapInfo;
 	}
 
 	public ITeam createTeam(int num, double x, double y, double rotation) {
@@ -899,17 +882,18 @@ public class FloorMap {
 		t.add("x", x + "");
 		t.add("y", y + "");
 		t.add("rotation", rotation + "");
-		teams.add(t);
+		((Contest) contest).add(t);
 		return t;
 	}
 
-	public Aisle createAisle(double x1, double y1, double x2, double y2) {
+	public IAisle createAisle(double x1, double y1, double x2, double y2) {
+		return createAisle("aisle" + ++aisleCounter, x1, y1, x2, y2);
+	}
+
+	public IAisle createAisle(String id, double x1, double y1, double x2, double y2) {
 		Aisle a = new Aisle();
-		a.x1 = x1;
-		a.y1 = y1;
-		a.x2 = x2;
-		a.y2 = y2;
-		aisles.add(a);
+		a.set(x1, y1, x2, y2);
+		((MapInfo) contest.getMapInfo()).addAisle(a);
 		computeAisleIntersections();
 		return a;
 	}
@@ -921,15 +905,14 @@ public class FloorMap {
 		p.add("x", x + "");
 		p.add("y", y + "");
 
-		balloons.add(p);
+		((Contest) contest).add(p);
 		return p;
 	}
 
 	public Printer createPrinter(double x, double y) {
 		Printer p = new Printer();
-		p.add("x", x + "");
-		p.add("y", y + "");
-		printer = p;
+		p.set(x, y);
+		((MapInfo) contest.getMapInfo()).setPrinter(p);
 		return p;
 	}
 
@@ -953,97 +936,46 @@ public class FloorMap {
 	 */
 	public void rotate(int angle) {
 		double rad = Math.toRadians(angle);
-		for (ITeam tt : teams) {
+		for (ITeam tt : contest.getTeams()) {
 			rotate(tt, rad);
 			double r = tt.getRotation() - angle + 720;
 			((Team) tt).add("rotation", (r % 360) + "");
 		}
 
-		for (IProblem problem : balloons)
+		for (IProblem problem : contest.getProblems())
 			rotate(problem, rad);
 
-		for (Aisle a : aisles) {
-			double dx = Math.cos(rad) * a.x1 - Math.sin(rad) * a.y1;
-			double dy = Math.sin(rad) * a.x1 + Math.cos(rad) * a.y1;
-			a.x1 = dx;
-			a.y1 = dy;
-			dx = Math.cos(rad) * a.x2 - Math.sin(rad) * a.y2;
-			dy = Math.sin(rad) * a.x2 + Math.cos(rad) * a.y2;
-			a.x2 = dx;
-			a.y2 = dy;
-		}
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo != null) {
+			for (IAisle a : mapInfo.getAisles()) {
+				double dx1 = Math.cos(rad) * a.getX1() - Math.sin(rad) * a.getY1();
+				double dy1 = Math.sin(rad) * a.getX1() + Math.cos(rad) * a.getY1();
+				double dx2 = Math.cos(rad) * a.getX2() - Math.sin(rad) * a.getY2();
+				double dy2 = Math.sin(rad) * a.getX2() + Math.cos(rad) * a.getY2();
+				((Aisle) a).set(dx1, dy1, dx2, dy2);
+			}
 
-		if (printer != null)
-			rotate(printer, rad);
+			if (mapInfo.getPrinter() != null)
+				rotate(mapInfo.getPrinter(), rad);
+		}
 
 		computeAisleIntersections();
 	}
 
-	public void writeCSV(PrintStream out) {
-		out.print(rnd(teamAreaWidth));
-		out.print(COMMA);
-		out.print(rnd(teamAreaDepth));
-		out.print(COMMA);
-		out.print(rnd(tableWidth));
-		out.print(COMMA);
-		out.println(rnd(tableDepth));
-
-		for (ITeam t : teams) {
-			out.print("team");
-			out.print(COMMA);
-			String id = t.getId();
-			if (id == null || id.isEmpty())
-				id = NO_ID;
-			out.print(id);
-			out.print(COMMA);
-			out.print(rnd(t.getX()));
-			out.print(COMMA);
-			out.print(rnd(t.getY()));
-			out.print(COMMA);
-			out.println(rnd(t.getRotation()));
-		}
-
-		for (IProblem b : balloons) {
-			out.print("balloon");
-			out.print(COMMA);
-			out.print(b.getId());
-			out.print(COMMA);
-			out.print(rnd(b.getX()));
-			out.print(COMMA);
-			out.println(rnd(b.getY()));
-		}
-
-		for (Aisle a : aisles) {
-			out.print("aisle");
-			out.print(COMMA);
-			out.print(rnd(a.x1));
-			out.print(COMMA);
-			out.print(rnd(a.y1));
-			out.print(COMMA);
-			out.print(rnd(a.x2));
-			out.print(COMMA);
-			out.println(rnd(a.y2));
-		}
-
-		if (printer != null) {
-			out.print("printer");
-			out.print(COMMA);
-			out.print(rnd(printer.getX()));
-			out.print(COMMA);
-			out.println(rnd(printer.getY()));
-		}
-	}
-
 	public void writeTSV(PrintStream out) {
-		out.print(teamAreaWidth);
-		out.print(TAB);
-		out.print(teamAreaDepth);
-		out.print(TAB);
-		out.print(tableWidth);
-		out.print(TAB);
-		out.println(tableDepth);
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo == null)
+			return;
 
-		for (ITeam t : teams) {
+		out.print(mapInfo.getTeamAreaWidth());
+		out.print(TAB);
+		out.print(mapInfo.getTeamAreaDepth());
+		out.print(TAB);
+		out.print(mapInfo.getTableWidth());
+		out.print(TAB);
+		out.println(mapInfo.getTableDepth());
+
+		for (ITeam t : contest.getTeams()) {
 			out.print("team");
 			out.print(TAB);
 			String id = t.getId();
@@ -1058,7 +990,7 @@ public class FloorMap {
 			out.println(rnd(t.getRotation()));
 		}
 
-		for (IProblem b : balloons) {
+		for (IProblem b : contest.getProblems()) {
 			out.print("balloon");
 			out.print(TAB);
 			out.print(b.getId());
@@ -1068,126 +1000,43 @@ public class FloorMap {
 			out.println(rnd(b.getY()));
 		}
 
-		for (Aisle a : aisles) {
+		for (IAisle a : mapInfo.getAisles()) {
 			out.print("aisle");
 			out.print(TAB);
-			out.print(rnd(a.x1));
+			out.print(rnd(a.getX1()));
 			out.print(TAB);
-			out.print(rnd(a.y1));
+			out.print(rnd(a.getY1()));
 			out.print(TAB);
-			out.print(rnd(a.x2));
+			out.print(rnd(a.getX2()));
 			out.print(TAB);
-			out.println(rnd(a.y2));
+			out.println(rnd(a.getY2()));
 		}
 
-		if (printer != null) {
+		if (mapInfo.getPrinter() != null) {
+			IPosition printer = mapInfo.getPrinter();
 			out.print("printer");
 			out.print(TAB);
 			out.print(rnd(printer.getX()));
 			out.print(TAB);
 			out.println(rnd(printer.getY()));
 		}
-	}
-
-	private static String escape(String s) {
-		if (s == null)
-			return "";
-		boolean found = false;
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-			if ("\"\\".indexOf(c) >= 0)
-				found = true;
-		}
-		if (!found)
-			return s;
-
-		StringBuilder out = new StringBuilder();
-		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
-			if ("\"\\".indexOf(c) >= 0)
-				out.append("\\");
-
-			out.append(c);
-		}
-		return out.toString();
-	}
-
-	private static void write(PrintStream out, String name, String value) {
-		out.append("\"" + escape(name) + "\":\"");
-		out.append(escape(value));
-		out.append("\"");
-	}
-
-	public void write(PrintStream out) {
-		out.append("\"floorMap\": {\n  ");
-		write(out, "teamWidth", rnd(teamAreaWidth));
-		out.append(",\n  ");
-		write(out, "teamDepth", rnd(teamAreaDepth));
-		out.append(",\n  ");
-		write(out, "tableWidth", rnd(tableWidth));
-		out.append(",\n  ");
-		write(out, "tableDepth", rnd(tableDepth));
-		out.append(",\n");
-
-		for (ITeam t : teams) {
-			out.append("  \"team\": {");
-			String id = t.getId();
-			if (id == null || id.isEmpty())
-				id = NO_ID;
-			write(out, "id", id);
-			out.append(", ");
-			write(out, "x", rnd(t.getX()));
-			out.append(", ");
-			write(out, "y", rnd(t.getY()));
-			out.append(", ");
-			write(out, "angle", rnd(t.getRotation()));
-			out.append("},\n");
-		}
-
-		for (Aisle a : aisles) {
-			out.append("  \"aisle\": {");
-			write(out, "x1", rnd(a.x1));
-			out.append(", ");
-			write(out, "y1", rnd(a.y1));
-			out.append(", ");
-			write(out, "x2", rnd(a.x2));
-			out.append(", ");
-			write(out, "y2", rnd(a.y2));
-			out.append("},\n");
-		}
-
-		for (IProblem b : balloons) {
-			out.append("  \"balloon\": {");
-			write(out, "id", b.getId());
-			out.append(", ");
-			write(out, "x", rnd(b.getX()));
-			out.append(", ");
-			write(out, "y", rnd(b.getY()));
-			out.append("},\n");
-		}
-
-		if (printer != null) {
-			out.append("  \"printer\": {");
-			write(out, "x", rnd(printer.getX()));
-			out.append(", ");
-			write(out, "y", rnd(printer.getY()));
-			out.append("}\n");
-		}
-		out.append("}");
 	}
 
 	public void resetOrigin() {
 		double ox = Double.MAX_VALUE;
 		double oy = Double.MAX_VALUE;
 
-		for (Aisle a : aisles) {
-			ox = Math.min(ox, a.x1);
-			oy = Math.min(oy, a.y1);
-			ox = Math.min(ox, a.x2);
-			oy = Math.min(oy, a.y2);
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo != null) {
+			for (IAisle a : mapInfo.getAisles()) {
+				ox = Math.min(ox, a.getX1());
+				oy = Math.min(oy, a.getY1());
+				ox = Math.min(ox, a.getX2());
+				oy = Math.min(oy, a.getY2());
+			}
 		}
 
-		for (ITeam t : teams) {
+		for (ITeam t : contest.getTeams()) {
 			ox = Math.min(ox, t.getX());
 			oy = Math.min(oy, t.getY());
 		}
@@ -1196,26 +1045,25 @@ public class FloorMap {
 			return;
 
 		// move everything
-		for (Aisle a : aisles) {
-			a.x1 -= ox;
-			a.y1 -= oy;
-			a.x2 -= ox;
-			a.y2 -= oy;
+		if (mapInfo != null) {
+			for (IAisle a : mapInfo.getAisles()) {
+				((Aisle) a).set(a.getX1() - ox, a.getY1() - oy, a.getX2() - ox, a.getY2() - oy);
+			}
 		}
 
-		for (ITeam t : teams) {
+		for (ITeam t : contest.getTeams()) {
 			((Team) t).add("x", t.getX() - ox);
 			((Team) t).add("y", t.getY() - oy);
 		}
 
-		for (IProblem p : balloons) {
+		for (IProblem p : contest.getProblems()) {
 			((Problem) p).add("x", p.getX() - ox);
 			((Problem) p).add("y", p.getY() - oy);
 		}
 
-		if (printer != null) {
-			((Printer) printer).add("x", printer.getX() - ox);
-			((Printer) printer).add("y", printer.getY() - oy);
+		if (mapInfo != null && mapInfo.getPrinter() != null) {
+			IPosition printer = mapInfo.getPrinter();
+			((Printer) printer).set(printer.getX() - ox, printer.getY() - oy);
 		}
 
 		computeAisleIntersections();

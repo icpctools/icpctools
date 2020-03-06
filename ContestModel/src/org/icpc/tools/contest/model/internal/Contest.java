@@ -23,6 +23,7 @@ import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.ILanguage;
+import org.icpc.tools.contest.model.IMapInfo;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPause;
 import org.icpc.tools.contest.model.IProblem;
@@ -61,6 +62,7 @@ public class Contest implements IContest {
 	private IStartStatus[] startStatus;
 	private IAward[] awards;
 	private IPause[] pauses;
+	private IMapInfo mapInfo;
 
 	private Result[][] results;
 	private ProblemSummary[] resultSummary;
@@ -275,6 +277,8 @@ public class Contest implements IContest {
 			runs = null;
 		} else if (type == ContestType.CLARIFICATION) {
 			clars = null;
+		} else if (type == ContestType.MAP_INFO) {
+			mapInfo = (MapInfo) obj;
 		}
 	}
 
@@ -815,6 +819,11 @@ public class Contest implements IContest {
 			awards = data.getByType(IAward.class, ContestType.AWARD);
 			return awards;
 		}
+	}
+
+	@Override
+	public IMapInfo getMapInfo() {
+		return mapInfo;
 	}
 
 	protected IResult getResult(ITeam team, IProblem problem) {
