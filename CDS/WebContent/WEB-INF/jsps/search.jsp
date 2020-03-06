@@ -28,23 +28,9 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/search.js"></script>
 <script type="text/javascript">
-
-    function searchFor(text) {
-        console.log("search for: " + text);
-        $.when(search.search(text)).done(function () {
-            fillTable();
-        }).fail(function (result) {
-            console.log(result);
-            var col = $('<td colspan=4>Could not perform search (' + result.status + ':' + result.statusText + ')</td>');
-            var row = $('<tr></tr>');
-            row.append(col);
-            $('#search-table tbody').append(row);
-        })
-    }
-
-    function fillTable() {
+    window.onload = function () {
         $("#search-table tbody").find("tr").remove();
-        var results = search.getResults();
+        var results = <%= request.getAttribute("result") %>;
         var result = results[0];
         result = result.results;
         for (var i = 0; i < result.length; i++) {
@@ -71,12 +57,6 @@
                 $('#search-table tbody').append(row);
             }
         }
-    };
-
-    window.onload = function () {
-        var term = '<%= request.getAttribute("value") %>';
-        if (term != null && term.length > 0)
-            searchFor(term);
     };
 </script>
 <%@ include file="layout/footer.jsp" %>

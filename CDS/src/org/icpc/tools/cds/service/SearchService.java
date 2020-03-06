@@ -1,6 +1,8 @@
 package org.icpc.tools.cds.service;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -36,7 +38,11 @@ public class SearchService extends HttpServlet {
 
 		String searchTerm = request.getParameter("value");
 		if (searchTerm != null) {
-			request.setAttribute("value", HttpHelper.strip(searchTerm));
+			request.setAttribute("value", HttpHelper.sanitize(searchTerm));
+			StringWriter sw = new StringWriter();
+			JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
+			search(request, searchTerm, je);
+			request.setAttribute("result", sw.toString());
 			request.getRequestDispatcher("/WEB-INF/jsps/search.jsp").forward(request, response);
 			return;
 		}

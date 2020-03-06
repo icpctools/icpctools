@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class HttpHelper {
-	private static final String OK_CHARS = new String("[]{},.~`?!@#$^&*()-_=+;:'\"|");
+	private static final String OK_CHARS = new String("[]{},.~`?!@#$^&*()-_=+:|");
 
 	public static void setThreadHost(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder(request.getServerName());
