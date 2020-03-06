@@ -19,6 +19,11 @@ public class Animator2D {
 		yAnim = new Animator(p.getY(), yMove);
 	}
 
+	public Animator2D(double x, Movement xMove, double y, Movement yMove) {
+		xAnim = new Animator(x, xMove);
+		yAnim = new Animator(y, yMove);
+	}
+
 	public void incrementTimeMs(long dt) {
 		xAnim.incrementTimeMs(dt);
 		yAnim.incrementTimeMs(dt);
@@ -33,9 +38,18 @@ public class Animator2D {
 		yAnim.reset(p.getY());
 	}
 
+	public void resetToTarget() {
+		xAnim.resetToTarget();
+		yAnim.resetToTarget();
+	}
+
 	public void setTarget(Point2D p) {
-		xAnim.setTarget(p.getX());
-		yAnim.setTarget(p.getY());
+		setTarget(p.getX(), p.getY());
+	}
+
+	public void setTarget(double x, double y) {
+		xAnim.setTarget(x);
+		yAnim.setTarget(y);
 
 		double xTime = xAnim.getMoveTime();
 		double yTime = yAnim.getMoveTime();
@@ -45,5 +59,13 @@ public class Animator2D {
 			else
 				xAnim.setTimeScale(xTime / yTime);
 		}
+	}
+
+	public double getXTarget() {
+		return xAnim.getTarget();
+	}
+
+	public double getYTarget() {
+		return yAnim.getTarget();
 	}
 }

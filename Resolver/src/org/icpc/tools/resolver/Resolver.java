@@ -266,7 +266,7 @@ public class Resolver {
 			// INCREASE
 			// the resolution speed; values greater than one DECREASE the speed; values <= zero are
 			// ignored.
-			ArgumentParser.expectOptions(option, options, "speedFactor:float");
+			ArgumentParser.expectOptions(option, options, "speed:float");
 			float fastVal = (float) options.get(0);
 			if (fastVal <= 0) {
 				// illegal value; ignore and use default
@@ -293,12 +293,15 @@ public class Resolver {
 			ArgumentParser.expectOptions(option, options, "#:int");
 			clicks = (int) options.get(0);
 		} else if ("--client".equalsIgnoreCase(option) || "--presenter".equalsIgnoreCase(option)
-				|| "--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)) {
+				|| "--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)
+				|| "--org".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			if ("--presenter".equalsIgnoreCase(option))
 				isPresenter = true;
 			else if ("--team".equalsIgnoreCase(option))
 				screen = Screen.TEAM;
+			else if ("--org".equalsIgnoreCase(option))
+				screen = Screen.ORG;
 			else if ("--side".equalsIgnoreCase(option))
 				screen = Screen.SIDE;
 			else

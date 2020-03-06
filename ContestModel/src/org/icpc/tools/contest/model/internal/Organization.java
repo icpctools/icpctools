@@ -97,6 +97,7 @@ public class Organization extends ContestObject implements IOrganization {
 		return getRefImage(LOGO, logo, width, height, forceLoad, resizeToFit);
 	}
 
+	@Override
 	public FileReferenceList getLogo() {
 		return logo;
 	}

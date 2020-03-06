@@ -60,4 +60,16 @@ public class Animator3D {
 		if (zTime != 0)
 			zAnim.setTimeScale(zTime / max);
 	}
+
+	public double getXTarget() {
+		return xAnim.getTarget();
+	}
+
+	public double getYTarget() {
+		return yAnim.getTarget();
+	}
+
+	public double getZTarget() {
+		return zAnim.getTarget();
+	}
 }

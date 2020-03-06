@@ -3,6 +3,8 @@ package org.icpc.tools.contest.model;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+import org.icpc.tools.contest.model.internal.FileReferenceList;
+
 /**
  * An organization.
  */
@@ -69,6 +71,14 @@ public interface IOrganization extends IContestObject {
 	 * @return the longitude
 	 */
 	double getLongitude();
+
+	/**
+	 * The file references for the logo, which clients can use to see exactly what resolutions of
+	 * logos are available.
+	 *
+	 * @return the file reference list
+	 */
+	FileReferenceList getLogo();
 
 	/**
 	 * The logo of the organization.
