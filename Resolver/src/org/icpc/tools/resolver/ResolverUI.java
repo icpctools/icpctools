@@ -65,7 +65,7 @@ public class ResolverUI {
 	}
 
 	public static enum Screen {
-		MAIN, TEAM, SIDE
+		MAIN, TEAM, SIDE, ORG
 	}
 
 	private static final String[] MESSAGES = new String[] { "John, click me!", "I'm waiting for you...",
@@ -99,6 +99,7 @@ public class ResolverUI {
 	private TeamListSidePresentation teamListSidePresentation;
 	private JudgePresentation2 judgePresentation;
 	private StaticLogoPresentation logoPresentation;
+	private OrgsPresentation orgPresentation;
 	private Presentation currentPresentation;
 
 	private long lastClickTime = -1;
@@ -222,7 +223,7 @@ public class ResolverUI {
 			}
 		};
 
-		if (screen == Screen.TEAM || screen == Screen.SIDE) {
+		if (screen == Screen.TEAM || screen == Screen.SIDE || screen == Screen.ORG) {
 			logoPresentation = new StaticLogoPresentation();
 			logoPresentation.addMouseListener(nullMouse);
 			splashPresentation = logoPresentation;
@@ -233,6 +234,11 @@ public class ResolverUI {
 
 				teamListSidePresentation = new TeamListSidePresentation();
 				teamListSidePresentation.addMouseListener(nullMouse);
+			}
+			if (screen == Screen.ORG) {
+				orgPresentation = new OrgsPresentation();
+				orgPresentation.setContest(contest);
+				orgPresentation.addMouseListener(nullMouse);
 			}
 		} else {
 			splashPresentation = new SplashPresentation();
@@ -410,7 +416,7 @@ public class ResolverUI {
 			return;
 
 		long[] startTime = new long[] { System.nanoTime() };
-		if (!includeDelays || screen != Screen.MAIN)
+		if (!includeDelays || (screen != Screen.MAIN && screen != Screen.ORG))
 			startTime = null;
 
 		if (listener != null) {
@@ -439,7 +445,7 @@ public class ResolverUI {
 			return;
 
 		long[] startTime = new long[] { System.nanoTime() };
-		if (!includeDelays || screen != Screen.MAIN)
+		if (!includeDelays || (screen != Screen.MAIN && screen != Screen.ORG))
 			startTime = null;
 
 		if (listener != null) {
@@ -497,6 +503,8 @@ public class ResolverUI {
 			awardPresentation.setContest(state.contest);
 			if (teamLogoPresentation != null)
 				teamLogoPresentation.setContest(state.contest);
+			if (orgPresentation != null)
+				orgPresentation.setContest(state.contest);
 		} else if (step instanceof PauseStep) {
 			PauseStep pause = (PauseStep) step;
 			return pause.num;
@@ -507,6 +515,8 @@ public class ResolverUI {
 		} else if (step instanceof TeamSelectionStep) {
 			TeamSelectionStep sel = (TeamSelectionStep) step;
 			scoreboardPresentation.setSelectedTeams(sel.teams, sel.type);
+			if (orgPresentation != null)
+				orgPresentation.setSelectedTeams(sel.teams, sel.type);
 		} else if (step instanceof SubmissionSelectionStep2) {
 			SubmissionSelectionStep2 sel = (SubmissionSelectionStep2) step;
 			judgePresentation.handleSubmission(sel.submissionId);
@@ -630,6 +640,8 @@ public class ResolverUI {
 				pres2 = teamListSidePresentation;
 			if (pres == awardPresentation)
 				pres2 = teamLogoPresentation;
+		} else if (screen == Screen.ORG) {
+			pres2 = orgPresentation;
 		}
 
 		if (currentPresentation == pres2)
