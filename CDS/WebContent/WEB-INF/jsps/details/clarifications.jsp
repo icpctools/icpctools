@@ -66,7 +66,7 @@
 
             return $('<td><a href="<%= apiRoot %>/clarifications/' + clar.id + '">' + clar.id + '</a></td>' +
                 '<td>' + time + '</td><td>' + problem + '</td><td>' + fromTeam + '</td>' +
-                '<td>' + toTeam + '</td><td class="pre-line">' + clar.text + '</td>');
+                '<td>' + toTeam + '</td><td class="pre-line">' + sanitizeHTML(clar.text) + '</td>');
         }
 
         $.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {

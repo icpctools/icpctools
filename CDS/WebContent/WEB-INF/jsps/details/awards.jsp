@@ -43,7 +43,7 @@
                 if (t != null)
                     teamsStr += t.name;
             }
-            return $('<td><a href="<%= apiRoot %>/awards/' + award.id + '">' + award.id + '</td><td>' + award.citation + '</td><td>' + teamsStr + '</td>');
+            return $('<td><a href="<%= apiRoot %>/awards/' + award.id + '">' + award.id + '</td><td>' + sanitizeHTML(award.citation) + '</td><td>' + teamsStr + '</td>');
         }
 
         $.when(contest.loadAwards(), contest.loadTeams()).done(function () {

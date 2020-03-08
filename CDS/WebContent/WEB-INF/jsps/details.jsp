@@ -1,5 +1,6 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.icpc.tools.contest.model.*" %>
+<%@ page import="org.icpc.tools.cds.util.HttpHelper" %>
 <% request.setAttribute("title", "Details"); %>
 <%@ include file="layout/head.jsp" %>
 <% IState state = contest.getState(); %>
@@ -23,7 +24,7 @@
                         <tbody>
                             <tr>
                                 <td><b>Name:</b></td>
-                                <td><%= contest.getName() %></td>
+                                <td><%= HttpHelper.sanitizeHTML(contest.getName()) %></td>
                                 <td><b>Start:</b></td>
                                 <td><%= ContestUtil.formatStartTime(contest) %></td>
                             </tr>

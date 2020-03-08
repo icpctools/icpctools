@@ -110,7 +110,7 @@
             var col = '';
             for (k in rep)
                 if (k !== 'id')
-                    col += '<td>' + rep[k] + '</td>';
+                    col += '<td>' + sanitizeHTML(rep[k]) + '</td>';
             row = $('<tr></tr>');
             row.append($(col));
             $(table).find('tbody').append(row);

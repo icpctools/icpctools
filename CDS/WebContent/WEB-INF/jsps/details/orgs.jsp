@@ -51,7 +51,7 @@
                 country = org.country;
 
             return $('<td><a href="<%= apiRoot %>/organizations/' + org.id + '">' + org.id + '</a></td><td align=middle><img src="' + logoSrc + '" height=20/></td>' +
-                '<td>' + org.name + '</td><td>' + formal_name + '</td><td>' + country + '</td>');
+                '<td>' + sanitizeHTML(org.name) + '</td><td>' + sanitizeHTML(formal_name) + '</td><td>' + country + '</td>');
         }
 
         $.when(contest.loadOrganizations()).done(function () {

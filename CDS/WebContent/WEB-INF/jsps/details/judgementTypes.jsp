@@ -38,7 +38,7 @@
         function judgementTypeTd(jt) {
             var penalty = jt.penalty;
             var solved = jt.solved;
-            return $('<td><a href="<%= apiRoot %>/judgement-types/' + jt.id + '">' + jt.id + '</td><td>' + jt.name + '</td><td>' + penalty + '</td><td>' + solved + '</td>');
+            return $('<td><a href="<%= apiRoot %>/judgement-types/' + jt.id + '">' + jt.id + '</td><td>' + sanitizeHTML(jt.name) + '</td><td>' + penalty + '</td><td>' + solved + '</td>');
         }
 
         $.when(contest.loadJudgementTypes()).done(function () {

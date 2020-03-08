@@ -1,6 +1,7 @@
 <%@page import="org.icpc.tools.contest.model.ContestUtil" %>
 <%@page import="org.icpc.tools.contest.model.IOrganization" %>
 <%@page import="org.icpc.tools.contest.model.ITeam" %>
+<%@page import="org.icpc.tools.cds.util.HttpHelper" %>
 <%@page import="java.util.Arrays" %>
 <% request.setAttribute("title", "Video"); %>
 <%@ include file="layout/head.jsp" %>
@@ -45,9 +46,9 @@
                             <tr>
                                 <td><%= tId %>
                                 </td>
-                                <td><%= t.getActualDisplayName() %>
+                                <td><%= HttpHelper.sanitizeHTML(t.getActualDisplayName()) %>
                                 </td>
-                                <td><%= orgName %>
+                                <td><%= HttpHelper.sanitizeHTML(orgName) %>
                                 </td>
                                 <td id="desktop-<%= tId %>" class="text-center">-</td>
                                 <td id="desktop-<%= tId %>m" class="text-center"></td>
@@ -323,7 +324,7 @@
                     //window.location.reload(false);
                     verifyVideo();
                 } else {
-                	console.log("Error checking video - " xmlhttp.status + ": " + xmlhttp.responseText)
+                	console.log("Error checking video - " + xmlhttp.status + ": " + xmlhttp.responseText)
                 }
             }
         };

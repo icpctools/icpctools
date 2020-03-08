@@ -38,7 +38,7 @@
            String apiRootH = "/api/contests/" + cch.getId(); %>
         <div class="card-header <%= headerClass %> <%= textClass %>">
           <a href="<%= webRootH %>">
-            <h2 class="card-title <%= textClass %>"><%= contestH.getActualFormalName() != null ? contestH.getActualFormalName() : "(unnamed contest)" %></h2>
+            <h2 class="card-title <%= textClass %>"><%= contestH.getActualFormalName() != null ? HttpHelper.sanitizeHTML(contestH.getActualFormalName()) : "(unnamed contest)" %></h2>
           </a>
           <div class="card-tools"><a href="<%= apiRootH %>" class="<%= textClass %>">/<%= cch.getId() %></a></div>
         </div>

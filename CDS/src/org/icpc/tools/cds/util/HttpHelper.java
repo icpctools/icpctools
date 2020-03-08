@@ -120,4 +120,40 @@ public class HttpHelper {
 		}
 		return sb.toString();
 	}
+
+	public static String sanitizeHTML(String s) {
+		if (s == null || s.isEmpty())
+			return "";
+
+		int len = s.length();
+		StringBuilder sb = new StringBuilder(len + 10);
+
+		for (int i = 0; i < len; i++) {
+			char c = s.charAt(i);
+			switch (c) {
+				case '<':
+					sb.append("&lt;");
+					break;
+				case '>':
+					sb.append("&gt;");
+					break;
+				case '&':
+					sb.append("&amp;");
+					break;
+				case '\'':
+					sb.append("&apos;");
+					break;
+				case '"':
+					sb.append("&quot;");
+					break;
+				default:
+					if (c < 0x0020 || c > 0x007e) {
+						String t = "000" + Integer.toHexString(c);
+						sb.append("&" + t.substring(t.length() - 4));
+					} else
+						sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
 }
