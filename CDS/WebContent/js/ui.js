@@ -49,3 +49,19 @@ function fillContestObjectTable(name, objs, tdGen) {
     	x.html(objs.length);
     }
 }
+
+var tagsToReplace = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;'
+};
+
+function replaceTag(tag) {
+    return tagsToReplace[tag] || tag;
+}
+	
+function sanitizeHTML(str) {
+	if (str == null)
+		return "";
+	return str.replace(/[&<>]/g, replaceTag);
+}

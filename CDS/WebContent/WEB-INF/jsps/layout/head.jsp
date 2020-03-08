@@ -2,6 +2,7 @@
 <%@page import="org.icpc.tools.cds.CDSConfig" %>
 <%@page import="org.icpc.tools.cds.ConfiguredContest" %>
 <%@page import="org.icpc.tools.cds.util.Role" %>
+<%@page import="org.icpc.tools.cds.util.HttpHelper" %>
 <% ConfiguredContest cc = (ConfiguredContest) request.getAttribute("cc");
     IContest contest = null;
     String webroot = null;
@@ -166,7 +167,7 @@
               <% String contestName = "";
                if (contest != null && contest.getName() != null)
                    contestName = contest.getName() + " "; %>
-              <h1 class="m-0 text-dark"><%= contestName %><%= request.getAttribute("title") %></h1>
+              <h1 class="m-0 text-dark"><%= HttpHelper.sanitizeHTML(contestName) %><%= request.getAttribute("title") %></h1>
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->

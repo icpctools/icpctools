@@ -38,7 +38,7 @@
 
         function problemTd(problem) {
             return $('<td><a href="<%= apiRoot %>/problems/' + problem.id + '">' + problem.id + '</td><td>' + problem.label
-                + '</td><td>' + problem.name + '</td><td>' + problem.color + '</td><td>' + problem.rgb + '</td><td><div class="circle" style="background-color:' + problem.rgb + '"></div></td>');
+                + '</td><td>' + sanitizeHTML(problem.name) + '</td><td>' + problem.color + '</td><td>' + problem.rgb + '</td><td><div class="circle" style="background-color:' + problem.rgb + '"></div></td>');
         }
 
         $.when(contest.loadProblems()).done(function () {

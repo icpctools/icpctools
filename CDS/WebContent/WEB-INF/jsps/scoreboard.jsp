@@ -87,7 +87,7 @@
                             var logo = bestSquareLogo(org.logo, 20);
                             if (logo != null)
                                 logoSrc = '/api/' + logo.href;
-                            org = org.name;
+                            orgName = org.name;
                         }
                         if (team.display_name != null)
                             team = team.id + ': ' + team.display_name;
@@ -96,7 +96,7 @@
                     }
                 }
 
-                var col = $('<td class="text-right">' + scr.rank + '</td><td class="text-center"><img src="' + logoSrc + '" height=20/></td><td>' + team + '</td><td>' + orgName + '</td>');
+                var col = $('<td class="text-right">' + scr.rank + '</td><td class="text-center"><img src="' + logoSrc + '" height=20/></td><td>' + sanitizeHTML(team) + '</td><td>' + sanitizeHTML(orgName) + '</td>');
                 var row = $('<tr></tr>');
                 row.append(col);
                 for (var j = 0; j < problems.length; j++) {

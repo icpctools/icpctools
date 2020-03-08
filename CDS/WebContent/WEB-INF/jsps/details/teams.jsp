@@ -65,7 +65,7 @@
                 }
             }
 
-            return $('<td><a href="<%= apiRoot %>/teams/' + team.id + '">' + team.id + '</td><td>' + name + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + orgName + '</td><td>' + orgFormalName + '</td><td>' + groupNames + '</td>'
+            return $('<td><a href="<%= apiRoot %>/teams/' + team.id + '">' + team.id + '</td><td>' + sanitizeHTML(name) + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + sanitizeHTML(orgName) + '</td><td>' + sanitizeHTML(orgFormalName) + '</td><td>' + sanitizeHTML(groupNames) + '</td>'
                 + '<td><a href="<%= webroot  %>/teamSummary/' + team.id + '">summary</a></td>');
         }
 

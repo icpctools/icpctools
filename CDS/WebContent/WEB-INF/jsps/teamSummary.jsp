@@ -1,4 +1,5 @@
 <%@ page import="org.icpc.tools.contest.model.*" %>
+<%@ page import="org.icpc.tools.cds.util.HttpHelper" %>
 <%@ page import="java.util.List" %>
 <% request.setAttribute("title", "Team Summary"); %>
 <%@ include file="layout/head.jsp" %>
@@ -33,17 +34,17 @@
                         </tr>
                         <tr>
                             <td><b>Display Name:</b></td>
-                            <td><%= team.getDisplayName() == null ? "" : team.getDisplayName() %>
+                            <td><%= team.getDisplayName() == null ? "" : HttpHelper.sanitizeHTML(team.getDisplayName()) %>
                             </td>
                         </tr>
                         <tr>
                             <td><b>Name:</b></td>
-                            <td><%= team.getName() %>
+                            <td><%= HttpHelper.sanitizeHTML(team.getName()) %>
                             </td>
                         </tr>
                         <tr>
                             <td><b>Group:</b></td>
-                            <td><%= groupName %>
+                            <td><%= HttpHelper.sanitizeHTML(groupName) %>
                             </td>
                         </tr>
                         <% if (organization != null) { %>
@@ -54,12 +55,12 @@
                         </tr>
                         <tr>
                             <td><b>Org formal name:</b></td>
-                            <td><%= organization.getFormalName() == null ? "" : organization.getFormalName() %>
+                            <td><%= organization.getFormalName() == null ? "" : HttpHelper.sanitizeHTML(organization.getFormalName()) %>
                             </td>
                         </tr>
                         <tr>
                             <td><b>Org name:</b></td>
-                            <td><%= organization.getName() %>
+                            <td><%= HttpHelper.sanitizeHTML(organization.getName()) %>
                             </td>
                         </tr>
                         <tr>
@@ -179,7 +180,7 @@
                             if (id != null) {
                                 ILanguage lang = contest.getLanguageById(id);
                                 if (lang != null)
-                                    langStr = lang.getName();
+                                    langStr = HttpHelper.sanitizeHTML(lang.getName());
                                 else
                                     langStr = "<font color=\"red\">" + id + "</font>";
                             }

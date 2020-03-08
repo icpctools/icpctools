@@ -43,7 +43,7 @@
             if (group.hidden != null)
                 hidden = "true";
             return $('<td><a href="<%= apiRoot %>/groups/' + group.id + '">' + group.id + '</td><td>' + group.icpc_id + '</td><td>'
-                + group.name + '</td><td>' + typ + '</td><td>' + hidden + '</td>');
+                + sanitizeHTML(group.name) + '</td><td>' + typ + '</td><td>' + hidden + '</td>');
         }
 
         $.when(contest.loadGroups()).done(function () {

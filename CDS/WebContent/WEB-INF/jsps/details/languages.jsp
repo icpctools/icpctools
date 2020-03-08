@@ -33,7 +33,7 @@
         contest.setContestId("<%= cc.getId() %>");
 
         function langTd(lang) {
-            return $('<td><a href="<%= apiRoot %>/languages/' + lang.id + '">' + lang.id + '</td><td>' + lang.name + '</td>');
+            return $('<td><a href="<%= apiRoot %>/languages/' + lang.id + '">' + lang.id + '</td><td>' + sanitizeHTML(lang.name) + '</td>');
         }
 
         $.when(contest.loadLanguages()).done(function () {
