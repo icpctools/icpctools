@@ -15,6 +15,14 @@ while true; do
     rm -rf lib
     mv -f update/* .
     continue
+  elif [ $result = 134 ]
+  then
+    # seg abort, restart
+    continue
+  elif [ $result = 139 ]
+  then
+    # seg fault, restart
+    continue
   fi
   [[ $result = 255 ]] || break
 done
