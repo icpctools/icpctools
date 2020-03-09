@@ -484,6 +484,7 @@ public class RESTContestSource extends DiskContestSource {
 		sb.append(" (" + status + ")");
 
 		if (status == HttpURLConnection.HTTP_NOT_FOUND) {
+			localFile.delete();
 			Trace.trace(Trace.INFO, sb.toString());
 			return;
 		}

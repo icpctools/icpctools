@@ -8,12 +8,16 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class CCSPresentation extends AbstractICPCPresentation {
+public class CCSPresentation extends Presentation {
+	private static final String[] HELP = new String[] {
+			"This presentation will show the logo(s) of the primary and (optionally) shadow CCS.",
+			"Place logos on the CDS in {icpc.cds.config}/present/ccs/primary.png and shadow.png" };
+
 	protected static final int BORDER = 10;
 	protected static final String PRIMARY_TEXT = "Contest Control System";
 	protected static final String SECONDARY_TEXT = "Shadow Verification";
@@ -36,14 +40,16 @@ public class CCSPresentation extends AbstractICPCPresentation {
 		try {
 			shadowImage = ImageHelper.loadImage("/presentation/ccs/shadow.png");
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error loading secondary image", e);
+			Trace.trace(Trace.WARNING, "Error loading shadow image", e);
 		}
 
-		if (shadowImage == null) {
-			primaryImage = ImageScaler.scaleImage(primaryImage, width * 0.8, height * 0.7);
-		} else {
-			primaryImage = ImageScaler.scaleImage(primaryImage, width * 0.4, height * 0.7);
-			shadowImage = ImageScaler.scaleImage(shadowImage, width * 0.4, height * 0.7);
+		if (primaryImage != null) {
+			if (shadowImage == null) {
+				primaryImage = ImageScaler.scaleImage(primaryImage, width * 0.8, height * 0.7);
+			} else {
+				primaryImage = ImageScaler.scaleImage(primaryImage, width * 0.4, height * 0.7);
+				shadowImage = ImageScaler.scaleImage(shadowImage, width * 0.4, height * 0.7);
+			}
 		}
 
 		final float dpi = 96;
@@ -58,8 +64,10 @@ public class CCSPresentation extends AbstractICPCPresentation {
 	@Override
 	public void paint(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		if (primaryImage == null)
+		if (primaryImage == null) {
+			paintHelp(g, HELP);
 			return;
+		}
 
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
