@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
@@ -128,6 +129,7 @@ public class ICPCToolsPresentation extends Presentation {
 
 		g.setFont(font);
 		g.setColor(Color.LIGHT_GRAY);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(MESSAGE, (width - fm.stringWidth(MESSAGE)) / 2, height - fm.getDescent() - 20);
 	}
