@@ -60,6 +60,13 @@
       image="images/presentations/ccs.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.CCSPresentation"/>
    <presentation
+      id="org.icpc.tools.presentation.contest.icpc.tools"
+      name="ICPC Tools"
+      category="Logos and Messages"
+      description="Displays the ICPC Tools logo"
+      image="images/presentations/icpcTools.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.ICPCToolsPresentation"/>
+   <presentation
       id="org.icpc.tools.presentation.contest.single.photo"
       name="Photo and caption"
       category="ICPC"
