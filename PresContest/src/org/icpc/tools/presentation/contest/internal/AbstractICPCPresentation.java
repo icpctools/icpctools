@@ -1,8 +1,5 @@
 package org.icpc.tools.presentation.contest.internal;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -141,21 +138,5 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		}
 		list.add(s);
 		return list.toArray(new String[0]);
-	}
-
-	protected void paintHelp(Graphics2D g, String[] message) {
-		paintHelp(g, message, "");
-	}
-
-	protected void paintHelp(Graphics2D g, String[] message, String subs) {
-		Dimension d = getSize();
-		g.setColor(Color.WHITE);
-		Font f = ICPCFont.getMasterFont().deriveFont(16f);
-		g.setFont(f);
-		FontMetrics fm = g.getFontMetrics();
-		for (int i = 0; i < message.length; i++) {
-			String s = message[i].replace("{0}", subs);
-			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height / 2 + (i - message.length / 2) * fm.getHeight());
-		}
 	}
 }

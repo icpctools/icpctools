@@ -6,9 +6,9 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class BillPresentation extends AbstractICPCPresentation {
+public class BillPresentation extends Presentation {
 	protected BufferedImage image;
 
 	@Override

@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class PromoPresentation extends AbstractICPCPresentation {
+public class PromoPresentation extends Presentation {
 	private static final String[] HELP = new String[] {
 			"This presentation will show one promotional image each time it is shown.",
 			"Place images on the CDS in {icpc.cds.config}/present/promo." };

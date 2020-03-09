@@ -7,9 +7,9 @@ import java.awt.Toolkit;
 import java.awt.image.MemoryImageSource;
 import java.util.Random;
 
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class FireworksPresentation extends AbstractICPCPresentation {
+public class FireworksPresentation extends Presentation {
 	private static final int ru = 90;
 	private static final int rv = 50;
 	private static final Random rand = new Random();
