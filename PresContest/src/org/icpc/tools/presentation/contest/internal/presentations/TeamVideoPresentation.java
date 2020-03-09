@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
+import org.icpc.tools.presentation.core.Presentation;
 
 import com.sun.jna.Memory;
 
@@ -16,7 +16,7 @@ import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;
 import uk.co.caprica.vlcj.player.direct.DirectMediaPlayer;
 import uk.co.caprica.vlcj.player.direct.RenderCallback;
 
-public class TeamVideoPresentation extends AbstractICPCPresentation {
+public class TeamVideoPresentation extends Presentation {
 	protected static final String[] DEFAULT_FACTORY_ARGUMENTS = { "--ignore-config", "--video-title=vlcj video output",
 			"--no-plugins-cache", "--no-video-title-show", "--no-snapshot-preview", "--quiet", "--quiet-synchro",
 			"--sub-filter=logo:marq", "--intf=dummy" };

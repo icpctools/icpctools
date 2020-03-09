@@ -10,11 +10,11 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class MohamedPresentation extends AbstractICPCPresentation {
+public class MohamedPresentation extends Presentation {
 	protected static final String[] text = new String[] { "Are", "you", "READY?" };
 
 	protected Font font;

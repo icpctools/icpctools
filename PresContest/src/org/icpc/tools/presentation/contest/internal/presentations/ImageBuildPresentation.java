@@ -11,11 +11,11 @@ import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class ImageBuildPresentation extends AbstractICPCPresentation {
+public class ImageBuildPresentation extends Presentation {
 	private static final String[] HELP = new String[] { "This presentation will fade between a series of images.",
 			"Place a series of png or jpg images on the CDS in {icpc.cds.config}/present/build",
 			"with filenames starting with '{0}', e.g. '{0}0.png and {0}1.png'" };

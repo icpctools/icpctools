@@ -13,11 +13,11 @@ import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.core.Presentation;
 
-public class SinglePhotoPresentation extends AbstractICPCPresentation {
+public class SinglePhotoPresentation extends Presentation {
 	private static final String[] HELP = new String[] { "This presentation will show one image with a caption.",
 			"Place the image on the CDS in {icpc.cds.config}/present/photo.jpg." };
 	protected Font font;

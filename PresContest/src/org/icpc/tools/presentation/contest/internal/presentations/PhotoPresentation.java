@@ -10,11 +10,10 @@ import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.core.Presentation;
 
-public class PhotoPresentation extends AbstractICPCPresentation {
+public class PhotoPresentation extends Presentation {
 	private static final String[] HELP = new String[] { "This presentation will pan across a series of photos.",
 			"Place photos on the CDS in {icpc.cds.config}/present/photos." };
 

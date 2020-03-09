@@ -1,6 +1,9 @@
 package org.icpc.tools.presentation.core;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -321,6 +324,37 @@ public abstract class Presentation {
 		t.start();
 
 		return job;
+	}
+
+	/**
+	 * Display a message to the user, typically because the presentation is missing some
+	 * configuration.
+	 *
+	 * @param g
+	 * @param message
+	 */
+	protected void paintHelp(Graphics2D g, String[] message) {
+		paintHelp(g, message, "");
+	}
+
+	/**
+	 * Display a message to the user, typically because the presentation is missing some
+	 * configuration.
+	 *
+	 * @param g
+	 * @param message
+	 * @param subs a substitution variable to replace any instances of {0} in the original message
+	 */
+	protected void paintHelp(Graphics2D g, String[] message, String subs) {
+		Dimension d = getSize();
+		g.setColor(Color.WHITE);
+		Font f = g.getFont().deriveFont(16f);
+		g.setFont(f);
+		FontMetrics fm = g.getFontMetrics();
+		for (int i = 0; i < message.length; i++) {
+			String s = message[i].replace("{0}", subs);
+			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height / 2 + (i - message.length / 2) * fm.getHeight());
+		}
 	}
 
 	@Override
