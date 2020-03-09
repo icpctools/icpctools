@@ -265,7 +265,7 @@ public class VideoServlet extends HttpServlet {
 					return null;
 				return STATUS_COLORS[status.ordinal()];
 			}
-		}, false);
+		}, true);
 		g.dispose();
 
 		ImageIO.write(image, "png", out);

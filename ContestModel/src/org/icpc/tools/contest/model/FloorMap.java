@@ -55,7 +55,7 @@ public class FloorMap {
 		}
 
 		public Color getSeatOutlineColor() {
-			return Color.LIGHT_GRAY;
+			return Color.DARK_GRAY;
 		}
 
 		public BufferedImage getTeamLogo(String id) {
@@ -525,68 +525,23 @@ public class FloorMap {
 			}
 		}
 
-		double tableWidth = mapInfo.getTableWidth();
-		double tableDepth = mapInfo.getTableDepth();
-		double teamAreaWidth = mapInfo.getTeamAreaWidth();
-		double teamAreaDepth = mapInfo.getTeamAreaDepth();
-
 		g.setColor(Color.BLACK);
+		FloorColors colors = new FloorColors() {
+			@Override
+			public Color getDeskFillColor(String id) {
+				if (id != null && id.equals(teamId))
+					return Color.LIGHT_GRAY;
+				return Color.WHITE;
+			}
+		};
+		for (ITeam t : mapInfo.getSpareTeams())
+			drawTeam(g, mapInfo, t, colors, x1, y1, scale, true);
+
 		for (ITeam t : contest.getTeams()) {
 			if (Double.isNaN(t.getX()) || Double.isNaN(t.getY()))
 				continue;
 
-			Graphics2D gg = createGraphics(g, t, x1, y1, scale);
-
-			// team area
-			// Rectangle2D.Float tr1 = new Rectangle2D.Float(-(teamAreaDepth + 1.0f) * scale / 2f,
-			// -teamAreaWidth * scale
-			Rectangle2D.Double tr1 = new Rectangle2D.Double(-(teamAreaDepth + 1f) * scale / 2f,
-					-teamAreaWidth * scale / 2f, teamAreaDepth * scale, teamAreaWidth * scale);
-			// Shape s = transform.createTransformedShape(tr);
-			// gg.setTransform(transform);
-			gg.setColor(Color.WHITE);
-			gg.fill(tr1);
-			gg.setColor(Color.LIGHT_GRAY);
-			gg.draw(tr1);
-			gg.setColor(Color.BLACK);
-
-			// chairs
-			double c = tableWidth * scale / 8f;
-			double rnd = 0f;// c * 0.5f;
-			for (int i = 0; i < 3; i++) {
-				// RoundRectangle2D.Float tr = new RoundRectangle2D.Float(-tableDepth * scale * 0.75f,
-				// -tableWidth * scale
-				RoundRectangle2D.Double tr = new RoundRectangle2D.Double(-tableDepth * scale,
-						-tableWidth * scale / 2f + c * i * 2.5f + c / 2f, tableDepth * scale * 0.25f, c * 2f, rnd, rnd);
-				// Shape s = transform.createTransformedShape(tr);
-				// gg.draw(s);
-				gg.draw(tr);
-			}
-
-			// table
-			Rectangle2D.Double tr = new Rectangle2D.Double(-tableDepth * scale / 2f, -tableWidth * scale / 2f,
-					tableDepth * scale, tableWidth * scale);
-			// Shape s = transform.createTransformedShape(tr);
-			// gg.setTransform(transform);
-			String id = t.getId();
-			if (teamId.equals(id)) {
-				gg.setColor(Color.DARK_GRAY);
-				gg.fill(tr);
-				gg.setColor(Color.BLACK);
-				gg.draw(tr);
-				gg.setColor(Color.WHITE);
-			} else
-				gg.draw(tr);
-
-			FontMetrics fm = gg.getFontMetrics();
-			if (id != null) {
-				AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
-				AffineTransform at = gg.getTransform();
-				at.concatenate(transform2);
-				gg.setTransform(at);
-				gg.drawString(id, -fm.stringWidth(id) / 2f, (fm.getAscent() - 3.5f) / 2f);
-			}
-			gg.dispose();
+			drawTeam(g, mapInfo, t, colors, x1, y1, scale, true);
 		}
 
 		for (IProblem p : contest.getProblems()) {
@@ -701,64 +656,68 @@ public class FloorMap {
 			return;
 
 		double tableWidth = mapInfo.getTableWidth();
-		double tableDepth = mapInfo.getTableDepth();
-		double teamAreaWidth = mapInfo.getTeamAreaWidth();
-		double teamAreaDepth = mapInfo.getTeamAreaDepth();
-
 		g.setFont(g.getFont().deriveFont((float) (tableWidth * scale / 2.75f)));
-		FontMetrics fm = g.getFontMetrics();
+
+		for (ITeam t : mapInfo.getSpareTeams())
+			drawTeam(g, mapInfo, t, colors, x1, y1, scale, false);
 
 		for (ITeam t : contest.getTeams()) {
 			if (Double.isNaN(t.getX()) || Double.isNaN(t.getY()))
 				continue;
 
-			Graphics2D gg = createGraphics(g, t, x1, y1, scale);
-
-			Rectangle2D.Double tr1 = new Rectangle2D.Double(-(teamAreaDepth + 1.0f) * scale / 2f,
-					-teamAreaWidth * scale / 2f, teamAreaDepth * scale, teamAreaWidth * scale);
-			// Shape s = transform.createTransformedShape(tr);
-			// gg.setTransform(transform);
-			draw(gg, tr1, colors.getTeamAreaFillColor(), colors.getTeamAreaOutlineColor());
-
-			// seats
-			double c = tableWidth * scale / 8f;
-			float rnd = 0f;// c * 0.5f;
-			for (int i = 0; i < 3; i++) {
-				RoundRectangle2D.Double tr = new RoundRectangle2D.Double(-tableDepth * scale * 0.75f,
-						-tableWidth * scale / 2f + c * i * 2.5f + c / 2f, tableDepth * scale * 0.25f, c * 2f, rnd, rnd);
-				// Shape s = transform.createTransformedShape(tr);
-				draw(gg, tr, colors.getSeatFillColor(), colors.getSeatOutlineColor());
-			}
-
-			// table
-			Rectangle2D.Double tr = new Rectangle2D.Double(-tableDepth * scale / 2f, -tableWidth * scale / 2f,
-					tableDepth * scale, tableWidth * scale);
-			// Shape s = transform.createTransformedShape(tr);
-			// gg.setTransform(transform);
-			String id = t.getId();
-			draw(gg, tr, colors.getDeskFillColor(id), colors.getDeskOutlineColor(id));
-			BufferedImage img = colors.getTeamLogo(id);
-			if (img != null)
-				gg.drawImage(img, -img.getWidth() / 2, -img.getHeight() / 2, null);
-
-			gg.setColor(colors.getTextColor());
-
-			if (id != null) {
-				if (rotateText) {
-					AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
-					AffineTransform at = gg.getTransform();
-					at.concatenate(transform2);
-					gg.setTransform(at);
-				} else {
-					AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(t.getRotation()));
-					AffineTransform at = gg.getTransform();
-					at.concatenate(transform2);
-					gg.setTransform(at);
-				}
-				gg.drawString(id, -fm.stringWidth(id) / 2f, (fm.getAscent() - 3.5f) / 2f);
-			}
-			gg.dispose();
+			drawTeam(g, mapInfo, t, colors, x1, y1, scale, rotateText);
 		}
+	}
+
+	private static void drawTeam(Graphics2D g, IMapInfo mapInfo, ITeam t, FloorColors colors, int x1, int y1,
+			double scale, boolean rotateText) {
+		double tableWidth = mapInfo.getTableWidth();
+		double tableDepth = mapInfo.getTableDepth();
+		double teamAreaWidth = mapInfo.getTeamAreaWidth();
+		double teamAreaDepth = mapInfo.getTeamAreaDepth();
+
+		Graphics2D gg = createGraphics(g, t, x1, y1, scale);
+
+		Rectangle2D.Double tr1 = new Rectangle2D.Double(-(teamAreaDepth + 1f) * scale / 2f, -teamAreaWidth * scale / 2f,
+				teamAreaDepth * scale, teamAreaWidth * scale);
+		draw(gg, tr1, colors.getTeamAreaFillColor(), colors.getTeamAreaOutlineColor());
+
+		// seats
+		double c = tableWidth * scale / 8f;
+		float rnd = 0f;// c * 0.5f;
+		for (int i = 0; i < 3; i++) {
+			RoundRectangle2D.Double tr = new RoundRectangle2D.Double(-tableDepth * scale * 0.75f,
+					-tableWidth * scale / 2f + c * i * 2.5f + c / 2f, tableDepth * scale * 0.25f, c * 2f, rnd, rnd);
+			draw(gg, tr, colors.getSeatFillColor(), colors.getSeatOutlineColor());
+		}
+
+		// table
+		Rectangle2D.Double tr = new Rectangle2D.Double(-tableDepth * scale / 2f, -tableWidth * scale / 2f,
+				tableDepth * scale, tableWidth * scale);
+		String id = t.getId();
+		draw(gg, tr, colors.getDeskFillColor(id), colors.getDeskOutlineColor(id));
+		BufferedImage img = colors.getTeamLogo(id);
+		if (img != null)
+			gg.drawImage(img, -img.getWidth() / 2, -img.getHeight() / 2, null);
+
+		gg.setColor(colors.getTextColor());
+
+		FontMetrics fm = g.getFontMetrics();
+		if (id != null) {
+			if (rotateText) {
+				AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
+				AffineTransform at = gg.getTransform();
+				at.concatenate(transform2);
+				gg.setTransform(at);
+			} else {
+				AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(t.getRotation()));
+				AffineTransform at = gg.getTransform();
+				at.concatenate(transform2);
+				gg.setTransform(at);
+			}
+			gg.drawString(id, -fm.stringWidth(id) / 2f, (fm.getAscent() - 3.5f) / 2f);
+		}
+		gg.dispose();
 	}
 
 	public ITeam getTeamToLeftOf(ITeam team) {
@@ -817,19 +776,21 @@ public class FloorMap {
 
 			if ("team".equals(type)) {
 				String id = st.nextToken();
-				if (NO_ID.equals(id))
-					id = "";
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
 				double rotation = Double.parseDouble(st.nextToken());
-				ITeam tt = contest.getTeamById(id);
-				if (tt != null) {
-					((ContestObject) tt).add("x", x + "");
-					((ContestObject) tt).add("y", y + "");
-					((ContestObject) tt).add("rotation", rotation + "");
-				} // else
-					// createTeam(id, x, y, rotation); // TODO make spare team
-			} else if ("balloon".equals(type)) {
+				if (NO_ID.equals(id)) {
+					// add spare team
+					createTeam(null, x, y, rotation);
+				} else {
+					ITeam tt = contest.getTeamById(id);
+					if (tt != null) {
+						((ContestObject) tt).add("x", x + "");
+						((ContestObject) tt).add("y", y + "");
+						((ContestObject) tt).add("rotation", rotation + "");
+					}
+				}
+			} else if ("balloon".equals(type) || "problem".equals(type)) {
 				String label = st.nextToken();
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
@@ -841,8 +802,7 @@ public class FloorMap {
 				if (pr != null) {
 					((Problem) pr).add("x", x + "");
 					((Problem) pr).add("y", y + "");
-				} // else
-					// createBalloon(label, x, y);
+				}
 			} else if ("printer".equals(type)) {
 				double x = Double.parseDouble(st.nextToken());
 				double y = Double.parseDouble(st.nextToken());
@@ -882,7 +842,10 @@ public class FloorMap {
 		t.add("x", x + "");
 		t.add("y", y + "");
 		t.add("rotation", rotation + "");
-		((Contest) contest).add(t);
+		if (id == null || id.length() == 0)
+			((MapInfo) contest.getMapInfo()).addSpareTeam(t);
+		else
+			((Contest) contest).add(t);
 		return t;
 	}
 
@@ -921,9 +884,14 @@ public class FloorMap {
 	}
 
 	private static void rotate(IPosition p, double rad) {
-		ContestObject co = (ContestObject) p;
 		double dx = Math.cos(rad) * p.getX() - Math.sin(rad) * p.getY();
 		double dy = Math.sin(rad) * p.getX() + Math.cos(rad) * p.getY();
+		if (p instanceof IPrinter) {
+			Printer pr = (Printer) p;
+			pr.set(dx, dy);
+			return;
+		}
+		ContestObject co = (ContestObject) p;
 		co.add("x", dx + "");
 		co.add("y", dy + "");
 	}
@@ -954,6 +922,9 @@ public class FloorMap {
 				double dy2 = Math.sin(rad) * a.getX2() + Math.cos(rad) * a.getY2();
 				((Aisle) a).set(dx1, dy1, dx2, dy2);
 			}
+
+			for (ITeam tt : mapInfo.getSpareTeams())
+				rotate(tt, rad);
 
 			if (mapInfo.getPrinter() != null)
 				rotate(mapInfo.getPrinter(), rad);
@@ -990,8 +961,20 @@ public class FloorMap {
 			out.println(rnd(t.getRotation()));
 		}
 
+		for (ITeam t : mapInfo.getSpareTeams()) {
+			out.print("team");
+			out.print(TAB);
+			out.print(NO_ID);
+			out.print(TAB);
+			out.print(rnd(t.getX()));
+			out.print(TAB);
+			out.print(rnd(t.getY()));
+			out.print(TAB);
+			out.println(rnd(t.getRotation()));
+		}
+
 		for (IProblem b : contest.getProblems()) {
-			out.print("balloon");
+			out.print("problem");
 			out.print(TAB);
 			out.print(b.getId());
 			out.print(TAB);

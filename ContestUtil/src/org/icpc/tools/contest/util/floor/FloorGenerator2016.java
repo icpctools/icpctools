@@ -32,7 +32,7 @@ public class FloorGenerator2016 extends FloorGenerator {
 
 	protected static void createAdjacentTeam(int teamNumber, int newId, double dx, double dy) {
 		ITeam t = floor.getTeam(teamNumber);
-		floor.createTeam(newId, t.getY() + dx, t.getY() + dy, t.getRotation());
+		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
 	}
 
 	public static void main(String[] args) {

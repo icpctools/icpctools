@@ -58,17 +58,17 @@ public class FloorGenerator2018 extends FloorGenerator {
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 1, x, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 1, x, y, -taw, 0, FloorMap.S);
 			y += rowX;
-			createTeamRow(10, 11, x - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 11, x - taw * 9, y, taw, 0, FloorMap.N);
 			y += dyRow;
 
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 21, x, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 21, x, y, -taw, 0, FloorMap.S);
 			y += rowX;
-			createTeamRow(10, 31, x - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 31, x - taw * 9, y, taw, 0, FloorMap.N);
 			y += dyRow;
 
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
@@ -76,42 +76,42 @@ public class FloorGenerator2018 extends FloorGenerator {
 			IPrinter p = floor.createPrinter(x - 12 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 41, x, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 41, x, y, -taw, 0, FloorMap.S);
 			y += rowX;
-			createTeamRow(10, 51, x - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 51, x - taw * 9, y, taw, 0, FloorMap.N);
 			y += dyRow;
 
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 61, x, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 61, x, y, -taw, 0, FloorMap.S);
 			y += rowX;
-			createTeamRow(10, 71, x - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 71, x - taw * 9, y, taw, 0, FloorMap.N);
 			y += dyRow;
 
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 81, x, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 81, x, y, -taw, 0, FloorMap.S);
 			y += rowX;
-			createTeamRow(10, 91, x - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 91, x - taw * 9, y, taw, 0, FloorMap.N);
 			y += dyRow;
 
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 101, x, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 101, x, y, -taw, 0, FloorMap.S);
 			y += rowX;
-			createTeamRow(10, 111, x - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 111, x - taw * 9, y, taw, 0, FloorMap.N);
 			y += dyRow;
 
 			floor.createAisle(x + taw + 1, y, x - 10 * taw, y);
 
 			y += dyRow;
-			createTeamRow(10, 121, x - 1, y, -taw, 0, FloorMap.N);
+			createTeamRow(10, 121, x - 1, y, -taw, 0, FloorMap.S);
 			createAdjacentTeam(121, -1, taw, 0);
 			y += rowX;
-			createTeamRow(10, 131, x - 1 - taw * 9, y, taw, 0, FloorMap.S);
+			createTeamRow(10, 131, x - 1 - taw * 9, y, taw, 0, FloorMap.N);
 			createAdjacentTeam(140, -1, taw, 0);
 			y += dyRow;
 
