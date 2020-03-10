@@ -23,8 +23,8 @@ public class NDJSONFeedParser implements Closeable {
 		if (in == null)
 			return;
 
-		// {"event": "<event type>", "id": "<id>", "op":"create/update/delete" "data": <data from
-		// endpoint> }
+		// { "id": "<id>", "type": "<event type>", "op":"create/update/delete", "data": { <data from
+		// endpoint> } }
 		String s = null;
 		try {
 			br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
@@ -107,9 +107,5 @@ public class NDJSONFeedParser implements Closeable {
 
 	public String getLastEventId() {
 		return lastId;
-	}
-
-	protected void handleNewObject(ContestObject obj) {
-		// hook for subclasses to perform actions on new elements
 	}
 }

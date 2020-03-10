@@ -51,7 +51,7 @@
                     text = text.substring(0, 30) + "...";
                 var col = $('<td><a href="/contests/' + contestId + '">' + contestId + '</a></td><td>' + type + '</td>' +
                     '<td><a href="/api/contests/' + contestId + '/' + type + '/' + id + '">' + id + '</a></td>' +
-                    '<td>' + text + '</td>');
+                    '<td>' + sanitize(text) + '</td>');
                 var row = $('<tr></tr>');
                 row.append(col);
                 $('#search-table tbody').append(row);

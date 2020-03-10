@@ -49,36 +49,12 @@ public class SearchService extends HttpServlet {
 
 		String path = request.getPathInfo();
 		if (path == null || !path.startsWith("/")) {
-			request.setCharacterEncoding("UTF-8");
-			response.setCharacterEncoding("UTF-8");
-			response.setHeader("X-Frame-Options", "sameorigin");
 			response.setHeader("Content-Security-Policy", "frame-ancestors");
 			request.getRequestDispatcher("/WEB-INF/jsps/search.jsp").forward(request, response);
 			return;
 		}
 
-		try {
-			searchTerm = path.substring(1);
-		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-
-		if (searchTerm.length() < 3) {
-			response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "Search string too short");
-			return;
-		}
-
-		if (!searchTerm.matches("[\\w*\\s*]*")) {
-			response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE, "Please enter only letters, numbers, and spaces.");
-			return;
-		}
-
-		response.setCharacterEncoding("UTF-8");
-		response.setHeader("Cache-Control", "no-cache");
-		response.setContentType("application/json");
-		JSONEncoder en = new JSONEncoder(response.getWriter());
-		search(request, searchTerm, en);
+		response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
 	protected static void write(JSONEncoder e, IContestObject obj, String text) {
@@ -90,10 +66,9 @@ public class SearchService extends HttpServlet {
 	}
 
 	protected static void search(HttpServletRequest request, String searchTerm, JSONEncoder en) {
-		Trace.trace(Trace.INFO, "Searching for: " + searchTerm);
+		Trace.trace(Trace.INFO, "Searching for: " + HttpHelper.sanitize(searchTerm));
 		en.openArray();
 		en.open();
-		en.encode("search_term", searchTerm);
 		en.openChildArray("results");
 
 		String search = searchTerm.toLowerCase();
