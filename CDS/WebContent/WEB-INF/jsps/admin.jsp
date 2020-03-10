@@ -156,13 +156,13 @@
              <h3 class="card-title">Contest Object Control</h3>
            </div>
         <div class="card-body">
-            <p>In case of emergency - e.g. a missed event from a CCS - this form can be used to manually add or remove objects from the
-               contest event feed. Use vary carefully and sparingly! Adding requires all three inputs, removal only requires type and id.</p>
+            <p>In case of emergency - e.g. a missed event from a CCS - this form can be used to manually add or remove objects from the contest
+               event feed. Use vary carefully and sparingly! Adding or updating requires all three inputs, removal only requires type and id.</p>
               <div class="box-body">
                 <div class="form-group">
                   <label for="input-type" class="col-sm-2 control-label">Type</label>
                   <div class="col-sm-10">
-                    <input class="form-control" id="input-type" placeholder="contest element type">
+                    <input class="form-control" id="input-type" placeholder="contest type, e.g. 'teams'">
                   </div>
                 </div>
                 <div class="form-group">
@@ -180,6 +180,7 @@
               </div>
               <div class="box-footer">
                 <button type="submit" class="btn btn-danger pull-right" onclick="addContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Add</button>
+                <button type="submit" class="btn btn-danger pull-right" onclick="updateContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Update</button>
                 <button type="submit" class="btn btn-danger pull-right" onclick="removeContestObject($('#input-type').val(),$('#input-id').val())">Remove</button>
                 <span id="object-status">&nbsp;</span>
               </div>
@@ -440,7 +441,15 @@
     	contest.add(type, id, body, function() {
     		$('#object-status').text(id + " added successfully");
     	}, function(result) {
-    		$('#object-status').text(id + " add failed: " + result.statusText);
+    		$('#object-status').text("Add failed: " + result.responseText);
+    	})
+    }
+
+    function updateContestObject(type, id, body) {
+    	contest.update(type, id, body, function() {
+    		$('#object-status').text(id + " updated successfully");
+    	}, function(result) {
+    		$('#object-status').text("Update failed: " + result.responseText);
     	})
     }
 
@@ -448,7 +457,7 @@
     	contest.remove(type, id, function() {
     		$('#object-status').text(id + " deleted successfully");
     	}, function(result) {
-    		$('#object-status').text(id + " delete failed: " + result.statusText);
+    		$('#object-status').text("Delete failed: " + result.responseText);
     	})
     }
 

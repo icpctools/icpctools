@@ -29,7 +29,6 @@ import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IInfo;
-import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
@@ -42,7 +41,6 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Deletion;
-import org.icpc.tools.contest.model.internal.StartStatus;
 
 @WebServlet(urlPatterns = { "/api/", "/api/*" }, asyncSupported = true)
 @ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
@@ -53,8 +51,6 @@ public class ContestRESTService extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpHelper.setThreadHost(request);
-		request.setCharacterEncoding("UTF-8");
-		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("ICPC-Tools", "CDS");
 		response.setHeader("X-Frame-Options", "sameorigin");
@@ -402,7 +398,7 @@ public class ContestRESTService extends HttpServlet {
 				aggregator = WebcamAggregator.getInstance();
 			else
 				return false;
-			
+
 			int num = -1;
 			try {
 				num = Integer.parseInt(id);
@@ -421,8 +417,11 @@ public class ContestRESTService extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String method = request.getMethod();
+		request.setAttribute("error-type", "plain");
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
 
+		String method = request.getMethod();
 		if (method.equals("PATCH"))
 			doPatch(request, response);
 		else
@@ -434,8 +433,6 @@ public class ContestRESTService extends HttpServlet {
 	// {"id":"dress","start_time":"2017-04-08T14:41:43.000-04"}
 	// {"id":"finals","start_time":null,"countdown_pause_time":"0:12:15.000"}
 	protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		request.setCharacterEncoding("UTF-8");
-
 		if (!Role.isAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -443,14 +440,13 @@ public class ContestRESTService extends HttpServlet {
 
 		String path = request.getPathInfo();
 		if (path == null || path.equals("/") || path.length() < 10) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
-		path = path.substring(9);
-		String[] segments = path.substring(1).split("/");
-		if (segments == null || segments.length == 0) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		String[] segments = path.substring(10).split("/");
+		if (segments == null || segments.length == 0 || segments.length > 3) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
@@ -460,164 +456,110 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		if (segments.length > 1) {
-			if (segments.length != 3) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
-				return;
-			}
-			String type = segments[1];
-			if (!"start-status".equals(type)) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
-				return;
-			}
-			String id2 = segments[2];
-
-			Contest contest = cc.getContest();
-			IStartStatus startStatus = contest.getStartStatusById(id2);
-			if (startStatus == null) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
-				return;
-			}
-
+		if (segments.length == 1) {
+			// attempting to change the start time
 			InputStream is = request.getInputStream();
 			JSONParser parser = new JSONParser(is);
 			JsonObject obj = parser.readObject();
 
-			// confirm the id is correct
+			// confirm the contest id is correct
 			String id = obj.getString("id");
-			if (id == null || !id.equals(id2)) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+			if (id == null || !id.equals(cc.getId())) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid contest id");
 				return;
 			}
 
-			// check for status
-			int status = obj.getInt("status");
+			// check for start or countdown time
+			String time = obj.getString("start_time");
+			String countdownTime = obj.getString("countdown_pause_time");
 
-			StartStatus cd = (StartStatus) ((StartStatus) startStatus).clone();
-			cd.setStatus(status);
-			contest.add(cd);
-			return;
-		}
+			Long newTime = null;
+			if (time != null && !"null".equals(time))
+				try {
+					newTime = Timestamp.parse(time.toString());
+					Trace.trace(Trace.INFO, "Patch time: " + Timestamp.format(newTime));
+				} catch (Exception e) {
+					Trace.trace(Trace.WARNING, "Invalid patch time: " + e.getMessage());
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+					return;
+				}
 
-		// attempting to change the start time
-		InputStream is = request.getInputStream();
-		JSONParser parser = new JSONParser(is);
-		JsonObject obj = parser.readObject();
+			if (countdownTime != null && !"null".equals(countdownTime))
+				try {
+					newTime = new Long(-RelativeTime.parse(countdownTime.toString()));
+					Trace.trace(Trace.INFO, "Patch countdown time: " + RelativeTime.format(newTime.intValue()));
+				} catch (Exception e) {
+					Trace.trace(Trace.WARNING, "Invalid patch countdown time: " + e.getMessage());
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+					return;
+				}
 
-		// confirm the contest id is correct
-		String id = obj.getString("id");
-		if (id == null || !id.equals(cc.getId())) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid contest id");
-			return;
-		}
-
-		// check for start or countdown time
-		String time = obj.getString("start_time");
-		String countdownTime = obj.getString("countdown_pause_time");
-
-		Long newTime = null;
-		if (time != null && !"null".equals(time))
 			try {
-				newTime = Timestamp.parse(time.toString());
-				Trace.trace(Trace.INFO, "Patch time: " + Timestamp.format(newTime));
+				Trace.trace(Trace.INFO, "Patching start time");
+				StartTimeService.setStartTime(cc, newTime);
 			} catch (Exception e) {
-				Trace.trace(Trace.WARNING, "Invalid patch time: " + e.getMessage());
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+				Trace.trace(Trace.ERROR, "Error setting start time", e);
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			}
-
-		if (countdownTime != null && !"null".equals(countdownTime))
-			try {
-				newTime = new Long(-RelativeTime.parse(countdownTime.toString()));
-				Trace.trace(Trace.INFO, "Patch countdown time: " + RelativeTime.format(newTime.intValue()));
-			} catch (Exception e) {
-				Trace.trace(Trace.WARNING, "Invalid patch countdown time: " + e.getMessage());
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-			}
-
-		try {
-			Trace.trace(Trace.INFO, "Patching start time");
-			StartTimeService.setStartTime(cc, newTime);
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error setting start time", e);
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-		}
-	}
-
-	@Override
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		request.setCharacterEncoding("UTF-8");
-
-		if (!Role.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		String path = request.getPathInfo();
-		if (path == null || path.equals("/") || path.length() < 10) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-
-		path = path.substring(9);
-		String[] segments = path.substring(1).split("/");
-		if (segments == null || segments.length == 0) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-
-		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
-		if (cc == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
-			return;
-		}
-
-		if (segments.length != 3) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
 		String type = segments[1];
-		ContestObject co = (ContestObject) IContestObject.createByName(type);
-		if (co == null) {
+		IContestObject.ContestType cType = IContestObject.getTypeByName(type);
+		if (cType == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
 			return;
 		}
 
-		String id2 = segments[2];
+		String id = null;
+		if (segments.length == 3)
+			id = segments[2];
+		else if (!IContestObject.isSingleton(cType)) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		Contest contest = cc.getContest();
+		ContestObject co = (ContestObject) contest.getObjectByTypeAndId(cType, id);
+		if (co == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object does not exist");
+			return;
+		}
 
 		JsonObject obj = null;
 		try {
-			Trace.trace(Trace.USER, "Adding contest object: " + type + "/" + id2);
-
 			InputStream is = request.getInputStream();
 			JSONParser parser = new JSONParser(is);
 			obj = parser.readObject();
 
 			// confirm the id is correct
-			String id = obj.getString("id");
-			if (id == null || !id.equals(id2)) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
-				return;
+			if (id != null) {
+				String jsonId = obj.getString("id");
+				if (jsonId == null || !jsonId.equals(id)) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+					return;
+				}
 			}
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse object");
+			return;
 		}
 
 		try {
+			Trace.trace(Trace.USER, "Updating contest object: " + type + "/" + id);
+			co = (ContestObject) co.clone();
 			for (String key : obj.props.keySet())
 				co.add(key, obj.props.get(key));
 
-			Contest contest = cc.getContest();
 			contest.add(co);
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
-			Trace.trace(Trace.ERROR, "Could not add to contest " + id2, e);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not update object");
+			Trace.trace(Trace.ERROR, "Could not update contest " + id, e);
 		}
 	}
 
 	@Override
-	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		request.setCharacterEncoding("UTF-8");
-
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (!Role.isAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -625,14 +567,13 @@ public class ContestRESTService extends HttpServlet {
 
 		String path = request.getPathInfo();
 		if (path == null || path.equals("/") || path.length() < 10) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
-		path = path.substring(9);
-		String[] segments = path.substring(1).split("/");
-		if (segments == null || segments.length == 0) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+		String[] segments = path.substring(10).split("/");
+		if (segments == null || segments.length < 2 || segments.length > 3) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
@@ -642,8 +583,80 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		if (segments.length != 3) {
+		String type = segments[1];
+		ContestType cType = IContestObject.getTypeByName(type);
+		if (cType == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
+			return;
+		}
+
+		String id = null;
+		if (segments.length == 3)
+			id = segments[2];
+		else if (!IContestObject.isSingleton(cType)) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		Contest contest = cc.getContest();
+		if (contest.getObjectByTypeAndId(cType, id) != null) {
+			Trace.trace(Trace.USER, "Replacing contest object: " + type + "/" + id);
+		}
+
+		JsonObject obj = null;
+		try {
+			InputStream is = request.getInputStream();
+			JSONParser parser = new JSONParser(is);
+			obj = parser.readObject();
+
+			// confirm the id is correct
+			if (id != null) {
+				String jsonId = obj.getString("id");
+				if (jsonId == null || !jsonId.equals(id)) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+					return;
+				}
+			}
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse object");
+			return;
+		}
+
+		try {
+			Trace.trace(Trace.USER, "Adding contest object: " + type + "/" + id);
+			ContestObject co = (ContestObject) IContestObject.createByType(cType);
+			for (String key : obj.props.keySet())
+				co.add(key, obj.props.get(key));
+
+			contest.add(co);
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
+			Trace.trace(Trace.ERROR, "Could not add to contest " + id, e);
+		}
+	}
+
+	@Override
+	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (!Role.isAdmin(request)) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		String path = request.getPathInfo();
+		if (path == null || path.equals("/") || path.length() < 10) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		String[] segments = path.substring(10).split("/");
+		if (segments == null || segments.length != 3) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
+		if (cc == null) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
 			return;
 		}
 
@@ -655,15 +668,18 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		String id = segments[2];
-
 		try {
 			Trace.trace(Trace.USER, "Deleting contest object: " + type + "/" + id);
 			Deletion d = new Deletion(id, cType);
 			Contest contest = cc.getContest();
+			if (contest.getObjectByTypeAndId(cType, id) == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object does not exist");
+				return;
+			}
 			contest.add(d);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not remove object");
-			Trace.trace(Trace.ERROR, "Could not add event to contest! " + id, e);
+			Trace.trace(Trace.ERROR, "Could not remove from contest! " + id, e);
 		}
 	}
 }

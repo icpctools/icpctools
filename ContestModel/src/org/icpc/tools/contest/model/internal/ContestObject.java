@@ -21,7 +21,7 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 public abstract class ContestObject implements IContestObject {
 	public static final String ID = "id";
 	protected static final BufferedImage MISSING_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
-	private static final String SINGLETON_ID = "main";
+	protected static final String SINGLETON_ID = "main";
 
 	protected String id;
 	protected static List<String> ignoredProps = new ArrayList<>();
