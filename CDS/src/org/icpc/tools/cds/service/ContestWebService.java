@@ -62,8 +62,7 @@ public class ContestWebService extends HttpServlet {
 
 		String path = request.getPathInfo();
 		if (path == null || path.equals("/")) {
-			// list contests
-
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
@@ -166,7 +165,6 @@ public class ContestWebService extends HttpServlet {
 		cc.incrementWeb();
 		if (segments.length >= 2) {
 			if (segments[1].equals("details")) {
-				request.setAttribute("version", Trace.getVersion());
 				request.getRequestDispatcher("/WEB-INF/jsps/details.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("orgs")) {
@@ -310,6 +308,10 @@ public class ContestWebService extends HttpServlet {
 						StartTimeService.doGet(response, cc);
 						return;
 					}
+				}
+				if (!Role.isAdmin(request)) {
+					request.getRequestDispatcher("/WEB-INF/jsps/non-admin.jsp").forward(request, response);
+					return;
 				}
 				request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
 				return;
