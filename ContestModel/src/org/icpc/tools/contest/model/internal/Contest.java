@@ -418,6 +418,8 @@ public class Contest implements IContest {
 	}
 
 	public IContestObject getObjectByTypeAndId(ContestType type, String id) {
+		if (id == null && IContestObject.isSingleton(type))
+			return data.getById(ContestObject.SINGLETON_ID, type);
 		return data.getById(id, type);
 	}
 

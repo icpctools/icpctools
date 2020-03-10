@@ -244,7 +244,7 @@ var contest=(function() {
 		startStatus = null;
 	}
 	var add = function(type, id, body, ok, fail) {
- 	    console.log("Adding contest object: " + type + "/" + id + ", " + body);
+ 	    console.log("Adding (PUT) contest object: " + type + "/" + id + ", " + body);
  	    return $.ajax({
 		    url: urlPrefix + type + '/' + id,
 		    method: 'PUT',
@@ -258,8 +258,23 @@ var contest=(function() {
 		});
     }
 
+	var update = function(type, id, body, ok, fail) {
+        console.log("Updating (PATCH) contest object: " + type + "/" + id);
+        return $.ajax({
+		    url: urlPrefix + type + '/' + id,
+		    method: 'PATCH',
+		    data: body,
+		    success: function(result) {
+		    	ok(result);
+		    },
+		    error: function(result) {
+			    fail(result);
+		    }
+		});
+	}
+
 	var remove = function(type, id, ok, fail) {
-        console.log("Deleting contest object: " + type + "/" + id);
+        console.log("Deleting (DELETE) contest object: " + type + "/" + id);
         return $.ajax({
 		    url: urlPrefix + type + '/' + id,
 		    method: 'DELETE',
@@ -299,6 +314,7 @@ var contest=(function() {
 		getTeamById: getTeamById,
 		clear: clear,
 		add: add,
+		update: update,
 		remove: remove
 	};
 })();

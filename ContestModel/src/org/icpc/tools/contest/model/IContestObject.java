@@ -43,6 +43,10 @@ public interface IContestObject {
 		return null;
 	}
 
+	static boolean isSingleton(ContestType type) {
+		return type != null && (ContestType.STATE.equals(type) || ContestType.MAP_INFO.equals(type));
+	}
+
 	static IContestObject createByName(String typeName) {
 		return createByType(getTypeByName(typeName));
 	}
