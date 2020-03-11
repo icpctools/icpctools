@@ -29,7 +29,7 @@ public class StartTimeService {
 	private static boolean errorIfContestNotCountingDown(Long time, HttpServletResponse response) throws IOException {
 		long now = System.currentTimeMillis();
 		if (time == null || time < 0 || time < now) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Contest not in countdown");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest not in countdown");
 			return true;
 		}
 		return false;
@@ -37,7 +37,7 @@ public class StartTimeService {
 
 	private static boolean errorIfContestNotPaused(Long time, HttpServletResponse response) throws IOException {
 		if (time == null || time > 0) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Contest not paused");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest not paused");
 			return true;
 		}
 		return false;
@@ -66,14 +66,14 @@ public class StartTimeService {
 			if (command.startsWith("absolute:")) {
 				setStartTime(cc, Timestamp.parse(command.substring(8).trim()));
 			} else if (command.startsWith("set:")) {
-				setStartTime(cc, -RelativeTime.parse(command.substring(4).trim()));
+				setStartTime(cc, new Long(-RelativeTime.parse(command.substring(4).trim())));
 			} else if (command.startsWith("add:")) {
 				if (errorIfContestNotPaused(currentStart, response))
 					return;
 
 				long time = RelativeTime.parse(command.substring(4).trim());
 				if (time <= 0) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid add time");
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid add time");
 					return;
 				}
 				setStartTime(cc, currentStart - time);
@@ -83,7 +83,7 @@ public class StartTimeService {
 
 				long time = RelativeTime.parse(command.substring(7).trim());
 				if (time <= 0 || time > -currentStart) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid remove time");
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid remove time");
 					return;
 				}
 				setStartTime(cc, currentStart + time);
@@ -97,13 +97,13 @@ public class StartTimeService {
 				setStartTimeInSeconds(cc, now - currentStart);
 			} else if (command.equals("clear")) {
 				if (contest.getState().isRunning()) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Contest already running");
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest already running");
 					return;
 				}
 				setStartTime(cc, null);
 			}
 		} catch (IllegalArgumentException e) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 			return;
 		} catch (IOException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "CCS error: " + e.getMessage());
@@ -139,10 +139,6 @@ public class StartTimeService {
 			time = (time / 1000) * 1000;
 
 		setStartTime(cc, time);
-	}
-
-	protected static void setStartTime(ConfiguredContest cc, int time) throws Exception {
-		setStartTime(cc, new Long(time));
 	}
 
 	/**

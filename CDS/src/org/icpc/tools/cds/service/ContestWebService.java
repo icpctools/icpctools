@@ -119,6 +119,7 @@ public class ContestWebService extends HttpServlet {
 
 		if (segments.length >= 2) {
 			request.setAttribute("cc", cc);
+			request.setAttribute("error-type", "plain");
 			cc.incrementWeb();
 			if (segments[1].equals("admin")) {
 				if (!Role.isAdmin(request)) {
@@ -146,17 +147,15 @@ public class ContestWebService extends HttpServlet {
 		response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
 	}
 
-	private static InputStream getHTTPInputStream(String url, String user, String password) {
+	private static InputStream getHTTPInputStream(String url, String user, String password) throws Exception {
 		try {
 			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url), user, password);
 			conn.setReadTimeout(15 * 1000); // 15s timeout
 			return new BufferedInputStream(conn.getInputStream());
-		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "I/O error downloading", e);
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error downloading", e);
+			Trace.trace(Trace.ERROR, "Error downloading from " + url, e);
+			throw e;
 		}
-		return null;
 	}
 
 	private static void doWeb(HttpServletRequest request, HttpServletResponse response, String[] segments,
@@ -275,7 +274,13 @@ public class ContestWebService extends HttpServlet {
 						RESTContestSource cs = (RESTContestSource) cc.getContestSource();
 						path = cs.getURL().toExternalForm() + "/scoreboard";
 						request.setAttribute("b", path);
-						InputStream in = getHTTPInputStream(path, cs.getUser(), cs.getPassword());
+						InputStream in = null;
+						try {
+							in = getHTTPInputStream(path, cs.getUser(), cs.getPassword());
+						} catch (Exception e) {
+							response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "CCS error: " + e.getMessage());
+							return;
+						}
 						sd2 = ScoreboardUtil.read(in);
 					} else {
 						request.setAttribute("b", "same");

@@ -434,7 +434,7 @@ public class ContestRESTService extends HttpServlet {
 	// {"id":"finals","start_time":null,"countdown_pause_time":"0:12:15.000"}
 	protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (!Role.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 
@@ -515,7 +515,7 @@ public class ContestRESTService extends HttpServlet {
 		if (segments.length == 3)
 			id = segments[2];
 		else if (!IContestObject.isSingleton(cType)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
 			return;
 		}
 
@@ -561,7 +561,7 @@ public class ContestRESTService extends HttpServlet {
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (!Role.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 
@@ -594,7 +594,7 @@ public class ContestRESTService extends HttpServlet {
 		if (segments.length == 3)
 			id = segments[2];
 		else if (!IContestObject.isSingleton(cType)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
 			return;
 		}
 

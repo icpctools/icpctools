@@ -236,7 +236,7 @@ public class ReactionVideoRecorder {
 		// security - reject after freeze
 		final IContest contest = cc.getContest();
 		if (!Role.isBlue(request) && !contest.isBeforeFreeze(submission)) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 

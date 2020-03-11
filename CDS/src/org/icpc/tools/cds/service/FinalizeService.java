@@ -21,7 +21,7 @@ public class FinalizeService {
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {
 		IContest contest = cc.getContest();
 		if (contest.getState().isRunning()) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, "Contest still running");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest still running");
 			return;
 		}
 
@@ -35,22 +35,25 @@ public class FinalizeService {
 				int b = Integer.parseInt(command.substring(2));
 				AwardUtil.createWorldFinalsAwards(c, b);
 			} else if ("template".equals(command)) {
-
-				Award[] template = loadFromFile(
-						cc.getLocation() + File.separator + "config" + File.separator + "award-template.json");
+				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "award-template.json");
+				if (!f.exists()) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No award template found");
+					return;
+				}
+				Award[] template = loadFromFile(f);
 				Trace.trace(Trace.USER, "Assigning awards: " + template.length);
 				AwardUtil.applyAwards(c, template);
 			}
 		} catch (IllegalArgumentException e) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error");
 			Trace.trace(Trace.ERROR, "Error durng finalization", e);
 		}
 	}
 
-	protected static Award[] loadFromFile(String name) throws IOException {
-		JSONParser parser = new JSONParser(new FileInputStream(name));
+	protected static Award[] loadFromFile(File f) throws IOException {
+		JSONParser parser = new JSONParser(new FileInputStream(f));
 		Object[] arr = parser.readArray();
 		List<Award> list = new ArrayList<>();
 		for (Object obj : arr) {
