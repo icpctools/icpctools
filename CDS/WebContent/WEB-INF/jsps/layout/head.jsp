@@ -70,7 +70,7 @@
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
       <!-- Brand Logo -->
       <a href="/" class="brand-link">
-        <img src="${pageContext.request.contextPath}/logoGear.png" alt="CDS Logo"
+        <img src="${pageContext.request.contextPath}/cdsIcon.png" alt="CDS Logo"
           class="brand-image img-circle elevation-3"/>
         <span class="brand-text font-weight-light">Contest Data Server</span>
       </a>

@@ -112,7 +112,7 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	public static PresentationWindow open() {
 		BufferedImage iconImage = null;
 		try {
-			iconImage = ImageIO.read(PresentationWindow.class.getClassLoader().getResource("clientIcon.png"));
+			iconImage = ImageIO.read(PresentationWindow.class.getClassLoader().getResource("images/presIcon.png"));
 		} catch (IOException e) {
 			// could not set icon
 		}
@@ -122,7 +122,7 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	public static PresentationWindow create() {
 		BufferedImage iconImage = null;
 		try {
-			iconImage = ImageIO.read(PresentationWindow.class.getClassLoader().getResource("clientIcon.png"));
+			iconImage = ImageIO.read(PresentationWindow.class.getClassLoader().getResource("images/presIcon.png"));
 		} catch (IOException e) {
 			// could not set icon
 		}
