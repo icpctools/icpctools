@@ -824,7 +824,7 @@ public class RESTContestSource extends DiskContestSource {
 				throw new IOException(conn.getResponseCode() + ": " + conn.getResponseMessage());
 		} catch (IOException e) {
 			Trace.trace(Trace.ERROR, "Error setting contest start time", e);
-			throw new IOException("500: Could not connect: " + e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			throw new IOException("Connection error", e);
 		}

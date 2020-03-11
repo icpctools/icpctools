@@ -172,7 +172,7 @@ public class ContestFeedService {
 				Trace.trace(Trace.WARNING, "Couldn't write contest hash file", e);
 			}
 		} catch (IllegalArgumentException e) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			Trace.trace(Trace.ERROR, "Error updating contest hash", e);
