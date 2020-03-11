@@ -1025,6 +1025,11 @@ public class BalloonUtility {
 		Display.setAppName("Balloon Utility");
 		Display display = new Display();
 		final Shell shell = new Shell(display);
+		Image image = new Image(display, BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
+		shell.setImage(image);
+		shell.setText("Balloon Utility");
+		ErrorHandler.setShell(shell);
+
 		if (contestSource == null) {
 			try {
 				ContestConnectionDialog cfd = new ContestConnectionDialog(shell);
@@ -1060,10 +1065,6 @@ public class BalloonUtility {
 				}
 			}
 		}
-		shell.setText("Balloon Utility");
-		Image image = new Image(display, BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
-		shell.setImage(image);
-		ErrorHandler.setShell(shell);
 
 		String printerName = getPreferences().get(PREF_PRINTER, null);
 		if (printerName != null) {

@@ -653,6 +653,11 @@ public class AwardUI {
 		Display display = new Display();
 
 		final Shell shell = new Shell(display);
+		shell.setText("Award Utility");
+		Image image = new Image(display, AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
+		shell.setImage(image);
+		ErrorHandler.setShell(shell);
+
 		Menu sysMenu = display.getSystemMenu();
 		if (sysMenu != null) {
 			for (MenuItem m : sysMenu.getItems()) {
@@ -666,11 +671,6 @@ public class AwardUI {
 				}
 			}
 		}
-
-		shell.setText("Award Utility");
-		Image image = new Image(display, AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
-		shell.setImage(image);
-		ErrorHandler.setShell(shell);
 
 		ContestSource source = null;
 		try {
