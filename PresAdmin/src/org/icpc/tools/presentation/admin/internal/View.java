@@ -681,7 +681,6 @@ public class View {
 		parent.setLayout(layout);
 
 		presentationList = new PresentationInfoListControl(parent, SWT.BORDER);
-		presentationList.showCategories();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.FILL_VERTICAL);
 		data.widthHint = 170;
 		data.horizontalSpan = 3;

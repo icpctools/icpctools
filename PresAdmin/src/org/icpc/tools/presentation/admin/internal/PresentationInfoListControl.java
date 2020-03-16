@@ -80,16 +80,19 @@ public class PresentationInfoListControl extends Canvas {
 	protected Shell hoverShell;
 	protected boolean fixedContents;
 
-	protected int fontHeight = 10;
+	protected int fontHeight = 16;
 
 	public PresentationInfoListControl(Composite parent, int style) {
-		this(parent, style, DEFAULT_THUMBNAIL_SIZE, true);
+		this(parent, style, DEFAULT_THUMBNAIL_SIZE, true, DisplayStyle.CATEGORY);
 	}
 
-	public PresentationInfoListControl(Composite parent, int style, Dimension thumbnailSize, boolean fixedContents) {
-		super(parent, style | SWT.DOUBLE_BUFFERED | SWT.V_SCROLL);
+	public PresentationInfoListControl(Composite parent, int style, Dimension thumbnailSize, boolean fixedContents,
+			DisplayStyle displayStyle) {
+		super(parent, displayStyle != DisplayStyle.TIMELINE ? style | SWT.DOUBLE_BUFFERED | SWT.V_SCROLL
+				: style | SWT.DOUBLE_BUFFERED | SWT.H_SCROLL);
 		this.thumbnailSize = thumbnailSize;
 		this.fixedContents = fixedContents;
+		this.displayStyle = displayStyle;
 
 		addPaintListener(new PaintListener() {
 			@Override
@@ -113,16 +116,30 @@ public class PresentationInfoListControl extends Canvas {
 		createDragSource();
 		createDropTarget();
 
-		ScrollBar scroll = getVerticalBar();
-		scroll.setMinimum(0);
-		scroll.setPageIncrement(50);
-		scroll.setIncrement(50);
-		scroll.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent sel) {
-				redraw();
-			}
-		});
+		ScrollBar vScroll = getVerticalBar();
+		if (vScroll != null) {
+			vScroll.setMinimum(0);
+			vScroll.setPageIncrement(50);
+			vScroll.setIncrement(50);
+			vScroll.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent sel) {
+					redraw();
+				}
+			});
+		}
+		ScrollBar hScroll = getHorizontalBar();
+		if (hScroll != null) {
+			hScroll.setMinimum(0);
+			hScroll.setPageIncrement(50);
+			hScroll.setIncrement(50);
+			hScroll.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent sel) {
+					redraw();
+				}
+			});
+		}
 		addControlListener(new ControlAdapter() {
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -152,14 +169,6 @@ public class PresentationInfoListControl extends Canvas {
 
 		closedCategories.add("Fun");
 		closedCategories.add("Test");
-	}
-
-	protected void showCategories() {
-		displayStyle = DisplayStyle.CATEGORY;
-	}
-
-	protected void showTimeline() {
-		displayStyle = DisplayStyle.TIMELINE;
 	}
 
 	protected void createDragSource() {
@@ -232,15 +241,28 @@ public class PresentationInfoListControl extends Canvas {
 	}
 
 	private void adjustScrollbars() {
+		Point p = computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		ScrollBar vScroll = getVerticalBar();
-		Point p = computeSize(-1, -1);
-		if (p.y - getSize().y < 0) {
-			vScroll.setEnabled(false);
-			vScroll.setSelection(0);
-		} else {
-			vScroll.setEnabled(true);
-			vScroll.setMaximum(p.y);
-			vScroll.setThumb(getSize().y);
+		if (vScroll != null) {
+			if (p.y - getSize().y < 0) {
+				vScroll.setEnabled(false);
+				vScroll.setSelection(0);
+			} else {
+				vScroll.setEnabled(true);
+				vScroll.setMaximum(p.y);
+				vScroll.setThumb(getSize().y);
+			}
+		}
+		ScrollBar hScroll = getHorizontalBar();
+		if (hScroll != null) {
+			if (p.x - getSize().x < 0) {
+				hScroll.setEnabled(false);
+				hScroll.setSelection(0);
+			} else {
+				hScroll.setEnabled(true);
+				hScroll.setMaximum(p.x);
+				hScroll.setThumb(getSize().x);
+			}
 		}
 	}
 
@@ -320,27 +342,37 @@ public class PresentationInfoListControl extends Canvas {
 	}
 
 	protected PresentationInfo getPresentationAt(int x, int y) {
-		int yy = y + getVerticalBar().getSelection();
+		int xx = x;
+		int yy = y;
+		if (getVerticalBar() != null)
+			yy += getVerticalBar().getSelection();
+		if (getHorizontalBar() != null)
+			xx += getHorizontalBar().getSelection();
 
 		if (listRects.size() != list.size())
 			return null;
 
 		for (int i = 0; i < list.size(); i++) {
 			Rectangle r = listRects.get(i);
-			if (r != null && r.contains(x, yy))
+			if (r != null && r.contains(xx, yy))
 				return list.get(i);
 		}
 		return null;
 	}
 
 	protected String getCategoryAt(int x, int y) {
-		int yy = y + getVerticalBar().getSelection();
+		int xx = x;
+		int yy = y;
+		if (getVerticalBar() != null)
+			yy += getVerticalBar().getSelection();
+		if (getHorizontalBar() != null)
+			xx += getHorizontalBar().getSelection();
 
 		if (categories.isEmpty())
 			return null;
 
 		for (Category c : categories) {
-			if (c.rect.contains(x, yy))
+			if (c.rect.contains(xx, yy))
 				return c.name;
 		}
 		return null;
@@ -397,9 +429,16 @@ public class PresentationInfoListControl extends Canvas {
 	@Override
 	public Point computeSize(int wHint, int hHint, boolean changed) {
 		if (displayStyle == DisplayStyle.TIMELINE) {
-			int num = Math.max(4, list.size() * 2 / 3); // should really take max(numPresentations,
-																		// numTransitions)
-			return new Point(thumbnailSize.width * num + GAP * (num - 1) + BORDER * 2,
+			int numPres = 0;
+			int numTrans = 0;
+			for (PresentationInfo info : list) {
+				if (info.isTransition())
+					numTrans++;
+				else
+					numPres++;
+			}
+			double columns = Math.max(numPres, numTrans + 0.5);
+			return new Point((int) (thumbnailSize.width * columns) + (int) (GAP * Math.ceil(columns - 1)) + BORDER * 2,
 					(int) (thumbnailSize.height * 1.5) + GAP + (TEXT_GAP + fontHeight + BORDER) * 2);
 		}
 		int ww = getSize().x;
@@ -461,19 +500,21 @@ public class PresentationInfoListControl extends Canvas {
 		Font font = getDisplay().getSystemFont();
 		gc.setFont(font);
 
-		int v = getVerticalBar().getSelection();
+		int vs = 0;
+		int hs = 0;
+		if (getVerticalBar() != null)
+			vs = getVerticalBar().getSelection();
+		if (getHorizontalBar() != null)
+			hs = getHorizontalBar().getSelection();
 		Transform trans = new Transform(gc.getDevice());
-		trans.translate(0, -v);
+		trans.translate(-hs, -vs);
 		gc.setTransform(trans);
 		trans.dispose();
 
-		boolean firstTime = false;
-		if (fontHeight == 10)
-			firstTime = true;
-		fontHeight = gc.textExtent("AZjy").y + 1;
-
-		if (firstTime)
+		if (fontHeight == 10) {
+			fontHeight = gc.textExtent("AZjy").y + 1;
 			adjustScrollbars();
+		}
 
 		gc.setAntialias(SWT.ON);
 		gc.setInterpolation(SWT.HIGH);
@@ -489,9 +530,9 @@ public class PresentationInfoListControl extends Canvas {
 		listRects.clear();
 		categories.clear();
 		boolean categoryIsClosed = false;
-		for (PresentationInfo obj : list) {
+		for (PresentationInfo info : list) {
 			if (displayStyle == DisplayStyle.CATEGORY) {
-				String category = obj.getCategory();
+				String category = info.getCategory();
 				if ((lastCategory == null && category != null)
 						|| (lastCategory != null && !lastCategory.equals(category))) {
 					lastCategory = category;
@@ -576,7 +617,7 @@ public class PresentationInfoListControl extends Canvas {
 
 			int rh = thumbnailSize.height;
 			if (displayStyle == DisplayStyle.TIMELINE) {
-				if (!obj.isTransition()) {
+				if (!info.isTransition()) {
 					x = BORDER + px * (thumbnailSize.width + GAP);
 					y = BORDER;
 					px++;
@@ -596,7 +637,7 @@ public class PresentationInfoListControl extends Canvas {
 					gc.fillRectangle(x - GAP + 1, y, GAP - 1, thumbnailSize.height + 1);
 			}
 
-			if (obj == selection) {
+			if (info == selection) {
 				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION));
 				gc.fillRectangle(x - SEL_MARGIN, y - SEL_MARGIN, thumbnailSize.width + SEL_MARGIN * 2 + 1,
 						rh + SEL_MARGIN * 2 + 2 + fontHeight);
@@ -604,19 +645,19 @@ public class PresentationInfoListControl extends Canvas {
 			} else
 				lastIsSelection = false;
 
-			Image img = getImage(obj);
+			Image img = getImage(info);
 			Rectangle r = img.getBounds();
 
 			gc.drawImage(img, 0, 0, r.width, r.height, x, y, thumbnailSize.width, rh);
 			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 			gc.drawRectangle(x, y, thumbnailSize.width, rh);
 
-			if (selection == obj)
+			if (selection == info)
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
 			else
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
-			String name = getName(obj);
+			String name = getName(info);
 			Point p = gc.textExtent(name);
 			int i = name.length();
 			while (p.x > thumbnailSize.width && i > 0) {
