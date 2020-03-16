@@ -11,7 +11,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 
-public class AllOrgsPresentation extends AbstractICPCPresentation {
+public class OrgLogoWallPresentation extends AbstractICPCPresentation {
 	private Map<String, BufferedImage> map = new HashMap<>();
 	private int size;
 

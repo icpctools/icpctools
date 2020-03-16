@@ -104,11 +104,26 @@
       image="images/presentations/balloonPath.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.floor.BalloonFloorPresentation"/>
    <presentation
-      id="org.icpc.tools.presentation.contest.orgs"
-      name="All Organizations"
+      id="org.icpc.tools.presentation.contest.org.logo.wall"
+      name="Logo Wall"
       category="ICPC"
-      description="Shows the logos of all organizations"
-      class="org.icpc.tools.presentation.contest.internal.presentations.AllOrgsPresentation"/>
+      description="Shows the logos of all organizations at once"
+      image="images/presentations/logos.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.OrgLogoWallPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.org.logo.fade"
+      name="Fading Logos"
+      category="ICPC"
+      description="Shows the logos of all organizations by fading between them"
+      image="images/presentations/logos.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.OrgLogoFadePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.org.logo.slide"
+      name="Sliding Logos"
+      category="ICPC"
+      description="Slides the logos of all organizations"
+      image="images/presentations/logos.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.OrgLogoSlidePresentation"/>
 
    <!-- Fun -->
 
