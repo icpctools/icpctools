@@ -111,7 +111,6 @@ public class ResolverOptimizer {
 			}
 		});
 
-		args[0] = "/Users/deboer/ICPC/2019/finals/event-feed.json";
 		ContestSource contestSource = contestSource2[0];
 		contestSource.outputValidation();
 
