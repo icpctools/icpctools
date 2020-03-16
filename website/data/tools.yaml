@@ -1,8 +1,8 @@
 # Mapping from tool index from JSON files to name to display on all-builds page
 - tool: wlp.CDS
-  name: CDS (WLP)
+  name: CDS (Open Liberty)
 - tool: CDS
-  name: CDS (JAR)
+  name: CDS (WAR only)
 - tool: resolver
   name: Resolver
 - tool: presentationAdmin

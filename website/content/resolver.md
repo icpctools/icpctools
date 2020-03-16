@@ -4,7 +4,7 @@ description: "The ICPC Resolver is a tool for graphical animation of contest res
 date: 2019-11-12T21:20:38+01:00
 draft: false
 weight: 3
-icon: fas fa-list-ol
+icon: fas fa-trophy
 ---
 
 The _ICPC Resolver_ is a tool for graphical animation of contest results.

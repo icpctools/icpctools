@@ -14,13 +14,14 @@
             <td>{{ $build.time }}</td>
         </tr>
     </tbody>
-</table>
+    
+    <tr><td></td><td>
     
 <table class="table table-hover table-striped">
     <thead>
         <tr>
             <th style="width: 200px;">Tool</th>
-            <th style="width: 200px;">Size</th>
+            <th style="width: 125px;">Size</th>
             <th>Downloads</th>
         </tr>
     </thead>
@@ -30,7 +31,7 @@
             {{ $download := index $build.downloads $tool.tool }}
             <tr>
                 <th>{{ $tool.name }}</th>
-                <td>{{ $download.size }} MB</td>
+                <td align="right">{{ $download.size }} MB</td>
                 <td>
                     <a href="{{ $download.urls.zip }}">{{ $tool.tool }}-{{ $download.version }}.zip</a>
                     {{ if and (isset $download.urls "sha256") (isset $download.urls "sha512") }}
@@ -42,5 +43,7 @@
         {{ end }}
     </tbody>
 </table>
+
+</td></tr></table>
 
 {{ end }}
