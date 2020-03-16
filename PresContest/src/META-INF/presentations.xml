@@ -134,6 +134,12 @@
       image="images/presentations/fireworks.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.FireworksPresentation"/>
    <presentation
+      id="org.icpc.tools.presentation.contest.better.fireworks"
+      name="Better Fireworks"
+      category="Beta"
+      image="images/presentations/fireworks.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.BetterFireworksPresentation"/>
+   <presentation
       id="org.icpc.tools.presentation.contest.bill"
       name="Bill Poucher"
       category="Fun"
@@ -193,7 +199,7 @@
       class="org.icpc.tools.presentation.contest.internal.presentations.floor.ContestFloorPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.old.floor"
-      name="Floor"
+      name="Floor Activity"
       category="Beta"
       description="Displays the contest floor"
       class="org.icpc.tools.presentation.contest.internal.presentations.old.FloorPresentation"/>

@@ -56,10 +56,20 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 		ITeam team = teams[(int) (getRepeatTimeMs() / MS_PER_TEAM)];
 		int h = 0;
 		Rectangle r = new Rectangle(0, h, width, height - h);
+		int mx = Math.min(width / 10, height / 10);
 		// r = new Rectangle(width / 2, h, width / 2, height - h);
 		floor.drawFloor(g, r, new FloorMap.ScreenColors() {
 			@Override
 			public BufferedImage getTeamLogo(String teamId) {
+				if (team != null && team.getId().equals(teamId)) {
+					ITeam team2 = contest.getTeamById(teamId);
+					if (team2 == null)
+						return null;
+					IOrganization org = contest.getOrganizationById(team2.getOrganizationId());
+					if (org == null)
+						return null;
+					return org.getLogoImage(mx, mx, true, true);
+				}
 				return null;
 			}
 
