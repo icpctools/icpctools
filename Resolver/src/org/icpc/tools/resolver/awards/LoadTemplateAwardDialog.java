@@ -70,7 +70,7 @@ public class LoadTemplateAwardDialog extends AbstractAwardDialog {
 					filename.setText(file);
 					try {
 						loadFromFile(file);
-						filename.setText(file + " (" + template.length + "awards)");
+						filename.setText(file + " (" + template.length + " awards)");
 					} catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Error loading from template", e);
 						filename.setText(file + " - " + e.getMessage());
