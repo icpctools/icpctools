@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.presentation.admin.internal.PresentationInfoListControl.DisplayStyle;
 import org.icpc.tools.presentation.core.internal.PresentationInfo;
 
 public class CompositePresentationDialog extends Dialog {
@@ -165,7 +166,6 @@ public class CompositePresentationDialog extends Dialog {
 		parent.setLayout(layout);
 
 		presentationList = new PresentationInfoListControl(parent, SWT.BORDER);
-		presentationList.showCategories();
 		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.FILL_VERTICAL);
 		data.widthHint = 170;
 		data.horizontalSpan = 3;
@@ -262,8 +262,9 @@ public class CompositePresentationDialog extends Dialog {
 		layout.marginHeight = 0;
 		parent.setLayout(layout);
 
-		transitionList = new PresentationInfoListControl(parent, SWT.BORDER, new Dimension(72, 15), true);
-		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.FILL_VERTICAL);
+		transitionList = new PresentationInfoListControl(parent, SWT.BORDER, new Dimension(72, 15), true,
+				DisplayStyle.LIST);
+		GridData data = new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.VERTICAL_ALIGN_FILL);
 		data.horizontalSpan = 3;
 		transitionList.setLayoutData(data);
 		for (PresentationInfo info : transitions)
@@ -335,8 +336,8 @@ public class CompositePresentationDialog extends Dialog {
 		layout.marginHeight = 0;
 		buildComp.setLayout(layout);
 
-		buildList = new PresentationInfoListControl(buildComp, SWT.BORDER, new Dimension(72, 40), false);
-		buildList.showTimeline();
+		buildList = new PresentationInfoListControl(buildComp, SWT.BORDER, new Dimension(72, 40), false,
+				DisplayStyle.TIMELINE);
 		GridData data2 = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data2.horizontalSpan = 2;
 		data2.verticalSpan = 3;
