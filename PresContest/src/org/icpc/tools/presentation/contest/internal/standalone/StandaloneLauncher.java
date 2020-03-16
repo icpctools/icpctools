@@ -13,6 +13,7 @@ import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
 import org.icpc.tools.presentation.core.internal.PresentationInfo;
+import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 /**
  * Display a single presentation, typically connecting to a contest.
@@ -31,6 +32,7 @@ public class StandaloneLauncher {
 
 		List<String> presList = new ArrayList<String>();
 		String[] displayStr = new String[1];
+		boolean[] showFPS = new boolean[1];
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
@@ -42,6 +44,9 @@ public class StandaloneLauncher {
 				} else if ("--display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "#:string");
 					displayStr[0] = (String) options.get(0);
+					return true;
+				} else if ("--fps".equals(option)) {
+					showFPS[0] = true;
 					return true;
 				}
 				return false;
@@ -77,7 +82,7 @@ public class StandaloneLauncher {
 
 		ContestSource.getInstance().outputValidation();
 
-		launch(pres, displayStr[0]);
+		launch(pres, displayStr[0], showFPS[0]);
 	}
 
 	protected static void showHelp(List<PresentationInfo> presentations) {
@@ -91,6 +96,8 @@ public class StandaloneLauncher {
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --fps #");
+		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -179,7 +186,7 @@ public class StandaloneLauncher {
 		return null;
 	}
 
-	protected static void launch(PresentationInfo[] pres, String displayStr) {
+	protected static void launch(PresentationInfo[] pres, String displayStr, boolean showFPS) {
 		Trace.trace(Trace.INFO, "Launching presentation");
 		Trace.trace(Trace.INFO, "Source: " + ContestSource.getInstance());
 		Trace.trace(Trace.INFO, "Presentations:");
@@ -206,5 +213,6 @@ public class StandaloneLauncher {
 			Trace.trace(Trace.WARNING, "Invalid display option: " + displayStr + " " + e.getMessage());
 		}
 		window.setPresentations(0, presentation, null);
+		((PresentationWindowImpl) window).showFPS(true);
 	}
 }
