@@ -1018,10 +1018,17 @@ public class View {
 		submenu = new Menu(shell, SWT.DROP_DOWN);
 		timeSubmenu.setMenu(submenu);
 
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 13; i++) {
 			final MenuItem timePres0Menu = new MenuItem(submenu, SWT.PUSH);
 			final int min = i * 30;
-			timePres0Menu.setText(min + " min contest time");
+			if (i == 10)
+				timePres0Menu.setText("2 min contest time");
+			else if (i == 11)
+				timePres0Menu.setText("5 min from now");
+			else if (i == 12)
+				timePres0Menu.setText("5 before contest end");
+			else
+				timePres0Menu.setText(min + " min contest time");
 			timePres0Menu.setToolTipText("Set a presentation to show at the given contest time");
 			registerAction(timePres0Menu, new ClientAction() {
 				@Override
@@ -1034,7 +1041,13 @@ public class View {
 				public void run() throws Exception {
 					PresentationInfo info = getSelectedPresentation();
 					String s = info.getClassName();
-					long timeMs = min * 60 * 1000;
+					String timeMs = (min * 60 * 1000) + "";
+					if (min == 10 * 30)
+						timeMs = (2 * 60 * 1000) + "";
+					else if (min == 11 * 30)
+						timeMs = "+" + (5 * 60 * 1000);
+					else if (min == 12 * 30)
+						timeMs = (5 * 60 * 1000) + "e";
 					writeProperty("time:" + timeMs + ":presentation", "1000|" + s);
 					if (propCombo.getText().length() > 0) {
 						writeProperty("time:" + timeMs + ":" + getPresentationKey(info.getClassName()), propCombo.getText());
