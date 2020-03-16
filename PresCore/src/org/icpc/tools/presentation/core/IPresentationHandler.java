@@ -192,7 +192,7 @@ public interface IPresentationHandler {
 
 	public String getPresentationName();
 
-	public int getFrameRate();
+	public int getFPS();
 
 	public DeviceMode getWindow();
 

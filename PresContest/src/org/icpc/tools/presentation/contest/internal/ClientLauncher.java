@@ -30,6 +30,8 @@ public class ClientLauncher {
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --fps");
+		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -42,6 +44,7 @@ public class ClientLauncher {
 
 		String[] nameStr = new String[1];
 		final String[] displayStr = new String[1];
+		boolean[] showFPS = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
@@ -52,6 +55,9 @@ public class ClientLauncher {
 				} else if ("--display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "#:string");
 					displayStr[0] = (String) options.get(0);
+					return true;
+				} else if ("--fps".equals(option)) {
+					showFPS[0] = true;
 					return true;
 				}
 				return false;
@@ -79,7 +85,7 @@ public class ClientLauncher {
 		instance = client;
 
 		// open window
-		createWindow(client, true);
+		createWindow(client, true, showFPS[0]);
 		Trace.trace(Trace.INFO, client + " connecting to " + cdsSource);
 		final PresentationClient client2 = client;
 
@@ -100,7 +106,7 @@ public class ClientLauncher {
 		client.connect(false);
 	}
 
-	protected static void createWindow(final PresentationClient client, final boolean sendthumbnails) {
+	protected static void createWindow(final PresentationClient client, final boolean sendthumbnails, boolean showFPS) {
 		if (client.window != null)
 			return;
 
@@ -118,5 +124,6 @@ public class ClientLauncher {
 				client.writeInfo();
 			}
 		});
+		windowImpl.showFPS(showFPS);
 	}
 }

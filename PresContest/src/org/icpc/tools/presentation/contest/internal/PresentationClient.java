@@ -274,7 +274,7 @@ public class PresentationClient extends BasicClient {
 			Dimension d = window.getPresentationSize();
 			je.encode("width", d.width);
 			je.encode("height", d.height);
-			je.encode("fps", window.getFrameRate());
+			je.encode("fps", window.getFPS());
 			je.encode("hidden", window.isHidden());
 			String name = window.getPresentationName();
 			if (name != null)
@@ -333,7 +333,7 @@ public class PresentationClient extends BasicClient {
 			@Override
 			public void run() {
 				try {
-					sendThumbnail(image, window.isHidden(), window.getFrameRate());
+					sendThumbnail(image, window.isHidden(), window.getFPS());
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error sending thumbnail", e);
 				}

@@ -219,7 +219,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 	protected boolean hidden = false;
 	protected BufferedImage logo;
 
-	protected int frameRate;
+	protected int fps;
+	protected boolean showFPS;
 
 	private long thumbnailDelay = DEFAULT_THUMBNAIL_DELAY;
 	private int thumbnailHeight = DEFAULT_THUMBNAIL_HEIGHT;
@@ -336,7 +337,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 							// send a thumbnail and info
 							if (thumbnailListener != null && delayNs > 500000000L) {
 								sendThumbnail();
-								frameRate = 0;
+								fps = 0;
 								thumbnailListener.handleInfo();
 							}
 
@@ -352,7 +353,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 						frameCount++;
 						if (now - startTime > 1000000000L) { // 1 second
-							frameRate = frameCount;
+							fps = frameCount;
 							frameCount = 0;
 							startTime = now;
 						}
@@ -694,11 +695,22 @@ public class PresentationWindowImpl extends PresentationWindow {
 			Dimension d = getSize();
 			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, (d.height) * 7 / 8);
 		}
+		if (showFPS) {
+			g.setColor(Color.WHITE);
+			FontMetrics fm = g.getFontMetrics();
+			String s = fps + " fps";
+			Dimension d = getSize();
+			g.drawString(s, d.width - fm.stringWidth(s) - 10, d.height - fm.getDescent() - 10);
+		}
 	}
 
 	@Override
-	public int getFrameRate() {
-		return frameRate;
+	public int getFPS() {
+		return fps;
+	}
+
+	public void showFPS(boolean show) {
+		showFPS = show;
 	}
 
 	public boolean paintImmediately() {
