@@ -14,7 +14,6 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 
-import org.icpc.tools.cds.presentations.PresentationServer;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -627,7 +626,6 @@ public class ConfiguredContest {
 					return;
 
 				long time = ContestObject.getContestTime(obj);
-				PresentationServer.getInstance().onTime(time);
 
 				// all - don't show any submissions or judgements from outside the contest
 				// public - show judgments until the freeze, only public clars, no runs

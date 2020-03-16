@@ -17,6 +17,7 @@ import javax.websocket.Session;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.CDSConfig.Domain;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
@@ -27,7 +28,8 @@ public class PresentationServer {
 	private static final String TIME_PREFIX = "time:";
 
 	public class TimedEvent {
-		public long time;
+		public String contestId;
+		public long contestTimeMs;
 		public int[] ids;
 		public String key;
 		public String value;
@@ -572,13 +574,36 @@ public class PresentationServer {
 					String value = p.getProperty(key);
 					if (key.startsWith(TIME_PREFIX)) {
 						remove.add(key);
+
+						TimedEvent event = new TimedEvent();
+						event.contestId = getClient(cl[0]).getContestId();
 						key = key.substring(TIME_PREFIX.length());
+						event.key = key;
+						event.value = value;
+						event.ids = cl;
+
+						IContest c = CDSConfig.getContest(event.contestId).getContest();
+
 						// parse time
 						int index = key.indexOf(":");
 						int time = 0;
 						if (index > 0) {
-							time = Integer.parseInt(key.substring(0, index));
+							String timeStr = key.substring(0, index);
+							if (timeStr.startsWith("+")) {
+								time = Integer.parseInt(timeStr.substring(1));
+
+								Long start = c.getStartTime();
+								if (start != null)
+									time = time + (int) (start - System.currentTimeMillis());
+								else
+									Trace.trace(Trace.WARNING, "Attempt to set relative time on unscheduled contest");
+							} else if (timeStr.endsWith("e")) {
+								time = Integer.parseInt(timeStr.substring(0, timeStr.length() - 1));
+								time = c.getDuration() - time;
+							} else
+								time = Integer.parseInt(timeStr);
 							key = key.substring(index + 1);
+							event.key = key;
 						}
 						timeChanged = true;
 						if (value == null || value.isEmpty())
@@ -587,12 +612,15 @@ public class PresentationServer {
 							timePrefs.put(key, value);
 						Trace.trace(Trace.INFO, "Timed presentation: @" + time + " do " + key + " = " + value);
 
-						TimedEvent event = new TimedEvent();
-						event.ids = cl;
-						event.time = time;
-						event.key = key;
-						event.value = value;
+						event.contestTimeMs = time;
+
 						events.add(event);
+
+						try {
+							scheduleCallback(c, time);
+						} catch (Exception e) {
+							Trace.trace(Trace.WARNING, "Could not schedule callback for timed presentation");
+						}
 					}
 				}
 				if (timeChanged) {
@@ -605,7 +633,6 @@ public class PresentationServer {
 						p.remove(key);
 					}
 				}
-
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error storing default properties", e);
@@ -714,11 +741,35 @@ public class PresentationServer {
 		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 30L, TimeUnit.SECONDS);
 	}
 
-	public void onTime(long timeMs) {
+	public void scheduleCallback(IContest c, int contestTimeMs) {
+		// Future: schedule based on next callback
+		/*// find next event
+		int nextEventTime = Integer.MAX_VALUE;
+		for (TimedEvent event : events)
+			nextEventTime = (int) Math.min(event.contestTimeMs, nextEventTime);
+		
+		// leave if there are no scheduled events
+		if (nextEventTime == Integer.MAX_VALUE)
+			return;*/
+
+		// determine how long that is from now
+		Long startTime = c.getStartTime();
+		if (startTime == null || startTime < 0)
+			return;
+
+		double contestTime = System.currentTimeMillis() - startTime;
+		long dt = (long) (contestTimeMs / c.getTimeMultiplier() - contestTime);
+
+		final int nextEventTimeMs = contestTimeMs;
+		Trace.trace(Trace.INFO, "Callback scheduled in " + (dt / 1000) + " seconds");
+		executor.schedule(() -> onTime(nextEventTimeMs), dt / 1000, TimeUnit.SECONDS);
+	}
+
+	protected void onTime(int contestTimeMs) {
 		List<TimedEvent> remove = new ArrayList<>();
 		for (TimedEvent event : events) {
-			if (event.time <= timeMs) {
-				Trace.trace(Trace.INFO, "Timed event! " + timeMs + " > " + event.time);
+			if (event.contestTimeMs <= contestTimeMs) {
+				Trace.trace(Trace.INFO, "Timed event! " + contestTimeMs + " > " + event.contestTimeMs);
 				remove.add(event);
 				Properties p = new Properties();
 				p.put(event.key, event.value);
