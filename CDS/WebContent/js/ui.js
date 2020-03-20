@@ -65,3 +65,35 @@ function sanitizeHTML(str) {
 		return "";
 	return str.replace(/[&<>]/g, replaceTag);
 }
+
+function formatTime(time2) {	
+	if (time2 >= 0 && time2 < 1000)
+		return "0s";
+
+	var sb = [];
+	time = time2 / 1000;
+
+	if (time < 0) {
+		sb.push("-");
+		time = -time;
+	}
+	days = Math.floor(time / 86400.0);
+	if (days > 0)
+		sb.push(days + "d");
+
+	hours = Math.floor(time / 3600.0) % 24;
+	if (hours > 0) {
+		sb.push(hours + "h");
+		if (days > 0)
+			return sb.join("");
+	}
+
+	mins = Math.floor(time / 60.0) % 60;
+	if (mins > 0)
+		sb.push(mins + "m");
+
+	secs = time % 60;
+	if (secs > 0)
+		sb.push(secs + "s");
+	return sb.join("");
+}

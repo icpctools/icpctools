@@ -11,7 +11,7 @@ import java.util.Date;
 public class ContestUtil {
 	private static final int RECENT_MS = 5 * 60 * 1000; // 5 minutes
 
-	private static final SimpleDateFormat SDF = new SimpleDateFormat("h:mm.ss aa 'on' MMMM dd, yyyy");
+	private static final SimpleDateFormat SDF = new SimpleDateFormat("h:mm.ss aa MMMM dd, yyyy");
 
 	public static boolean flashPending = true;
 

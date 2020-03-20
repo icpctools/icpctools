@@ -81,6 +81,22 @@ function bestLogo(logos, width, height) {
   return best;
 }
 
+function parseTime(contestTime) {
+	match = contestTime.match("-?([0-9]+):([0-9]{2}):([0-9]{2})(\\.[0-9]{3})?");
+	
+	h = parseInt(match[0]);
+	m = parseInt(match[1]);
+	s = parseInt(match[2]);	
+	ms = 0;
+	if (match.length == 4)
+		ms = parseInt(match[3].substring(1));
+	
+	if (contestTime.startsWith("-"))
+		return -(h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms);
+
+	return h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms;
+} 
+
 var isInt = (function() {
 	  var re = /^[+-]?\d+$/;
 	  var re2 = /\.0+$/;

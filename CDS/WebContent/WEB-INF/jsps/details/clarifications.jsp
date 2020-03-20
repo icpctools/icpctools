@@ -42,11 +42,8 @@
             var time = '';
             var fromTeam = '';
             var toTeam = '';
-            if (clar.contest_time != null) {
-                time = clar.contest_time;
-                if (time != null)
-                    time = time;
-            }
+            if (clar.contest_time != null)
+                time = formatTime(parseTime(clar.contest_time));
             if (clar.problem_id != null) {
                 problem = findById(contest.getProblems(), clar.problem_id);
                 if (problem != null)
@@ -65,7 +62,7 @@
             }
 
             return $('<td><a href="<%= apiRoot %>/clarifications/' + clar.id + '">' + clar.id + '</a></td>' +
-                '<td>' + time + '</td><td>' + problem + '</td><td>' + fromTeam + '</td>' +
+                '<td align="center">' + time + '</td><td>' + problem + '</td><td>' + fromTeam + '</td>' +
                 '<td>' + toTeam + '</td><td class="pre-line">' + sanitizeHTML(clar.text) + '</td>');
         }
 

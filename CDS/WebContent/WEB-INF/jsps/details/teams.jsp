@@ -14,8 +14,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Name</th>
-                    <th>Organization</th>
-                    <th></th>
+                    <th colspan=2>Organization</th>
                     <th>Organization (formal name)</th>
                     <th>Group</th>
                     <th>Summary</th>
