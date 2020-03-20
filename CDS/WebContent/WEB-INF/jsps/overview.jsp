@@ -168,39 +168,39 @@
                         <tbody>
                             <tr>
                                 <td>REST:</td>
-                                <td><%= metrics[0] %></td>
+                                <td align="right"><%= metrics[0] %></td>
                             </tr>
                             <tr>
                                 <td>Feed:</td>
-                                <td><%= metrics[1] %></td>
+                                <td align="right"><%= metrics[1] %></td>
                             </tr>
                             <tr>
                                 <td>Websocket:</td>
-                                <td><%= metrics[2] %></td>
+                                <td align="right"><%= metrics[2] %></td>
                             </tr>
                             <tr>
                                 <td>Web:</td>
-                                <td><%= metrics[3] %></td>
+                                <td align="right"><%= metrics[3] %></td>
                             </tr>
                             <tr>
                                 <td>Download:</td>
-                                <td><%= metrics[4] %></td>
+                                <td align="right"><%= metrics[4] %></td>
                             </tr>
                             <tr>
                                 <td>Scoreboard:</td>
-                                <td><%= metrics[5] %></td>
+                                <td align="right"><%= metrics[5] %></td>
                             </tr>
                             <tr>
                                 <td>Desktop:</td>
-                                <td><%= metrics[7] %></td>
+                                <td align="right"><%= metrics[7] %></td>
                             </tr>
                             <tr>
                                 <td>Webcam:</td>
-                                <td><%= metrics[8] %></td>
+                                <td align="right"><%= metrics[8] %></td>
                             </tr>
                             <tr>
                                 <td>Audio:</td>
-                                <td><%= metrics[9] %></td>
+                                <td align="right"><%= metrics[9] %></td>
                             </tr>
                         </tbody>
                     </table>
@@ -208,7 +208,6 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 <script>
     function validateSource() {

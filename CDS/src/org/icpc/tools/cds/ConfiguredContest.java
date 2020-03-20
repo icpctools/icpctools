@@ -498,27 +498,29 @@ public class ConfiguredContest {
 		if (contest == null)
 			loadContest();
 
-		if (hidden && !Role.isAdmin(request) && !Role.isBlue(request))
-			return null;
-		if (Role.isBalloon(request))
-			return balloonContest;
 		if (Role.isBlue(request))
 			return contest;
+		if (hidden)
+			return null;
 		if (Role.isTrusted(request))
 			return trustedContest;
+		if (Role.isBalloon(request))
+			return balloonContest;
 		return publicContest;
 	}
 
-	public Contest getContestByRole(boolean isBlue, boolean isBalloon) {
+	public Contest getContestByRole(String role) {
 		if (contest == null)
 			loadContest();
 
-		if (hidden && !isBlue)
-			return null;
-		if (isBalloon)
-			return balloonContest;
-		if (isBlue)
+		if (Role.ADMIN.equals(role) || Role.BLUE.equals(role))
 			return contest;
+		if (hidden)
+			return null;
+		if (Role.TRUSTED.equals(role))
+			return trustedContest;
+		if (Role.BALLOON.equals(role))
+			return balloonContest;
 		return publicContest;
 	}
 
