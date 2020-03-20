@@ -1,5 +1,5 @@
 ---
-title: "CDS"
+title: "Contest Data Server (CDS)"
 description: "The Contest Data Server is a software component designed to allow secure, authenticated HTTP connections to contest data residing on a contest network"
 date: 2019-11-12T21:20:38+01:00
 draft: false
@@ -20,7 +20,7 @@ to specific services is governed by the role(s) assigned to them.
 
 The set of services made available by the CDS is dependent on the facilities available on the contest network.
 Examples of services which the CDS knows how to support (assuming that the contest network provides the back-end data
-required and that the CA configures their use into the CDS) include
+required and that the CA configures their use into the CDS) include:
 
 * an overview description of the contest (title, date, etc.)
 * a Countdown Clock for the start of the contest
