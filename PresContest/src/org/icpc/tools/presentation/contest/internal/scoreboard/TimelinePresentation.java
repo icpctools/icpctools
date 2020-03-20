@@ -53,7 +53,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 
 			g.translate(-15, 0);
 			int h = 9;
-			g.setColor(Color.WHITE);
+			g.setColor(Color.LIGHT_GRAY);
 			// Stroke oldStroke = g.getStroke();
 			g.setStroke(new BasicStroke(2f));
 			g.drawLine(20, h, width - 20, h);
