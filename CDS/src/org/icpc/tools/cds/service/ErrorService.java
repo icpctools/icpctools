@@ -22,7 +22,8 @@ public class ErrorService extends HttpServlet {
 		response.setHeader("ICPC-Tools", "CDS");
 		response.setHeader("X-Frame-Options", "sameorigin");
 
-		if ("plain".equals(request.getAttribute("error-type"))) {
+		String accept = request.getHeader("Accept");
+		if (accept == null || !accept.contains("html")) {
 			PrintWriter pw = response.getWriter();
 			pw.write(request.getAttribute("javax.servlet.error.message") + " (" + response.getStatus() + ")");
 			pw.flush();

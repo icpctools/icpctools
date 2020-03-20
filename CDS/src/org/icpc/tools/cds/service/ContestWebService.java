@@ -119,7 +119,6 @@ public class ContestWebService extends HttpServlet {
 
 		if (segments.length >= 2) {
 			request.setAttribute("cc", cc);
-			request.setAttribute("error-type", "plain");
 			cc.incrementWeb();
 			if (segments[1].equals("admin")) {
 				if (!Role.isAdmin(request)) {

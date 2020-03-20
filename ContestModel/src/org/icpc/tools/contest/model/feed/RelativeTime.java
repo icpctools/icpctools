@@ -44,10 +44,12 @@ public class RelativeTime {
 		if (match.group(4) != null) {
 			ms = Integer.parseInt(match.group(4).substring(1));
 		}
-		if (contestTime.startsWith("-"))
-			return -(h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms);
 
-		return h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms;
+		int val = h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms;
+		if (contestTime.startsWith("-"))
+			return -val;
+
+		return val;
 	}
 
 	public static String format(Integer contestTimeMs) {

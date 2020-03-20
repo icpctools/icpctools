@@ -52,7 +52,6 @@ public class ContestRESTService extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpHelper.setThreadHost(request);
 		response.setHeader("Cache-Control", "no-cache");
-		response.setHeader("ICPC-Tools", "CDS");
 		response.setHeader("X-Frame-Options", "sameorigin");
 
 		String path = request.getPathInfo();
@@ -417,9 +416,9 @@ public class ContestRESTService extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		request.setAttribute("error-type", "plain");
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
+		response.setHeader("ICPC-Tools", "CDS");
 
 		String method = request.getMethod();
 		if (method.equals("PATCH"))
@@ -458,9 +457,14 @@ public class ContestRESTService extends HttpServlet {
 
 		if (segments.length == 1) {
 			// attempting to change the start time
-			InputStream is = request.getInputStream();
-			JSONParser parser = new JSONParser(is);
-			JsonObject obj = parser.readObject();
+			JsonObject obj = null;
+			try {
+				InputStream is = request.getInputStream();
+				JSONParser parser = new JSONParser(is);
+				obj = parser.readObject();
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse body as JSON");
+			}
 
 			// confirm the contest id is correct
 			String id = obj.getString("id");
