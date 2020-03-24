@@ -196,13 +196,10 @@ public abstract class ContestSource {
 				contest.addListener(readListener);
 				do {
 					try {
-						// Trace.trace(Trace.INFO, "Loading contest from " +
-						// ContestSource.this.toString());
 						notifyListeners(ConnectionState.CONNECTING);
 						loadContestImpl();
-						reconnect = false; // normal termination - contest is finalized
-						Trace.trace(Trace.INFO, "Contest loaded");
-						notifyListeners(ConnectionState.COMPLETE);
+						if (reconnect && contest.isDoneUpdating())
+							reconnect = false; // normal termination - contest is done updating
 					} catch (InterruptedException e) {
 						// ignore
 					} catch (Exception e) {
@@ -216,10 +213,13 @@ public abstract class ContestSource {
 						Trace.trace(Trace.INFO, "Waiting to reconnect");
 						// wait a few seconds to reconnect
 						try {
-							Thread.sleep(4000);
+							Thread.sleep(5000);
 						} catch (Exception e) {
 							// ignore
 						}
+					} else {
+						Trace.trace(Trace.INFO, "Contest loaded");
+						notifyListeners(ConnectionState.COMPLETE);
 					}
 				} while (reconnect);
 				// thread = null;
