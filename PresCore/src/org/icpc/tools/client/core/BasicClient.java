@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -44,8 +45,16 @@ import org.icpc.tools.contest.model.internal.NetworkUtil;
 public class BasicClient {
 	private static final boolean DEBUG_JSON_PAYLOADS = false;
 
-	protected static enum Type {
-		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, CLIENT_INFO, THUMBNAIL
+	protected enum Type {
+		PING, // ping, used to guage client response time
+		TIME, // time sync sent to clients after several successful pings
+		INFO, // information about the client sent back to admins
+		PROPERTIES, // properties to set on the client
+		LOG, // request for client to send log + response message
+		SNAPSHOT, // request for client to send snapshot + response message
+		COMMAND, // client command to stop, restart, request a log, or request a snapshot
+		CLIENTS, // client list, sent to admins
+		PRES_LIST // list of available presentations, sent to admin clients
 	}
 
 	protected interface AddAttrs {
@@ -132,6 +141,7 @@ public class BasicClient {
 	private String clientType = "Unknown";
 	private String name = "Unknown";
 	private int uid;
+	private Client[] clients;
 	private RESTContestSource contestSource;
 	private String role;
 	private long nanoTimeDelta;
@@ -195,17 +205,58 @@ public class BasicClient {
 		}
 	}
 
-	protected void handleThumbnail(JsonObject obj) {
-		// do nothing
+	protected void handleInfo(int sourceUID, JsonObject obj) {
+		Client cl = null;
+		for (Client c : clients) {
+			if (c.uid == sourceUID)
+				cl = c;
+		}
+		if (cl == null)
+			return;
+		// if (obj.containsKey("name"))
+		// cl.name = obj.getString("name");
+
+		Object[] contestIds = obj.getArray("contest.ids");
+		if (contestIds != null) {
+			cl.contestIds = new String[contestIds.length];
+			for (int j = 0; j < contestIds.length; j++)
+				cl.contestIds[j] = (String) contestIds[j];
+		}
+		if (obj.containsKey("client.type"))
+			cl.type = obj.getString("client.type");
+		if (obj.containsKey("version"))
+			cl.version = obj.getString("version");
+
+		Object[] displays = obj.getArray("displays");
+		if (displays != null) {
+			int size = displays.length;
+			cl.displays = new Display[size];
+			for (int j = 0; j < size; j++) {
+				Display d = new Display();
+				JsonObject dobj = (JsonObject) displays[j];
+				d.height = dobj.getInt("height");
+				d.width = dobj.getInt("width");
+				d.refresh = dobj.getInt("refresh");
+				cl.displays[j] = d;
+			}
+		}
 	}
 
-	protected void handleInfo(JsonObject obj) {
-		// do nothing
-	}
+	private void handleCommand(JsonObject obj) throws IOException {
+		String action = obj.getString("action");
+		if ("stop".equals(action))
+			System.exit(0);
+		else if ("restart".equals(action))
+			System.exit(255);
 
-	private void handleLogRequest(JsonObject obj) throws IOException {
+		if (!obj.containsKey("source"))
+			return;
+
 		int source = getUID(obj, "source");
-		sendLog(source);
+		if ("log".equals(action))
+			sendLog(source);
+		else if ("snapshot".equals(action))
+			handleSnapshot(source);
 	}
 
 	/**
@@ -213,11 +264,6 @@ public class BasicClient {
 	 */
 	protected void handleLogResponse(JsonObject obj) throws IOException {
 		// ignore
-	}
-
-	private void handleSnapshotRequest(JsonObject obj) throws IOException {
-		int source = getUID(obj, "source");
-		handleSnapshot(source);
 	}
 
 	/**
@@ -237,38 +283,38 @@ public class BasicClient {
 	private void handleClientList(JsonObject obj) {
 		Object[] children = obj.getArray("clients");
 
-		Client[] clients = new Client[children.length];
+		Map<Integer, JsonObject> clientInfo = new HashMap<>();
+
+		Client[] tempClients = new Client[children.length];
 		for (int i = 0; i < children.length; i++) {
 			JsonObject jo = (JsonObject) children[i];
-			clients[i] = new Client();
-			clients[i].uid = getUID(jo, "uid");
-			clients[i].name = jo.getString("name");
+			int uid2 = getUID(jo, "uid");
 
-			Object[] contestIds = jo.getArray("contest.ids");
-			if (contestIds != null) {
-				clients[i].contestIds = new String[contestIds.length];
-				for (int j = 0; j < contestIds.length; j++)
-					clients[i].contestIds[j] = (String) contestIds[j];
-			}
-			clients[i].type = jo.getString("client.type");
-			clients[i].version = jo.getString("version");
-
-			Object[] displays = jo.getArray("displays");
-			if (displays != null) {
-				int size = displays.length;
-				clients[i].displays = new Display[size];
-				for (int j = 0; j < size; j++) {
-					Display d = new Display();
-					JsonObject dobj = (JsonObject) displays[j];
-					d.height = dobj.getInt("height");
-					d.width = dobj.getInt("width");
-					d.refresh = dobj.getInt("refresh");
-					clients[i].displays[j] = d;
+			Client cl = null;
+			if (clients != null) {
+				for (Client c : clients) {
+					if (c.uid == uid2)
+						cl = c;
 				}
 			}
+			if (cl == null) {
+				cl = new Client();
+				cl.uid = uid2;
+			}
+
+			tempClients[i] = cl;
+			tempClients[i].name = jo.getString("name");
+
+			clientInfo.put(tempClients[i].uid, jo);
 		}
 
+		clients = tempClients;
 		clientsChanged(clients);
+
+		for (Integer key : clientInfo.keySet()) {
+			JsonObject jo = clientInfo.get(key);
+			handleInfo(key.intValue(), jo);
+		}
 	}
 
 	/**
@@ -276,7 +322,7 @@ public class BasicClient {
 	 *
 	 * @param clients a list of clients
 	 */
-	protected void clientsChanged(Client[] clients) {
+	protected void clientsChanged(Client[] clients2) {
 		// do nothing
 	}
 
@@ -307,30 +353,28 @@ public class BasicClient {
 		createJSON(Type.PRES_LIST, null);
 	}
 
-	public void sendStop(int[] clientUIDs) throws IOException {
-		createJSON(Type.STOP, je -> {
+	private void sendCommand(int[] clientUIDs, String command) throws IOException {
+		createJSON(Type.COMMAND, je -> {
 			writeClients(je, clientUIDs);
+			je.encode("source", Integer.toHexString(uid));
+			je.encode("action", command);
 		});
+	}
+
+	public void sendStop(int[] clientUIDs) throws IOException {
+		sendCommand(clientUIDs, "stop");
 	}
 
 	public void sendRestart(int[] clientUIDs) throws IOException {
-		createJSON(Type.RESTART, je -> {
-			writeClients(je, clientUIDs);
-		});
+		sendCommand(clientUIDs, "restart");
 	}
 
 	public void sendLogRequest(int[] clientUIDs) throws IOException {
-		createJSON(Type.REQUEST_LOG, je -> {
-			je.encode("source", Integer.toHexString(uid));
-			writeClients(je, clientUIDs);
-		});
+		sendCommand(clientUIDs, "log");
 	}
 
 	public void sendSnapshotRequest(int[] clientUIDs) throws IOException {
-		createJSON(Type.REQUEST_SNAPSHOT, je -> {
-			je.encode("source", Integer.toHexString(uid));
-			writeClients(je, clientUIDs);
-		});
+		sendCommand(clientUIDs, "snapshot");
 	}
 
 	public void sendSnapshot(BufferedImage image) throws IOException {
@@ -340,13 +384,19 @@ public class BasicClient {
 		});
 	}
 
-	public void sendThumbnail(BufferedImage image, boolean isHidden, int fps) throws IOException {
-		createJSON(Type.THUMBNAIL, je -> {
-			je.encode("source", Integer.toHexString(uid));
+	public void sendInfoUpdate(String pres, BufferedImage image, int fps) throws IOException {
+		sendInfo(je -> {
+			if (pres != null)
+				je.encode("presentation", pres);
 			je.encode("fps", fps);
-			if (isHidden)
-				je.encode("hidden", isHidden);
 			encodeImage(je, imageToBytes(image));
+		});
+	}
+
+	protected void sendInfo(AddAttrs attr) throws IOException {
+		createJSON(Type.INFO, je -> {
+			je.encode("source", Integer.toHexString(uid));
+			attr.add(je);
 		});
 	}
 
@@ -369,15 +419,15 @@ public class BasicClient {
 		});
 	}
 
-	protected void sendClientInfo() throws IOException {
-		createJSON(Type.CLIENT_INFO, je -> {
+	protected void sendInfo() throws IOException {
+		createJSON(Type.INFO, je -> {
 			je.encode("source", Integer.toHexString(getUID()));
 			je.encode("client.type", clientType);
 			je.encode("version", Trace.getVersion());
 			je.encode("os.name", System.getProperty("os.name"));
 			je.encode("os.version", System.getProperty("os.version"));
-			je.encode("jre.vendor", System.getProperty("java.vendor"));
-			je.encode("jre.version", System.getProperty("java.version"));
+			je.encode("java.vendor", System.getProperty("java.vendor"));
+			je.encode("java.version", System.getProperty("java.version"));
 			je.encode("host.address", NetworkUtil.getLocalAddress());
 			je.encode("host.name", NetworkUtil.getHostName());
 			je.encode("locale", Locale.getDefault().toString());
@@ -389,11 +439,11 @@ public class BasicClient {
 			// je.encode(cId);
 			je.closeArray();
 
-			additionalClientInfo(je);
+			addBasicClientInfo(je);
 		});
 	}
 
-	protected void additionalClientInfo(JSONEncoder je) {
+	protected void addBasicClientInfo(JSONEncoder je) {
 		// do nothing
 	}
 
@@ -550,7 +600,7 @@ public class BasicClient {
 
 			Trace.trace(Trace.USER, name + " connected");
 			fireConnectionStateEvent(true);
-			sendClientInfo();
+			sendInfo();
 
 			while (clientEndpoint.isConnected()) {
 				Thread.sleep(2000);
@@ -600,8 +650,8 @@ public class BasicClient {
 
 	private static void trace(String message, boolean user) {
 		String s = message;
-		if (s.length() > 150)
-			s = s.substring(0, 150) + "...";
+		if (s.length() > 120)
+			s = s.substring(0, 120) + "...";
 
 		if (user)
 			Trace.trace(Trace.USER, s);
@@ -636,24 +686,17 @@ public class BasicClient {
 				handleClientList(obj);
 				break;
 			}
-			case THUMBNAIL: {
-				handleThumbnail(obj);
-				break;
-			}
 			case INFO: {
-				handleInfo(obj);
+				int sourceUID = getUID(obj, "source");
+				handleInfo(sourceUID, obj);
 				break;
 			}
-			case REQUEST_LOG: {
-				handleLogRequest(obj);
+			case COMMAND: {
+				handleCommand(obj);
 				break;
 			}
 			case LOG: {
 				handleLogResponse(obj);
-				break;
-			}
-			case REQUEST_SNAPSHOT: {
-				handleSnapshotRequest(obj);
 				break;
 			}
 			case SNAPSHOT: {
@@ -666,14 +709,6 @@ public class BasicClient {
 			}
 			case PRES_LIST: {
 				handlePresentationList(obj);
-				break;
-			}
-			case STOP: {
-				System.exit(0);
-				break;
-			}
-			case RESTART: {
-				System.exit(255);
 				break;
 			}
 			default: {

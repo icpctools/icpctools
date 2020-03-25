@@ -126,22 +126,15 @@ public class View {
 			}
 
 			@Override
-			protected void handleThumbnail(JsonObject obj) {
-				if (clientsControl == null || clientsControl.isDisposed())
-					return;
-				int sourceUID = getUID(obj, "source");
-				int fps = obj.getInt("fps");
-				boolean hidden = obj.getBoolean("hidden");
-				byte[] b = decodeImage(obj);
-				clientsControl.handleThumbnail(sourceUID, b, fps, hidden);
-			}
+			protected void handleInfo(int sourceUID, JsonObject obj) {
+				super.handleInfo(sourceUID, obj);
 
-			@Override
-			protected void handleInfo(JsonObject obj) {
 				if (clientsControl == null || clientsControl.isDisposed())
 					return;
-				int sourceUID = getUID(obj, "source");
-				clientsControl.handleInfo(sourceUID, obj);
+
+				clientsControl.handleState(sourceUID, obj);
+				if (obj.containsKey("image"))
+					clientsControl.setThumbnail(sourceUID, decodeImage(obj));
 			}
 
 			@Override

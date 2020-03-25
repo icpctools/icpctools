@@ -30,11 +30,11 @@ import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 public class PresentationClient extends BasicClient {
 	protected ThreadPoolExecutor executor;
 
-	public IPresentationHandler window;
+	protected IPresentationHandler window;
 
 	protected long graphicsChecksum;
 	protected int[] graphicsInfo;
-	protected boolean sendingThumbnail;
+	protected boolean sendingInfoUpdate;
 	protected boolean sendingInfo;
 
 	protected PresentationClient(RESTContestSource source, String clientId, int uid, String role) {
@@ -199,20 +199,9 @@ public class PresentationClient extends BasicClient {
 			}
 		}
 
-		try {
+		try {// todo set later?
 			if (window != null)
 				window.setPresentations(time, pres.toArray(new Presentation[0]), trans.toArray(new Transition[0]));
-			executor.execute(new Runnable() {
-				@Override
-				public void run() {
-					writeInfo();
-				}
-
-				@Override
-				public String toString() {
-					return "Apply presentations task";
-				}
-			});
 		} catch (Throwable t) {
 			Trace.trace(Trace.ERROR, "Error setting new presentation", t);
 		}
@@ -253,7 +242,7 @@ public class PresentationClient extends BasicClient {
 	}
 
 	@Override
-	protected void additionalClientInfo(JSONEncoder je) {
+	protected void addBasicClientInfo(JSONEncoder je) {
 		int[] temp = getGraphicsInfo();
 		int num = temp.length / 3;
 		je.openChildArray("displays");
@@ -267,19 +256,13 @@ public class PresentationClient extends BasicClient {
 		je.closeArray();
 	}
 
-	protected void sendInfoImpl() throws IOException {
-		createJSON(Type.INFO, je -> {
-			je.encode("source", Integer.toHexString(getUID()));
-
+	protected void sendInfoPresentation() throws IOException {
+		sendInfo(je -> {
 			Dimension d = window.getPresentationSize();
 			je.encode("width", d.width);
 			je.encode("height", d.height);
-			je.encode("fps", window.getFPS());
 			je.encode("hidden", window.isHidden());
-			String name = window.getPresentationName();
-			if (name != null)
-				je.encode("presentation", name);
-			je.encode("name", window.getWindow().toDisplayString());
+			je.encode("full_screen_window", window.getFullScreenWindow());
 		});
 	}
 
@@ -297,16 +280,16 @@ public class PresentationClient extends BasicClient {
 			@Override
 			public void run() {
 				try {
-					sendInfoImpl();
+					sendInfoPresentation();
 				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Error sending info", e);
+					Trace.trace(Trace.ERROR, "Error sending state", e);
 				}
 				sendingInfo = false;
 			}
 
 			@Override
 			public String toString() {
-				return "Info task";
+				return "State task";
 			}
 		});
 	}
@@ -322,27 +305,31 @@ public class PresentationClient extends BasicClient {
 		}
 	}
 
-	public void writeThumbnail(final BufferedImage image) {
+	public void writeInfoUpdate(final BufferedImage image) {
 		// last thread still going, try next time
-		if (sendingThumbnail)
+		if (sendingInfoUpdate)
 			return;
 
-		sendingThumbnail = true;
+		sendingInfoUpdate = true;
 
 		execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					sendThumbnail(image, window.isHidden(), window.getFPS());
+					sendInfo(je -> {
+						je.encode("presentation", window.getPresentationName());
+						je.encode("fps", window.getFPS());
+						encodeImage(je, imageToBytes(image));
+					});
 				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Error sending thumbnail", e);
+					Trace.trace(Trace.ERROR, "Error sending status", e);
 				}
-				sendingThumbnail = false;
+				sendingInfoUpdate = false;
 			}
 
 			@Override
 			public String toString() {
-				return "Thumbnail task";
+				return "Status task";
 			}
 		});
 	}

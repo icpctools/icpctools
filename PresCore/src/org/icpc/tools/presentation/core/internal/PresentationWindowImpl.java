@@ -52,7 +52,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	private static final int DEFAULT_THUMBNAIL_HEIGHT = 180;
 	private static final long DEFAULT_THUMBNAIL_DELAY = 2000000000L;
-	private static final long INFO_DELAY = 4000000000L;
 
 	private int pw, ph, pp = -1;
 
@@ -225,7 +224,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private long thumbnailDelay = DEFAULT_THUMBNAIL_DELAY;
 	private int thumbnailHeight = DEFAULT_THUMBNAIL_HEIGHT;
 	private long lastThumbnailTime;
-	private long lastInfoTime;
 	private long timeUntilPlanChange = -1;
 	private PresentationPlan nextPlan = null;
 	private long updateTime = 0;
@@ -236,8 +234,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	public interface IThumbnailListener {
 		void handleThumbnail(BufferedImage image);
-
-		void handleInfo();
 	}
 
 	public PresentationWindowImpl(String title, Rectangle r, Image iconImage) {
@@ -304,10 +300,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 								sendThumbnail();
 								lastThumbnailTime = now;
 							}
-							if (lastInfoTime == 0 || (now - lastInfoTime) > INFO_DELAY) {
-								thumbnailListener.handleInfo();
-								lastInfoTime = now;
-							}
 						}
 
 						long delayNs = 0;
@@ -336,9 +328,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 							// if we aren't going to change for more than 5s,
 							// send a thumbnail and info
 							if (thumbnailListener != null && delayNs > 500000000L) {
-								sendThumbnail();
 								fps = 0;
-								thumbnailListener.handleInfo();
+								sendThumbnail();
 							}
 
 							// longer/indefinite delay, so lock a monitor
@@ -533,14 +524,22 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	@Override
-	public DeviceMode getWindow() {
-		return new DeviceMode();
-	}
-
-	@Override
 	public void setWindow(DeviceMode p) {
 		p.apply(this);
 		setPresentationSize();
+	}
+
+	@Override
+	public int getFullScreenWindow() {
+		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+		if (gds == null)
+			return -1;
+
+		for (int i = 0; i < gds.length; i++) {
+			if (gds[i].getFullScreenWindow() == this)
+				return i;
+		}
+		return -1;
 	}
 
 	/**

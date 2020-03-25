@@ -81,7 +81,7 @@ public class ClientsControl extends Canvas {
 		int height;
 		int fps;
 		boolean hidden;
-		String window = null; // null = unknown
+		int fullScreen = -1;
 		String pres;
 		Image thumbnail;
 	}
@@ -296,20 +296,25 @@ public class ClientsControl extends Canvas {
 		waitingForRedraw = true;
 	}
 
-	public void handleInfo(int id, JsonObject obj) {
+	public void handleState(int id, JsonObject obj) {
 		ClientInfo ci = clientStates.get(id);
 		if (ci == null)
 			ci = new ClientInfo();
 
 		try {
 			synchronized (uiLock) {
-				ci.width = obj.getInt("width");
-				ci.height = obj.getInt("height");
-				ci.fps = obj.getInt("fps");
-
-				ci.hidden = obj.getBoolean("hidden");
-				ci.pres = obj.getString("presentation");
-				ci.window = obj.getString("name");
+				if (obj.containsKey("width"))
+					ci.width = obj.getInt("width");
+				if (obj.containsKey("height"))
+					ci.height = obj.getInt("height");
+				if (obj.containsKey("hidden"))
+					ci.hidden = obj.getBoolean("hidden");
+				if (obj.containsKey("full_screen_window"))
+					ci.fullScreen = obj.getInt("full_screen_window");
+				if (obj.containsKey("fps"))
+					ci.fps = obj.getInt("fps");
+				if (obj.containsKey("presentation"))
+					ci.pres = obj.getString("presentation");
 
 				clientStates.put(id, ci);
 			}
@@ -320,7 +325,7 @@ public class ClientsControl extends Canvas {
 		doRedraw();
 	}
 
-	public void handleThumbnail(int id, byte[] b, int fps, boolean h) {
+	public void setThumbnail(int id, byte[] b) {
 		ImageLoader il = new ImageLoader();
 		ImageData[] id2 = il.load(new ByteArrayInputStream(b));
 
@@ -347,8 +352,6 @@ public class ClientsControl extends Canvas {
 			ClientInfo ci = clientStates.get(id);
 			if (ci == null)
 				ci = new ClientInfo();
-			ci.fps = fps;
-			ci.hidden = h;
 			oldImg = ci.thumbnail;
 			ci.thumbnail = img;
 			clientStates.put(id, ci);
@@ -470,7 +473,7 @@ public class ClientsControl extends Canvas {
 					return false;
 			}
 			ClientInfo ci = clientStates.get(uid);
-			if (ci != null && ci.window.equals(display + ""))
+			if (ci != null && ci.fullScreen == display)
 				return false;
 		}
 		return true;
@@ -484,7 +487,7 @@ public class ClientsControl extends Canvas {
 			int uid = selection.get(i);
 			ClientInfo ci = clientStates.get(uid);
 			if (ci != null) {
-				if (ci.window.equals("-1"))
+				if (ci.fullScreen == -1)
 					return false;
 			}
 		}
@@ -776,7 +779,7 @@ public class ClientsControl extends Canvas {
 							if (i > 0)
 								ss += ", ";
 							ss += c.displays[i].width + "x" + c.displays[i].height + "@" + c.displays[i].refresh + "hz";
-							if (ci.window != null && ci.window.startsWith(i + ""))
+							if (ci.fullScreen == i)
 								ss += "*";
 						}
 					}

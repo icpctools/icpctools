@@ -26,6 +26,7 @@ public class PresentationServer {
 	private static final String PRES = "presentation";
 	private static final String DEFAULT_PREFIX = "default:";
 	private static final String TIME_PREFIX = "time:";
+	protected static final boolean TRACE_ALL = false;
 
 	public class TimedEvent {
 		public String contestId;
@@ -35,9 +36,17 @@ public class PresentationServer {
 		public String value;
 	}
 
+	public interface IPropertyListener {
+		/**
+		 * Set a local property, e.g. on a presentation. Only called on non-admin clients.
+		 */
+		void propertyUpdated(int[] clients, String key, String value);
+	}
+
 	private List<TimedEvent> events = new ArrayList<>();
 
 	private ScheduledExecutorService executor;
+	private List<IPropertyListener> listeners;
 
 	private PresentationServer() {
 		super();
@@ -79,8 +88,8 @@ public class PresentationServer {
 
 	protected static void trace(String message, int uid) {
 		String s = message;
-		if (s.length() > 150)
-			s = s.substring(0, 150) + "...";
+		if (s.length() > 120)
+			s = s.substring(0, 120) + "...";
 
 		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " " + s);
 	}
@@ -98,14 +107,14 @@ public class PresentationServer {
 		if (c == null)
 			throw new IOException("Client " + s.getId() + " does not exist");
 
-		trace("< " + message, c.getUID());
-
 		int sourceUID = c.getUID();
 
 		try {
 			JSONParser rdr = new JSONParser(message);
 			JsonObject obj = rdr.readObject();
 			String type = obj.getString("type");
+			if (!"ping".equals(type))
+				trace("< " + message, c.getUID());
 
 			Client.Type action = null;
 			for (Client.Type t : Client.Type.values()) {
@@ -118,15 +127,7 @@ public class PresentationServer {
 					handleProperties(obj);
 					break;
 				}
-				case THUMBNAIL: {
-					handleThumbnail(c, obj, message);
-					break;
-				}
 				case INFO: {
-					handleInfo(c, obj, message);
-					break;
-				}
-				case CLIENT_INFO: {
 					handleClientInfo(c, obj, message);
 					break;
 				}
@@ -134,24 +135,12 @@ public class PresentationServer {
 					handlePresentationList(sourceUID);
 					break;
 				}
-				case STOP: {
-					handleStop(obj);
-					return;
-				}
-				case RESTART: {
-					handleRestart(obj);
-					return;
-				}
-				case REQUEST_LOG: {
-					handleRequestLog(message, obj);
+				case COMMAND: {
+					handleCommand(obj);
 					return;
 				}
 				case LOG: {
 					handleLog(message, obj);
-					return;
-				}
-				case REQUEST_SNAPSHOT: {
-					handleRequestSnapshot(message, obj);
 					return;
 				}
 				case SNAPSHOT: {
@@ -170,7 +159,7 @@ public class PresentationServer {
 				}
 			}
 		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Client connection failure", e);
+			Trace.trace(Trace.WARNING, "Client connection failure: " + message, e);
 		}
 	}
 
@@ -214,7 +203,7 @@ public class PresentationServer {
 							admClients.add(cl);
 					}
 
-					forClient(c, cl -> cl.writeClients(admClients));
+					forClient(c, cl -> cl.writeClients(admClients, admClients));
 					adminMap.put(c, admClients);
 
 					// set each client's admin
@@ -232,7 +221,9 @@ public class PresentationServer {
 							List<Client> adminClients = adminMap.get(admin);
 							List<Client> adminClients2 = safeAdd(adminClients, c);
 							adminMap.put(admin, adminClients2);
-							forClient(admin, cli -> cli.writeClients(adminClients2));
+							List<Client> first = new ArrayList<Client>(1);
+							first.add(c);
+							forClient(admin, cli -> cli.writeClients(adminClients2, first));
 						}
 					}
 					adminMap.put(c, adm);
@@ -247,21 +238,6 @@ public class PresentationServer {
 			Trace.trace(Trace.WARNING, "Client connection failure", e);
 		}
 		return c;
-	}
-
-	protected void updateClients(Client c) {
-		synchronized (adminMap) {
-			List<Client> admins = adminMap.get(c);
-			if (admins == null)
-				return;
-
-			for (Client admin : clients) {
-				if (admin.isAdmin() && isAdminOf(admin.getUser(), c.getUser())) {
-					List<Client> adminClients = adminMap.get(admin);
-					forClient(admin, cli -> cli.writeClients(adminClients));
-				}
-			}
-		}
 	}
 
 	protected void sendInitialProperties(Client c) {
@@ -331,7 +307,7 @@ public class PresentationServer {
 					List<Client> clientList = adminMap.get(adm);
 					List<Client> clientList2 = safeRemove(clientList, cl);
 					adminMap.put(adm, clientList2);
-					forClient(adm, cli -> cli.writeClients(clientList2));
+					forClient(adm, cli -> cli.writeClients(clientList2, new ArrayList<Client>(1)));
 				}
 			}
 			adminMap.remove(cl);
@@ -454,22 +430,53 @@ public class PresentationServer {
 
 	public void restart(int[] clientUIDs) {
 		Trace.trace(Trace.USER, "Restarting clients");
-		forEachClient(getClients(clientUIDs), new ClientRun() {
-			@Override
-			public void run(Client cl) throws IOException {
-				cl.writeRestart();
-			}
-		});
+		sendCommand(clientUIDs, "CDS", "restart");
 	}
 
 	public void stop(int[] clientUIDs) {
 		Trace.trace(Trace.USER, "Stopping clients");
+		sendCommand(clientUIDs, "CDS", "stop");
+	}
+
+	private void sendCommand(int[] clientUIDs, String source, String action) {
 		forEachClient(getClients(clientUIDs), new ClientRun() {
 			@Override
 			public void run(Client cl) throws IOException {
-				cl.writeStop();
+				cl.writeCommand(source, action);
 			}
 		});
+	}
+
+	public void addListener(IPropertyListener listener) {
+		if (listeners == null)
+			listeners = new ArrayList<>();
+		if (!listeners.contains(listener))
+			listeners.add(listener);
+	}
+
+	public void removeListener(IPropertyListener listener) {
+		if (listeners == null)
+			return;
+		listeners.remove(listener);
+	}
+
+	private void firePropertyChangedEvent(int[] cl, String key, String value) {
+		if (listeners == null)
+			return;
+		IPropertyListener[] list;
+		synchronized (listeners) {
+			list = new IPropertyListener[listeners.size()];
+			listeners.toArray(list);
+		}
+
+		int size = list.length;
+		for (int i = 0; i < size; i++) {
+			try {
+				list[i].propertyUpdated(cl, key, value);
+			} catch (Throwable t) {
+				Trace.trace(Trace.ERROR, "Error firing property change event", t);
+			}
+		}
 	}
 
 	protected void handleProperties(JsonObject obj) {
@@ -498,6 +505,12 @@ public class PresentationServer {
 				}
 			}
 			return;
+		}
+
+		for (Object s : p.keySet()) {
+			String key = s.toString();
+			String value = p.getProperty(key);
+			firePropertyChangedEvent(cl, key, value);
 		}
 
 		// remember some properties
@@ -642,21 +655,22 @@ public class PresentationServer {
 			sendProperties(cl, p);
 	}
 
-	protected void handleThumbnail(Client c, JsonObject obj, String message) {
-		List<Client> cadmins = adminMap.get(c);
-		forEachClient(cadmins, cl -> cl.writeThumbnail(c.getUID(), message));
-	}
-
-	protected void handleInfo(Client c, JsonObject obj, String message) {
-		c.storeInfo(obj);
-
-		List<Client> cadmins = adminMap.get(c);
-		forEachClient(cadmins, cl -> cl.writeInfo(c.getUID(), message));
-	}
-
 	protected void handleClientInfo(Client c, JsonObject obj, String message) {
-		c.storeClientInfo(obj);
-		updateClients(c);
+		boolean affectsBaseInfo = c.storeClientInfo(obj);
+
+		// notify each of this client's admins
+		synchronized (adminMap) {
+			List<Client> admins = adminMap.get(c);
+			if (admins == null)
+				return;
+
+			if (affectsBaseInfo) { // base info has changed, resend full client list
+				List<Client> first = new ArrayList<>();
+				first.add(c);
+				forEachClient(admins, cl -> cl.writeClients(adminMap.get(cl), first));
+			} else // otherwise, just send the updates
+				forEachClient(admins, cl -> cl.writeInfo(c.getUID(), message, obj.containsKey("thumbnail")));
+		}
 	}
 
 	protected void handlePresentationList(int sourceUID) {
@@ -673,32 +687,12 @@ public class PresentationServer {
 		}
 	}
 
-	protected void handleRequestLog(String message, JsonObject obj) {
-		int[] clientUIDs = readClients(obj);
-		forEachClient(getClients(clientUIDs), new ClientRun() {
-			@Override
-			public void run(Client cl) throws IOException {
-				cl.writeLogRequest(message);
-			}
-		});
-	}
-
 	protected void handleLog(String message, JsonObject obj) {
 		int requestUID = getUID(obj, "target");
 		forClient(getClient(requestUID), new ClientRun() {
 			@Override
 			public void run(Client cl) throws IOException {
 				cl.writeLog(message);
-			}
-		});
-	}
-
-	protected void handleRequestSnapshot(String message, JsonObject obj) {
-		int[] clientUIDs = readClients(obj);
-		forEachClient(getClients(clientUIDs), new ClientRun() {
-			@Override
-			public void run(Client cl) throws IOException {
-				cl.writeSnapshotRequest(message);
 			}
 		});
 	}
@@ -713,26 +707,9 @@ public class PresentationServer {
 		});
 	}
 
-	protected void handleStop(JsonObject obj) {
+	protected void handleCommand(JsonObject obj) {
 		int[] clientUIDs = readClients(obj);
-
-		forEachClient(getClients(clientUIDs), new ClientRun() {
-			@Override
-			public void run(Client cl) throws IOException {
-				cl.writeStop();
-			}
-		});
-	}
-
-	protected void handleRestart(JsonObject obj) {
-		int[] clientUIDs = readClients(obj);
-
-		forEachClient(getClients(clientUIDs), new ClientRun() {
-			@Override
-			public void run(Client cl) throws IOException {
-				cl.writeRestart();
-			}
-		});
+		sendCommand(clientUIDs, obj.getString("source"), obj.getString("action"));
 	}
 
 	public void setExecutor(ScheduledExecutorService executor) {
