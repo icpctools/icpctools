@@ -498,6 +498,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 		if (currentPlan != null)
 			currentPlan.setSize(d);
 
+		if (nextPlan != null)
+			nextPlan.setSize(d);
+
 		notifyPaintThread();
 	}
 

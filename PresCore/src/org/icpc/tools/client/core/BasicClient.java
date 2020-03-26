@@ -339,13 +339,11 @@ public class BasicClient {
 	public void sendProperty(int[] clientUIDs, String key, String value) throws IOException {
 		createJSON(Type.PROPERTIES, je -> {
 			writeClients(je, clientUIDs);
-			je.openChild("props");
 			if (key != null) {
-				// je.openChild("property");
+				je.openChild("props");
 				je.encode(key, value);
-				// je.close();
+				je.close();
 			}
-			je.close();
 		});
 	}
 

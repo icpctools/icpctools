@@ -183,7 +183,7 @@ public class Client {
 					timeSync.add(new TimeSync());
 				}
 			}
-			if (message.type != Type.PING || message.type != Type.INFO || PresentationServer.TRACE_ALL)
+			if ((message.type != Type.PING && message.type != Type.INFO) || PresentationServer.TRACE_ALL)
 				PresentationServer.trace("> " + message.message, uid);
 
 			session.getBasicRemote().sendText(message.message);
