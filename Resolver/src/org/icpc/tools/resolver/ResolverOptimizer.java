@@ -14,6 +14,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.resolver.ResolverLogic;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 
@@ -116,7 +117,7 @@ public class ResolverOptimizer {
 
 		Contest finalContest = contestSource.getContest();
 		contestSource.waitForContest(10000);
-		finalContest = Resolver.filter(finalContest);
+		finalContest = ResolverLogic.filter(finalContest);
 
 		// revert to start of the freeze
 		Contest contest = finalContest.clone(new FreezeFilter(finalContest));

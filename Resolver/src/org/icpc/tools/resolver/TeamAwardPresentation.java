@@ -25,11 +25,11 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.internal.Award;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.util.Messages;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.resolver.ResolutionUtil.AwardStep;
-import org.icpc.tools.resolver.ResolutionUtil.ResolutionStep;
 
 public class TeamAwardPresentation extends AbstractICPCPresentation {
 	private static final int BORDER = 20;

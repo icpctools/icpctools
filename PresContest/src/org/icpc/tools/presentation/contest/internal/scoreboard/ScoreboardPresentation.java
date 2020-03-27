@@ -13,10 +13,11 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.resolver.SelectType;
+import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.Legend;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.SubmissionInfo;
 
 /**
  * Official contest scoreboard.

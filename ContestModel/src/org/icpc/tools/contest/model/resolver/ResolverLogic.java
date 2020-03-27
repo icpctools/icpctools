@@ -1,4 +1,4 @@
-package org.icpc.tools.resolver;
+package org.icpc.tools.contest.model.resolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import java.util.Map;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FreezeFilter;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IOrganization;
@@ -16,24 +17,24 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
+import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep2;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
-import org.icpc.tools.presentation.contest.internal.SubmissionInfo;
-import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation;
-import org.icpc.tools.resolver.ResolutionUtil.AwardStep;
-import org.icpc.tools.resolver.ResolutionUtil.ContestStateStep;
-import org.icpc.tools.resolver.ResolutionUtil.DelayStep;
-import org.icpc.tools.resolver.ResolutionUtil.DelayType;
-import org.icpc.tools.resolver.ResolutionUtil.PauseStep;
-import org.icpc.tools.resolver.ResolutionUtil.PresentationStep;
-import org.icpc.tools.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.resolver.ResolutionUtil.ScrollStep;
-import org.icpc.tools.resolver.ResolutionUtil.ScrollTeamListStep;
-import org.icpc.tools.resolver.ResolutionUtil.SubmissionSelectionStep;
-import org.icpc.tools.resolver.ResolutionUtil.SubmissionSelectionStep2;
-import org.icpc.tools.resolver.ResolutionUtil.TeamListStep;
-import org.icpc.tools.resolver.ResolutionUtil.TeamSelectionStep;
-import org.icpc.tools.resolver.ResolutionUtil.ToJudgeStep;
+import org.icpc.tools.contest.model.util.Messages;
 
 /**
  * The Resolver 'logic'. This is the class that performs the actual resolving of submissions to
@@ -98,7 +99,7 @@ public class ResolverLogic {
 		}
 	}
 
-	static class PredeterminedStep {
+	public static class PredeterminedStep {
 		String teamId;
 		String problemLabel;
 
@@ -131,11 +132,13 @@ public class ResolverLogic {
 
 	public ResolverLogic(Contest contest, int singleStepStartRow, int rowOffset, boolean calculateProjections,
 			List<PredeterminedStep> predeterminedSteps) {
-		finalContest = contest;
+		finalContest = filter(contest);
 		this.singleStepStartRow = singleStepStartRow;
 		this.rowOffset = rowOffset;
 		this.calculateProjections = calculateProjections;
 		this.predeterminedSteps = predeterminedSteps;
+		if (predeterminedSteps == null)
+			this.predeterminedSteps = new ArrayList<ResolverLogic.PredeterminedStep>(0);
 
 		// defaults to -2 (don't start single step automatically) if no medals exist
 		if (this.singleStepStartRow < 0 && finalContest.isDoneUpdating()) {
@@ -213,7 +216,7 @@ public class ResolverLogic {
 
 						int size = teamGroup.size();
 						ITeam[] teamList = new ITeam[size];
-						Map<String, AbstractScoreboardPresentation.SelectType> selections = new HashMap<>();
+						Map<String, SelectType> selections = new HashMap<>();
 						for (int j = 0; j < size; j++) {
 							teamList[j] = teamGroup.get(size - j - 1);
 
@@ -243,11 +246,11 @@ public class ResolverLogic {
 								}
 								if (hasFTS) {
 									if (show)
-										selections.put(teamId, AbstractScoreboardPresentation.SelectType.FTS_HIGHLIGHT);
+										selections.put(teamId, SelectType.FTS_HIGHLIGHT);
 									else
-										selections.put(teamId, AbstractScoreboardPresentation.SelectType.FTS);
+										selections.put(teamId, SelectType.FTS);
 								} else
-									selections.put(teamId, AbstractScoreboardPresentation.SelectType.HIGHLIGHT);
+									selections.put(teamId, SelectType.HIGHLIGHT);
 							}
 						}
 
@@ -294,6 +297,8 @@ public class ResolverLogic {
 		// fourth click and beyond: start resolving!
 		resolveEverything(bill);
 
+		ResolutionUtil.numberThePauses(steps);
+
 		Trace.trace(Trace.USER, "Done resolving");
 
 		return steps;
@@ -326,6 +331,7 @@ public class ResolverLogic {
 		}
 
 		// remove non-penalty judgements
+		// TODO - probably shouldn't!!
 		submissions = finalContest.getSubmissions();
 		for (ISubmission submission : submissions) {
 			IJudgement[] sjs = finalContest.getJudgementsBySubmissionId(submission.getId());
@@ -582,14 +588,14 @@ public class ResolverLogic {
 						}
 						if (hasFTS) {
 							if (show) {
-								steps.add(new TeamSelectionStep(team, AbstractScoreboardPresentation.SelectType.FTS_HIGHLIGHT));
+								steps.add(new TeamSelectionStep(team, SelectType.FTS_HIGHLIGHT));
 							} else {
 								// it's an FTS-only award
-								steps.add(new TeamSelectionStep(team, AbstractScoreboardPresentation.SelectType.FTS));
+								steps.add(new TeamSelectionStep(team, SelectType.FTS));
 							}
 						} else {
 							// the award is for something other than FTS
-							steps.add(new TeamSelectionStep(team, AbstractScoreboardPresentation.SelectType.HIGHLIGHT));
+							steps.add(new TeamSelectionStep(team, SelectType.HIGHLIGHT));
 						}
 						steps.add(new PauseStep());
 
@@ -836,5 +842,30 @@ public class ResolverLogic {
 			}
 		}
 		return null;
+	}
+
+	public static Contest filter(Contest contest) {
+		Contest c = removeUnnecessaryTypes(contest);
+		c.removeHiddenTeams();
+		c.removeSubmissionsOutsideOfContestTime();
+		return c;
+	}
+
+	private static Contest removeUnnecessaryTypes(Contest contest) {
+		List<ContestType> types = new ArrayList<>();
+		types.add(ContestType.CONTEST);
+		types.add(ContestType.STATE);
+		types.add(ContestType.TEAM);
+		types.add(ContestType.TEAM_MEMBER);
+		types.add(ContestType.ORGANIZATION);
+		types.add(ContestType.GROUP);
+		types.add(ContestType.PROBLEM);
+		types.add(ContestType.SUBMISSION);
+		types.add(ContestType.JUDGEMENT);
+		types.add(ContestType.JUDGEMENT_TYPE);
+		types.add(ContestType.LANGUAGE);
+		types.add(ContestType.AWARD);
+		TypeFilter filter = new TypeFilter(types);
+		return contest.clone(false, filter);
 	}
 }

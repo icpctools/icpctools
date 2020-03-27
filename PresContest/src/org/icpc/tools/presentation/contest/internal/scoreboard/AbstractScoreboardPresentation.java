@@ -26,6 +26,8 @@ import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
+import org.icpc.tools.contest.model.resolver.SelectType;
+import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
@@ -33,7 +35,6 @@ import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.contest.internal.TextImage;
@@ -61,28 +62,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 	private Font clockFont;
 	private BufferedImage headerImg;
 	private boolean showClock = true;
-
-	/** An enumeration listing the different types of "selection" which can be displayed. */
-	public enum SelectType {
-		/** Indicator for the "normal" selection type (blue by default) */
-		NORMAL,
-		/**
-		 * Indication for "highlighted selection" - a white-box outline indicating that the next
-		 * click will switch to an Award screen.
-		 */
-		HIGHLIGHT,
-		/** Indication for "first-to-solve" selection (green by default) */
-		FTS,
-		/**
-		 * Indication for "highlighted first-to-solve" selection (FTS selection plus a white-box
-		 * outline
-		 */
-		FTS_HIGHLIGHT,
-		/**
-		 * Indication for a "team list" or multi-selected teams (bronze by default)
-		 */
-		TEAM_LIST
-	}
 
 	protected static Style style;
 

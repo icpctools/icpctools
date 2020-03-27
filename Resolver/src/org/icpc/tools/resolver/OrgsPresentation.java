@@ -14,12 +14,12 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.FileReferenceList;
+import org.icpc.tools.contest.model.resolver.SelectType;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.Animator3D;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
-import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation.SelectType;
 
 public class OrgsPresentation extends AbstractICPCPresentation {
 	protected static final Movement SIZE_MOVEMENT = new Movement(30, 30);

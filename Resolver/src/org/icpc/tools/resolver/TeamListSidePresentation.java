@@ -6,9 +6,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.resolver.ResolutionUtil.TeamListStep;
 
 public class TeamListSidePresentation extends AbstractICPCPresentation {
 	private Font titleFont;

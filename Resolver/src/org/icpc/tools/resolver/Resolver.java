@@ -18,23 +18,23 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
-import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+import org.icpc.tools.contest.model.resolver.ResolverLogic;
+import org.icpc.tools.contest.model.resolver.ResolverLogic.PredeterminedStep;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
-import org.icpc.tools.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.resolver.ResolverLogic.PredeterminedStep;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
 import org.icpc.tools.resolver.ResolverUI.Screen;
 
@@ -200,7 +200,6 @@ public class Resolver {
 			r.init(steps);
 		}
 
-		ResolutionUtil.numberThePauses(steps);
 		Trace.trace(Trace.INFO, "Resolution steps:");
 		for (ResolutionStep step : steps)
 			Trace.trace(Trace.INFO, "  " + step);
@@ -381,13 +380,6 @@ public class Resolver {
 		// do not create
 	}
 
-	protected static Contest filter(Contest contest) {
-		Contest c = removeUnnecessaryTypes(contest);
-		c.removeHiddenTeams();
-		c.removeSubmissionsOutsideOfContestTime();
-		return c;
-	}
-
 	private void loadFromSource(ContestSource source) {
 		Trace.trace(Trace.INFO, "Loading from " + source);
 
@@ -411,11 +403,11 @@ public class Resolver {
 			}
 
 			if (!test && !finalContest.isDoneUpdating()) {
-				Trace.trace(Trace.ERROR, "Contest not done updating. Use --test if running against an incomplete contest");
+				Trace.trace(Trace.ERROR,
+						"Contest is not done updating. Use --test if running against an incomplete contest");
 				System.exit(1);
 			}
 
-			finalContest = filter(finalContest);
 			validateContest(finalContest);
 
 			if (isPresenter) {
@@ -536,8 +528,6 @@ public class Resolver {
 			steps.addAll(subSteps);
 			outputStats(steps, time);
 		}
-
-		ResolutionUtil.numberThePauses(steps);
 
 		Trace.trace(Trace.INFO, "Resolution steps:");
 		for (ResolutionStep step : steps)
@@ -679,23 +669,5 @@ public class Resolver {
 		int freeze = contest.getFreezeDuration();
 		if (freeze < 0 || freeze > contest.getDuration())
 			Trace.trace(Trace.WARNING, "Warning: Contest has no freeze time, will assume default");
-	}
-
-	protected static Contest removeUnnecessaryTypes(Contest contest) {
-		List<ContestType> types = new ArrayList<>();
-		types.add(ContestType.CONTEST);
-		types.add(ContestType.STATE);
-		types.add(ContestType.TEAM);
-		types.add(ContestType.TEAM_MEMBER);
-		types.add(ContestType.ORGANIZATION);
-		types.add(ContestType.GROUP);
-		types.add(ContestType.PROBLEM);
-		types.add(ContestType.SUBMISSION);
-		types.add(ContestType.JUDGEMENT);
-		types.add(ContestType.JUDGEMENT_TYPE);
-		types.add(ContestType.LANGUAGE);
-		types.add(ContestType.AWARD);
-		TypeFilter filter = new TypeFilter(types);
-		return contest.clone(false, filter);
 	}
 }
