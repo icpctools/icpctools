@@ -12,14 +12,13 @@ import java.util.Map;
 
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
+import org.icpc.tools.contest.model.resolver.SelectType;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation;
-import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation.SelectType;
-import org.icpc.tools.resolver.ResolutionUtil.TeamListStep;
 
 public class TeamListPresentation extends AbstractICPCPresentation {
 	private static final int TEAM_SPACING = 15;
@@ -40,7 +39,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 	private TeamListStep step;
 	private TeamInfo[] teams;
-	private Map<String, AbstractScoreboardPresentation.SelectType> selections;
+	private Map<String, SelectType> selections;
 
 	private Font teamFont;
 	private Font titleFont;
@@ -178,7 +177,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 					g.drawImage(img, x + (rowHeight - img.getWidth()) / 2, (hh - img.getHeight()) / 2 + y, null);
 				}
 
-				AbstractScoreboardPresentation.SelectType sel = selections.get(t.id);
+				SelectType sel = selections.get(t.id);
 				if (sel != null) {
 					if (sel == SelectType.FTS)
 						g.setColor(ICPCColors.FIRST_TO_SOLVE_COLOR);

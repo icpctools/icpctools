@@ -10,11 +10,11 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Recent;
+import org.icpc.tools.contest.model.resolver.SelectType;
+import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
-import org.icpc.tools.presentation.contest.internal.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
-import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation.SelectType;
 
 public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPresentation {
 	protected static final int DEFAULT_COLUMNS = 2;

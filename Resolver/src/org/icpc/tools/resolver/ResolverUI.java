@@ -13,13 +13,27 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.LockSupport;
 
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.resolver.ResolutionControl;
+import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep2;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
@@ -28,19 +42,6 @@ import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresent
 import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
-import org.icpc.tools.resolver.ResolutionUtil.AwardStep;
-import org.icpc.tools.resolver.ResolutionUtil.ContestStateStep;
-import org.icpc.tools.resolver.ResolutionUtil.DelayStep;
-import org.icpc.tools.resolver.ResolutionUtil.PauseStep;
-import org.icpc.tools.resolver.ResolutionUtil.PresentationStep;
-import org.icpc.tools.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.resolver.ResolutionUtil.ScrollStep;
-import org.icpc.tools.resolver.ResolutionUtil.ScrollTeamListStep;
-import org.icpc.tools.resolver.ResolutionUtil.SubmissionSelectionStep;
-import org.icpc.tools.resolver.ResolutionUtil.SubmissionSelectionStep2;
-import org.icpc.tools.resolver.ResolutionUtil.TeamListStep;
-import org.icpc.tools.resolver.ResolutionUtil.TeamSelectionStep;
-import org.icpc.tools.resolver.ResolutionUtil.ToJudgeStep;
 
 /**
  * A Resolver contains two types of Presentations: a "ScoreboardPresentation", which is a grid
@@ -76,12 +77,10 @@ public class ResolverUI {
 	private Font messageFont;
 	private int messageNum;
 
-	private int currentPause;
-	private int currentStep;
+	private ResolutionControl control;
 	private boolean isPresenter;
 	private Screen screen = Screen.MAIN;
 	private String displayStr;
-	private double speedFactor;
 	private boolean showInfo;
 	private boolean pauseScroll = false;
 	private Style style;
@@ -116,6 +115,29 @@ public class ResolverUI {
 			this.screen = Screen.MAIN;
 		this.listener = listener;
 		this.style = style;
+		control = new ResolutionControl(steps);
+		control.addListener(new IResolutionListener() {
+			@Override
+			public void toPause(int pause, boolean includeDelays) {
+				if (listener == null)
+					return;
+
+				if (!includeDelays)
+					listener.clicked(pause + 1000);
+				else
+					listener.clicked(pause);
+			}
+
+			@Override
+			public void atStep(ResolutionStep step) {
+				processStep(step);
+			}
+
+			@Override
+			public void atPause(int pause) {
+				// ignore
+			}
+		});
 	}
 
 	public void moveTo(int pause2) {
@@ -137,7 +159,8 @@ public class ResolverUI {
 
 	private void moveToImpl(int pause2) {
 		int pause = pause2;
-		Trace.trace(Trace.INFO, "Move to: " + currentPause + " " + pause);
+		int currentPause = control.getCurrentPause();
+		Trace.trace(Trace.INFO, "Move to: " + currentPause + " -> " + pause);
 
 		boolean includeDelays = true;
 		if (pause > 999) {
@@ -146,11 +169,7 @@ public class ResolverUI {
 		} else if (Math.abs(pause - currentPause) > 1)
 			includeDelays = false;
 
-		while (currentPause < pause)
-			forward(includeDelays);
-
-		while (currentPause > pause)
-			reverse(true, includeDelays);
+		control.moveToPause(pause, includeDelays);
 	}
 
 	public void display() {
@@ -192,9 +211,9 @@ public class ResolverUI {
 				else if ('0' == e.getKeyChar())
 					processAction(Action.BEGIN);
 				else if ('+' == e.getKeyChar() || '=' == e.getKeyChar() || KeyEvent.VK_UP == e.getKeyCode())
-					setSpeedFactorImpl(speedFactor * 0.8);
+					setSpeedFactorImpl(control.getSpeedFactor() * 0.8);
 				else if ('-' == e.getKeyChar() || '_' == e.getKeyChar() || KeyEvent.VK_DOWN == e.getKeyCode())
-					setSpeedFactorImpl(speedFactor * 1.2);
+					setSpeedFactorImpl(control.getSpeedFactor() * 1.2);
 				else if ('j' == e.getKeyChar() || 'J' == e.getKeyChar())
 					setSpeedFactorImpl(1.0);
 				else if ('p' == e.getKeyChar()) {
@@ -317,7 +336,7 @@ public class ResolverUI {
 		else
 			sb.append("Next step: ");
 
-		int n = currentStep + 1;
+		int n = control.getCurrentStep() + 1;
 		while (n < steps.size() && !(steps.get(n) instanceof PauseStep)) {
 			n++;
 		}
@@ -374,11 +393,11 @@ public class ResolverUI {
 		if (listener != null)
 			listener.speedFactor(d);
 
-		speedFactor = d;
+		control.setSpeedFactor(d);
 	}
 
 	public void setSpeedFactor(double d) {
-		speedFactor = d;
+		control.setSpeedFactor(d);
 	}
 
 	private void setScrollPauseImpl(boolean pause) {
@@ -411,90 +430,7 @@ public class ResolverUI {
 		return null;
 	}
 
-	private void forward(boolean includeDelays) {
-		if (currentStep == steps.size() - 1)
-			return;
-
-		long[] startTime = new long[] { System.nanoTime() };
-		if (!includeDelays || (screen != Screen.MAIN && screen != Screen.ORG))
-			startTime = null;
-
-		if (listener != null) {
-			// notify listener which pause we're going to
-			if (!includeDelays)
-				listener.clicked(currentPause + 1 + 1000);
-			else
-				listener.clicked(currentPause + 1);
-		}
-
-		while (currentStep < steps.size() - 1) {
-			currentStep++;
-			ResolutionStep step = steps.get(currentStep);
-			Trace.trace(Trace.INFO, "Step " + currentStep + " > " + step);
-
-			int num = processStep(startTime, step);
-			if (num >= 0) {
-				currentPause = num;
-				return;
-			}
-		}
-	}
-
-	private void reverse(boolean stopAtPause, boolean includeDelays) {
-		if (currentStep == 0)
-			return;
-
-		long[] startTime = new long[] { System.nanoTime() };
-		if (!includeDelays || (screen != Screen.MAIN && screen != Screen.ORG))
-			startTime = null;
-
-		if (listener != null) {
-			// notify listener which pause we're going to
-			if (!stopAtPause && !includeDelays) {
-				listener.clicked(1000);
-			} else {
-				if (!includeDelays)
-					listener.clicked(currentPause - 1 + 1000);
-				else
-					listener.clicked(currentPause - 1);
-			}
-		}
-
-		while (currentStep > 0) {
-			currentStep--;
-			ResolutionStep step = steps.get(currentStep);
-
-			ResolutionStep previousStep = findPrevious(currentStep, step);
-			if (step.equals(previousStep))
-				Trace.trace(Trace.INFO, "Step " + currentStep + " <  " + step);
-			else
-				Trace.trace(Trace.INFO, "Step " + currentStep + " <  " + step + " reverted to " + previousStep);
-
-			int num = processStep(startTime, previousStep);
-			if (num >= 0) {
-				currentPause = num;
-				if (stopAtPause)
-					return;
-			}
-		}
-	}
-
-	private ResolutionStep findPrevious(int stepNum, ResolutionStep step) {
-		if (step instanceof DelayStep || step instanceof PauseStep)
-			return step;
-
-		Class<? extends ResolutionStep> cl = step.getClass();
-		int num = stepNum;
-		while (num > 0) {
-			num--;
-			ResolutionStep step2 = steps.get(num);
-			if (cl.isInstance(step2))
-				return step2;
-		}
-		return step;
-	}
-
-	private int processStep(long[] startTime, ResolutionStep step) {
+	private int processStep(ResolutionStep step) {
 		if (step instanceof ContestStateStep) {
 			ContestStateStep state = (ContestStateStep) step;
 			splashPresentation.setContest(state.contest);
@@ -505,13 +441,6 @@ public class ResolverUI {
 				teamLogoPresentation.setContest(state.contest);
 			if (orgPresentation != null)
 				orgPresentation.setContest(state.contest);
-		} else if (step instanceof PauseStep) {
-			PauseStep pause = (PauseStep) step;
-			return pause.num;
-		} else if (step instanceof DelayStep) {
-			DelayStep delay = (DelayStep) step;
-			if (startTime != null)
-				wait(startTime, delay.type.ordinal());
 		} else if (step instanceof TeamSelectionStep) {
 			TeamSelectionStep sel = (TeamSelectionStep) step;
 			scoreboardPresentation.setSelectedTeams(sel.teams, sel.type);
@@ -563,21 +492,6 @@ public class ResolverUI {
 		return -1;
 	}
 
-	/**
-	 * Wait the specified time in seconds. The specified time is adjusted by the current
-	 * "speedfactor" before waiting (for example, if a wait of 1.5 seconds is requested and the
-	 * current speedfactor is 0.5, the actual wait time will be 1.5*0.5 = 0.75 seconds.
-	 *
-	 * @param startTime - an array of 1 containing the system nano time to start the delay from (the
-	 *           current nano time may be later)
-	 * @param type - the type of pause to take
-	 */
-	private void wait(long[] startTime, int type) {
-		long delay = Math.round(ResolutionUtil.DELAY_TIMES[type] * speedFactor * 1000000000.0);
-		startTime[0] += delay;
-		LockSupport.parkNanos(startTime[0] - System.nanoTime());
-	}
-
 	private void processAction(final Action action) {
 		// if user clicks twice within 0.2s (or 0.4s when advancing normally), ignore - it's likely
 		// an accidental click
@@ -610,18 +524,19 @@ public class ResolverUI {
 	}
 
 	private void actionImpl(Action action) {
+		int currentPause = control.getCurrentPause();
 		Trace.trace(Trace.INFO, "**Action: " + action.name() + " from " + currentPause + "**");
 
 		if (action == Action.FORWARD) {
-			forward(true);
-		} else if (action == Action.REVERSE) {
-			reverse(true, true);
+			control.forward(true);
 		} else if (action == Action.FAST_FORWARD) {
-			forward(false);
+			control.forward(false);
+		} else if (action == Action.REVERSE) {
+			control.rewind(true);
 		} else if (action == Action.FAST_REVERSE) {
-			reverse(true, false);
+			control.rewind(false);
 		} else if (action == Action.BEGIN) {
-			reverse(false, false);
+			control.reset();
 		}
 		Trace.trace(Trace.INFO, "**Paused at " + currentPause + "**");
 	}

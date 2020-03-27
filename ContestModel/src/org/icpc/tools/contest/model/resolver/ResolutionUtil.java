@@ -1,4 +1,4 @@
-package org.icpc.tools.resolver;
+package org.icpc.tools.contest.model.resolver;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,8 +8,6 @@ import java.util.Map;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.icpc.tools.presentation.contest.internal.SubmissionInfo;
-import org.icpc.tools.presentation.contest.internal.scoreboard.AbstractScoreboardPresentation;
 
 public class ResolutionUtil {
 	protected enum DelayType {
@@ -18,7 +16,7 @@ public class ResolutionUtil {
 
 	protected static final double[] DELAY_TIMES = new double[] { 1.3, 1.0, 2.25, 1.5, 0.85, 0.25, 0.45 };
 
-	protected interface ResolutionStep {
+	public interface ResolutionStep {
 		// tag interface, no methods
 	}
 
@@ -27,7 +25,7 @@ public class ResolutionUtil {
 	}
 
 	public static class PresentationStep implements ResolutionStep {
-		enum Presentations {
+		public enum Presentations {
 			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST
 		}
 
@@ -84,17 +82,17 @@ public class ResolutionUtil {
 
 	public static class TeamSelectionStep implements ResolutionStep {
 		public List<ITeam> teams;
-		public AbstractScoreboardPresentation.SelectType type;
+		public SelectType type;
 
 		public TeamSelectionStep() {
 			// no selection
 		}
 
 		public TeamSelectionStep(ITeam team) {
-			this(team, AbstractScoreboardPresentation.SelectType.NORMAL);
+			this(team, SelectType.NORMAL);
 		}
 
-		public TeamSelectionStep(ITeam team, AbstractScoreboardPresentation.SelectType type) {
+		public TeamSelectionStep(ITeam team, SelectType type) {
 			teams = new ArrayList<>(1);
 			teams.add(team);
 			this.type = type;
@@ -102,7 +100,7 @@ public class ResolutionUtil {
 
 		public TeamSelectionStep(ITeam[] teams) {
 			this.teams = Arrays.asList(teams);
-			type = AbstractScoreboardPresentation.SelectType.TEAM_LIST;
+			type = SelectType.TEAM_LIST;
 		}
 
 		@Override
@@ -121,7 +119,7 @@ public class ResolutionUtil {
 				if (n < teams.size())
 					sb.append("...");
 			}
-			if (type != null && type != AbstractScoreboardPresentation.SelectType.NORMAL)
+			if (type != null && type != SelectType.NORMAL)
 				sb.append(" " + type.name());
 			return sb.toString();
 		}
@@ -204,10 +202,9 @@ public class ResolutionUtil {
 		public String title;
 		public String subTitle;
 		public ITeam[] teams;
-		public Map<String, AbstractScoreboardPresentation.SelectType> selections;
+		public Map<String, SelectType> selections;
 
-		public TeamListStep(String title, String subTitle, ITeam[] teams,
-				Map<String, AbstractScoreboardPresentation.SelectType> selections) {
+		public TeamListStep(String title, String subTitle, ITeam[] teams, Map<String, SelectType> selections) {
 			this.title = title;
 			this.subTitle = subTitle;
 			this.teams = teams;
@@ -254,7 +251,7 @@ public class ResolutionUtil {
 		}
 	}
 
-	protected static double getTotalTime(List<ResolutionStep> steps) {
+	public static double getTotalTime(List<ResolutionStep> steps) {
 		double time = 0;
 		for (ResolutionStep step : steps) {
 			if (step instanceof DelayStep) {
@@ -265,7 +262,7 @@ public class ResolutionUtil {
 		return time;
 	}
 
-	protected static long getTotalPauses(List<ResolutionStep> steps) {
+	public static long getTotalPauses(List<ResolutionStep> steps) {
 		int count = 0;
 		for (ResolutionStep step : steps) {
 			if (step instanceof PauseStep) {
@@ -275,7 +272,7 @@ public class ResolutionUtil {
 		return count;
 	}
 
-	protected static long getTotalContests(List<ResolutionStep> steps) {
+	public static long getTotalContests(List<ResolutionStep> steps) {
 		int count = 0;
 		for (ResolutionStep step : steps) {
 			if (step instanceof ContestStateStep) {
@@ -285,7 +282,7 @@ public class ResolutionUtil {
 		return count;
 	}
 
-	protected static List<String> getTeamListIds(List<ResolutionStep> steps) {
+	public static List<String> getTeamListIds(List<ResolutionStep> steps) {
 		List<String> teamIds = new ArrayList<>();
 		for (ResolutionStep step : steps) {
 			if (step instanceof TeamListStep) {

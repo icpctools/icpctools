@@ -1,4 +1,4 @@
-package org.icpc.tools.presentation.contest.internal;
+package org.icpc.tools.contest.model.resolver;
 
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
