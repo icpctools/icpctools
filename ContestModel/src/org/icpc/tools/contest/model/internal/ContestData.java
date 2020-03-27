@@ -146,7 +146,8 @@ public class ContestData implements Iterable<IContestObject> {
 				boolean changed = false;
 				for (String oldK : oldP.keySet()) {
 					if (!"time".equals(oldK)) {
-						if (oldP.get(oldK).equals(newP.get(oldK))) {
+						if ((oldP.get(oldK) == null && newP.get(oldK) == null)
+								|| (oldP.get(oldK) != null && oldP.get(oldK).equals(newP.get(oldK)))) {
 							// found match
 							continue;
 						}
