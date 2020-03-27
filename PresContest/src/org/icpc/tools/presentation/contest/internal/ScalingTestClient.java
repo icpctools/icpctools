@@ -53,14 +53,7 @@ public class ScalingTestClient {
 	protected static void sendThumbs(BufferedImage image) {
 		for (PresentationClient client : clients) {
 			if (client != null)
-				client.writeThumbnail(image);
-		}
-	}
-
-	protected static void sendInfo() {
-		for (PresentationClient client : clients) {
-			if (client != null)
-				client.writeInfo();
+				client.writeInfoUpdate(image);
 		}
 	}
 
@@ -70,16 +63,16 @@ public class ScalingTestClient {
 
 		PresentationWindowImpl windowImpl = (PresentationWindowImpl) PresentationWindow.create();
 		client.window = windowImpl;
+		for (PresentationClient cl : clients) {
+			if (cl != null)
+				cl.writeInfo();
+		}
+
 		windowImpl.setThumbnailListener(new PresentationWindowImpl.IThumbnailListener() {
 			@Override
 			public void handleThumbnail(BufferedImage image) {
 				if (sendthumbnails)
 					sendThumbs(image);
-			}
-
-			@Override
-			public void handleInfo() {
-				sendInfo();
 			}
 		});
 

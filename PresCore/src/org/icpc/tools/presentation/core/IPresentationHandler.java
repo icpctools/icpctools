@@ -194,12 +194,12 @@ public interface IPresentationHandler {
 
 	public int getFPS();
 
-	public DeviceMode getWindow();
-
 	/**
 	 * Set the window position.
 	 */
 	public void setWindow(DeviceMode p);
+
+	public int getFullScreenWindow();
 
 	public void setZeroTimeMs(long time);
 

@@ -24,8 +24,26 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Client {
+	private static final String VERSION = "version";
+	private static final String CLIENT_TYPE = "client.type";
+	private static final String CONTEST_IDS = "contest.ids";
+	private static final String DISPLAYS = "displays";
+	private static final String REFRESH = "refresh";
+	private static final String WIDTH = "width";
+	private static final String HEIGHT = "height";
+	private static final String FPS = "fps";
+	private static final String PRESENTATION = "presentation";
+
 	protected enum Type {
-		PING, PRES_LIST, PROPERTIES, CLIENTS, TIME, STOP, RESTART, REQUEST_LOG, LOG, REQUEST_SNAPSHOT, SNAPSHOT, INFO, CLIENT_INFO, THUMBNAIL
+		PING, // ping, used to guage client response time
+		TIME, // time sync sent to clients after several successful pings
+		INFO, // information about the client sent back to admins
+		PROPERTIES, // properties to set on the client
+		LOG, // request for client to send log + response message
+		SNAPSHOT, // request for client to send snapshot + response message
+		COMMAND, // client command to stop, restart, request a log, or request a snapshot
+		CLIENTS, // client list, sent to admins
+		PRES_LIST // list of available presentations, sent to admin clients
 	}
 
 	interface AddAttrs {
@@ -38,11 +56,11 @@ public class Client {
 		public int refresh;
 	}
 
-	public class PresentationClientInfo {
+	public class ClientInfo {
 		public int width;
 		public int height;
-		public int fps;
 		public String presentation;
+		public int fps;
 	}
 
 	protected class TimeSync {
@@ -58,6 +76,11 @@ public class Client {
 		String message;
 		int source;
 		Type type;
+		// flag is currently overloaded for two purposes: 1) to indicate info messages that only
+		// contain thumbnails and can be thrown away if high traffic causes duplication
+		// 2) to indicate disconnect messages (stop or restart) so that the server disconnects
+		// cleanly
+		boolean flag;
 	}
 
 	private Session session;
@@ -68,7 +91,7 @@ public class Client {
 	private List<TimeSync> timeSync = new ArrayList<>();
 	private Queue<Message> queue = new ConcurrentLinkedQueue<>();
 	private ClientDisplay[] displays;
-	private PresentationClientInfo presInfo;
+	private ClientInfo clientInfo;
 	private String[] contestIds;
 	private String clientType;
 	private String version;
@@ -118,8 +141,8 @@ public class Client {
 		return isAdmin;
 	}
 
-	public PresentationClientInfo getPresentationClientInfo() {
-		return presInfo;
+	public ClientInfo getClientInfo() {
+		return clientInfo;
 	}
 
 	public ClientDisplay[] getDisplays() {
@@ -127,12 +150,16 @@ public class Client {
 	}
 
 	private void queueIt(Type type, String message) {
-		queueIt(type, -1, message);
+		queueIt(type, -1, message, false);
 	}
 
-	private void queueIt(Type type, int source, String message) {
+	private void queueIt(Type type, String message, boolean flag) {
+		queueIt(type, -1, message, flag);
+	}
+
+	private void queueIt(Type type, int source, String message, boolean flag) {
 		synchronized (queue) {
-			if (type == Type.INFO || type == Type.THUMBNAIL) {
+			if (type == Type.INFO && flag) {
 				Message remove = null;
 				for (Message m : queue) {
 					if (m.type == type && m.source == source) {
@@ -149,6 +176,7 @@ public class Client {
 			m.type = type;
 			m.source = source;
 			m.message = message;
+			m.flag = flag;
 			queue.add(m);
 		}
 	}
@@ -169,10 +197,11 @@ public class Client {
 					timeSync.add(new TimeSync());
 				}
 			}
-			PresentationServer.trace("> " + message.message, uid);
+			if ((message.type != Type.PING && message.type != Type.INFO) || PresentationServer.TRACE_ALL)
+				PresentationServer.trace("> " + message.message, uid);
 
 			session.getBasicRemote().sendText(message.message);
-			if (message.type == Type.STOP || message.type == Type.RESTART)
+			if (message.type == Type.COMMAND && message.flag)
 				return false;
 
 			synchronized (queue) {
@@ -244,103 +273,150 @@ public class Client {
 		return 10;
 	}
 
-	protected void queueSimpleMessage(Type type) {
+	protected void writePing() {
 		StringWriter sw = new StringWriter();
 		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
 		je.open();
-		je.encode("type", type.name().toLowerCase());
+		je.encode("type", Type.PING.name().toLowerCase());
 		je.close();
-		queueIt(type, sw.toString());
+		queueIt(Type.PING, sw.toString());
 	}
 
-	protected void writePing() {
-		queueSimpleMessage(Type.PING);
+	protected void writeCommand(String source, String action) {
+		StringWriter sw = new StringWriter();
+		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
+		je.open();
+		je.encode("type", Type.COMMAND.name().toLowerCase());
+		je.encode("source", source);
+		je.encode("action", action);
+		je.close();
+		queueIt(Type.COMMAND, sw.toString(), "stop".equals(action) || "restart".equals(action));
 	}
 
-	protected void writeStop() {
-		queueSimpleMessage(Type.STOP);
-	}
-
-	protected void writeRestart() {
-		queueSimpleMessage(Type.RESTART);
-	}
-
-	protected void writeClients(List<Client> clients) throws IOException {
+	/**
+	 * Send the list of clients to an admin.
+	 *
+	 * @param clients the full list of clients for this admin
+	 * @param newClients the list of clients that are new to this admin, and hence should include
+	 *           full/all information
+	 * @throws IOException
+	 */
+	protected void writeClients(List<Client> clients, List<Client> newClients) throws IOException {
 		createJSON(Type.CLIENTS, je -> {
 			je.openChildArray("clients");
 			for (Client c : clients) {
 				je.open();
 				je.encode("name", c.name);
 				je.encode("uid", Integer.toHexString(c.uid));
+
+				if (newClients == null || !newClients.contains(c)) {
+					je.close();
+					continue;
+				}
+
+				if (c.clientInfo != null) {
+					je.encode("width", c.clientInfo.width);
+					je.encode("height", c.clientInfo.height);
+				}
+
 				if (c.contestIds != null) {
 					je.openChildArray("contest.ids");
 					for (String cId : c.contestIds)
 						je.encodeValue(cId);
 					je.closeArray();
 				}
-				je.encode("version", c.version);
-				je.encode("client.type", c.clientType);
+				if (c.version != null)
+					je.encode("version", c.version);
+				if (c.clientType != null)
+					je.encode("client.type", c.clientType);
+
+				if (c.displays != null) {
+					je.openChildArray("displays");
+					for (int i = 0; i < c.displays.length; i++) {
+						ClientDisplay cd = c.displays[i];
+						je.open();
+						je.encode("width", cd.width);
+						je.encode("height", cd.height);
+						je.encode("refresh", cd.refresh);
+						je.close();
+					}
+					je.closeArray();
+				}
+
 				je.close();
 			}
 			je.closeArray();
 		});
 	}
 
-	protected void writeLogRequest(String message) {
-		queueIt(Type.REQUEST_LOG, message);
-	}
+	/*protected void writeClientInfo(List<Client> clients) throws IOException {
+		for (Client c : clients) {
+			createJSON(Type.INFO, je -> {
+				if (c.clientInfo != null) {
+					je.encode("uid", Integer.toHexString(c.uid));
+					je.encode("width", c.clientInfo.width);
+					je.encode("height", c.clientInfo.height);
+				}
+			});
+		}
+	}*/
 
 	protected void writeLog(String message) {
 		queueIt(Type.LOG, message);
-	}
-
-	protected void writeSnapshotRequest(String message) {
-		queueIt(Type.REQUEST_SNAPSHOT, message);
 	}
 
 	protected void writeSnapshot(String message) {
 		queueIt(Type.SNAPSHOT, message);
 	}
 
-	protected void storeClientInfo(JsonObject obj) {
-		version = obj.getString("version");
-		clientType = obj.getString("client.type");
-		Object[] children = obj.getArray("contest.ids");
+	protected boolean storeClientInfo(JsonObject obj) {
+		boolean baseInfo = false;
+		if (obj.containsKey(VERSION)) {
+			version = obj.getString(VERSION);
+			baseInfo = true;
+		}
+		if (obj.containsKey(CLIENT_TYPE)) {
+			clientType = obj.getString(CLIENT_TYPE);
+			baseInfo = true;
+		}
+		Object[] children = obj.getArray(CONTEST_IDS);
 		if (children != null) {
 			contestIds = new String[children.length];
 			for (int i = 0; i < children.length; i++)
 				contestIds[i] = (String) children[i];
+			baseInfo = true;
 		}
-		children = obj.getArray("displays");
+		children = obj.getArray(DISPLAYS);
 		if (children != null) {
 			int size = children.length;
 			displays = new ClientDisplay[size];
 			for (int i = 0; i < children.length; i++) {
 				ClientDisplay d = new ClientDisplay();
 				JsonObject dobj = (JsonObject) children[i];
-				d.height = dobj.getInt("height");
-				d.width = dobj.getInt("width");
-				d.refresh = dobj.getInt("refresh");
+				d.height = dobj.getInt(HEIGHT);
+				d.width = dobj.getInt(WIDTH);
+				d.refresh = dobj.getInt(REFRESH);
 				displays[i] = d;
 			}
+			baseInfo = true;
 		}
+
+		if (clientInfo == null)
+			clientInfo = new ClientInfo();
+		if (obj.containsKey(WIDTH))
+			clientInfo.width = obj.getInt(WIDTH);
+		if (obj.containsKey(HEIGHT))
+			clientInfo.height = obj.getInt(HEIGHT);
+		if (obj.containsKey(PRESENTATION))
+			clientInfo.presentation = obj.getString(PRESENTATION);
+		if (obj.containsKey(FPS))
+			clientInfo.fps = obj.getInt(FPS);
+
+		return baseInfo;
 	}
 
-	protected void storeInfo(JsonObject obj) {
-		if (presInfo == null)
-			presInfo = new PresentationClientInfo();
-		presInfo.presentation = obj.getString("presentation");
-		presInfo.width = obj.getInt("width");
-		presInfo.height = obj.getInt("height");
-		presInfo.fps = obj.getInt("fps");
-	}
-
-	protected void writeThumbnail(int source, String message) {
-		queueIt(Type.THUMBNAIL, source, message);
-	}
-
-	protected void writeInfo(int source, String message) {
-		queueIt(Type.INFO, source, message);
+	protected void writeInfo(int source, String message, boolean flag) {
+		queueIt(Type.INFO, source, message, flag);
 	}
 
 	protected void writeProperties(Properties p) throws IOException {

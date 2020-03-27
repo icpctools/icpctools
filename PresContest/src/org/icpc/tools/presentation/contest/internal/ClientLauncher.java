@@ -100,6 +100,7 @@ public class ClientLauncher {
 				if (connected && !windowImpl.isVisible()) {
 					windowImpl.setWindow(new DeviceMode(displayStr[0]));
 					windowImpl.openIt();
+					client2.writeInfo();
 				}
 			}
 		});
@@ -112,18 +113,13 @@ public class ClientLauncher {
 
 		PresentationWindowImpl windowImpl = (PresentationWindowImpl) PresentationWindow.create();
 		client.window = windowImpl;
-		windowImpl.setThumbnailListener(new PresentationWindowImpl.IThumbnailListener() {
-			@Override
-			public void handleThumbnail(BufferedImage image) {
-				if (sendthumbnails)
-					client.writeThumbnail(image);
-			}
-
-			@Override
-			public void handleInfo() {
-				client.writeInfo();
-			}
-		});
+		if (sendthumbnails)
+			windowImpl.setThumbnailListener(new PresentationWindowImpl.IThumbnailListener() {
+				@Override
+				public void handleThumbnail(BufferedImage image) {
+					client.writeInfoUpdate(image);
+				}
+			});
 		windowImpl.showFPS(showFPS);
 	}
 }

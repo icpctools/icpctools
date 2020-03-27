@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.icpc.tools.cds.presentations.Client.PresentationClientInfo;
+import org.icpc.tools.cds.presentations.Client.ClientInfo;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
@@ -65,7 +65,7 @@ public class PropertyServlet extends HttpServlet {
 			en.open();
 			en.encode("uid", Integer.toHexString(c.getUID()));
 			en.encode("name", c.getName());
-			PresentationClientInfo info = c.getPresentationClientInfo();
+			ClientInfo info = c.getClientInfo();
 			if (info != null) {
 				en.encode("presentation", info.presentation);
 				en.encode("display", info.width + "x" + info.height + "@" + info.fps);
