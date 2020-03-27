@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A simple map backed by arrays, which automatically ignores (doesn't add) null keys or values.
+ * A simple map backed by arrays, which automatically ignores (doesn't add) null keys.
  */
 public class SimpleMap implements Map<String, Object> {
 	private static final int INITIAL_SIZE = 7;
@@ -62,7 +62,7 @@ public class SimpleMap implements Map<String, Object> {
 
 	@Override
 	public Object put(String key, Object value) {
-		if (key == null || value == null)
+		if (key == null)
 			return null;
 
 		int arrSize = keys.length;

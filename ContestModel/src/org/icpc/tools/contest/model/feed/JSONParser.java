@@ -217,8 +217,7 @@ public class JSONParser {
 		} else { // simple value
 			value = readUntilNextToken();
 		}
-		if (value != null)
-			obj.props.put(key, value);
+		obj.props.put(key, value);
 		return false;
 	}
 
