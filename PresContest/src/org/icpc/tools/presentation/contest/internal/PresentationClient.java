@@ -28,6 +28,11 @@ import org.icpc.tools.presentation.core.Transition;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 public class PresentationClient extends BasicClient {
+	private static final String HIDDEN = "hidden";
+	private static final String FULL_SCREEN_WINDOW = "full_screen_window";
+	private static final String FPS = "fps";
+	private static final String PRESENTATION = "presentation";
+
 	protected ThreadPoolExecutor executor;
 
 	protected IPresentationHandler window;
@@ -199,7 +204,7 @@ public class PresentationClient extends BasicClient {
 			}
 		}
 
-		try {// todo set later?
+		try {
 			if (window != null)
 				window.setPresentations(time, pres.toArray(new Presentation[0]), trans.toArray(new Transition[0]));
 		} catch (Throwable t) {
@@ -245,12 +250,12 @@ public class PresentationClient extends BasicClient {
 	protected void addBasicClientInfo(JSONEncoder je) {
 		int[] temp = getGraphicsInfo();
 		int num = temp.length / 3;
-		je.openChildArray("displays");
+		je.openChildArray(DISPLAYS);
 		for (int i = 0; i < num; i++) {
 			je.open();
-			je.encode("width", temp[i * 3]);
-			je.encode("height", temp[i * 3 + 1]);
-			je.encode("refresh", temp[i * 3 + 2]);
+			je.encode(WIDTH, temp[i * 3]);
+			je.encode(HEIGHT, temp[i * 3 + 1]);
+			je.encode(REFRESH, temp[i * 3 + 2]);
 			je.close();
 		}
 		je.closeArray();
@@ -259,10 +264,10 @@ public class PresentationClient extends BasicClient {
 	protected void sendInfoPresentation() throws IOException {
 		sendInfo(je -> {
 			Dimension d = window.getPresentationSize();
-			je.encode("width", d.width);
-			je.encode("height", d.height);
-			je.encode("hidden", window.isHidden());
-			je.encode("full_screen_window", window.getFullScreenWindow());
+			je.encode(WIDTH, d.width);
+			je.encode(HEIGHT, d.height);
+			je.encode(HIDDEN, window.isHidden());
+			je.encode(FULL_SCREEN_WINDOW, window.getFullScreenWindow());
 		});
 	}
 
@@ -317,8 +322,8 @@ public class PresentationClient extends BasicClient {
 			public void run() {
 				try {
 					sendInfo(je -> {
-						je.encode("presentation", window.getPresentationName());
-						je.encode("fps", window.getFPS());
+						je.encode(PRESENTATION, window.getPresentationName());
+						je.encode(FPS, window.getFPS());
 						encodeImage(je, imageToBytes(image));
 					});
 				} catch (Exception e) {

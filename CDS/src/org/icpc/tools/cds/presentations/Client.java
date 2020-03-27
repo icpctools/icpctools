@@ -24,6 +24,16 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Client {
+	private static final String VERSION = "version";
+	private static final String CLIENT_TYPE = "client.type";
+	private static final String CONTEST_IDS = "contest.ids";
+	private static final String DISPLAYS = "displays";
+	private static final String REFRESH = "refresh";
+	private static final String WIDTH = "width";
+	private static final String HEIGHT = "height";
+	private static final String FPS = "fps";
+	private static final String PRESENTATION = "presentation";
+
 	protected enum Type {
 		PING, // ping, used to guage client response time
 		TIME, // time sync sent to clients after several successful pings
@@ -66,6 +76,10 @@ public class Client {
 		String message;
 		int source;
 		Type type;
+		// flag is currently overloaded for two purposes: 1) to indicate info messages that only
+		// contain thumbnails and can be thrown away if high traffic causes duplication
+		// 2) to indicate disconnect messages (stop or restart) so that the server disconnects
+		// cleanly
 		boolean flag;
 	}
 
@@ -279,7 +293,15 @@ public class Client {
 		queueIt(Type.COMMAND, sw.toString(), "stop".equals(action) || "restart".equals(action));
 	}
 
-	protected void writeClients(List<Client> clients, List<Client> first) throws IOException {
+	/**
+	 * Send the list of clients to an admin.
+	 *
+	 * @param clients the full list of clients for this admin
+	 * @param newClients the list of clients that are new to this admin, and hence should include
+	 *           full/all information
+	 * @throws IOException
+	 */
+	protected void writeClients(List<Client> clients, List<Client> newClients) throws IOException {
 		createJSON(Type.CLIENTS, je -> {
 			je.openChildArray("clients");
 			for (Client c : clients) {
@@ -287,7 +309,7 @@ public class Client {
 				je.encode("name", c.name);
 				je.encode("uid", Integer.toHexString(c.uid));
 
-				if (!first.contains(c)) {
+				if (newClients == null || !newClients.contains(c)) {
 					je.close();
 					continue;
 				}
@@ -349,31 +371,31 @@ public class Client {
 
 	protected boolean storeClientInfo(JsonObject obj) {
 		boolean baseInfo = false;
-		if (obj.containsKey("version")) {
-			version = obj.getString("version");
+		if (obj.containsKey(VERSION)) {
+			version = obj.getString(VERSION);
 			baseInfo = true;
 		}
-		if (obj.containsKey("client.type")) {
-			clientType = obj.getString("client.type");
+		if (obj.containsKey(CLIENT_TYPE)) {
+			clientType = obj.getString(CLIENT_TYPE);
 			baseInfo = true;
 		}
-		Object[] children = obj.getArray("contest.ids");
+		Object[] children = obj.getArray(CONTEST_IDS);
 		if (children != null) {
 			contestIds = new String[children.length];
 			for (int i = 0; i < children.length; i++)
 				contestIds[i] = (String) children[i];
 			baseInfo = true;
 		}
-		children = obj.getArray("displays");
+		children = obj.getArray(DISPLAYS);
 		if (children != null) {
 			int size = children.length;
 			displays = new ClientDisplay[size];
 			for (int i = 0; i < children.length; i++) {
 				ClientDisplay d = new ClientDisplay();
 				JsonObject dobj = (JsonObject) children[i];
-				d.height = dobj.getInt("height");
-				d.width = dobj.getInt("width");
-				d.refresh = dobj.getInt("refresh");
+				d.height = dobj.getInt(HEIGHT);
+				d.width = dobj.getInt(WIDTH);
+				d.refresh = dobj.getInt(REFRESH);
 				displays[i] = d;
 			}
 			baseInfo = true;
@@ -381,14 +403,14 @@ public class Client {
 
 		if (clientInfo == null)
 			clientInfo = new ClientInfo();
-		if (obj.containsKey("width"))
-			clientInfo.width = obj.getInt("width");
-		if (obj.containsKey("height"))
-			clientInfo.height = obj.getInt("height");
-		if (obj.containsKey("presentation"))
-			clientInfo.presentation = obj.getString("presentation");
-		if (obj.containsKey("fps"))
-			clientInfo.fps = obj.getInt("fps");
+		if (obj.containsKey(WIDTH))
+			clientInfo.width = obj.getInt(WIDTH);
+		if (obj.containsKey(HEIGHT))
+			clientInfo.height = obj.getInt(HEIGHT);
+		if (obj.containsKey(PRESENTATION))
+			clientInfo.presentation = obj.getString(PRESENTATION);
+		if (obj.containsKey(FPS))
+			clientInfo.fps = obj.getInt(FPS);
 
 		return baseInfo;
 	}

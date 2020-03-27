@@ -26,7 +26,9 @@ public class PresentationServer {
 	private static final String PRES = "presentation";
 	private static final String DEFAULT_PREFIX = "default:";
 	private static final String TIME_PREFIX = "time:";
+
 	protected static final boolean TRACE_ALL = false;
+	private static final int TRACE_CHARS = 120;
 
 	public class TimedEvent {
 		public String contestId;
@@ -88,8 +90,8 @@ public class PresentationServer {
 
 	protected static void trace(String message, int uid) {
 		String s = message;
-		if (s.length() > 120)
-			s = s.substring(0, 120) + "...";
+		if (s.length() > TRACE_CHARS)
+			s = s.substring(0, TRACE_CHARS) + "...";
 
 		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " " + s);
 	}
@@ -221,9 +223,9 @@ public class PresentationServer {
 							List<Client> adminClients = adminMap.get(admin);
 							List<Client> adminClients2 = safeAdd(adminClients, c);
 							adminMap.put(admin, adminClients2);
-							List<Client> first = new ArrayList<Client>(1);
-							first.add(c);
-							forClient(admin, cli -> cli.writeClients(adminClients2, first));
+							List<Client> newClients = new ArrayList<Client>(1);
+							newClients.add(c);
+							forClient(admin, cli -> cli.writeClients(adminClients2, newClients));
 						}
 					}
 					adminMap.put(c, adm);
@@ -307,7 +309,7 @@ public class PresentationServer {
 					List<Client> clientList = adminMap.get(adm);
 					List<Client> clientList2 = safeRemove(clientList, cl);
 					adminMap.put(adm, clientList2);
-					forClient(adm, cli -> cli.writeClients(clientList2, new ArrayList<Client>(1)));
+					forClient(adm, cli -> cli.writeClients(clientList2, null));
 				}
 			}
 			adminMap.remove(cl);
@@ -665,11 +667,11 @@ public class PresentationServer {
 				return;
 
 			if (affectsBaseInfo) { // base info has changed, resend full client list
-				List<Client> first = new ArrayList<>();
-				first.add(c);
-				forEachClient(admins, cl -> cl.writeClients(adminMap.get(cl), first));
+				List<Client> newClients = new ArrayList<>();
+				newClients.add(c);
+				forEachClient(admins, cl -> cl.writeClients(adminMap.get(cl), newClients));
 			} else // otherwise, just send the updates
-				forEachClient(admins, cl -> cl.writeInfo(c.getUID(), message, obj.containsKey("thumbnail")));
+				forEachClient(admins, cl -> cl.writeInfo(c.getUID(), message, obj.containsKey("image")));
 		}
 	}
 

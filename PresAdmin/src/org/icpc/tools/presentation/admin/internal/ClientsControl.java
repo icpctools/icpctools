@@ -61,6 +61,13 @@ public class ClientsControl extends Canvas {
 	protected static final Dimension DEFAULT_IMG_DIM = new Dimension(320, 180);
 	protected static final Dimension SMALL_IMG_DIM = new Dimension(160, 90);
 
+	private static final String WIDTH = "width";
+	private static final String HEIGHT = "height";
+	private static final String HIDDEN = "hidden";
+	private static final String FULL_SCREEN_WINDOW = "full_screen_window";
+	private static final String FPS = "fps";
+	private static final String PRESENTATION = "presentation";
+
 	protected Dimension IMG_DIM = DEFAULT_IMG_DIM;
 
 	protected Client[] clients = new Client[0];
@@ -303,18 +310,18 @@ public class ClientsControl extends Canvas {
 
 		try {
 			synchronized (uiLock) {
-				if (obj.containsKey("width"))
-					ci.width = obj.getInt("width");
-				if (obj.containsKey("height"))
-					ci.height = obj.getInt("height");
-				if (obj.containsKey("hidden"))
-					ci.hidden = obj.getBoolean("hidden");
-				if (obj.containsKey("full_screen_window"))
-					ci.fullScreen = obj.getInt("full_screen_window");
-				if (obj.containsKey("fps"))
-					ci.fps = obj.getInt("fps");
-				if (obj.containsKey("presentation"))
-					ci.pres = obj.getString("presentation");
+				if (obj.containsKey(WIDTH))
+					ci.width = obj.getInt(WIDTH);
+				if (obj.containsKey(HEIGHT))
+					ci.height = obj.getInt(HEIGHT);
+				if (obj.containsKey(HIDDEN))
+					ci.hidden = obj.getBoolean(HIDDEN);
+				if (obj.containsKey(FULL_SCREEN_WINDOW))
+					ci.fullScreen = obj.getInt(FULL_SCREEN_WINDOW);
+				if (obj.containsKey(FPS))
+					ci.fps = obj.getInt(FPS);
+				if (obj.containsKey(PRESENTATION))
+					ci.pres = obj.getString(PRESENTATION);
 
 				clientStates.put(id, ci);
 			}

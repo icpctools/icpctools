@@ -44,6 +44,16 @@ import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class BasicClient {
 	private static final boolean DEBUG_JSON_PAYLOADS = false;
+	private static final int TRACE_CHARS = 120;
+
+	protected static final String TYPE = "type";
+	protected static final String VERSION = "version";
+	protected static final String CLIENT_TYPE = "client.type";
+	protected static final String CONTEST_IDS = "contest.ids";
+	protected static final String DISPLAYS = "displays";
+	protected static final String REFRESH = "refresh";
+	protected static final String WIDTH = "width";
+	protected static final String HEIGHT = "height";
 
 	protected enum Type {
 		PING, // ping, used to guage client response time
@@ -213,30 +223,28 @@ public class BasicClient {
 		}
 		if (cl == null)
 			return;
-		// if (obj.containsKey("name"))
-		// cl.name = obj.getString("name");
 
-		Object[] contestIds = obj.getArray("contest.ids");
+		Object[] contestIds = obj.getArray(CONTEST_IDS);
 		if (contestIds != null) {
 			cl.contestIds = new String[contestIds.length];
 			for (int j = 0; j < contestIds.length; j++)
 				cl.contestIds[j] = (String) contestIds[j];
 		}
-		if (obj.containsKey("client.type"))
-			cl.type = obj.getString("client.type");
-		if (obj.containsKey("version"))
-			cl.version = obj.getString("version");
+		if (obj.containsKey(CLIENT_TYPE))
+			cl.type = obj.getString(CLIENT_TYPE);
+		if (obj.containsKey(VERSION))
+			cl.version = obj.getString(VERSION);
 
-		Object[] displays = obj.getArray("displays");
+		Object[] displays = obj.getArray(DISPLAYS);
 		if (displays != null) {
 			int size = displays.length;
 			cl.displays = new Display[size];
 			for (int j = 0; j < size; j++) {
 				Display d = new Display();
 				JsonObject dobj = (JsonObject) displays[j];
-				d.height = dobj.getInt("height");
-				d.width = dobj.getInt("width");
-				d.refresh = dobj.getInt("refresh");
+				d.height = dobj.getInt(HEIGHT);
+				d.width = dobj.getInt(WIDTH);
+				d.refresh = dobj.getInt(REFRESH);
 				cl.displays[j] = d;
 			}
 		}
@@ -382,15 +390,6 @@ public class BasicClient {
 		});
 	}
 
-	public void sendInfoUpdate(String pres, BufferedImage image, int fps) throws IOException {
-		sendInfo(je -> {
-			if (pres != null)
-				je.encode("presentation", pres);
-			je.encode("fps", fps);
-			encodeImage(je, imageToBytes(image));
-		});
-	}
-
 	protected void sendInfo(AddAttrs attr) throws IOException {
 		createJSON(Type.INFO, je -> {
 			je.encode("source", Integer.toHexString(uid));
@@ -402,7 +401,7 @@ public class BasicClient {
 		StringWriter sw = new StringWriter();
 		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
 		je.open();
-		je.encode("type", type.name().toLowerCase());
+		je.encode(TYPE, type.name().toLowerCase());
 		if (attr != null)
 			attr.add(je);
 		je.close();
@@ -420,8 +419,8 @@ public class BasicClient {
 	protected void sendInfo() throws IOException {
 		createJSON(Type.INFO, je -> {
 			je.encode("source", Integer.toHexString(getUID()));
-			je.encode("client.type", clientType);
-			je.encode("version", Trace.getVersion());
+			je.encode(CLIENT_TYPE, clientType);
+			je.encode(VERSION, Trace.getVersion());
 			je.encode("os.name", System.getProperty("os.name"));
 			je.encode("os.version", System.getProperty("os.version"));
 			je.encode("java.vendor", System.getProperty("java.vendor"));
@@ -431,7 +430,7 @@ public class BasicClient {
 			je.encode("locale", Locale.getDefault().toString());
 			je.encode("timezone", Calendar.getInstance().getTimeZone().getDisplayName());
 
-			je.openChildArray("contest.ids");
+			je.openChildArray(CONTEST_IDS);
 			je.encodeValue(contestSource.getContestId());
 			// for (String cId : c.contestIds)
 			// je.encode(cId);
@@ -634,7 +633,7 @@ public class BasicClient {
 		StringWriter sw = new StringWriter();
 		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
 		je.open();
-		je.encode("type", Type.PING.name().toLowerCase());
+		je.encode(TYPE, Type.PING.name().toLowerCase());
 		je.close();
 		sendIt(sw.toString());
 	}
@@ -648,8 +647,8 @@ public class BasicClient {
 
 	private static void trace(String message, boolean user) {
 		String s = message;
-		if (s.length() > 120)
-			s = s.substring(0, 120) + "...";
+		if (s.length() > TRACE_CHARS)
+			s = s.substring(0, TRACE_CHARS) + "...";
 
 		if (user)
 			Trace.trace(Trace.USER, s);
@@ -662,7 +661,7 @@ public class BasicClient {
 
 		JSONParser rdr = new JSONParser(message);
 		JsonObject obj = rdr.readObject();
-		String type = obj.getString("type");
+		String type = obj.getString(TYPE);
 
 		Type action = null;
 		for (Type t : Type.values()) {
