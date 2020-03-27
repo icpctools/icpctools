@@ -1,4 +1,4 @@
-baseURL = "https://icpctools.org/"
+baseURL = "https://tools.icpc.global/"
 languageCode = "en-us"
 title = "The ICPC Tools"
 description = "The ICPC Tools are a variety of tools implemented by the  ICPC Tools Group for use at the ICPC World Finals and other programming contests"
