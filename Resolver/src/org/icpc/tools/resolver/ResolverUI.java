@@ -527,17 +527,13 @@ public class ResolverUI {
 		int currentPause = control.getCurrentPause();
 		Trace.trace(Trace.INFO, "**Action: " + action.name() + " from " + currentPause + "**");
 
-		if (action == Action.FORWARD) {
-			control.forward(true);
-		} else if (action == Action.FAST_FORWARD) {
-			control.forward(false);
-		} else if (action == Action.REVERSE) {
-			control.rewind(true);
-		} else if (action == Action.FAST_REVERSE) {
-			control.rewind(false);
-		} else if (action == Action.BEGIN) {
+		if (action == Action.FORWARD || action == Action.FAST_FORWARD)
+			control.forward(action == Action.FORWARD);
+		else if (action == Action.REVERSE || action == Action.FAST_REVERSE)
+			control.rewind(action == Action.REVERSE);
+		else if (action == Action.BEGIN)
 			control.reset();
-		}
+
 		Trace.trace(Trace.INFO, "**Paused at " + currentPause + "**");
 	}
 
