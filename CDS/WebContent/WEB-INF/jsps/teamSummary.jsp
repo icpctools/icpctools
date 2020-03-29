@@ -20,10 +20,10 @@
     } %>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
+        <div class="col-4">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Team Summary</h3>
+                    <h3 class="card-title">Team Information</h3>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm table-hover table-striped">
@@ -72,7 +72,9 @@
                     </table>
                 </div>
             </div>
-
+         </div>
+         
+         <div class="col-8">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Scoreboard</h3>
@@ -123,7 +125,7 @@
                     </table>
                 </div>
             </div>
-
+        
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Submissions</h3>
