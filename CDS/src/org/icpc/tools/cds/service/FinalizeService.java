@@ -15,6 +15,7 @@ import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
 public class FinalizeService {
@@ -43,6 +44,14 @@ public class FinalizeService {
 				Award[] template = loadFromFile(f);
 				Trace.trace(Trace.USER, "Assigning awards: " + template.length);
 				AwardUtil.applyAwards(c, template);
+			} else if ("eou".equals(command)) {
+				// send end of updates
+				State state = (State) contest.getState();
+				if (state.getEndOfUpdates() != null)
+					return;
+				state = (State) state.clone();
+				state.setEndOfUpdates(System.currentTimeMillis());
+				((Contest) contest).add(state);
 			}
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());

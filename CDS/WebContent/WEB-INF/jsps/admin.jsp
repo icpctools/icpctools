@@ -109,8 +109,9 @@
            </div>
         <div class="card-body">
           Finalize (signal end of updates for) the contest.
+          <form class="form-inline">
             <div class="form-group">
-                <label for="bSelect">Value of b:</label>
+                <label for="bSelect">B value</label>
                 <select id="bSelect" class="form-control">
                     <option value="0">0</option>
                     <option value="1">1</option>
@@ -120,13 +121,15 @@
                     <option value="5">5</option>
                     <option value="6">6</option>
                 </select>
-            
                 <button id="finalize" class="btn btn-info"
                     onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('finalize', 'b:' + e.options[e.selectedIndex].value)">Apply</button>
-                <button id="finalize" class="btn btn-info"
-                    onclick="sendFinalizeCommand('finalize', 'template')">Template</button>
-                <span id="final-status">&nbsp;</span>
             </div>
+          </form>
+            <div class="form-group">
+                <button id="finalize2" class="btn btn-info" onclick="sendFinalizeCommand('finalize2', 'template')">Apply from Template</button></div>
+            <div class="form-group">
+                <button id="finalize3" class="btn btn-info" onclick="sendFinalizeCommand('finalize3', 'eou')">End of Updates</button></div>
+            <span id="final-status">&nbsp;</span>
         </div>
         </div></div>
         
@@ -161,19 +164,19 @@
               <div class="box-body">
                 <div class="form-group">
                   <label for="input-type" class="col-sm-2 control-label">Type</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-12">
                     <input class="form-control" id="input-type" placeholder="contest type, e.g. 'teams'">
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="input-id" class="col-sm-2 control-label">Id</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-12">
                     <input class="form-control" id="input-id" placeholder="id">
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="input-body" class="col-sm-2 control-label">Body</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-12">
                     <textarea class="form-control" rows="3" id="input-body" placeholder="JSON body"></textarea>
                   </div>
                 </div>
