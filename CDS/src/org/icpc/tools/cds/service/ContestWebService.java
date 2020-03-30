@@ -135,6 +135,8 @@ public class ContestWebService extends HttpServlet {
 						StartTimeService.doPut(response, command, cc);
 					else if (segments[2].equals("finalize"))
 						FinalizeService.doPut(response, command, cc);
+					else if (segments[2].equals("resolve"))
+						ResolverService.doPut(response, command, cc);
 				}
 				return;
 			} else if (segments.length == 3 && segments[1].equals("video") && segments[2].equals("status")) {
@@ -381,6 +383,10 @@ public class ContestWebService extends HttpServlet {
 					return;
 				}
 				request.getRequestDispatcher("/WEB-INF/jsps/balloon.jsp").forward(request, response);
+				return;
+			} else if (segments[1].equals("resolver")) {
+				request.setCharacterEncoding("UTF-8");
+				ResolverService.doGet(response, cc);
 				return;
 			} /* else if (segments.length == 4 && segments[1].equals("video") && segments[2].equals("map")) {
 				VideoMapper va = null;

@@ -111,10 +111,23 @@ public class ResolutionControl {
 		return stepping;
 	}
 
+	/**
+	 * Step forward or backward to the given pause, optionally including delays. This method is
+	 * blocking and will not return until it is complete, run on non-critical thread if you are
+	 * using delays!
+	 *
+	 * @param includeDelays
+	 */
 	public synchronized void moveToPause(int pause, boolean includeDelays) {
 		stepToPause(pause, includeDelays);
 	}
 
+	/**
+	 * Step forward to the next pause, optionally including delays. This method is blocking and will
+	 * not return until it is complete, run on non-critical thread if you are using delays!
+	 *
+	 * @param includeDelays
+	 */
 	public synchronized void forward(boolean includeDelays) {
 		if (currentStep == steps.size() - 1)
 			return;
@@ -122,6 +135,12 @@ public class ResolutionControl {
 		stepToPause(currentPause + 1, includeDelays);
 	}
 
+	/**
+	 * Rewind to the previous pause, optionally including delays. This method is blocking and will
+	 * not return until it is complete, run on non-critical thread if you are using delays!
+	 *
+	 * @param includeDelays
+	 */
 	public synchronized void rewind(boolean includeDelays) {
 		if (currentStep == 0)
 			return;
@@ -129,6 +148,9 @@ public class ResolutionControl {
 		stepToPause(currentPause - 1, includeDelays);
 	}
 
+	/**
+	 * Reset resolution to the beginning.
+	 */
 	public synchronized void reset() {
 		if (currentStep == 0)
 			return;

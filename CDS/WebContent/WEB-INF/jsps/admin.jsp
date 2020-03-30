@@ -197,10 +197,39 @@
            </div>
         <div class="card-body">
             <p>Click <a href="<%= webroot %>/balloon">here</a> for a printable page that contains all the balloon labels and colours.</p>
-              
-         </div>
-         </div>
-     </div>
+        </div>
+        </div>
+     
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Resolver Info (Beta)</h3>
+           </div>
+        <div class="card-body">
+          Initializing the resolver does three things:
+          <ul>
+            <li>Shows the status of the resolution</li>
+            <li>Allows you to control the resolution (for extreme circumstances)</li>
+            <li>Makes judgements public as they are resolved</li>
+          </ul>
+            <table id="resolver-table" class="table table-sm table-hover table-striped">
+              <tbody>
+                <tr>
+                  <td>Current pause:</td><td id="resolver-current-pause">-</td>
+                  <td>Total pauses:</td><td id="resolver-total-pauses">-</td>
+                  <td>Stepping:</td><td id="resolver-stepping">-</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="form-group">
+                <button class="btn btn-info" onclick="resolve('init')">Init</button>
+                <button class="btn btn-info" onclick="resolve('reset')">Reset</button>
+                <button class="btn btn-info" onclick="resolve('fast-rewind')">&lt;&lt;</button>
+                <button class="btn btn-info" onclick="resolve('rewind')">&lt;</button>
+                <button class="btn btn-info" onclick="resolve('forward')">&gt;</button>
+                <button class="btn btn-info" onclick="resolve('fast-forward')">&gt;&gt;</button>
+            </div>
+        </div>
+        </div></div>
     </div>
 </div>
 <script>
@@ -463,11 +492,48 @@
     		$('#object-status').text("Delete failed: " + result.responseText);
     	})
     }
+    
+    function resolve(cmd) {
+    	if (cmd == null)
+    		return;
+    	
+    	console.log("Resolve: " + cmd);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4) {
+            	updateResolver();
+            }
+        };
+        xmlhttp.open("PUT", "<%= webroot %>/admin/resolve/" + cmd, true);
+        xmlhttp.send();
+    }
+
+    function updateResolver() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4) {
+                var resp = xmlhttp.responseText;
+                if (xmlhttp.status == 200) {
+                   resp = JSON.parse(resp);
+                   document.getElementById("resolver-current-pause").innerHTML = resp.pause;
+                   document.getElementById("resolver-total-pauses").innerHTML = resp.total_pauses;
+                   document.getElementById("resolver-stepping").innerHTML = resp.stepping;
+                } else {
+                   document.getElementById("resolver-current-pause").innerHTML = "?";
+                   document.getElementById("resolver-total-pauses").innerHTML = "?";
+                   document.getElementById("resolver-stepping").innerHTML = "?";
+                }
+            }
+        };
+        xmlhttp.open("GET", "<%= webroot %>/resolver", true);
+        xmlhttp.send();
+    }
 
     function updateInBackground() {
         document.getElementById("bg-status").innerHTML = "Updating status...";
         updateCountdown();
         updateStartStatusTable();
+        updateResolver();
 
         setInterval(updateCountdown, 5000);
         setInterval(updateStartStatusTable, 5000);

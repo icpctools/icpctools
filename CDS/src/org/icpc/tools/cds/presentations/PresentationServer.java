@@ -79,6 +79,14 @@ public class PresentationServer {
 		return clients;
 	}
 
+	public int[] getAllClientUIDs() {
+		Client[] cl = clients.toArray(new Client[0]);
+		int[] cli = new int[cl.length];
+		for (int i = 0; i < cl.length; i++)
+			cli[i] = cl[i].getUID();
+		return cli;
+	}
+
 	protected boolean doesClientExist(int uid) {
 		for (Client cl : clients) {
 			if (uid == cl.getUID())
