@@ -122,7 +122,6 @@ public class VideoMapper {
 				}
 				in = va.addReservation(namePattern.replace("{0}", id), urlPattern.replace("{0}", id), mode, ord);
 				map.put(id, in);
-				Trace.trace(Trace.INFO, "Mapped video: " + id + " -> " + in);
 			}
 		}
 	}
