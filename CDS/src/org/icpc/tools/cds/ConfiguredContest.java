@@ -962,7 +962,7 @@ public class ConfiguredContest {
 				try {
 					list.add(clients.get(obj));
 				} catch (Exception e) {
-					e.printStackTrace();
+					Trace.trace(Trace.ERROR, "Error getting clients", e);
 					remove(obj);
 				}
 			}
@@ -979,6 +979,18 @@ public class ConfiguredContest {
 		else if (ccs != null)
 			return Mode.LIVE;
 		return Mode.ARCHIVE;
+	}
+
+	/**
+	 * Expose a contest object from during the freeze (typically judgements) to the publicly visible
+	 * contests (trusted, balloon, and public roles).
+	 *
+	 * @param co
+	 */
+	public void exposeContestObject(IContestObject co) {
+		trustedContest.add(co);
+		balloonContest.add(co);
+		publicContest.add(co);
 	}
 
 	@Override
