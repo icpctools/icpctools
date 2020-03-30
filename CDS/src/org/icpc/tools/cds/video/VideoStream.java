@@ -96,7 +96,6 @@ public class VideoStream {
 				a.execute(l);
 			} catch (Throwable t) {
 				// could not send. kill this feed
-				Trace.trace(Trace.INFO, "Error sending to listener: " + l);
 				removeListener(l);
 			}
 		}
@@ -108,7 +107,6 @@ public class VideoStream {
 
 		boolean isListening = false;
 		synchronized (listeners) {
-			Trace.trace(Trace.INFO, "Adding stream listener to: " + name);
 			isListening = !listeners.isEmpty();
 			listeners.add(listener);
 		}
@@ -123,8 +121,6 @@ public class VideoStream {
 	}
 
 	public boolean removeListener(VideoStreamListener listener) {
-		String message = "Removing stream listener: " + name;
-
 		boolean worked;
 		boolean wasLastListener = false;
 
@@ -141,18 +137,16 @@ public class VideoStream {
 		listener.close();
 
 		if (wasLastListener) {
-			message += " (last)";
+			Trace.trace(Trace.INFO, "Last listener removed, closing: " + name);
 			if (mode == ConnectionMode.LAZY) {
 				synchronized (this) {
 					if (thread != null) {
 						thread.terminate();
 						thread = null;
-						status = Status.UNKNOWN;
 					}
 				}
 			}
 		}
-		Trace.trace(Trace.INFO, message);
 
 		if (worked)
 			stats.dropListener(listener);
@@ -161,7 +155,7 @@ public class VideoStream {
 	}
 
 	public void reset() {
-		Trace.trace(Trace.INFO, "Disconnecting stream listeners: " + name);
+		Trace.trace(Trace.INFO, "Resetting video stream: " + name);
 
 		synchronized (listeners) {
 			for (VideoStreamListener listener : listeners) {
@@ -194,7 +188,6 @@ public class VideoStream {
 
 		for (VideoStreamListener l : list) {
 			try {
-				Trace.trace(Trace.INFO, "Removing listeners: " + name);
 				removeListener(l);
 			} catch (Throwable t) {
 				// ignore
@@ -263,10 +256,10 @@ public class VideoStream {
 		thread = new ReadThread() {
 			protected InputStream in;
 			protected boolean done = false;
+			protected int failures = 0;
 
 			@Override
 			public void run() {
-				int failures = 0;
 				while (!done) {
 					long time = System.currentTimeMillis();
 					try {
@@ -277,7 +270,6 @@ public class VideoStream {
 						if (conn instanceof HttpURLConnection) {
 							HttpURLConnection httpConn = (HttpURLConnection) conn;
 							int httpStatus = httpConn.getResponseCode();
-							Trace.trace(Trace.INFO, "Status: " + httpStatus);
 							if (httpStatus == HttpURLConnection.HTTP_NOT_FOUND)
 								throw new IOException("404 Not found");
 							else if (httpStatus == HttpURLConnection.HTTP_UNAUTHORIZED)
@@ -294,18 +286,20 @@ public class VideoStream {
 						}*/
 
 						in = conn.getInputStream();
-						status = Status.ACTIVE;
-						failures = 0;
 
 						handler.createReader(in, this, new IStreamListener() {
 							@Override
 							public void write(final byte[] b) {
+								status = Status.ACTIVE;
+								failures = 0;
 								if (!done)
 									sendToListeners(listener -> listener.write(b));
 							}
 
 							@Override
 							public void write(byte[] b, int off, int len) {
+								status = Status.ACTIVE;
+								failures = 0;
 								if (!done)
 									sendToListeners(listener -> listener.write(b, off, len));
 							}
@@ -336,16 +330,17 @@ public class VideoStream {
 							}
 					}
 
-					if (done) {
+					if (done)
 						return;
-					}
 
 					// do a flush (which may clean up disconnected clients)
 					sendToListeners(listener -> listener.flush());
 
-					if (failures > 8) {
+					if (failures > 4) {
+						// can't connect after many attempts, drop all listeners and give up
+						Trace.trace(Trace.INFO, "Can't connect, removing all listeners: " + name);
 						removeListeners();
-						failures = 0;
+						return;
 					}
 
 					if ("file".equals(url3.getProtocol())) {

@@ -167,9 +167,6 @@ public class VideoServlet extends HttpServlet {
 			return;
 		}
 
-		Trace.trace(Trace.INFO,
-				"Video request: " + teamId + " -> " + stream + " " + ConfiguredContest.getUser(request) + " " + channel);
-
 		// check if any contests are in freeze
 		if (!trusted) {
 			for (ConfiguredContest cc : CDSConfig.getContests()) {
@@ -193,11 +190,15 @@ public class VideoServlet extends HttpServlet {
 			}
 		}
 
+		Trace.trace(Trace.INFO, "Video request: " + ConfiguredContest.getUser(request) + " requesting team " + teamId
+				+ " -> " + va.getStreamName(stream) + " (channel: " + channel + ")");
+
 		doVideo(request, response, filename, stream, channel, trusted);
 	}
 
 	public static void doVideo(HttpServletRequest request, HttpServletResponse response, final String filename,
 			final int stream, boolean channel, boolean trusted) throws IOException {
+
 		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/octet");
 

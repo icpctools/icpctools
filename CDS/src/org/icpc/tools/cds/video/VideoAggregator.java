@@ -114,7 +114,7 @@ public class VideoAggregator {
 		int numReserved = videoStream.size();
 		videoStream.add(info);
 
-		Trace.trace(Trace.INFO, "Video reservation for " + name + " " + url + " " + numReserved);
+		Trace.trace(Trace.INFO, "Video reservation for " + name + " at " + url + " on stream " + numReserved);
 
 		return numReserved;
 	}
@@ -166,6 +166,13 @@ public class VideoAggregator {
 			VideoStream info = videoStream.get(stream);
 			info.addListener(listener);
 		}
+	}
+
+	public String getStreamName(int stream) {
+		if (stream < 0 || stream >= videoStream.size())
+			return null;
+
+		return videoStream.get(stream).getName();
 	}
 
 	public void addStreamListener(int stream, VideoStreamListener listener) {

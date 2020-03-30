@@ -101,7 +101,7 @@ public class ReactionVideoRecorder {
 		if (scheduledExecutor.isShutdown())
 			return;
 
-		final VideoMapper va = VideoMapper.WEBCAM;
+		final VideoMapper map = VideoMapper.WEBCAM;
 
 		String teamId = submission.getTeamId();
 		ITeam team = contest.getTeamById(teamId);
@@ -126,7 +126,6 @@ public class ReactionVideoRecorder {
 		info.file = file;
 
 		// create marker file
-		Trace.trace(Trace.INFO, "Recording reaction for " + submissionId);
 		info.tempFile = new File(reactDir, file.getName() + "-temp");
 		boolean secondary = false;
 		if (info.tempFile.exists()) // another CDS already recording
@@ -158,13 +157,15 @@ public class ReactionVideoRecorder {
 
 			info.listener = new VideoStreamListener(info.out, true);
 			try {
-				info.stream = va.getVideoStream(teamId);
+				info.stream = map.getVideoStream(teamId);
 			} catch (Exception e) {
 				// invalid team
 				return;
 			}
 
 			VideoAggregator aggregator = VideoAggregator.getInstance();
+			Trace.trace(Trace.INFO, "Recording reaction for " + submissionId + " from " + teamId + " on "
+					+ aggregator.getStreamName(info.stream));
 			aggregator.addStreamListener(info.stream, info.listener);
 		}
 
@@ -199,6 +200,7 @@ public class ReactionVideoRecorder {
 			public void run() {
 				if (info.out != null) {
 					VideoAggregator aggregator = VideoAggregator.getInstance();
+					Trace.trace(Trace.INFO, "Reaction recording done: " + aggregator.getStreamName(info.stream));
 					aggregator.removeStreamListener(info.stream, info.listener);
 
 					try {
