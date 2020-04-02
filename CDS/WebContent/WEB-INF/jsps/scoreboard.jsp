@@ -109,11 +109,11 @@
                                 scoreClass = 'bg-success';
                             else if (prob.solved == true)
                                 scoreClass = 'table-success';
-                            else if (prob.num_judged > 0)
-                                scoreClass = 'table-danger';
-                            else
+                            else if (prob.num_pending > 0)
                                 scoreClass = 'table-warning';
-                            var p = '<td class="text-center ' + scoreClass + '">' + prob.num_judged;
+                            else
+                                scoreClass = 'table-danger';
+                            var p = '<td class="text-center ' + scoreClass + '">' + (prob.num_judged + prob.num_pending);
                             if (prob.solved)
                                 p += ' / ' + prob.time;
                             p += '</td>';
