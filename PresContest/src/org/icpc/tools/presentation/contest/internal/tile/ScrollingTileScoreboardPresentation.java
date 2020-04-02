@@ -210,6 +210,8 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		else if (header == Header.TOP)
 			gg.translate(0, margin);
 
+		gg.setClip(0, 0, columns * (tileDim.width + TILE_H_GAP), rows * (tileDim.height + TILE_V_GAP));
+
 		if (dir == Direction.HORIZONTAL) {
 			long time = getRepeatTimeMs();
 			int hScroll = (int) (scroll.getScroll(time) * (tileDim.width + TILE_H_GAP));
@@ -220,6 +222,9 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				gg.setComposite(AlphaComposite.SrcOver.derive(time / (float) FADE_IN_MS));
 
 			long endTime = INITIAL_DELAY_MS + MS_PER_COLUMN * getNumColumns();
+			if (time >= endTime + FADE_OUT_MS)
+				return;
+
 			if (time > endTime)
 				gg.setComposite(AlphaComposite.SrcOver.derive(1.0f - (time - endTime) / (float) FADE_OUT_MS));
 
@@ -238,6 +243,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 			paintContent(gg);
 		}
 		gg.dispose();
+
 		if (header != Header.NONE)
 			paintHeader(g);
 	}
