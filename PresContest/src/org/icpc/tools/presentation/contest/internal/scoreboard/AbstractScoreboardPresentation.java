@@ -368,7 +368,10 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		g.drawImage(headerImg, 0, h + titleHeight, null);
 
 		if (showClock) {
-			g.setColor(Color.WHITE);
+			if (getContest().getState().isFrozen())
+				g.setColor(ICPCColors.YELLOW);
+			else
+				g.setColor(Color.WHITE);
 			g.setFont(clockFont);
 			FontMetrics fm = g.getFontMetrics();
 			String s = getContestTime();
@@ -376,8 +379,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 				g.drawString(s, width / 12 - fm.stringWidth(s) / 2, fm.getAscent() + CLOCK_MARGIN);
 
 			s = getRemainingTime();
-			// TODO - if 10 min left, go red
-			// g.setColor(Color.RED);
 			if (s != null)
 				g.drawString(s, width * 11 / 12 - fm.stringWidth(s) / 2, fm.getAscent() + CLOCK_MARGIN);
 		}

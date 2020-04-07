@@ -239,7 +239,7 @@
       id="org.icpc.tools.presentation.contest.scoreboard"
       name="Scoreboard"
       category="Scoreboard"
-      properties="focusTeam:# - a team to focus on,style - set team name style"
+      properties="focusTeam:# - a team to focus on,style - set team name style,clockOn,clockOff"
       description="Contest scoreboard."
       image="images/presentations/scoreboard.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation"/>
@@ -247,14 +247,14 @@
       id="org.icpc.tools.presentation.contest.scoreboard.timeline"
       name="Timeline"
       category="Scoreboard"
-      properties="style - set team name style"
+      properties="style - set team name style,clockOn,clockOff"
       image="images/presentations/scoreboardTimeline.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.TimelinePresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.judge"
       name="Judge queue"
       category="Scoreboard"
-      properties="style - set team name style"
+      properties="style - set team name style,clockOn,clockOff"
       description="The judgement queue. Shows all incoming submissions and what the result is."
       image="images/presentations/judgeQueue.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.JudgePresentation"/>
@@ -269,6 +269,7 @@
       id="org.icpc.tools.presentation.contest.first.solution"
       name="First solution"
       category="Scoreboard"
+      properties="style - set team name style,clockOn,clockOff"
       description="Tracking the first solution in the contest."
       image="images/presentations/firstSolution.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstSolutionPresentation"/>
@@ -276,6 +277,7 @@
       id="org.icpc.tools.presentation.contest.first.to.solve"
       name="First to solve"
       category="Scoreboard"
+      properties="style - set team name style,clockOn,clockOff"
       description="Shows which team was the first to solve each problem."
       image="images/presentations/firstToSolve.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstToSolvePresentation"/>
@@ -283,21 +285,21 @@
       id="org.icpc.tools.presentation.contest.leaderboard"
       name="Leaderboard"
       category="Scoreboard"
-      properties="style - set team name style"
+      properties="style - set team name style,clockOn,clockOff"
       image="images/presentations/leaderboard.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.LeaderboardPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.leaderboard.group"
       name="Group leaderboard"
       category="Scoreboard"
-      properties="style - set team name style"
+      properties="style - set team name style,clockOn,clockOff"
       image="images/presentations/groupLeaderboard.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.GroupLeaderboardPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.leaderboard.group.all"
       name="All Groups leaderboard"
       category="Scoreboard"
-      properties="style - set team name style"
+      properties="style - set team name style,clockOn,clockOff"
       image="images/presentations/allGroups.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.AllGroupsLeaderboardPresentation"/>
 
@@ -307,14 +309,14 @@
       id="org.icpc.tools.presentation.contest.tile.scoreboard"
       name="Tiles"
       category="Tile Scoreboards"
-      properties="rows:,columns:,style:"
+      properties="rows:,columns:,style:,clockOn,clockOff"
       image="images/presentations/tile.png"
       class="org.icpc.tools.presentation.contest.internal.tile.TileScoreboardPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.tile.scoreboard.rank"
       name="Tile rank"
       category="Tile Scoreboards"
-      properties="rows:,columns:,style:"
+      properties="rows:,columns:,style:,clockOn,clockOff"
       image="images/presentations/tileRank.png"
       class="org.icpc.tools.presentation.contest.internal.tile.TileRankScoreboardPresentation"/>
    <presentation
@@ -327,7 +329,7 @@
       id="org.icpc.tools.presentation.contest.tile.scoreboard.list"
       name="Tile list"
       category="Tile Scoreboards"
-      properties="rows:,columns:,style:"
+      properties="rows:,columns:,style:,clockOn,clockOff"
       image="images/presentations/tile2.png"
       class="org.icpc.tools.presentation.contest.internal.tile.TileListScoreboardPresentation"/>
 

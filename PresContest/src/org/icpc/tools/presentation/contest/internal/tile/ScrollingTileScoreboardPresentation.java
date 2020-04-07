@@ -13,6 +13,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
+import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ScrollAnimator;
 
@@ -43,6 +44,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 	protected int margin = 50;
 	private Font titleFont;
 	private Font clockFont;
+	private boolean showClock = true;
 
 	public ScrollingTileScoreboardPresentation() {
 		// defaults
@@ -169,24 +171,27 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				gg.dispose();
 			}
 
-			// if (showClock) {
-			g.setColor(Color.WHITE);
-			g.setFont(clockFont);
-			FontMetrics fm = g.getFontMetrics();
-			String s = getContestTime();
-			if (s != null) {
-				String[] ss = splitString(g, s, margin);
-				for (int i = 0; i < ss.length; i++)
-					g.drawString(ss[i], (margin - fm.stringWidth(ss[i])) / 2, fm.getHeight() * (i + 1) + TILE_V_GAP);
-			}
+			if (showClock) {
+				if (getContest().getState().isFrozen())
+					g.setColor(ICPCColors.YELLOW);
+				else
+					g.setColor(Color.WHITE);
+				g.setFont(clockFont);
+				FontMetrics fm = g.getFontMetrics();
+				String s = getContestTime();
+				if (s != null) {
+					String[] ss = splitString(g, s, margin);
+					for (int i = 0; i < ss.length; i++)
+						g.drawString(ss[i], (margin - fm.stringWidth(ss[i])) / 2, fm.getHeight() * (i + 1) + TILE_V_GAP);
+				}
 
-			s = getRemainingTime();
-			// TODO - if 10 min left, go red?
-			if (s != null) {
-				String[] ss = splitString(g, s, margin);
-				for (int i = 0; i < ss.length; i++)
-					g.drawString(ss[i], (margin - fm.stringWidth(ss[i])) / 2,
-							h - TILE_V_GAP - (ss.length - i - 1) * fm.getHeight());
+				s = getRemainingTime();
+				if (s != null) {
+					String[] ss = splitString(g, s, margin);
+					for (int i = 0; i < ss.length; i++)
+						g.drawString(ss[i], (margin - fm.stringWidth(ss[i])) / 2,
+								h - TILE_V_GAP - (ss.length - i - 1) * fm.getHeight());
+				}
 			}
 		}
 	}
@@ -300,5 +305,14 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 					tileHelper.paintTile(g, x, y, anim.getZoom(), teams[i], timeMs);
 			}
 		}
+	}
+
+	@Override
+	public void setProperty(String value) {
+		super.setProperty(value);
+		if (value.startsWith("clockOn"))
+			showClock = true;
+		else if (value.startsWith("clockOff"))
+			showClock = false;
 	}
 }
