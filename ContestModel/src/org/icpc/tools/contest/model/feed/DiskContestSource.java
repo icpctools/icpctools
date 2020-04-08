@@ -47,7 +47,6 @@ public class DiskContestSource extends ContestSource {
 	private static final String CACHE_PREFIX = "org.icpc.tools.cache.";
 	private static final String CACHE_FILE = ".cache";
 	private static final String CACHE_VERSION = "ICPC Tools Cache v1.0";
-	private static final Map<String, List<FileReference>> cache = new HashMap<>();
 
 	private static final String LOGO = "logo";
 	private static final String PHOTO = "photo";
@@ -60,11 +59,13 @@ public class DiskContestSource extends ContestSource {
 	private static final String REACTION = "reaction";
 
 	private File root;
+	private File cacheFolder;
 	private boolean isCache;
 	private String contestId;
 	private boolean expectFeed = true;
 	private Closeable parser;
 	private Validation configValidation = new Validation();
+	private Map<String, List<FileReference>> cache = new HashMap<>();
 
 	/**
 	 * Create a disk contest source at the specified folder.
@@ -83,6 +84,8 @@ public class DiskContestSource extends ContestSource {
 	 */
 	public DiskContestSource(File folder) {
 		root = folder;
+		cacheFolder = createTempDir(folder.getName() + "-" + getSafeHash(folder.getAbsolutePath()));
+		cleanUpTempDir(root);
 
 		if (root == null) {
 			throw new IllegalArgumentException("Contest archive not set.");
@@ -382,13 +385,26 @@ public class DiskContestSource extends ContestSource {
 		return null;
 	}
 
-	private static List<FileReference> readCache(File folder) throws IOException {
+	private File getCacheForFolder(File folder) {
+		// if we're already using a temp folder, just put the cache file in the folder it's
+		// associated with
+		if (cacheFolder == null)
+			return new File(folder, CACHE_FILE);
+
+		// otherwise, put all files in the same temp folder and name them based on subpath
+		String s = folder.getAbsolutePath().substring(root.getAbsolutePath().length() + 1);
+		s = s.replace("/", "-").replace("\\", "-");
+
+		return new File(cacheFolder, s + ".cache");
+	}
+
+	private List<FileReference> readCache(File folder) throws IOException {
 		List<FileReference> list = new ArrayList<>();
 		BufferedReader br = null;
 
 		String s = null;
 		try {
-			File f = new File(folder, CACHE_FILE);
+			File f = getCacheForFolder(folder);
 			if (!f.exists())
 				return list;
 
@@ -429,7 +445,7 @@ public class DiskContestSource extends ContestSource {
 		return list;
 	}
 
-	protected static List<FileReference> getCache(File folder) {
+	protected List<FileReference> getCache(File folder) {
 		List<FileReference> list = cache.get(folder.getAbsolutePath());
 		if (list != null)
 			return list;
@@ -479,12 +495,12 @@ public class DiskContestSource extends ContestSource {
 		return currentList;
 	}
 
-	private static void writeCache(File folder, List<FileReference> list) {
+	private void writeCache(File folder, List<FileReference> list) {
 		BufferedWriter bw = null;
 		FileOutputStream fout = null;
 
 		try {
-			File f = new File(folder, CACHE_FILE);
+			File f = getCacheForFolder(folder);
 			fout = new FileOutputStream(f);
 
 			bw = new BufferedWriter(new OutputStreamWriter(fout));
