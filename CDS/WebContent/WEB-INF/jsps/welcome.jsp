@@ -1,3 +1,4 @@
+<%@page import="org.icpc.tools.contest.model.feed.ContestSource.ConnectionState" %>
 <%@page import="org.icpc.tools.contest.model.IContest" %>
 <%@page import="org.icpc.tools.contest.model.IState" %>
 <%@page import="org.icpc.tools.contest.model.internal.State" %>
@@ -83,7 +84,12 @@
                   <% } %>
                   <span class="float-right">
                     <% if (cch.getMode() == Mode.ARCHIVE) { %>Archive
-                    <% } else if (cch.getMode() == Mode.LIVE) { %>Live
+                    <% } else if (cch.getMode() == Mode.LIVE) {
+                    	ConnectionState conState = cch.getContestState();
+                        String connectionState = "Connected to CCS";
+                        if (conState == ConnectionState.RECONNECTING || conState == ConnectionState.FAILED)
+                           connectionState = "&nbsp;<font color=\"red\">CCS connection error</font>"; %>
+                        <%= connectionState %>
                     <% } else { %>Playback (<%= cch.getTest().getMultiplier() %>x)<% } %></span></td>
               </tr>
               <tr>

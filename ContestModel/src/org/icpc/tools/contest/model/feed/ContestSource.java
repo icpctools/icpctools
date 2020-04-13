@@ -402,6 +402,15 @@ public abstract class ContestSource {
 		}
 	}
 
+	/**
+	 * Returns the current connection state.
+	 *
+	 * @return the connection state
+	 */
+	public ConnectionState getConnectionState() {
+		return lastState;
+	}
+
 	public void setInitialContest(Contest c) {
 		if (contest != null)
 			return;

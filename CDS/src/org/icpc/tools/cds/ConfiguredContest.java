@@ -524,6 +524,14 @@ public class ConfiguredContest {
 		return publicContest;
 	}
 
+	public ConnectionState getContestState() {
+		ContestSource source = getContestSource();
+		if (source == null)
+			return null;
+
+		return source.getConnectionState();
+	}
+
 	public ContestSource getContestSource() {
 		if (contestSource != null)
 			return contestSource;
@@ -562,7 +570,6 @@ public class ConfiguredContest {
 
 		try {
 			ContestSource source = getContestSource();
-			ConnectionState[] state = new ConnectionState[1];
 			PlaybackContest pc = new PlaybackContest(this);
 			pc.addModifier((cont, obj) -> {
 				if (obj instanceof Info) {
@@ -576,7 +583,6 @@ public class ConfiguredContest {
 			source.addListener(new ContestSourceListener() {
 				@Override
 				public void stateChanged(ConnectionState state2) {
-					state[0] = state2;
 					if (ContestSource.ConnectionState.CONNECTED.equals(state2))
 						pc.setConfigurationLoaded();
 					if (ContestSource.ConnectionState.CONNECTING.equals(state2))
@@ -733,13 +739,15 @@ public class ConfiguredContest {
 
 			// wait up to 2s to connect
 			int count = 0;
-			while ((state[0] == null || state[0].ordinal() < ConnectionState.CONNECTED.ordinal()) && count < 20) {
+			ConnectionState state = contestSource.getConnectionState();
+			while ((state == null || state.ordinal() < ConnectionState.CONNECTED.ordinal()) && count < 20) {
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) {
 					// ignore
 				}
 				count++;
+				state = contestSource.getConnectionState();
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading event feed: " + e.getMessage());
