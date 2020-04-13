@@ -770,6 +770,8 @@ public class BetterFireworksPresentation extends Presentation {
 			// launch one
 		}
 		lastDt = dt;
+
+		updateSky(dt);
 	}
 
 	@Override
@@ -795,9 +797,62 @@ public class BetterFireworksPresentation extends Presentation {
 		bg.dispose();
 		g.drawImage(bgImg, 0, 0, null);
 
+		g.setColor(new Color(sky[0], sky[1], sky[2], 64));
+		g.fillRect(0, 0, width, height);
+
 		for (Particle p : particles) {
 			p.paintForeground(g);
 		}
+	}
+
+	protected int[] sky = new int[3];
+
+	protected void updateSky(long dt) {
+		long maxStarCount = 125; // original: 500
+		long maxSaturation = 100; // original: 15;
+
+		long r = 0;
+		long g = 0;
+		long b = 0;
+		int starCount = 0;
+
+		// add the colors of every star together
+		for (Particle p : particles) {
+			if (!(p instanceof Star))
+				continue;
+			Star s = (Star) p;
+			starCount++;
+			r += s.color.getRed();
+			g += s.color.getGreen();
+			b += s.color.getBlue();
+		}
+
+		// set the max intensity at 1 and map to a non-linear curve. This allows a few stars to light
+		// up the sky, with additional stars increasing the brightness at a lesser rate
+		double intensity = Math.pow(Math.min(1, starCount / maxStarCount), 0.3);
+
+		// find the max color value so we can scale them equally, avoiding 0 for the next step
+		long maxColor = Math.max(1, r);
+		maxColor = Math.max(maxColor, g);
+		maxColor = Math.max(maxColor, b);
+
+		// apply intensity and scale all color components to the max saturation
+		r = (long) (r * maxSaturation * intensity / maxColor);
+		g = (long) (g * maxSaturation * intensity / maxColor);
+		b = (long) (b * maxSaturation * intensity / maxColor);
+
+		// if the time delta is large use this color immediately
+		if (dt > 500) {
+			sky[0] = (int) r;
+			sky[1] = (int) g;
+			sky[2] = (int) b;
+			return;
+		}
+
+		// otherwise fade smoothly over half a second or so
+		sky[0] += (int) (r - sky[0]) * dt / 500;
+		sky[1] += (int) (g - sky[1]) * dt / 500;
+		sky[2] += (int) (b - sky[2]) * dt / 500;
 	}
 
 	// Various star effects.
