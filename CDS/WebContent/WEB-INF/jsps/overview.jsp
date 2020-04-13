@@ -1,3 +1,7 @@
+<%@ page import="org.icpc.tools.contest.model.feed.ContestSource" %>
+<%@ page import="org.icpc.tools.contest.model.feed.CCSContestSource" %>
+<%@ page import="org.icpc.tools.contest.model.feed.RESTContestSource" %>
+<%@ page import="org.icpc.tools.contest.model.feed.ContestSource.ConnectionState" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.icpc.tools.contest.model.ContestUtil" %>
 <%@ page import="org.icpc.tools.contest.model.IState" %>
@@ -5,7 +9,34 @@
 <% request.setAttribute("title", "Overview"); %>
 <%@ include file="layout/head.jsp" %>
 <% IState state = contest.getState();
-    long[] metrics = cc.getMetrics(); %>
+   long[] metrics = cc.getMetrics();
+
+   String validation = "";
+   List<String> validationList = contest.validate();
+   if (validationList != null) {
+       if (validationList.size() < 20) {
+           for (String s : validationList)
+               validation += s + "<br/>";
+       } else
+       validation = validationList.size() + " errors";
+   }
+
+   if (validation == null || validation.isEmpty())
+       validation = "No errors";
+   else
+       validation = "<a href='" + request.getContextPath() + "/contests/" + cc.getId() + "/validation'>" + validation + "</a>";
+
+   String source = "Local folder";
+   if (cc.getContestSource() instanceof RESTContestSource)
+	   source = "CCS event feed";
+   else if (cc.getContestSource() instanceof CCSContestSource)
+	   source = "CCS XML feed";
+
+   ConnectionState conState = cc.getContestState();
+   String connectionState = ContestSource.getStateLabel(conState);
+   if (conState == ConnectionState.RECONNECTING || conState == ConnectionState.FAILED)
+	   connectionState = "<font color=\"red\">" + connectionState + "</font>";
+%>
 <div class="container-fluid">
     <div class="row">
         <div class="col-9">
@@ -14,21 +45,6 @@
                     <h3 class="card-title">Overview</h3>
                 </div>
                 <div class="card-body p-0">
-                <% String validation = "";
-                List<String> validationList = contest.validate();
-                if (validationList != null) {
-                    if (validationList.size() < 20) {
-                        for (String s : validationList)
-                            validation += s + "<br/>";
-                    } else
-                    validation = validationList.size() + " errors";
-                }
-                    
-                if (validation == null || validation.isEmpty())
-                    validation = "No errors";
-                else
-                    validation = "<a href='" + request.getContextPath() + "/contests/" + cc.getId() + "/validation'>" + validation + "</a>"; %>
-
                     <table class="table table-sm table-hover table-striped">
                         <tbody>
                             <tr>
@@ -52,6 +68,11 @@
                                 <td><b>Last event:</b></td>
                                 <td><%= ContestUtil.formatDuration(contest.getContestTimeOfLastEvent()) %></td>
                             </tr>
+                            <tr>
+                                <td><b>Connection state:</b></td>
+                                <td><%= connectionState %></td>
+                                <td colspan=2><a href="<%= webroot%>/freeze">Freeze details & verification</a></td>
+                            </tr>
                         </tbody>
                     </table>
 
@@ -65,10 +86,6 @@
                         <% } %>
                         <a href="<%= webroot%>/contestCompare/compare2cds">CDS awards</a>
                     </p>
-
-                    <p class="indent"><a href="<%= webroot%>/freeze">Freeze details & verification</a>
-                    </p>
-
                 </div>
             </div>
         </div>
