@@ -35,7 +35,7 @@
    ConnectionState conState = cc.getContestState();
    String connectionState = ContestSource.getStateLabel(conState);
    if (conState == ConnectionState.RECONNECTING || conState == ConnectionState.FAILED)
-	   connectionState = "<font color=\"red\">" + connectionState + "</font>";
+	   connectionState = "<span class='text-danger'>" + connectionState + "</span>";
 %>
 <div class="container-fluid">
     <div class="row">
@@ -71,7 +71,7 @@
                             <tr>
                                 <td><b>Connection state:</b></td>
                                 <td><%= connectionState %></td>
-                                <td colspan=2><a href="<%= webroot%>/freeze">Freeze details & verification</a></td>
+                                <td colspan=2><a href="<%= webroot%>/freeze">Freeze details &amp; verification</a></td>
                             </tr>
                         </tbody>
                     </table>
@@ -103,7 +103,6 @@
                             </tr>
                             <tr>
                                 <td><a href="<%= apiRoot %>/event-feed">Event feed</a></td>
-                                </td>
                             </tr>
                             <tr>
                                 <td><a href="<%= apiRoot %>/scoreboard">JSON scoreboard</a></td>

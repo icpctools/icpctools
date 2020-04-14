@@ -94,7 +94,7 @@
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                   <%= contest3.getName() != null ? contest3.getName() : "(unnamed contest)" %>
-                  <i class="right fas fa-angle-left"></i>
+                  <i class="right fas fa-angle-left"></i><%= cc3.getError() == null ? "" : "<span class='badge badge-danger'>!</span>" %>
                 </p>
               </a>
 
