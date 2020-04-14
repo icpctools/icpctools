@@ -524,6 +524,16 @@ public class ConfiguredContest {
 		return publicContest;
 	}
 
+	public String getError() {
+		if (getMode() != Mode.LIVE)
+			return null;
+
+		ConnectionState conState = getContestState();
+		if (conState == ConnectionState.RECONNECTING || conState == ConnectionState.FAILED)
+			return "CCS connection error";
+		return null;
+	}
+
 	public ConnectionState getContestState() {
 		ContestSource source = getContestSource();
 		if (source == null)

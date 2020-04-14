@@ -84,13 +84,10 @@
                   <% } %>
                   <span class="float-right">
                     <% if (cch.getMode() == Mode.ARCHIVE) { %>Archive
-                    <% } else if (cch.getMode() == Mode.LIVE) {
-                    	ConnectionState conState = cch.getContestState();
-                        String connectionState = "Connected to CCS";
-                        if (conState == ConnectionState.RECONNECTING || conState == ConnectionState.FAILED)
-                           connectionState = "&nbsp;<font color=\"red\">CCS connection error</font>"; %>
-                        <%= connectionState %>
-                    <% } else { %>Playback (<%= cch.getTest().getMultiplier() %>x)<% } %></span></td>
+                    <% } else if (cch.getMode() == Mode.LIVE) { %>Live
+                    <% } else { %>Playback (<%= cch.getTest().getMultiplier() %>x)<% } %>
+                    <%= cch.getError() == null ? "" : " - <span class='text-danger'>" + cch.getError() + "</span>" %>
+                  </span></td>
               </tr>
               <tr>
                 <td colspan="3"><a href="<%= webRootH %>/details"
