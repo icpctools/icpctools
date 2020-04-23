@@ -267,6 +267,14 @@ public class JSONEncoder {
 		pw.write(value);
 	}
 
+	public void encodeNull() {
+		if (!first)
+			pw.write(",");
+		else
+			first = false;
+		pw.write("null");
+	}
+
 	public void close() {
 		pw.write("}");
 		first = false;

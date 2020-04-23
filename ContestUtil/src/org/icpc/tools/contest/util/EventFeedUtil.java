@@ -40,6 +40,7 @@ import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.feed.XMLFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
+import org.icpc.tools.contest.model.util.ContestComparator;
 
 /**
  * Event feed utility. Provides summary info or compares two event feeds.
@@ -177,7 +178,7 @@ public class EventFeedUtil {
 
 		boolean ok = false;
 		try {
-			ok = org.icpc.tools.contest.model.util.EventFeedUtil.compare(c1, c2, summaryOnly);
+			ok = ContestComparator.compareContests(c1, c2).print(summaryOnly);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error comparing event feeds", e);
 			System.exit(2);
