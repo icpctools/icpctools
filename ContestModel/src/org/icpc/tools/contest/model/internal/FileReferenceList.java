@@ -36,7 +36,13 @@ public class FileReferenceList implements Iterable<FileReference> {
 			return false;
 
 		FileReferenceList refList = (FileReferenceList) o;
-		return refs.equals(refList.refs);
+		if (refList.refs.size() != refs.size())
+			return false;
+		for (int i = 0; i < refs.size(); i++) {
+			if (!refs.get(i).equals(refList.refs.get(i)))
+				return false;
+		}
+		return true;
 	}
 
 	public void add(FileReference ref) {

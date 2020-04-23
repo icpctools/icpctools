@@ -68,15 +68,15 @@ public class FileReference {
 			return false;
 
 		FileReference ref = (FileReference) o;
-		if (this.file != ref.file)
+		if ((file == null && ref.file != null) || (file != null && !file.equals(ref.file)))
 			return false;
-		if (this.mime != ref.mime)
+		if ((mime == null && ref.mime != null) || (mime != null && !mime.equals(ref.mime)))
 			return false;
-		if (this.lastModified != ref.lastModified)
+		if (lastModified != ref.lastModified)
 			return false;
-		if (this.width != ref.width)
+		if (width != ref.width)
 			return false;
-		if (this.height != ref.height)
+		if (height != ref.height)
 			return false;
 
 		return true;
