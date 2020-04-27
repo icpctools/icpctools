@@ -1,0 +1,12 @@
+on: push
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: repo-sync
+      uses: wei/git-sync@v2
+      with:
+        source_repo: "https://${{ secrets.githubAuth }}@github.com/icpctools/icpctools.git"
+        source_branch: "refs/remotes/source/*"
+        destination_repo: "https://${{ secrets.gitlabAuth }}@gitlab.com/icpctools/icpctools.git"
+        destination_branch: "refs/heads/*"
