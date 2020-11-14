@@ -20,9 +20,9 @@
                            target="_blank">http://tools.icpc.global</a></td>
                 </tr>
                 <tr>
-                    <td>ICPC Specifications (CLICS)</td>
-                    <td><a href="https://clics.ecs.baylor.edu"
-                           target="_blank">https://clics.ecs.baylor.edu</a></td>
+                    <td>ICPC Specifications</td>
+                    <td><a href="https://ccs-specs.icpc.io"
+                           target="_blank">https://ccs-specs.icpc.io</a></td>
                 </tr>
                 <tr>
                     <td>Github (private)</td>
