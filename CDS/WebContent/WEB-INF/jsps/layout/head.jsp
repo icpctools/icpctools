@@ -89,7 +89,7 @@
                 IContest contest3 = cc3.getContest();
                 String webroot3 = request.getContextPath() + "/contests/" + cc3.getId(); %>
 
-            <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().startsWith(webroot3)) { %>open<% } else { %>closed<% } %>">
+            <li class="nav-item has-treeview menu-<% if (cc == cc3) { %>open<% } else { %>closed<% } %>">
               <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
