@@ -25,7 +25,7 @@
     <pathelement location="com.ibm.ws.javaee.servlet.3.0_1.0.1.jar"/>
   	<pathelement location="com.ibm.ws.javaee.websocket.1.1_1.0.12.jar"/>
     <pathelement location="${contest.model}/bin"/>
-  	<pathelement location="${contest.model}/lib/snakeyaml-1.18.jar"/>
+  	<pathelement location="${contest.model}/lib/snakeyaml-1.27.jar"/>
   </path>
   <target name="init">
     <mkdir dir="bin"/>

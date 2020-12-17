@@ -12,4 +12,4 @@ if [ "$UNAME" == "Darwin" ]; then
    vmoptions=-XstartOnFirstThread
 fi
 
-java $vmoptions -jar "$LIBDIR/swtLauncher.jar" problemSet.jar,snakeyaml-1.18.jar org.icpc.tools.contest.util.problemset.ProblemSetEditor "$@"
+java $vmoptions -jar "$LIBDIR/swtLauncher.jar" problemSet.jar,snakeyaml-1.27.jar org.icpc.tools.contest.util.problemset.ProblemSetEditor "$@"

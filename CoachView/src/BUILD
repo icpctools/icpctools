@@ -3,8 +3,7 @@ java_binary(
     srcs = glob(["**/*.java"]),
     deps = [
 	"//CoachView/lib:jna",
-	"//CoachView/lib:slf4",
-	"//CoachView/lib:vlc",
+	"//CoachView/lib:vlcj",
         "//ContestModel/src:contestModel",
         "//PresCore/src:presentCore",
     ],

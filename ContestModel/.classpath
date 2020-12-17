@@ -10,7 +10,7 @@
 			<accessrule kind="accessible" pattern="sun/net/www/protocol/https/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="lib/snakeyaml-1.18.jar">
+	<classpathentry exported="true" kind="lib" path="lib/snakeyaml-1.27.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>

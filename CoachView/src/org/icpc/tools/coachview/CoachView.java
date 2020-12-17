@@ -30,9 +30,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,21 +62,19 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 
-import com.sun.jna.Memory;
-
-import uk.co.caprica.vlcj.player.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.direct.BufferFormat;
-import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;
-import uk.co.caprica.vlcj.player.direct.DirectMediaPlayer;
-import uk.co.caprica.vlcj.player.direct.RenderCallback;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.base.MediaPlayer;
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallbackAdapter;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat;
 
 public class CoachView extends Panel {
 	private static final long serialVersionUID = 7407274035553017050L;
 
 	private static final Color NO_IMAGE = new Color(32, 32, 32);
-	protected static final String[] DEFAULT_FACTORY_ARGUMENTS = { "--ignore-config", "--video-title=vlcj video output",
-			"--no-plugins-cache", "--no-video-title-show", "--no-snapshot-preview", "--quiet", "--quiet-synchro",
-			"--sub-filter=logo:marq", "--intf=dummy" };
 
 	private static Map<String, Locale> localeMap;
 
@@ -103,10 +102,12 @@ public class CoachView extends Panel {
 	}
 
 	private MediaPlayerFactory mediaPlayerFactory;
-	private DirectMediaPlayer mediaPlayerCamera;
-	private DirectMediaPlayer mediaPlayerScreen;
+	private EmbeddedMediaPlayer mediaPlayerCamera;
+	private EmbeddedMediaPlayer mediaPlayerScreen;
 	private BufferedImage imageWebcam;
 	private BufferedImage imageDesktop;
+	private int[] webcamBuffer;
+	private int[] desktopBuffer;
 
 	private enum DisplayMode {
 		WEBCAM, DESKTOP, BOTH, PIP, ACTIVITY, DETAILS, NONE
@@ -686,12 +687,12 @@ public class CoachView extends Panel {
 					if (desktopURL != null) {
 						if (mediaPlayerScreen == null)
 							mediaPlayerScreen = createMediaPlayer(true);
-						mediaPlayerScreen.playMedia(desktopURL);
+						mediaPlayerScreen.media().play(desktopURL);
 					}
 					if (webcamURL != null) {
 						if (mediaPlayerCamera == null)
 							mediaPlayerCamera = createMediaPlayer(false);
-						mediaPlayerCamera.playMedia(webcamURL);
+						mediaPlayerCamera.media().play(webcamURL);
 					}
 
 					logoImg = null;
@@ -750,41 +751,50 @@ public class CoachView extends Panel {
 		modes[3].setEnabled(webcamURL != null && desktopURL != null);
 	}
 
-	private DirectMediaPlayer createMediaPlayer(final boolean screen) {
+	private EmbeddedMediaPlayer createMediaPlayer(final boolean screen) {
 		if (mediaPlayerFactory == null)
-			mediaPlayerFactory = new MediaPlayerFactory(DEFAULT_FACTORY_ARGUMENTS);
+			mediaPlayerFactory = new MediaPlayerFactory();
 
-		BufferFormatCallback bufferCallback = new BufferFormatCallback() {
+		BufferFormatCallback bufferCallback = new BufferFormatCallbackAdapter() {
 			@Override
-			public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
-				if (screen)
-					imageDesktop = new BufferedImage(sourceWidth, sourceHeight, BufferedImage.TYPE_INT_RGB);
-				else
-					imageWebcam = new BufferedImage(sourceWidth, sourceHeight, BufferedImage.TYPE_INT_RGB);
+			public BufferFormat getBufferFormat(int width, int height) {
+				if (screen) {
+					imageDesktop = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+					imageDesktop.setAccelerationPriority(1);
+					desktopBuffer = new int[width * height];
+				} else {
+					imageWebcam = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+					imageWebcam.setAccelerationPriority(1);
+					webcamBuffer = new int[width * height];
+				}
 
-				return new BufferFormat("RV32", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 },
-						new int[] { sourceHeight });
+				return new RV32BufferFormat(width, height);
 			}
 		};
 
 		RenderCallback renderCallback = new RenderCallback() {
 			@Override
-			public void display(DirectMediaPlayer player, Memory[] nativeBuffers, BufferFormat bufferFormat) {
-				Memory currentBuffer = nativeBuffers[0];
-				int pixels = (bufferFormat.getHeight() * bufferFormat.getWidth());
+			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+				IntBuffer ib = nativeBuffers[0].asIntBuffer();
 
 				if (screen) {
-					currentBuffer.getByteBuffer(0L, currentBuffer.size()).asIntBuffer()
-							.get(((DataBufferInt) imageDesktop.getRaster().getDataBuffer()).getData(), 0, pixels);
+					ib.get(desktopBuffer);
+					imageDesktop.setRGB(0, 0, imageDesktop.getWidth(), imageDesktop.getHeight(), desktopBuffer, 0,
+							imageDesktop.getWidth());
 				} else {
-					currentBuffer.getByteBuffer(0L, currentBuffer.size()).asIntBuffer()
-							.get(((DataBufferInt) imageWebcam.getRaster().getDataBuffer()).getData(), 0, pixels);
+					ib.get(webcamBuffer);
+					imageWebcam.setRGB(0, 0, imageWebcam.getWidth(), imageWebcam.getHeight(), webcamBuffer, 0,
+							imageWebcam.getWidth());
 				}
+
 				mainPanel.repaint();
 			}
 		};
 
-		return mediaPlayerFactory.newDirectMediaPlayer(bufferCallback, renderCallback);
+		EmbeddedMediaPlayer mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
+		mediaPlayer.videoSurface()
+				.set(mediaPlayerFactory.videoSurfaces().newVideoSurface(bufferCallback, renderCallback, true));
+		return mediaPlayer;
 	}
 
 	protected static void showHelp() {
