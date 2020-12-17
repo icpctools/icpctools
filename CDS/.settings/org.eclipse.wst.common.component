@@ -5,7 +5,7 @@
         <dependent-module archiveName="contestModel.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ContestModel/ContestModel">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="snakeyaml-1.18.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/snakeyaml-1.18.jar">
+        <dependent-module archiveName="snakeyaml-1.27.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/snakeyaml-1.27.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/CDS/WebContent/WEB-INF/classes"/>

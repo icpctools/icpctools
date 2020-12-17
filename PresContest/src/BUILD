@@ -5,7 +5,7 @@ java_library(
         "//ContestModel/src:contestModel",
         "//PresCore/src:presentCore",
         "//PresContest/lib:jna",
-        "//PresContest/lib:vlc",
+        "//PresContest/lib:vlcj",
     ],
     resources = glob([
         "data/**/*",

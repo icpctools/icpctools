@@ -2,28 +2,25 @@ package org.icpc.tools.presentation.contest.internal.presentations;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
 import org.icpc.tools.presentation.core.Presentation;
 
-import com.sun.jna.Memory;
-
-import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
-import uk.co.caprica.vlcj.player.MediaPlayerFactory;
-import uk.co.caprica.vlcj.player.direct.BufferFormat;
-import uk.co.caprica.vlcj.player.direct.BufferFormatCallback;
-import uk.co.caprica.vlcj.player.direct.DirectMediaPlayer;
-import uk.co.caprica.vlcj.player.direct.RenderCallback;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.base.MediaPlayer;
+import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallbackAdapter;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat;
 
 public class TeamVideoPresentation extends Presentation {
-	protected static final String[] DEFAULT_FACTORY_ARGUMENTS = { "--ignore-config", "--video-title=vlcj video output",
-			"--no-plugins-cache", "--no-video-title-show", "--no-snapshot-preview", "--quiet", "--quiet-synchro",
-			"--sub-filter=logo:marq", "--intf=dummy" };
-
 	private MediaPlayerFactory mediaPlayerFactory;
-	private DirectMediaPlayer mediaPlayer;
+	private EmbeddedMediaPlayer mediaPlayer;
 	private BufferedImage snapshot;
+	private int[] rgbBuffer;
 
 	public TeamVideoPresentation() {
 		// do nothing
@@ -31,29 +28,30 @@ public class TeamVideoPresentation extends Presentation {
 
 	@Override
 	public void init() {
-		// String vlcHome = "C:\\Program Files (x86)\\VideoLAN\\VLC";
-		// String vlcHome = "/Applications/VLC.app/Contents/MacOS/lib/libvlc.5.dylib";
-		// NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(), vlcHome);
-		// Native.loadLibrary(RuntimeUtil.getLibVlcLibraryName(), LibVlc.class);
+		mediaPlayerFactory = new MediaPlayerFactory();
+		mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
 
-		mediaPlayerFactory = new MediaPlayerFactory(DEFAULT_FACTORY_ARGUMENTS);
-		mediaPlayer = mediaPlayerFactory.newDirectMediaPlayer(new BufferFormatCallback() {
+		BufferFormatCallbackAdapter callbackAdapter = new BufferFormatCallbackAdapter() {
 			@Override
 			public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
 				snapshot = new BufferedImage(sourceWidth, sourceHeight, BufferedImage.TYPE_INT_RGB);
-				return new BufferFormat("RV32", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 },
-						new int[] { sourceHeight });
+				snapshot.setAccelerationPriority(1);
+				rgbBuffer = new int[width * height];
+				return new RV32BufferFormat(sourceWidth, sourceHeight);
 			}
-		}, new RenderCallback() {
-			@Override
-			public void display(DirectMediaPlayer player, Memory[] nativeBuffers, BufferFormat bufferFormat) {
-				Memory currentBuffer = nativeBuffers[0];
-				int pixels = (bufferFormat.getHeight() * bufferFormat.getWidth());
+		};
 
-				currentBuffer.getByteBuffer(0L, currentBuffer.size()).asIntBuffer()
-						.get(((DataBufferInt) snapshot.getRaster().getDataBuffer()).getData(), 0, pixels);
+		RenderCallback renderCallback = new RenderCallback() {
+			@Override
+			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+				IntBuffer ib = nativeBuffers[0].asIntBuffer();
+				ib.get(rgbBuffer);
+
+				snapshot.setRGB(0, 0, width, height, rgbBuffer, 0, width);
 			}
-		});
+		};
+		mediaPlayer.videoSurface()
+				.set(mediaPlayerFactory.videoSurfaces().newVideoSurface(callbackAdapter, renderCallback, true));
 	}
 
 	@Override
@@ -63,9 +61,8 @@ public class TeamVideoPresentation extends Presentation {
 
 	@Override
 	public void aboutToShow() {
-		mediaPlayer.prepareMedia("http://localhost:8080");
-		mediaPlayer.play();
-		mediaPlayer.addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+		mediaPlayer.media().play("http://localhost:8080");
+		mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
 			@Override
 			public void finished(MediaPlayer player) {
 				snapshot = null;
