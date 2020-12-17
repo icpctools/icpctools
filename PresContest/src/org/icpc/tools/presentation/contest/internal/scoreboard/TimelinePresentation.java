@@ -26,11 +26,12 @@ import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
  * Timeline version of the scoreboard.
  */
 public class TimelinePresentation extends AbstractScrollingScoreboardPresentation {
-	private static final Color FREEZE_COLOR = org.icpc.tools.contest.model.ICPCColors.alphaDarker(ICPCColors.PENDING_COLOR,
-			64, 1f);
+	private static final Color FREEZE_COLOR = org.icpc.tools.contest.model.ICPCColors
+			.alphaDarker(ICPCColors.PENDING_COLOR, 64, 1f);
 	private static final int MS_PER_HOUR = 1000 * 60 * 60;
 	protected Font cubeFont;
 	protected Image arrowImg;
+	protected int start;
 	protected double scale;
 
 	@Override
@@ -46,34 +47,32 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 	}
 
 	protected void drawTimeArrow(Graphics2D g2, int y) {
+		int sx = getX(0);
 		if (arrowImg == null) {
-			arrowImg = new BufferedImage(width - 30, 18, Transparency.TRANSLUCENT);
+			arrowImg = new BufferedImage(width - sx - 16, 18, Transparency.TRANSLUCENT);
 			Graphics2D g = (Graphics2D) arrowImg.getGraphics();
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-			g.translate(-15, 0);
-			int h = 9;
+			g.translate(-sx + 2, 9);
 			g.setColor(Color.LIGHT_GRAY);
-			// Stroke oldStroke = g.getStroke();
 			g.setStroke(new BasicStroke(2f));
-			g.drawLine(20, h, width - 20, h);
-			g.drawLine(width - 27, h - 7, width - 20, h);
-			g.drawLine(width - 27, h + 7, width - 20, h);
-			// g.setStroke(oldStroke);
-
 			IContest contest = getContest();
+			g.drawLine(sx, 0, width - 20, 0);
+			g.drawLine(width - 27, -7, width - 20, 0);
+			g.drawLine(width - 27, +7, width - 20, 0);
+
 			int numHours = contest.getDuration() / MS_PER_HOUR;
 
 			int hour = 0;
 			while (hour < numHours) {
 				int x = getX(hour * MS_PER_HOUR);
-				g.drawLine(x, h - 4, x, h + 4);
+				g.drawLine(x, -4, x, 4);
 				hour++;
 			}
 
 			g.dispose();
 		}
-		g2.drawImage(arrowImg, 15, y, null);
+		g2.drawImage(arrowImg, sx - 2, y - 9, null);
 	}
 
 	@Override
@@ -106,7 +105,11 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 		if (contest == null)
 			return;
 
-		scale = (width - 45.0) / contest.getDuration();
+		g.setFont(rowFont);
+		FontMetrics fm = g.getFontMetrics();
+		start = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
+
+		scale = (width - start - 20) / (double) contest.getDuration();
 
 		int scroll2 = paintBarsAndScroll(contest, g);
 
@@ -144,11 +147,12 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 				g4.translate(0, (int) y);
 
 				// draw timeline
-				drawTimeArrow(g4, (int) (rowHeight * 3f / 4f) - 13);
+				drawTimeArrow(g4, (int) (rowHeight * 3 / 4f) - 1);
 
 				drawTeamGrid(g4, team);
 
 				g4.setFont(cubeFont);
+				g4.translate(0, (int) (rowHeight * 3 / 4f) - 1);
 
 				int up = 1;
 
@@ -157,10 +161,9 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 				for (ISubmission submission : submissions) {
 					if (submission.getTeamId().equals(team.getId())) {
 						boolean closeToNeighbor = false;
-						int dt = (int) ((cubeHeight + 2) / scale); // 12
 						for (ISubmission s : submissions) {
 							if (submission != s && s.getTeamId().equals(team.getId())
-									&& Math.abs(submission.getContestTime() - s.getContestTime()) / 1000 / 60 < dt)
+									&& Math.abs(submission.getContestTime() - s.getContestTime()) * scale < cubeHeight)
 								closeToNeighbor = true;
 						}
 
@@ -170,8 +173,8 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 							g4.translate(0, -offset * up);
 
 						IProblem p = contest.getProblemById(submission.getProblemId());
-						ShadedRectangle.drawRoundRect(g4, (int) xx, (int) (rowHeight / 2 + CUBE_INSET / 2) - 3, cubeHeight,
-								cubeHeight, contest, submission, getTimeMs(), p.getLabel());
+						ShadedRectangle.drawRoundRect(g4, (int) xx, -cubeHeight / 2, cubeHeight, cubeHeight, contest,
+								submission, getTimeMs(), p.getLabel());
 
 						if (closeToNeighbor) {
 							g4.translate(0, offset * up);
@@ -187,7 +190,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 	}
 
 	private int getX(int contestTimeMs) {
-		return 20 + (int) (contestTimeMs * scale);
+		return start + (int) (contestTimeMs * scale);
 	}
 
 	@Override
