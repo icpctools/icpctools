@@ -18,12 +18,12 @@ public class Balloon {
 	private boolean printed;
 	private boolean delivered;
 
-	public Balloon(String submissionId, String x) {
+	public Balloon(String submissionId) {
 		id = ID++;
 		this.submissionId = submissionId;
 	}
 
-	public Balloon(String s) throws NumberFormatException {
+	public Balloon(String s, String x) throws NumberFormatException {
 		load(s);
 	}
 
@@ -95,12 +95,7 @@ public class Balloon {
 
 	public void load(String s) throws NumberFormatException {
 		StringTokenizer st = new StringTokenizer(s, DELIM);
-		if (st.countTokens() == 5) {
-			id = new Integer(st.nextToken()).intValue();
-			if (ID <= id)
-				ID = id + 1;
-		} else
-			id = ID++;
+		id = new Integer(st.nextToken()).intValue();
 		submissionId = st.nextToken();
 		flags = new Integer(st.nextToken()).intValue();
 		printed = new Boolean(st.nextToken()).booleanValue();

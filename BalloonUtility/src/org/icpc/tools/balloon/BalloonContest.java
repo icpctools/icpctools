@@ -35,16 +35,6 @@ public class BalloonContest {
 	private IContest contest;
 	private List<Balloon> balloons = new ArrayList<>();
 
-	public synchronized boolean balloonAlreadyExists(ISubmission s) {
-		for (Balloon b : balloons) {
-			ISubmission r = contest.getSubmissionById(b.getSubmissionId());
-			if (r != null && s.getTeamId().equals(r.getTeamId()) && r.getProblemId().equals(s.getProblemId())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public synchronized Balloon getBalloon(String submissionId) {
 		if (submissionId == null)
 			return null;
@@ -145,6 +135,10 @@ public class BalloonContest {
 			flags |= Balloon.FIRST_FOR_PROBLEM;
 		if (fl[3] == YES)
 			flags |= Balloon.FIRST_FOR_TEAM;
+
+		if (flags == b.getFlags())
+			return false;
+
 		b.setFlags(flags);
 		return true;
 	}
@@ -167,22 +161,6 @@ public class BalloonContest {
 
 	public synchronized Balloon[] getBalloons() {
 		return balloons.toArray(new Balloon[0]);
-	}
-
-	public synchronized int getNumBalloons(String teamId) {
-		if (teamId == null)
-			return 0;
-
-		int count = 0;
-		for (Balloon b : balloons) {
-			ISubmission submission = contest.getSubmissionById(b.getSubmissionId());
-			if (submission != null) {
-				if (teamId.equals(submission.getTeamId()))
-					count++;
-			}
-		}
-
-		return count;
 	}
 
 	public synchronized void save() {
