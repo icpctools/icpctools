@@ -461,22 +461,9 @@ public class BalloonUtility {
 		return false;
 	}
 
-	protected void createBalloon(final ISubmission submission) {
-		Balloon b = new Balloon(submission.getId(), "x");
-		bc.add(b);
-
+	protected void createBalloon(final ISubmission submission, Balloon b) {
 		if (isRunFromGroup(b)) {
-			// search for existing table item first
-			TableItem ti = null;
-			TableItem[] items = balloonTable.getItems();
-			for (TableItem ti2 : items) {
-				if (b.equals(ti2.getData())) {
-					ti = ti2;
-				}
-			}
-
-			if (ti == null)
-				ti = new TableItem(balloonTable, SWT.NONE);
+			TableItem ti = new TableItem(balloonTable, SWT.NONE);
 			updateTableItem(ti, b);
 			updateSelectionLabel();
 
@@ -493,7 +480,6 @@ public class BalloonUtility {
 				}
 			});
 		}
-		bc.save();
 	}
 
 	protected void updateOnSolvedJudgement(IContest contest, final IJudgement sj) {
@@ -503,51 +489,38 @@ public class BalloonUtility {
 		if (jt == null || !jt.isSolved())
 			return;
 
-		ISubmission submission = contest.getSubmissionById(sj.getSubmissionId());
+		String sId = sj.getSubmissionId();
+		ISubmission submission = contest.getSubmissionById(sId);
 		if (submission != null) {
 			ITeam team = contest.getTeamById(submission.getTeamId());
 			if (team != null && contest.isTeamHidden(team))
 				return;
 		}
 
-		// check if balloon has already been awarded for this team/problem
-		if (bc.balloonAlreadyExists(submission)) {
-			balloonTable.getDisplay().syncExec(new Runnable() {
-				@Override
-				public void run() {
-					if (balloonTable.isDisposed())
-						return;
-
-					final Balloon b = bc.getBalloon(submission.getId());
-					if (b != null)
-						updateBalloon(b);
-				}
-			});
-			return;
-		}
-
-		if (contest.getFreezeDuration() >= 0
-				&& submission.getContestTime() > (contest.getDuration() - contest.getFreezeDuration())) {
-			if (bc.getNumBalloons(submission.getTeamId()) > 2) {
-				return;
-			}
-		}
-
 		if (balloonTable.isDisposed())
 			return;
 
-		balloonTable.getDisplay().syncExec(new Runnable() {
+		// check if balloon has already been awarded for this team/problem
+		final boolean exists = bc.getBalloon(sId) != null;
+		if (!exists) {
+			Balloon b = new Balloon(sId);
+			bc.add(b);
+			bc.save();
+		}
+
+		balloonTable.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				if (balloonTable.isDisposed())
 					return;
-				balloonTable.setSortColumn(null);
 
-				final Balloon b = bc.getBalloon(submission.getId());
-				if (b != null)
+				Balloon b = bc.getBalloon(sId);
+				if (exists)
 					updateBalloon(b);
-				else
-					createBalloon(submission);
+				else {
+					balloonTable.setSortColumn(null);
+					createBalloon(submission, b);
+				}
 			}
 		});
 	}
@@ -555,8 +528,8 @@ public class BalloonUtility {
 	protected void updateBalloon(Balloon b) {
 		TableItem[] tis = balloonTable.getItems();
 		for (TableItem ti : tis) {
-			Balloon ob = (Balloon) ti.getData();
-			if (ob.equals(b)) {
+			Balloon bb = (Balloon) ti.getData();
+			if (bb.equals(b)) {
 				updateTableItem(ti, b);
 				return;
 			}

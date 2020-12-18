@@ -60,7 +60,7 @@ public class BalloonFileUtil {
 
 			String s = br.readLine();
 			while (s != null) {
-				list.add(new Balloon(s));
+				list.add(new Balloon(s, null));
 				s = br.readLine();
 			}
 		} catch (Exception e) {

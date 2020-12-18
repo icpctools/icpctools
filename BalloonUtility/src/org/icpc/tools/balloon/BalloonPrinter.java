@@ -115,10 +115,10 @@ public class BalloonPrinter {
 				Trace.trace(Trace.ERROR, "Error loading sample contest", e);
 			}
 
-			b2 = new Balloon("1", null);
+			b2 = new Balloon("1");
 			b2.setFlags(Balloon.FIRST_FOR_TEAM | Balloon.FIRST_IN_CONTEST);
 			bc2.add(b2);
-			b2 = new Balloon("2", null);
+			b2 = new Balloon("2");
 			b2.setFlags(Balloon.FIRST_FOR_PROBLEM);
 			bc2.add(b2);
 		}
@@ -707,7 +707,7 @@ public class BalloonPrinter {
 			gc.drawOval(x - (int) (d / 2f), y - (int) (d / 2f), (int) d, (int) d);
 
 			Point se = gc.stringExtent(b.getId());
-			gc.drawString(b.getId(), (int) (x - se.x / 2f), y - se.y / 2, true);
+			gc.drawString(b.getLabel(), (int) (x - se.x / 2f), y - se.y / 2, true);
 		}
 	}
 
@@ -727,10 +727,10 @@ public class BalloonPrinter {
 				Trace.trace(Trace.ERROR, "Error loading sample contest", e);
 			}
 
-			b2 = new Balloon("1", null);
+			b2 = new Balloon("1");
 			b2.setFlags(Balloon.FIRST_FOR_TEAM | Balloon.FIRST_IN_CONTEST);
 			bc2.add(b2);
-			b2 = new Balloon("2", null);
+			b2 = new Balloon("2");
 			b2.setFlags(Balloon.FIRST_FOR_PROBLEM);
 			bc2.add(b2);
 		}
