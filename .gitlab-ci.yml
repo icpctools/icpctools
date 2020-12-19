@@ -16,6 +16,10 @@ after_script:
 
 build:
   stage: build
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+      when: always
+    - when: never
   script:
     # - ant clean
     - ant build
@@ -27,6 +31,10 @@ build:
 
 test:
   stage: test
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
+      when: always
+    - when: never
   script:
     - echo "Future tests here"
 
