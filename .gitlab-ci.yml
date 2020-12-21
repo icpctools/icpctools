@@ -17,7 +17,7 @@ after_script:
 build:
   stage: build
   rules:
-    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_REF_NAME != "HEAD"'
       when: always
     - when: never
   script:
@@ -32,7 +32,7 @@ build:
 test:
   stage: test
   rules:
-    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_REF_NAME != "HEAD"'
       when: always
     - when: never
   script:
