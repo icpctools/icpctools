@@ -467,7 +467,7 @@ public class ImagesGenerator {
 					scImg = ImageScaler.padImage(scImg);
 					writeImageWithSize(scImg, orgFolder, mod);
 				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Error generating image", e);
+					Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
 				}
 			}
 		}
