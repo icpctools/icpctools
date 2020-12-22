@@ -185,8 +185,8 @@ public class JSONParser {
 				}
 			}
 			// TODO: fail if not whitespace
-			if (st >= s.length())
-				throw new IllegalArgumentException("Unexpected char");
+			if (st >= s.length() - 1)
+				throw new IllegalArgumentException("Missing expected token");
 			c = s.charAt(++st);
 		}
 	}
