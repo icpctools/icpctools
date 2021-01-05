@@ -45,6 +45,9 @@
    <target name="doc" if="asciidoctor.present">
       <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="/asciidoctor-ant.jar"/>
       <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs"/>
+      <exec executable="doc.sh" failifexecutionfails="false">
+         <arg value="${basedir}"/>
+      </exec>
    </target>
    <target name="jar" depends="build,version">
       <jar destfile="staging/${jar.name}.jar" basedir="bin" manifest="src/META-INF/MANIFEST.MF">

@@ -1,6 +1,6 @@
 == The ICPC Coach View
 
-image::CoachViewIcon.png["Coach View",scaledwidth="5%"]
+image::coachViewIcon.png["Coach View",scaledwidth="5%"]
 
 An ICPC Tool
 

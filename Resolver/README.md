@@ -1,49 +1,49 @@
-== The ICPC Resolver 
+# The ICPC Resolver 
 
-image::resolverIcon.png["Resolver",scaledwidth="5%"]
+<img src="docs/resolverIcon.png" alt="Resolver" width="150px"/>
 
 An ICPC Tool
 
+## Introduction
 
 The _ICPC Resolver_ is a tool for graphical animation of contest results. 
 It shows the final runs submitted during a contest in an
 interesting way, and leads up to display of the award winners. 
 The Resolver concept was created by Fredrik Niemela and Mattias de Zalenski 
-at KTH Royal Technical University.  
-The ICPC Tools Resolver implementation was developed by Tim deBoer of 
-IBM Corporation.
+at KTH Royal Technical University.
+The ICPC Tools Resolver implementation was developed by Tim deBoer.
 
-The Resolver is designed to be used in contests where the scoreboard is "frozen" 
-prior to the end of the contest - that is, where the result of runs submitted in the 
-last part of the contest are not displayed on the scoreboard 
-(such runs are typically marked as "pending").  
-The Resolver produces a dynamic display by stepping through ("resolving") pending runs 
-and generating displays showing the contest winners in ranked order, 
+The Resolver is designed to be used in contests where the scoreboard is "frozen"
+prior to the end of the contest - that is, where the result of runs submitted in the
+last part of the contest are not displayed on the scoreboard
+(such runs are typically marked as "pending").
+The Resolver produces a dynamic display by stepping through ("resolving") pending runs
+and generating displays showing the contest winners in ranked order,
 along with citations for awards earned.
-  
-After displaying an introductory "splash screen", 
-a single keystroke or mouse click causes the Resolver 
-to display the contest standings as of the time the scoreboard was frozen.  
-A key or mouse click then causes it to advance to the bottom of the standings; 
-a subsequent key/click starts the "resolving" process:  
-starting at the bottom, it moves up until it reaches a team that has one or more 
-pending submissions during the freeze time.  
-Each pending run is 'resolved' (to either a "yes" or "no" judgment), 
+
+After displaying an introductory "splash screen",
+a single keystroke or mouse click causes the Resolver
+to display the contest standings as of the time the scoreboard was frozen.
+A key or mouse click then causes it to advance to the bottom of the standings;
+a subsequent key/click starts the "resolving" process:
+starting at the bottom, it moves up until it reaches a team that has one or more
+pending submissions during the freeze time.
+Each pending run is 'resolved' (to either a "yes" or "no" judgment),
 and if the run was successful the team
 will move 'up' into their new position based on the results.
 
-Options allow you to configure when the resolver pauses, but by default it will 
-continue moving up and resolving until it gets to an 'interesting' case - 
+Options allow you to configure when the resolver pauses, but by default it will
+continue moving up and resolving until it gets to an 'interesting' case -
 typically a first-to-solve award, a "group" or "region" winner,
-or a gold/silver/bronze award winner. When it reaches an award, the resolver will pause 
-and switch to a screen showing the team name, 
-the logo and image (if available from a CDS; see below), and an award citation. 
+or a gold/silver/bronze award winner. When it reaches an award, the resolver will pause
+and switch to a screen showing the team name,
+the logo and image (if available from a CDS; see below), and an award citation.
 Once the award has been handed out, clicking returns to the regular Resolver
 screen and continues the resolving process.
 
-A variety of options are available, including managing the speed at which the 
-Resolver runs, controlling various "single-step" operations, 
-configuring categories of awards to be acknowledged during the resolving 
+A variety of options are available, including managing the speed at which the
+Resolver runs, controlling various "single-step" operations,
+configuring categories of awards to be acknowledged during the resolving
 process, and controlling simultaneous Resolver operations at multiple contest sites.
 
 The following shows a screen-shot of the Resolver in action. Pending (unresolved) runs
@@ -51,40 +51,40 @@ are shown in yellow; the team whose pending run is about to be "resolved" is hig
 If it is a "Yes" then the team's entire row will move dynamically up the screen to
 their new position.
 
-image::resolverScreenShot2.png["Resolver screen capture",align="center"]
+![Resolver screen capture](docs/resolverScreenShot2.png)
 
-=== Operational Modes
+### Operational Modes
 
-The Resolver runs in one of two basic modes:  _standalone_ or _distributed_.  
-In standalone mode, the Resolver is run on a single machine and displays its output 
-on that machine's display screen.  
-Typically a projector is connected to the graphics output port of the machine, 
-allowing the audience to see the Resolver display as it reveals the results of the contest.  
-The person running the standalone Resolver uses keyboard/mouse input to control the flow of 
-the Resolver (for example, to advance to the "next run to be resolved" or to display 
-"award results").  
-Standalone mode is typically used for example to display the results at the end of a 
+The Resolver runs in one of two basic modes: _standalone_ or _distributed_.
+In standalone mode, the Resolver is run on a single machine and displays its output
+on that machine's display screen.
+Typically a projector is connected to the graphics output port of the machine,
+allowing the audience to see the Resolver display as it reveals the results of the contest.
+The person running the standalone Resolver uses keyboard/mouse input to control the flow of
+the Resolver (for example, to advance to the "next run to be resolved" or to display
+"award results").
+Standalone mode is typically used for example to display the results at the end of a
 contest held at a single site.
 
-In distributed mode, the Resolver is run on several machines.  
-One machine (the _presenter_ client) acts as the controller for the flow of events 
-(the Contest Administrator uses keyboard/mouse input to control Resolver operation, 
-similar to stand-alone mode). 
-A second machine runs a CDS server; and one or more additional machines act as _viewer_ clients.  
-The server is started first and listens for connections from clients; 
-presenter and viewer clients connect to the server over HTTPS. 
+In distributed mode, the Resolver is run on several machines.
+One machine (the _presenter_ client) acts as the controller for the flow of events
+(the Contest Administrator uses keyboard/mouse input to control Resolver operation,
+similar to stand-alone mode).
+A second machine runs a CDS server; and one or more additional machines act as _viewer_ clients.
+The server is started first and listens for connections from clients;
+presenter and viewer clients connect to the server over HTTPS.
 
-Distributed mode is typically used in contests where teams are competing at different 
-(physically remote) sites, 
+Distributed mode is typically used in contests where teams are competing at different
+(physically remote) sites,
 or where the Contest Administrator wishes to see a different view of the resolving
-process than what is displayed to local and/or remote audiences.  
-In distributed mode the Contest Administrator runs a presenter client and 
-controls the flow of the Resolver, while one or more viewer clients show the current Resolver 
-status screen.  The presenter client has the option of displaying additional 
-useful information to the person controlling the Resolver (for example, when a pending run 
-is selected it can show a small dialog saying something like 
-"if the team solves this run then they will jump up into 3rd place").  
-This extra information display is only visible on the presenter client; 
+process than what is displayed to local and/or remote audiences.
+In distributed mode the Contest Administrator runs a presenter client and
+controls the flow of the Resolver, while one or more viewer clients show the current Resolver
+status screen. The presenter client has the option of displaying additional
+useful information to the person controlling the Resolver (for example, when a pending run
+is selected it can show a small dialog saying something like
+"if the team solves this run then they will jump up into 3rd place").
+This extra information display is only visible on the presenter client;
 the viewer clients see only the main Resolver output.
 
 Based on the access roles provided by the CDS and Contest API, the resolver requires the
@@ -95,16 +95,16 @@ The presenter client then sends out a step count to drive the UI of all clients.
 Due to the requirement of blue access privileges it is expected that the resolver client
 credentials are only given to trusted contest staff or not distributed until the last minute.
 
-=== Input Data Sources
+### Input Data Sources
 
-The Resolver works with any CCS or the CDS that produces an event feed which is 
-compliant with the _CLI Contest API Specification_ defined at 
-https://clics.ecs.baylor.edu/. 
+The Resolver works with any CCS or the CDS that produces an event feed which is
+compliant with the _CLI Contest API Specification_ defined at
+https://clics.ecs.baylor.edu/.
 Tools known to produce compliant event feeds include the
 https://icpc.baylor.edu/icpctools[Contest Data Server],
 https://www.domjudge.org[DOMjudge],
 http://pc2.ecs.csus.edu/pc2[PC-Squared], and 
-https://www.kattis.com/[Kattis]; 
+https://www.kattis.com/[Kattis];
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Resolver.
 
@@ -112,47 +112,47 @@ The Resolver is capable of operating with event feed data obtained from one of
 three different sources: an _event feed file_, a _contest data package_ (CDP folder),
 or a _Contest API source_.
 
-A CDP is an arbitrarily-named folder with specific contest-configuration contents.  
+A CDP is an arbitrarily-named folder with specific contest-configuration contents.
 If the Resolver is started with its first argument being the path (relative or absolute)
-to a folder whose contents are organized following the 
+to a folder whose contents are organized following the
 https://clics.ecs.baylor.edu/index.php/CDP[CLI Contest Data Package specification] it will read its
 event feed data from that folder
 Note: when reading from a CDP the Resolver expects the find the event feed information stored in
 a file named _events.json_ located in the CDP root folder.
 
 Alternatively, the Resolver can obtain its event feed data from a Contest API server, for example
-the Contest Data Server (CDS). 
-The Contest API provides URL access points for obtaining event feed and other contest data; 
+the Contest Data Server (CDS).
+The Contest API provides URL access points for obtaining event feed and other contest data;
 starting the Resolver with the URL of a Contest API causes it to connect to the Contest API
 and pull down the necessary information dynamically.
 
 The main reason for using either a CDP or a CDS instead of a simple event feed file to provide
-Resolver input is that a CDP or CDS can also provide other information to the Resolver.  
+Resolver input is that a CDP or CDS can also provide other information to the Resolver.
 For example, if the CDP or CDS has been configured with
 team pictures and/or team school/university logos, the Resolver knows how to pull these
-from the corresponding input location as well and will use them in the output display.  The sample image
-(above) shows the use of such university logos; these came from starting the Resolver 
+from the corresponding input location as well and will use them in the output display. The sample image
+(above) shows the use of such university logos; these came from starting the Resolver
 by pointing it to a CDP
 (but could have just as easily been generated by starting the Resolver and having
 it connect to a CDS).
 
-Note: The Resolver requires the input event feed to be "_finalized_".  "Finalizing" is an
+Note: The Resolver requires the input event feed to be "_finalized_". "Finalizing" is an
 operation performed in the CCS which generates the event feed, indicating that the contest
-has ended and the event feed contains the "complete (final) results".  
+has ended and the event feed contains the "complete (final) results".
 
-=== Using the Resolver
+### Using the Resolver
 
-==== Installation
+#### Installation
 
 To install the Resolver, download its distribution package from the
-https://icpc.baylor.edu/icpctools/[ICPCTools website] and unzip it to any 
-convenient location. 
+https://icpc.baylor.edu/icpctools/[ICPCTools website] and unzip it to any
+convenient location.
 The Resolver itself is a collection of Java programs (components).
-The distribution is a self-contained package which contains 
+The distribution is a self-contained package which contains
 all the Java libraries and other components necessary to run the Resolver.
 (Note however, that Java Version 1.8 or higher must be installed on the machine.)
 
-==== Operation
+#### Operation
 
 The Resolver distribution includes a set of scripts which can be used to launch the program,
 resolver.bat for Windows platforms and resolver.sh for macOS and Linux.
@@ -161,14 +161,14 @@ The _resolver_ script assumes it is being run from the main Resolver folder
 (i.e., from the folder where the distribution was unzipped).
 The script is intended to be invoked with a set of command line parameters,
 which it forwards to the actual Resolver program and which in turn
-control the operation of the Resolver.  
+control the operation of the Resolver.
 
 The first parameter is a contest source. It may be an event feed
 file, a contest data package folder, or a contest URL to a Contest API server. If the parameter is a contest URL,
 then the following two parameters may optionally (and should) be a user and password.
 
 Command line parameters other than the contest source must
-start with the characters "--" (two dashes). 
+start with the characters "--" (two dashes).
 Each of the available command line parameters is described below.
 Some command line parameters
 require or allow additional arguments; optional arguments are
@@ -176,12 +176,12 @@ shown in square brackets ([ ]).
 
 Note that some command line parameters are mutually exclusive.
 
-==== Command Line Options
+#### Command Line Options
 
-===== Distributed Mode Commands
+##### Distributed Mode Commands
 The following command line options are used to operate the Resolver in "distributed mode", 
 where it connects to a Contest Data Server (see above) to obtain its input data and also uses
-the CDS to control multiple clients. 
+the CDS to control multiple clients.
 Note that these options are only available though the Contest Data Server and not when using
 a generic Contest API Server.
 Note also that  "--presenter" and "--client" are mutually exclusive.
@@ -198,17 +198,17 @@ must have the admin role.
 --client
 
 Starts a Resolver in "viewer" mode, instructing it to connect to a server at the specified
-URL.  A Resolver running
+URL. A Resolver running
 in viewer mode updates itself based on commands received via the server from a presenter, but has
 no control over the resolving process (for example, cannot "click to continue"). The user used to
 start the client must have the blue access role.
 
-===== Control Commands
+##### Control Commands
 The following command line options control various aspects of the Resolver's operation; they may be used in
 either "stand-alone" or "distributed" mode. Note however that 
 when running in distributed mode most options only make sense
 for a presenter (for example, only the presenter should 
-specify _--fast_ to control the speed of the Resolver; 
+specify _--fast_ to control the speed of the Resolver;
 otherwise viewer clients will operate
 at a different speed than that of the presenter). 
 
@@ -230,7 +230,7 @@ the default speedFactor is 0.15.
 [source]
 --singleStep [startRow]
 
-Forces the Resolver to begin "single-stepping" (that is, requiring a key/mouse click to 
+Forces the Resolver to begin "single-stepping" (that is, requiring a key/mouse click to
 advance on each step of the resolving process) starting at the specified row in the standings.
 (For example, specifying a startRow of 10 causes single-stepping for the top 10 places in
 the contest.)  If [startRow] is omitted then the Resolver single-steps through the entire contest.
@@ -238,7 +238,7 @@ the contest.)  If [startRow] is omitted then the Resolver single-steps through t
 [source]
 --rowDisplayOffset [numRows]
 
-Normally, medalist display rows on the Resolver screen appear at the bottom of the screen.  
+Normally, medalist display rows on the Resolver screen appear at the bottom of the screen.
 This option allows forcing the medalist display rows to begin appearing higher on the screen
 by some number of rows.
 It is used for example in the ICPC World Finals when Medalists come on stage to receive
@@ -288,7 +288,7 @@ to review the medalists without restarting from the beginning.
 Displays a help message listing the available options
 
 
-==== Keyboard Shortcuts
+##### Keyboard Shortcuts
 
 Once the resolver is running, there are a number of commands that can be used to change behavior.
 
@@ -338,7 +338,7 @@ i
 Toggle additional information regarding each pending run (same as --info).
 
 
-=== Command Line Examples
+### Command Line Examples
 
 [source]
 resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --fast 0.7 --rowDisplayOffset 4 --info  
@@ -367,11 +367,11 @@ advance each and every step of the resolving process).
 [source]
 resolver.bat c:\contest\cdp  
 
-The above command runs the Resolver in "stand-alone" mode, taking its input from the specified 
+The above command runs the Resolver in "stand-alone" mode, taking its input from the specified
 contest data package folder.  It expects the event feed data to be in a file named "contest.xml"
-in the specified CDP folder (c:\contest\cdp).  
+in the specified CDP folder (c:\contest\cdp).
 It displays award screens for region (group)
-winners and for medals according to whatever "medal count" data is 
+winners and for medals according to whatever "medal count" data is
 contained in the event feed, and also displays an award screen for any team whose only award
 was being the first to solve a problem after the scoreboard freeze.
 It includes whatever additional data it can find in the CDP (for example, team pictures and/or
@@ -382,7 +382,7 @@ resolver.bat --help
 
 The above command causes the Resolver to display its command parameter options on the console.
 
-=== Awards
+### Awards
 
 In addition to stepping bottom-up through the contest scoreboard resolving pending runs and
 dynamically adjusting teams' positions on the scoreboard, the Resolver
@@ -400,7 +400,7 @@ position in the standings, then if it has been configured to display at least on
 by that team then it switches to a separate "Award screen" showing the team and listing _all_ of the 
 configured awards earned by the team.  
 
-==== Default Award Configuration
+#### Default Award Configuration
 
 By default the Resolver is configured to display awards the way they are specified for the ICPC World Finals.
 This section describes the World Finals awards, in order to clarify the default Resolver award configuration.
@@ -411,24 +411,24 @@ At the World Finals, the top 12 teams receive "medal awards":
 the top four teams receive Gold Medals, the next four teams receive Silver Medals,
 and the next group of teams receive Bronze Medals (typically the size of the Bronze Medal cohort is also four,
 but this can vary depending on the final outcome; sometimes the Judges elect to award additional Bronze Medals to
-teams beyond the top 12).  By default the Resolver is configured to display these same medal awards. 
+teams beyond the top 12).  By default the Resolver is configured to display these same medal awards.
 
 In addition, awards are presented at the World Finals to the highest placing team in each region of the world.
 Note: while the term "region" makes sense when considering geographic boundaries such as those in the ICPC World Finals, 
 in many contests teams are grouped by different categories such as academic level (e.g. "High School", "Undergraduate",
-"Graduate", etc.) Because of this, many of the ICPC Tools 
+"Graduate", etc.) Because of this, many of the ICPC Tools
 (including the Resolver and the Award Generator -- see below) use the term "group"
 interchangeably with the term "region" to refer to a unique subset of the teams competing in a given contest.
 
 The specification of what groups exist in a contest comes from the event feed 
 (so, ultimately it comes from the CCS which generated the event feed).
-The CCS used in the World Finals is configured to define six "regions" (groups):  
+The CCS used in the World Finals is configured to define six "regions" (groups):
 North America, Latin American (comprising Central and South America),
 Europe, Asia, Africa and the Middle East, and the South Pacific.  
 (See the interactive https://icpc.baylor.edu/regionals/finder[ICPC Regional Finder map] for definitions of the
-precise boundaries of ICPC Regions.) 
-The highest placing team at the World Finals from each of the six ICPC regions 
-receives an award acknowledging their accomplishment as "Regional Champion".   
+precise boundaries of ICPC Regions.)
+The highest placing team at the World Finals from each of the six ICPC regions
+receives an award acknowledging their accomplishment as "Regional Champion".
 The Resolver by default displays an award for the
 top team in each group defined in its event feed.
 
@@ -436,7 +436,7 @@ Awards are also presented at the World Finals to each team that is the first to 
 These "First-to-Solve (FTS)" awards occur in two categories:  those for solutions which came prior to the time the
 scoreboard was frozen (and hence are by definition already known to the spectators prior to the time the Resolver
 begins), and those which occurred after the scoreboard was frozen (and hence are not known
-by spectators until the Resolver reaches the pending run for that solution).  
+by spectators until the Resolver reaches the pending run for that solution).
 At the World Finals, the FTS awards for solutions which occurred prior to the scoreboard freeze are handed out
 separately prior to beginning the Resolver execution; only FTS awards for problems solved after the scoreboard
 freeze are treated as awards during the execution of the Resolver.
@@ -449,7 +449,7 @@ and/or if the team has earned a First-to-Solve award (if the FTS occurred after 
 team has earned will be listed on the Award screen, along with the team's name, school, and picture if that data
 has been made available by connecting the Resolver to a CDS.
 
-==== Custom Award Configuration
+#### Custom Award Configuration
 
 The award structure of a given contest may be different than the default arrangement described above.
 In order to support this, the Resolver allows _customizable_ award categories.
@@ -457,19 +457,19 @@ Customizing the award categories requires executing an _award pre-processor_ ste
 The award preprocessor (also called the _Award Generator (AG)_)
 reads the event feed which was going to be input to the Resolver and produces a new _augmented event feed_
 containing additional award configuration information.  When the Resolver is executed using an augmented event feed
-it recognizes the additional award configuration information 
-and uses it to control its behavior with regard to displaying awards. 
+it recognizes the additional award configuration information
+and uses it to control its behavior with regard to displaying awards.
 
-The AG is invoked by executing a script, either _awards.bat_ on a Windows machine or _awards.sh_ 
-on a Linux or macOS machine.  The script is located in the root folder of the unzipped Resolver distribution, 
+The AG is invoked by executing a script, either _awards.bat_ on a Windows machine or _awards.sh_
+on a Linux or macOS machine.  The script is located in the root folder of the unzipped Resolver distribution,
 in the same place as the _resolver.bat_ script used to start the Resolver itself.  Specification of the custom
 award configuration can be done in one of two ways: by passing command line options to the _awards_ script, or by
 invoking a separate graphical user interface (GUI) that allows interactive award configuration.
 
-===== Command Line Award Configuration 
+##### Command Line Award Configuration 
 
 The _awards_ script (this refers to both the Windows ".bat" version and the Bourne Shell ".sh" version) accepts a
-variety of arguments and options for generating an augmented event feed used to control the awards to be displayed by the Resolver.  
+variety of arguments and options for generating an augmented event feed used to control the awards to be displayed by the Resolver.
 The general form of the command to invoke the awards script is
 
 [source]
@@ -483,19 +483,19 @@ awards events.json options...
 Omitting all arguments (as shown in the first example) causes the script to invoke the interactive Award Generator interface (see below).
 
 If arguments are specified, then the first argument must be the name of a file
-containing an event feed. The AG reads the specified event feed file and 
+containing an event feed. The AG reads the specified event feed file and
 generates a new augmented event feed file containing awards as specified by the remaining "option" arguments.
 Failing to specify any options (that is, specifying just an event feed file name) is an error and causes the AG to
 generate a help (usage) message and quit.
 
-When using the command line award configuration method, 
+When using the command line award configuration method,
 the augmented event feed file is automatically saved in a new file whose name is the same as the
 specified _events.json_ file but with "-awards" added in front of the ".json" extension.
 (That is, the AG strips off the last five characters of the specified file name, assumed to be ".json",
 and replaces them with the characters "-awards.json".)  
 
 
-====== Command Line Options
+###### Command Line Options
 
 The following options can be added to the _awards_ script command line following the event feed file name.
 Note that all options start with the characters "--" (two hyphens), and that at least one option (with its arguments)
@@ -505,12 +505,12 @@ must be specified.
 --medals <lastGold> <lastSilver> <lastBronze>
 
 The above option specifies the last integer rank (position) in the contest which will be awarded Gold, Silver, and Bronze medals
-respectively.  For example, the option "*_--medals 2 4 7_*" indicates that First and Second places will receive Gold medals, 
+respectively.  For example, the option "*_--medals 2 4 7_*" indicates that First and Second places will receive Gold medals,
 Third and Fourth places will receive Silver medals, and Fifth through Seventh places will receive Bronze medals.
 
 Note that a "finalized" event feed from a CCS by default contains "medalist places" as defined by the CCS which generated the event feed.
 However, running the AG on such an event feed _overrides_ those medal places, replacing them with whatever medals are specified
-via a *--medals* option.    
+via a *--medals* option.
 In particular, note that this means that running the AG without specifying _any_ *--medals* option
 results in an output event feed with NO medals awarded.
 
@@ -552,11 +552,11 @@ enter the word "false".  The words "true" and "false" are not case-sensitive.
 Generates a JSON scoreboard to the named file.
 
 
-===== Interactive Award Configuration
+##### Interactive Award Configuration
 
 If the _awards_ script is invoked with _no_ parameters, it causes the following dialog to be displayed:
 
-image::AwardGeneratorConnectScreen.png["Award Generator Connection Screen",align="center"]
+![Award Generator Connection Screen](docs/AwardGeneratorConnectScreen.png)
 
 This screen is used to instruct the Award Generator regarding the source of the event feed for the contest for which it
 is to generate awards. The interactive Award Generator is capable of operating with event feed data obtained from one of
@@ -571,7 +571,7 @@ Selecting the desired option and pressing the "Load" button
 will load the selected event feed data into the AG and then display the 
 Award Generator main screen, as shown below:
 
-image::AwardGeneratorMainScreen.png["Award Generator Main Screen",align="center"]
+![Award Generator Main Screen](docs/AwardGeneratorMainScreen.png)
 
 In the above screen the Award Generator has been loaded with the finalized 
 event feed from the 2015 ICPC World Finals.
@@ -583,12 +583,12 @@ The buttons in the _Add Awards_ panel (upper right) are used to specify how awar
 configured for different categories in the contest.  Examples of configuring different categories
 are described below.
 
-====== Group Awards
+###### Group Awards
 
 Pressing the _Group..._ button pops up the following dialog for
 managing Group awards:
 
-image::AwardGeneratorGroupDialog.png["Award Generator Group Dialog",align="center"]
+![Award Generator Group Dialog](docs/AwardGeneratorGroupDialog.png)
 
 By default there is just one award per group (for example, there is a single "Regional Champion"
 in ICPC World Finals terminology); this is shown in the above image where there is one 
@@ -597,40 +597,39 @@ the _Apply_ button instructs the AG to use the specified Group Award configurati
 
 If, prior to pressing _Apply_, the _Awards per group_ dropdown (shown in the upper left in the
 above image) is used to specify (say) two awards per group, then the top _two_ teams in each
-group would be configured to receive a group award for their group.  (The "citation" associated with groups
+group would be configured to receive a group award for their group. (The "citation" associated with groups
 cannot be changed on the Group Awards dialog; however, see below regarding editing team awards.)
 
 Note: the specification of what groups exist in the contest is not configurable in the Award Generator;
-this specification comes from the event feed generated by the CCS.  If different groups are
+this specification comes from the event feed generated by the CCS. If different groups are
 desired then they must be configured in the CCS before it creates the event feed.
 
-====== Rank Awards
+###### Rank Awards
 
 Pressing the _Rank..._ button on the _Add Awards_ panel
 pops up a _Rank Awards_ dialog intended to configure how awards are handled for ranks (final position in 
 the contest), as shown below:
 
-image::AwardGeneratorRankDialog.png["Award Generator Rank Dialog",align="center"]
+![Award Generator Rank Dialog](docs/AwardGeneratorRankDialog.png)
 
 Note that by default only a single "Rank" award (1st Place) is specified.
 If the _Teams to award_ dropdown (upper left) is used to specify (say) three teams, then the
 top _three_ teams in the contest would be configured to receive Rank awards,
 as shown in the following image.
 
-image::AwardGeneratorRankDialog2.png["Award Generator Rank Dialog w/multiple teams",align="center"]
+![Award Generator Rank Dialog w/multiple teams](docs/AwardGeneratorRankDialog2.png)
 
 Pressing the _Apply_ button on the Rank Awards dialog configures the AG to generate the specified
 rank awards.
 
-
-====== Medal Awards
+###### Medal Awards
 
 Pressing _Medal..._ on the _Add Awards_ panel pops up the following dialog for configuring
 Medal awards:
 
 image::AwardGeneratorMedalDialog.png["Award Generator Medal Dialog",align="center"]
 
-As shown, the top twelve ranks in the contest are configured to receive medals: four gold, 
+As shown, the top twelve ranks in the contest are configured to receive medals: four gold,
 four silver, and four bronze.  The medal counts came from the input event feed (meaning, they
 came from the CCS) and cannot be changed in the current version of the interactive AG (although
 they can be changed using a command line option as described earlier).  A future version of the AG
@@ -639,12 +638,12 @@ will support interactive modification of the medal counts.
 As with the other _Add Awards_ dialogs, pressing _Apply_ instructs the AG to configure the specified
 medal awards.
 
-====== First-to-Solve Awards
+###### First-to-Solve Awards
 
 Pressing _First to Solve_ on the _Add Awards_ panel displays the following dialog for configuring
 FTS awards:
 
-image::AwardGeneratorFTSDialog.png["Award Generator FTS Dialog",align="center"]
+![Award Generator FTS Dialog](docs/AwardGeneratorFTSDialog.png)
 
 As with some of the other Award configuration dialogs, the current version of the AG does not 
 support changing the FTS configuration.  The FTS dialog does however allow using the checkboxes 
@@ -653,22 +652,22 @@ on configured FTS awards.
 
 As with the other dialogs, pressing _Apply_ instructs the AG to configure the specified FTS awards.
 
-====== Summary
+###### Summary
 
 The following image shows the Award Generator main screen after Rank, Medal, Group, and FTS awards have been configured:
 
-image::AwardGeneratorConfigured.png["Award Generator - Configured",align="center"]
+![Award Generator - Configured](docs/AwardGeneratorConfigured.png)
 
 Note that the team data (ranks, names, groups, etc.) is the same as in the first AG main screen image shown
 earlier, but now the "Awards" column has been filled in.  The values in this column indicate what Awards
 will be displayed by the Resolver.  
 
-====== World Finals Awards
+###### World Finals Awards
 
 The remaining button on the _Add Awards_ panel, _World Finals..._, is a convenience shortcut
-for configuring the AG to use the default World Finals awards.  Pressing _World Finals..._ 
+for configuring the AG to use the default World Finals awards.  Pressing _World Finals..._
 displays a listing of exactly what awards would be given in the current contest if awards
-were configured exactly as is done in the World Finals; 
+were configured exactly as is done in the World Finals;
 hitting _Apply_ then applies those awards in the AG.  
 
 Note that applying the World Finals
@@ -678,28 +677,28 @@ awards using the same values as the default values in the Resolver).  The World 
 option exists as a convenience in anticipation of providing a different default award configuration in future versions
 of the Resolver.
 
-===== Editing Awards
+##### Editing Awards
 
 Once the desired award categories have been configured in the AG, it is possible to modify the
 awards to be issued to any particular team. This is useful, for example, to circumvent the problem
-that if multiple Group awards are configured for each group (region), 
+that if multiple Group awards are configured for each group (region),
 the citations for all Group awards in the group (region) will be identical (each team will be
 listed as "Group Champion"). 
 
-To modify a team's award, select the team's row 
-in the AG main screen grid and click the _Edit_ button to the right of the grid.  
+To modify a team's award, select the team's row
+in the AG main screen grid and click the _Edit_ button to the right of the grid.
 This produces an Edit dialog similar to the following:
 
-image::AwardGeneratorEditDialog.png["Award Generator Edit Dialog",align="center"]
+![Award Generator Edit Dialog](docs/AwardGeneratorEditDialog.png)
 
 This dialog displays all the awards currently configured for the selected team, along with the
 corresponding "citations" which will appear
 on their award display (one citation for each different award category).
 Any desired award citation can be edited by first selecting the award category 
 (for example, Rank, Group, Medal, or First To Solve) and
-then typing the desired citation in the "Citation" textbox.  
+then typing the desired citation in the "Citation" textbox.
 Awards can be removed from the award display by 
-selecting the award and pressing the "Remove" button.  
+selecting the award and pressing the "Remove" button.
 
 The checkbox on the Edit Team Awards dialog is used to tell
 the Resolver whether or not it should show the team's picture and citation(s); unchecking
@@ -712,7 +711,7 @@ citations (and showing their picture if it is available).
 Once the desired team award configuration has been specified, click "OK" to save it (or
 click "Cancel" to leave the team's awards unchanged).
 
-===== Saving the Award Configuration
+##### Saving the Award Configuration
 
 To save the generated Award configuration,
 press the _Save..._ button on the _Operations_ panel in the upper right.  This will prompt for a file name
@@ -721,7 +720,7 @@ and will save a new augmented event feed file containing the configured awards i
 Once an augmented event feed file has been saved, it must be provided as input to the Resolver in order 
 for the specified awards to be displayed.
 If the Resolver is being run with a local event feed file as input, simply specify the augmented event feed file as
-the local input file on the _resolver.bat_ command line (see _Command Line Examples_, above).  
+the local input file on the _resolver.bat_ command line (see _Command Line Examples_, above).
 
 If on the other hand the Resolver is obtaining its input from a local Contest Data Package (CDP)
 or via a connection to a CDS,
@@ -734,13 +733,13 @@ named _events.json_ in the CDP root folder (event feed files loaded by a CDS are
 named _events.json_).  It is up to the user to ensure these naming conventions are followed.
 
 
-=== Additional Notes
+### Additional Notes
 
-The Resolver and Award Generator tools are written in Java and will run on any platform supporting Java Version 8 or greater.  
+The Resolver and Award Generator tools are written in Java and will run on any platform supporting Java Version 8 or greater.
 However, the Resolver makes heavy use of screen-level graphics and is therefore heavily dependent on the 
-graphics drivers on the platform.  
-In our experience, Linux graphics drivers are substantially less robust than others; 
-we have had much better success running the graphical Resolver components 
-(standalone, presenter, and viewer clients) on Windows and macOS platforms 
-(although we regularly run the Resolver server on Linux).  
+graphics drivers on the platform.
+In our experience, Linux graphics drivers are substantially less robust than others;
+we have had much better success running the graphical Resolver components
+(standalone, presenter, and viewer clients) on Windows and macOS platforms
+(although we regularly run the Resolver server on Linux).
 Your mileage may vary (substantially).
