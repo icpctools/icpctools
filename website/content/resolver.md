@@ -48,4 +48,4 @@ Resolver runs, controlling various "single-step" operations,
 configuring categories of awards to be acknowledged during the resolving
 process, and controlling simultaneous Resolver operations at multiple contest sites.
 
-{{< tooldownload name="Resolver" toolname=resolver doc=Resolver >}}
+{{< tooldownload name="Resolver" toolname=resolver >}}

@@ -1,18 +1,13 @@
 ---
 # GitLab build configuration
-image: icpctools/build:servlet4
+default:
+  image: icpctools/build:full
 
 stages:
   - build
   - test
   - deploy
   - website
-
-before_script:
-  - echo "No more setup, it's all in docker"
-
-after_script:
-  - echo "Post build cleanup"
 
 build:
   stage: build
@@ -21,7 +16,6 @@ build:
       when: always
     - when: never
   script:
-    # - ant clean
     - ant build
     - echo $CI_JOB_ID > dist/ci_job_id.txt
   artifacts:
