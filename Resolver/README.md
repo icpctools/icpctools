@@ -98,14 +98,13 @@ credentials are only given to trusted contest staff or not distributed until the
 ### Input Data Sources
 
 The Resolver works with any CCS or the CDS that produces an event feed which is
-compliant with the _CLI Contest API Specification_ defined at
-https://clics.ecs.baylor.edu/.
-Tools known to produce compliant event feeds include the
-https://icpc.baylor.edu/icpctools[Contest Data Server],
-https://www.domjudge.org[DOMjudge],
-http://pc2.ecs.csus.edu/pc2[PC-Squared], and 
-https://www.kattis.com/[Kattis];
-other Contest Control Systems may also produce compatible event feeds and 
+compliant with the [Contest API Specification](https://ccs-specs.icpc.io/contest_api).
+Tools known to produce compliant event feeds include
+[Contest Data Server](https://tools.icpc.global/cds/), 
+[DOMjudge](https://www.domjudge.org),
+[PC-Squared](http://pc2.ecs.csus.edu/pc2), and 
+[Kattis](https://www.kattis.com);
+other Contest Control Systems may also produce compatible event feeds and
 hence work with the Resolver.
 
 The Resolver is capable of operating with event feed data obtained from one of
@@ -115,7 +114,7 @@ or a _Contest API source_.
 A CDP is an arbitrarily-named folder with specific contest-configuration contents.
 If the Resolver is started with its first argument being the path (relative or absolute)
 to a folder whose contents are organized following the
-https://clics.ecs.baylor.edu/index.php/CDP[CLI Contest Data Package specification] it will read its
+[CLI Contest Data Package specification](https://clics.ecs.baylor.edu/index.php/CDP) it will read its
 event feed data from that folder
 Note: when reading from a CDP the Resolver expects the find the event feed information stored in
 a file named _events.json_ located in the CDP root folder.
@@ -145,7 +144,7 @@ has ended and the event feed contains the "complete (final) results".
 #### Installation
 
 To install the Resolver, download its distribution package from the
-https://icpc.baylor.edu/icpctools/[ICPCTools website] and unzip it to any
+[ICPCTools website](https://tools.icpc.global) and unzip it to any
 convenient location.
 The Resolver itself is a collection of Java programs (components).
 The distribution is a self-contained package which contains
@@ -425,7 +424,7 @@ The specification of what groups exist in a contest comes from the event feed
 The CCS used in the World Finals is configured to define six "regions" (groups):
 North America, Latin American (comprising Central and South America),
 Europe, Asia, Africa and the Middle East, and the South Pacific.  
-(See the interactive https://icpc.baylor.edu/regionals/finder[ICPC Regional Finder map] for definitions of the
+(See the interactive [ICPC Regional Finder map](https://icpc.baylor.edu/regionals/finder) for definitions of the
 precise boundaries of ICPC Regions.)
 The highest placing team at the World Finals from each of the six ICPC regions
 receives an award acknowledging their accomplishment as "Regional Champion".
@@ -726,7 +725,7 @@ If on the other hand the Resolver is obtaining its input from a local Contest Da
 or via a connection to a CDS,
 the augmented event feed file must be copied to the local CDP folder or to the CDP being loaded by the CDS,
 and then in the latter case the CDS must be restarted (see the separate documentation for the _ICPCTools CDS_,
-available from the https://icpc.baylor.edu/icpctools/[ICPCTools website] for further information).
+available from the [ICPCTools website](https://tools.icpc.global) for further information).
 
 Recall that the Resolver expects that event feed files loaded from a local CDP are located in a file
 named _events.json_ in the CDP root folder (event feed files loaded by a CDS are also expected to be

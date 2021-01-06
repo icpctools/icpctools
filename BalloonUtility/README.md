@@ -25,7 +25,7 @@ loaded with run submission information from a Contest Control System:
 
 ### Installation
 
-To install the Balloon Utility, download its distribution package from https://icpc.baylor.edu/icpctools/
+To install the Balloon Utility, download its distribution package from the [ICPCTools website](https://tools.icpc.global/)
 and unzip it to any convenient location. 
 The BU is a Java program. The distribution is a self-contained package which contains 
 all the Java libraries and other components necessary to run the Balloon Utility.
@@ -55,13 +55,13 @@ screen will be unpopulated as shown above.)
 In order to use the BU once it is started, it must 
 be connected to the output of a _Contest Control System (CCS)_.
 The Balloon Utility will work with any CCS or the CDS which is 
-compliant with the [Contest API Specification](https://clics.ecs.baylor.edu).
+compliant with the [Contest API Specification](https://ccs-specs.icpc.io/contest_api).
 Tools known to produce compliant event feeds include
-[Contest Data Server](https://icpc.baylor.edu/icpctools), 
+[Contest Data Server](https://tools.icpc.global/cds/), 
 [DOMjudge](https://www.domjudge.org),
 [PC-Squared](http://pc2.ecs.csus.edu/pc2), and 
-[Kattis](https://www.kattis.com); 
-other Contest Control Systems may also produce compatible event feeds and 
+[Kattis](https://www.kattis.com);
+other Contest Control Systems may also produce compatible event feeds and
 hence work with the Balloon Utility.
 
 The BU is capable of operating with contest data obtained from one of two
@@ -98,7 +98,7 @@ on the contest floor, although the mechanism for configuring this map is not doc
 
 A sample Balloon Notification is shown below: 
 
-![Balloon utility print preview](docs/printPreview.png)
+![Balloon utility print preview](docs/PrintPreview.png)
 
 To select the printer to be used for printing Balloon Notifications,
 pull down the "Print" menu in the upper left corner of the main screen and

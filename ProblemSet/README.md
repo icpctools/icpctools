@@ -8,7 +8,7 @@ An ICPC Tool
 
 The ICPC Problem Set Editor is a tool for creating and editing _problemset.yaml_ files, 
 which define the list of contest problems
-and their colors for a [CLICS-compliant](https://clics.ecs.baylor.edu/index.php/Contest_Control_System)
+and their colors for a [CLICS-compliant](https://ccs-specs.icpc.io/ccs_system_requirements)
 Contest Control System (CCS).
 
 The following shows a screen shot of the editor in action:
@@ -20,7 +20,7 @@ The following shows a screen shot of the editor in action:
 ### Installation
 
 To install the editor, download and unzip the distribution package 
-from the [ICPCTools website](https://icpc.baylor.edu/icpctools) to any 
+from the [ICPCTools website](https://tools.icpc.global) to any 
 convenient location. The editor is a self-contained Java application and
 only requires a Java 1.8 JDK to run.
 

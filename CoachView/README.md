@@ -10,15 +10,15 @@ The Coach View is a software component designed to provide the ability for spect
 (coaches as well as other interested people) to view either or both of a selected team's desktop (machine screen)
 or web camera during a contest. It requires that the Contest Administrator configure desktop
 and/or webcam streaming from team machines during the contest, and also requires a
-[Contest API](https://clics.ecs.baylor.edu/index.php/Contest_API) source that implements video streaming, for
-example the ICPC Tools [Contest Data Server](https://clics.ecs.baylor.edu/index.php/CDS).
+[Contest API](https://ccs-specs.icpc.io/contest_api) source that implements video streaming, for
+example the ICPC Tools [Contest Data Server](https://tools.icpc.global/cds/).
 
 The Coach View provides the ability for a coach to select a specific team by name or team number and to view
 either or both of that team's desktop and webcam video feeds.
 
 ## Installing the Coach View
 
-To install the Coach View software, download a copy of the latest version from the [ICPCTools web page](https://icpc.baylor.edu/icpctools/)
+To install the Coach View software, download a copy of the latest version from the [ICPCTools website](https://tools.icpc.global/)
 and unzip it into any convenient directory. That's it!
 
 ## Usage
