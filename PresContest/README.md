@@ -42,19 +42,18 @@ When a Presentation Client is started it must be told, in addition to what prese
 where to obtain its input data (images, contest events, etc.).
 This is referred to as specifying a _contest data source_.
 Presentation Clients can obtain their input data from two different types of contest data sources:
-a compliant https://clics.ecs.baylor.edu/index.php?title=Contest_API[_Contest API_], or a
-a https://clics.ecs.baylor.edu/index.php/Main_Page#Contest_Data_Package[_contest data package (CDP)_].
+a compliant [_Contest API_](https://ccs-specs.icpc.io/contest_api), or a
+a [_contest data package (CDP)_](https://clics.ecs.baylor.edu/index.php/Main_Page#Contest_Data_Package).
 
 When connecting to a live Contest Control System via the Contest API, the Presentation Client works
 by reading the _event feed_ output of the CCS.
 The ICPC Presentation System will work with any CCS or the CDS that produces an event feed which is 
-compliant with the _CLI Contest API Specification_ defined at 
-https://clics.ecs.baylor.edu/. 
-Tools known to produce compliant event feeds include the
-https://icpc.baylor.edu/icpctools[Contest Data Server],
-https://www.domjudge.org[DOMjudge],
-http://pc2.ecs.csus.edu/pc2[PC-Squared], and 
-https://www.kattis.com/[Kattis]; 
+compliant with the [Contest API Specification](https://ccs-specs.icpc.io/contest_api).
+Tools known to produce compliant event feeds include
+[Contest Data Server](https://tools.icpc.global/cds/), 
+[DOMjudge](https://www.domjudge.org),
+[PC-Squared](http://pc2.ecs.csus.edu/pc2), and 
+[Kattis](https://www.kattis.com); 
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Presentation System.
 
@@ -124,7 +123,7 @@ content other than manually when they are started, and there is no way to change
 the content of a given Presentation Client except by shutting it down and restarting it.
 
 The ICPC Tool set also includes a separate tool called the _Presentation Admin_
-(see the http://icpc.baylor.edu/icpctools[ICPC Tool website]). 
+(see the [ICPCTools website](https://tools.icpc.global)). 
 The Presentation Admin tool provides functionality
 for managing multiple Presentation Clients; it allows dynamically changing the content
 of each of many clients along with additional related functions.
@@ -232,7 +231,11 @@ their identifying number and name, the internal specification by which they are 
 and notes on their operation. (Note that the numbers will be different, and some
 presentations are only useful when used in conjunction with the Presentation Admin.)
 
+<<<<<<< HEAD
+ | # | Name | Internal Id | Notes
+=======
  | Number | Name | Internal Id (org.icpc.tools.presentation.contest) | Notes
+>>>>>>> e5dbbc7ccc95161342bd42a8194f2a4fd06ed9e0
  | ---: | --- | --- | ---
  | 1 | Bill Poucher | .bill | The venerable ICPC Executive Director.
  | 2 | Chart - Languages | .chart.language | 

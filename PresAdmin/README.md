@@ -20,7 +20,7 @@ Other presentations show data such as the languages being used,
 the current number of solutions to each contest problem,
 notifications that a particular team has just solved a particular problem,
 and so forth, all updating in real time based on input from a 
-[Contest Control System (CCS)](https://clics.ecs.baylor.edu/index.php/Contest_Control_System).
+[Contest Control System (CCS)](https://ccs-specs.icpc.io/ccs_system_requirements).
 There are also pre-defined presentations for showing a variety of user-selected
 data such as team photographs, contest logos and related images,
 local sites of interest, fireworks for the end 
@@ -28,7 +28,7 @@ of the contest, and so forth.
 
 The ICPC Presentation System will work with any 
 CCS that produces an event feed which is 
-compliant with the [Contest API](https://clics.ecs.baylor.edu/index.php/Contest_API).
+compliant with the [Contest API](https://ccs-specs.icpc.io/contest_api).
 Systems known to produce compliant event feeds include 
 [PC-Squared](http://pc2.ecs.csus.edu) and 
 [Kattis](https://www.kattis.com); 
@@ -56,7 +56,7 @@ displays during a contest.
 Presentation Clients and the Presentation Admin communicate through a server
 called the _Contest Data Server (CDS)_; there must be a CDS running in order
 to use the Presentation Admin to control Presentation Clients.
-(See the separate [Contest Data Server](http://icpc.baylor.edu/icpctools) tool documentation
+(See the separate [Contest Data Server](https://tools.icpc.global) tool documentation
 for further information on how to set up and run a CDS.)
 Presentation Clients connect to the CDS and wait for instructions; the Presentation Admin
 connects to the same CDS and issues commands which control the display contents of the clients.
@@ -78,7 +78,7 @@ drives a large monitor or projector made accessible to an audience.
 ### Installation
 
 To install the Presentation Admin, download the Presentation Admin 
-distribution package from the [ICPC Tools website](http://icpc.baylor.edu/icpctools)
+distribution package from the [ICPCTools website](https://tools.icpc.global)
 and unzip it to any convenient location. 
 The Presentation Admin itself is a collection of Java programs (components).
 The distribution is a self-contained package which contains 
