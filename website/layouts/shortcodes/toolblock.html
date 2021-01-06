@@ -11,7 +11,7 @@
         Downloads: <br/> 
         Stable: <a href="{{ $stableTool.urls.zip }}">{{ .Get "shortname" }} version {{ $stableTool.version }}</a><br />
         Prerelease: <a href="{{ $prerelaseTool.urls.zip }}">{{ .Get "shortname" }} version {{ $prerelaseTool.version }}</a><br />
-        Documentation: <a href="/README.pdf">PDF</a><br />
+        Documentation: <a href="/docs/{{ .Get "doc" }}.pdf">PDF</a><br />
     </p>
     <p>
         <a href="{{ .Get "page" }}">More information</a>

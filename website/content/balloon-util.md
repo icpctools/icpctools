@@ -17,4 +17,4 @@ capable of printing maps showing runners where to go find the appropriate balloo
 and where on the contest floor the receiving team is located (although instructions
 for configuring it to do that are beyond the scope of this introductory guide).
 
-{{< tooldownload name="Balloon Utility" toolname=balloonUtil >}}
+{{< tooldownload name="Balloon Utility" toolname=balloonUtil doc=BalloonUtil >}}
