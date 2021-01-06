@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE project>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." name="org.icpc.tools.common">
+<project basedir="." name="org.icpc.tools.common">
    <tstamp>
       <format property="date" pattern="yyyyMMdd" timezone="UTC"/>
       <format property="date.english" pattern="EEEE, MMMM d yyyy" timezone="UTC"/>
@@ -11,8 +11,6 @@
    <property name="debuglevel" value="source,lines,vars"/>
    <property name="target" value="1.8"/>
    <property name="source" value="1.8"/>
-   <property name="asciidoctor-ant.jar" value="/asciidoctor-ant.jar"/>
-   <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present"/>
    <target name="clean">
       <delete dir="bin"/>
       <delete dir="staging"/>
@@ -42,11 +40,10 @@
          </classpath>
       </javac>
    </target>
-   <target name="doc" if="asciidoctor.present">
-      <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="/asciidoctor-ant.jar"/>
-      <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs"/>
-      <exec executable="doc.sh" failifexecutionfails="false">
-         <arg value="${basedir}"/>
+   <target name="doc">
+      <exec dir="." executable="/bin/bash">
+      	<arg value="${contest.model}/doc.sh"/>
+      	<arg value="${basedir}"/>
       </exec>
    </target>
    <target name="jar" depends="build,version">

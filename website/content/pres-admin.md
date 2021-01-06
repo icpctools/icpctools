@@ -36,4 +36,4 @@ Systems known to produce compliant event feeds include
 other Contest Control Systems may also produce compatible event feeds and
 hence work with the Presentation System.
 
-{{< tooldownload name="Presentation Admin" toolname=presentationAdmin doc=PresentationAdmin >}}
+{{< tooldownload name="Presentation Admin" toolname=presentationAdmin >}}

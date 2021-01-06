@@ -16,38 +16,22 @@ the REST-based Contest API as defined by the Competitive Learning Initiative (CL
 
 ## The ICPC Tools
 
-**Balloon Utility**
-Manages and prints which teams to award a balloon.
-
-**Contest Data Server (CDS)**
-Single-point URL services for accessing all contest data.
-
-**Presentation**
-Animated display of scoreboards or other contest data.
-
-**Presentation Admin**
-Remote administration of multiple presentations (requires the CDS).
-
-**Resolver**
-Animated reveal of final contest results.
-
-**Coach View**
-Ability to remotely see the webcam and desktop of a team.
-
-**Problem Set Editor**
-Generate/Edit YAML descriptions of problem sets for input to 
-CLICS-compatible Contest Control Systems.
-
-**Contest Utilities**
-A variety of useful contest-related utilities: event feed validation, scoreboard comparison,
-floor map generators, and more!
+Tool | Description
+--- | ---
+Balloon Utility | Manages and prints which teams to award a balloon
+Contest Data Server (CDS) | Single-point URL services for accessing all contest data
+Presentation | Animated display of scoreboards or other contest data
+Presentation Admin | Remote administration of multiple presentations (requires the CDS)
+Resolver | Animated reveal of final contest results
+Coach View | Ability to remotely see the webcam and desktop of a team
+Problem Set Editor | Generate/Edit YAML descriptions of problem sets for input to CLICS-compatible Contest Control Systems.
+Contest Utilities | A variety of useful contest-related utilities: event feed validation, scoreboard comparison, floor map generators, and more!
 
 
 ## Contest Control System Compatibility
 
-The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based Contest API
-(https://clics.ecs.baylor.edu/index.php/Contest_API). To be more specific, the only part of the Contest API that is
-strictly required is the event feed (https://clics.ecs.baylor.edu/index.php/Contest_API#Event_feed) and any file
+The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://clics.ecs.baylor.edu/index.php/Contest_API). To be more specific, the only part of the Contest API that is
+strictly required is the [event feed](https://clics.ecs.baylor.edu/index.php/Contest_API#Event_feed) and any file
 references that the feed refers to. If your CCS correctly supports the event feed, then all of the ICPC Tools will
 work even if the rest of the API is not implemented.
 
@@ -55,12 +39,10 @@ The one exception to this is the CDS' and contest utility support for comparing 
 the CCS must have one, of course.
 
 The CCS that has been most thoroughly proven to work with the ICPC Tools (through its role as primary CCS at the
-2018 and 2019 ICPC World Finals) is DOMjudge (https://www.domjudge.org).
+2018 and 2019 ICPC World Finals) is [DOMjudge](https://www.domjudge.org).
 
-Most of the core ICPC Tools still retain support for the deprecated XML Event Feed
-(https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016). If your CCS supports the XML Event Feed as
-specified at this link then the tools should still work, albeit with some missing function. Both Kattis
-(https://www.kattis.com) and some versions of PC^2 (https://pc2.ecs.csus.edu) have support for the XML feed and
+Most of the core ICPC Tools still retain support for the deprecated [XML Event Feed](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016). If your CCS supports the XML Event Feed as
+specified at this link then the tools should still work, albeit with some missing function. Both [Kattis](https://www.kattis.com) and some versions of [PC^2](https://pc2.ecs.csus.edu) have support for the XML feed and
 work well with the ICPC Tools.
 
 
@@ -76,7 +58,7 @@ John Clevenger, and Jeff Donahoo.
 ## License
 
 All of the tools are provided under the included MIT license and are "Free as in Beer". We welcome you to use
-and enjoy them, but if you ever run into anyone who has contributed to them - Tim, John, Sam, Troy, Nicky, etc.
+and enjoy them, but if you ever run into anyone who has contributed to them - Tim, John, Nicky, Sam, Troy, etc.
 we would greatly appreciate it if you'd buy us a beer, a stroopwafel, or some other suitable token!
 
 All ICPC Tools are Copyright © by the ICPC.

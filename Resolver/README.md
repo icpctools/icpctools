@@ -186,17 +186,17 @@ Note that these options are only available though the Contest Data Server and no
 a generic Contest API Server.
 Note also that  "--presenter" and "--client" are mutually exclusive.
 
-[source]		
+```
 --presenter
-
+```
 Starts a Resolver in "presenter" mode. A Resolver running
 in presenter mode has control over the Resolver operation, and its control commands are
 forwarded to the server for distribution to viewer clients. The user running the presenter
 must have the admin role.
 
-[source]
+```
 --client
-
+```
 Starts a Resolver in "viewer" mode, instructing it to connect to a server at the specified
 URL. A Resolver running
 in viewer mode updates itself based on commands received via the server from a presenter, but has
@@ -212,14 +212,14 @@ specify _--fast_ to control the speed of the Resolver;
 otherwise viewer clients will operate
 at a different speed than that of the presenter). 
 
-[source]
+```
 --info
-
+```
 Shows additional information regarding each pending run.  
          
-[source]
+```
 --fast [speedFactor]
-
+```
 Changes the resolving speed.
 The [speedFactor] option is a decimal percentage indicating the desired amount of change
 in the execution time for each step.  Factors between 0 and 1 speed up the resolving process;
@@ -227,17 +227,17 @@ factors greater than 1 slow it down.  For example a speedFactor of 0.5 will doub
 speed (i.e., cut the time in half).  If --fast is specified but no speedFactor is given,
 the default speedFactor is 0.15.
 
-[source]
+```
 --singleStep [startRow]
-
+```
 Forces the Resolver to begin "single-stepping" (that is, requiring a key/mouse click to
 advance on each step of the resolving process) starting at the specified row in the standings.
 (For example, specifying a startRow of 10 causes single-stepping for the top 10 places in
 the contest.)  If [startRow] is omitted then the Resolver single-steps through the entire contest.
 
-[source]
+```
 --rowDisplayOffset [numRows]
-
+```
 Normally, medalist display rows on the Resolver screen appear at the bottom of the screen.
 This option allows forcing the medalist display rows to begin appearing higher on the screen
 by some number of rows.
@@ -248,43 +248,43 @@ processed by the Resolver).  Specifying this option allows moving the medalist d
 rows up the screen above the heads of the people standing on stage.  The default value for
 [numRows] if it is not specified on the command option is 4.
 
-[source]
+```
 --file <file>
-
+```
 Allows loading command options from the specified <file> instead of passing them on the
 command line.  When using this option, every command option and every optional parameter
 must appear on a separate line in the file.
 
-[source]
+```
 --display <num>
-
+```
 Specifies which desktop display to use in full-screen exclusive mode. The primary display
 is number 1, secondary is number 2, etc.  If this option is not specified
 the default is the primary display.
 
-[source]
+```
 --style [style]
-
+```
 By default the resolver tries to pick the best way of representing each team based on the
 contest data. If you want to show the team names in a different manner, you can switch it
 to use the organization name, formal name, or both. The [style] must be one of the following
 strings: "team_name", "org_name", "org_formal_name", or "team_and_org_name".
 
-[source]
+```
 --test
-
+```
 Allows the resolver to be run against an incomplete contest. Unjudged submissions are
 automatically discarded before resolving.
 
-[source]
+```
 --pause [#]
-
+```
 Starts the resolver at the specified "pause" (i.e. click). Useful for testing or jumping
 to review the medalists without restarting from the beginning.
 		
-[source]
+```
 --help
-
+```
 Displays a help message listing the available options
 
 
@@ -292,81 +292,81 @@ Displays a help message listing the available options
 
 Once the resolver is running, there are a number of commands that can be used to change behavior.
 
-[source]
+```
 Ctrl-Q
-
+```
 Quit/exit the resolver (Ctrl-_Escape_ also exits).
 
-[source]
+```
 space or f
-
+```
 Go forward one resolution step.
 
-[source]
+```
 r or b
-
+```
 Rewind (back up) one resolution step.
 
-[source]
+```
 0
-
+```
 Restart (jump to beginning).
 
-[source]
+```
 2
-
+```
 Fast forward (jump one step without delays).
 
-[source]
+```
 1
-
+```
 Fast rewind (jump one step without delays).
 
-[source]
+```
 + (or =)
-
+```
 Changes the resolving speed by increasing resolution delay (speedFactor).
 
-[source]
+```
 - (or _)
-
+```
 Changes the resolving speed by decreasing resolution delay (speedFactor).
 
-[source]
+```
 i
-
+```
 Toggle additional information regarding each pending run (same as --info).
 
 
 ### Command Line Examples
 
-[source]
+```
 resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --fast 0.7 --rowDisplayOffset 4 --info  
-
+```
 The above command runs the Resolver in presenter mode, connected to a CDS at the specified URL 
 (IP address and port)
 using the specified server login and password credentials, and runs reducing time by 30% (--fast 0.7).
 Additional "presenter info" is displayed on the screen.
 
-[source]
+```
 resolver.bat https://169.254.80.194:8443 client cl1ent --connect
-
+```
 The above command runs the Resolver in "client" mode, connecting to a CDS
 at the specified URL using the specified server login and password credentials.
 The client resolver operates under the control of a presenter-mode resolver
 at the same speed as the presenter and displaying only the Resolver data
 (no special info).
 
-[source]
+```
 resolver.bat c:\events.json --singleStep 
-
+```
 The above command runs the Resolver in "stand-alone" mode, taking its input from the specified local
 file.  It runs in single-step mode for the entire resolving process (meaning the user must click to
 advance each and every step of the resolving process).
 
-[source]
+```
 resolver.bat c:\contest\cdp  
-
+```
 The above command runs the Resolver in "stand-alone" mode, taking its input from the specified
 contest data package folder.  It expects the event feed data to be in a file named "contest.xml"
 in the specified CDP folder (c:\contest\cdp).
@@ -377,9 +377,9 @@ was being the first to solve a problem after the scoreboard freeze.
 It includes whatever additional data it can find in the CDP (for example, team pictures and/or
 logos) in the output displays.
 
-[source]
+```
 resolver.bat --help
-
+```
 The above command causes the Resolver to display its command parameter options on the console.
 
 ### Awards
@@ -472,14 +472,14 @@ The _awards_ script (this refers to both the Windows ".bat" version and the Bour
 variety of arguments and options for generating an augmented event feed used to control the awards to be displayed by the Resolver.
 The general form of the command to invoke the awards script is
 
-[source]
+```
 awards
-
+```
 or
 
-[source]
+```
 awards events.json options...
-
+```
 Omitting all arguments (as shown in the first example) causes the script to invoke the interactive Award Generator interface (see below).
 
 If arguments are specified, then the first argument must be the name of a file
@@ -501,9 +501,9 @@ The following options can be added to the _awards_ script command line following
 Note that all options start with the characters "--" (two hyphens), and that at least one option (with its arguments)
 must be specified.
 
-[source]
+```
 --medals <lastGold> <lastSilver> <lastBronze>
-
+```
 The above option specifies the last integer rank (position) in the contest which will be awarded Gold, Silver, and Bronze medals
 respectively.  For example, the option "*_--medals 2 4 7_*" indicates that First and Second places will receive Gold medals,
 Third and Fourth places will receive Silver medals, and Fifth through Seventh places will receive Bronze medals.
@@ -514,41 +514,41 @@ via a *--medals* option.
 In particular, note that this means that running the AG without specifying _any_ *--medals* option
 results in an output event feed with NO medals awarded.
 
-[source]
+```
 --rank <number>
-
+```
 The above option indicates that awards should be generated for teams in the top <number> ranks (positions) 
 in the contest. For example, "*_--rank 10_*" will cause the top 10 teams to be designated to receive a "rank award".
 
-[source]
+```
 --group
-
+```
 The above option indicates that awards should be generated for the top team in each group in the contest (where "groups"
 are defined in the input event feed file as configured in the CCS which generated the file).
 In the current version of the command line AG tool it is only possible to specify Group awards for the _top_ team in each group
 (which is what specifying the "*_--group_*" option does).  For information on changing the number of awards _within_ a group,
 see the interactive award configuration tool, described below.
 
-[source]
+```
 --firstPlaceCitation "text"
-
+```
 The above option specifies the "citation text" which appears on the Award screen for the 1st place team, replacing 
 the default first-place citation (which is "World Champions") with the specified text.  If the citation text contains
 spaces then it must be surrounded with double-quotes.
 In the current version of the command line AG tool it is only possible to change the citation for the 1st place team
 (see the interactive award configuration tool, described below).
 
-[source]
+```
 --fts  beforeFreezeBoolean afterFreezeBoolean
-
+```
 The above option indicates whether First-to-Solve awards should be generated for solutions which came before and
 after the scoreboard was frozen.  To specify that an award category should be generated, enter the word "true" in place of
 either _beforeFreezeBoolean_ or _afterFreezeBoolean_; to specify that the corresponding award should NOT be generated,
 enter the word "false".  The words "true" and "false" are not case-sensitive.
 
-[source]
+```
 --scoreboard filename
-
+```
 Generates a JSON scoreboard to the named file.
 
 
@@ -627,7 +627,7 @@ rank awards.
 Pressing _Medal..._ on the _Add Awards_ panel pops up the following dialog for configuring
 Medal awards:
 
-image::AwardGeneratorMedalDialog.png["Award Generator Medal Dialog",align="center"]
+![Award Generator Medal Dialog](docs/AwardGeneratorMedalDialog.png)
 
 As shown, the top twelve ranks in the contest are configured to receive medals: four gold,
 four silver, and four bronze.  The medal counts came from the input event feed (meaning, they
@@ -731,7 +731,6 @@ available from the https://icpc.baylor.edu/icpctools/[ICPCTools website] for fur
 Recall that the Resolver expects that event feed files loaded from a local CDP are located in a file
 named _events.json_ in the CDP root folder (event feed files loaded by a CDS are also expected to be
 named _events.json_).  It is up to the user to ensure these naming conventions are followed.
-
 
 ### Additional Notes
 

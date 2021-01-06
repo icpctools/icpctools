@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE project>
-<project xmlns:asciidoctor="antlib:org.asciidoctor.ant" basedir="." default="dist" name="CDS">
+<project basedir="." default="dist" name="CDS">
   <property file="version.properties"/>
   <property name="title" value="ICPC Contest Data Server"/>
   <tstamp>
@@ -18,8 +18,6 @@
   <property name="source" value="1.8"/>
   <property name="cds.zip" value="/cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
-  <property name="asciidoctor-ant.jar" value="/asciidoctor-ant.jar"/>
-  <available file="${asciidoctor-ant.jar}" type="file" property="asciidoctor.present"/>
   <path id="CDS.classpath">
     <pathelement location="com.ibm.ws.javaee.jsp.2.2_1.0.0.jar"/>
     <pathelement location="com.ibm.ws.javaee.servlet.3.0_1.0.1.jar"/>
@@ -58,9 +56,11 @@
       <fileset dir="." includes="*.pdf*"/>
     </delete>
   </target>
-  <target name="doc" if="asciidoctor.present">
-    <taskdef uri="antlib:org.asciidoctor.ant" resource="org/asciidoctor/ant/antlib.xml" classpath="/asciidoctor-ant.jar"/>
-    <asciidoctor:convert sourceDirectory="${basedir}/docs" outputDirectory="${basedir}" backend="pdf" extensions="txt" imagesDir="docs"/>
+  <target name="doc">
+    <exec dir="." executable="/bin/bash">
+      <arg value="${contest.model}/doc.sh"/>
+      <arg value="${basedir}"/>
+    </exec>
     <copy todir="staging">
       <fileset dir="." includes="*.pdf *.txt"/>
     </copy>

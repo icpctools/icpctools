@@ -232,36 +232,34 @@ their identifying number and name, the internal specification by which they are 
 and notes on their operation. (Note that the numbers will be different, and some
 presentations are only useful when used in conjunction with the Presentation Admin.)
 
-[width="100%",cols="^1%d,<m,<m,d",options="header"]
-|==========================
-|Number|Name|Internal Id (org.icpc.tools.presentation.contest)|Notes
-|1|Bill Poucher |.bill|The venerable ICPC Executive Director.
-|2|Chart - Languages |.chart.language|
-|3|Chart - Problem detail |.chart.problem.detail|
-|4|Chart - Problem summary |.chart.problem.summary|Shows attempts, solutions, and fastest solution time for each problem.
-|5|Chart - Scoreboard |.chart.scoreboard|The current contest standings; scrolls through all teams and updates dynamically as new data arrives.
-|6|Chart - Total Problems |.chart.total.problems|
-|7|Contest clock |.clock|The contest clock (time remaining in the contest).
-|8|Countdown |.countdown|A countdown clock, initialized by data in the contest event feed.
-|9|Do not touch anything |.doNotTouch|
-|10|Fireworks |.fireworks|
-|11|First solution |.first.solution|Tracking the first solution.
-|12|First to solve |.first.to.solve|First to solve each problem.
-|13|Judge queue |.judge|The judgement queue: shows all incoming runs and what the result is.
-|14|Leaderboard |.leaderboard|
-|15|Logo |.logo|Displays the contest logo.
-|16|Message |.message|Displays a message and contest banner. The message is set via a property in the Presentation Admin.
-|17|Photo |.single.photo|Displays a single photo, taken from the CDP/present folder in file _photo.jpg_.
-|18|Pictures |.photos|Displays a rotating set of pictures found in the CDP/present/photos folder.
-|19|Problem summary |.problem.summary|
-|20|Promotions |.promo|Displays a rotating set of promotional images.
-|21|Group leaderboard |.leaderboard.group|
-|22|Scoreboard |.scoreboard|Contest scoreboard.
-|23|Team Display |.team.display|Display for team machines, shows the team logo and name. The team is is set via a property in the Presentation Admin.
-|24|Test - Alignment |.test.align|A grid to help with projector alignment.
-|25|Test - Clock |.test.clock|The current system time (on the presentation machine).
-|26|Test - Synchronization |.test.sync|A moving ball to test synchronization of the system clock.
-|==========================
+ | Number | Name | Internal Id (org.icpc.tools.presentation.contest) | Notes
+ | ---: | --- | --- | ---
+ | 1 | Bill Poucher | .bill | The venerable ICPC Executive Director.
+ | 2 | Chart - Languages | .chart.language | 
+ | 3 | Chart - Problem detail | .chart.problem.detail | 
+ | 4 | Chart - Problem summary | .chart.problem.summary | Shows attempts, solutions, and fastest solution time for each problem.
+ | 5 | Chart - Scoreboard | .chart.scoreboard | The current contest standings; scrolls through all teams and updates dynamically as new data arrives.
+ | 6 | Chart - Total Problems | .chart.total.problems | 
+ | 7 | Contest clock | .clock | The contest clock (time remaining in the contest).
+ | 8 | Countdown | .countdown | A countdown clock, initialized by data in the contest event feed.
+ | 9 | Do not touch anything | .doNotTouch | 
+ | 10 | Fireworks | .fireworks | 
+ | 11 | First solution | .first.solution | Tracking the first solution.
+ | 12 | First to solve | .first.to.solve | First to solve each problem.
+ | 13 | Judge queue | .judge | The judgement queue: shows all incoming runs and what the result is.
+ | 14 | Leaderboard | .leaderboard | 
+ | 15 | Logo | .logo | Displays the contest logo.
+ | 16 | Message | .message | Displays a message and contest banner. The message is set via a property in the Presentation Admin.
+ | 17 | Photo | .single.photo | Displays a single photo, taken from the CDP/present folder in file _photo.jpg_.
+ | 18 | Pictures | .photos | Displays a rotating set of pictures found in the CDP/present/photos folder.
+ | 19 | Problem summary | .problem.summary | 
+ | 20 | Promotions | .promo | Displays a rotating set of promotional images.
+ | 21 | Group leaderboard | .leaderboard.group | 
+ | 22 | Scoreboard | .scoreboard | Contest scoreboard.
+ | 23 | Team Display | .team.display | Display for team machines, shows the team logo and name. The team is is set via a property in the Presentation Admin.
+ | 24 | Test - Alignment | .test.align | A grid to help with projector alignment.
+ | 25 | Test - Clock | .test.clock | The current system time (on the presentation machine).
+ | 26 | Test - Synchronization | .test.sync | A moving ball to test synchronization of the system clock.
 
 ## Team Clients
 
@@ -283,13 +281,12 @@ example is the "team desktop" presentation, which shows the team's logo and name
 
 The client decides which team machine it is running on by checking the following sources:
 
-[width="100%",cols="d,<m",options="header"]
-|==========================
-|Source|Example
-|team-id environment variable|47
-|team-id system property (would require changing the script)|47
-|end of host name|teamnum47
-|end of host address|195.13.4.47
+ | Source | Example
+ | --- | ---
+ | team-id environment variable | 47
+ | team-id system property (would require changing the script) | 47
+ | end of host name | teamnum47
+ | end of host address | 195.13.4.47
 
 The first source that correctly resolves into a number is used. All of the examples above resolve to team id 47.
 
