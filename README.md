@@ -5,13 +5,14 @@
 Welcome to the ICPC Tools!
 ==========================
 
-The ICPC Tools are a set of tools to support running programming contests. These tools were built to support the
-International Collegiate Programming Contest (ICPC) World Finals and have been used there for many years, but
-the intention is that they are usable for local and regional contests as well. For more information on the ICPC,
-please go to https://icpc.baylor.edu.
+The ICPC Tools are a set of tools to support running programming contests. For the latest downloads, please go to the [ICPC Tools website](https://tools.icpc.global).
 
 Each of the ICPC tools can be used individually, or together in any combination. They are all designed to support
-the REST-based Contest API as defined by the Competitive Learning Initiative (CLI): https://clics.ecs.baylor.edu/index.php/Contest_API.
+the REST-based [Contest API](https://ccs-specs.icpc.io/contest_api) as defined by the Competitive Learning Initiative (CLI).
+
+These tools were built to support the
+[International Collegiate Programming Contest (ICPC)](https://icpc.baylor.edu) World Finals and have been used there for many years, but
+the intention is that they are usable for local and regional contests as well.
 
 
 ## The ICPC Tools
@@ -30,20 +31,23 @@ Contest Utilities | A variety of useful contest-related utilities: event feed va
 
 ## Contest Control System Compatibility
 
-The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://clics.ecs.baylor.edu/index.php/Contest_API). To be more specific, the only part of the Contest API that is
-strictly required is the [event feed](https://clics.ecs.baylor.edu/index.php/Contest_API#Event_feed) and any file
+The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://ccs-specs.icpc.io/contest_api).
+
+To be more specific, the only part of the Contest API that is strictly required is the event feed and any file
 references that the feed refers to. If your CCS correctly supports the event feed, then all of the ICPC Tools will
-work even if the rest of the API is not implemented.
+work even if the rest of the API is not implemented. The one exception to this is the CDS' and contest utility support
+for comparing scoreboards - to compare a scoreboard, the CCS must have one, of course!
 
-The one exception to this is the CDS' and contest utility support for comparing scoreboards - to compare a scoreboard,
-the CCS must have one, of course.
+Most of the ICPC Tools also retain support for the deprecated [XML Event Feed](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016).
+If your CCS supports this feed as specified then the tools should still work, albeit with some missing function.
 
-The CCS that has been most thoroughly proven to work with the ICPC Tools (through its role as primary CCS at the
-2018 and 2019 ICPC World Finals) is [DOMjudge](https://www.domjudge.org).
+The most popular CCSs that have been tested and successfully used at multiple contests with the ICPC Tools are listed here:
 
-Most of the core ICPC Tools still retain support for the deprecated [XML Event Feed](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016). If your CCS supports the XML Event Feed as
-specified at this link then the tools should still work, albeit with some missing function. Both [Kattis](https://www.kattis.com) and some versions of [PC^2](https://pc2.ecs.csus.edu) have support for the XML feed and
-work well with the ICPC Tools.
+Compatible CCS | Mechanism
+| --- | ---
+| [DOMjudge](https://www.domjudge.org) | Contest API
+| [Kattis](https://www.kattis.com) | Contest API
+| [PC^2](https://pc2.ecs.csus.edu) | XML event feed
 
 
 ## Contributing

@@ -231,11 +231,7 @@ their identifying number and name, the internal specification by which they are 
 and notes on their operation. (Note that the numbers will be different, and some
 presentations are only useful when used in conjunction with the Presentation Admin.)
 
-<<<<<<< HEAD
  | # | Name | Internal Id | Notes
-=======
- | Number | Name | Internal Id (org.icpc.tools.presentation.contest) | Notes
->>>>>>> e5dbbc7ccc95161342bd42a8194f2a4fd06ed9e0
  | ---: | --- | --- | ---
  | 1 | Bill Poucher | .bill | The venerable ICPC Executive Director.
  | 2 | Chart - Languages | .chart.language | 
