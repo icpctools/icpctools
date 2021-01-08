@@ -3,7 +3,6 @@
    <property name="contest.model" value="../ContestModel"/>
    <property name="presentation.core" value="../PresCore"/>
    <import file="${contest.model}/common.xml"/>
-   <property file="version.properties"/>
    <property name="title" value="ICPC Coach View"/>
    <property name="jar.name" value="coachview"/>
    <target name="stage">

@@ -2,7 +2,6 @@
 <project basedir="." default="dist" name="org.icpc.tools.contest.util">
    <property name="contest.model" value="../ContestModel"/>
    <import file="${contest.model}/common.xml"/>
-   <property file="version.properties"/>
    <property name="title" value="ICPC Contest Utilities"/>
    <property name="jar.name" value="contestUtil"/>
    <target name="stage">

@@ -2,7 +2,6 @@
 <project basedir="." default="jar" name="SWTLauncher">
   <property name="contest.model" value="../ContestModel"/>
   <import file="${contest.model}/common.xml"/>
-  <property file="version.properties"/>
   <property name="title" value="ICPC SWT Launcher"/>
   <property name="jar.name" value="swtLauncher"/>
 </project>

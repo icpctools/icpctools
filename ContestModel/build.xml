@@ -2,7 +2,6 @@
 <!DOCTYPE project>
 <project basedir="." default="jar" name="org.icpc.tools.contest.model">
   <import file="common.xml"/>
-  <property file="version.properties"/>
   <property name="title" value="ICPC Contest Model"/>
   <property name="jar.name" value="contestModel"/>
 </project>

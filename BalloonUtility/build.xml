@@ -4,7 +4,6 @@
    <property name="SWTLauncher" value="../SWTLauncher"/>
    <property name="presentation.core" value="../PresCore"/>
    <import file="${contest.model}/common.xml"/>
-   <property file="version.properties"/>
    <property name="title" value="ICPC Balloon Utility"/>
    <property name="jar.name" value="balloonUtil"/>
    <target name="stage">
