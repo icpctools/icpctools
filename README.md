@@ -11,7 +11,7 @@ Each of the ICPC tools can be used individually, or together in any combination.
 the REST-based [Contest API](https://ccs-specs.icpc.io/contest_api) as defined by the Competitive Learning Initiative (CLI).
 
 These tools were built to support the
-[International Collegiate Programming Contest (ICPC)](https://icpc.baylor.edu) World Finals and have been used there for many years, but
+[International Collegiate Programming Contest (ICPC)](https://icpc.global) World Finals and have been used there for many years, but
 the intention is that they are usable for local and regional contests as well.
 
 
