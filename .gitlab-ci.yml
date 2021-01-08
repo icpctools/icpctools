@@ -109,6 +109,9 @@ update website:
     - git config --global user.name "ICPC Tools bot"
   script:
     - website/scripts/populate-releases.py
+    - cp ChangeLog.md website/
+    - sed -i 's/^# .*//' website/ChangeLog.md
+    - sed -r 's/^## (.*)/#### \1/' -i website/ChangeLog.md
     - mkdir ~/website
     - git clone git@github.com:icpctools/icpctools.github.io.git ~/website
     - ln -s ~/website $CI_PROJECT_DIR/website/public
