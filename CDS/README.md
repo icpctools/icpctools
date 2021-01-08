@@ -1,6 +1,6 @@
 # The ICPC Contest Data Server (CDS)
 
-<img src="docs/cdsIcon.png" alt="Contest Data Server" width="150px"/>
+![](docs/cdsIcon.png){width=50}
 
 An ICPC Tool
 
@@ -132,7 +132,8 @@ If you save changes to _cdsConfig.xml_ while the CDS is running the changes will
 A simple example of a _cdsConfig.xml_ file is shown below.
 
 ```
-  <!-- specify the location of the folder holding the contest data package (used to find config files, resources, etc.) -->
+  <!-- specify the location of the folder holding the contest data package
+       (used to find config files, resources, etc.) -->
   <contest location="/Users/me/contests/test" recordReactions="true">
     <!-- Configure communication with the CCS -->
     <ccs url="http://myccs/api/contests/finals" user="admin" password="adm1n"/>
@@ -157,7 +158,7 @@ The supported service-defining elements and their structure and functions are de
 
 The optional _id_ attribute specifies the contest id to expose, which will override any contest id used by the underlying CCS or event feed.
 If unspecified, the id will be picked up from the CCS' Contest API endpoint (e.g. 'finals' in 'http://api/contests/finals') or by the last
-segment of the location (e.g. 'test' in 'C:\icpc\test').
+segment of the location (e.g. 'test' in 'C:\\icpc\\test').
 
 The _location_ attribute specifies the full path to a *_contest data package_* (CDP) defining the organization of the contest
 (config files, logos, etc.). See the [CLI CDP specification](https://clics.ecs.baylor.edu/index.php/CDP) for details on how
@@ -368,7 +369,7 @@ shows the most common commands for running the CDS on the WLP Application Server
 folder and are shown in their Linux form; replace the "/" characters with "\" on a Windows machine).
 
 | Command | Effect
-| --- | ---
+| --- | ---------
 | /bin/server start cds | Start the CDS in background mode (allows running other commands from the same prompt, but discards server console output)
 | /bin/server stop cds | Stop the CDS
 | /bin/server run cds | Start the CDS in foreground mode (ties up the console window, but allows display of server output)
@@ -456,15 +457,16 @@ In any case, the commands shown below will hopefully be enough to point you in t
 The following single-line command is used at the World Finals to start a stream on port 8080 containing the team's web camera output:
 ```
  vlc -I dummy -q v4l2:///dev/video0:width=1280:height=720:aspect-ratio="16:9" 
- :input-slave=alsa://plughw:1,0 --sout '#transcode{venc=x264{keyint=15},vcodec=h264,
- vb=0,scale=0,fps=30,acodec=mpga,ab=128,channels=2}:http{mux=ts,dst=:8080}'
+   :input-slave=alsa://plughw:1,0 --sout '#transcode{venc=x264{keyint=15},vcodec=h264,
+   vb=0,scale=0,fps=30,acodec=mpga,ab=128,channels=2}:http{mux=ts,dst=:8080}'
 ```
 
 #### Team Desktop Streaming
 
 The following VLC command is used at the World Finals to start a stream on port 9090 showing the team's screen:
 ```
- vlc -I dummy -q screen:// --screen-fps=30 --sout "#transcode{venc=x264{keyint=15},vcodec=h264,vb=0}:http{mux=ts,dst=:9090/}"
+ vlc -I dummy -q screen:// --screen-fps=30 --sout
+   "#transcode{venc=x264{keyint=15},vcodec=h264,vb=0}:http{mux=ts,dst=:9090/}"
 ```
 
 ### Deployment Under Other Application Servers

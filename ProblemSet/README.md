@@ -1,6 +1,6 @@
 # The ICPC Problem Set Editor 
 
-<img src="docs/problemSetIcon.png" alt="Problem Set Editor" width="150px"/>
+![](docs/problemSetIcon.png){width=50}
 
 An ICPC Tool
 

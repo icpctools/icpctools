@@ -1,6 +1,6 @@
 # The ICPC Coach View
 
-<img src="docs/coachViewIcon.png" alt="Coach View" width="150px"/>
+![](docs/coachViewIcon.png){width=50}
 
 An ICPC Tool
 
@@ -79,9 +79,9 @@ In any case, the commands shown below will hopefully be enough to point you in t
 The following VLC command is used at the World Finals to start a stream on port 8080 containing the team's web camera output:
 
 ```
-  vlc -I dummy -q v4l2:///dev/video0:width=1280:height=720:aspect-ratio="16:9" \
-  :input-slave=alsa://plughw:1,0 --sout '#transcode{venc=x264{keyint=15},vcodec=h264,\
-  vb=0,scale=0,fps=30,acodec=mpga,ab=128,channels=2}:http{mux=ts,dst=:8080}'
+  vlc -I dummy -q v4l2:///dev/video0:width=1280:height=720:aspect-ratio="16:9"
+    :input-slave=alsa://plughw:1,0 --sout '#transcode{venc=x264{keyint=15},vcodec=h264,
+    vb=0,scale=0,fps=30,acodec=mpga,ab=128,channels=2}:http{mux=ts,dst=:8080}'
 ```
 
 ### Team Desktop Streaming
@@ -89,6 +89,6 @@ The following VLC command is used at the World Finals to start a stream on port 
 The following VLC command is used at the World Finals to start a stream on port 9090 showing the team's desktop:
 
 ```
-  vlc -I dummy -q screen:// --screen-fps=30 --sout "#transcode{venc=x264{keyint=15},\
-  vcodec=h264,vb=0}:http{mux=ts,dst=:9090/}"
+  vlc -I dummy -q screen:// --screen-fps=30 --sout "#transcode{venc=x264{keyint=15},
+    vcodec=h264,vb=0}:http{mux=ts,dst=:9090/}"
 ```

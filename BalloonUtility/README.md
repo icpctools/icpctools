@@ -1,6 +1,6 @@
 # The ICPC Balloon Utility 
 
-<img src="docs/balloonIcon.png" alt="Balloon Utility" width="150px"/>
+![](docs/balloonIcon.png){width=50}
 
 An ICPC Tool
 

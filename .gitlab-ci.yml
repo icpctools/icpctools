@@ -73,24 +73,21 @@ push release to GitHub:
     - |
       for zip in *.zip
       do
-        if [[ $zip != "ToolsWebsite.zip" ]]
-        then
-          echo $zip...
-          cat $zip | http --timeout 300 POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
-            "Authorization: token $GITHUB_TOKEN" \
-            'Accept: application/vnd.github.v3+json' \
-            'Content-Type: application/zip' | jq .state
-          echo $zip.sha256...
-          cat $zip.sha256 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
-            "Authorization: token $GITHUB_TOKEN" \
-            'Accept: application/vnd.github.v3+json' \
-            'Content-Type: text/plain' | jq .state
-          echo $zip.sha512...
-          cat $zip.sha512 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
-            "Authorization: token $GITHUB_TOKEN" \
-            'Accept: application/vnd.github.v3+json' \
-            'Content-Type: text/plain' | jq .state
-        fi
+        echo $zip...
+        cat $zip | http --timeout 300 POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
+          "Authorization: token $GITHUB_TOKEN" \
+          'Accept: application/vnd.github.v3+json' \
+          'Content-Type: application/zip' | jq .state
+        echo $zip.sha256...
+        cat $zip.sha256 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
+          "Authorization: token $GITHUB_TOKEN" \
+          'Accept: application/vnd.github.v3+json' \
+          'Content-Type: text/plain' | jq .state
+        echo $zip.sha512...
+        cat $zip.sha512 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
+          "Authorization: token $GITHUB_TOKEN" \
+          'Accept: application/vnd.github.v3+json' \
+          'Content-Type: text/plain' | jq .state
       done
 
 update website:
@@ -110,6 +107,7 @@ update website:
     - git config --global user.name "ICPC Tools bot"
   script:
     - website/scripts/populate-releases.py
+    - website/scripts/copy-readmes.py $CI_PROJECT_DIR/dist
     - cp ChangeLog.md website/
     - sed -i 's/^# .*//' website/ChangeLog.md
     - sed -r 's/^## (.*)/#### \1/' -i website/ChangeLog.md

@@ -1,6 +1,6 @@
 # The ICPC Resolver 
 
-<img src="docs/resolverIcon.png" alt="Resolver" width="150px"/>
+![](docs/resolverIcon.png){width=50}
 
 An ICPC Tool
 
@@ -340,7 +340,8 @@ Toggle additional information regarding each pending run (same as --info).
 ### Command Line Examples
 
 ```
-resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --fast 0.7 --rowDisplayOffset 4 --info  
+resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --fast 0.7
+  --rowDisplayOffset 4 --info
 ```
 The above command runs the Resolver in presenter mode, connected to a CDS at the specified URL 
 (IP address and port)
@@ -368,7 +369,7 @@ resolver.bat c:\contest\cdp
 ```
 The above command runs the Resolver in "stand-alone" mode, taking its input from the specified
 contest data package folder.  It expects the event feed data to be in a file named "contest.xml"
-in the specified CDP folder (c:\contest\cdp).
+in the specified CDP folder (c:\\contest\\cdp).
 It displays award screens for region (group)
 winners and for medals according to whatever "medal count" data is
 contained in the event feed, and also displays an award screen for any team whose only award
