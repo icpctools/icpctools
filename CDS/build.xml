@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE project>
 <project basedir="." default="dist" name="CDS">
-  <property file="version.properties"/>
+  <property file="../version.properties"/>
   <property name="title" value="ICPC Contest Data Server"/>
   <tstamp>
     <format property="date" pattern="yyyyMMdd" timezone="UTC"/>

@@ -5,7 +5,6 @@
    <property name="presentation.core" value="../PresCore"/>
    <property name="presentation.contest" value="../PresContest"/>
    <import file="${contest.model}/common.xml"/>
-   <property file="version.properties"/>
    <property name="title" value="ICPC Resolver"/>
    <property name="jar.name" value="resolver"/>
    <target name="stage">

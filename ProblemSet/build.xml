@@ -3,7 +3,6 @@
    <property name="contest.model" value="../ContestModel"/>
    <property name="SWTLauncher" value="../SWTLauncher"/>
    <import file="${contest.model}/common.xml"/>
-   <property file="version.properties"/>
    <property name="title" value="ICPC Problem Set Editor"/>
    <property name="jar.name" value="problemset"/>
    <target name="stage">
