@@ -1,6 +1,6 @@
 # The ICPC Presentation Admin
 
-<img src="docs/adminIcon.png" alt="Presentation Admin" width="150px"/>
+![](docs/adminIcon.png){width=50}
 
 An ICPC Tool
 

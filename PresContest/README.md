@@ -1,6 +1,6 @@
 # The ICPC Presentation Client  
 
-<img src="docs/presentationIcon.png" alt="Presentation Client" width="150px"/>
+![](docs/presentationIcon.png){width=50}
 
 An ICPC Tool
 
@@ -232,7 +232,7 @@ and notes on their operation. (Note that the numbers will be different, and some
 presentations are only useful when used in conjunction with the Presentation Admin.)
 
  | # | Name | Internal Id | Notes
- | ---: | --- | --- | ---
+ | -: | ------ | --------- | ------------------
  | 1 | Bill Poucher | .bill | The venerable ICPC Executive Director.
  | 2 | Chart - Languages | .chart.language | 
  | 3 | Chart - Problem detail | .chart.problem.detail | 

@@ -1,6 +1,6 @@
 # Contest Utilities
 
-<img src="docs/contestUtilsIcon.png" alt="Contest Utilities" width="150px"/>
+![](docs/contestUtilsIcon.png){width=50}
 
 An ICPC Tool
 
@@ -11,4 +11,4 @@ data server.
 
 ## Usage
 
-Use --help to view individual tool options.
+Use `--help` to view individual tool options.
