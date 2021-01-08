@@ -34,4 +34,6 @@ required and that the CA configures their use into the CDS) include:
 * an RSS feed for the contest
 * the set of files which a team submitted to the judges for a specific run
 
+Note that a [Docker image](https://hub.docker.com/r/icpctools/cds) also exists for the CDS.
+
 {{< tooldownload name=CDS toolname=wlp.CDS doc=ContestDataServer >}}
