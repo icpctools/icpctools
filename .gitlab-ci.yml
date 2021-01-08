@@ -8,6 +8,7 @@ stages:
   - test
   - deploy
   - website
+  - docker
 
 build:
   image: icpctools/builder
@@ -121,3 +122,21 @@ update website:
     - git add .
     - git commit --allow-empty -m "Update website for icpctools commit $CI_COMMIT_SHA"
     - git push
+
+push cds docker image:
+  image: docker:19.03.12
+  stage: docker
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - when: never
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - apk add git
+    - docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_ACCESS_TOKEN}
+  script:
+    - VERSION=2.2.$(git rev-list $CI_COMMIT_SHA --count)
+    - cd build/cds/Docker
+    - docker build -t icpctools/cds:${VERSION} --build-arg CDS_VERSION=${VERSION} .
+    - docker push icpctools/cds:${VERSION}
