@@ -14,6 +14,5 @@
       <ant dir="PresAdmin"/>
       <ant dir="ContestUtil"/>
       <ant dir="ProblemSet"/>
-      <ant dir="ToolsWebsite"/>
    </target>
 </project>
