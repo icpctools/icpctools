@@ -1,7 +1,7 @@
 ---
 # GitLab build configuration
 default:
-  image: icpctools/build:full
+  image: ubuntu:20.04
 
 stages:
   - build
@@ -10,6 +10,7 @@ stages:
   - website
 
 build:
+  image: icpctools/builder
   stage: build
   rules:
     - if: '$CI_COMMIT_REF_NAME != "HEAD"'
@@ -90,18 +91,8 @@ push release to GitHub:
         fi
       done
 
-deploy to CSUS:
-  stage: deploy
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-      when: always
-    - when: never
-  script:
-    - export BUILDNUMBER=`echo dist/wlp.CDS-*.zip | sed 's#^dist/wlp.CDS-\([0-9\.]*\).zip*#\1#'`
-    - BUILD_JOB_ID=$(cat dist/ci_job_id.txt)
-    - curl "http://pc2.ecs.csus.edu/cgi-bin/grabgitlab_icpctools_artifacts.cgi?authkey=$AUTHKEY&url=https://gitlab.com/api/v4/projects/$CI_PROJECT_ID/jobs/$BUILD_JOB_ID/artifacts&buildnumber=$BUILDNUMBER"
-
 update website:
+  image: icpctools/website
   stage: website
   rules:
     - if: '$CI_COMMIT_REF_NAME == "master"'
