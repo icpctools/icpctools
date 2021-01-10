@@ -1,5 +1,5 @@
 ![platforms](https://img.shields.io/badge/platforms-macos|linux|windows-lightgrey.svg)
-[![MIT License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/deboer-tim/icpctools/blob/master/LICENSE.txt)
+[![MIT License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/icpctools/icpctools/blob/master/LICENSE.txt)
 [![pipeline status](https://gitlab.com/icpctools/icpctools/badges/master/pipeline.svg)](https://gitlab.com/icpctools/icpctools/commits/master)
 
 Welcome to the ICPC Tools!
@@ -53,11 +53,10 @@ Compatible CCS | Mechanism
 ## Contributing
 
 The ICPC Tools are developed, tested, and maintained by a group of ICPC volunteers. Bug reports, feature requests,
-and even just knowing what worked or didn't for your contest are always appreciated.
+and even just knowing what worked or didn't for your contest are always appreciated. Pull requests are also welcome,
+but if you want to implement a big feature it might be best to first create an issue to discuss it.
 
-Contributions are welcome in the form of PRs. To become a committer you must have a history of high quality bug reports,
-PRs, and be approved by Tim deBoer, John Clevenger, and Jeff Donahoo.
-
+To become a committer you must have a history of high quality bug reports, PRs, and be approved by the ICPC Tools team.
 
 ## License
 

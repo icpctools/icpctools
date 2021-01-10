@@ -44,4 +44,18 @@ The tools on this page are provided free and "as is", with the usual disclaimers
 
 In other words, we find these tools to be very useful in supporting a variety of common programming contest operations, and we think you will too; but we do not guarantee that they will do exactly what you want for *your* programming contest. All of the code has been written by and is directly under the control of the ICPC Systems Group, including that we take particular care to insure that there are no intentional bad things (malware) in them; however, neither ICPC nor its affiliates or volunteers make any guarantees at all regarding the code.
 
+## Contributing
+
+The ICPC Tools are developed, tested, and maintained by a group of ICPC volunteers on [GitHub](https://github.com/icpctools/icpctools).
+Bug reports, feature requests, and even just knowing what worked or didn't for your contest are always appreciated.
+Pull requests are also welcome, but if you want to implement a big feature it might be best to first create an issue to discuss it.
+
+To become a committer you must have a history of high quality bug reports, PRs, and be approved by the ICPC Tools team.
+
+## License
+
+All of the tools are provided under the [ICPC Software License](https://github.com/icpctools/icpctools/blob/master/LICENSE) license
+and are "Free as in Beer". We welcome you to use and enjoy them, but if you ever run into anyone who has contributed to
+them - Tim, John, Nicky, Sam, Troy, etc. we would greatly appreciate it if you'd buy us a beer, a stroopwafel, or some other suitable token!
+
 All ICPC Tools are Copyright &copy; by the ICPC.
