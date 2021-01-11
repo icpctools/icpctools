@@ -4,9 +4,6 @@
     <div class="row">
         <div class="col-8">
         <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">About the CDS</h3>
-           </div>
         <div class="card-body p-0">
             <p class="indent">The Contest Data Server provides secure, authenticated access to all contest data. It is primarily a Contest
             API server that proxies a Contest Control System and other contest services via standard HTTP requests, but it also has a web

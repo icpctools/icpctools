@@ -8,18 +8,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(urlPatterns = "/about")
-public class AboutServlet extends HttpServlet {
+@WebServlet(urlPatterns = { "/login", "/logout", "/loginError" })
+public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
-		response.setContentType("application/json");
 		response.setHeader("ICPC-Tools", "CDS");
 		response.setHeader("X-Frame-Options", "sameorigin");
-
-		request.getRequestDispatcher("/WEB-INF/jsps/about.jsp").forward(request, response);
+		if ("/loginError".equals(request.getRequestURI()))
+			request.getRequestDispatcher("/WEB-INF/jsps/loginError.jsp").forward(request, response);
+		else if ("/logout".equals(request.getRequestURI())) {
+			request.logout();
+			request.getSession().invalidate();
+			request.getRequestDispatcher("/WEB-INF/jsps/welcome.jsp").forward(request, response);
+		} else
+			request.getRequestDispatcher("/WEB-INF/jsps/login.jsp").forward(request, response);
 	}
 }
