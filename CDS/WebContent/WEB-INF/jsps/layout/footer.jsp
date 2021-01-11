@@ -23,7 +23,7 @@
     ICPC Tools CDS <%= Trace.getVersion() %>
   </div>
   <!-- Default to the left -->
-  <strong>Logged in as <%= ConfiguredContest.getUser(request) %></strong>
+  <strong>Logged in as <%= ConfiguredContest.getUser(request) %></strong> <% if (request.getRemoteUser() != null) { %> <a href="/logout">logout</a><% } %>
 </footer>
 </div>
 <!-- ./wrapper -->
