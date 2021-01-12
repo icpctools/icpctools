@@ -160,7 +160,7 @@
            </div>
         <div class="card-body">
             <p>In case of emergency - e.g. a missed event from a CCS - this form can be used to manually add or remove objects from the contest
-               event feed. Use vary carefully and sparingly! Adding or updating requires all three inputs, removal only requires type and id.</p>
+               event feed. Use very carefully and sparingly! Adding or updating requires all three inputs, removal only requires type and id.</p>
               <div class="box-body">
                 <div class="form-group">
                   <label for="input-type" class="col-sm-2 control-label">Type</label>

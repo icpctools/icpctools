@@ -28,9 +28,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>Build pipeline (private)</td>
+                    <td>All builds</td>
                     <td>
-                        <a href="https://pc2.ecs.csus.edu/icpctools/gitlabbuilds" target="_blank">https://pc2.ecs.csus.edu/icpctools/gitlabbuilds</a>
+                        <a href="https://tools.icpc.global/all-builds/" target="_blank">https://tools.icpc.global/all-builds/</a>
                     </td>
                 </tr>
                 </tbody>
