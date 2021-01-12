@@ -926,7 +926,7 @@ public class ConfiguredContest {
 		}
 	}
 
-	public static String getUser(HttpServletRequest request) {
+	public static String getRole(HttpServletRequest request) {
 		String role = "public";
 		if (Role.isAdmin(request))
 			role = "admin";
@@ -936,6 +936,11 @@ public class ConfiguredContest {
 			role = "trusted";
 		else if (Role.isBalloon(request))
 			role = "balloon";
+		return role;
+	}
+
+	public static String getUser(HttpServletRequest request) {
+		String role = getRole(request);
 		String user = request.getRemoteUser();
 		if (user == null)
 			return role;
