@@ -32,8 +32,7 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/fontawesome-free/css/all.min.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/adminlte.min.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cds.css"/>
-  <!-- Google Font: Source Sans Pro -->
-  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet"/>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/source-sans-pro.css"/>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -52,7 +51,7 @@
       </ul>
 
       <!-- SEARCH FORM -->
-      <form class="form-inline ml-3" action="/search">
+      <form class="form-inline ml-3" action="${pageContext.request.contextPath}/search">
         <div class="input-group input-group-sm">
           <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search"
             name="value"/>
@@ -63,6 +62,31 @@
           </div>
         </div>
       </form>
+
+      <!-- Right navbar links -->
+      <ul class="navbar-nav ml-auto">
+        <% if (request.getRemoteUser() == null) { %>
+          <li class="nav-item dropdown">
+            <a class="nav-link" href="${pageContext.request.contextPath}/login">
+              <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Login
+            </a>
+          </li>
+        <% } else { %>
+          <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#">
+              <i class="fas fa-user"></i>&nbsp;&nbsp;
+              <%= request.getRemoteUser() %>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+              <span class="dropdown-item dropdown-header">Role: <%= ConfiguredContest.getRole(request) %></span>
+              <div class="dropdown-divider"></div>
+              <a href="${pageContext.request.contextPath}/logout" class="dropdown-item dropdown-footer">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout
+              </a>
+            </div>
+          </li>
+        <% } %>
+      </ul>
     </nav>
     <!-- /.navbar -->
 
@@ -101,7 +125,7 @@
               <ul class="nav nav-treeview">
                 <% for (int i = 0; i < menuPages.length; i++) { %>
                 <li class="nav-item">
-                  <a href="/contests/<%= cc3.getId() %><%= menuPages[i] %>"
+                  <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
                     <i class="far fa-circle nav-icon"></i>
                     <p><%= menuTitles[i] %></p>
@@ -114,7 +138,7 @@
             <% } } %>
             
             <li class="nav-item">
-              <a href="/presentation/admin/web"
+              <a href="${pageContext.request.contextPath}/presentation/admin/web"
                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("presentation/admin/web")) { %> active<% } %>">
                 <i class="nav-icon fas fa-address-card"></i>
                 <p>Presentation Admin</p>
@@ -133,7 +157,7 @@
               <ul class="nav nav-treeview">
                 <% for (int v = 1; v < 4; v++) { %>
                 <li class="nav-item">
-                  <a href="/video/control/<%= v %>"
+                  <a href="${pageContext.request.contextPath}/video/control/<%= v %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/" + v)) { %> active<% } %>">
                     <i class="far fa-circle nav-icon"></i>
                     <p>Channel <%= v %></p>
@@ -144,7 +168,7 @@
             </li>
 
             <li class="nav-item">
-              <a href="/about"
+              <a href="${pageContext.request.contextPath}/about"
                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/about")) { %> active<% } %>">
                 <i class="nav-icon fas fa-info"></i>
                 <p>About</p>

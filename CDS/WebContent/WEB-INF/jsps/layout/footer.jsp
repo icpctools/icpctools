@@ -18,12 +18,8 @@
 
 <!-- Main Footer -->
 <footer class="main-footer">
-  <!-- To the right -->
-  <div class="float-right d-none d-sm-inline">
-    ICPC Tools CDS <%= Trace.getVersion() %>
-  </div>
   <!-- Default to the left -->
-  <strong>Logged in as <%= ConfiguredContest.getUser(request) %></strong> <% if (request.getRemoteUser() != null) { %> <a href="/logout">logout</a><% } %>
+  <strong>ICPC Tools CDS <%= Trace.getVersion() %></strong>
 </footer>
 </div>
 <!-- ./wrapper -->
