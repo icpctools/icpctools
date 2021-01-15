@@ -51,12 +51,15 @@ public class ScoreboardUtil {
 		}
 
 		public String printSummary(boolean includeDetails) {
-			String s = numTeams + " teams and " + numProblems + " problems compared. ";
-			if (isOk())
-				return s + "No differences found.";
-
 			StringBuilder sb = new StringBuilder();
-			sb.append(s);
+			if (numTeams + numProblems == 0)
+				sb.append("No teams or mismatch in number of teams. ");
+			else
+				sb.append(numTeams + " teams and " + numProblems + " problems compared. ");
+
+			if (isOk())
+				return sb.append("No differences found.").toString();
+
 			if (different == 1)
 				sb.append(different + " difference found");
 			else
@@ -93,7 +96,12 @@ public class ScoreboardUtil {
 		}
 
 		public String printSummaryHTML(boolean includeDetails) {
-			StringBuilder sb = new StringBuilder(numTeams + " teams and " + numProblems + " problems compared.<p/>");
+			StringBuilder sb = new StringBuilder();
+			if (numTeams + numProblems == 0)
+				sb.append("No teams or mismatch in number of teams.<p/>");
+			else
+				sb.append(numTeams + " teams and " + numProblems + " problems compared.<p/>");
+
 			if (isOk())
 				return sb.append("No differences found.").toString();
 
