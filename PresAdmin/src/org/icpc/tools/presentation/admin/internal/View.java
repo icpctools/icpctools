@@ -588,7 +588,7 @@ public class View {
 
 			@Override
 			public void run() throws Exception {
-				writeProperty("window", "1");
+				writeProperty("displayConfig", "1");
 			}
 		});
 
@@ -612,7 +612,7 @@ public class View {
 
 					@Override
 					public void run() throws Exception {
-						writeProperty("window", "2");
+						writeProperty("displayConfig", "2");
 					}
 				});
 
@@ -627,7 +627,7 @@ public class View {
 
 					@Override
 					public void run() throws Exception {
-						writeProperty("window", "3");
+						writeProperty("displayConfig", "3");
 					}
 				});
 
@@ -642,7 +642,7 @@ public class View {
 
 					@Override
 					public void run() throws Exception {
-						writeProperty("window", "1x");
+						writeProperty("displayConfig", "1x");
 					}
 				});
 
@@ -713,15 +713,15 @@ public class View {
 		propCombo.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent event) {
-				final PresentationInfo pw = presentationList.getSelection();
-				if (pw == null)
+				final PresentationInfo info = presentationList.getSelection();
+				if (info == null)
 					return;
 
 				if ((event.character == '\n' || event.character == '\r') && propCombo.getText().length() > 0) {
 					executeAction(new RemoteAction() {
 						@Override
 						public void run() throws Exception {
-							writeProperty(getPresentationKey(pw.getClassName()), propCombo.getText());
+							writeProperty(getPresentationKey(info.getClassName()));
 						}
 					});
 				}
@@ -740,8 +740,7 @@ public class View {
 					public void run() throws Exception {
 						PresentationInfo info = getSelectedPresentation();
 						writeProperty("presentation", "1100|" + info.getClassName());
-						if (propCombo.getText().length() > 0)
-							writeProperty(getPresentationKey(info.getClassName()), propCombo.getText());
+						writeProperty(getPresentationKey(info.getClassName()));
 					}
 				});
 
@@ -844,6 +843,17 @@ public class View {
 				}
 			}
 		});
+	}
+
+	protected void writeProperty(String presKey) throws Exception {
+		String prop = propCombo.getText();
+		if (prop.length() == 0)
+			return;
+
+		if (prop.startsWith("pos:"))
+			writeProperty("displayConfig", prop.substring(4));
+		else
+			writeProperty(presKey, prop);
 	}
 
 	@SuppressWarnings("unused")

@@ -21,15 +21,15 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
+import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
-import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.Transition;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 public class PresentationClient extends BasicClient {
 	private static final String HIDDEN = "hidden";
-	private static final String FULL_SCREEN_WINDOW = "full_screen_window";
+	private static final String DISPLAY_CONFIG = "display_config";
 	private static final String FPS = "fps";
 	private static final String PRESENTATION = "presentation";
 
@@ -89,11 +89,11 @@ public class PresentationClient extends BasicClient {
 
 	protected void handleProperty(String key, String value) {
 		Trace.trace(Trace.USER, key + ": " + value);
-		if ("window".equals(key)) {
+		if ("displayConfig".equals(key)) {
 			if (window == null || value == null)
 				return;
 
-			window.setWindow(new DeviceMode(value));
+			window.setDisplayConfig(new DisplayConfig(value));
 			writeInfo();
 		}
 		if ("hidden".equals(key)) {
@@ -267,7 +267,9 @@ public class PresentationClient extends BasicClient {
 			je.encode(WIDTH, d.width);
 			je.encode(HEIGHT, d.height);
 			je.encode(HIDDEN, window.isHidden());
-			je.encode(FULL_SCREEN_WINDOW, window.getFullScreenWindow());
+			DisplayConfig displayConfig = window.getDisplayConfig();
+			if (displayConfig != null)
+				je.encode(DISPLAY_CONFIG, displayConfig.toDisplayString());
 		});
 	}
 
