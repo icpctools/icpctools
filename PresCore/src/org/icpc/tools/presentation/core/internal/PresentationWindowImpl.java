@@ -703,8 +703,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		if (displayConfig != null && displayConfig.id != -1) {
 			Dimension d = getDisplaySize();
-			g.translate(-d.width * (displayConfig.pp % displayConfig.ww),
-					-d.height * (displayConfig.pp / displayConfig.ww));
+			g.translate(-d.width * (displayConfig.pos % displayConfig.ww),
+					-d.height * (displayConfig.pos / displayConfig.ww));
 		}
 
 		if (segment.trans == null) {

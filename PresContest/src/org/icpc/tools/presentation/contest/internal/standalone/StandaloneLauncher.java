@@ -31,7 +31,7 @@ public class StandaloneLauncher {
 		sortPresentationsByCategory(presentations);
 
 		List<String> presList = new ArrayList<String>();
-		String[] displayStr = new String[1];
+		String[] displayStr = new String[2];
 		boolean[] showFPS = new boolean[1];
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -44,6 +44,10 @@ public class StandaloneLauncher {
 				} else if ("--display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "#:string");
 					displayStr[0] = (String) options.get(0);
+					return true;
+				} else if ("--multi-display".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "#:string");
+					displayStr[1] = (String) options.get(0);
 					return true;
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
@@ -82,7 +86,7 @@ public class StandaloneLauncher {
 
 		ContestSource.getInstance().outputValidation();
 
-		launch(pres, displayStr[0], showFPS[0]);
+		launch(pres, displayStr, showFPS[0]);
 	}
 
 	protected static void showHelp(List<PresentationInfo> presentations) {
@@ -186,7 +190,7 @@ public class StandaloneLauncher {
 		return null;
 	}
 
-	protected static void launch(PresentationInfo[] pres, String displayStr, boolean showFPS) {
+	protected static void launch(PresentationInfo[] pres, String[] displayStr, boolean showFPS) {
 		Trace.trace(Trace.INFO, "Launching presentation");
 		Trace.trace(Trace.INFO, "Source: " + ContestSource.getInstance());
 		Trace.trace(Trace.INFO, "Presentations:");
@@ -208,7 +212,7 @@ public class StandaloneLauncher {
 
 		IPresentationHandler window = PresentationWindow.open();
 		try {
-			window.setDisplayConfig(new DisplayConfig(displayStr));
+			window.setDisplayConfig(new DisplayConfig(displayStr[0], displayStr[1]));
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid display option: " + displayStr + " " + e.getMessage());
 		}

@@ -29,7 +29,8 @@ import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 public class PresentationClient extends BasicClient {
 	private static final String HIDDEN = "hidden";
-	private static final String DISPLAY_CONFIG = "display_config";
+	private static final String DISPLAY = "display";
+	private static final String MULTI_DISPLAY = "multi_display";
 	private static final String FPS = "fps";
 	private static final String PRESENTATION = "presentation";
 
@@ -93,7 +94,14 @@ public class PresentationClient extends BasicClient {
 			if (window == null || value == null)
 				return;
 
-			window.setDisplayConfig(new DisplayConfig(value));
+			String display = value;
+			String multiDisplay = null;
+			int ind = value.indexOf(",");
+			if (ind > 0) {
+				display = value.substring(0, ind);
+				multiDisplay = value.substring(ind + 1);
+			}
+			window.setDisplayConfig(new DisplayConfig(display, multiDisplay));
 			writeInfo();
 		}
 		if ("hidden".equals(key)) {
@@ -268,8 +276,12 @@ public class PresentationClient extends BasicClient {
 			je.encode(HEIGHT, d.height);
 			je.encode(HIDDEN, window.isHidden());
 			DisplayConfig displayConfig = window.getDisplayConfig();
-			if (displayConfig != null)
-				je.encode(DISPLAY_CONFIG, displayConfig.toDisplayString());
+			if (displayConfig != null) {
+				je.encode(DISPLAY, displayConfig.getDisplay());
+				String multi = displayConfig.getMultiDisplay();
+				if (multi != null)
+					je.encode(MULTI_DISPLAY, multi);
+			}
 		});
 	}
 

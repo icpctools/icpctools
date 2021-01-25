@@ -64,7 +64,8 @@ public class ClientsControl extends Canvas {
 	private static final String WIDTH = "width";
 	private static final String HEIGHT = "height";
 	private static final String HIDDEN = "hidden";
-	private static final String DISPLAY_CONFIG = "display_config";
+	private static final String DISPLAY = "display";
+	private static final String MULTI_DISPLAY = "multi_display";
 	private static final String FPS = "fps";
 	private static final String PRESENTATION = "presentation";
 
@@ -319,8 +320,11 @@ public class ClientsControl extends Canvas {
 					ci.height = obj.getInt(HEIGHT);
 				if (obj.containsKey(HIDDEN))
 					ci.hidden = obj.getBoolean(HIDDEN);
-				if (obj.containsKey(DISPLAY_CONFIG))
-					ci.displayConfig = new DisplayConfig(obj.getString(DISPLAY_CONFIG));
+				if (obj.containsKey(DISPLAY)) {
+					String display = obj.getString(DISPLAY);
+					String multiDisplay = obj.getString(MULTI_DISPLAY);
+					ci.displayConfig = new DisplayConfig(display, multiDisplay);
+				}
 				if (obj.containsKey(FPS))
 					ci.fps = obj.getInt(FPS);
 				if (obj.containsKey(PRESENTATION))
