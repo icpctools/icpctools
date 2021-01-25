@@ -43,7 +43,7 @@ public class ClientLauncher {
 		System.setProperty("apple.awt.application.name", "Presentation Client");
 
 		String[] nameStr = new String[1];
-		final String[] displayStr = new String[1];
+		final String[] displayStr = new String[2];
 		boolean[] showFPS = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -55,6 +55,10 @@ public class ClientLauncher {
 				} else if ("--display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "#:string");
 					displayStr[0] = (String) options.get(0);
+					return true;
+				} else if ("--multi-display".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "#:string");
+					displayStr[1] = (String) options.get(0);
 					return true;
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
@@ -98,7 +102,7 @@ public class ClientLauncher {
 				if (client2.getUID() != -1)
 					windowImpl.reduceThumbnails();
 				if (connected && !windowImpl.isVisible()) {
-					windowImpl.setDisplayConfig(new DisplayConfig(displayStr[0]));
+					windowImpl.setDisplayConfig(new DisplayConfig(displayStr[0], displayStr[1]));
 					windowImpl.openIt();
 					client2.writeInfo();
 				}
