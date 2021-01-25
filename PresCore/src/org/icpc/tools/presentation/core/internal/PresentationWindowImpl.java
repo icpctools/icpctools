@@ -4,6 +4,8 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.DisplayMode;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,6 +13,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -21,6 +24,8 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.LockSupport;
@@ -28,6 +33,8 @@ import java.util.concurrent.locks.LockSupport;
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.presentation.core.DisplayConfig;
+import org.icpc.tools.presentation.core.DisplayConfig.Mode;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
 import org.icpc.tools.presentation.core.Transition;
@@ -52,8 +59,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	private static final int DEFAULT_THUMBNAIL_HEIGHT = 180;
 	private static final long DEFAULT_THUMBNAIL_DELAY = 2000000000L;
-
-	private int pw, ph, pp = -1;
 
 	static class PresentationSegment {
 		protected long startTime;
@@ -227,6 +232,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private long timeUntilPlanChange = -1;
 	private PresentationPlan nextPlan = null;
 	private long updateTime = 0;
+	private DisplayConfig displayConfig;
 
 	private IThumbnailListener thumbnailListener;
 
@@ -252,7 +258,54 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		setCursor(getCustomCursor());
 
-		DeviceMode.logDevices();
+		logDevices();
+	}
+
+	private static void logDevices() {
+		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+
+		for (int i = 0; i < gds.length; i++) {
+			GraphicsDevice gd = gds[i];
+			if (gd.getType() == GraphicsDevice.TYPE_RASTER_SCREEN) {
+				Trace.trace(Trace.INFO, "Display " + (i + 1) + " found, modes:");
+
+				DisplayMode[] modes = gd.getDisplayModes();
+				Arrays.sort(modes, new Comparator<DisplayMode>() {
+					@Override
+					public int compare(DisplayMode m1, DisplayMode m2) {
+						int d = m2.getWidth() - m1.getWidth();
+						if (d != 0)
+							return d;
+						d = m2.getHeight() - m1.getHeight();
+						if (d != 0)
+							return d;
+						d = m2.getRefreshRate() - m1.getRefreshRate();
+						if (d != 0)
+							return d;
+						d = m2.getBitDepth() - m1.getBitDepth();
+						if (d != 0)
+							return d;
+						return 0;
+					}
+				});
+
+				String last = "";
+				for (DisplayMode mode : modes) {
+					String cur = mode.getWidth() + "x" + mode.getHeight() + " @ " + mode.getRefreshRate() + "hz in "
+							+ mode.getBitDepth() + "bit";
+					if (!last.equals(cur))
+						Trace.trace(Trace.INFO, "   " + cur);
+					last = cur;
+				}
+				for (GraphicsConfiguration cfg : gd.getConfigurations()) {
+					Trace.trace(Trace.INFO,
+							"   Config: " + cfg.getBufferCapabilities().isFullScreenRequired() + ", "
+									+ cfg.getBufferCapabilities().isMultiBufferAvailable() + ", "
+									+ cfg.getBufferCapabilities().isPageFlipping() + ", "
+									+ cfg.getColorModel().getClass().getSimpleName());
+				}
+			}
+		}
 	}
 
 	@Override
@@ -433,22 +486,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	@Override
 	public void setProperty(String key, String value) {
-		if (value != null && value.startsWith("pos:")) {
-			if (value.length() == 4)
-				pp = -1;
-			else {
-				try {
-					pw = Integer.parseInt(value.charAt(4) + "");
-					ph = Integer.parseInt(value.charAt(5) + "");
-					pp = Integer.parseInt(value.charAt(6) + "");
-				} catch (Exception e) {
-					Trace.trace(Trace.WARNING, " " + value);
-				}
-			}
-			setPresentationSize();
-			return;
-		}
-
 		if (currentPlan != null)
 			currentPlan.setProperty(key, value);
 
@@ -513,8 +550,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 	@Override
 	public Dimension getPresentationSize() {
 		Dimension d = getDisplaySize();
-		if (pp != -1)
-			d.setSize(d.width * pw, d.height * ph);
+		if (displayConfig != null && displayConfig.id != -1)
+			d.setSize(d.width * displayConfig.ww, d.height * displayConfig.hh);
 		return d;
 	}
 
@@ -527,9 +564,81 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	@Override
-	public void setWindow(DeviceMode p) {
-		p.apply(this);
+	public void setDisplayConfig(DisplayConfig displayConfig) {
+		this.displayConfig = displayConfig;
+		apply(displayConfig);
 		setPresentationSize();
+	}
+
+	private void apply(DisplayConfig dc) {
+		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+		if (dc.device >= gds.length)
+			throw new IllegalArgumentException("Invalid device: " + device);
+
+		// exit full screen window if necessary
+		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX) {
+			for (int i = 0; i < gds.length; i++) {
+				if (this.equals(gds[i].getFullScreenWindow()))
+					gds[i].setFullScreenWindow(null);
+			}
+		}
+
+		GraphicsDevice gDevice = gds[dc.device];
+		GraphicsConfiguration gConfig = gDevice.getDefaultConfiguration();
+		Rectangle r = gConfig.getBounds();
+		Insets in = Toolkit.getDefaultToolkit().getScreenInsets(gConfig);
+		r.x += in.left;
+		r.y += in.top;
+		r.height -= in.top + in.bottom;
+		r.width -= in.left + in.right;
+
+		if (dc.mode == Mode.TOP_LEFT)
+			setBounds(r.x, r.y, r.width / 2, r.height / 2);
+		else if (dc.mode == Mode.TOP_RIGHT)
+			setBounds(r.x + r.width / 2, r.y, r.width / 2, r.height / 2);
+		else if (dc.mode == Mode.BOTTOM_LEFT)
+			setBounds(r.x, r.y + r.height / 2, r.width / 2, r.height / 2);
+		else if (dc.mode == Mode.BOTTOM_RIGHT)
+			setBounds(r.x + r.width / 2, r.y + r.height / 2, r.width / 2, r.height / 2);
+		else if (dc.mode == Mode.MEDIUM)
+			setBounds(r.x, r.y, r.width * 2 / 3, r.height * 2 / 3);
+		else if (dc.mode == Mode.MEDIUM_BL)
+			setBounds(r.x, r.y + r.height * 5 / 12, r.width * 7 / 12, r.height * 7 / 12);
+		else if (dc.mode == Mode.MIDDLE)
+			setBounds(r.x + r.width / 6, r.y + r.height / 6, r.width * 2 / 3, r.height * 2 / 3);
+		else if (dc.mode == Mode.ALMOST)
+			setBounds(r.x + r.width / 12, r.y + r.height / 12, r.width * 5 / 6, r.height * 5 / 6);
+		else if (dc.mode == Mode.FULL_WINDOW)
+			setBounds(r.x, r.y, r.width, r.height);
+
+		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX) {
+			requestFocus();
+			return;
+		}
+
+		if (dc.mode == Mode.FULL_SCREEN_MAX) {
+			DisplayMode bestMode = null;
+			int area = 0;
+			for (DisplayMode dm : gDevice.getDisplayModes()) {
+				if (dm.getRefreshRate() >= 40 && dm.getWidth() * dm.getHeight() > area) {
+					area = dm.getWidth() * dm.getHeight();
+					bestMode = dm;
+				}
+			}
+
+			if (bestMode != null) {
+				Trace.trace(Trace.INFO, "Best display mode: " + bestMode.getWidth() + " x " + bestMode.getHeight());
+				gDevice.setDisplayMode(bestMode);
+			}
+		}
+
+		gDevice.setFullScreenWindow(this);
+		requestFocus();
+	}
+
+	@Override
+	public DisplayConfig getDisplayConfig() {
+		return displayConfig;
 	}
 
 	@Override
@@ -592,9 +701,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 		}
 		repeatTime -= segment.startTime;
 
-		if (pp != -1) {
+		if (displayConfig != null && displayConfig.id != -1) {
 			Dimension d = getDisplaySize();
-			g.translate(-d.width * (pp % pw), -d.height * (pp / pw));
+			g.translate(-d.width * (displayConfig.pp % displayConfig.ww),
+					-d.height * (displayConfig.pp / displayConfig.ww));
 		}
 
 		if (segment.trans == null) {
@@ -654,6 +764,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	protected void paintImpl(Graphics2D g, boolean hidden2) {
 		long time = getCurrentTimeMs();
+		Font defaultFont = g.getFont();
 		if (currentPlan != null && time > currentPlan.endTime - PLAN_FADE_TIME) {
 			if (time < currentPlan.endTime)
 				g.setComposite(AlphaComposite.SrcOver.derive((currentPlan.endTime - time) / (float) PLAN_FADE_TIME));
@@ -699,6 +810,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		}
 		if (showFPS) {
 			g.setColor(Color.WHITE);
+			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
 			String s = fps + " fps";
 			Dimension d = getSize();

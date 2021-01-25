@@ -10,7 +10,7 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.presentation.contest.internal.standalone.TeamUtil;
-import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
+import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.PresentationWindow;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
@@ -98,7 +98,7 @@ public class ClientLauncher {
 				if (client2.getUID() != -1)
 					windowImpl.reduceThumbnails();
 				if (connected && !windowImpl.isVisible()) {
-					windowImpl.setWindow(new DeviceMode(displayStr[0]));
+					windowImpl.setDisplayConfig(new DisplayConfig(displayStr[0]));
 					windowImpl.openIt();
 					client2.writeInfo();
 				}

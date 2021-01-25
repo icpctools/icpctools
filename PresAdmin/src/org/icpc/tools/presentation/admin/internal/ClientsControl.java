@@ -64,7 +64,7 @@ public class ClientsControl extends Canvas {
 	private static final String WIDTH = "width";
 	private static final String HEIGHT = "height";
 	private static final String HIDDEN = "hidden";
-	private static final String FULL_SCREEN_WINDOW = "full_screen_window";
+	private static final String DISPLAY_CONFIG = "display_config";
 	private static final String FPS = "fps";
 	private static final String PRESENTATION = "presentation";
 
@@ -88,9 +88,10 @@ public class ClientsControl extends Canvas {
 		int height;
 		int fps;
 		boolean hidden;
-		int fullScreen = -1;
+		DisplayConfig displayConfig;
 		String pres;
 		Image thumbnail;
+		int[] multiscreen;
 	}
 
 	public interface IDropListener {
@@ -192,9 +193,11 @@ public class ClientsControl extends Canvas {
 			public void drop(DropTargetEvent event) {
 				final PresentationInfo info = transfer.getSelection();
 				Point p = toControl(event.x, event.y);
-				Client c = getClientAt(p.x, p.y);
-				if (c != null)
-					dropListener.drop(c.uid, info);
+				Client[] cs = getClientAt(p.x, p.y);
+				if (cs != null) {
+					for (Client c : cs)
+						dropListener.drop(c.uid, info);
+				}
 			}
 		});
 	}
@@ -316,8 +319,8 @@ public class ClientsControl extends Canvas {
 					ci.height = obj.getInt(HEIGHT);
 				if (obj.containsKey(HIDDEN))
 					ci.hidden = obj.getBoolean(HIDDEN);
-				if (obj.containsKey(FULL_SCREEN_WINDOW))
-					ci.fullScreen = obj.getInt(FULL_SCREEN_WINDOW);
+				if (obj.containsKey(DISPLAY_CONFIG))
+					ci.displayConfig = new DisplayConfig(obj.getString(DISPLAY_CONFIG));
 				if (obj.containsKey(FPS))
 					ci.fps = obj.getInt(FPS);
 				if (obj.containsKey(PRESENTATION))
@@ -480,7 +483,7 @@ public class ClientsControl extends Canvas {
 					return false;
 			}
 			ClientInfo ci = clientStates.get(uid);
-			if (ci != null && ci.fullScreen == display)
+			if (ci != null && ci.displayConfig != null && ci.displayConfig.device == display)
 				return false;
 		}
 		return true;
@@ -494,7 +497,7 @@ public class ClientsControl extends Canvas {
 			int uid = selection.get(i);
 			ClientInfo ci = clientStates.get(uid);
 			if (ci != null) {
-				if (ci.fullScreen == -1)
+				if (ci.displayConfig != null && ci.displayConfig.device == -1)
 					return false;
 			}
 		}
@@ -548,14 +551,16 @@ public class ClientsControl extends Canvas {
 		if ((statemask & SWT.CTRL) == 0)
 			sel = new ArrayList<>();
 
-		Client c = getClientAt(x, y);
-		if (c != null) {
-			int uid = c.uid;
-			boolean selected = sel.contains(uid);
-			if (selected)
-				sel.remove((Integer) uid);
-			else
-				sel.add(uid);
+		Client[] cs = getClientAt(x, y);
+		if (cs != null) {
+			for (Client c : cs) {
+				int uid = c.uid;
+				boolean selected = sel.contains(uid);
+				if (selected)
+					sel.remove((Integer) uid);
+				else
+					sel.add(uid);
+			}
 
 			selection = sel;
 
@@ -569,12 +574,12 @@ public class ClientsControl extends Canvas {
 		}
 	}
 
-	protected Client getClientAt(int x, int y) {
+	protected Client[] getClientAt(int x, int y) {
 		int ys = getVerticalBar().getSelection();
 		for (Client c : clients) {
 			Rectangle r = clientRects.get(c.uid);
 			if (r != null && r.contains(x, y + ys))
-				return c;
+				return new Client[] { c }; // TODO - more than one
 		}
 		return null;
 	}
@@ -786,7 +791,7 @@ public class ClientsControl extends Canvas {
 							if (i > 0)
 								ss += ", ";
 							ss += c.displays[i].width + "x" + c.displays[i].height + "@" + c.displays[i].refresh + "hz";
-							if (ci.fullScreen == i)
+							if (ci.displayConfig != null && ci.displayConfig.device == i)
 								ss += "*";
 						}
 					}

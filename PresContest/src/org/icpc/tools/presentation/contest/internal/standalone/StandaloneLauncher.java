@@ -8,8 +8,8 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
+import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
-import org.icpc.tools.presentation.core.IPresentationHandler.DeviceMode;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
 import org.icpc.tools.presentation.core.internal.PresentationInfo;
@@ -96,7 +96,7 @@ public class StandaloneLauncher {
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
-		System.out.println("     --fps #");
+		System.out.println("     --fps");
 		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
@@ -208,7 +208,7 @@ public class StandaloneLauncher {
 
 		IPresentationHandler window = PresentationWindow.open();
 		try {
-			window.setWindow(new DeviceMode(displayStr));
+			window.setDisplayConfig(new DisplayConfig(displayStr));
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid display option: " + displayStr + " " + e.getMessage());
 		}
