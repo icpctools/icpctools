@@ -39,7 +39,7 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation;
-import org.icpc.tools.presentation.core.IPresentationHandler.DisplayConfig;
+import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
 
