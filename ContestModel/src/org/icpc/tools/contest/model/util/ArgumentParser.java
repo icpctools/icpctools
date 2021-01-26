@@ -215,21 +215,36 @@ public class ArgumentParser {
 					option = s.toLowerCase();
 					list = new ArrayList<>(2);
 				} else {
-					try {
-						int i = Integer.parseInt(s);
-						list.add(i);
-					} catch (Exception e) {
-						try {
-							float f = Float.parseFloat(s);
-							list.add(f);
-						} catch (Exception ex) {
-							if ("true".equalsIgnoreCase(s))
-								list.add(Boolean.TRUE);
-							else if ("false".equalsIgnoreCase(s))
-								list.add(Boolean.FALSE);
-							else
-								list.add(s);
+					if ("true".equalsIgnoreCase(s))
+						list.add(Boolean.TRUE);
+					else if ("false".equalsIgnoreCase(s))
+						list.add(Boolean.FALSE);
+					else {
+						boolean isInt = true;
+						boolean isFloat = true;
+						for (char c : s.toCharArray()) {
+							if (!Character.isDigit(c) && c != '-') {
+								isInt = false;
+								isFloat = false;
+							}
+							if (c != '.')
+								isFloat = false;
 						}
+						if (isInt)
+							try {
+								list.add(Integer.parseInt(s));
+								continue;
+							} catch (Exception e) {
+								// ignore
+							}
+						if (isFloat)
+							try {
+								list.add(Float.parseFloat(s));
+								continue;
+							} catch (Exception e) {
+								// ignore
+							}
+						list.add(s);
 					}
 				}
 			}
