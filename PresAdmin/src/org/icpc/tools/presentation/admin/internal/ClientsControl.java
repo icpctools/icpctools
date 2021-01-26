@@ -178,7 +178,7 @@ public class ClientsControl extends Canvas {
 			@Override
 			public void dragOver(DropTargetEvent event) {
 				Point p = toControl(event.x, event.y);
-				if (getClientAt(p.x, p.y) == null)
+				if (getClientsAt(p.x, p.y) == null)
 					event.detail = DND.DROP_NONE;
 				else
 					event.detail = DND.DROP_COPY;
@@ -194,7 +194,7 @@ public class ClientsControl extends Canvas {
 			public void drop(DropTargetEvent event) {
 				final PresentationInfo info = transfer.getSelection();
 				Point p = toControl(event.x, event.y);
-				Client[] cs = getClientAt(p.x, p.y);
+				Client[] cs = getClientsAt(p.x, p.y);
 				if (cs != null) {
 					for (Client c : cs)
 						dropListener.drop(c.uid, info);
@@ -347,8 +347,17 @@ public class ClientsControl extends Canvas {
 		Image img = new Image(device, id2[0]);
 
 		// rescale if necessary
+		Dimension d = IMG_DIM;
+		synchronized (uiLock) {
+			ClientInfo ci = clientStates.get(id);
+			if (ci != null && ci.displayConfig != null && ci.displayConfig.id != -1) {
+				DisplayConfig dc = ci.displayConfig;
+				d = new Dimension(IMG_DIM.width / dc.ww, IMG_DIM.height / dc.hh);
+			}
+		}
+
 		Rectangle r = img.getBounds();
-		double scale = Math.min((float) IMG_DIM.width / (float) r.width, (float) IMG_DIM.height / (float) r.height);
+		double scale = Math.min((float) d.width / (float) r.width, (float) d.height / (float) r.height);
 		if (scale != 1.0) {
 			Point p = new Point((int) (r.width * scale), (int) (r.height * scale));
 
@@ -525,18 +534,33 @@ public class ClientsControl extends Canvas {
 
 		int numColumns = Math.max(1, rect.width / (IMG_DIM.width + GAP));
 
+		Map<Integer, Rectangle> multiDisplay = new HashMap<>();
 		for (Client c : clients) {
 			if (filter.contains(c.type))
 				continue;
 
 			Rectangle rr = new Rectangle(i, j, IMG_DIM.width, IMG_DIM.height + fh + TEXT_GAP);
+
+			ClientInfo ci = clientStates.get(c.uid);
+			boolean found = false;
+			if (ci != null && ci.displayConfig != null && ci.displayConfig.id != -1) {
+				Rectangle mdr = multiDisplay.get(ci.displayConfig.id);
+				if (mdr != null) {
+					rr = mdr;
+					found = true;
+				} else
+					multiDisplay.put(ci.displayConfig.id, rr);
+			}
+
 			maxHeight = Math.max(maxHeight, rr.height);
 			map.put(c.uid, rr);
 			max.width = Math.max(max.width, i + BORDER + rr.width);
 			max.height = Math.max(max.height, j + BORDER + rr.height);
 
-			i += rr.width;
-			i += GAP;
+			if (!found) {
+				i += rr.width;
+				i += GAP;
+			}
 			count++;
 			if (count >= numColumns) {
 				count = 0;
@@ -555,7 +579,7 @@ public class ClientsControl extends Canvas {
 		if ((statemask & SWT.CTRL) == 0)
 			sel = new ArrayList<>();
 
-		Client[] cs = getClientAt(x, y);
+		Client[] cs = getClientsAt(x, y);
 		if (cs != null) {
 			for (Client c : cs) {
 				int uid = c.uid;
@@ -578,12 +602,24 @@ public class ClientsControl extends Canvas {
 		}
 	}
 
-	protected Client[] getClientAt(int x, int y) {
+	protected Client[] getClientsAt(int x, int y) {
 		int ys = getVerticalBar().getSelection();
 		for (Client c : clients) {
 			Rectangle r = clientRects.get(c.uid);
-			if (r != null && r.contains(x, y + ys))
-				return new Client[] { c }; // TODO - more than one
+			if (r != null && r.contains(x, y + ys)) {
+				ClientInfo ci = clientStates.get(c.uid);
+				if (ci != null && ci.displayConfig != null && ci.displayConfig.id != -1) {
+					int id = ci.displayConfig.id;
+					List<Client> list = new ArrayList<>();
+					for (Client cc : clients) {
+						ClientInfo ci2 = clientStates.get(cc.uid);
+						if (ci2 != null && ci2.displayConfig != null && ci2.displayConfig.id == id)
+							list.add(cc);
+					}
+					return list.toArray(new Client[0]);
+				}
+				return new Client[] { c };
+			}
 		}
 		return null;
 	}
@@ -663,6 +699,7 @@ public class ClientsControl extends Canvas {
 		trans.dispose();
 
 		synchronized (uiLock) {
+			// draw backgrounds first
 			for (Client c : clients) {
 				int uid = c.uid;
 				Rectangle rr = clientRects.get(uid);
@@ -681,17 +718,7 @@ public class ClientsControl extends Canvas {
 				}
 
 				ClientInfo ci = clientStates.get(uid);
-				Image img = null;
-				if (ci != null)
-					img = ci.thumbnail;
-
-				if (img != null) {
-					Rectangle r = img.getBounds();
-					Point p = new Point(rr.x + (IMG_DIM.width - r.width) / 2, rr.y + (IMG_DIM.height - r.height) / 2);
-					gc.drawImage(img, p.x, p.y);
-					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-					gc.drawRectangle(p.x, p.y, r.width, r.height);
-				} else {
+				if (ci == null || ci.thumbnail == null) {
 					gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
 					gc.fillRectangle(rr.x, rr.y, IMG_DIM.width, IMG_DIM.height);
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -700,6 +727,37 @@ public class ClientsControl extends Canvas {
 					Point p = gc.textExtent(s);
 					gc.drawString(s, rr.x + (rr.width - p.x) / 2, rr.y + rr.height / 2 - fh, true);
 				}
+			}
+			for (Client c : clients) {
+				int uid = c.uid;
+				Rectangle rr = clientRects.get(uid);
+
+				if (rr == null) // client just connected or disconnected
+					continue;
+
+				// don't draw clients that aren't currently visible
+				if (rr.y - yOrigin > rect.y + rect.height || rr.y + rr.height - yOrigin < rect.y)
+					continue;
+
+				ClientInfo ci = clientStates.get(uid);
+				Image img = null;
+				if (ci != null)
+					img = ci.thumbnail;
+
+				DisplayConfig dc = null;
+				if (ci != null && ci.displayConfig != null)
+					dc = ci.displayConfig;
+
+				if (img != null) {
+					Rectangle r = img.getBounds();
+					Point p = new Point(rr.x + (IMG_DIM.width - r.width) / 2, rr.y + (IMG_DIM.height - r.height) / 2);
+					if (dc != null && dc.id != -1)
+						p = new Point(rr.x + (IMG_DIM.width - r.width * dc.ww) / 2 + IMG_DIM.width * (dc.pos % dc.ww) / dc.ww,
+								rr.y + (IMG_DIM.height - r.height * dc.hh) / 2 + IMG_DIM.height * (dc.pos / dc.hh) / dc.hh);
+					gc.drawImage(img, p.x, p.y);
+					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+					gc.drawRectangle(p.x, p.y, r.width, r.height);
+				}
 
 				if (selection.contains(uid))
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
@@ -707,13 +765,18 @@ public class ClientsControl extends Canvas {
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 
 				// name & current resolution/fps
-				gc.drawString(c.name, rr.x, rr.y + rr.height - fh, true);
+				if (dc != null && dc.id != -1)
+					gc.drawString("Multi-display", rr.x, rr.y + rr.height - fh, true);
+				else
+					gc.drawString(c.name, rr.x, rr.y + rr.height - fh, true);
 				if (c.contestIds != null && c.contestIds.length > 0)
 					gc.drawString(c.contestIds[0], rr.x + (rr.width - gc.textExtent(c.contestIds[0]).x) / 2,
 							rr.y + rr.height - fh, true);
 
 				if (ci != null) {
 					String ss = ci.width + "x" + ci.height + "@" + ci.fps + "fps";
+					if (dc != null && dc.id != -1)
+						ss = ci.width + "x" + ci.height;
 					gc.drawString(ss, rr.x + rr.width - gc.textExtent(ss).x, rr.y + rr.height - fh, true);
 				}
 			}
