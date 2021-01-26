@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
+import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
 import org.icpc.tools.resolver.ResolverUI.Screen;
 
@@ -70,6 +71,7 @@ public class Resolver {
 	private boolean isPresenter;
 	private Screen screen = null;
 	private String displayStr;
+	private String multiDisplayStr;
 	private boolean show_info;
 	private boolean bill;
 	private boolean test;
@@ -101,6 +103,9 @@ public class Resolver {
 		System.out.println("     --display #");
 		System.out.println("         Uses the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --multi-display p@wxh");
+		System.out.println("         This resolver is stretched across multiple client displays");
+		System.out.println("         Use \"2@3x2\" to indicate this client is position 2 (top middle) in a 3x2 grid");
 		System.out.println("     --style style");
 		System.out.println("         Change the display of team names. Must be one of:");
 		System.out.println("         team_name, org_name, org_formal_name, or team_and_org_name");
@@ -333,16 +338,11 @@ public class Resolver {
 			else
 				screen = Screen.MAIN;
 		} else if ("--display".equalsIgnoreCase(option)) {
-			// --display allows to specify which display to use in full-screen exclusive mode.
-			// The value is used as follows:
-			// 1 --> run presentation full-screen on the primary display (the default)
-			// 2 --> run presentation full-screen on display 2
-			// 3 --> run presentation full-screen on display 3
-			// 1a --> run presentation in the top-left corner of the display (for testing)
-			// 1b --> run presentation in the top-right corner of the display (for testing)
-			// 2a --> run presentation in the top-left corner of display 2 ...
-			ArgumentParser.expectOptions(option, options, "screen:string");
+			ArgumentParser.expectOptions(option, options, "display:string");
 			displayStr = (String) options.get(0);
+		} else if ("--multi-display".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "p@wxh:string");
+			multiDisplayStr = (String) options.get(0);
 		} else if ("--style".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "style:string");
 			style = TeamUtil.getStyleByString((String) options.get(0));
@@ -535,23 +535,24 @@ public class Resolver {
 	}
 
 	protected void launch(List<ResolutionStep> steps) {
-		ui = new ResolverUI(steps, show_info, displayStr, isPresenter || client == null, screen, new ClickListener() {
-			@Override
-			public void clicked(int num) {
-				clicks = num;
-				sendClicks();
-			}
+		ui = new ResolverUI(steps, show_info, new DisplayConfig(displayStr, multiDisplayStr),
+				isPresenter || client == null, screen, new ClickListener() {
+					@Override
+					public void clicked(int num) {
+						clicks = num;
+						sendClicks();
+					}
 
-			@Override
-			public void scroll(boolean pause) {
-				sendScroll(pause);
-			}
+					@Override
+					public void scroll(boolean pause) {
+						sendScroll(pause);
+					}
 
-			@Override
-			public void speedFactor(double d) {
-				sendSpeedFactor(d);
-			}
-		}, style);
+					@Override
+					public void speedFactor(double d) {
+						sendSpeedFactor(d);
+					}
+				}, style);
 
 		ui.setSpeedFactor(speedFactor);
 		ui.display();

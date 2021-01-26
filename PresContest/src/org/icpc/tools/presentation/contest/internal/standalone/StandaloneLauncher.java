@@ -46,7 +46,7 @@ public class StandaloneLauncher {
 					displayStr[0] = (String) options.get(0);
 					return true;
 				} else if ("--multi-display".equals(option)) {
-					ArgumentParser.expectOptions(option, options, "#:string");
+					ArgumentParser.expectOptions(option, options, "p@wxh:string");
 					displayStr[1] = (String) options.get(0);
 					return true;
 				} else if ("--fps".equals(option)) {
@@ -100,6 +100,9 @@ public class StandaloneLauncher {
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --multi-display p@wxh");
+		System.out.println("         This presentation is stretched across multiple client displays");
+		System.out.println("         Use \"2@3x2\" to indicate this client is position 2 (top middle) in a 3x2 grid");
 		System.out.println("     --fps");
 		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");

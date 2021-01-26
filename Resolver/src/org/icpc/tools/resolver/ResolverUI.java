@@ -80,7 +80,7 @@ public class ResolverUI {
 	private ResolutionControl control;
 	private boolean isPresenter;
 	private Screen screen = Screen.MAIN;
-	private String displayStr;
+	private DisplayConfig displayConfig;
 	private boolean showInfo;
 	private boolean pauseScroll = false;
 	private Style style;
@@ -104,11 +104,11 @@ public class ResolverUI {
 	private long lastClickTime = -1;
 	private Thread thread;
 
-	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, String display, boolean isPresenter, Screen screen,
-			ClickListener listener, Style style) {
+	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, DisplayConfig displayConfig, boolean isPresenter,
+			Screen screen, ClickListener listener, Style style) {
 		this.steps = steps;
 		this.showInfo = showInfo;
-		this.displayStr = display;
+		this.displayConfig = displayConfig;
 		this.isPresenter = isPresenter;
 		this.screen = screen;
 		if (screen == null)
@@ -191,9 +191,9 @@ public class ResolverUI {
 		window = PresentationWindow.open("Resolver", iconImage);
 
 		try {
-			window.setDisplayConfig(new DisplayConfig(displayStr));
+			window.setDisplayConfig(displayConfig);
 		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Invalid display option: " + displayStr + " " + e.getMessage());
+			Trace.trace(Trace.WARNING, "Invalid display option: " + displayConfig + " " + e.getMessage());
 		}
 
 		window.addKeyListener(new KeyAdapter() {
