@@ -4,7 +4,7 @@
 -----------------
 * Move to Github and Gitlab.
 * Moved to new hostname and [website](https://tools.icpc.global).
-* New icons.
+* New logo and icons!
 * Common command line parser and further command line consistency.
 * XML event feed removed everywhere but CDS. If your CCS only supports the XML feed, you must use the CDS as a proxy to use the other tools.
 * Support for Contest API improvements and numerous fixes.
@@ -18,18 +18,22 @@
   * Support for contest commentary events.
   * Support for team audio streaming.
   * Ability to drive resolver clients from web UI.
+* Presentation admin:
+  * Show presentations that extend across multiple displays as one.
 * Presentation client:
   * Initial new fireworks presentation.
   * New organization logo presentations.
   * New ICPC Tools presentation.
   * New CCS presentation.
   * Fixed calculation of 'recent' events.
+  * Support for presentations extending across multiple displays.
 * Resolver:
   * Ability to provide custom resolution steps.
   * Refactored resolution into core contest API. Resolution no longer a bunch of custom code in the resolver, and other tools could use it as well.
   * Award templates - ability to apply awards based on a spec. Useful for easily applying the same awards to test & real contests.
   * Odd solution awards removed.
-  * Ability to filtering teams by group.
+  * Ability to filter teams by group.
+  * Support for presentations extending across multiple displays.
 * Numerous release improvements:
   * Switched from asciidoc to markdown for documentation.
   * Build improvements & simplification.

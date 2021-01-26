@@ -34,12 +34,15 @@ public class DisplayConfig {
 
 	/**
 	 *
-	 * @param displayStr - 1, 1a
-	 * @param multiDisplay - 2@3x2, 1@2x2c
+	 * display - 1, 1a. multiDisplay - 2@3x2, 1@2x2c
 	 */
-	public DisplayConfig(String display, String multiDisplay) {
+	public DisplayConfig(String display, String multiDisplay) throws IllegalArgumentException {
 		if (display != null) {
-			device = Integer.parseInt(display.charAt(0) + "") - 1;
+			try {
+				device = Integer.parseInt(display.charAt(0) + "") - 1;
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid display argument, should be a digit");
+			}
 
 			mode = Mode.FULL_SCREEN;
 			if (display.length() == 2) {
@@ -58,13 +61,17 @@ public class DisplayConfig {
 			ww = 1;
 			hh = 1;
 		} else {
-			pos = Integer.parseInt(multiDisplay.charAt(0) + "") - 1;
-			ww = Integer.parseInt(multiDisplay.charAt(2) + "");
-			hh = Integer.parseInt(multiDisplay.charAt(4) + "");
-			if (multiDisplay.length() > 5)
-				id = multiDisplay.charAt(5) - 'a';
-			else
-				id = 0;
+			try {
+				pos = Integer.parseInt(multiDisplay.charAt(0) + "") - 1;
+				ww = Integer.parseInt(multiDisplay.charAt(2) + "");
+				hh = Integer.parseInt(multiDisplay.charAt(4) + "");
+				if (multiDisplay.length() > 5)
+					id = multiDisplay.charAt(5) - 'a';
+				else
+					id = 0;
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Invalid multi-display argument, should be in p@wxh format");
+			}
 		}
 	}
 
