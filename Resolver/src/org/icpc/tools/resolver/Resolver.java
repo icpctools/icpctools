@@ -149,9 +149,24 @@ public class Resolver {
 		System.out.println("     i      - Toggle additional info");
 	}
 
-	private static void setMacIconImage(Image iconImage) {
-		// call com.apple.eawt.Application.getApplication().setDockIconImage(img) without a direct
-		// dependency
+	private static void setTaskbarImage(Image iconImage) {
+		// call java.awt.Taskbar.getTaskbar().setIconImage() (Java 9+) or
+		// for Mac Java 8 call com.apple.eawt.Application.getApplication().setDockIconImage()
+		// without direct dependencies
+		try {
+			Class<?> c = Class.forName("java.awt.Taskbar");
+			Method m = c.getDeclaredMethod("getTaskbar");
+			Object o = m.invoke(null);
+			m = c.getDeclaredMethod("setIconImage", Image.class);
+			m.invoke(o, iconImage);
+			return;
+		} catch (Exception e) {
+			// ignore
+		}
+
+		if (!System.getProperty("os.name").contains("Mac"))
+			return;
+
 		try {
 			Class<?> c = Class.forName("com.apple.eawt.Application");
 			Method m = c.getDeclaredMethod("getApplication");
@@ -159,7 +174,7 @@ public class Resolver {
 			m = c.getDeclaredMethod("setDockIconImage", Image.class);
 			m.invoke(o, iconImage);
 		} catch (Exception e) {
-			// ignore, we're not on Mac
+			// ignore
 		}
 	}
 
@@ -193,7 +208,7 @@ public class Resolver {
 		} catch (Exception e) {
 			// could not set title or icon
 		}
-		setMacIconImage(iconImage);
+		setTaskbarImage(iconImage);
 
 		for (ContestSource cs : contestSource)
 			cs.outputValidation();
