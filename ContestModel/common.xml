@@ -84,8 +84,7 @@
       <zip destfile="${zip.path}">
          <zipfileset dir="staging" filemode="755" prefix="lib"/>
          <zipfileset dir="lib" filemode="755" prefix="lib"/>
-         <zipfileset dir="./.." includes="LICENSE.txt"/>
-         <zipfileset dir="." includes="ReleaseNotes.txt"/>
+         <zipfileset dir="./.." includes="LICENSE"/>
          <zipfileset dir="." includes="*.pdf"/>
          <zipfileset dir="scripts" filemode="755"/>
       </zip>
