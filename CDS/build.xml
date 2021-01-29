@@ -112,6 +112,7 @@
     <copy todir="staging/wlp/usr/servers/cds">
          <fileset dir="config/wlp/cds"/>
     </copy>
+  	<copy file="./../LICENSE" toFile="staging/LICENSE"/>
     <zip destfile="${zip2.path}" update="true" basedir="staging"/>
     <checksum file="${zip2.path}" algorithm="SHA-256" fileext=".sha256"/>
     <checksum file="${zip2.path}" algorithm="SHA-512" fileext=".sha512"/>
