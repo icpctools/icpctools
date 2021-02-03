@@ -38,8 +38,8 @@ references that the feed refers to. If your CCS correctly supports the event fee
 work even if the rest of the API is not implemented. The one exception to this is the CDS' and contest utility support
 for comparing scoreboards - to compare a scoreboard, the CCS must have one, of course!
 
-Most of the ICPC Tools also retain support for the deprecated [XML Event Feed](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016).
-If your CCS supports this feed as specified then the tools should still work, albeit with some missing function.
+The (CDS) also retains support for the deprecated [XML Event Feed](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016).
+If your CCS supports this feed as specified then the tools should still work with a CDS in the middle, albeit with some missing function.
 
 The most popular CCSs that have been tested and successfully used at multiple contests with the ICPC Tools are listed here:
 
@@ -55,13 +55,13 @@ Compatible CCS | Mechanism
 The ICPC Tools are developed, tested, and maintained by a group of ICPC volunteers. Bug reports, feature requests,
 and even just knowing what worked or didn't for your contest are always appreciated.
 
-To become a committer you must have a history of high quality bug reports, PRs, and be approved by Tim,
-John Clevenger, and Jeff Donahoo.
+Contributions are welcome in the form of PRs. To become a committer you must have a history of high quality bug reports,
+PRs, and be approved by Tim deBoer, John Clevenger, and Jeff Donahoo.
 
 
 ## License
 
-All of the tools are provided under the included MIT license and are "Free as in Beer". We welcome you to use
+All of the tools are provided under the included license and are "Free as in Beer". We welcome you to use
 and enjoy them, but if you ever run into anyone who has contributed to them - Tim, John, Nicky, Sam, Troy, etc.
 we would greatly appreciate it if you'd buy us a beer, a stroopwafel, or some other suitable token!
 
