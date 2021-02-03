@@ -3,12 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="com.ibm.ws.javaee.servlet.3.0_1.0.1.jar">
+	<classpathentry kind="lib" path="javax.servlet-api-4.0.1.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="com.ibm.ws.javaee.jsp.2.2_1.0.0.jar">
+	<classpathentry kind="lib" path="javax.servlet.jsp-api-2.3.3.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
@@ -18,7 +18,7 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="com.ibm.ws.javaee.websocket.1.1_1.0.12.jar">
+	<classpathentry kind="lib" path="javax.websocket-api-1.1.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
