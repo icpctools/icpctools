@@ -19,9 +19,9 @@
   <property name="cds.zip" value="/cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
   <path id="CDS.classpath">
-    <pathelement location="com.ibm.ws.javaee.jsp.2.2_1.0.0.jar"/>
-    <pathelement location="com.ibm.ws.javaee.servlet.3.0_1.0.1.jar"/>
-  	<pathelement location="com.ibm.ws.javaee.websocket.1.1_1.0.12.jar"/>
+    <pathelement location="javax.servlet-api-4.0.1.jar"/>
+    <pathelement location="javax.servlet.jsp-api-2.3.3.jar"/>
+  	<pathelement location="javax.websocket-api-1.1.jar"/>
     <pathelement location="${contest.model}/bin"/>
   	<pathelement location="${contest.model}/lib/snakeyaml-1.27.jar"/>
   </path>
