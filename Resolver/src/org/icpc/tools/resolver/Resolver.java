@@ -193,6 +193,11 @@ public class Resolver {
 			}
 		});
 
+		if (contestSource == null) {
+			showHelp();
+			return;
+		}
+
 		String log = "resolver";
 		List<String> argList = Arrays.asList(args);
 		if (argList.contains("--client"))
