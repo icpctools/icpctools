@@ -45,11 +45,11 @@ for details. See the documentation for the CCS being used by your contest to det
 ### Overview
 
 The CDS is a Java Enterprise Edition (JavaEE) web application; an instance of the CDS operates 
-by being deployed into a JavaEE application server. The ICPCTools distribution of the CDS comes with the 
-[IBM WebSphere Application Server Liberty Profile](https://developer.ibm.com/wasdev/websphere-liberty/) (WAS/WLP) included in it;
-the entire CDS can be run using the embedded WLP system and no other external Application Server is needed.
+by being deployed on a JavaEE application server. The ICPC Tools distribution of the CDS comes pre-packaged
+running on [Open Liberty](https://openliberty.io/);
+the entire CDS can be run using the embedded Liberty server without any other tools.
 
-Alternatively, the CDS can be deployed under other Application Servers
+Alternatively, the CDS can be deployed on other Application Servers
 such as [Apache Tomcat](http://tomcat.apache.org/), 
 [JBoss](http://jbossas.jboss.org/) (now [WildFly](http://wildfly.org/), or
 [Jetty](http://www.eclipse.org/jetty/). However, the mechanisms and requirements for deploying web applications 
@@ -64,10 +64,10 @@ and unzip it into any convenient directory. That's it!
 
 ### Configuring the CDS
 
-The unzipped CDS contains a single folder named _wlp_ ("WebSphere Liberty Profile").
+The unzipped CDS contains a single folder named _wlp_ (Liberty).
 Among the subfolders therein you will find both _bin_ and _usr_ folders.
-The _bin_ folder contains commands (see below) which are used to start and control the WLP application server 
-and the applications it contains (such as the CDS application).
+The _bin_ folder contains commands (see below) which are used to start and control the server 
+and the applications it contains (in this case, the CDS).
 The _wlp/usr/servers/cds_ folder holds the "WAR" file which contains the CDS executable code (under the _apps_ folder),
 and also holds the _configuration files_ which manage the CDS configuration.
 
@@ -78,8 +78,8 @@ Contest Control System (CCS) to connect to, user account passwords, etc.).
 
 #### Configuring the WLP JavaEE Server
 
-The WebSphere Liberty Profile (JavaEE server) configuration is managed by a file named _server.xml_ located in the application folder
-(e.g. _cds_) under the _usr/servers_ folder. The _server.xml_ file contains five important sections:
+The Liberty configuration is managed by a file named _server.xml_ located in the
+_usr/servers/cds_ folder. The _server.xml_ file contains five important sections:
 
 * a specification of the _HTTP and HTTPS ports_ used by the server.
   * The ports associated with HTTP and HTTPS requests can changed by editing the _httpEndpoint_ entry in the _server.xml_ file;
@@ -471,7 +471,7 @@ The following VLC command is used at the World Finals to start a stream on port 
 
 ### Deployment Under Other Application Servers
 
-The CDS distribution comes packaged with an embedded Liberty Profile application server.
+The CDS distribution comes packaged with an embedded Liberty application server.
 The CDS application component of this distribution is 
 contained in the file _CDS.war_ in the _wlp/usr/servers/cds/apps_ folder.
 
