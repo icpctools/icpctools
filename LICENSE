@@ -1,21 +1,31 @@
-The MIT License (MIT)
+ICPC Software License
 
-Copyright (c) 2019 Tim deBoer and the ICPC Foundation
+Copyright (C) 2019 ICPC Foundation
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person or organization obtaining a copy
+of this software and associated documentation files (the "Software"), to deal in the Software,
+including the rights to use, copy, modify, merge, publish, or distribute the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Said persons and/or organizations are not allowed to use the Software, or any derivatives of
+ the Software, for commercial purposes or for any other means to generate income, except in the
+ case that the ICPC Foundation, at its sole discretion, chooses to explicitly grant in writing
+ to said persons and/or organizations an exception to this prohibition against commercial use
+ or other means to generate income.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. Said persons and/or organizations agree that the ICPC Foundation may, at its sole discretion,
+ revoke the rights of said persons and/or organizations to use, copy, modify, merge, publish, or
+ distribute the Software by providing in writing to said persons and/or organizations notification
+ of revocation of these rights.
+
+3. The above copyright notice and this permission notice must be included in all copies or
+ substantial portions of the Software or in works derived from the Software.
+
+4. Any persons and/or organizations using this Software must disclose their source code and have
+ it publicly available, and must include this license in all distributed versions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON
+INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
+OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
