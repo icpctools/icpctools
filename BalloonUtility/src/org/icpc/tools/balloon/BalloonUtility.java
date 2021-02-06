@@ -757,7 +757,7 @@ public class BalloonUtility {
 						msTimeDelta = time - System.currentTimeMillis();
 					}
 				};
-				client.connect(true);
+				client.connect();
 			}
 		}
 		/*runAsync(new Runnable() {

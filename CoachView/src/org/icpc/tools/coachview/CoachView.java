@@ -540,7 +540,7 @@ public class CoachView extends Panel {
 
 			if (contestSource.isCDS()) {
 				BasicClient client = new BasicClient(contestSource, "Coach");
-				client.connect(true);
+				client.connect();
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Connection to CDS was not successful, check credentials/URL", e);

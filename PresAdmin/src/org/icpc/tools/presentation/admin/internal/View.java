@@ -182,7 +182,7 @@ public class View {
 	}
 
 	protected void connect() {
-		client.connect(true);
+		client.connect();
 	}
 
 	protected void addPresentations(final List<PresentationInfo> list) {

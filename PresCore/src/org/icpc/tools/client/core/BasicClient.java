@@ -101,12 +101,10 @@ public class BasicClient {
 			session.getBasicRemote().sendText(message);
 		}
 
-		protected boolean isConnected() {
-			return session != null;
-		}
-
 		@Override
 		public void onClose(Session session2, CloseReason closeReason) {
+			Trace.trace(Trace.USER, name + " disconnected");
+			fireConnectionStateEvent(false);
 			session = null;
 			if (closeReason != null && closeReason.getCloseCode() != CloseCodes.NORMAL_CLOSURE) {
 				if (closeReason.getCloseCode() == CloseCodes.UNEXPECTED_CONDITION
@@ -117,6 +115,9 @@ public class BasicClient {
 				Trace.trace(Trace.ERROR, "Unexpected websocket disconnect: " + closeReason.getReasonPhrase() + " ("
 						+ closeReason.getCloseCode().toString() + ")");
 			}
+
+			// reconnect
+			connect();
 		}
 	}
 
@@ -545,31 +546,38 @@ public class BasicClient {
 	}
 
 	public void connect() {
-		connect(false);
-	}
+		Thread connectionThread = new Thread("Client connection thread") {
+			// try to connect right away, then add some incremental back-off
+			private int[] DELAY = new int[] { 2, 5, 20 };
 
-	public void connect(boolean daemon) {
-		Thread clientThread = new Thread("Client connection thread") {
 			@Override
 			public void run() {
-				while (true) {
-					Trace.trace(Trace.USER, name + " connecting...");
-					connectImpl();
-					try {
-						sleep(5000);
-					} catch (InterruptedException e) {
-						// ignore
+				Trace.trace(Trace.USER, name + " connecting...");
+				Session s = null;
+				int i = 0;
+				while (s == null) {
+					s = connectImpl();
+					if (s == null) {
+						Trace.trace(Trace.INFO, "Trying again in " + DELAY[i] + " seconds");
+						try {
+							sleep(1000 * DELAY[i]);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+						if (i < DELAY.length - 1)
+							i++;
 					}
 				}
 			}
 		};
 
-		clientThread.setPriority(Thread.NORM_PRIORITY + 1);
-		clientThread.setDaemon(daemon);
-		clientThread.start();
+		connectionThread.setPriority(Thread.NORM_PRIORITY + 1);
+		connectionThread.setDaemon(true);
+		connectionThread.start();
 	}
 
-	protected void connectImpl() {
+	protected Session connectImpl() {
+		Session s = null;
 		try {
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			ctx.init(null, new TrustManager[] { new HTTPSSecurity.ContestTrustManager() }, null);
@@ -593,15 +601,11 @@ public class BasicClient {
 			URI uri = contestSource.getRootURI("wss", sb.toString());
 
 			client.setDefaultMaxSessionIdleTimeout(60000L);
-			client.connectToServer(clientEndpoint, endpointConfig, uri);
+			s = client.connectToServer(clientEndpoint, endpointConfig, uri);
 
 			Trace.trace(Trace.USER, name + " connected");
 			fireConnectionStateEvent(true);
 			sendInfo();
-
-			while (clientEndpoint.isConnected()) {
-				Thread.sleep(2000);
-			}
 		} catch (IOException | DeploymentException e) {
 			String msg = e.getMessage();
 			if (e.getCause() != null)
@@ -617,16 +621,8 @@ public class BasicClient {
 			Trace.trace(Trace.ERROR,
 					"Unexected error connecting to " + contestSource.getURL().toExternalForm() + ": " + t.getMessage());
 			Trace.trace(Trace.INFO, "Failure details", t);
-		} finally {
-			/*try {
-				if (session != null)
-					session.close();
-			} catch (Exception e) {
-				// ignore
-			}*/
 		}
-		Trace.trace(Trace.USER, name + " disconnected");
-		fireConnectionStateEvent(false);
+		return s;
 	}
 
 	private void sendPing() throws IOException {

@@ -46,7 +46,7 @@ public class ScalingTestClient {
 					}
 				}
 			});
-			client.connect(false);
+			client.connect();
 		}
 	}
 
