@@ -111,7 +111,7 @@ public class ClientLauncher {
 				}
 			}
 		});
-		client.connect(false);
+		client.connect();
 	}
 
 	protected static void createWindow(final PresentationClient client, final boolean sendthumbnails, boolean showFPS) {
