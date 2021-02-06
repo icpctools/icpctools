@@ -1,8 +1,9 @@
 # ICPC Tools Changelog
 
-## V2.2.0 - February, 2021
+## V2.2.0 - February 6, 2021
 -----------------
-* Move to Github and Gitlab.
+* First open source release!
+* Moved to Github and Gitlab.
 * Moved to new hostname and [website](https://tools.icpc.global).
 * New logo and icons!
 * Common command line parser and further command line consistency.
