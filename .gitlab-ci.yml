@@ -41,25 +41,13 @@ push release to GitHub:
     - if: '$CI_COMMIT_REF_NAME == "master"'
       when: always
     - when: never
-  before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-    - git config --global user.email "bot@icpctools.org"
-    - git config --global user.name "ICPC Tools bot"
   script:
-    - VERSION=2.2.$(git rev-list $CI_COMMIT_SHA --count)
-    - mkdir ~/builds
-    - cd ~/builds
-    - git clone git@github.com:icpctools/builds.git .
-    - git commit --allow-empty -m "Add build $VERSION"
-    - git push
+    - export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
+    - VERSION=${VERSION_PREFIX}.$(git rev-list $CI_COMMIT_SHA --count)
     - RELEASE_COMMIT=$(git rev-parse HEAD)
     - |
       http --ignore-stdin POST \
-        https://api.github.com/repos/icpctools/builds/releases \
+        https://api.github.com/repos/icpctools/icpctools/releases \
         "Authorization: token $GITHUB_TOKEN" \
         "Accept: application/vnd.github.v3+json" \
         tag_name=v$VERSION \
@@ -67,7 +55,7 @@ push release to GitHub:
         name=v$VERSION \
         prerelease:=true | tee ~/new-release.txt
     - RELEASE_ID=$(cat ~/new-release.txt | jq .id)
-    - RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/icpctools/builds/releases/${RELEASE_ID}/assets
+    - RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/icpctools/icpctools/releases/${RELEASE_ID}/assets
     - cd $CI_PROJECT_DIR/dist
     - echo "Uploading release $VERSION"
     - |
@@ -134,7 +122,8 @@ push cds docker image:
     - apk add git
     - docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_ACCESS_TOKEN}
   script:
-    - VERSION=2.2.$(git rev-list $CI_COMMIT_SHA --count)
+    - export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
+    - VERSION=${VERSION_PREFIX}.$(git rev-list $CI_COMMIT_SHA --count)
     - cd build/cds/Docker
     - docker build -t icpctools/cds:${VERSION} --build-arg CDS_VERSION=${VERSION} .
     - docker push icpctools/cds:${VERSION}
