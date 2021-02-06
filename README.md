@@ -1,5 +1,5 @@
 ![platforms](https://img.shields.io/badge/platforms-macos|linux|windows-lightgrey.svg)
-[![ICPC Software License](https://img.shields.io/badge/license-ICPC%20Software%20License-brightgreen.svg)](https://github.com/icpctools/icpctools/blob/master/LICENSE.txt)
+[![ICPC Software License](https://img.shields.io/badge/license-ICPC%20Software%20License-brightgreen.svg)](https://github.com/icpctools/icpctools/blob/master/LICENSE)
 [![pipeline status](https://gitlab.com/icpctools/icpctools/badges/master/pipeline.svg)](https://gitlab.com/icpctools/icpctools/commits/master)
 
 Welcome to the ICPC Tools!
