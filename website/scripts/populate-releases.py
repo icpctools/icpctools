@@ -10,7 +10,7 @@ destination = "website/data/releases/"
 def all_releases():
     result = []
 
-    url = 'https://api.github.com/repos/icpctools/builds/releases'
+    url = 'https://api.github.com/repos/icpctools/icpctools/releases'
 
     linkPattern = re.compile(r'<(?P<url>.*)>; rel="(?P<type>.*)"')
 
@@ -28,7 +28,7 @@ def all_releases():
         if not nextFound:
             break
 
-    return sorted(result, key=lambda release: release["published_at"], reverse=True)
+    return sorted(result, key=lambda release: release["created_at"], reverse=True)
 
 def request_from_github(url):
     token = os.environ["GITHUB_TOKEN"]
@@ -44,8 +44,8 @@ def release_info(release):
     assetPattern = re.compile(r'(?P<tool>.*)-(?P<version>\d+\.\d+\.\d+)\.zip\.?(?P<check>.*)?')
     info = {
         'version': release['tag_name'].replace('v', ''),
-        'date': datetime.datetime.strptime(release['published_at'], "%Y-%m-%dT%H:%M:%SZ").strftime("%d %B %Y"),
-        'time': datetime.datetime.strptime(release['published_at'], "%Y-%m-%dT%H:%M:%SZ").strftime("%H:%M:%S"),
+        'date': datetime.datetime.strptime(release['created_at'], "%Y-%m-%dT%H:%M:%SZ").strftime("%d %B %Y"),
+        'time': datetime.datetime.strptime(release['created_at'], "%Y-%m-%dT%H:%M:%SZ").strftime("%H:%M:%S"),
         'downloads': {}
     }
 
