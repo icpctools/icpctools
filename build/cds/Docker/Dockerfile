@@ -11,7 +11,7 @@ RUN apt-get update && \
 
 # Install CDS
 RUN mkdir -p /opt && \
-    curl -L -o /opt/wlp.CDS-${CDS_VERSION}.zip https://github.com/icpctools/builds/releases/download/v${CDS_VERSION}/wlp.CDS-${CDS_VERSION}.zip && \
+    curl -L -o /opt/wlp.CDS-${CDS_VERSION}.zip https://github.com/icpctools/icpctools/releases/download/v${CDS_VERSION}/wlp.CDS-${CDS_VERSION}.zip && \
     unzip /opt/wlp.CDS-${CDS_VERSION}.zip -d /opt
 
 COPY users.xml /opt/wlp/usr/servers/cds/users.xml
