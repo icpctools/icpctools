@@ -54,7 +54,7 @@ To become a committer you must have a history of high quality bug reports, PRs, 
 
 ## License
 
-All of the tools are provided under the [ICPC Software License](https://github.com/icpctools/icpctools/blob/master/LICENSE) license
+All of the tools are provided under the [ICPC Software License](https://github.com/icpctools/icpctools/blob/main/LICENSE) license
 and are "Free as in Beer". We welcome you to use and enjoy them, but if you ever run into anyone who has contributed to
 them - Tim, John, Nicky, Sam, Troy, etc. we would greatly appreciate it if you'd buy us a beer, a stroopwafel, or some other suitable token!
 

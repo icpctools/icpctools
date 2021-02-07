@@ -38,7 +38,7 @@ push release to GitHub:
   image: icpctools/website
   stage: deploy
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - if: '$CI_COMMIT_REF_NAME == "main"'
       when: always
     - when: never
   script:
@@ -82,7 +82,7 @@ update website:
   image: icpctools/website
   stage: website
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - if: '$CI_COMMIT_REF_NAME == "main"'
       when: always
     - when: never
   before_script:
@@ -113,7 +113,7 @@ push cds docker image:
   image: docker:19.03.12
   stage: docker
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - if: '$CI_COMMIT_REF_NAME == "main"'
       when: always
     - when: never
   services:
