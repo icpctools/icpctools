@@ -7,6 +7,6 @@ weight: 10
 icon: fas fa-clipboard-list
 ---
 
-Below you can find the changelog of the ICPC Tools. It is automatically updated when a new build is crated.
+You can find the changelog of the ICPC Tools below. It is automatically updated when a new build is created.
 
 {{< changelog >}}
