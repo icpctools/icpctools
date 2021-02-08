@@ -1,8 +1,9 @@
 # ICPC Tools Changelog
 
-## V2.2.0 - February, 2021
+## V2.2 - February, 2021
 -----------------
-* Move to Github and Gitlab.
+* First open release!
+* Moved to Github and Gitlab.
 * Moved to new hostname and [website](https://tools.icpc.global).
 * New logo and icons!
 * Common command line parser and further command line consistency.
@@ -38,7 +39,7 @@
   * Switched from asciidoc to markdown for documentation.
   * Build improvements & simplification.
 
-## V2.1.0 - April 2019
+## V2.1 - April 2019
 -----------
 * Used at World Finals but never released.
 * XML event feed deprecated from all tools.
@@ -51,7 +52,7 @@
 * Presentation client:
   * New world map and contest floor (balloon) presentations.
 
-## V2.0.0 - May 2018
+## V2.0 - May 2018
 -----------------
 * Support for new REST Contest API across all tools.
 * Balloon utility:
@@ -81,7 +82,7 @@
   * Support for multiple displays for standalone presentations.
 * Resolver - minor UI fixes and cleanup.
 
-## V1.2.0 - June 2017
+## V1.2 - June 2017
 ------------------
 * Balloon utility:
   * Ability to customize 'escort' messages.
@@ -118,7 +119,7 @@
   * Test features (--bill) for 2017 finals.
 * Initial release of the contest utilities!
 
-## V1.1.0 - May 2017
+## V1.1 - May 2017
 -----------------
 * Balloon utility:
   * Ability to filter the table and auto-print to one or more groups.
@@ -152,7 +153,7 @@
 ---------------------
 * Updated resolver splash screen so a mouse-click advances (rather than terminates).
 
-## V1.0.0 - 18 June 2015
+## V1.0 - 18 June 2015
 ---------------------
 * Initial release of Balloon Utility!
 * Initial release of the Presentation Client!
