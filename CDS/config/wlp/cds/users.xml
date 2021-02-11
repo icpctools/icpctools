@@ -9,5 +9,6 @@
       <user name="presentation" password="presentat1on"/>
       <user name="myicpc" password="my1cpc"/>
       <user name="live" password="l1ve"/>
+      <user name="team1" password="t3am"/>
    </basicRegistry>
 </server>

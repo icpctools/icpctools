@@ -20,6 +20,9 @@
   <security-role>
   	<role-name>balloon</role-name>
   </security-role>
+  <security-role>
+  	<role-name>team</role-name>
+  </security-role>
   <login-config>
     <auth-method>FORM</auth-method>
     <realm-name>CDS</realm-name>

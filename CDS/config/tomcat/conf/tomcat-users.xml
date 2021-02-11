@@ -29,8 +29,10 @@
   <role rolename="balloon"/>
   <role rolename="trusted"/>
   <role rolename="public"/>
+  <role rolename="team"/>
   <user name="deboer" password="adm1n" roles="admin"/>
   <user name="balloon" password="ball00n" roles="balloon"/>
   <user name="live" password="l1ve" roles="trusted"/>
   <user name="presentation" password="presentat1on" roles="public"/>
+  <user name="team1" password="t3am" roles="team"/>
 </tomcat-users>

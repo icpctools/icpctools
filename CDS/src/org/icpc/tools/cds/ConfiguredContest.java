@@ -48,8 +48,6 @@ import org.icpc.tools.contest.model.internal.State;
 import org.w3c.dom.Element;
 
 public class ConfiguredContest {
-	private static final int NUM_TEAMS = 0;
-
 	public enum Mode {
 		ARCHIVE, PLAYBACK, LIVE
 	}
@@ -70,7 +68,7 @@ public class ConfiguredContest {
 	private Contest trustedContest;
 	private Contest publicContest;
 	private Contest balloonContest;
-	private Contest[] teamContests;
+	private Map<String, Contest> teamContests = new HashMap<>();
 
 	private Map<Object, String> clients = new HashMap<>();
 	private long[] metrics = new long[11]; // REST, feed, ws, web, download, scoreboard, XML,
@@ -506,21 +504,21 @@ public class ConfiguredContest {
 			return trustedContest;
 		if (Role.isBalloon(request))
 			return balloonContest;
+		if (Role.isTeam(request)) {
+			String teamId = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			if (teamId != null && teamContests.containsKey(teamId))
+				return teamContests.get(teamId);
+		}
 		return publicContest;
 	}
 
-	public Contest getContestByRole(String role) {
+	public Contest getContestByRole(boolean isBlue) {
 		if (contest == null)
 			loadContest();
 
-		if (Role.ADMIN.equals(role) || Role.BLUE.equals(role))
+		if (isBlue)
 			return contest;
-		if (hidden)
-			return null;
-		if (Role.TRUSTED.equals(role))
-			return trustedContest;
-		if (Role.BALLOON.equals(role))
-			return balloonContest;
+
 		return publicContest;
 	}
 
@@ -614,11 +612,6 @@ public class ConfiguredContest {
 			balloonContest.setHashCode(contest.hashCode());
 			trustedContest = new Contest();
 			trustedContest.setHashCode(contest.hashCode());
-			teamContests = new Contest[NUM_TEAMS];
-			for (int i = 0; i < NUM_TEAMS; i++) {
-				teamContests[i] = new Contest();
-				teamContests[i].setHashCode(contest.hashCode());
-			}
 			State currentState = new State();
 			contest.addListenerFromStart((contest2, obj, d) -> {
 				// don't show problems until contest starts
@@ -645,34 +638,56 @@ public class ConfiguredContest {
 
 				long time = ContestObject.getContestTime(obj);
 
+				if (obj instanceof ITeam) {
+					ITeam team = (ITeam) obj;
+					String teamId = team.getId();
+					Contest c = teamContests.get(teamId);
+					if (c == null) {
+						c = new Contest();
+						c.setHashCode(contest.hashCode());
+						IContestObject[] objs = publicContest.getObjects();
+						for (IContestObject co : objs)
+							c.add(co);
+						teamContests.put(teamId, c);
+					}
+				}
+
 				// all - don't show any submissions or judgements from outside the contest
 				// public - show judgments until the freeze, only public clars, no runs
 				// balloon - show judgments until the freeze and then any after if the
 				// team has less than 3, only public clars, no runs
 				// trusted - show runs & judgments until the freeze, show all clars
+				// team - show judgements until the freeze, only your own judgements after
 				if (obj instanceof ISubmission) {
 					if (time >= 0 && time < contest.getDuration()) {
 						trustedContest.add(obj2);
 						balloonContest.add(obj2);
 						publicContest.add(obj2);
-						for (int i = 0; i < NUM_TEAMS; i++)
-							teamContests[i].add(obj2);
+						for (Contest c : teamContests.values())
+							c.add(obj2);
 					}
 				} else if (obj instanceof IJudgement) {
 					IJudgement j = (IJudgement) obj;
-					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
 					ISubmission s = contest.getSubmissionById(j.getSubmissionId());
+
+					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
 					if (s == null || s.getContestTime() > freezeTime) {
 						if (s != null && s.getContestTime() < freezeTime && contest.isSolved(s)
 								&& getNumSolved(balloonContest, s.getTeamId()) < 3)
 							balloonContest.add(obj);
+						if (s != null) {
+							Contest c = teamContests.get(s.getTeamId());
+							if (c != null)
+								c.add(obj);
+						}
 						return;
 					}
 					trustedContest.add(obj2);
 					publicContest.add(obj2);
 					balloonContest.add(obj2);
-					for (int i = 0; i < NUM_TEAMS; i++)
-						teamContests[i].add(obj2);
+					for (Contest c : teamContests.values()) {
+						c.add(obj2);
+					}
 				} else if (obj instanceof IRun) {
 					IRun r = (IRun) obj;
 					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
@@ -680,20 +695,32 @@ public class ConfiguredContest {
 						return;
 					trustedContest.add(obj2);
 				} else if (obj instanceof IClarification) {
+					// only admins, trusted, and teams involved see private messages.
+					// everyone sees broadcasts
 					trustedContest.add(obj2);
 					IClarification clar = (IClarification) obj;
+					if (clar.getFromTeamId() != null) {
+						Contest c = teamContests.get(clar.getFromTeamId());
+						if (c != null)
+							c.add(obj);
+					}
+					if (clar.getToTeamId() != null && !clar.getToTeamId().equals(clar.getFromTeamId())) {
+						Contest c = teamContests.get(clar.getToTeamId());
+						if (c != null)
+							c.add(obj);
+					}
 					if (clar.getFromTeamId() == null && clar.getToTeamId() == null) {
 						publicContest.add(obj2);
 						balloonContest.add(obj2);
-						for (int i = 0; i < NUM_TEAMS; i++)
-							teamContests[i].add(obj2);
+						for (Contest c : teamContests.values())
+							c.add(obj2);
 					}
 				} else {
 					trustedContest.add(obj2);
 					balloonContest.add(obj2);
 					publicContest.add(obj2);
-					for (int i = 0; i < NUM_TEAMS; i++)
-						teamContests[i].add(obj2);
+					for (Contest c : teamContests.values())
+						c.add(obj2);
 				}
 
 				if (obj instanceof State) {
@@ -705,8 +732,8 @@ public class ConfiguredContest {
 							trustedContest.add(p);
 							publicContest.add(p);
 							balloonContest.add(p);
-							for (int i = 0; i < NUM_TEAMS; i++)
-								teamContests[i].add(obj2);
+							for (Contest c : teamContests.values())
+								c.add(p);
 						}
 					}
 					if (currentState.isRunning() != state2.isRunning()) {
@@ -927,16 +954,17 @@ public class ConfiguredContest {
 	}
 
 	public static String getRole(HttpServletRequest request) {
-		String role = "public";
 		if (Role.isAdmin(request))
-			role = "admin";
+			return "admin";
 		else if (Role.isBlue(request))
-			role = "blue";
+			return "blue";
 		else if (Role.isTrusted(request))
-			role = "trusted";
+			return "trusted";
 		else if (Role.isBalloon(request))
-			role = "balloon";
-		return role;
+			return "balloon";
+		else if (Role.isTeam(request))
+			return "team";
+		return "public";
 	}
 
 	public static String getUser(HttpServletRequest request) {
@@ -1014,6 +1042,9 @@ public class ConfiguredContest {
 		trustedContest.add(co);
 		balloonContest.add(co);
 		publicContest.add(co);
+
+		for (Contest c : teamContests.values())
+			c.add(co);
 	}
 
 	@Override
