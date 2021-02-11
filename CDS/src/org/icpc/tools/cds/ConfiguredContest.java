@@ -641,9 +641,8 @@ public class ConfiguredContest {
 				if (obj instanceof ITeam) {
 					ITeam team = (ITeam) obj;
 					String teamId = team.getId();
-					Contest c = teamContests.get(teamId);
-					if (c == null) {
-						c = new Contest();
+					if (CDSConfig.getInstance().hasLoginForId(teamId) && teamContests.get(teamId) == null) {
+						Contest c = new Contest();
 						c.setHashCode(contest.hashCode());
 						IContestObject[] objs = publicContest.getObjects();
 						for (IContestObject co : objs)

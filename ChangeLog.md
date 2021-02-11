@@ -1,5 +1,10 @@
 # ICPC Tools Changelog
 
+## V2.3 - TBD
+-----------------
+* CDS:
+  * Support for team login and team-specific contest views
+
 ## V2.2 - February, 2021
 -----------------
 * First open release!
