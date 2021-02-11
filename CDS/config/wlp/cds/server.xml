@@ -35,6 +35,9 @@
             <user name="presentation"/>
             <user name="public"/>
          </security-role>
+         <security-role name="team">
+         	<user name="team1"/>
+         </security-role>
        </application-bnd>
     </webApplication>
 

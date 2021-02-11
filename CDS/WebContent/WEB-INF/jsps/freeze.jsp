@@ -1,8 +1,8 @@
 <%@ page import="org.icpc.tools.contest.model.*" %>
 <% request.setAttribute("title", "Freeze"); %>
 <%@ include file="layout/head.jsp" %>
-<% IContest contest2 = cc.getContestByRole(Role.BLUE);
-    IContest contest1 = cc.getContestByRole(Role.PUBLIC);
+<% IContest contest2 = cc.getContestByRole(true);
+    IContest contest1 = cc.getContestByRole(false);
     IState state = contest1.getState(); %>
 <div class="container-fluid">
     <div class="row">

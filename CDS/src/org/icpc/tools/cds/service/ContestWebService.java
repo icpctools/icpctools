@@ -47,7 +47,7 @@ import org.icpc.tools.contest.model.util.ScoreboardUtil;
 
 @WebServlet(urlPatterns = { "/contests", "/contests/*" }, asyncSupported = true)
 @ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.BLUE, Role.BALLOON, Role.TRUSTED, Role.PUBLIC }))
+		Role.ADMIN, Role.BLUE, Role.BALLOON, Role.TRUSTED, Role.TEAM, Role.PUBLIC }))
 public class ContestWebService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

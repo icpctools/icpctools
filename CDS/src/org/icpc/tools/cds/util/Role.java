@@ -8,6 +8,7 @@ public class Role {
 	public static final String BLUE = "blue";
 	public static final String BALLOON = "balloon";
 	public static final String TRUSTED = "trusted";
+	public static final String TEAM = "team";
 	public static final String PUBLIC = "public";
 
 	public static boolean isAdmin(HttpServletRequest request) {
@@ -29,5 +30,9 @@ public class Role {
 
 	public static boolean isBalloon(HttpServletRequest request) {
 		return request.isUserInRole(BALLOON);
+	}
+
+	public static boolean isTeam(HttpServletRequest request) {
+		return request.isUserInRole(TEAM);
 	}
 }

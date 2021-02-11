@@ -355,6 +355,25 @@ The attribute associated with the *user* element is as follows:
 
 * name: the name of a user, which must match one of the existing users.
 
+###### teamUser Element
+
+```
+<teamUser>
+  <user name="team1" teamId="1"/>
+  <user name="steven" teamId="2"/>
+  <user name="mark" teamId="2"/>
+</teamUser>
+```
+
+The global *teamUser* element allows you to map a team user login to their identity (team id) within a contest. By providing
+this mapping the team will be able to see all of their own judgements and clarifications in the contest. In the example above,
+there is one login for the team with id 1, and two logins for team 2.
+
+The attribute associated with the *user* element is as follows:
+
+* name: the name of a user, which must match one of the existing users.
+* teamId: the team's id within a contest.
+
 
 ### Starting the CDS
 

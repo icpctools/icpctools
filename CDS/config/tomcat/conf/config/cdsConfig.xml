@@ -34,4 +34,13 @@
     <user name="presentation"/>
   </domain>
   -->
+
+  <!-- Team user to id mapping. Uncomment to assign team users to the contest team id that they belong to.
+       You can create one user login per team, one per team member, or whatever you choose.
+       Without this, team logins will only have access to public data -->
+  <!--
+  <teamUsers>
+    <user name="team1" teamId="1"/>
+  </teamUsers>
+  -->
 </cds>

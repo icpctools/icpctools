@@ -76,9 +76,25 @@ public class CDSConfig {
 		}
 	}
 
+	public static class TeamUser {
+		private String name = null;
+		private String id = null;
+
+		protected TeamUser(Element e) {
+			name = e.getAttribute("name");
+			id = e.getAttribute("teamId");
+		}
+
+		@Override
+		public String toString() {
+			return "Team user [" + name + "]";
+		}
+	}
+
 	private ConfiguredContest[] contests;
 	private long[] contestHashes;
 	private Domain[] domains;
+	private TeamUser[] teamUsers;
 	private File file;
 	private long lastModified;
 
@@ -229,10 +245,43 @@ public class CDSConfig {
 			}
 			domains = temp;
 		}
+
+		Element teamElement = getChild(e, "teamUsers");
+		if (teamElement != null) {
+			children = CDSConfig.getChildren(teamElement, "user");
+			int num = children.length;
+
+			TeamUser[] temp = new TeamUser[num];
+			for (int i = 0; i < num; i++) {
+				temp[i] = new TeamUser(children[i]);
+			}
+			teamUsers = temp;
+		}
 	}
 
 	public Domain[] getDomains() {
 		return domains;
+	}
+
+	public TeamUser[] getTeamLogins() {
+		return teamUsers;
+	}
+
+	/**
+	 * Converts from team user name to team id, e.g. "team57" to "57".
+	 *
+	 * @param userName
+	 * @return the team's id, or null if not found
+	 */
+	public String getTeamIdFromUser(String userName) {
+		if (teamUsers == null || userName == null)
+			return null;
+
+		for (TeamUser login : teamUsers) {
+			if (userName.equals(login.name))
+				return login.id;
+		}
+		return null;
 	}
 
 	private static Element readElement(File file) throws Exception {
