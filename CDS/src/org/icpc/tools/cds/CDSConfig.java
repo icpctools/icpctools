@@ -78,11 +78,11 @@ public class CDSConfig {
 
 	public static class TeamUser {
 		private String name = null;
-		private String id = null;
+		private String teamId = null;
 
 		protected TeamUser(Element e) {
 			name = e.getAttribute("name");
-			id = e.getAttribute("teamId");
+			teamId = e.getAttribute("teamId");
 		}
 
 		@Override
@@ -268,6 +268,23 @@ public class CDSConfig {
 	}
 
 	/**
+	 * Returns true if there are any user logins for the given team id, and false otherwise.
+	 *
+	 * @param team id
+	 * @return true if there is a login, and false otherwise
+	 */
+	public boolean hasLoginForId(String teamId) {
+		if (teamUsers == null || teamId == null)
+			return false;
+
+		for (TeamUser user : teamUsers) {
+			if (teamId.equals(user.teamId))
+				return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Converts from team user name to team id, e.g. "team57" to "57".
 	 *
 	 * @param userName
@@ -277,9 +294,9 @@ public class CDSConfig {
 		if (teamUsers == null || userName == null)
 			return null;
 
-		for (TeamUser login : teamUsers) {
-			if (userName.equals(login.name))
-				return login.id;
+		for (TeamUser user : teamUsers) {
+			if (userName.equals(user.name))
+				return user.teamId;
 		}
 		return null;
 	}
