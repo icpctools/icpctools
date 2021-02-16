@@ -412,7 +412,10 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	public File downloadFile(IContestObject obj, FileReference ref, String property) throws IOException {
-		File file = super.getNewFile(obj, ref, property);
+		if (obj == null)
+			return null;
+
+		File file = super.getNewFile(obj.getType(), obj.getId(), property);
 		if (file == null)
 			return null;
 
@@ -787,6 +790,32 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
+	 * Helper method to grab any HTTP response body error text or build a generic error message.
+	 *
+	 * @param conn an HTTP connection
+	 * @return an error message suitable for returning to clients
+	 * @throws IOException
+	 */
+	protected static String getResponseError(HttpURLConnection conn) throws IOException {
+		try {
+			InputStream in = conn.getErrorStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			String s = br.readLine();
+			StringBuilder sb = new StringBuilder();
+			while (s != null) {
+				sb.append(s);
+				s = br.readLine();
+			}
+			if (sb.length() > 0)
+				return sb.toString();
+		} catch (Exception e) {
+			// ignore
+		}
+
+		return conn.getResponseCode() + ": " + conn.getResponseMessage();
+	}
+
+	/**
 	 * Set or clear the start time of a contest. Time is in s since Jan 1, 1970 (the Unix epoch), or
 	 * null to clear.
 	 *
@@ -821,9 +850,57 @@ public class RESTContestSource extends DiskContestSource {
 			bw.close();
 
 			if (conn.getResponseCode() != 200)
-				throw new IOException(conn.getResponseCode() + ": " + conn.getResponseMessage());
+				throw new IOException("Error setting contest start time (" + getResponseError(conn) + ")");
 		} catch (IOException e) {
 			Trace.trace(Trace.ERROR, "Error setting contest start time", e);
+			throw e;
+		} catch (Exception e) {
+			throw new IOException("Connection error", e);
+		}
+	}
+
+	/**
+	 * Submit a run in the contest, as either a team or an admin.
+	 *
+	 * @param obj a JSON object with the submission details
+	 * @throws IOException
+	 */
+	public String submit(JsonObject obj) throws IOException {
+		try {
+			Trace.trace(Trace.INFO, "Submitting to " + url);
+
+			HttpURLConnection conn = HTTPSSecurity.createConnection(getChildURL("submissions"), user, password);
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Accept", "application/json");
+			conn.setDoOutput(true);
+
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(conn.getOutputStream()));
+			JSONEncoder je = new JSONEncoder(pw);
+			je.open();
+			for (String key : obj.props.keySet()) {
+				Object value = obj.get(key);
+				if (value instanceof String)
+					je.encode(key, (String) value);
+				else if (value instanceof Object[]) // handle files array
+					je.encodePrimitive(key, "[" + ((Object[]) value)[0] + "]");
+				else
+					throw new IOException("Unexpected JSON attribute (" + key + ":" + value.getClass() + ")");
+			}
+			je.close();
+			pw.close();
+
+			if (conn.getResponseCode() != 200)
+				throw new IOException("Error submitting (" + getResponseError(conn) + ")");
+
+			JSONParser parser2 = new JSONParser(conn.getInputStream());
+			String sId = parser2.readValue();
+			if (sId == null)
+				throw new IOException("Submission successful but invalid submission id returned");
+
+			return sId;
+		} catch (IOException e) {
+			Trace.trace(Trace.ERROR, "Error while submitting", e);
 			throw e;
 		} catch (Exception e) {
 			throw new IOException("Connection error", e);
