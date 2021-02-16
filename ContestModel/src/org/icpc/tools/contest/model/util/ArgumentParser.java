@@ -220,15 +220,23 @@ public class ArgumentParser {
 					else if ("false".equalsIgnoreCase(s))
 						list.add(Boolean.FALSE);
 					else {
+						// only accept int and floats with basic characters
+						// (e.g. don't support exponents, treat those as strings)
 						boolean isInt = true;
 						boolean isFloat = true;
 						for (char c : s.toCharArray()) {
-							if (!Character.isDigit(c) && c != '-') {
+							if (Character.isDigit(c)) {
+								// could be int or float
+							} else if (c == '-') {
+								// could be int or float
+							} else if (c == '.') {
+								// could be float, not int
+								isInt = false;
+							} else {
+								// can't be either
 								isInt = false;
 								isFloat = false;
 							}
-							if (c != '.')
-								isFloat = false;
 						}
 						if (isInt)
 							try {
