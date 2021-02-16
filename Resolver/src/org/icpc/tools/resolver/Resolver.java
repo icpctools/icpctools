@@ -179,6 +179,14 @@ public class Resolver {
 	}
 
 	public static void main(String[] args) {
+		String log = "resolver";
+		List<String> argList = Arrays.asList(args);
+		if (argList.contains("--client"))
+			log += "-client";
+		else if (argList.contains("--team"))
+			log += "-team";
+		Trace.init("ICPC Resolver", log, args);
+
 		// create the Resolver object
 		final Resolver r = new Resolver();
 		ContestSource[] contestSource = ArgumentParser.parseMulti(args, new OptionParser() {
@@ -198,15 +206,7 @@ public class Resolver {
 			return;
 		}
 
-		String log = "resolver";
-		List<String> argList = Arrays.asList(args);
-		if (argList.contains("--client"))
-			log += "-client";
-		else if (argList.contains("--team"))
-			log += "-team";
-		Trace.init("ICPC Resolver", log, args);
 		System.setProperty("apple.awt.application.name", "Resolver");
-
 		BufferedImage iconImage = null;
 		try {
 			iconImage = ImageIO.read(r.getClass().getClassLoader().getResource("images/resolverIcon.png"));
