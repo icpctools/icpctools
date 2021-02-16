@@ -153,7 +153,14 @@ public class JSONParser {
 		}
 	}
 
-	private String readValue() {
+	public String readValue() {
+		Token t = nextToken();
+		if (t != Token.QUOTE)
+			throw new IllegalArgumentException("Unexpected token");
+		return readValueBody();
+	}
+
+	private String readValueBody() {
 		int st = ind;
 		char c = s.charAt(st);
 		while (c != '"' || s.charAt(ind - 1) == '\\') {
@@ -196,7 +203,7 @@ public class JSONParser {
 		if (t != Token.QUOTE)
 			throw new IllegalArgumentException("Unexpected " + t);
 
-		String key = readValue();
+		String key = readValueBody();
 
 		t = nextToken();
 		if (t != Token.COLON)
@@ -207,7 +214,7 @@ public class JSONParser {
 		Object value = null;
 		if (t == Token.QUOTE) {
 			// quoted value
-			value = readValue();
+			value = readValueBody();
 		} else if (t == Token.OBJECT_START) {
 			ind--;
 			value = readObject();
@@ -234,7 +241,7 @@ public class JSONParser {
 			Object value = null;
 			if (t == Token.QUOTE) {
 				// quoted value
-				value = readValue();
+				value = readValueBody();
 			} else if (t == Token.OBJECT_START) {
 				ind--;
 				value = readObject();

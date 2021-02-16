@@ -1,10 +1,13 @@
 package org.icpc.tools.cds.service;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -30,10 +33,13 @@ import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
+import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.JSONArrayWriter;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
+import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -633,6 +639,151 @@ public class ContestRESTService extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
 			Trace.trace(Trace.ERROR, "Could not add to contest " + id, e);
 		}
+	}
+
+	/**
+	 * Handle POST messages. The only thing you can currently post is a submission, either as a team
+	 * or as an admin user.
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (!Role.isAdmin(request) && !Role.isTeam(request)) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+
+		String path = request.getPathInfo();
+		if (path == null || path.equals("/") || path.length() < 10) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		String[] segments = path.substring(10).split("/");
+		if (segments == null || segments.length != 2) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
+		if (cc == null) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
+			return;
+		}
+
+		String type = segments[1];
+		ContestType cType = IContestObject.getTypeByName(type);
+		if (cType != ContestType.SUBMISSION) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
+			return;
+		}
+
+		JsonObject obj = null;
+		try {
+			InputStream is = request.getInputStream();
+			JSONParser parser = new JSONParser(is);
+			obj = parser.readObject();
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse object");
+			return;
+		}
+
+		String id = obj.getString("id");
+		String time = obj.getString("time");
+		String teamId = obj.getString("team_id");
+		String problemId = obj.getString("problem_id");
+		String languageId = obj.getString("language_id");
+
+		Contest contest = cc.getContestByRole(request);
+		if (teamId != null && contest.getTeamById(teamId) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown team");
+			return;
+		}
+
+		if (languageId == null || contest.getLanguageById(languageId) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown language");
+			return;
+		}
+
+		if (problemId == null || contest.getProblemById(problemId) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown problem");
+			return;
+		}
+
+		if (Role.isTeam(request)) {
+			if (id != null || time != null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
+				return;
+			}
+			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			if (teamId2 == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not determine request user's team");
+				return;
+			}
+			if (teamId != null && !teamId.equals(teamId2)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot submit for a different team");
+				return;
+			}
+			// make sure team_id is not null in case we're forwarding to CCS
+			if (teamId == null)
+				obj.props.put("team_id", teamId2);
+		}
+
+		if (Role.isAdmin(request) && teamId == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
+			return;
+		}
+
+		String sId = null;
+		ContestSource source = cc.getContestSource();
+
+		if (cc.isTesting()) {
+			// when in test mode just accept submissions and return dummy id
+			sId = "test-" + obj.getString("team_id");
+		} else if (cc.getCCS() == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
+			return;
+		} else if (!(source instanceof RESTContestSource)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support submissions via the CCS");
+			return;
+		} else {
+			try {
+				RESTContestSource restSource = (RESTContestSource) source;
+				sId = restSource.submit(obj);
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting to CCS: " + e.getMessage());
+				return;
+			}
+		}
+
+		// cache accepted submission file locally to avoid asking CCS for it later
+		if (source instanceof DiskContestSource) {
+			DiskContestSource dsource = (DiskContestSource) source;
+			File f = dsource.getNewFile(ContestType.SUBMISSION, sId, "files");
+			if (!f.getParentFile().exists())
+				f.getParentFile().mkdirs();
+			String fs = (String) obj.get("files");
+			JSONParser parser2 = new JSONParser(fs);
+			Object[] files = parser2.readArray();
+			JsonObject obj2 = (JsonObject) files[0];
+			String fb = obj2.getString("data");
+			Trace.trace(Trace.INFO, "Saving submission " + sId + " to " + f);
+			BufferedOutputStream out = null;
+			try {
+				byte[] b = Base64.getDecoder().decode(fb);
+				out = new BufferedOutputStream(new FileOutputStream(f));
+				out.write(b);
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not cache submission file locally", e);
+			} finally {
+				if (out != null)
+					out.close();
+			}
+		}
+
+		// send submission id back to client
+		PrintWriter pw = response.getWriter();
+		response.setContentType("application/json");
+		pw.append("\"" + sId + "\"");
 	}
 
 	@Override

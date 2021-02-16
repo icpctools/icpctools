@@ -24,6 +24,7 @@ import javax.imageio.stream.FileImageInputStream;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.TSVImporter;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
@@ -226,11 +227,14 @@ public class DiskContestSource extends ContestSource {
 
 	@Override
 	public File getFile(IContestObject obj, FileReference ref, String property) throws IOException {
+		if (obj == null)
+			return null;
+
 		if (ref.file != null)
 			return ref.file;
 
 		// use the pattern to find the right folder
-		String[] fileRef = getLocalPattern(obj, property);
+		String[] fileRef = getLocalPattern(obj.getType(), obj.getId(), property);
 		File rootFolder = getRootFolder();
 		File folder = rootFolder;
 		if (fileRef[0] != null)
@@ -247,18 +251,30 @@ public class DiskContestSource extends ContestSource {
 			}
 		}
 
-		// otherwise, assume the default file name or try a new one if that's taken
-		return getNewFile(obj, ref, property);
+		// otherwise, assume the default file name or try a new one if that is taken
+		return getNewFile(obj.getType(), obj.getId(), property);
 	}
 
-	protected File getNewFile(IContestObject obj, FileReference ref2, String property) {
-		String[] fileRef = getLocalPattern(obj, property);
+	/**
+	 * Return a new local file name that is suitable for saving the given property of a contest
+	 * object of a specific type and id to.
+	 *
+	 * @param type
+	 * @param id
+	 * @param property
+	 * @return
+	 */
+	public File getNewFile(IContestObject.ContestType type, String id, String property) {
+		String[] fileRef = getLocalPattern(type, id, property);
 		if (fileRef == null)
 			return null;
 		File rootFolder = getRootFolder();
 		File folder = rootFolder;
 		if (fileRef[0] != null)
 			folder = new File(rootFolder, fileRef[0]);
+
+		if (!fileRef[1].contains("{0}"))
+			return new File(folder, fileRef[1]);
 
 		File file = new File(folder, fileRef[1].replace("{0}", ""));
 		int n = 2;
@@ -662,7 +678,10 @@ public class DiskContestSource extends ContestSource {
 	 * @return
 	 */
 	public FileReferenceList getFilesWithPattern(IContestObject obj, String property) {
-		final String[] s = getLocalPattern(obj, property);
+		if (obj == null)
+			return null;
+
+		final String[] s = getLocalPattern(obj.getType(), obj.getId(), property);
 		if (s == null) {
 			Trace.trace(Trace.ERROR, "No file pattern: " + obj.getType() + " " + property);
 			return null;
@@ -734,48 +753,46 @@ public class DiskContestSource extends ContestSource {
 	 * @return
 	 */
 	protected String[] getLocalPattern(IContestObject obj, String property) {
+		return getLocalPattern(obj.getType(), obj.getId(), property);
+	}
+
+	protected String[] getLocalPattern(IContestObject.ContestType type, String id, String property) {
 		String reg = ""; // "registration" + File.separator;
 		String events = ""; // "events" + File.separator;
-		if (obj instanceof Info) {
+		if (type == ContestType.CONTEST) {
 			if (LOGO.equals(property))
 				return new String[] { "config", "logo{0}.png", "logo{0}" };
 			if (BANNER.equals(property))
 				return new String[] { "config", "banner{0}.png", "banner{0}" };
-		} else if (obj instanceof Team) {
+		} else if (type == ContestType.TEAM) {
 			if (PHOTO.equals(property))
-				return new String[] { reg + "teams" + File.separator + obj.getId(), "photo{0}.jpg",
-						"teams/" + obj.getId() + "/photo{0}" };
+				return new String[] { reg + "teams" + File.separator + id, "photo{0}.jpg", "teams/" + id + "/photo{0}" };
 			if (VIDEO.equals(property))
-				return new String[] { reg + "teams" + File.separator + obj.getId(), "video.m2ts",
-						"teams/" + obj.getId() + "/video" };
+				return new String[] { reg + "teams" + File.separator + id, "video.m2ts", "teams/" + id + "/video" };
 			if (BACKUP.equals(property))
-				return new String[] { reg + "teams" + File.separator + obj.getId(), "backup.zip",
-						"teams/" + obj.getId() + "/backup" };
+				return new String[] { reg + "teams" + File.separator + id, "backup.zip", "teams/" + id + "/backup" };
 			if (KEY_LOG.equals(property))
-				return new String[] { reg + "teams" + File.separator + obj.getId(), "keys.log",
-						"teams/" + obj.getId() + "/keylog" };
+				return new String[] { reg + "teams" + File.separator + id, "keys.log", "teams/" + id + "/keylog" };
 			if (TOOL_DATA.equals(property))
-				return new String[] { reg + "teams" + File.separator + obj.getId(), "tools.txt",
-						"teams/" + obj.getId() + "/tooldata" };
-		} else if (obj instanceof TeamMember) {
+				return new String[] { reg + "teams" + File.separator + id, "tools.txt", "teams/" + id + "/tooldata" };
+		} else if (type == ContestType.TEAM_MEMBER) {
 			if (PHOTO.equals(property))
-				return new String[] { reg + "team-members" + File.separator + obj.getId(), "photo{0}.jpg",
-						"team-members/" + obj.getId() + "/photo{0}" };
-		} else if (obj instanceof Organization) {
+				return new String[] { reg + "team-members" + File.separator + id, "photo{0}.jpg",
+						"team-members/" + id + "/photo{0}" };
+		} else if (type == ContestType.ORGANIZATION) {
 			if (LOGO.equals(property))
-				return new String[] { reg + "organizations" + File.separator + obj.getId(), "logo{0}.png",
-						"organizations/" + obj.getId() + "/logo{0}" };
-		} else if (obj instanceof Submission) {
+				return new String[] { reg + "organizations" + File.separator + id, "logo{0}.png",
+						"organizations/" + id + "/logo{0}" };
+		} else if (type == ContestType.SUBMISSION) {
 			if (FILES.equals(property))
-				return new String[] { events + "submissions" + File.separator + obj.getId(), "files.zip",
-						"submissions/" + obj.getId() + "/files" };
+				return new String[] { events + "submissions" + File.separator + id, "files.zip",
+						"submissions/" + id + "/files" };
 			if (REACTION.equals(property))
-				return new String[] { events + "submissions" + File.separator + obj.getId(), "reaction.m2ts",
-						"submissions/" + obj.getId() + "/reaction" };
-		} else if (obj instanceof Group) {
+				return new String[] { events + "submissions" + File.separator + id, "reaction.m2ts",
+						"submissions/" + id + "/reaction" };
+		} else if (type == ContestType.GROUP) {
 			if (LOGO.equals(property))
-				return new String[] { reg + "groups" + File.separator + obj.getId(), "logo{0}.png",
-						"groups/" + obj.getId() + "/logo{0}" };
+				return new String[] { reg + "groups" + File.separator + id, "logo{0}.png", "groups/" + id + "/logo{0}" };
 		}
 		return null;
 	}
