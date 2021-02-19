@@ -571,6 +571,18 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	private void apply(DisplayConfig dc) {
+		// On Mac, full-screen exclusive windows can coexist on different displays. When not in
+		// full-screen mode, insets include the top menu title bar on every display, and the dock
+		// on only the primary display( typically at the bottom). Both are always on top of the
+		// window.
+
+		// On Windows, full-screen exclusive windows are automatically minimized if you select any
+		// other program (e.g. click on another display). When not in full-screen mode, insets
+		// include the taskbar on every display (typically at the bottom). Windows can display over
+		// the taskbar.
+
+		// To mitigate the difference on Windows when there are multiple displays, automatically
+		// switch full screen exclusive mode to full screen window with no insets
 		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		if (dc.device >= gds.length)
 			throw new IllegalArgumentException("Invalid device: " + device);
@@ -587,10 +599,16 @@ public class PresentationWindowImpl extends PresentationWindow {
 		GraphicsConfiguration gConfig = gDevice.getDefaultConfiguration();
 		Rectangle r = gConfig.getBounds();
 		Insets in = Toolkit.getDefaultToolkit().getScreenInsets(gConfig);
-		r.x += in.left;
-		r.y += in.top;
-		r.height -= in.top + in.bottom;
-		r.width -= in.left + in.right;
+		Trace.trace(Trace.INFO, "Applying display config " + dc + " (r=" + r + ",in=" + in + ")");
+		boolean isWindowsMultiDisplay = System.getProperty("os.name").toLowerCase().contains("win") && gds.length > 1;
+		if (isWindowsMultiDisplay && dc.mode == Mode.FULL_SCREEN) {
+			dc.mode = Mode.FULL_WINDOW;
+		} else {
+			r.x += in.left;
+			r.y += in.top;
+			r.height -= in.top + in.bottom;
+			r.width -= in.left + in.right;
+		}
 
 		if (dc.mode == Mode.TOP_LEFT)
 			setBounds(r.x, r.y, r.width / 2, r.height / 2);

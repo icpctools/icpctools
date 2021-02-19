@@ -24,11 +24,9 @@ public class DisplayConfig {
 		mode = Mode.FULL_SCREEN;
 		if (displayStr.length() > 1) {
 			char c = displayStr.charAt(1);
-			if (!Character.isDigit(c)) {
-				for (int i = 0; i < PosStrs.length; i++)
-					if (PosStrs[i] == c)
-						mode = Mode.values()[i];
-			}
+			for (int i = 0; i < PosStrs.length; i++)
+				if (PosStrs[i] == c)
+					mode = Mode.values()[i];
 		}
 	}
 
@@ -47,11 +45,9 @@ public class DisplayConfig {
 			mode = Mode.FULL_SCREEN;
 			if (display.length() == 2) {
 				char c = display.charAt(1);
-				if (!Character.isDigit(c)) {
-					for (int i = 0; i < PosStrs.length; i++)
-						if (PosStrs[i] == c)
-							mode = Mode.values()[i];
-				}
+				for (int i = 0; i < PosStrs.length; i++)
+					if (PosStrs[i] == c)
+						mode = Mode.values()[i];
 			}
 		}
 
