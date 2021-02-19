@@ -673,7 +673,7 @@ public class ContestRESTService extends HttpServlet {
 		String type = segments[1];
 		ContestType cType = IContestObject.getTypeByName(type);
 		if (cType != ContestType.SUBMISSION) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "POST can only be used for submissions");
 			return;
 		}
 
@@ -743,7 +743,7 @@ public class ContestRESTService extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
 			return;
 		} else if (!(source instanceof RESTContestSource)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support submissions via the CCS");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support submissions via the CDS");
 			return;
 		} else {
 			try {
