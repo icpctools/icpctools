@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -852,7 +855,7 @@ public class RESTContestSource extends DiskContestSource {
 			if (conn.getResponseCode() != 200)
 				throw new IOException("Error setting contest start time (" + getResponseError(conn) + ")");
 		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Error setting contest start time", e);
+			Trace.trace(Trace.INFO, "Error setting contest start time", e);
 			throw e;
 		} catch (Exception e) {
 			throw new IOException("Connection error", e);
@@ -860,14 +863,75 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
-	 * Submit a run in the contest, as either a team or an admin.
+	 * Encode the given files into a base-64 encoded string of a zip archive containing the files.
 	 *
-	 * @param obj a JSON object with the submission details
-	 * @throws IOException
+	 * @param files the files to encode
+	 * @return a base-64 encoded string
+	 * @throws IOException if anything goes wrong
 	 */
-	public String submit(JsonObject obj) throws IOException {
+	private static String zipAndEncode(File... files) throws IOException {
+		ZipOutputStream zipOut = null;
+
 		try {
-			Trace.trace(Trace.INFO, "Submitting to " + url);
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			zipOut = new ZipOutputStream(bout);
+
+			for (File file : files) {
+				zipOut.putNextEntry(new ZipEntry(file.getName()));
+
+				BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+				byte[] buf = new byte[8096];
+				int n = in.read(buf);
+				while (n > 0) {
+					zipOut.write(buf, 0, n);
+					n = in.read(buf);
+				}
+				zipOut.closeEntry();
+			}
+			zipOut.close();
+
+			return Base64.getEncoder().encodeToString(bout.toByteArray());
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error encoding files", e);
+			throw new IOException(e);
+		} finally {
+			try {
+				if (zipOut != null)
+					zipOut.close();
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+	}
+
+	/**
+	 * Enter a submission to the contest, as either a team or an admin.
+	 *
+	 * JSON attributes: 'language_id', 'problem_id', and 'files' are required. Files can either be
+	 * included in the attributes or specified via the files parameter. 'entry_point' may be
+	 * required based on language. When submitting as an admin 'team_id' is required, 'id' and/or
+	 * 'time' are optional.
+	 *
+	 * @param obj a json object with the submission attributes
+	 * @param files an optional list of files to zip and submit as the "files" attribute
+	 * @return the submission id
+	 * @throws IOException if there is any problem connecting to the server or with the submission
+	 */
+	public String submit(JsonObject obj, File... files) throws IOException {
+		if (obj == null)
+			throw new IllegalArgumentException();
+
+		try {
+			if (files != null && files.length > 0) {
+				JsonObject filesObj = new JsonObject();
+				filesObj.put("data", zipAndEncode(files));
+				obj.props.put("files", new Object[] { filesObj });
+			}
+
+			StringWriter sw = new StringWriter();
+			JSONWriter jw = new JSONWriter(sw);
+			jw.writeObject(obj);
+			Trace.trace(Trace.INFO, "Submitting to " + url + ": " + sw.toString());
 
 			HttpURLConnection conn = HTTPSSecurity.createConnection(getChildURL("submissions"), user, password);
 			conn.setRequestMethod("POST");
@@ -875,20 +939,9 @@ public class RESTContestSource extends DiskContestSource {
 			conn.setRequestProperty("Accept", "application/json");
 			conn.setDoOutput(true);
 
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(conn.getOutputStream()));
-			JSONEncoder je = new JSONEncoder(pw);
-			je.open();
-			for (String key : obj.props.keySet()) {
-				Object value = obj.get(key);
-				if (value instanceof String)
-					je.encode(key, (String) value);
-				else if (value instanceof Object[]) // handle files array
-					je.encodePrimitive(key, "[" + ((Object[]) value)[0] + "]");
-				else
-					throw new IOException("Unexpected JSON attribute (" + key + ":" + value.getClass() + ")");
-			}
-			je.close();
-			pw.close();
+			jw = new JSONWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
+			jw.writeObject(obj);
+			jw.close();
 
 			if (conn.getResponseCode() != 200)
 				throw new IOException("Error submitting (" + getResponseError(conn) + ")");
@@ -900,7 +953,7 @@ public class RESTContestSource extends DiskContestSource {
 
 			return sId;
 		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Error while submitting", e);
+			Trace.trace(Trace.INFO, "Error while submitting", e);
 			throw e;
 		} catch (Exception e) {
 			throw new IOException("Connection error", e);

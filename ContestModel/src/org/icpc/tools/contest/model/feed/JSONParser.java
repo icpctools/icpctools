@@ -91,6 +91,10 @@ public class JSONParser {
 			}
 		}
 
+		public void put(String key, Object value) {
+			props.put(key, value);
+		}
+
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder("JSON [");
