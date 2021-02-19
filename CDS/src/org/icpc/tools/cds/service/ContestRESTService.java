@@ -761,11 +761,9 @@ public class ContestRESTService extends HttpServlet {
 			File f = dsource.getNewFile(ContestType.SUBMISSION, sId, "files");
 			if (!f.getParentFile().exists())
 				f.getParentFile().mkdirs();
-			String fs = (String) obj.get("files");
-			JSONParser parser2 = new JSONParser(fs);
-			Object[] files = parser2.readArray();
-			JsonObject obj2 = (JsonObject) files[0];
-			String fb = obj2.getString("data");
+			Object[] files = (Object[]) obj.get("files");
+			JsonObject file = (JsonObject) files[0];
+			String fb = (String) file.get("data");
 			Trace.trace(Trace.INFO, "Saving submission " + sId + " to " + f);
 			BufferedOutputStream out = null;
 			try {
