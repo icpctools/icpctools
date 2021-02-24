@@ -360,8 +360,8 @@ The attribute associated with the *user* element is as follows:
 ```
 <teamUser>
   <user name="team1" teamId="1"/>
-  <user name="steven" teamId="2"/>
-  <user name="mark" teamId="2"/>
+  <user name="steven" teamId="2" host="steven.com"/>
+  <user name="mark" teamId="2" host="10.0.0.2"/>
 </teamUser>
 ```
 
@@ -369,10 +369,16 @@ The global *teamUser* element allows you to map a team user login to their ident
 this mapping the team will be able to see all of their own judgements and clarifications in the contest. In the example above,
 there is one login for the team with id 1, and two logins for team 2.
 
+If your users are on a locked-down network with known host names or IP addresses, you can add a host attribute to enable
+auto-login. When this is specified any user from the given host will be automatically logged into the CDS. In order for this
+feature to work, you must be using basic authentication with the users.xml in the default location (in order for the CDS to
+look up passwords).
+
 The attribute associated with the *user* element is as follows:
 
 * name: the name of a user, which must match one of the existing users.
 * teamId: the team's id within a contest.
+* host: an optional host to use for auto-login.
 
 
 ### Starting the CDS

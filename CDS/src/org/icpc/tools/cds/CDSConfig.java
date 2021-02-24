@@ -3,6 +3,7 @@ package org.icpc.tools.cds;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -23,7 +26,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class CDSConfig {
 	private static final Object INIT_LOCK = new Object();
@@ -79,10 +85,14 @@ public class CDSConfig {
 	public static class TeamUser {
 		private String name = null;
 		private String teamId = null;
+		private String host = null;
+		private String password = null;
 
 		protected TeamUser(Element e) {
 			name = e.getAttribute("name");
 			teamId = e.getAttribute("teamId");
+			host = e.getAttribute("host");
+			password = e.getAttribute("password");
 		}
 
 		@Override
@@ -257,6 +267,61 @@ public class CDSConfig {
 			}
 			teamUsers = temp;
 		}
+
+		String users = teamElement.getAttribute("users");
+		if (users == null || users.isEmpty())
+			users = "../users.xml";
+		FileInputStream in = null;
+		try {
+			in = new FileInputStream(new File(file.getParentFile(), users));
+			parseBasicRegistry(in);
+		} catch (Exception ex) {
+			Trace.trace(Trace.ERROR, "Could not load team password info", ex);
+		} finally {
+			if (in != null)
+				try {
+					in.close();
+				} catch (Exception ex) {
+					// ignore
+				}
+		}
+	}
+
+	private void parseBasicRegistry(InputStream in) throws Exception {
+		if (in == null)
+			return;
+
+		SAXParser sp = SAXParserFactory.newInstance().newSAXParser();
+		try {
+			sp.parse(in, new DefaultHandler() {
+				protected int level;
+
+				@Override
+				public void startElement(String uri, String localName, String qName, Attributes attributes) {
+					if (level == 0) {
+						if (!qName.equals("server"))
+							Trace.trace(Trace.ERROR, "Invalid format for basic registry");
+					} else if (level == 2) {
+						if ("user".equals(qName)) {
+							String name = attributes.getValue("name");
+							for (TeamUser user : teamUsers) {
+								if (name.equals(user.name))
+									user.password = attributes.getValue("password");
+							}
+						}
+					}
+					level++;
+				}
+
+				@Override
+				public void endElement(String uri, String localName, String qName) {
+					level--;
+				}
+			});
+		} catch (SAXParseException e) {
+			Trace.trace(Trace.ERROR, "Could not read basic registry:" + e.getLineNumber(), e);
+			throw new IOException("Could not read basic registry");
+		}
 	}
 
 	public Domain[] getDomains() {
@@ -297,6 +362,57 @@ public class CDSConfig {
 		for (TeamUser user : teamUsers) {
 			if (userName.equals(user.name))
 				return user.teamId;
+		}
+		return null;
+	}
+
+	/**
+	 * Converts from team host name or IP to team id, e.g. "10.0.0.43" to "43".
+	 *
+	 * @param host
+	 * @return the team's id, or null if not found
+	 */
+	public String getTeamIdFromHost(String host) {
+		if (teamUsers == null || host == null)
+			return null;
+
+		for (TeamUser login : teamUsers) {
+			if (host.equalsIgnoreCase(login.host))
+				return login.teamId;
+		}
+		return null;
+	}
+
+	/**
+	 * Converts from team id to team user name, e.g. "57" to "team57".
+	 *
+	 * @param team id
+	 * @return the team's user name, or null if not found
+	 */
+	public String getTeamUserName(String id) {
+		if (teamUsers == null || id == null)
+			return null;
+
+		for (TeamUser user : teamUsers) {
+			if (id.equals(user.teamId))
+				return user.name;
+		}
+		return null;
+	}
+
+	/**
+	 * Converts from team id to team password, e.g. "57" to "vej78e!".
+	 *
+	 * @param team id
+	 * @return the team's password, or null if not found
+	 */
+	public String getTeamPassword(String id) {
+		if (teamUsers == null || id == null)
+			return null;
+
+		for (TeamUser user : teamUsers) {
+			if (id.equals(user.teamId))
+				return user.password;
 		}
 		return null;
 	}
