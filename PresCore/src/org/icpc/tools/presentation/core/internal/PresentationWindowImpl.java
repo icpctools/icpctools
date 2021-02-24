@@ -582,7 +582,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		// the taskbar.
 
 		// To mitigate the difference on Windows when there are multiple displays, automatically
-		// switch full screen exclusive mode to full screen window with no insets
+		// switch full screen exclusive mode to full screen window with no insets.
 		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		if (dc.device >= gds.length)
 			throw new IllegalArgumentException("Invalid device: " + device);
@@ -604,6 +604,15 @@ public class PresentationWindowImpl extends PresentationWindow {
 		if (isWindowsMultiDisplay && dc.mode == Mode.FULL_SCREEN) {
 			dc.mode = Mode.FULL_WINDOW;
 		} else {
+			DisplayMode mode = gDevice.getDisplayMode();
+			Trace.trace(Trace.INFO, "Device: " + mode.getWidth() + "x" + mode.getHeight());
+			double scaling = mode.getWidth() / (double) r.width;
+			if (scaling > 1 && dc.mode == Mode.FULL_SCREEN_MAX) {
+				Trace.trace(Trace.INFO, "Scaling by " + scaling);
+				r.width *= scaling;
+				r.height *= scaling;
+			}
+
 			r.x += in.left;
 			r.y += in.top;
 			r.height -= in.top + in.bottom;
@@ -631,8 +640,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX) {
 			requestFocus();
+			createBufferStrategy(2);
 			return;
 		}
+		gDevice.setFullScreenWindow(this);
 
 		if (dc.mode == Mode.FULL_SCREEN_MAX) {
 			DisplayMode bestMode = null;
@@ -650,8 +661,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 			}
 		}
 
-		gDevice.setFullScreenWindow(this);
 		requestFocus();
+		createBufferStrategy(2);
 	}
 
 	@Override
