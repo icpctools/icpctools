@@ -1,4 +1,4 @@
-package org.icpc.tools.cds.presentations;
+package org.icpc.tools.cds.service;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -13,13 +13,16 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.CDSConfig;
+import org.icpc.tools.contest.Trace;
+
 /**
  * Authorization filter for the REST API and presentations. Requests that are already authorized
  * (typically through a browser and form-based login on the webpages) go through unchanged.
  * Unauthorized requests are checked for a basic auth header. Requests without a valid access token
  * are refused with a <code>401</code>.
  */
-@WebFilter(urlPatterns = { "/presentation/*", "/api/*" }, asyncSupported = true)
+@WebFilter(urlPatterns = { "/*" }, asyncSupported = true)
 public class BasicAuthFilter implements Filter {
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String BASIC_PREFIX = "Basic ";
@@ -35,7 +38,34 @@ public class BasicAuthFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+		// already logged in
 		if (request.getRemoteUser() != null) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+
+		// check for team host-based auto-login
+		CDSConfig config = CDSConfig.getInstance();
+		String teamId = config.getTeamIdFromHost(request.getRemoteHost());
+		if (teamId == null)
+			teamId = config.getTeamIdFromHost(request.getRemoteAddr());
+
+		if (teamId != null) {
+			try {
+				String user = config.getTeamUserName(teamId);
+				String password = config.getTeamPassword(teamId);
+				Trace.trace(Trace.INFO, "Auto-login user: " + user + " / " + password);
+				request.login(user, password);
+				filterChain.doFilter(request, response);
+				return;
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not login", e);
+			}
+		}
+
+		// try basic auth - but only for API
+		String uri = request.getRequestURI();
+		if (!uri.startsWith("/api/") && !uri.startsWith("/presentation/")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
