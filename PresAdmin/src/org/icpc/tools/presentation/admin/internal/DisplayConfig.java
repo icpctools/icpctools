@@ -101,6 +101,11 @@ public class DisplayConfig {
 
 	@Override
 	public String toString() {
-		return "DisplayConfig " + getDisplay() + " " + getMultiDisplay();
+		String md = getMultiDisplay();
+		if (md == null)
+			md = "";
+		else
+			md = " " + md;
+		return "DisplayConfig " + getDisplay() + md;
 	}
 }
