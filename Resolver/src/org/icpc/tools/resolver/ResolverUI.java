@@ -36,7 +36,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation;
 import org.icpc.tools.presentation.core.DisplayConfig;
@@ -83,7 +82,6 @@ public class ResolverUI {
 	private DisplayConfig displayConfig;
 	private boolean showInfo;
 	private boolean pauseScroll = false;
-	private Style style;
 
 	private ClickListener listener;
 
@@ -105,7 +103,7 @@ public class ResolverUI {
 	private Thread thread;
 
 	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, DisplayConfig displayConfig, boolean isPresenter,
-			Screen screen, ClickListener listener, Style style) {
+			Screen screen, ClickListener listener) {
 		this.steps = steps;
 		this.showInfo = showInfo;
 		this.displayConfig = displayConfig;
@@ -114,7 +112,6 @@ public class ResolverUI {
 		if (screen == null)
 			this.screen = Screen.MAIN;
 		this.listener = listener;
-		this.style = style;
 		control = new ResolutionControl(steps);
 		control.addListener(new IResolutionListener() {
 			@Override
@@ -284,8 +281,6 @@ public class ResolverUI {
 		scoreboardPresentation.setProperty("clockOff");
 		scoreboardPresentation.setContest(contest);
 		scoreboardPresentation.addMouseListener(nullMouse);
-		if (style != null)
-			scoreboardPresentation.setStyle(style);
 
 		judgePresentation = new JudgePresentation2() {
 			@Override
@@ -295,8 +290,6 @@ public class ResolverUI {
 			}
 		};
 		judgePresentation.addMouseListener(nullMouse);
-		if (style != null)
-			judgePresentation.setStyle(style);
 
 		awardPresentation = new TeamAwardPresentation() {
 			@Override

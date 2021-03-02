@@ -13,8 +13,6 @@ import org.icpc.tools.contest.model.internal.Recent;
 import org.icpc.tools.contest.model.resolver.SelectType;
 import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 
 public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPresentation {
 	protected static final int DEFAULT_COLUMNS = 2;
@@ -24,7 +22,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 
 	protected int rows = DEFAULT_ROWS;
 	protected int columns = DEFAULT_COLUMNS;
-	protected Style overrideStyle;
+	protected String overrideStyle;
 
 	protected TeamTileHelper tileHelper;
 	protected Dimension tileDim = null;
@@ -294,8 +292,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 			}
 		} else if (value.startsWith("style:")) {
 			try {
-				String s = value.substring(6);
-				overrideStyle = TeamUtil.getStyleByString(s);
+				overrideStyle = value.substring(6);
 				setSize(getSize());
 			} catch (Exception e) {
 				// ignore
