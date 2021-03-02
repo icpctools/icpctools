@@ -34,7 +34,6 @@ import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
 import org.icpc.tools.resolver.ResolverUI.Screen;
@@ -75,7 +74,6 @@ public class Resolver {
 	private boolean show_info;
 	private boolean bill;
 	private boolean test;
-	private Style style;
 	private String[] groups;
 
 	// client/server variables
@@ -365,7 +363,7 @@ public class Resolver {
 			multiDisplayStr = (String) options.get(0);
 		} else if ("--style".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "style:string");
-			style = TeamUtil.getStyleByString((String) options.get(0));
+			TeamUtil.setDefaultStyle((String) options.get(0));
 		} else if ("--groups".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "group-id:string", "*");
 			groups = options.toArray(new String[0]);
@@ -572,7 +570,7 @@ public class Resolver {
 					public void speedFactor(double d) {
 						sendSpeedFactor(d);
 					}
-				}, style);
+				});
 
 		ui.setSpeedFactor(speedFactor);
 		ui.display();

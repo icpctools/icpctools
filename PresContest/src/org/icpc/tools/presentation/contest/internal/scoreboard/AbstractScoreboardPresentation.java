@@ -36,7 +36,6 @@ import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 
 public abstract class AbstractScoreboardPresentation extends AbstractICPCPresentation {
@@ -63,7 +62,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 	private BufferedImage headerImg;
 	private boolean showClock = true;
 
-	protected static Style style;
+	protected static String style;
 
 	protected SelectType selectType = SelectType.NORMAL;
 	protected List<ITeam> selectedTeams = null;
@@ -517,9 +516,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		}
 
 		IContest contest = getContest();
-		if (style == null)
-			style = TeamUtil.getDefaultStyle(contest);
-
 		s = TeamUtil.getTeamName(style, contest, team);
 
 		if (s == null)
@@ -757,7 +753,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		}
 	}
 
-	public void setStyle(Style s) {
+	public void setStyle(String s) {
 		style = s;
 	}
 
@@ -781,7 +777,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 			showClock = false;
 		else if (value.startsWith("style:")) {
 			try {
-				style = TeamUtil.getStyleByString(value.substring(6));
+				style = value.substring(6);
 				setSize(getSize());
 			} catch (Exception e) {
 				// ignore

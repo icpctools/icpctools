@@ -25,7 +25,6 @@ import org.icpc.tools.contest.model.internal.Recent;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
 
 public class TeamTileHelper {
 	private static final int IN_TILE_GAP = 1;
@@ -39,7 +38,7 @@ public class TeamTileHelper {
 
 	private Dimension tileDim = null;
 	private IContest contest;
-	private Style style;
+	private String style;
 	private boolean hasBg = false;
 
 	private final Map<String, BufferedImage> tileImages = new HashMap<>();
@@ -52,18 +51,15 @@ public class TeamTileHelper {
 		this(tileDim, contest, null);
 	}
 
-	public TeamTileHelper(Dimension tileDim, IContest contest, Style style) {
+	public TeamTileHelper(Dimension tileDim, IContest contest, String style) {
 		this.tileDim = tileDim;
 		this.contest = contest;
 		this.style = style;
 
-		if (style == null)
-			this.style = TeamUtil.getDefaultStyle(contest);
-
 		setup();
 	}
 
-	public Style getStyle() {
+	public String getStyle() {
 		return style;
 	}
 

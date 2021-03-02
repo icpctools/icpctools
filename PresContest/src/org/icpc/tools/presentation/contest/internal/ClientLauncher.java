@@ -66,6 +66,9 @@ public class ClientLauncher {
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
 					return true;
+				} else if ("--style".equals(option)) {
+					org.icpc.tools.presentation.contest.internal.TeamUtil.setDefaultStyle((String) options.get(0));
+					return true;
 				}
 				return false;
 			}

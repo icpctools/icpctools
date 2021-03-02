@@ -3,9 +3,8 @@ package org.icpc.tools.presentation.contest.internal.tile;
 import java.awt.geom.Point2D;
 
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.presentation.contest.internal.TeamUtil.Style;
+import org.icpc.tools.presentation.contest.internal.TeamUtil;
 
 public class TileListScoreboardPresentation extends ScrollingTileScoreboardPresentation {
 	@Override
@@ -19,20 +18,13 @@ public class TileListScoreboardPresentation extends ScrollingTileScoreboardPrese
 			return;
 
 		IContest contest = getContest();
-		Style style = tileHelper.getStyle();
+		String style = tileHelper.getStyle();
 		int size = teams.length;
 		int[] sort = new int[size];
 		String[] names = new String[size];
 		for (int i = 0; i < size; i++) {
 			sort[i] = i;
-			names[i] = teams[i].getName();
-			IOrganization org = contest.getOrganizationById(teams[i].getOrganizationId());
-			if (org != null) {
-				if (style == Style.ORGANIZATION_NAME)
-					names[i] = org.getName();
-				else if (style == Style.ORGANIZATION_FORMAL_NAME)
-					names[i] = org.getActualFormalName();
-			}
+			names[i] = TeamUtil.getTeamName(style, contest, teams[i]);
 		}
 
 		for (int i = 0; i < size - 1; i++) {
