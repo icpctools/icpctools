@@ -236,6 +236,7 @@ public class ArgumentParser {
 								// can't be either
 								isInt = false;
 								isFloat = false;
+								break;
 							}
 						}
 						if (isInt)

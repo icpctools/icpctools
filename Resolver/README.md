@@ -217,7 +217,7 @@ at a different speed than that of the presenter).
 Shows additional information regarding each pending run.  
          
 ```
---fast [speedFactor]
+--fast <speedFactor>
 ```
 Changes the resolving speed.
 The [speedFactor] option is a decimal percentage indicating the desired amount of change
@@ -227,7 +227,7 @@ speed (i.e., cut the time in half).  If --fast is specified but no speedFactor i
 the default speedFactor is 0.15.
 
 ```
---singleStep [startRow]
+--singleStep <startRow>
 ```
 Forces the Resolver to begin "single-stepping" (that is, requiring a key/mouse click to
 advance on each step of the resolving process) starting at the specified row in the standings.
@@ -235,7 +235,7 @@ advance on each step of the resolving process) starting at the specified row in 
 the contest.)  If [startRow] is omitted then the Resolver single-steps through the entire contest.
 
 ```
---rowDisplayOffset [numRows]
+--rowDisplayOffset <numRows>
 ```
 Normally, medalist display rows on the Resolver screen appear at the bottom of the screen.
 This option allows forcing the medalist display rows to begin appearing higher on the screen
@@ -262,13 +262,22 @@ is number 1, secondary is number 2, etc.  If this option is not specified
 the default is the primary display.
 
 ```
---style [style]
+--style <style>
 ```
-By default the resolver tries to pick the best way of representing each team based on the
-contest data. If you want to show the team names in a different manner, you can switch it
-to use the organization name, formal name, or both. The [style] must be one of the following
-strings: "team_name", "org_name", "org_formal_name", or "team_and_org_name".
+Allows you to change the way team names are displayed using a template with the following
+parameters:
+ - "{team.display_name}" - The team's display name, e.g. "drop tables". If there is no
+   display name the team name will be used.
+ - "{team.name}" - The team's name, e.g. "drop tables".
+ - "{org.name}" - The organizations name, often a short form, e.g. "UBC".
+ - "{org.formal_name}" - The full organization name, e.g. "University of Toronto". If there
+   is no formal name the organization name will be used.
 
+Examples:
+ - —style "{team.display_name}"
+ - —style "{team.name} - {org.name}"
+ - —style "{org.formal_name} ({team.name})"
+ 
 ```
 --test
 ```
@@ -276,7 +285,7 @@ Allows the resolver to be run against an incomplete contest. Unjudged submission
 automatically discarded before resolving.
 
 ```
---pause [#]
+--pause <#>
 ```
 Starts the resolver at the specified "pause" (i.e. click). Useful for testing or jumping
 to review the medalists without restarting from the beginning.

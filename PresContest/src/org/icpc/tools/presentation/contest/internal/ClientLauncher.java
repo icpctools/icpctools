@@ -27,12 +27,15 @@ public class ClientLauncher {
 		System.out.println("  Options:");
 		System.out.println("     --name name");
 		System.out.println("         Give this client a name, e.g. \"Stage right\" or \"Site 2\"");
+		System.out.println("     --style style");
+		System.out.println("         Change the way teams are displayed using a template. Parameters:");
+		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
 		System.out.println("     --multi-display p@wxh");
-		System.out.println("         This presentation is stretched across multiple client displays");
-		System.out.println("         Use \"2@3x2\" to indicate this client is position 2 (top middle) in a 3x2 grid");
+		System.out.println("         Stretch the presentation across multiple clients. Use \"2@3x2\"");
+		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
 		System.out.println("     --fps");
 		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");
@@ -67,6 +70,7 @@ public class ClientLauncher {
 					showFPS[0] = true;
 					return true;
 				} else if ("--style".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "style:string");
 					org.icpc.tools.presentation.contest.internal.TeamUtil.setDefaultStyle((String) options.get(0));
 					return true;
 				}

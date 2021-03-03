@@ -3,7 +3,10 @@
 ## V2.3 - TBD
 -----------------
 * CDS:
-  * Support for team login and team-specific contest views
+  * Support for team login and team-specific contest views.
+* Presentation client:
+  * Improved support for Windows multi-display and scaling.
+  * Style parameter to configure how teams are displayed.
 
 ## V2.2 - February, 2021
 -----------------
