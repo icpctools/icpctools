@@ -37,7 +37,7 @@ public class StandaloneLauncher {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
 				if ("--p".equals(option)) {
-					ArgumentParser.expectOptions(option, options, "pres:string", "*");
+					ArgumentParser.expectOptions(option, options, "presentations:string", "*");
 					for (Object o : options)
 						presList.add((String) o);
 					return true;
@@ -53,6 +53,7 @@ public class StandaloneLauncher {
 					showFPS[0] = true;
 					return true;
 				} else if ("--style".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "style:string");
 					org.icpc.tools.presentation.contest.internal.TeamUtil.setDefaultStyle((String) options.get(0));
 					return true;
 				}
@@ -98,14 +99,17 @@ public class StandaloneLauncher {
 		System.out.println();
 		System.out.println("  Options:");
 		System.out.println("     --p pres1 pres2 ...");
-		System.out.println("         Loop through showing the specified presentation");
-		System.out.println("         names, ids, or numbers in order");
+		System.out.println("         Loop through showing the specified presentation names, ids, or");
+		System.out.println("         numbers in order");
+		System.out.println("     --style style");
+		System.out.println("         Change the way teams are displayed using a template. Parameters:");
+		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
 		System.out.println("     --multi-display p@wxh");
-		System.out.println("         This presentation is stretched across multiple client displays");
-		System.out.println("         Use \"2@3x2\" to indicate this client is position 2 (top middle) in a 3x2 grid");
+		System.out.println("         Stretch the presentation across multiple clients. Use \"2@3x2\"");
+		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
 		System.out.println("     --fps");
 		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");
