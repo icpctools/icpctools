@@ -1674,6 +1674,43 @@ public class Contest implements IContest {
 		return remove.size();
 	}
 
+	public void removeProblems(List<String> problemIds) {
+		List<IContestObject> remove = new ArrayList<>();
+
+		for (IProblem p : problems) {
+			if (problemIds.contains(p.getId())) {
+				remove.add(p);
+			}
+		}
+
+		for (ISubmission s : getSubmissions()) {
+			String problemId = s.getProblemId();
+			if (problemIds.contains(problemId))
+				removeSubmission(remove, s);
+		}
+
+		for (IClarification clar : getClarifications()) {
+			String problemId = clar.getProblemId();
+			if (problemId != null && problemIds.contains(problemId))
+				remove.add(clar);
+		}
+
+		for (IAward award : getAwards()) {
+			if (award.getAwardType() == IAward.FIRST_TO_SOLVE) {
+				for (String pId : problemIds) {
+					if (award.getId().endsWith("-" + pId)) {
+						remove.add(award);
+						break;
+					}
+				}
+			}
+		}
+
+		Trace.trace(Trace.INFO, "Removing " + problemIds.size() + " problems and " + remove.size() + " total objects");
+		for (IContestObject obj : remove)
+			removeFromHistory(obj);
+	}
+
 	public void setHashCode(int hash) {
 		this.hash = hash;
 	}
