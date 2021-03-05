@@ -19,6 +19,7 @@ import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IGroup;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
@@ -74,7 +75,8 @@ public class Resolver {
 	private boolean show_info;
 	private boolean bill;
 	private boolean test;
-	private String[] groups;
+	private String[] groupList;
+	private String[] problemList;
 
 	// client/server variables
 	private PresentationClient client;
@@ -108,7 +110,7 @@ public class Resolver {
 		System.out.println("         Change the way teams are displayed using a template. Parameters:");
 		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --groups");
-		System.out.println("         Resolve only the teams in the specified list of comma separated group ids.");
+		System.out.println("         Resolve only the groups in the given regex pattern for ids");
 		System.out.println("         If multiple groups are given, each is resolved separately");
 		System.out.println("     --pause #");
 		System.out.println("         Start at the given pause #. Useful for testing/preview");
@@ -217,10 +219,18 @@ public class Resolver {
 			cs.outputValidation();
 
 		List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
+		int i = 0;
 		for (ContestSource cs : contestSource) {
 			r.loadFromSource(cs);
 			r.loadSteps(cs);
-			r.init(steps);
+			String g = null;
+			String p = null;
+			if (r.groupList != null && r.groupList.length > 0)
+				g = r.groupList[i % r.groupList.length];
+			if (r.problemList != null && r.groupList.length > 0)
+				p = r.problemList[i % r.problemList.length];
+			r.init(steps, g, p);
+			i++;
 		}
 
 		Trace.trace(Trace.INFO, "Resolution steps:");
@@ -276,6 +286,7 @@ public class Resolver {
 
 		try {
 			client.addListener(new IPropertyListener() {
+
 				@Override
 				public void propertyUpdated(String key, String value) {
 					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
@@ -301,7 +312,9 @@ public class Resolver {
 			});
 
 			client.connect();
-		} catch (Exception e) {
+		} catch (
+
+		Exception e) {
 			Trace.trace(Trace.ERROR, "Client error", e);
 		}
 	} // end connectToServer
@@ -365,8 +378,11 @@ public class Resolver {
 			ArgumentParser.expectOptions(option, options, "style:string");
 			TeamUtil.setDefaultStyle((String) options.get(0));
 		} else if ("--groups".equalsIgnoreCase(option)) {
-			ArgumentParser.expectOptions(option, options, "group-id:string", "*");
-			groups = options.toArray(new String[0]);
+			ArgumentParser.expectOptions(option, options, "groups:string", "*");
+			groupList = options.toArray(new String[0]);
+		} else if ("--problems".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "problems:string", "*");
+			problemList = options.toArray(new String[0]);
 		} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
 			// causes rows to be moved up the screen so they are not blocked by people on
 			// stage
@@ -486,17 +502,18 @@ public class Resolver {
 		}
 	}
 
-	private void init(List<ResolutionStep> steps) {
+	private void init(List<ResolutionStep> steps, String groups, String problems) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
-		if (groups != null) {
+		if (groups != null || problems != null) {
 			IAward[] fullAwards = finalContest.getAwards();
 			boolean hasAwards = fullAwards != null && fullAwards.length > 0;
-			for (int i = 0; i < groups.length; i++) {
-				Trace.trace(Trace.INFO, "Resolving for group " + groups[i]);
-				Contest cc = finalContest.clone(true);
+			Contest cc = finalContest.clone(true);
+			if (groups != null) {
+				Trace.trace(Trace.INFO, "Resolving for group ids " + groups + " " + cc.getNumTeams());
+
 				// set the current group to be visible and all others hidden
-				Pattern pattern = Pattern.compile(groups[i].trim());
+				Pattern pattern = Pattern.compile(groups.trim());
 				for (IGroup g : cc.getGroups()) {
 					if (pattern.matcher(g.getId()).matches())
 						cc.setGroupIsHidden(g, false);
@@ -505,23 +522,41 @@ public class Resolver {
 				}
 
 				cc.removeHiddenTeams();
-
-				if (!hasAwards) {
-					Trace.trace(Trace.USER, "Generating awards");
-					AwardUtil.createDefaultAwards(cc);
-				}
-
-				// create the official scoreboard
-				cc.officialResults();
-
-				ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, rowOffset, show_info, predeterminedSteps);
-
-				long time = System.currentTimeMillis();
-				List<ResolutionStep> subSteps = logic.resolveFrom(bill);
-				steps.addAll(subSteps);
-				outputStats(steps, time);
+				Trace.trace(Trace.INFO, "Resolved for group ids " + cc.getNumTeams());
 			}
-		} else {
+
+			if (problems != null) {
+				Trace.trace(Trace.INFO, "Resolving for problem labels " + problems + " " + cc.getNumProblems());
+				List<String> removeProblems = new ArrayList<String>();
+				IProblem[] probs = cc.getProblems();
+
+				Pattern pattern = Pattern.compile(problems.trim());
+				for (int i = 0; i < probs.length; i++) {
+					if (!pattern.matcher(probs[i].getLabel()).matches())
+						removeProblems.add(probs[i].getId());
+				}
+				cc.removeProblems(removeProblems);
+
+				Trace.trace(Trace.INFO, "Resolved for problems labels " + cc.getNumProblems());
+			}
+
+			if (!hasAwards) {
+				Trace.trace(Trace.USER, "Generating awards");
+				AwardUtil.createDefaultAwards(cc);
+			}
+
+			// create the official scoreboard
+			cc.officialResults();
+
+			ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, rowOffset, show_info, predeterminedSteps);
+
+			long time = System.currentTimeMillis();
+			List<ResolutionStep> subSteps = logic.resolveFrom(bill);
+			steps.addAll(subSteps);
+			outputStats(steps, time);
+		} else
+
+		{
 			IAward[] contestAwards = finalContest.getAwards();
 			if (contestAwards == null || contestAwards.length == 0) {
 				Trace.trace(Trace.USER, "Generating awards");

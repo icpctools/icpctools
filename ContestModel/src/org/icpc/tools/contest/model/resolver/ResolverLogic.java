@@ -826,9 +826,11 @@ public class ResolverLogic {
 			for (PredeterminedStep ps : predeterminedSteps) {
 				if (ps.teamId.equals(team.getId())) {
 					int pInd = contest.getProblemIndexByLabel(ps.problemLabel);
-					IResult r1 = contest.getResult(team, pInd);
-					if (r1.getStatus() == Status.SUBMITTED) {
-						return new SubmissionInfo(team, pInd);
+					if (pInd >= 0) {
+						IResult r1 = contest.getResult(team, pInd);
+						if (r1.getStatus() == Status.SUBMITTED) {
+							return new SubmissionInfo(team, pInd);
+						}
 					}
 				}
 			}
