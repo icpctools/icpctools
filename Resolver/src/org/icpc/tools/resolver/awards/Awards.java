@@ -159,7 +159,7 @@ public class Awards {
 						break;
 					}
 					case "--scoreboard": {
-						ArgumentParser.expectOptions(option, options, "scoreboard.json");
+						ArgumentParser.expectOptions(option, options, "scoreboard.json:string");
 						generateScoreboard((String) options.get(0), contest);
 						break;
 					}
@@ -178,7 +178,11 @@ public class Awards {
 
 		if (changed[0]) {
 			try {
-				ef = ef.substring(0, ef.length() - 4) + "-awards.json";
+				if (ef.endsWith(".xml"))
+					ef = ef.substring(0, ef.length() - 4);
+				else if (ef.endsWith(".json"))
+					ef = ef.substring(0, ef.length() - 5);
+				ef = ef + "-awards.json";
 				File f = new File(ef);
 				if (!f.exists() || promptToOverwrite(f)) {
 					save(f, contest);
