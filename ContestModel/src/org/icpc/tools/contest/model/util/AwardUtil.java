@@ -83,6 +83,9 @@ public class AwardUtil {
 		String lastRank = null;
 		List<String> teamIds = new ArrayList<>();
 		for (ITeam team : contest.getOrderedTeams()) {
+			if (contest.getStanding(team).getNumSolved() == 0)
+				break;
+
 			String[] groupIds = team.getGroupIds();
 			boolean teamInGroup = false;
 			for (String groupId : groupIds)
