@@ -112,7 +112,7 @@ public class AwardUtil {
 	}
 
 	public static void createGroupAwards(Contest contest, int numPerGroup) {
-		Award group = new Award(IAward.GROUP, "*", null, true);
+		Award group = new Award(IAward.GROUP, "*", null, null, true);
 		group.setCount(numPerGroup);
 		createGroupAwards(contest, group);
 	}

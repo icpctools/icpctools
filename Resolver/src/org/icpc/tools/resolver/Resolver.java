@@ -286,7 +286,6 @@ public class Resolver {
 
 		try {
 			client.addListener(new IPropertyListener() {
-
 				@Override
 				public void propertyUpdated(String key, String value) {
 					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
@@ -312,9 +311,7 @@ public class Resolver {
 			});
 
 			client.connect();
-		} catch (
-
-		Exception e) {
+		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Client error", e);
 		}
 	} // end connectToServer
