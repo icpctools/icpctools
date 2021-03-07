@@ -530,9 +530,9 @@ The above option indicates that awards should be generated for teams in the top 
 in the contest. For example, "*_--rank 10_*" will cause the top 10 teams to be designated to receive a "rank award".
 
 ```
---group
+--group <num>
 ```
-The above option indicates that awards should be generated for the top team in each group in the contest (where "groups"
+The above option indicates that awards should be generated for the top number of teams in each group in the contest (where "groups"
 are defined in the input event feed file as configured in the CCS which generated the file).
 In the current version of the command line AG tool it is only possible to specify Group awards for the _top_ team in each group
 (which is what specifying the "*_--group_*" option does).  For information on changing the number of awards _within_ a group,
