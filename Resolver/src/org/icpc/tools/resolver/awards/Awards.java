@@ -210,8 +210,8 @@ public class Awards {
 		System.out.println("     --fts beforeFreeze afterFreeze");
 		System.out.println("         Assigns first to solve awards, displaying for teams whose award");
 		System.out.println("         is before or after scoreboard freeze");
-		System.out.println("     --group");
-		System.out.println("         Assigns group awards");
+		System.out.println("     --group numTeams");
+		System.out.println("         Assigns group awards to the given number of teams, e.g. \"Toronto site winner\"");
 		System.out.println("     --list");
 		System.out.println("         List current awards");
 		System.out.println("     --help");
