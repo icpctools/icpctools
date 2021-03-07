@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IAward.AwardType;
@@ -30,6 +32,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.util.Messages;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.ImageScaler;
 
 public class TeamAwardPresentation extends AbstractICPCPresentation {
 	private static final int BORDER = 20;
@@ -76,6 +79,15 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			return;
 
 		logo = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.7), true, true);
+		if (logo == null) {
+			ClassLoader cl = getClass().getClassLoader();
+			try {
+				logo = ImageScaler.scaleImage(ImageIO.read(cl.getResource("images/id.png")), (int) (width * 0.8),
+						(int) (height * 0.7));
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Error loading images", e);
+			}
+		}
 	}
 
 	public void setShowInfo(boolean b) {
