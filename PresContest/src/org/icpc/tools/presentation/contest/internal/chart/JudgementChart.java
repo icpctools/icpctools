@@ -12,6 +12,7 @@ import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.presentation.contest.internal.ContestData;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.Utility;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 import org.icpc.tools.presentation.core.chart.AbstractChartPresentation;
 import org.icpc.tools.presentation.core.chart.Series;
 
@@ -45,7 +46,7 @@ public class JudgementChart extends AbstractChartPresentation {
 	}
 
 	public JudgementChart() {
-		super(Type.BAR, "Average Judgement Time by Problem", "Time");
+		super(Type.BAR, Messages.judgementTimeByProblem, "Time");
 		setFont(ICPCFont.getMasterFont());
 	}
 
@@ -120,7 +121,7 @@ public class JudgementChart extends AbstractChartPresentation {
 
 		getSeries()[0].setValues(solvedTime);
 		getSeries()[1].setValues(attemptTime);
-		getSeries()[0].setTitle("Solution Judgement Time");
-		getSeries()[1].setTitle("Attempt Judgement Time");
+		getSeries()[0].setTitle(Messages.solutionJudgementTime);
+		getSeries()[1].setTitle(Messages.attemptJudgementTime);
 	}
 }

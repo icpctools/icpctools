@@ -27,6 +27,7 @@ import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.Utility;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
  * Judge queue, shows incoming submissions and what judgement they receive.
@@ -411,6 +412,6 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 
 	@Override
 	protected String getTitle() {
-		return "Judge Queue";
+		return Messages.titleJudgeQueue;
 	}
 }

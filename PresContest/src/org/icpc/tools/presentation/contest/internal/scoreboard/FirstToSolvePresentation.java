@@ -19,6 +19,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.TextImage;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 	private static final long TIME_TO_KEEP_SOLVED = 8000;
@@ -161,7 +162,7 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 
 	@Override
 	protected String getTitle() {
-		return "First to Solve";
+		return Messages.titleFirstToSolve;
 	}
 
 	@Override

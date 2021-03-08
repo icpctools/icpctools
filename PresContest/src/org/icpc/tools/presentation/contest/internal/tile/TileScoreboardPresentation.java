@@ -10,13 +10,14 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentation {
 	private List<Integer> breaks = new ArrayList<>();
 
 	@Override
 	protected String getTitle() {
-		return "Current Standings";
+		return Messages.titleCurrentStandings;
 	}
 
 	@Override
