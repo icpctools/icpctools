@@ -5,11 +5,12 @@ import java.awt.geom.Point2D;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.TeamUtil;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class TileListScoreboardPresentation extends ScrollingTileScoreboardPresentation {
 	@Override
 	protected String getTitle() {
-		return "Alphabetic list of teams";
+		return Messages.titleAlphabeticListOfTeams;
 	}
 
 	@Override

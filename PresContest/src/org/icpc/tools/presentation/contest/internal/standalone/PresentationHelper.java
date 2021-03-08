@@ -1,6 +1,7 @@
 package org.icpc.tools.presentation.contest.internal.standalone;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,11 +36,11 @@ public class PresentationHelper {
 	}
 
 	/**
-	 * Returns the presentations with the given id.
+	 * Returns the presentations that contain the given partial id.
 	 *
 	 * @return a presentation, or null if none was found
 	 */
-	public static PresentationInfo matchPresentation(String id) throws Exception {
+	public static List<PresentationInfo> findPresentations(String id) {
 		if (id == null || id.length() < 2)
 			return null;
 
@@ -47,18 +48,14 @@ public class PresentationHelper {
 			loadPresentations();
 
 		Iterator<PresentationInfo> iterator = parser.getPresentations().iterator();
-		PresentationInfo sel = null;
+		List<PresentationInfo> list = new ArrayList<>();
 		while (iterator.hasNext()) {
 			PresentationInfo pw = iterator.next();
-			if (pw.getId().contains(id)) {
-				if (sel != null)
-					throw new Exception("Presentation '" + id + "' is ambiguous");
-
-				sel = pw;
-			}
+			if (pw.getId().contains(id))
+				list.add(pw);
 		}
 
-		return sel;
+		return list;
 	}
 
 	/**

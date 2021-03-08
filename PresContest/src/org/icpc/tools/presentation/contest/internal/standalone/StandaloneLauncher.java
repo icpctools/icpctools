@@ -173,7 +173,6 @@ public class StandaloneLauncher {
 	}
 
 	protected static PresentationInfo findPresentation(List<PresentationInfo> presentations, String s) {
-		PresentationInfo pw = null;
 		try {
 			int num = Integer.parseInt(s);
 			List<PresentationInfo> list = PresentationHelper.getPresentations();
@@ -182,18 +181,24 @@ public class StandaloneLauncher {
 				Trace.trace(Trace.ERROR, "Invalid # ('" + s + "')");
 				return null;
 			}
-			pw = list.get(num - 1);
+			return list.get(num - 1);
 		} catch (NumberFormatException nfe) {
-			try {
-				pw = PresentationHelper.matchPresentation(s);
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Presentation '" + s + "' is ambiguous");
-				return null;
-			}
-		}
+			List<PresentationInfo> list = PresentationHelper.findPresentations(s);
+			if (list.size() > 1) {
+				Trace.trace(Trace.USER, "Presentation '" + s + "' is ambiguous, multiple found:");
+				for (PresentationInfo pi : list)
+					Trace.trace(Trace.USER, "  " + pi.getId() + " - " + pi.getName());
 
-		if (pw != null)
-			return pw;
+				for (PresentationInfo pi : list)
+					if (pi.getId().endsWith(s)) {
+						Trace.trace(Trace.WARNING, "Guessing best match: " + pi.getId());
+						return pi;
+					}
+				Trace.trace(Trace.ERROR, "Could not determine best match");
+				return null;
+			} else if (list.size() == 1)
+				return list.get(0);
+		}
 
 		Trace.trace(Trace.ERROR, "Could not match '" + s + "' to a known presentation");
 		System.exit(1);

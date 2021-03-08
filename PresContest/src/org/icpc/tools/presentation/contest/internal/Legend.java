@@ -7,13 +7,15 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
+
 public class Legend {
 	private static final int MARGIN = 15;
 	private static final int H_SPACING = 10;
 	private static final int V_SPACING = 15;
 
-	private static final String[] TEXT = new String[] { "First to Solve", "Solved Problem", "Rejected Submission",
-			"Pending Submission" };
+	private static final String[] TEXT = new String[] { Messages.firstToSolve, Messages.solvedProblem,
+			Messages.rejectedSubmission, Messages.pendingSubmission };
 
 	protected static Font font;
 

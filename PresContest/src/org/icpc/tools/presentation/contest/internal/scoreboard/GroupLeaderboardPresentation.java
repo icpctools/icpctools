@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.presentation.contest.internal.NLS;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
  * Group/region leaderboard.
@@ -58,9 +60,9 @@ public class GroupLeaderboardPresentation extends AbstractScoreboardPresentation
 	@Override
 	protected String getTitle() {
 		if (currentGroupName == null)
-			return "Leaders";
+			return Messages.titleGroupLeaderboard;
 
-		return currentGroupName + " Leaders";
+		return NLS.bind(Messages.titleGroupLeaderboardSubs, currentGroupName);
 	}
 
 	@Override

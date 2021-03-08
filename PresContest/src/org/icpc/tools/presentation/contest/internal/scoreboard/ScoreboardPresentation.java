@@ -18,6 +18,7 @@ import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.Legend;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
  * Official contest scoreboard.
@@ -31,7 +32,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 
 	@Override
 	protected String getTitle() {
-		return "Current Standings";
+		return Messages.titleCurrentStandings;
 	}
 
 	public void setShowSubmissionInfo(boolean showInfo) {

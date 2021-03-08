@@ -12,6 +12,7 @@ import java.util.List;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPresentation {
 	private static final double RANK_GAP = 0.25;
@@ -107,7 +108,7 @@ public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPrese
 					fm.getAscent() + (int) (gr.y * (tileDim.height + TILE_V_GAP)) + TILE_V_GAP * 2);
 
 			if (gr.numRows > 1) {
-				s = "solved";
+				s = Messages.numSolved;
 				g.setColor(Color.LIGHT_GRAY);
 				g.setFont(solvedFont);
 				g.drawString(s, (margin - TILE_H_GAP - fm2.stringWidth(s)) / 2,
@@ -135,6 +136,6 @@ public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPrese
 
 	@Override
 	protected String getTitle() {
-		return "Team Rank";
+		return Messages.titleTeamRank;
 	}
 }

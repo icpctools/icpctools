@@ -21,6 +21,7 @@ import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.Legend;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
  * Timeline version of the scoreboard.
@@ -36,7 +37,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 
 	@Override
 	protected String getTitle() {
-		return "Current Standings";
+		return Messages.titleCurrentStandings;
 	}
 
 	@Override
@@ -89,14 +90,15 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 		int y = headerHeight - 3;
 
 		g.setFont(headerItalicsFont);
-		g.drawString("Rank", BORDER + (fm.stringWidth("199") - fm2.stringWidth("Rank")) / 2, y);
+		g.drawString(Messages.rank, BORDER + (fm.stringWidth("199") - fm2.stringWidth(Messages.rank)) / 2, y);
 		g.setFont(headerFont);
-		g.drawString("Name", BORDER + fm.stringWidth("199 ") + (int) rowHeight, y);
+		g.drawString(Messages.name, BORDER + fm.stringWidth("199 ") + (int) rowHeight, y);
 		g.setFont(headerItalicsFont);
-		g.drawString("Solved",
-				width - BORDER - fm.stringWidth(" 9999") - (fm2.stringWidth("Solved") + fm.stringWidth("99")) / 2, y);
+		g.drawString(Messages.solved,
+				width - BORDER - fm.stringWidth(" 9999") - (fm2.stringWidth(Messages.solved) + fm.stringWidth("99")) / 2,
+				y);
 		g.setFont(headerFont);
-		g.drawString("Time", width - BORDER - (fm2.stringWidth("Time") + fm.stringWidth("9999")) / 2, y);
+		g.drawString(Messages.time, width - BORDER - (fm2.stringWidth(Messages.time) + fm.stringWidth("9999")) / 2, y);
 	}
 
 	@Override

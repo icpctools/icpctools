@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
  * List of group leaders.
@@ -40,7 +41,7 @@ public class AllGroupsLeaderboardPresentation extends AbstractScoreboardPresenta
 
 	@Override
 	protected String getTitle() {
-		return "All Group Leaders";
+		return Messages.titleAllGroupLeaders;
 	}
 
 	@Override

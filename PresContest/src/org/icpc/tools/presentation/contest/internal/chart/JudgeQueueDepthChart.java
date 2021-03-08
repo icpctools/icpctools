@@ -9,6 +9,7 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.presentation.contest.internal.ContestData;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 import org.icpc.tools.presentation.core.chart.AbstractChartPresentation;
 import org.icpc.tools.presentation.core.chart.Series;
 
@@ -30,7 +31,7 @@ public class JudgeQueueDepthChart extends AbstractChartPresentation {
 	}
 
 	public JudgeQueueDepthChart() {
-		super(Type.LINE, "Judgement Queue Depth", "Time");
+		super(Type.LINE, Messages.judgeQueueDepth, "Time");
 		setFont(ICPCFont.getMasterFont());
 		showValueLabels = false;
 	}

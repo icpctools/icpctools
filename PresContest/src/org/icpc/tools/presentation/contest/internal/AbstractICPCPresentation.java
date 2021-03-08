@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 import org.icpc.tools.presentation.core.Presentation;
 
 public abstract class AbstractICPCPresentation extends Presentation {
@@ -36,11 +37,11 @@ public abstract class AbstractICPCPresentation extends Presentation {
 			return "";
 
 		if (startTime < 0)
-			return "Paused @ " + getTime(startTime * timeMultiplier, true);
+			return NLS.bind(Messages.pausedAt, getTime(startTime * timeMultiplier, true));
 
 		IState state = contest.getState();
 		if (state.getEnded() != null)
-			return "Contest is over";
+			return Messages.contestOver;
 		else if (state.getStarted() == null)
 			return getTime((getTimeMs() - contest.getStartTime()) * timeMultiplier, true);
 
@@ -63,11 +64,11 @@ public abstract class AbstractICPCPresentation extends Presentation {
 
 		double timeMultiplier = contest.getTimeMultiplier();
 		if (startTime < 0)
-			return "Paused @ " + getTime(startTime * timeMultiplier, true);
+			return NLS.bind(Messages.pausedAt, getTime(startTime * timeMultiplier, true));
 
 		IState state = contest.getState();
 		if (state.getEnded() != null)
-			return "Contest is over";
+			return Messages.contestOver;
 		else if (state.getStarted() == null)
 			return getTime((contest.getStartTime() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
 

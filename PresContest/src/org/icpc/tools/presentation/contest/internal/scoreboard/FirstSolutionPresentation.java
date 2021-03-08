@@ -27,6 +27,7 @@ import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.TextImage;
+import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 	private static final String FIRSTSOLUTIONS_TXT = "firstsolutions.txt";
@@ -216,16 +217,16 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		int y = headerHeight - 3;
 
 		g.setFont(headerItalicsFont);
-		g.drawString("Year", BORDER + (fm.stringWidth("2999") - fm2.stringWidth("Year")) / 2, y);
+		g.drawString(Messages.year, BORDER + (fm.stringWidth("2999") - fm2.stringWidth(Messages.year)) / 2, y);
 		g.setFont(headerFont);
-		g.drawString("Name", BORDER + fm.stringWidth("29999 ") + rowHeight, y);
+		g.drawString(Messages.name, BORDER + fm.stringWidth("29999 ") + rowHeight, y);
 		g.setFont(headerFont);
-		g.drawString("Time", width - BORDER - (fm.stringWidth("9999") + fm2.stringWidth("Time")) / 2, y);
+		g.drawString(Messages.time, width - BORDER - (fm.stringWidth("9999") + fm2.stringWidth(Messages.time)) / 2, y);
 	}
 
 	@Override
 	protected String getTitle() {
-		return "First Solution in Contest";
+		return Messages.titleFirstSolutionInContest;
 	}
 
 	@Override
