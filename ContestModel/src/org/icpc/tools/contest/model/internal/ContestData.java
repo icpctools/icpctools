@@ -1,8 +1,10 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
@@ -346,8 +348,111 @@ public class ContestData implements Iterable<IContestObject> {
 			removeImpl(obj);
 	}
 
+	/**
+	 * Completely remove one object from all contest history. Not optimized for calling frequently,
+	 * use removeFromHistory(List<IContestObject>) if removing many objects at once.
+	 *
+	 * @param obj the object to remove
+	 */
 	public void removeFromHistory(IContestObject obj) {
 		removeImpl(obj);
+	}
+
+	/**
+	 * Completely remove several objects from contest history.
+	 *
+	 * @param remove list of objects to remove
+	 */
+	public void removeFromHistory(List<IContestObject> remove) {
+		// for each type, build a list of object ids to be removed
+		@SuppressWarnings("unchecked")
+		List<String>[] rtc = new List[NUM_TYPES];
+		for (int i = 0; i < NUM_TYPES; i++)
+			rtc[i] = new ArrayList<String>();
+
+		for (IContestObject obj : remove) {
+			int type = obj.getType().ordinal();
+			rtc[type].add(obj.getId());
+		}
+
+		// null out entries in the main array
+		for (int i = 0; i < totalSize; i++) {
+			int arr = i % ARRAY_SIZE;
+			int num = i / ARRAY_SIZE;
+			IContestObject obj2 = objs[num][arr];
+			if (obj2 != null && rtc[obj2.getType().ordinal()].contains(obj2.getId())) {
+				objs[num][arr] = null;
+				if (!keepHistory)
+					break;
+			}
+		}
+
+		// rebuild empty type caches
+		for (int i = 0; i < NUM_TYPES; i++) {
+			if (typeCache[i] != null) {
+				int size = typeCache[i].size;
+				TypeCache tc = new TypeCache();
+				tc.cache = new IContestObject[size];
+				tc.index = new int[size];
+				typeCache[i] = tc;
+			}
+		}
+
+		// build new main array, rebuilding type caches as we go
+		totalSize = 0;
+		IContestObject[][] objs2 = new IContestObject[NUM_ARRAYS][];
+		Delta[][] deltas2 = new Delta[NUM_ARRAYS][];
+
+		for (int num = 0; num < NUM_ARRAYS; num++) {
+			if (objs[num] != null) {
+				for (int arr = 0; arr < ARRAY_SIZE; arr++) {
+					IContestObject obj = objs[num][arr];
+					if (obj != null) {
+						int arr2 = totalSize % ARRAY_SIZE;
+						int num2 = totalSize / ARRAY_SIZE;
+
+						IContestObject[] co2 = objs2[num2];
+						Delta[] delt2 = deltas2[num2];
+						if (co2 == null) {
+							co2 = new IContestObject[ARRAY_SIZE];
+							objs2[num2] = co2;
+							delt2 = new Delta[ARRAY_SIZE];
+							deltas2[num2] = delt2;
+						}
+						co2[arr2] = obj;
+						delt2[arr2] = deltas[num][arr];
+
+						// update type cache
+						int index = -1;
+						int type = obj.getType().ordinal();
+						TypeCache tc = typeCache[type];
+						Integer in = tc.idMap.get(obj.getId());
+						if (in != null)
+							index = in;
+
+						if (index >= 0) {
+							tc.cache[index] = obj;
+							tc.index[index] = totalSize;
+							totalSize++;
+							continue;
+						}
+
+						tc.cache[tc.size] = obj;
+						tc.index[tc.size] = totalSize;
+
+						if (tc.idMap == null)
+							tc.idMap = new HashMap<>();
+						tc.idMap.put(obj.getId(), tc.size);
+
+						totalSize++;
+						tc.size++;
+					}
+				}
+			}
+		}
+		objs = objs2;
+		deltas = deltas2;
+		toArray = null;
 	}
 
 	public void removeSince(int num) {
@@ -368,11 +473,11 @@ public class ContestData implements Iterable<IContestObject> {
 		int type = obj.getType().ordinal();
 		String id = obj.getId();
 
-		// start by removing from the id map and getting the master index
 		TypeCache tc = typeCache[type];
 		if (tc.idMap == null || !tc.idMap.containsKey(id))
 			throw new IllegalArgumentException("Attempt to remove an object that doesn't exist: " + obj);
 
+		// start by removing from the id map and getting the master index
 		int tcIndex = tc.idMap.get(id);
 		tc.idMap.remove(id);
 
@@ -396,7 +501,7 @@ public class ContestData implements Iterable<IContestObject> {
 			int arr = ind % ARRAY_SIZE;
 			int num = ind / ARRAY_SIZE;
 			IContestObject obj2 = objs[num][arr];
-			if (obj2.getType() == obj.getType() && obj2.getId().equals(obj.getId()))
+			if (obj2.getType().ordinal() == type && obj2.getId().equals(id))
 				removeData(ind, tc);
 			else
 				ind++;

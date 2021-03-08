@@ -311,7 +311,8 @@ public class Contest implements IContest {
 
 	/**
 	 * Removes an object from the contest. This method can be dangerous - listeners are not
-	 * notified.
+	 * notified. It is also not optimized for calling frequently, use
+	 * removeFromHistory(List<IContestObject>) if removing many objects at once.
 	 */
 	public void removeFromHistory(IContestObject obj) {
 		if (obj == null)
@@ -321,6 +322,22 @@ public class Contest implements IContest {
 			data.removeFromHistory(obj);
 
 			clearCaches(obj, Delta.DELETE);
+		}
+	}
+
+	/**
+	 * Removes several objects from the contest at once. This method can be dangerous - listeners
+	 * are not notified.
+	 */
+	public void removeFromHistory(List<IContestObject> objs) {
+		if (objs == null || objs.isEmpty())
+			return;
+
+		synchronized (data) {
+			data.removeFromHistory(objs);
+
+			for (IContestObject obj : objs)
+				clearCaches(obj, Delta.DELETE);
 		}
 	}
 
@@ -1638,8 +1655,7 @@ public class Contest implements IContest {
 		}
 
 		Trace.trace(Trace.INFO, "Removing " + teamIds.size() + " teams and " + remove.size() + " total objects");
-		for (IContestObject obj : remove)
-			removeFromHistory(obj);
+		removeFromHistory(remove);
 	}
 
 	public int removeSubmissionsOutsideOfContestTime() {
@@ -1652,8 +1668,7 @@ public class Contest implements IContest {
 		}
 
 		Trace.trace(Trace.INFO, "Removing " + remove.size() + " invalid submissions");
-		for (IContestObject obj : remove)
-			removeFromHistory(obj);
+		removeFromHistory(remove);
 
 		return remove.size();
 	}
@@ -1668,8 +1683,7 @@ public class Contest implements IContest {
 		}
 
 		Trace.trace(Trace.INFO, "Removing " + remove.size() + " invalid submissions");
-		for (IContestObject obj : remove)
-			removeFromHistory(obj);
+		removeFromHistory(remove);
 
 		return remove.size();
 	}
@@ -1707,8 +1721,7 @@ public class Contest implements IContest {
 		}
 
 		Trace.trace(Trace.INFO, "Removing " + problemIds.size() + " problems and " + remove.size() + " total objects");
-		for (IContestObject obj : remove)
-			removeFromHistory(obj);
+		removeFromHistory(remove);
 	}
 
 	public void setHashCode(int hash) {
