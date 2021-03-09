@@ -35,13 +35,13 @@
       name="Single Team"
       category="ICPC"
       properties="# - controls which team to show"
-      description="Displays a team photo and name."
+      description="A team photo and name."
       class="org.icpc.tools.presentation.contest.internal.scoreboard.SingleTeamPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.message"
       name="Message"
       category="Logos and Messages"
-      description="Displays a message and contest banner."
+      description="A message and contest banner."
       properties="Your message here - enter any message"
       image="images/presentations/message.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.MessagePresentation"/>
@@ -49,28 +49,28 @@
       id="org.icpc.tools.presentation.contest.promo"
       name="Promotions"
       category="Logos and Messages"
-      description="Displays a rotating set of promotional images found in CDP/present/promo/."
+      description="A rotating set of promotional images found in CDP/present/promo/."
       image="images/presentations/promo.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.PromoPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.ccs"
       name="CCS"
       category="Logos and Messages"
-      description="Displays the primary (and optional shadow) CCS images found in CDP/present/ccs/primary.png and shadow.png."
+      description="The primary (and optional shadow) CCS images found in CDP/present/ccs/primary.png and shadow.png."
       image="images/presentations/ccs.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.CCSPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.icpc.tools"
       name="ICPC Tools"
       category="Logos and Messages"
-      description="Displays the ICPC Tools logo"
+      description="The ICPC Tools logo"
       image="images/presentations/icpcTools.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.ICPCToolsPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.single.photo"
       name="Photo and caption"
       category="ICPC"
-      description="Displays the photo at CDP/present/photo.jpg and an optional message."
+      description="The photo at CDP/present/photo.jpg and an optional message."
       properties="Your message here - enter any message"
       image="images/presentations/photo.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.SinglePhotoPresentation"/>
@@ -78,21 +78,21 @@
       id="org.icpc.tools.presentation.contest.photos"
       name="Photos"
       category="ICPC"
-      description="Displays a rotating set of photos found in CDP/present/photos/."
+      description="A rotating set of photos found in CDP/present/photos/."
       image="images/presentations/photos.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.PhotoPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.problems.colors"
       name="Problem Colours"
       category="ICPC"
-      description="Displays the problem colors"
+      description="The problem colors"
       image="images/presentations/problemColors.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.ProblemColorsPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.staff"
       name="Staff"
       category="ICPC"
-      description="Displays ICPC staff"
+      description="ICPC staff titles"
       properties="Enter partial last name or first + last name"
       image="images/presentations/staff.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.StaffPresentation"/>
@@ -100,14 +100,14 @@
       id="org.icpc.tools.presentation.contest.balloon.path"
       name="Balloon Path"
       category="ICPC"
-      description="Displays the balloons travelling to the teams"
+      description="Contest floor showing moving submissions and balloons"
       image="images/presentations/balloonPath.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.floor.BalloonFloorPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.org.logo.wall"
       name="Logo Wall"
       category="ICPC"
-      description="Shows the logos of all organizations at once"
+      description="Shows all organization logos"
       image="images/presentations/logos.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.OrgLogoWallPresentation"/>
    <presentation
@@ -143,12 +143,14 @@
       id="org.icpc.tools.presentation.contest.bill"
       name="Bill Poucher"
       category="Fun"
+      description="The venerable ICPC Executive Director."
       image="images/presentations/bill.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.BillPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.doNotTouch"
       name="Do not touch anything"
       category="Fun"
+      description="A pre-contest message from the ICPC World Finals Systems Director."
       image="images/presentations/doNotTouch.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.DoNotTouchPresentation"/>
    <presentation
@@ -164,28 +166,28 @@
       id="org.icpc.tools.presentation.contest.map.world"
       name="World"
       category="Maps"
-      description="Displays the world"
+      description="Map of the world."
       image="images/presentations/world.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.WorldPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.map.group"
       name="Group"
       category="Maps"
-      description="Displays groups around the world"
+      description="Shows where groups are from on a map."
       image="images/presentations/world.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.GroupPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.map.team"
       name="Team Intro"
       category="Maps"
-      description="Displays teams from around the world"
+      description="Steps through all teams on a map."
       image="images/presentations/world.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.TeamIntroPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.map.balloon"
       name="Submissions"
       category="Maps"
-      description="Shows a world map with team submissions"
+      description="A world map with team submissions coming from their location"
       image="images/presentations/worldJudge.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.BalloonMapPresentation"/>
      
@@ -210,7 +212,7 @@
       id="org.icpc.tools.presentation.contest.clock"
       name="Contest clock"
       category="Clock"
-      description="The contest clock."
+      description="The contest time remaining."
       image="images/presentations/clock.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.clock.ClockPresentation"/>
    <presentation
@@ -221,7 +223,7 @@
          statusOff - hide status content,
          # - countdown to number of seconds from the epoch,
          reset"
-      description="A countdown clock."
+      description="A countdown clock for start and end of a contest."
       image="images/presentations/clockCountdown.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.clock.StatusCountdownPresentation"/>
    <presentation
@@ -230,6 +232,7 @@
       category="Clock"
       properties="# - countdown to number of seconds from the epoch,
          reset"
+         description="A polar countdown clock for start and end of a contest."
       image="images/presentations/clockPolar.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.clock.PolarCountdownPresentation"/>
 
@@ -240,7 +243,7 @@
       name="Scoreboard"
       category="Scoreboard"
       properties="focusTeam:# - a team to focus on,style - set team name style,clockOn,clockOff"
-      description="Contest scoreboard."
+      description="The current contest standings."
       image="images/presentations/scoreboard.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation"/>
    <presentation
@@ -255,14 +258,14 @@
       name="Judge queue"
       category="Scoreboard"
       properties="style - set team name style,clockOn,clockOff"
-      description="The judgement queue. Shows all incoming submissions and what the result is."
+      description="The judgement queue. Shows all incoming submissions and the judgement."
       image="images/presentations/judgeQueue.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.JudgePresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.judge.team"
       name="Team Judgements"
       category="Scoreboard"
-      description="A team judgement queue. Shows all incoming submissions and what the result is."
+      description="A team judgement queue. Shows all incoming submissions and the judgement."
       image="images/presentations/teamJudgeQueue.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.TeamJudgePresentation"/>
    <presentation
@@ -270,7 +273,7 @@
       name="First solution"
       category="Scoreboard"
       properties="style - set team name style,clockOn,clockOff"
-      description="Tracking the first solution in the contest."
+      description="Tracks the first solution in the contest."
       image="images/presentations/firstSolution.png"
       class="org.icpc.tools.presentation.contest.internal.scoreboard.FirstSolutionPresentation"/>
    <presentation
@@ -310,6 +313,7 @@
       name="Tiles"
       category="Tile Scoreboards"
       properties="rows:,columns:,style:,clockOn,clockOff"
+      description="The current contest standings."
       image="images/presentations/tile.png"
       class="org.icpc.tools.presentation.contest.internal.tile.TileScoreboardPresentation"/>
    <presentation
@@ -317,12 +321,14 @@
       name="Tile rank"
       category="Tile Scoreboards"
       properties="rows:,columns:,style:,clockOn,clockOff"
+      description="A ranked contest scoreboard"
       image="images/presentations/tileRank.png"
       class="org.icpc.tools.presentation.contest.internal.tile.TileRankScoreboardPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.tile.team"
       name="Team scoreboard"
       category="Tile Scoreboards"
+      description="Team picture with overlayed scoreboard tile"
       properties="team:"
       class="org.icpc.tools.presentation.contest.internal.tile.TilePictureScoreboardPresentation"/>
    <presentation
@@ -330,6 +336,7 @@
       name="Tile list"
       category="Tile Scoreboards"
       properties="rows:,columns:,style:,clockOn,clockOff"
+      description="A contest scoreboard listed alphabetically by team"
       image="images/presentations/tile2.png"
       class="org.icpc.tools.presentation.contest.internal.tile.TileListScoreboardPresentation"/>
 
@@ -357,12 +364,14 @@
       id="org.icpc.tools.presentation.contest.chart.problem.summary"
       name="Problem summary"
       category="Chart"
+      description="Shows attempts, solutions, and fastest solution time for each problem."
       image="images/presentations/chartProblems.png"
       class="org.icpc.tools.presentation.contest.internal.chart.ProblemSummaryChart"/>
    <presentation
       id="org.icpc.tools.presentation.contest.chart.score"
       name="Scoreboard"
       category="Chart"
+      description="Shows position of contest leaders through the contest."
       image="images/presentations/chartScoreboard.png"
       class="org.icpc.tools.presentation.contest.internal.chart.ScoreboardChart"/>
    <presentation
@@ -409,7 +418,7 @@
       id="org.icpc.tools.presentation.contest.test.clock"
       name="Clock"
       category="Test"
-      description="The current system time."
+      description="The current system time on the presentation machine."
       image="images/presentations/testClock.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.test.TestClockPresentation"/>
    <presentation
@@ -446,7 +455,7 @@
       id="org.icpc.tools.presentation.contest.icpc.team"
       name="Desktop"
       category="Team"
-      description="The team desktop."
+      description="Team machine desktop display. Shows the team logo and name."
       class="org.icpc.tools.presentation.contest.internal.presentations.TeamDisplayPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.icpc.sync"

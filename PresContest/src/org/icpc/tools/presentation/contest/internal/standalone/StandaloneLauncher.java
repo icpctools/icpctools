@@ -119,28 +119,34 @@ public class StandaloneLauncher {
 		System.out.println();
 
 		Trace.trace(Trace.USER, "Available presentations:");
+		Trace.trace(Trace.USER, "  #  | Name | Id  | Description");
+		Trace.trace(Trace.USER, " --: | ---- | --- | ---");
 		int count = 1;
 		String lastCategory = null;
 		for (PresentationInfo pw : presentations) {
-			StringBuilder sb = new StringBuilder();
 			String cat = pw.getCategory();
 			if (cat != null && !cat.equals(lastCategory)) {
-				if (lastCategory != null)
-					sb.append("\n");
-				sb.append("  -- " + cat + " --\n");
+				Trace.trace(Trace.USER, cat);
 				lastCategory = cat;
 			}
-			sb.append("    " + count + ". ");
+
+			StringBuilder sb = new StringBuilder("  ");
 			if (count < 10)
 				sb.append(" ");
-			sb.append(pw.getName() + " (" + pw.getId() + ")");
+			sb.append(count + " | ");
+			sb.append(pw.getName() + " | ");
+			if (pw.getId().startsWith("org.icpc.tools.presentation.contest."))
+				sb.append(pw.getId().substring(35));
+			else
+				sb.append(pw.getId());
 			if (pw.getDescription() != null) {
 				String s = pw.getDescription();
 				if (s.contains("\n"))
 					s = s.substring(0, s.indexOf("\n")) + "...";
-				sb.append("\n      " + s);
+				sb.append(" | " + s);
 			}
 			Trace.trace(Trace.USER, sb.toString());
+
 			count++;
 		}
 	}
