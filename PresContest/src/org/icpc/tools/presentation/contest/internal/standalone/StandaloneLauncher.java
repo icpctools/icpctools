@@ -119,7 +119,7 @@ public class StandaloneLauncher {
 		System.out.println();
 
 		Trace.trace(Trace.USER, "Available presentations:");
-		Trace.trace(Trace.USER, "  #  | Name | Id  | Description");
+		Trace.trace(Trace.USER, "|  # | Name | Id  | Description");
 		Trace.trace(Trace.USER, " --: | ---- | --- | ---");
 		int count = 1;
 		String lastCategory = null;
