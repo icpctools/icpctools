@@ -277,7 +277,7 @@ and notes on their operation. (Note that the numbers will be different, and some
 presentations are only useful when used in conjunction with the Presentation Admin.)
 
 Available presentations:
-  #  | Name | Id  | Description
+|  # | Name | Id  | Description
  --: | ---- | --- | ---
 Beta
    1 | Better Fireworks | .better.fireworks
