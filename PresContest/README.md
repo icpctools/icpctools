@@ -276,34 +276,86 @@ their identifying number and name, the internal specification by which they are 
 and notes on their operation. (Note that the numbers will be different, and some
 presentations are only useful when used in conjunction with the Presentation Admin.)
 
- | # | Name | Internal Id | Notes
- | -: | ------ | --------- | ------------------
- | 1 | Bill Poucher | .bill | The venerable ICPC Executive Director.
- | 2 | Chart - Languages | .chart.language | 
- | 3 | Chart - Problem detail | .chart.problem.detail | 
- | 4 | Chart - Problem summary | .chart.problem.summary | Shows attempts, solutions, and fastest solution time for each problem.
- | 5 | Chart - Scoreboard | .chart.scoreboard | The current contest standings; scrolls through all teams and updates dynamically as new data arrives.
- | 6 | Chart - Total Problems | .chart.total.problems | 
- | 7 | Contest clock | .clock | The contest clock (time remaining in the contest).
- | 8 | Countdown | .countdown | A countdown clock, initialized by data in the contest event feed.
- | 9 | Do not touch anything | .doNotTouch | 
- | 10 | Fireworks | .fireworks | 
- | 11 | First solution | .first.solution | Tracking the first solution.
- | 12 | First to solve | .first.to.solve | First to solve each problem.
- | 13 | Judge queue | .judge | The judgement queue: shows all incoming runs and what the result is.
- | 14 | Leaderboard | .leaderboard | 
- | 15 | Logo | .logo | Displays the contest logo.
- | 16 | Message | .message | Displays a message and contest banner. The message is set via a property in the Presentation Admin.
- | 17 | Photo | .single.photo | Displays a single photo, taken from the CDP/present folder in file _photo.jpg_.
- | 18 | Pictures | .photos | Displays a rotating set of pictures found in the CDP/present/photos folder.
- | 19 | Problem summary | .problem.summary | 
- | 20 | Promotions | .promo | Displays a rotating set of promotional images.
- | 21 | Group leaderboard | .leaderboard.group | 
- | 22 | Scoreboard | .scoreboard | Contest scoreboard.
- | 23 | Team Display | .team.display | Display for team machines, shows the team logo and name. The team is is set via a property in the Presentation Admin.
- | 24 | Test - Alignment | .test.align | A grid to help with projector alignment.
- | 25 | Test - Clock | .test.clock | The current system time (on the presentation machine).
- | 26 | Test - Synchronization | .test.sync | A moving ball to test synchronization of the system clock.
+Available presentations:
+  #  | Name | Id  | Description
+ --: | ---- | --- | ---
+Beta
+   1 | Better Fireworks | .better.fireworks
+   2 | Contest Floor | .floor | Shows the contest floor and all the teams competing
+   3 | Floor Activity | .old.floor | Displays the contest floor
+Chart
+   4 | Historical comparison | .chart.historical
+   5 | Judge Queue Depth | .chart.queue.depth
+   6 | Judgement time | .chart.judgement.time
+   7 | Languages | .chart.language
+   8 | Problem comparison | .chart.problem.comparison
+   9 | Problem detail | .chart.problem.detail
+  10 | Problem summary | .chart.problem.summary | Shows attempts, solutions, and fastest solution time for each problem.
+  11 | Scoreboard | .chart.score | Shows position of contest leaders through the contest.
+  12 | Total Problems | .chart.total.problems
+Clock
+  13 | Contest clock | .clock | The contest time remaining.
+  14 | Countdown | .countdown | A countdown clock for start and end of a contest.
+  15 | Polar countdown | .polar | A polar countdown clock for start and end of a contest.
+Fun
+  16 | Bill Poucher | .bill | The venerable ICPC Executive Director.
+  17 | Do not touch anything | .doNotTouch | A pre-contest message from the ICPC World Finals Systems Director.
+  18 | Fireworks | .fireworks
+  19 | Mohamed Fouad | .mohamed
+ICPC
+  20 | Balloon Path | .balloon.path | Contest floor showing moving submissions and balloons
+  21 | Fading Logos | .org.logo.fade | Shows the logos of all organizations by fading between them
+  22 | Logo Wall | .org.logo.wall | Shows all organization logos
+  23 | Photo and caption | .single.photo | The photo at CDP/present/photo.jpg and an optional message.
+  24 | Photos | .photos | A rotating set of photos found in CDP/present/photos/.
+  25 | Problem Colours | .problems.colors | The problem colors
+  26 | Problem summary | .problem.summary
+  27 | Single Team | .team | A team photo and name.
+  28 | Sliding Logos | .org.logo.slide | Slides the logos of all organizations
+  29 | Staff | .staff | ICPC staff titles
+Logos and Messages
+  30 | CCS | .ccs | The primary (and optional shadow) CCS images found in CDP/present/ccs/primary.png and shadow.png.
+  31 | ICPC Tools | .icpc.tools | The ICPC Tools logo
+  32 | Image progression | .imagebuild | Fades through a set of images in progression (CDP/present/path*).
+  33 | Logo A | .logo | Displays the contest logo (CDP/present/logoA*.png).
+  34 | Logo B | .logo2 | Displays the contest logo (CDP/present/logoB*.png).
+  35 | Message | .message | A message and contest banner.
+  36 | Promotions | .promo | A rotating set of promotional images found in CDP/present/promo/.
+Maps
+  37 | Group | .map.group | Shows where groups are from on a map.
+  38 | Submissions | .map.balloon | A world map with team submissions coming from their location
+  39 | Team Intro | .map.team | Steps through all teams on a map.
+  40 | World | .map.world | Map of the world.
+Scoreboard
+  41 | All Groups leaderboard | .leaderboard.group.all
+  42 | First solution | .first.solution | Tracks the first solution in the contest.
+  43 | First to solve | .first.to.solve | Shows which team was the first to solve each problem.
+  44 | Group leaderboard | .leaderboard.group
+  45 | Judge queue | .judge | The judgement queue. Shows all incoming submissions and the judgement.
+  46 | Leaderboard | .leaderboard
+  47 | Scoreboard | .scoreboard | The current contest standings.
+  48 | Team Judgements | .judge.team | A team judgement queue. Shows all incoming submissions and the judgement.
+  49 | Timeline | .scoreboard.timeline
+Team
+  50 | Desktop | .icpc.team | Team machine desktop display. Shows the team logo and name.
+  51 | Logo | .icpc.logo | The ICPC identifier.
+  52 | Snake | .icpc.team.snake | Wave based on team labels
+  53 | Sync | .icpc.sync | Flashing ICPC in sync.
+  54 | Video test | .icpc.team.video | A tool to verify video.
+  55 | Wave | .icpc.team.wave | Do the wave!
+Test
+  56 | Alignment | .test.align | A grid to help with projector alignment.
+  57 | BSoD | .test.bsod | A special hello from the other Bill
+  58 | Chart | .test.chart | A test chart
+  59 | Clock | .test.clock | The current system time on the presentation machine.
+  60 | FPS | .test.fps | A frame rate guage
+  61 | Synchronization | .test.sync | A moving ball to test synchronization of the system clock.
+Tile Scoreboards
+  62 | Team scoreboard | .tile.team | Team picture with overlayed scoreboard tile
+  63 | Tile list | .tile.scoreboard.list | A contest scoreboard listed alphabetically by team
+  64 | Tile rank | .tile.scoreboard.rank | A ranked contest scoreboard
+  65 | Tiles | .tile.scoreboard | The current contest standings.
+
 
 ## Team Clients
 
