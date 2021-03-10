@@ -798,6 +798,7 @@ public class ContestRESTService extends HttpServlet {
 		String id = obj.getString("id");
 		String time = obj.getString("time");
 		String fromTeamId = obj.getString("from_team_id");
+		String toTeamId = obj.getString("to_team_id");
 		String problemId = obj.getString("problem_id");
 
 		Contest contest = cc.getContestByRole(request);
@@ -814,6 +815,10 @@ public class ContestRESTService extends HttpServlet {
 		if (Role.isTeam(request)) {
 			if (id != null || time != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
+				return;
+			}
+			if (toTeamId != null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot send to another team");
 				return;
 			}
 			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
