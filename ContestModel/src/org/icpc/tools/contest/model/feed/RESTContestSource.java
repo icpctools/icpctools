@@ -960,6 +960,54 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
+	/**
+	 * Enter a clarification to the contest, as either a team or an admin.
+	 *
+	 * JSON attributes: 'text' is required. When submitting as an admin 'id' and/or 'time' are
+	 * optional.
+	 *
+	 * @param obj a json object with the clarification attributes
+	 * @return the clarification id
+	 * @throws IOException if there is any problem connecting to the server or with the
+	 *            clarification
+	 */
+	public String submitClar(JsonObject obj) throws IOException {
+		if (obj == null)
+			throw new IllegalArgumentException();
+
+		try {
+			StringWriter sw = new StringWriter();
+			JSONWriter jw = new JSONWriter(sw);
+			jw.writeObject(obj);
+			Trace.trace(Trace.INFO, "Submitting clarification to " + url + ": " + sw.toString());
+
+			HttpURLConnection conn = HTTPSSecurity.createConnection(getChildURL("clarifications"), user, password);
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Accept", "application/json");
+			conn.setDoOutput(true);
+
+			jw = new JSONWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
+			jw.writeObject(obj);
+			jw.close();
+
+			if (conn.getResponseCode() != 200)
+				throw new IOException("Error submitting clar (" + getResponseError(conn) + ")");
+
+			JSONParser parser2 = new JSONParser(conn.getInputStream());
+			String sId = parser2.readValue();
+			if (sId == null)
+				throw new IOException("Submission successful but invalid clarification id returned");
+
+			return sId;
+		} catch (IOException e) {
+			Trace.trace(Trace.INFO, "Error while submitting clarification", e);
+			throw e;
+		} catch (Exception e) {
+			throw new IOException("Connection error", e);
+		}
+	}
+
 	public void cacheClientSideEvent(IContestObject obj, Delta d) {
 		try {
 			if (feedCacheOut == null) {
