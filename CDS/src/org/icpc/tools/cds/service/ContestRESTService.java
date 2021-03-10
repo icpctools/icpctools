@@ -672,8 +672,9 @@ public class ContestRESTService extends HttpServlet {
 
 		String type = segments[1];
 		ContestType cType = IContestObject.getTypeByName(type);
-		if (cType != ContestType.SUBMISSION) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "POST can only be used for submissions");
+		if (cType != ContestType.SUBMISSION && cType != ContestType.CLARIFICATION) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+					"POST can only be used for submissions and clarifications");
 			return;
 		}
 
@@ -687,6 +688,14 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
+		if (cType == ContestType.SUBMISSION)
+			handleSubmission(request, response, cc, obj);
+		else if (cType == ContestType.CLARIFICATION)
+			handleClarification(request, response, cc, obj);
+	}
+
+	protected void handleSubmission(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
+			JsonObject obj) throws IOException {
 		String id = obj.getString("id");
 		String time = obj.getString("time");
 		String teamId = obj.getString("team_id");
@@ -782,6 +791,77 @@ public class ContestRESTService extends HttpServlet {
 		PrintWriter pw = response.getWriter();
 		response.setContentType("application/json");
 		pw.append("\"" + sId + "\"");
+	}
+
+	protected void handleClarification(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
+			JsonObject obj) throws IOException {
+		String id = obj.getString("id");
+		String time = obj.getString("time");
+		String fromTeamId = obj.getString("from_team_id");
+		String problemId = obj.getString("problem_id");
+
+		Contest contest = cc.getContestByRole(request);
+		if (fromTeamId != null && contest.getTeamById(fromTeamId) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown from team");
+			return;
+		}
+
+		if (problemId != null && contest.getProblemById(problemId) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown problem");
+			return;
+		}
+
+		if (Role.isTeam(request)) {
+			if (id != null || time != null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
+				return;
+			}
+			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			if (teamId2 == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not determine request user's team");
+				return;
+			}
+			if (fromTeamId != null && !fromTeamId.equals(teamId2)) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot submit clarification for a different team");
+				return;
+			}
+			// make sure team_id is not null in case we're forwarding to CCS
+			if (fromTeamId == null)
+				obj.props.put("from_team_id", teamId2);
+		}
+
+		if (Role.isAdmin(request) && fromTeamId == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
+			return;
+		}
+
+		String cId = null;
+		ContestSource source = cc.getContestSource();
+
+		if (cc.isTesting()) {
+			// when in test mode just accept clarification and return dummy id
+			cId = "test-" + obj.getString("from_team_id");
+		} else if (cc.getCCS() == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
+			return;
+		} else if (!(source instanceof RESTContestSource)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support clarification via the CDS");
+			return;
+		} else {
+			try {
+				RESTContestSource restSource = (RESTContestSource) source;
+				cId = restSource.submitClar(obj);
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY,
+						"Error submitting clarification to CCS: " + e.getMessage());
+				return;
+			}
+		}
+
+		// send clarification id back to client
+		PrintWriter pw = response.getWriter();
+		response.setContentType("application/json");
+		pw.append("\"" + cId + "\"");
 	}
 
 	@Override
