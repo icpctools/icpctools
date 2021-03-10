@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
@@ -411,6 +412,26 @@ public class Resolver {
 		// do not create
 	}
 
+	/**
+	 * Wait until the contest is finalized, with the given timeout in ms.
+	 *
+	 * @return true if the contest is now final, and false otherwise
+	 */
+	private static boolean waitForFinal(IContest contest, int timeout) {
+		int count = timeout;
+		while (contest.getState() == null || !contest.getState().isFinal()) {
+			if (count <= 0)
+				return false;
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {
+				// ignore
+			}
+			count -= 500;
+		}
+		return true;
+	}
+
 	private void loadFromSource(ContestSource source) {
 		Trace.trace(Trace.INFO, "Loading from " + source);
 
@@ -420,22 +441,23 @@ public class Resolver {
 			source.outputValidation();
 			finalContest = source.getContest();
 			if (test)
-				source.waitForContest(10000);
-			else if (!source.waitForContest(20000))
+				waitForFinal(finalContest, 10000);
+			else if (!waitForFinal(finalContest, 20000))
 				Trace.trace(Trace.ERROR, "Could not load complete contest");
 
+			boolean isFinal = finalContest.getState() != null && finalContest.getState().isFinal();
+
 			if (test) {
-				if (finalContest.isDoneUpdating()) {
-					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are done updating.");
+				if (isFinal) {
+					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are finalized.");
 					System.exit(1);
 				}
 				int num = finalContest.removeUnjudgedSubmissions();
 				Trace.trace(Trace.WARNING, "Test mode active, " + num + " unjudged submissions discarded.");
 			}
 
-			if (!test && !finalContest.isDoneUpdating()) {
-				Trace.trace(Trace.ERROR,
-						"Contest is not done updating. Use --test if running against an incomplete contest");
+			if (!test && !isFinal) {
+				Trace.trace(Trace.ERROR, "Contest is not finalized. Use --test if running against an incomplete contest");
 				System.exit(1);
 			}
 
