@@ -640,7 +640,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX) {
 			requestFocus();
-			createBufferStrategy(2);
 			return;
 		}
 		gDevice.setFullScreenWindow(this);
@@ -662,7 +661,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 		}
 
 		requestFocus();
-		createBufferStrategy(2);
 	}
 
 	@Override
