@@ -8,6 +8,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
+import org.icpc.tools.contest.model.util.TeamDisplay;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.Presentation;
@@ -32,6 +33,7 @@ public class StandaloneLauncher {
 
 		List<String> presList = new ArrayList<String>();
 		String[] displayStr = new String[2];
+		String[] displayName = new String[1];
 		boolean[] showFPS = new boolean[1];
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -52,9 +54,9 @@ public class StandaloneLauncher {
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
 					return true;
-				} else if ("--style".equals(option)) {
-					ArgumentParser.expectOptions(option, options, "style:string");
-					org.icpc.tools.presentation.contest.internal.TeamUtil.setDefaultStyle((String) options.get(0));
+				} else if ("--display_name".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "display_name:string");
+					displayName[0] = (String) options.get(0);
 					return true;
 				}
 				return false;
@@ -70,6 +72,9 @@ public class StandaloneLauncher {
 			Trace.trace(Trace.ERROR, "Must provide a contest source");
 			return;
 		}
+
+		if (displayName[0] != null)
+			TeamDisplay.overrideDisplayName(source.getContest(), displayName[0]);
 
 		if (presList.isEmpty()) {
 			Trace.trace(Trace.ERROR, "Must provide one or more presentations");
@@ -101,7 +106,7 @@ public class StandaloneLauncher {
 		System.out.println("     --p pres1 pres2 ...");
 		System.out.println("         Loop through showing the specified presentation names, ids, or");
 		System.out.println("         numbers in order");
-		System.out.println("     --style style");
+		System.out.println("     --display_name template");
 		System.out.println("         Change the way teams are displayed using a template. Parameters:");
 		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --display #");

@@ -33,7 +33,6 @@ import org.icpc.tools.contest.model.util.Messages;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 
 public class TeamAwardPresentation extends AbstractICPCPresentation {
 	private static final int BORDER = 20;
@@ -266,7 +265,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		int usableWidth = width - x - x2 - BORDER;
 
 		if (c.name == null)
-			c.name = splitString(g, TeamUtil.getTeamName(contest, team), usableWidth);
+			c.name = splitString(g, team.getActualDisplayName(), usableWidth);
 
 		h += fm.getHeight() * c.name.length;
 

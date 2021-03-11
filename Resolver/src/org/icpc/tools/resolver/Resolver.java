@@ -18,7 +18,6 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
@@ -34,8 +33,8 @@ import org.icpc.tools.contest.model.resolver.ResolverLogic.PredeterminedStep;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
+import org.icpc.tools.contest.model.util.TeamDisplay;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
 import org.icpc.tools.resolver.ResolverUI.Screen;
@@ -76,6 +75,7 @@ public class Resolver {
 	private boolean show_info;
 	private boolean bill;
 	private boolean test;
+	private String displayName;
 	private String[] groupList;
 	private String[] problemList;
 
@@ -107,7 +107,7 @@ public class Resolver {
 		System.out.println("     --multi-display p@wxh");
 		System.out.println("         Stretch the presentation across multiple clients. Use \"2@3x2\"");
 		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
-		System.out.println("     --style style");
+		System.out.println("     --display_name template");
 		System.out.println("         Change the way teams are displayed using a template. Parameters:");
 		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --groups");
@@ -372,9 +372,9 @@ public class Resolver {
 		} else if ("--multi-display".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "p@wxh:string");
 			multiDisplayStr = (String) options.get(0);
-		} else if ("--style".equalsIgnoreCase(option)) {
-			ArgumentParser.expectOptions(option, options, "style:string");
-			TeamUtil.setDefaultStyle((String) options.get(0));
+		} else if ("--display_name".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "display_name:string");
+			displayName = (String) options.get(0);
 		} else if ("--groups".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "groups:string", "*");
 			groupList = options.toArray(new String[0]);
@@ -412,26 +412,6 @@ public class Resolver {
 		// do not create
 	}
 
-	/**
-	 * Wait until the contest is finalized, with the given timeout in ms.
-	 *
-	 * @return true if the contest is now final, and false otherwise
-	 */
-	private static boolean waitForFinal(IContest contest, int timeout) {
-		int count = timeout;
-		while (contest.getState() == null || !contest.getState().isFinal()) {
-			if (count <= 0)
-				return false;
-			try {
-				Thread.sleep(500);
-			} catch (Exception e) {
-				// ignore
-			}
-			count -= 500;
-		}
-		return true;
-	}
-
 	private void loadFromSource(ContestSource source) {
 		Trace.trace(Trace.INFO, "Loading from " + source);
 
@@ -440,24 +420,26 @@ public class Resolver {
 		try {
 			source.outputValidation();
 			finalContest = source.getContest();
+			if (displayName != null)
+				TeamDisplay.overrideDisplayName(finalContest, displayName);
+
 			if (test)
-				waitForFinal(finalContest, 10000);
-			else if (!waitForFinal(finalContest, 20000))
+				source.waitForContest(10000);
+			else if (!source.waitForContest(20000))
 				Trace.trace(Trace.ERROR, "Could not load complete contest");
 
-			boolean isFinal = finalContest.getState() != null && finalContest.getState().isFinal();
-
 			if (test) {
-				if (isFinal) {
-					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are finalized.");
+				if (finalContest.isDoneUpdating()) {
+					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are done updating.");
 					System.exit(1);
 				}
 				int num = finalContest.removeUnjudgedSubmissions();
 				Trace.trace(Trace.WARNING, "Test mode active, " + num + " unjudged submissions discarded.");
 			}
 
-			if (!test && !isFinal) {
-				Trace.trace(Trace.ERROR, "Contest is not finalized. Use --test if running against an incomplete contest");
+			if (!test && !finalContest.isDoneUpdating()) {
+				Trace.trace(Trace.ERROR,
+						"Contest is not done updating. Use --test if running against an incomplete contest");
 				System.exit(1);
 			}
 

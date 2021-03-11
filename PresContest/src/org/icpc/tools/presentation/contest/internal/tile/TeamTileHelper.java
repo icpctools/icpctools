@@ -24,7 +24,6 @@ import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Recent;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 
 public class TeamTileHelper {
 	private static final int IN_TILE_GAP = 1;
@@ -38,7 +37,6 @@ public class TeamTileHelper {
 
 	private Dimension tileDim = null;
 	private IContest contest;
-	private String style;
 	private boolean hasBg = false;
 
 	private final Map<String, BufferedImage> tileImages = new HashMap<>();
@@ -48,19 +46,10 @@ public class TeamTileHelper {
 	private long tileBgHash;
 
 	public TeamTileHelper(Dimension tileDim, IContest contest) {
-		this(tileDim, contest, null);
-	}
-
-	public TeamTileHelper(Dimension tileDim, IContest contest, String style) {
 		this.tileDim = tileDim;
 		this.contest = contest;
-		this.style = style;
 
 		setup();
-	}
-
-	public String getStyle() {
-		return style;
 	}
 
 	protected void setup() {
@@ -263,7 +252,7 @@ public class TeamTileHelper {
 		g.setFont(teamFont);
 		FontMetrics fm = g.getFontMetrics();
 
-		String s = TeamUtil.getTeamName(style, contest, team);
+		String s = team.getActualDisplayName();
 		float n = 1f;
 		while (fm.stringWidth(s + " 10") > tileDim.width - tileDim.height - ww - IN_TILE_GAP * 2 - 2) {
 			Font f = teamFont.deriveFont(AffineTransform.getScaleInstance(n, 1.0));

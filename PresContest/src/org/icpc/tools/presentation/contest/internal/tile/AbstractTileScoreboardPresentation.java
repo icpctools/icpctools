@@ -22,7 +22,6 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 
 	protected int rows = DEFAULT_ROWS;
 	protected int columns = DEFAULT_COLUMNS;
-	protected String overrideStyle;
 
 	protected TeamTileHelper tileHelper;
 	protected Dimension tileDim = null;
@@ -35,7 +34,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 	protected TeamTileHelper createTileHelper() {
 		tileDim = new Dimension((width - (columns - 1) * TILE_H_GAP) / columns,
 				(height - (rows - 1) * TILE_V_GAP) / rows);
-		return new TeamTileHelper(tileDim, getContest(), overrideStyle);
+		return new TeamTileHelper(tileDim, getContest());
 	}
 
 	@Override
@@ -286,13 +285,6 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 		} else if (value.startsWith("columns:")) {
 			try {
 				columns = Integer.parseInt(value.substring(8));
-				setSize(getSize());
-			} catch (Exception e) {
-				// ignore
-			}
-		} else if (value.startsWith("style:")) {
-			try {
-				overrideStyle = value.substring(6);
 				setSize(getSize());
 			} catch (Exception e) {
 				// ignore

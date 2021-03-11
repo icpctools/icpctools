@@ -78,7 +78,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 			tileDim = new Dimension((width - (columns - 1) * TILE_H_GAP - margin) / columns,
 					(height - (rows - 1) * TILE_H_GAP) / rows);
 		}
-		return new TeamTileHelper(tileDim, getContest(), overrideStyle);
+		return new TeamTileHelper(tileDim, getContest());
 	}
 
 	private int getNumColumns() {

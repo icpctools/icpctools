@@ -24,7 +24,6 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.Utility;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
@@ -320,7 +319,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 			g.drawImage(img, BORDER + fm.stringWidth("199 ") + nx, ny, null);
 		}
 
-		s = TeamUtil.getTeamName(style, contest, team);
+		s = team.getActualDisplayName();
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 		float nn = 1f;
