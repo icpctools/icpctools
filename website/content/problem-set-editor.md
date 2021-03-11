@@ -9,7 +9,6 @@ icon: fas fa-file-alt
 
 The ICPC Problem Set Editor is a tool for creating and editing `problemset.yaml` files,
 which define the list of contest problems
-and their colors for a [CLICS-compliant](https://clics.ecs.baylor.edu/index.php/Contest_Control_System)
-Contest Control System (CCS).
+and their colors for a Contest Control System (CCS) that supports the [CCS Specification](https://ccs-specs.icpc.io/ccs_system_requirements).
 
 {{< tooldownload name="Problem Set Editor" toolname=problemset doc=ProblemSet >}}

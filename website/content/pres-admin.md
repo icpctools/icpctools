@@ -21,7 +21,7 @@ Other presentations show data such as the languages being used,
 the current number of solutions to each contest problem,
 notifications that a particular team has just solved a particular problem,
 and so forth, all updating in real time based on input from a
-[_Contest Control System (CCS)_](https://clics.ecs.baylor.edu/index.php/Contest_Control_System).
+Contest Control System (CCS).
 There are also pre-defined presentations for showing a variety of user-selected
 data such as team photographs, contest logos and related images,
 local sites of interest, fireworks for the end
@@ -29,7 +29,7 @@ of the contest, and so forth.
 
 The ICPC Presentation System will work with any
 CCS that produces an event feed which is
-compliant with the [_CLI CCS Specification_](https://clics.ecs.baylor.edu/).
+compliant with the [_CLI Contest API_](https://ccs-specs.icpc.io/contest_api).
 Systems known to produce compliant event feeds include
 [PC-Squared](http://pc2.ecs.csus.edu),
 [Kattis](https://www.kattis.com/) and [DOMjudge](https://www.domjudge.org);
