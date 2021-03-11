@@ -13,7 +13,7 @@ icon: fas fa-home
 Welcome to the ICPC Tools web page! This page contains a variety of tools implemented by the International Collegiate Programming Contest (ICPC) Tools Group, most of which were originally developed for use at the ICPC World Finals and have been adapted for use at other programming contests.
 These tools have been used to support a wide variety of programming contests including local contests at Universities world-wide, multiple ICPC Regional Contests around the world, and a number of ICPC World Finals.
 
-All of the ICPC tools are designed to work together, and where applicable they are based on published ICPC standards. In particular, many of the tools are derived from and based on the specifications published under the auspices of the *Competitive Learning Initiative* as posted on the [CLI Wiki](https://clics.ecs.baylor.edu/index.php).
+All of the ICPC tools are designed to work together, and where applicable they are based on published ICPC standards. In particular, many of the tools are derived from and based on the specifications published under the auspices of the *Competitive Learning Initiative* as posted on the [CLI Specification Website](https://ccs-specs.icpc.io/).
 
 ## The Tools
 
