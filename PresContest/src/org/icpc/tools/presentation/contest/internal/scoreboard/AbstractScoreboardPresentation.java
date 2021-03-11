@@ -35,7 +35,6 @@ import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
@@ -62,8 +61,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 	private Font clockFont;
 	private BufferedImage headerImg;
 	private boolean showClock = true;
-
-	protected static String style;
 
 	protected SelectType selectType = SelectType.NORMAL;
 	protected List<ITeam> selectedTeams = null;
@@ -517,9 +514,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 			g.drawImage(img, BORDER + fm.stringWidth("199 ") + nx, ny, null);
 		}
 
-		IContest contest = getContest();
-		s = TeamUtil.getTeamName(style, contest, team);
-
+		s = team.getActualDisplayName();
 		if (s == null)
 			s = "";
 
@@ -755,10 +750,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		}
 	}
 
-	public void setStyle(String s) {
-		style = s;
-	}
-
 	@Override
 	public void setProperty(String value) {
 		if (value.startsWith("focusTeam:")) {
@@ -777,13 +768,5 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 			showClock = true;
 		else if (value.startsWith("clockOff"))
 			showClock = false;
-		else if (value.startsWith("style:")) {
-			try {
-				style = value.substring(6);
-				setSize(getSize());
-			} catch (Exception e) {
-				// ignore
-			}
-		}
 	}
 }

@@ -217,21 +217,22 @@ indicate this client is position 2 (top middle) in a 3x2 grid.
 Shows the frame rate on screen.
 
 ```
---style <style>
+--display_name <template>
 ```
 Allows you to change the way team names are displayed using a template with the following
 parameters:
- - "{team.display_name}" - The team's display name, e.g. "drop tables". If there is no
-   display name the team name will be used.
- - "{team.name}" - The team's name, e.g. "drop tables".
- - "{org.name}" - The organizations name, often a short form, e.g. "UBC".
- - "{org.formal_name}" - The full organization name, e.g. "University of Toronto". If there
-   is no formal name the organization name will be used.
+
+| Parameter | Value
+| --- | --- |
+| {team.display_name} | The team's display name, e.g. "drop tables". If there is no display name the team name will be used.
+| {team.name} | The team's name, e.g. "drop tables".
+| {org.name} | The organizations name, often a short form, e.g. "UBC".
+| {org.formal_name} | The full organization name, e.g. "University of Toronto". If there is no formal name the organization name will be used.
 
 Examples:
- - —style "{team.display_name}"
- - —style "{team.name} - {org.name}"
- - —style "{org.formal_name} ({team.name})"
+ - -—display_name "{team.name} ({org.name})"
+ - -—display_name "{org.formal_name}"
+ - -—display_name "{org.formal_name} ({team.name})"
 
 
 ## Examples

@@ -15,7 +15,6 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.scoreboard.JudgePresentation;
 
 public class JudgePresentation2 extends JudgePresentation {
@@ -142,7 +141,7 @@ public class JudgePresentation2 extends JudgePresentation {
 			g.drawImage(img, BORDER + nx, ny, null);
 		}
 
-		String s = TeamUtil.getTeamName(style, contest, team);
+		String s = team.getActualDisplayName();
 		g.setColor(Color.white);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();

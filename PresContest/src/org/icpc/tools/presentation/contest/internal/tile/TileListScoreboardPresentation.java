@@ -2,9 +2,7 @@ package org.icpc.tools.presentation.contest.internal.tile;
 
 import java.awt.geom.Point2D;
 
-import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.presentation.contest.internal.TeamUtil;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class TileListScoreboardPresentation extends ScrollingTileScoreboardPresentation {
@@ -18,14 +16,12 @@ public class TileListScoreboardPresentation extends ScrollingTileScoreboardPrese
 		if (teams == null || teams.length == 0)
 			return;
 
-		IContest contest = getContest();
-		String style = tileHelper.getStyle();
 		int size = teams.length;
 		int[] sort = new int[size];
 		String[] names = new String[size];
 		for (int i = 0; i < size; i++) {
 			sort[i] = i;
-			names[i] = TeamUtil.getTeamName(style, contest, teams[i]);
+			names[i] = teams[i].getActualDisplayName();
 		}
 
 		for (int i = 0; i < size - 1; i++) {

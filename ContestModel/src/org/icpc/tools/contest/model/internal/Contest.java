@@ -102,6 +102,14 @@ public class Contest implements IContest {
 		synchronized (modifiers) {
 			modifiers.add(modifier);
 		}
+
+		// make sure to modify all existing data
+		synchronized (data) {
+			if (data.size() > 0) {
+				for (IContestObject obj : data)
+					modifier.notify(this, obj);
+			}
+		}
 	}
 
 	public void removeModifier(IContestModifier modifier) {

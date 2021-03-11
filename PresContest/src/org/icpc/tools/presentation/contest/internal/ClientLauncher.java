@@ -9,6 +9,7 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
+import org.icpc.tools.contest.model.util.TeamDisplay;
 import org.icpc.tools.presentation.contest.internal.standalone.TeamUtil;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.PresentationWindow;
@@ -27,7 +28,7 @@ public class ClientLauncher {
 		System.out.println("  Options:");
 		System.out.println("     --name name");
 		System.out.println("         Give this client a name, e.g. \"Stage right\" or \"Site 2\"");
-		System.out.println("     --style style");
+		System.out.println("     --display_name template");
 		System.out.println("         Change the way teams are displayed using a template. Parameters:");
 		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --display #");
@@ -49,7 +50,8 @@ public class ClientLauncher {
 		System.setProperty("apple.awt.application.name", "Presentation Client");
 
 		String[] nameStr = new String[1];
-		final String[] displayStr = new String[2];
+		String[] displayStr = new String[2];
+		String[] displayName = new String[1];
 		boolean[] showFPS = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -69,9 +71,9 @@ public class ClientLauncher {
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
 					return true;
-				} else if ("--style".equals(option)) {
-					ArgumentParser.expectOptions(option, options, "style:string");
-					org.icpc.tools.presentation.contest.internal.TeamUtil.setDefaultStyle((String) options.get(0));
+				} else if ("--display_name".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "display_name:string");
+					displayName[0] = (String) options.get(0);
 					return true;
 				}
 				return false;
@@ -86,6 +88,9 @@ public class ClientLauncher {
 		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
 		cdsSource.outputValidation();
 		cdsSource.checkForUpdates("presentations-");
+
+		if (displayName[0] != null)
+			TeamDisplay.overrideDisplayName(cdsSource.getContest(), displayName[0]);
 
 		String name = nameStr[0];
 		PresentationClient client = null;
