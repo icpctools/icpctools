@@ -132,7 +132,7 @@ public class EditAwardsDialog extends Dialog {
 
 		remove = new Button(awardGroup, SWT.PUSH);
 		remove.setText("Remove");
-		data = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false);
+		data = new GridData(SWT.FILL, SWT.BEGINNING, false, false);
 		data.widthHint = SWTUtil.getButtonWidthHint(remove);
 		remove.setLayoutData(data);
 
@@ -157,7 +157,7 @@ public class EditAwardsDialog extends Dialog {
 		split = new Button(awardGroup, SWT.PUSH);
 		split.setText("Split");
 		split.setToolTipText("Split a shared award so that this team has their own copy");
-		data = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false);
+		data = new GridData(SWT.FILL, SWT.BEGINNING, false, false);
 		data.widthHint = SWTUtil.getButtonWidthHint(split);
 		split.setLayoutData(data);
 
