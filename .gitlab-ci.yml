@@ -13,9 +13,10 @@ stages:
 build:
   image: icpctools/builder
   stage: build
+  needs: []
   rules:
     - if: '$CI_COMMIT_REF_NAME != "HEAD"'
-      when: always
+      when: on_success
     - when: never
   script:
     - ant build
@@ -27,9 +28,10 @@ build:
 
 test:
   stage: test
+  needs: []
   rules:
     - if: '$CI_COMMIT_REF_NAME != "HEAD"'
-      when: always
+      when: on_success
     - when: never
   script:
     - echo "Future tests here"
@@ -37,9 +39,11 @@ test:
 push release to GitHub:
   image: icpctools/website
   stage: deploy
+  needs:
+    - build
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
-      when: always
+      when: on_success
     - when: never
   script:
     - export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
@@ -81,9 +85,11 @@ push release to GitHub:
 update website:
   image: icpctools/website
   stage: website
+  needs:
+    - push release to GitHub
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
-      when: always
+      when: on_success
     - when: never
   before_script:
     - eval $(ssh-agent -s)
@@ -112,9 +118,11 @@ update website:
 push cds docker image:
   image: docker:19.03.12
   stage: docker
+  needs:
+    - push release to GitHub
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
-      when: always
+      when: on_success
     - when: never
   services:
     - docker:19.03.12-dind
