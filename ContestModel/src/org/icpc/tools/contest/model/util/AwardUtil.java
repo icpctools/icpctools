@@ -351,8 +351,11 @@ public class AwardUtil {
 
 		int nextTeam = 0;
 		nextTeam = assignMedal(gold, nextTeam, teams, Messages.getString("awardMedalGold"));
+		contest.add(gold);
 		nextTeam = assignMedal(silver, nextTeam, teams, Messages.getString("awardMedalSilver"));
+		contest.add(silver);
 		assignMedal(bronze, nextTeam, teams, Messages.getString("awardMedalBronze"));
+		contest.add(bronze);
 	}
 
 	public static int getLastBronze(IContest contest) {
@@ -438,7 +441,6 @@ public class AwardUtil {
 		}
 
 		if (gold != null || silver != null || bronze != null)
-
 			createMedalAwards(contest, gold, silver, bronze);
 	}
 

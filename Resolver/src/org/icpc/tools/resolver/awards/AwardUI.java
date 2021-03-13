@@ -223,12 +223,12 @@ public class AwardUI {
 			}
 		});
 
-		templateAwards = SWTUtil.createButton(awardGroup, "Load from Template...");
+		templateAwards = SWTUtil.createButton(awardGroup, "Template...");
 		templateAwards.setEnabled(false);
 		templateAwards.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				launchAwardDialog(new LoadTemplateAwardDialog(shell, contest));
+				launchAwardDialog(new TemplateAwardDialog(shell, contest));
 			}
 		});
 	}
@@ -559,7 +559,7 @@ public class AwardUI {
 
 		problemGroup.setLayout(new GridLayout(3, false));
 
-		teamTable = new Table(problemGroup, SWT.FULL_SELECTION | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SINGLE);
+		teamTable = new Table(problemGroup, SWT.FULL_SELECTION | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
 		data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.widthHint = 750;
 		data.verticalSpan = 5;
@@ -575,6 +575,24 @@ public class AwardUI {
 		createColumn("Solved", 45, SWT.RIGHT, SORT_SOLVED);
 		createColumn("Penalty", 45, SWT.RIGHT, SORT_PENALTY);
 		createColumn("Awards", 175, SWT.LEFT, SORT_AWARDS);
+
+		final Button create = SWTUtil.createButton(problemGroup, "Add...");
+		create.setEnabled(false);
+		create.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				TableItem[] tis = teamTable.getSelection();
+				if (tis == null || tis.length == 0)
+					return;
+
+				ITeam[] teams2 = new ITeam[tis.length];
+				for (int i = 0; i < tis.length; i++)
+					teams2[i] = (ITeam) tis[i].getData();
+				AddAwardDialog dialog = new AddAwardDialog(create.getShell(), contest, teams2);
+				if (dialog.open() == 0)
+					updateTable();
+			}
+		});
 
 		final Button edit = SWTUtil.createButton(problemGroup, "Edit...");
 		edit.setEnabled(false);
@@ -597,6 +615,7 @@ public class AwardUI {
 			public void widgetSelected(SelectionEvent event) {
 				TableItem[] tis = teamTable.getSelection();
 				edit.setEnabled(tis != null && tis.length == 1);
+				create.setEnabled(tis != null && tis.length >= 1);
 			}
 
 			@Override
