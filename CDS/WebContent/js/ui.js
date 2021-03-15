@@ -53,7 +53,9 @@ function fillContestObjectTable(name, objs, tdGen) {
 var tagsToReplace = {
     '&': '&amp;',
     '<': '&lt;',
-    '>': '&gt;'
+    '>': '&gt;',
+    '\n': '<br/>',
+    '\r': ''
 };
 
 function replaceTag(tag) {
@@ -63,7 +65,7 @@ function replaceTag(tag) {
 function sanitizeHTML(str) {
 	if (str == null)
 		return "";
-	return str.replace(/[&<>]/g, replaceTag);
+	return str.replace(/[&<>\n\r]/g, replaceTag);
 }
 
 function formatTime(time2) {	

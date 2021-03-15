@@ -123,7 +123,8 @@
               </a>
 
               <ul class="nav nav-treeview">
-                <% for (int i = 0; i < menuPages.length; i++) { %>
+                <% for (int i = 0; i < menuPages.length; i++) 
+                   if (i < 4 || Role.isAdmin(request)) { %>
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
@@ -137,6 +138,7 @@
             </li>
             <% } } %>
             
+            <% if (Role.isPresAdmin(request)) { %>
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/presentation/admin/web"
                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("presentation/admin/web")) { %> active<% } %>">
@@ -144,7 +146,9 @@
                 <p>Presentation Admin</p>
               </a>
             </li>
+            <% } %>
 
+            <% if (Role.isAdmin(request)) { %>
             <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
               <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-video"></i>
@@ -166,6 +170,7 @@
                 <% } %>
               </ul>
             </li>
+            <% } %>
 
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/about"

@@ -287,6 +287,30 @@ var contest=(function() {
 		});
 	}
 
+    var post = function(type, body, ok, fail) {
+        console.log("Posting (POST) contest object: " + type);
+        return $.ajax({
+		    url: urlPrefix + type,
+		    method: 'POST',
+		    headers: { "Accept": "application/json" },
+		    data: body,
+		    success: function(body) {
+		    	ok(body);
+		    },
+		    error: function(result) {
+			    fail(result);
+		    }
+		});
+	}
+
+	var postSubmission = function(obj, ok, fail) {
+        post('submissions', obj, ok, fail);
+	}
+
+	var postClarification = function(obj, ok, fail) {
+        post('clarifications', obj, ok, fail);
+	}
+
 	return {
 		setContestId: setContestId,
 		loadInfo: loadInfo,
@@ -315,6 +339,8 @@ var contest=(function() {
 		clear: clear,
 		add: add,
 		update: update,
-		remove: remove
+		remove: remove,
+		postSubmission: postSubmission,
+		postClarification: postClarification
 	};
 })();

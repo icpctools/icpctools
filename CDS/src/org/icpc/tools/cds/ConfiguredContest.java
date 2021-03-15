@@ -955,14 +955,21 @@ public class ConfiguredContest {
 	public static String getRole(HttpServletRequest request) {
 		if (Role.isAdmin(request))
 			return "admin";
+		else if (Role.isPresAdmin(request))
+			return "pres-admin";
 		else if (Role.isBlue(request))
 			return "blue";
 		else if (Role.isTrusted(request))
 			return "trusted";
 		else if (Role.isBalloon(request))
 			return "balloon";
-		else if (Role.isTeam(request))
+		else if (Role.isTeam(request)) {
+			String teamId = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			if (teamId != null)
+				return "team " + teamId;
+
 			return "team";
+		}
 		return "public";
 	}
 
