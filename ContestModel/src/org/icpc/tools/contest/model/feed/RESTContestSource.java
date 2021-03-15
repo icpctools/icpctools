@@ -36,6 +36,8 @@ import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -68,6 +70,7 @@ public class RESTContestSource extends DiskContestSource {
 	private URL url;
 	private final String user;
 	private final String password;
+	private String baseUrl;
 
 	private NDJSONFeedParser parser = new NDJSONFeedParser();
 
@@ -425,22 +428,32 @@ public class RESTContestSource extends DiskContestSource {
 		return downloadIfNecessary(ref, file);
 	}
 
+	protected String getBaseUrl() {
+		if (baseUrl == null) {
+			Pattern pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
+			Matcher matcher = pattern.matcher(url.toExternalForm());
+			if (matcher.find()) {
+				baseUrl = matcher.group(1);
+			} else {
+				baseUrl = url.toExternalForm();
+			}
+		}
+
+		return baseUrl;
+	}
+
 	protected String getRealURL(String href) {
 		if (href.startsWith("http"))
 			return href;
 
 		// if href starts with / it means from the root
-		String path = url.toExternalForm();
-		int ind = path.indexOf("/api/");
 		if (href.startsWith("/")) {
-			if (ind > 0)
-				return path.substring(0, ind) + href;
+			String root = url.getProtocol() + "://" + url.getAuthority();
+			return root + href;
 		}
 
-		// otherwise, it's relative to /api, so remove the last two segments
-		if (ind > 0)
-			return path.substring(0, ind + 5) + href;
-		return href;
+		// otherwise, it's relative to the API, so determine that
+		return getBaseUrl() + href;
 	}
 
 	public File downloadIfNecessary(FileReference ref, File localFile) throws IOException {
