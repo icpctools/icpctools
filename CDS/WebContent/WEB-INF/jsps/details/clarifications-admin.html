@@ -18,6 +18,7 @@
                     <th>Problem</th>
                     <th>From Team</th>
                     <th>To Team</th>
+                    <th>Reply To</th>
                     <th>Text</th>
                 </tr>
             </thead>
@@ -35,13 +36,12 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        contest.setContestId("<%= cc.getId() %>");
-
         function clarTd(clar) {
             var problem = '';
             var time = '';
             var fromTeam = '';
             var toTeam = '';
+            var replyTo = '';
             if (clar.contest_time != null)
                 time = formatTime(parseTime(clar.contest_time));
             if (clar.problem_id != null) {
@@ -60,10 +60,12 @@
                 if (toTeam != null)
                     toTeam = toTeam.id + ' (' + toTeam.name + ')';
             }
+            if (clar.reply_to_id != null)
+            	replyTo = clar.reply_to_id;
 
             return $('<td><a href="<%= apiRoot %>/clarifications/' + clar.id + '">' + clar.id + '</a></td>' +
                 '<td align="center">' + time + '</td><td>' + problem + '</td><td>' + fromTeam + '</td>' +
-                '<td>' + toTeam + '</td><td class="pre-line">' + sanitizeHTML(clar.text) + '</td>');
+                '<td>' + toTeam + '</td><td>' + replyTo + '</td><td class="pre-line">' + sanitizeHTML(clar.text) + '</td>');
         }
 
         $.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
@@ -72,4 +74,15 @@
         	console.log("Error loading clarifications: " + result);
         })
     })
+    
+    function submitClarification(to_team, text) {
+    	var obj = { to_team_id: to_team, text: text };
+    	console.log(obj);
+    	console.log(JSON.stringify(obj));
+    	contest.postClarification(JSON.stringify(obj), function(body) {
+    		$('#object-status').text("Posted successfully: " + body);
+    	}, function(result) {
+    		$('#object-status').text("Post failed: " + result.responseText);
+    	})
+    }
 </script>

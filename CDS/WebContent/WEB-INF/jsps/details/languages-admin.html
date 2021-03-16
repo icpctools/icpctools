@@ -30,8 +30,6 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        contest.setContestId("<%= cc.getId() %>");
-
         function langTd(lang) {
             return $('<td><a href="<%= apiRoot %>/languages/' + lang.id + '">' + lang.id + '</td><td>' + sanitizeHTML(lang.name) + '</td>');
         }

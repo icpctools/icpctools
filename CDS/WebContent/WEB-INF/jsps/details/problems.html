@@ -1,0 +1,42 @@
+<div id="accordion">
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Problems</h4>
+        <div class="card-tools">
+            <span id="problems-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table id="problems-table" class="table table-sm table-hover table-striped table-head-fixed">
+            <thead>
+                <tr>
+                    <th style="width: 30px;">Color</th>
+                    <th style="width: 30px;">Label</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan=3>
+                        <div class="spinner-border"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        function problemTd(problem) {
+            return $('<td><div class="circle" style="background-color:' + problem.rgb + '"></div></td><td>' + problem.label
+                + '</td><td>' + sanitizeHTML(problem.name) + '</td>');
+        }
+
+        $.when(contest.loadProblems()).done(function () {
+            fillContestObjectTable("problems", contest.getProblems(), problemTd)
+        }).fail(function (result) {
+        	console.log("Error loading problems: " + result);
+        });
+    });
+</script>
