@@ -58,6 +58,16 @@ but if you want to implement a big feature it might be best to first create an i
 
 To become a committer you must have a history of high quality bug reports, PRs, and be approved by the ICPC Tools team.
 
+## Development
+
+### Using Eclipse
+
+You can use [Eclipse](https://www.eclipse.org) to develop and debug the ICPC Tools.
+We will add information on how to run and debug later.
+
+### Using IntelliJ IDEA
+
+See [the IntelliJ IDEA specific documentation](intellij-idea.md).
 ## License
 
 All of the tools are provided under the included license and are "Free as in Beer". We welcome you to use
