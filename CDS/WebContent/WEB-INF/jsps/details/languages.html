@@ -1,0 +1,39 @@
+<div id="accordion">
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Languages</h4>
+        <div class="card-tools">
+            <span id="languages-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table id="languages-table" class="table table-sm table-hover table-striped table-head-fixed">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="spinner-border"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        function langTd(lang) {
+            return $('<td>' + sanitizeHTML(lang.name) + '</td>');
+        }
+
+        $.when(contest.loadLanguages()).done(function () {
+            fillContestObjectTable("languages", contest.getLanguages(), langTd)
+        }).fail(function (result) {
+        	console.log("Error loading languages: " + result);
+        });
+    });
+</script>

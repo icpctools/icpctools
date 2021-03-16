@@ -34,8 +34,6 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        contest.setContestId("<%= cc.getId() %>");
-
         function problemTd(problem) {
             return $('<td><a href="<%= apiRoot %>/problems/' + problem.id + '">' + problem.id + '</td><td>' + problem.label
                 + '</td><td>' + sanitizeHTML(problem.name) + '</td><td>' + problem.color + '</td><td>' + problem.rgb + '</td><td><div class="circle" style="background-color:' + problem.rgb + '"></div></td>');

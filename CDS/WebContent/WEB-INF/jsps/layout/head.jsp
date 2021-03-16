@@ -124,7 +124,7 @@
 
               <ul class="nav nav-treeview">
                 <% for (int i = 0; i < menuPages.length; i++) 
-                   if (i < 4 || Role.isAdmin(request)) { %>
+                   if ((i > 0 && i < 4) || Role.isAdmin(request)) { %>
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">

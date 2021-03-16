@@ -1,93 +1,49 @@
 <%@ page import="java.util.List" %>
 <%@ page import="org.icpc.tools.contest.model.*" %>
 <%@ page import="org.icpc.tools.cds.util.HttpHelper" %>
+<%@ page import="org.icpc.tools.cds.util.Role" %>
 <% request.setAttribute("title", "Details"); %>
 <%@ include file="layout/head.jsp" %>
 <% IState state = contest.getState(); %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        contest.setContestId("<%= cc.getId() %>");
+    });
+</script>
 <div class="container-fluid">
+    <% if (Role.isAdmin(request)) { %>
     <div class="row">
         <div class="col-9">
-            <div id="accordion">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseContest">Contest</a></h4>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>'">API</button>
-                    </div>
-                </div>
-                <div id="collapseContest" class="panel-collapse collapse in">
-                <div class="card-body p-0">
-                    <table class="table table-sm table-hover table-striped table-head-fixed">
-                        <tbody>
-                            <tr>
-                                <td><b>Name:</b></td>
-                                <td><%= HttpHelper.sanitizeHTML(contest.getName()) %></td>
-                                <td><b>Start:</b></td>
-                                <td><%= ContestUtil.formatStartTime(contest) %></td>
-                            </tr>
-                            <tr>
-                                <td><b>Duration:</b></td>
-                                <td><%= ContestUtil.formatDuration(contest.getDuration()) %></td>
-                                <td><b>Freeze duration:</b></td>
-                                <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %></td>
-                            </tr>
-                            <tr>
-                                <td class="align-middle"><b>Logo:</b></td>
-                                <td class="table-dark" rowspan=2 id="logo"></td>
-                                <td class="align-middle"><b>Banner:</b></td>
-                                <td class="table-dark" rowspan=2 id="banner"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                </div>
-            </div>
-            </div>
+            <%@ include file="details/contest-admin.jsp" %>
         </div>
         <div class="col-3">
             <%@ include file="details/state.jsp" %>
         </div>
     </div>
     <div class="row">
-        <div class="col-5">
-            <%@ include file="details/languages.jsp" %>
-        </div>
-        <div class="col-7">
-            <%@ include file="details/judgementTypes.jsp" %>
-        </div>
+        <div class="col-5"><%@ include file="details/languages-admin.html" %></div>
+        <div class="col-7"><%@ include file="details/judgementTypes-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <%@ include file="details/groups.jsp" %>
-        </div>
+        <div class="col-12"><%@ include file="details/groups-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <%@ include file="details/problems.jsp" %>
-        </div>
+        <div class="col-12"><%@ include file="details/problems-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <%@ include file="details/teams.jsp" %>
-        </div>
+        <div class="col-12"><%@ include file="details/teams-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <%@ include file="details/orgs.jsp" %>
-        </div>
+        <div class="col-12"><%@ include file="details/orgs-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <%@ include file="details/clarifications.jsp" %>
-        </div>
+        <div class="col-12"><%@ include file="details/clarifications-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <%@ include file="details/awards.jsp" %>
-        </div>
+        <div class="col-12"><%@ include file="details/awards.jsp" %></div>
     </div>
     <div class="row">
         <div class="col-12">
@@ -134,11 +90,28 @@
             </div>
         </div>
     </div>
+    <% } else { %>
+    <div class="row">
+        <div class="col-7"><%@ include file="details/problems.html" %></div>
+        <div class="col-5"><%@ include file="details/contest.jsp" %><%@ include file="details/languages.html" %></div>
+    </div>
+    <div class="row">
+        <div class="col-7"><%@ include file="details/judgementTypes.html" %></div>
+        <div class="col-5"><%@ include file="details/groups.html" %></div>
+    </div>
+    <div class="row">
+        <div class="col-12"><%@ include file="details/teams.html" %></div>
+    </div>
+    <div class="row">
+        <div class="col-12"><%@ include file="details/orgs.html" %></div>
+    </div>
+    <div class="row">
+        <div class="col-12"><%@ include file="details/clarifications.html" %></div>
+    </div>
+    <% } %>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        contest.setContestId("<%= cc.getId() %>");
-
         function update() {
             var info = contest.getInfo();
             var logo = bestSquareLogo(info.logo, 50);
