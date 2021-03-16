@@ -111,6 +111,9 @@
              for (ConfiguredContest cc3 : ccs3) {
              if (!cc3.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
                 IContest contest3 = cc3.getContest();
+                if (contest3 == null) {
+                  continue;
+                }
                 String webroot3 = request.getContextPath() + "/contests/" + cc3.getId(); %>
 
             <li class="nav-item has-treeview menu-<% if (cc == cc3) { %>open<% } else { %>closed<% } %>">
