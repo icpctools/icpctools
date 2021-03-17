@@ -73,7 +73,7 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-    	contest.setContestId("<%= cc.getId() %>");
+    	contest.setContestURL("/api","<%= cc.getId() %>");
 
         function submissionTd(submission) {
         	var time = '';
@@ -129,7 +129,7 @@
                         judgeClass = "table-warning";
                         judge += "...";
                     }
-                    judge += ' (<a href="<%= apiRoot %>/judgements/' + judgements[j].id + '">' + judgements[j].id + '</a>)';
+                    judge += ' (<a href="' + contest.getURL('judgements', judgements[j].id) + '">' + judgements[j].id + '</a>)';
                     first = false;
                 }
             }

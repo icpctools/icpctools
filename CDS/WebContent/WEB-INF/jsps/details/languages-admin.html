@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseLanguages">Languages</a></h4>
         <div class="card-tools">
             <span id="languages-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/languages'">API</button>
+            <button id="languages-button" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseLanguages" class="panel-collapse collapse in">
@@ -31,7 +31,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         function langTd(lang) {
-            return $('<td><a href="<%= apiRoot %>/languages/' + lang.id + '">' + lang.id + '</td><td>' + sanitizeHTML(lang.name) + '</td>');
+            return $('<td><a href="' + contest.getURL('languages', lang.id) + '">' + lang.id + '</td><td>' + sanitizeHTML(lang.name) + '</td>');
         }
 
         $.when(contest.loadLanguages()).done(function () {

@@ -4,8 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOrganizations">Organizations</a></h4>
         <div class="card-tools">
             <span id="organizations-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button type="button" class="btn btn-tool"
-                onclick="location.href='<%= apiRoot %>/organizations'">API</button>
+            <button id="organizations-button" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseOrganizations" class="panel-collapse collapse in">
@@ -48,7 +47,7 @@
             if (org.country != null)
                 country = org.country;
 
-            return $('<td><a href="<%= apiRoot %>/organizations/' + org.id + '">' + org.id + '</a></td><td align=middle><img src="' + logoSrc + '" height=20/></td>' +
+            return $('<td><a href="' + contest.getURL('organizations', org.id) + '">' + org.id + '</a></td><td align=middle><img src="' + logoSrc + '" height=20/></td>' +
                 '<td>' + sanitizeHTML(org.name) + '</td><td>' + sanitizeHTML(formal_name) + '</td><td>' + country + '</td>');
         }
 
