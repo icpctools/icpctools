@@ -10,7 +10,7 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        contest.setContestId("<%= cc.getId() %>");
+        contest.setContestURL("/api","<%= cc.getId() %>");
     });
 </script>
 <div class="container-fluid">
@@ -20,7 +20,7 @@
             <%@ include file="details/contest-admin.jsp" %>
         </div>
         <div class="col-3">
-            <%@ include file="details/state.jsp" %>
+            <%@ include file="details/state.html" %>
         </div>
     </div>
     <div class="row">
@@ -51,10 +51,8 @@
                 <div class="card-header">
                     <h3 class="card-title">Submissions</h3>
                     <div class="card-tools">
-                        <span data-toggle="tooltip" title="<%= contest.getNumSubmissions() %>"
-                            class="badge bg-primary"><%= contest.getNumSubmissions() %></span>
-                        <button type="button" class="btn btn-tool"
-                            onclick="location.href='<%= apiRoot %>/submissions'">API</button>
+                        <span id="submissions-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                        <button id="submissions-button" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
             </div>
@@ -66,10 +64,8 @@
                 <div class="card-header">
                     <h3 class="card-title">Judgements</h3>
                     <div class="card-tools">
-                        <span data-toggle="tooltip" title="<%= contest.getNumJudgements() %>"
-                            class="badge bg-primary"><%= contest.getNumJudgements() %></span>
-                        <button type="button" class="btn btn-tool"
-                            onclick="location.href='<%= apiRoot %>/judgements'">API</button>
+                        <span id="judgements-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                        <button id="judgements-button" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
             </div>
@@ -81,10 +77,8 @@
                 <div class="card-header">
                     <h3 class="card-title">Runs</h3>
                     <div class="card-tools">
-                        <span data-toggle="tooltip" title="<%= contest.getNumRuns() %>"
-                            class="badge bg-primary"><%= contest.getNumRuns() %></span>
-                        <button type="button" class="btn btn-tool"
-                            onclick="location.href='<%= apiRoot %>/runs'">API</button>
+                        <span id="runs-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                        <button id="runs-button" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
             </div>
@@ -136,6 +130,24 @@
             update()
         }).fail(function (result) {
             console.log("Error loading page: " + result);
+        })
+
+        $.when(contest.loadSubmissions()).done(function () {
+        	fillContestObjectHeader("submissions", contest.getSubmissions());
+        }).fail(function (result) {
+        	console.log("Error loading submissions: " + result);
+        })
+        
+        $.when(contest.loadJudgements()).done(function () {
+        	fillContestObjectHeader("judgements", contest.getJudgements());
+        }).fail(function (result) {
+        	console.log("Error loading judgements: " + result);
+        })
+        
+        $.when(contest.loadRuns()).done(function () {
+        	fillContestObjectHeader("runs", contest.getRuns());
+        }).fail(function (result) {
+        	console.log("Error loading runs: " + result);
         })
     })
 </script>

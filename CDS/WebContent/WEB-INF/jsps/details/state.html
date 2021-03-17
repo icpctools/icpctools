@@ -1,0 +1,59 @@
+<div id="accordion">
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseState">State</a></h4>
+        <div class="card-tools">
+            <button id="state-button" type="button" class="btn btn-tool">API</button>
+        </div>
+    </div>
+    <div id="collapseState" class="panel-collapse collapse in">
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover table-striped table-head-fixed">
+            <tbody>
+                <tr>
+                    <td><b>Started:</b></td>
+                    <td id="state-started"></td>
+                </tr>
+                <tr>
+                    <td><b>Frozen:</b></td>
+                    <td id="state-frozen"></td>
+                </tr>
+                <tr>
+                    <td><b>Ended:</b></td>
+                    <td id="state-ended"></td>
+                </tr>
+                <tr>
+                    <td><b>Finalized:</b></td>
+                    <td id="state-finalized"></td>
+                </tr>
+                <tr>
+                    <td><b>Thawed:</b></td>
+                    <td id="state-thawed"></td>
+                </tr>
+                <tr>
+                    <td><b>End of updates:</b></td>
+                    <td id="state-end_of_updates"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.when(contest.loadState()).done(function () {
+            fillContestObjectHeader("state", null);
+            
+            state = contest.getState();
+            $("#state-started").html(formatTimestamp(state.started));
+            $("#state-frozen").html(formatTimestamp(state.frozen));
+            $("#state-ended").html(formatTimestamp(state.ended));
+            $("#state-finalized").html(formatTimestamp(state.finalized));
+            $("#state-thawed").html(formatTimestamp(state.thawed));
+            $("#state-end_of_updates").html(formatTimestamp(state.end_of_updates));
+        }).fail(function (result) {
+        	console.log("Error loading state: " + result);
+        })
+    })
+</script>

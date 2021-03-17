@@ -43,7 +43,7 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-        contest.setContestId("<%= cc.getId() %>");
+    	contest.setContestURL("/api","<%= cc.getId() %>");
 
         function createTableHeader() {
             $("#score-table thead").find("tr").remove();

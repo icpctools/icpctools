@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseProblems">Problems</a></h4>
         <div class="card-tools">
             <span id="problems-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/problems'">API</button>
+            <button id="problems-button" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseProblems" class="panel-collapse collapse in">
@@ -22,7 +22,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td colspan=3>
+                    <td colspan=6>
                         <div class="spinner-border"></div>
                     </td>
                 </tr>
@@ -35,7 +35,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         function problemTd(problem) {
-            return $('<td><a href="<%= apiRoot %>/problems/' + problem.id + '">' + problem.id + '</td><td>' + problem.label
+            return $('<td><a href="' + contest.getURL('problems', problem.id) + '">' + problem.id + '</td><td>' + problem.label
                 + '</td><td>' + sanitizeHTML(problem.name) + '</td><td>' + problem.color + '</td><td>' + problem.rgb + '</td><td><div class="circle" style="background-color:' + problem.rgb + '"></div></td>');
         }
 

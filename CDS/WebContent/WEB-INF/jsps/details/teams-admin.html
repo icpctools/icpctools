@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTeams">Teams</a></h4>
         <div class="card-tools">
             <span id="teams-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>/teams'">API</button>
+            <button id="teams-button" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseTeams" class="panel-collapse collapse in">
@@ -62,7 +62,7 @@
                 }
             }
 
-            return $('<td><a href="<%= apiRoot %>/teams/' + team.id + '">' + team.id + '</td><td>' + sanitizeHTML(name) + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + sanitizeHTML(orgName) + '</td><td>' + sanitizeHTML(orgFormalName) + '</td><td>' + sanitizeHTML(groupNames) + '</td>'
+            return $('<td><a href="' + contest.getURL('teams', team.id) + '">' + team.id + '</td><td>' + sanitizeHTML(name) + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + sanitizeHTML(orgName) + '</td><td>' + sanitizeHTML(orgFormalName) + '</td><td>' + sanitizeHTML(groupNames) + '</td>'
                 + '<td><a href="<%= webroot  %>/teamSummary/' + team.id + '">summary</a></td>');
         }
 

@@ -23,6 +23,21 @@ function sortByColumn(table) {
   }
 }
 
+function fillContestObjectHeader(name, objs) {
+	if (name == null)
+		return;
+
+    var x = $("#" + name + "-count");
+    if (x != null && objs != null) {
+    	x.attr("title", objs.length);
+    	x.html(objs.length);
+    }
+    var x = $("#" + name + "-button");
+    if (x != null) {
+    	x.attr("onclick", 'location.href="' + contest.getURL(name) + '"');
+    }
+}
+
 function fillContestObjectTable(name, objs, tdGen) {
 	if (name == null || objs == null || tdGen == null)
 		return;
@@ -43,11 +58,8 @@ function fillContestObjectTable(name, objs, tdGen) {
         row.append(col);
         $("#" + name + "-table tbody").append(row);
     }
-    var x = $("#" + name + "-count");
-    if (x != null) {
-    	x.attr("title", objs.length);
-    	x.html(objs.length);
-    }
+    
+    fillContestObjectHeader(name, objs);
 }
 
 var tagsToReplace = {
@@ -98,4 +110,11 @@ function formatTime(time2) {
 	if (secs > 0)
 		sb.push(secs + "s");
 	return sb.join("");
+}
+
+function formatTimestamp(time2) {
+	if (time2 == null)
+		return "";
+	var d = new Date(time2);
+	return d.toDateString() + " " + d.toLocaleTimeString();
 }

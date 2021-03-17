@@ -1,5 +1,6 @@
 var contest=(function() {
 	var info;
+	var state;
 	var organizations;
 	var groups;
 	var teams;
@@ -8,124 +9,87 @@ var contest=(function() {
 	var problems;
 	var submissions;
 	var judgements;
+	var runs;
 	var clarifications;
 	var awards;
 	var startStatus;
 	var scoreboard;
-	
-	var urlPrefix;
-	
-	var setContestId = function(id) {
-		urlPrefix = '/api/contests/' + id + '/';
+
+	var contestURL;
+
+	var setContestURL = function(baseURL, contestId) {
+		if (!baseURL.endsWith('/'))
+			baseURL += '/';
+		contestURL = baseURL + 'contests/' + contestId;
+		console.log("Contest URL: " + contestURL);
+	}
+
+	var loadObject = function(type, ok) {
+		console.log("Loading contest " + type);
+		var deferred = new $.Deferred();
+		return $.ajax({
+			url: getURL(type),
+			success: function(result) {
+				ok(result);
+			}
+		});
 	}
 
 	var loadInfo = function() {
-		console.log("Loading info");
-		var deferred = new $.Deferred();
-		if (info != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix,
-			  success: function(result) {
-				  info = result;
-			  }
-			});
-		}
+		if (info != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('', function(result) { info = result });
+	}
+
+	var loadState = function() {
+		if (state != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('state', function(result) { state = result });
 	}
 
 	var loadLanguages = function() {
-		console.log("Loading languages: " + languages);
-		var deferred = new $.Deferred();
-		if (languages != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'languages',
-			  success: function(result) {
-				  languages = result;
-			  }
-			});
-		}
+		if (languages != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('languages', function(result) { languages = result });
 	}
 	
 	var loadJudgementTypes = function() {
-		console.log("Loading judgement types: " + judgementTypes);
-		var deferred = new $.Deferred();
-		if (judgementTypes != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'judgement-types',
-			  success: function(result) {
-				  judgementTypes = result;
-			  }
-			});
-		}
+		if (judgementTypes != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('judgement-types', function(result) { judgementTypes = result });
 	}
 
 	var loadProblems = function() {
-		console.log("Loading problems: " + problems);
-		var deferred = new $.Deferred();
-		if (problems != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'problems',
-			  success: function(result) {
-				  problems = result;
-			  }
-			});
-		}
+		if (problems != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('problems', function(result) { problems = result });
 	}
 	
 	var loadOrganizations = function() {
-		console.log("Loading organizations: " + organizations);
-		var deferred = new $.Deferred();
-		if (organizations != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'organizations',
-			  success: function(result) {
-				  organizations = result;
-			  }
-			});
-		}
+		if (organizations != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('organizations', function(result) { organizations = result });
 	}
 
 	var loadGroups = function() {
-		console.log("Loading groups: " + groups);
-		var deferred = new $.Deferred();
-		if (groups != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'groups',
-			  success: function(result) {
-				  groups = result;
-			  }
-			});
-		}
+		if (groups != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('groups', function(result) { groups = result });
 	}
 
 	var loadTeams = function() {
-		console.log("Loading teams: " + teams);
-		var deferred = new $.Deferred();
-		if (teams != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'teams',
-			  success: function(result) {
-			    var teams2 = result;
+		if (teams != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('teams', function(result) {
+			 var teams2 = result;
 			    teams2.sort(function(a,b) {
 			    	if (!isNaN(a.id) && !isNaN(b.id))
 			    		return Number(a.id) > Number(b.id);
@@ -133,109 +97,66 @@ var contest=(function() {
 			    		return a.id.localeCompare(b.id);
 				   })
 			    teams = teams2;
-			  }
-			});
-		}
+		});
 	}
 
     var loadSubmissions = function() {
-		console.log("Loading submissions: " + submissions);
-		var deferred = new $.Deferred();
-		if (submissions != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'submissions',
-			  success: function(result) {
-				  submissions = result;
-			  }
-			});
-		}
+		if (submissions != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('submissions', function(result) { submissions = result });
 	}
 
 	var loadJudgements = function() {
-		console.log("Loading judgements: " + judgements);
-		var deferred = new $.Deferred();
-		if (judgements != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'judgements',
-			  success: function(result) {
-				  judgements = result;
-			  }
-			});
-		}
+		if (judgements != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('judgements', function(result) { judgements = result });
+	}
+
+	var loadRuns = function() {
+		if (runs != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('runs', function(result) { runs = result });
 	}
 
 	var loadClarifications = function() {
-		console.log("Loading clarifications: " + clarifications);
-		var deferred = new $.Deferred();
-		if (clarifications != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'clarifications',
-			  success: function(result) {
-				  clarifications = result;
-			  }
-			});
-		}
+		if (clarifications != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('clarifications', function(result) { clarifications = result });
 	}
 
 	var loadAwards = function() {
-		console.log("Loading awards: " + awards);
-		var deferred = new $.Deferred();
-		if (awards != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'awards',
-			  success: function(result) {
-				  awards = result;
-			  }
-			});
-		}
+		if (awards != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('awards', function(result) { awards = result });
 	}
 
 	var loadStartStatus = function() {
-		console.log("Loading start-status: " + startStatus);
-		var deferred = new $.Deferred();
-		if (startStatus != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'start-status',
-			  success: function(result) {
-				  startStatus = result;
-			  }
-			});
-		}
+		if (startStatus != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('start-status', function(result) { startStatus = result });
 	}
 
 	var loadScoreboard = function() {
-		console.log("Loading scoreboard: " + scoreboard);
-		var deferred = new $.Deferred();
-		if (scoreboard != null) {
-			deferred.resolve();
-			return deferred;
-		} else {
-			return $.ajax({
-			  url: urlPrefix + 'scoreboard',
-			  success: function(result) {
-				  scoreboard = result;
-			  }
-			});
-		}
+		if (scoreboard != null)
+			return new $.Deferred().resolve();
+
+		return loadObject('scoreboard', function(result) { scoreboard = result });
 	}
-	
+
+	var getContestURL = function() {
+		return contestURL;
+	}
 	var getInfo = function() {
 		return info;
+	}
+	var getState = function() {
+		return state;
 	}
 	var getLanguages = function() {
 		return languages;
@@ -251,6 +172,9 @@ var contest=(function() {
 	}
 	var getJudgements = function() {
 		return judgements;
+	}
+	var getRuns = function() {
+		return runs;
 	}
 	var getClarifications = function() {
 		return clarifications;
@@ -286,7 +210,7 @@ var contest=(function() {
 	var add = function(type, id, body, ok, fail) {
  	    console.log("Adding (PUT) contest object: " + type + "/" + id + ", " + body);
  	    return $.ajax({
-		    url: urlPrefix + type + '/' + id,
+		    url: getURL(type, id),
 		    method: 'PUT',
 		    data: body,
 		    success: function(result) {
@@ -301,7 +225,7 @@ var contest=(function() {
 	var update = function(type, id, body, ok, fail) {
         console.log("Updating (PATCH) contest object: " + type + "/" + id);
         return $.ajax({
-		    url: urlPrefix + type + '/' + id,
+		    url: getURL(type, id),
 		    method: 'PATCH',
 		    data: body,
 		    success: function(result) {
@@ -316,7 +240,7 @@ var contest=(function() {
 	var remove = function(type, id, ok, fail) {
         console.log("Deleting (DELETE) contest object: " + type + "/" + id);
         return $.ajax({
-		    url: urlPrefix + type + '/' + id,
+		    url: getURL(type, id),
 		    method: 'DELETE',
 		    success: function(result) {
 		    	ok(result);
@@ -330,7 +254,7 @@ var contest=(function() {
     var post = function(type, body, ok, fail) {
         console.log("Posting (POST) contest object: " + type);
         return $.ajax({
-		    url: urlPrefix + type,
+		    url: getURL(type),
 		    method: 'POST',
 		    headers: { "Accept": "application/json" },
 		    data: body,
@@ -351,9 +275,20 @@ var contest=(function() {
         post('clarifications', obj, ok, fail);
 	}
 
+	var getURL = function(type) {
+		return contestURL + '/' + type;
+	}
+
+	var getURL = function(type, id) {
+		if (id == null)
+			return contestURL + '/' + type;
+		return contestURL + '/' + type + '/' + id;
+	}
+
 	return {
-		setContestId: setContestId,
+		setContestURL: setContestURL,
 		loadInfo: loadInfo,
+		loadState: loadState,
 		loadOrganizations: loadOrganizations,
 		loadGroups: loadGroups,
 		loadLanguages: loadLanguages,
@@ -362,11 +297,15 @@ var contest=(function() {
 		loadProblems: loadProblems,
 		loadSubmissions: loadSubmissions,
 		loadJudgements: loadJudgements,
+		loadRuns: loadRuns,
 		loadClarifications: loadClarifications,
 		loadAwards: loadAwards,
 		loadStartStatus: loadStartStatus,
 		loadScoreboard: loadScoreboard,
+		getContestURL: getContestURL,
+		getURL: getURL,
 		getInfo: getInfo,
+		getState: getState,
 		getLanguages: getLanguages,
 		getJudgementTypes: getJudgementTypes,
 		getProblems: getProblems,
@@ -375,6 +314,7 @@ var contest=(function() {
 		getTeams: getTeams,
 		getSubmissions: getSubmissions,
 		getJudgements: getJudgements,
+		getRuns: getRuns,
 		getClarifications: getClarifications,
 		getAwards: getAwards,
 		getStartStatus: getStartStatus,

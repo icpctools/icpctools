@@ -400,7 +400,7 @@
     }
 
     function updateStartStatusTable() {
-    	contest.setContestId("<%= cc.getId() %>");
+    	contest.setContestURL("/api","<%= cc.getId() %>");
     	contest.clear();
     	$.when(contest.loadStartStatus()).done(function () {
             fillContestObjectTable("start-status", contest.getStartStatus(), startStatusTd);
