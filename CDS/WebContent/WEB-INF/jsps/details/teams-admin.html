@@ -51,7 +51,7 @@
                     logoSrc = '/api/' + logo.href;
             }
             var groupNames = '';
-            var groups2 = findGroups(contest.getGroups(), team.group_ids);
+            var groups2 = findManyById(contest.getGroups(), team.group_ids);
             if (groups2 != null) {
                 var first = true;
                 for (var j = 0; j < groups2.length; j++) {

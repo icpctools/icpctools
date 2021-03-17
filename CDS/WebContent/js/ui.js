@@ -73,12 +73,12 @@ function formatTime(time2) {
 		return "0s";
 
 	var sb = [];
-	time = time2 / 1000;
-
-	if (time < 0) {
+	if (time2 < 0) {
 		sb.push("-");
-		time = -time;
+		time2 = -time2;
 	}
+	time = Math.floor(time2 / 1000);
+
 	days = Math.floor(time / 86400.0);
 	if (days > 0)
 		sb.push(days + "d");

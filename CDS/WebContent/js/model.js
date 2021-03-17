@@ -1,4 +1,4 @@
-function findById(arr,id) {
+function findById(arr, id) {
   if (arr == null || id == null)
     return null;
 
@@ -9,18 +9,30 @@ function findById(arr,id) {
   return null;
 }
 
-function findGroups(groups, ids) {
-  if (groups == null || ids == null || ids.length == 0)
+function findManyById(arr, ids) {
+  if (arr == null || ids == null || ids.length == 0)
     return null;
 
-  var grs = [];
+  var list = [];
   for (var j = 0; j < ids.length; j++) {
-    for (var i = 0; i < groups.length; i++) {
-      if (ids[j] == groups[i].id)
-        grs.push(groups[i]);
+    for (var i = 0; i < arr.length; i++) {
+      if (ids[j] == arr[i].id)
+        list.push(arr[i]);
     }
   }
-  return grs;
+  return list;
+}
+
+function findManyBySubmissionId(arr, id) {
+  if (arr == null || id == null)
+    return null;
+
+  var list = [];
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i].submission_id == id)
+      list.push(arr[i]);
+  }
+  return list;
 }
 
 function bestSquareLogo(logos, size) {
@@ -84,25 +96,38 @@ function bestLogo(logos, width, height) {
 function parseTime(contestTime) {
 	match = contestTime.match("-?([0-9]+):([0-9]{2}):([0-9]{2})(\\.[0-9]{3})?");
 
-	h = parseInt(match[0]);
-	m = parseInt(match[1]);
-	s = parseInt(match[2]);	
+	h = parseInt(match[1]);
+	m = parseInt(match[2]);
+	s = parseInt(match[3]);	
 	ms = 0;
-	if (match.length == 4)
-		ms = parseInt(match[3].substring(1));
+	if (match.length == 5)
+		ms = parseInt(match[4].substring(1));
 
 	ret = h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms;
 	if (contestTime.startsWith("-"))
-	  return -ret;
-	
+	  return -ret
+
 	return ret;
-} 
+}
 
-var isInt = (function() {
-	  var re = /^[+-]?\d+$/;
-	  var re2 = /\.0+$/;
-
-	  return function(n) {
-	    return re.test((''+ n).replace(re2,''));
-	  }
-	}());
+function isFirstToSolve(contest, submission) {
+   problem_id = submission.problem_id;
+   submissions = contest.getSubmissions();
+   for (var i = 0; i < submissions.length; i++) {
+      if (parseTime(submissions[i].contest_time) >= 0 && submissions[i].problem_id == problem_id) {
+         // TODO: should we check if this is a public team too?
+         var judgements = findManyBySubmissionId(contest.getJudgements(), submissions[i].id);
+         if (judgements != null && judgements.length > 0) {
+            var jt = findById(contest.getJudgementTypes(), judgements[judgements.length - 1].judgement_type_id);
+            if (jt != null) {
+               if (jt.solved) {
+                  if (submission == submissions[i])
+                     return true;
+                  return false;
+               }
+            }
+         }
+      }
+   }
+   return false;
+}

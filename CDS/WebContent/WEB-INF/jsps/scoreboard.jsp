@@ -1,6 +1,4 @@
 <%@ page import="org.icpc.tools.cds.util.Role" %>
-<%@ page import="org.icpc.tools.cds.CDSConfig" %>
-<%@ page import="org.icpc.tools.contest.model.IProblem" %>
 <% request.setAttribute("title", "Scoreboard"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
@@ -24,35 +22,14 @@
 
                         <a href="<%= webroot%>/scoreboardCompare/compare2src">source</a>
                     </p>
-
                     <% } %>
 
                     <table id="score-table" class="table table-sm table-hover table-striped table-head-fixed">
                         <thead>
-                            <tr>
-                                <th class="text-right">Rank</th>
-                                <th></th>
-                                <th>Team</th>
-                                <th>Organization</th>
-                                <% int numProblems = contest.getNumProblems();
-                        for (int j = 0; j < numProblems; j++) {
-                            IProblem p = contest.getProblems()[j]; %>
-
-                                <th class="text-center">
-                                    <%= p.getLabel() %>
-                                    <div class="circle" style="background-color: <%= p.getRGB() %>"></div>
-                                </th>
-                                <% } %>
-
-                                <th class="text-right">Solved</th>
-                                <th class="text-right">Time</th>
-                            </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td colspan="<%= 6 + numProblems %>">
-                                    <div class="spinner-border"></div>
-                                </td>
+                                <td><div class="spinner-border"></div></td>
                             </tr>
                         </tbody>
                     </table>
@@ -67,6 +44,21 @@
 <script type="text/javascript">
     $(document).ready(function () {
         contest.setContestId("<%= cc.getId() %>");
+
+        function createTableHeader() {
+            $("#score-table thead").find("tr").remove();
+            var row = $('<tr></tr>');
+            row.append($('<th class="text-right">Rank</th><th></th><th>Team</th><th>Organization</th>'));
+       
+            problems = contest.getProblems();
+            for (var i = 0; i < problems.length; i++) {
+            	row.append($('<th class="text-center">' + problems[i].label + 
+                   ' <div class="circle" style="background-color: ' + problems[i].rgb + '"></div></th>'));
+            }
+
+            row.append($('<th class="text-right">Solved</th><th class="text-right">Time</th>'));
+            $('#score-table thead').append(row);
+        }
 
         function fillTable() {
             $("#score-table tbody").find("tr").remove();
@@ -131,7 +123,8 @@
         sortByColumn($('#score-table'));
 
         $.when(contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadScoreboard()).done(function () {
-            fillTable()
+        	createTableHeader();
+            fillTable();
         }).fail(function (result) {
         	console.log("Error loading scoreboard: " + result);
         })

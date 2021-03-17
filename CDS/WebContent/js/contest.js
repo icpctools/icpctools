@@ -6,6 +6,8 @@ var contest=(function() {
 	var languages;
 	var judgementTypes;
 	var problems;
+	var submissions;
+	var judgements;
 	var clarifications;
 	var awards;
 	var startStatus;
@@ -136,6 +138,38 @@ var contest=(function() {
 		}
 	}
 
+    var loadSubmissions = function() {
+		console.log("Loading submissions: " + submissions);
+		var deferred = new $.Deferred();
+		if (submissions != null) {
+			deferred.resolve();
+			return deferred;
+		} else {
+			return $.ajax({
+			  url: urlPrefix + 'submissions',
+			  success: function(result) {
+				  submissions = result;
+			  }
+			});
+		}
+	}
+
+	var loadJudgements = function() {
+		console.log("Loading judgements: " + judgements);
+		var deferred = new $.Deferred();
+		if (judgements != null) {
+			deferred.resolve();
+			return deferred;
+		} else {
+			return $.ajax({
+			  url: urlPrefix + 'judgements',
+			  success: function(result) {
+				  judgements = result;
+			  }
+			});
+		}
+	}
+
 	var loadClarifications = function() {
 		console.log("Loading clarifications: " + clarifications);
 		var deferred = new $.Deferred();
@@ -211,6 +245,12 @@ var contest=(function() {
 	}
 	var getProblems = function() {
 		return problems;
+	}
+	var getSubmissions = function() {
+		return submissions;
+	}
+	var getJudgements = function() {
+		return judgements;
 	}
 	var getClarifications = function() {
 		return clarifications;
@@ -320,6 +360,8 @@ var contest=(function() {
 		loadJudgementTypes: loadJudgementTypes,
 		loadTeams: loadTeams,
 		loadProblems: loadProblems,
+		loadSubmissions: loadSubmissions,
+		loadJudgements: loadJudgements,
 		loadClarifications: loadClarifications,
 		loadAwards: loadAwards,
 		loadStartStatus: loadStartStatus,
@@ -331,6 +373,8 @@ var contest=(function() {
 		getGroups: getGroups,
 		getOrganizations: getOrganizations,
 		getTeams: getTeams,
+		getSubmissions: getSubmissions,
+		getJudgements: getJudgements,
 		getClarifications: getClarifications,
 		getAwards: getAwards,
 		getStartStatus: getStartStatus,
