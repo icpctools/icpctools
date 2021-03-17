@@ -1,4 +1,3 @@
-<%@page import="org.icpc.tools.contest.model.*" %>
 <%@page import="java.util.List" %>
 <% request.setAttribute("title", "Submissions"); %>
 <%@ include file="layout/head.jsp" %>
@@ -8,100 +7,12 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Judge Queue</h3>
+                    <div class="card-tools">
+                       <span id="queue-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                    </div>
                 </div>
                 <div class="card-body p-0">
-                    <table class="table table-sm table-hover table-striped table-head-fixed">
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th class="text-center">Time</th>
-                                <th>Problem</th>
-                                <th>Language</th>
-                                <th>Team</th>
-                                <th>Organization</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                    <% ISubmission[] subs = contest.getSubmissions();
-                    int numJudging = 0;
-                    for (int i = 0; i < subs.length; i++) {
-                        String id = subs[i].getTeamId();
-                        String teamStr = "";
-                        String orgStr = "";
-                        if (id != null) {
-                            ITeam team = contest.getTeamById(id);
-                            if (team != null) {
-                                teamStr = id + ": " + team.getActualDisplayName();
-                                IOrganization org = contest.getOrganizationById(team.getOrganizationId());
-                                if (org != null)
-                                    orgStr = org.getName();
-                            }
-                        }
-
-                        id = subs[i].getId();
-                        boolean judged = false;
-                        if (id != null) {
-                            IJudgement[] jud = contest.getJudgementsBySubmissionId(id);
-                            if (jud != null) {
-                                for (IJudgement j : jud) {
-                                    if (j.getJudgementTypeId() != null)
-                                        judged = true;
-                                }
-                            }
-                        }
-                        if (judged)
-                            continue;
-                        numJudging++;
-
-                        String langStr = "";
-                        id = subs[i].getLanguageId();
-                        if (id != null) {
-                            ILanguage lang = contest.getLanguageById(id);
-                            if (lang != null)
-                                langStr = lang.getName();
-                        }
-
-                        String probStr = "";
-                        id = subs[i].getProblemId();
-                        if (id != null) {
-                            IProblem prob = contest.getProblemById(id);
-                            if (prob != null)
-                                probStr = id + " (" + prob.getLabel() + ")";
-                        } %>
-                            <tr>
-                                <td><a href="<%= apiRoot %>/submissions/<%= subs[i].getId() %>">
-                                        <%= subs[i].getId() %>
-                                    </a></td>
-                                <td class="text-center">
-                                    <%= ContestUtil.formatTime(subs[i].getContestTime()) %>
-                                </td>
-                                <td>
-                                    <%= probStr %>
-                                </td>
-                                <td>
-                                    <%= langStr %>
-                                </td>
-                                <td>
-                                    <%= teamStr %>
-                                </td>
-                                <td>
-                                    <%= orgStr %>
-                                </td>
-                            </tr>
-                            <% } %>
-                        </tbody>
-                    </table>
-                    <p class="indent"><%= numJudging %> pending judgements</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Submissions</h3>
-                </div>
-                <div class="card-body p-0">
-                    <table class="table table-sm table-hover table-striped table-head-fixed">
+                    <table id="queue-table" class="table table-sm table-hover table-striped table-head-fixed">
                         <thead>
                             <tr>
                                 <th>Id</th>
@@ -114,112 +25,42 @@
                             </tr>
                         </thead>
                         <tbody>
-                    <% for (ISubmission sub : subs) {
-                    String id = sub.getTeamId();
-                    String teamStr = "";
-                    String orgStr = "";
-                    if (id != null) {
-                        ITeam team = contest.getTeamById(id);
-                        if (team != null) {
-                            teamStr = id + ": " + team.getActualDisplayName();
-                            IOrganization org = contest.getOrganizationById(team.getOrganizationId());
-                            if (org != null)
-                                orgStr = org.getName();
-                        } else
-                            teamStr = "<font color=\"red\">" + id + "</font>";
-                    }
+                           <tr>
+                              <td colspan=7>
+                                 <div class="spinner-border"></div>
+                              </td>
+                           </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    id = sub.getId();
-                    String judgeStr = "";
-                    String judgeClass = "";
-                    if (id != null) {
-                        IJudgement[] jud = contest.getJudgementsBySubmissionId(id);
-                        if (jud != null) {
-                            for (IJudgement j : jud) {
-                                IJudgementType jt = contest.getJudgementTypeById(j.getJudgementTypeId());
-                                if (jt != null) {
-                                    judgeStr += jt.getName();
-                                    if (contest.isFirstToSolve(sub))
-                                        judgeClass = "bg-success";
-                                    else if (jt.isSolved())
-                                        judgeClass = "table-success";
-                                    else if (jt.isPenalty())
-                                        judgeClass = "table-danger";
-                                } else {
-                                    judgeClass = "table-warning";
-                                    judgeStr += "...";
-                                }
-                                judgeStr += " (<a href=\"" + apiRoot + "/judgements/" + j.getId() + "\">" + j.getId() + "</a>) ";
-                       /*IRun[] runs = contest.getRunsByJudgementId(j.getId());
-                       if (runs != null) {
-                          //judgeStr += runs.length;
-                          for (IRun r : runs) {
-                             judgeStr += "<a href=\""+ apiRoot + "/runs/" + r.getId() + "\">" +r.getId() + "</a> ";
-                          }
-                       }
-                       judgeStr += "]";*/
-                            }
-                        }
-                    }
-
-                    String langStr = "";
-                    id = sub.getLanguageId();
-                    if (id != null) {
-                        ILanguage lang = contest.getLanguageById(id);
-                        if (lang != null)
-                            langStr = lang.getName();
-                        else
-                            langStr = "<span class=\"text-danger\">" + id + "</span>";
-                    }
-
-                    String probStr = "";
-                    id = sub.getProblemId();
-                    if (id != null) {
-                        IProblem prob = contest.getProblemById(id);
-                        if (prob != null)
-                            probStr = id + " (" + prob.getLabel() + ")";
-                        else
-                            probStr = "<span class=\"text-danger\">" + id + "</span>";
-                    }
-
-                    List<String> valList = sub.validate(contest);
-                    String val = null;
-                    if (valList != null && !valList.isEmpty()) {
-                        val = "";
-                        for (String s : valList)
-                            val += s + "\n";
-                    } %>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Submissions</h3>
+                    <div class="card-tools">
+                       <span id="submissions-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <table id="submissions-table" class="table table-sm table-hover table-striped table-head-fixed">
+                        <thead>
                             <tr>
-                                <td>
-                                    <a href="<%= apiRoot %>/submissions/<%= sub.getId() %>">
-                                        <%= sub.getId() %>
-                                    </a>
-                                    <% if (val != null) { %>
-                                    <span class="text-danger">
-                                        <%= val %>
-                                    </span>
-                                    <% } %>
-                                </td>
-                                <td class="text-center">
-                                    <%= ContestUtil.formatTime(sub.getContestTime()) %>
-                                </td>
-                                <td>
-                                    <%= probStr %>
-                                </td>
-                                <td>
-                                    <%= langStr %>
-                                </td>
-                                <td>
-                                    <%= teamStr %>
-                                </td>
-                                <td>
-                                    <%= orgStr %>
-                                </td>
-                                <td class="<%= judgeClass %>">
-                                    <%= judgeStr %>
-                                </td>
+                                <th>Id</th>
+                                <th class="text-center">Time</th>
+                                <th>Problem</th>
+                                <th>Language</th>
+                                <th>Team</th>
+                                <th>Organization</th>
+                                <th>Judgements</th>
                             </tr>
-                            <% } %>
+                        </thead>
+                        <tbody>
+                           <tr>
+                              <td colspan=7>
+                                 <div class="spinner-border"></div>
+                              </td>
+                           </tr>
                         </tbody>
                     </table>
                 </div>
@@ -227,4 +68,95 @@
         </div>
     </div>
 </div>
+<script src="${pageContext.request.contextPath}/js/model.js"></script>
+<script src="${pageContext.request.contextPath}/js/contest.js"></script>
+<script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+    	contest.setContestId("<%= cc.getId() %>");
+
+        function submissionTd(submission) {
+        	var time = '';
+        	var problem = '';
+        	var lang = '';
+        	var team = '';
+        	var org = '';
+        	var judge = '';
+        	var judgeClass = '';
+        	if (submission.contest_time != null)
+                time = formatTime(parseTime(submission.contest_time));
+        	if (submission.problem_id != null) {
+                problem = findById(contest.getProblems(), submission.problem_id);
+                if (problem != null)
+                    problem = problem.label + ' (' + problem.id + ')';
+            }
+        	if (submission.language_id != null) {
+                lang = findById(contest.getLanguages(), submission.language_id);
+                if (lang != null)
+                	lang = lang.name;
+            }
+        	if (submission.team_id != null) {
+        		team = submission.team_id;
+                var team2 = findById(contest.getTeams(), submission.team_id);
+                if (team2.organization_id != null) {
+                	org = findById(contest.getOrganizations(), team2.organization_id);
+                    if (org != null)
+                        org = org.name;
+                }
+                if (team2 != null)
+                	team = team2.display_name;
+                	if (team == null)
+                		team = team2.name;
+                	team = team2.id + ": " + team;
+            }
+        	var judgements = findManyBySubmissionId(contest.getJudgements(), submission.id);
+        	if (judgements != null && judgements.length > 0) {
+                var first = true;
+                for (var j = 0; j < judgements.length; j++) {
+                    if (!first)
+                    	judge += ', ';
+                    var jt = findById(contest.getJudgementTypes(), judgements[j].judgement_type_id);
+                    if (jt != null) {
+                        judge += jt.name;
+                        if (jt.solved) {
+                        	if (isFirstToSolve(contest,submission))
+                        		judgeClass = "bg-success";
+                        	else
+                            	judgeClass = "table-success";
+                        } else if (jt.penalty)
+                            judgeClass = "table-danger";
+                    } else {
+                        judgeClass = "table-warning";
+                        judge += "...";
+                    }
+                    judge += ' (<a href="<%= apiRoot %>/judgements/' + judgements[j].id + '">' + judgements[j].id + '</a>)';
+                    first = false;
+                }
+            }
+            return $('<td><a href="<%= apiRoot %>/submissions/' + submission.id + '">' + submission.id + '</td><td>' + time + '</td><td>'
+                + problem + '</td><td>' + lang + '</td><td>' + team + '</td><td>' + org + '</td><td class="' + judgeClass + '">' + judge + '</td>');
+        }
+
+        $.when(contest.loadLanguages(), contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadSubmissions(), contest.loadJudgements(), contest.loadJudgementTypes()).done(function () {
+        	var queue = [];
+        	submissions = contest.getSubmissions();
+            for (var i = 0; i < submissions.length; i++) {
+               var judgements = findManyBySubmissionId(contest.getJudgements(), submissions[i].id);
+               var hasJudgement = false;
+               if (judgements != null) {
+            	  for (var j = 0; j < judgements.length; j++) {
+            		 if (judgements[j].judgement_type_id != null)
+            			 hasJudgement = true;
+            	  }
+               }
+               if (!hasJudgement)
+                  queue.push(submissions[i]);
+            }
+        	fillContestObjectTable("queue", queue, submissionTd);
+        	fillContestObjectTable("submissions", submissions, submissionTd);
+        }).fail(function (result) {
+        	console.log("Error loading groups: " + result);
+        });
+    });
+</script>
 <%@ include file="layout/footer.jsp" %>
