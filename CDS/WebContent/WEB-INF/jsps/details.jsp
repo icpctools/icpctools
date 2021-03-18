@@ -9,15 +9,13 @@
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        contest.setContestURL("/api","<%= cc.getId() %>");
-    });
+    contest.setContestURL("/api","<%= cc.getId() %>");
 </script>
 <div class="container-fluid">
     <% if (Role.isAdmin(request)) { %>
     <div class="row">
         <div class="col-9">
-            <%@ include file="details/contest-admin.jsp" %>
+            <%@ include file="details/contest-admin.html" %>
         </div>
         <div class="col-3">
             <%@ include file="details/state.html" %>
@@ -43,7 +41,7 @@
         <div class="col-12"><%@ include file="details/clarifications-admin.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12"><%@ include file="details/awards.jsp" %></div>
+        <div class="col-12"><%@ include file="details/awards.html" %></div>
     </div>
     <div class="row">
         <div class="col-12">
@@ -87,7 +85,7 @@
     <% } else { %>
     <div class="row">
         <div class="col-7"><%@ include file="details/problems.html" %></div>
-        <div class="col-5"><%@ include file="details/contest.jsp" %><%@ include file="details/languages.html" %></div>
+        <div class="col-5"><%@ include file="details/contest.html" %><%@ include file="details/languages.html" %></div>
     </div>
     <div class="row">
         <div class="col-7"><%@ include file="details/judgementTypes.html" %></div>

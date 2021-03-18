@@ -1,0 +1,41 @@
+
+<div id="accordion">
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title">Contest</h4>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-sm table-hover table-striped table-head-fixed">
+            <tbody>
+                <tr>
+                    <td><b>Start</b></td>
+                    <td id="info-start"></td>
+                </tr>
+                <tr>
+                    <td><b>Duration</b></td>
+                    <td id="info-duration"></td>
+                </tr>
+                <tr>
+                    <td><b>Freeze duration</b></td>
+                    <td id="info-freeze"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.when(contest.loadInfo()).done(function () {
+            info = contest.getInfo();
+            if (info.start_time != null)
+                $("#info-start").html(formatTimestamp(info.start_time));
+            if (info.duration != null)
+                $("#info-duration").html(formatTime(parseTime(info.duration)));
+            if (info.scoreboard_freeze_duration != null)
+                $("#info-freeze").html(formatTime(parseTime(info.scoreboard_freeze_duration)));
+        }).fail(function (result) {
+        	console.log("Error loading info: " + result);
+        })
+    })
+</script>

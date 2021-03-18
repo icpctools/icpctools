@@ -207,49 +207,6 @@ var contest=(function() {
 	var clear = function() {
 		startStatus = null;
 	}
-	var add = function(type, id, body, ok, fail) {
- 	    console.log("Adding (PUT) contest object: " + type + "/" + id + ", " + body);
- 	    return $.ajax({
-		    url: getURL(type, id),
-		    method: 'PUT',
-		    data: body,
-		    success: function(result) {
-		    	ok(result);
-		    },
-		    error: function(result) {
-			    fail(result);
-		    }
-		});
-    }
-
-	var update = function(type, id, body, ok, fail) {
-        console.log("Updating (PATCH) contest object: " + type + "/" + id);
-        return $.ajax({
-		    url: getURL(type, id),
-		    method: 'PATCH',
-		    data: body,
-		    success: function(result) {
-		    	ok(result);
-		    },
-		    error: function(result) {
-			    fail(result);
-		    }
-		});
-	}
-
-	var remove = function(type, id, ok, fail) {
-        console.log("Deleting (DELETE) contest object: " + type + "/" + id);
-        return $.ajax({
-		    url: getURL(type, id),
-		    method: 'DELETE',
-		    success: function(result) {
-		    	ok(result);
-		    },
-		    error: function(result) {
-			    fail(result);
-		    }
-		});
-	}
 
     var post = function(type, body, ok, fail) {
         console.log("Posting (POST) contest object: " + type);
@@ -321,9 +278,6 @@ var contest=(function() {
 		getScoreboard: getScoreboard,
 		getTeamById: getTeamById,
 		clear: clear,
-		add: add,
-		update: update,
-		remove: remove,
 		postSubmission: postSubmission,
 		postClarification: postClarification
 	};
