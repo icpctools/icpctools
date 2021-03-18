@@ -80,7 +80,7 @@ function sanitizeHTML(str) {
 	return str.replace(/[&<>\n\r]/g, replaceTag);
 }
 
-function formatTime(time2) {	
+function formatTime(time2) {
 	if (time2 >= 0 && time2 < 1000)
 		return "0s";
 

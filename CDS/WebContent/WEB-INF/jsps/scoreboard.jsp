@@ -42,9 +42,9 @@
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script type="text/javascript">
-    $(document).ready(function () {
-    	contest.setContestURL("/api","<%= cc.getId() %>");
+    contest.setContestURL("/api","<%= cc.getId() %>");
 
+    $(document).ready(function () {
         function createTableHeader() {
             $("#score-table thead").find("tr").remove();
             var row = $('<tr></tr>');

@@ -95,6 +95,9 @@ function bestLogo(logos, width, height) {
 
 function parseTime(contestTime) {
 	match = contestTime.match("-?([0-9]+):([0-9]{2}):([0-9]{2})(\\.[0-9]{3})?");
+	
+	if (match == null || match.length < 4)
+		return null;
 
 	h = parseInt(match[1]);
 	m = parseInt(match[2]);

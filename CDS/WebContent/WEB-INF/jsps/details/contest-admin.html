@@ -4,7 +4,7 @@
     <div class="card-header">
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseContest">Contest</a></h4>
         <div class="card-tools">
-            <button type="button" class="btn btn-tool" onclick="location.href='<%= apiRoot %>'">API</button>
+            <button id="-button" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseContest" class="panel-collapse collapse in">
@@ -13,15 +13,15 @@
             <tbody>
                 <tr>
                     <td><b>Name:</b></td>
-                    <td><%= HttpHelper.sanitizeHTML(contest.getName()) %></td>
+                    <td id="info-name"></td>
                     <td><b>Start:</b></td>
-                    <td><%= ContestUtil.formatStartTime(contest) %></td>
+                    <td id="info-start"></td>
                 </tr>
                 <tr>
                     <td><b>Duration:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getDuration()) %></td>
+                    <td id="info-duration"></td>
                     <td><b>Freeze duration:</b></td>
-                    <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %></td>
+                    <td id="info-freeze"></td>
                 </tr>
                 <tr>
                     <td class="align-middle"><b>Logo:</b></td>
@@ -38,7 +38,18 @@
 <script type="text/javascript">
     $(document).ready(function () {
         function update() {
+        	fillContestObjectHeader("", null);
+        	
             var info = contest.getInfo();
+            if (info.name != null)
+                $("#info-name").html(sanitizeHTML(info.name));
+            if (info.start_time != null)
+                $("#info-start").html(formatTimestamp(info.start_time));
+            if (info.duration != null)
+                $("#info-duration").html(formatTime(parseTime(info.duration)));
+            if (info.scoreboard_freeze_duration != null)
+                $("#info-freeze").html(formatTime(parseTime(info.scoreboard_freeze_duration)));
+            
             var logo = bestSquareLogo(info.logo, 50);
             console.log(info.name + " - " + info.logo + " -> " + logo);
             if (logo != null) {

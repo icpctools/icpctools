@@ -1,6 +1,7 @@
 <% request.setAttribute("title", "Admin"); %>
 <%@ include file="layout/head.jsp" %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
+<script src="${pageContext.request.contextPath}/js/cds.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <div class="container-fluid">
     <div class="row">
@@ -233,6 +234,8 @@
     </div>
 </div>
 <script>
+	contest.setContestURL("/api", "<%= cc.getId() %>");
+	cds.setContestId("<%= cc.getId() %>");
     var targetTime = 50.0;
 
     function toString(seconds_left) {
@@ -357,7 +360,7 @@
     }
 
     function addStartStatus(id, status) {
-    	contest.add("start-status", id, '{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
+    	cds.add("start-status", id, '{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
     }
 
     function updateStartStatus(id, status) {
@@ -376,7 +379,7 @@
     }
 
     function removeStartStatus(id) {
-    	contest.remove("start-status", id, function() { updateStartStatusTable(); });
+    	cds.remove("start-status", id, function() { updateStartStatusTable(); });
     }
 
     function startStatusTd(startStatus) {
@@ -400,7 +403,6 @@
     }
 
     function updateStartStatusTable() {
-    	contest.setContestURL("/api","<%= cc.getId() %>");
     	contest.clear();
     	$.when(contest.loadStartStatus()).done(function () {
             fillContestObjectTable("start-status", contest.getStartStatus(), startStatusTd);
@@ -470,7 +472,7 @@
     }
 
     function addContestObject(type, id, body) {
-    	contest.add(type, id, body, function() {
+    	cds.add(type, id, body, function() {
     		$('#object-status').text(id + " added successfully");
     	}, function(result) {
     		$('#object-status').text("Add failed: " + result.responseText);
@@ -478,7 +480,7 @@
     }
 
     function updateContestObject(type, id, body) {
-    	contest.update(type, id, body, function() {
+    	cds.update(type, id, body, function() {
     		$('#object-status').text(id + " updated successfully");
     	}, function(result) {
     		$('#object-status').text("Update failed: " + result.responseText);
@@ -486,7 +488,7 @@
     }
 
     function removeContestObject(type, id) {
-    	contest.remove(type, id, function() {
+    	cds.remove(type, id, function() {
     		$('#object-status').text(id + " deleted successfully");
     	}, function(result) {
     		$('#object-status').text("Delete failed: " + result.responseText);
