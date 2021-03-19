@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseAwards">Awards</a></h4>
         <div class="card-tools">
             <span id="awards-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button id="awards-button" type="button" class="btn btn-tool">API</button>
+            <button id="awards-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseAwards" class="panel-collapse collapse in">
@@ -17,37 +17,25 @@
                     <th>Teams</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=3>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     </div>
 </div>
 </div>
+<script type="text/html" id="awards-template">
+  <td><a href="{{api}}">{{id}}</a></td>
+  <td>{{citation}}</td>
+  <td>{{teamsStr}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function awardTd(award) {
-            var teamsStr = "";
-            for (var j = 0; j < award.team_ids.length; j++) {
-                if (j > 0)
-                    teamsStr += "<br>";
-                teamsStr += award.team_ids[j] + ": ";
-                var t = contest.getTeamById(award.team_ids[j]);
-                if (t != null)
-                    teamsStr += t.name;
-            }
-            return $('<td><a href="' + contest.getURL('awards', award.id) + '">' + award.id + '</td><td>' + sanitizeHTML(award.citation) + '</td><td>' + teamsStr + '</td>');
-        }
+registerContestObjectTable("awards");
 
-        $.when(contest.loadAwards(), contest.loadTeams()).done(function () {
-            fillContestObjectTable("awards", contest.getAwards(), awardTd)
-        }).fail(function (result) {
-        	console.log("Error loading awards: " + result);
-        });
+$(document).ready(function () {
+    $.when(contest.loadAwards(), contest.loadTeams()).done(function () {
+        fillContestObjectTable("awards", contest.getAwards())
+    }).fail(function (result) {
+    	console.log("Error loading awards: " + result);
     });
+});
 </script>

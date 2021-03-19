@@ -4,7 +4,7 @@
     <div class="card-header">
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseContest">Contest</a></h4>
         <div class="card-tools">
-            <button id="-button" type="button" class="btn btn-tool">API</button>
+            <button id="-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseContest" class="panel-collapse collapse in">
@@ -36,42 +36,42 @@
 </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function update() {
-        	fillContestObjectHeader("", null);
-        	
-            var info = contest.getInfo();
-            if (info.name != null)
-                $("#info-name").html(sanitizeHTML(info.name));
-            if (info.start_time != null)
-                $("#info-start").html(formatTimestamp(info.start_time));
-            if (info.duration != null)
-                $("#info-duration").html(formatTime(parseTime(info.duration)));
-            if (info.scoreboard_freeze_duration != null)
-                $("#info-freeze").html(formatTime(parseTime(info.scoreboard_freeze_duration)));
-            
-            var logo = bestSquareLogo(info.logo, 50);
-            console.log(info.name + " - " + info.logo + " -> " + logo);
-            if (logo != null) {
-                var elem = document.createElement("img");
-                elem.setAttribute("src", "/api/" + logo.href);
-                elem.setAttribute("height", "40");
-                document.getElementById("logo").appendChild(elem);
-            }
-            var banner = bestLogo(info.banner, 100, 50);
-            console.log(info.name + " - " + info.banner + " -> " + banner);
-            if (banner != null) {
-                var elem = document.createElement("img");
-                elem.setAttribute("src", "/api/" + banner.href);
-                elem.setAttribute("height", "40");
-                document.getElementById("banner").appendChild(elem);
-            }
-        }
+registerContestObjectTable("");
 
-        $.when(contest.loadInfo()).done(function () {
-            update()
-        }).fail(function (result) {
-            console.log("Error loading page: " + result);
-        })
+$(document).ready(function () {
+    function update() {
+        var info = contest.getInfo();
+        if (info.name != null)
+            $("#info-name").html(sanitizeHTML(info.name));
+        if (info.start_time != null)
+            $("#info-start").html(formatTimestamp(info.start_time));
+        if (info.duration != null)
+            $("#info-duration").html(formatTime(parseTime(info.duration)));
+        if (info.scoreboard_freeze_duration != null)
+            $("#info-freeze").html(formatTime(parseTime(info.scoreboard_freeze_duration)));
+        
+        var logo = bestSquareLogo(info.logo, 50);
+        console.log(info.name + " - " + info.logo + " -> " + logo);
+        if (logo != null) {
+            var elem = document.createElement("img");
+            elem.setAttribute("src", "/api/" + logo.href);
+            elem.setAttribute("height", "40");
+            document.getElementById("logo").appendChild(elem);
+        }
+        var banner = bestLogo(info.banner, 100, 50);
+        console.log(info.name + " - " + info.banner + " -> " + banner);
+        if (banner != null) {
+            var elem = document.createElement("img");
+            elem.setAttribute("src", "/api/" + banner.href);
+            elem.setAttribute("height", "40");
+            document.getElementById("banner").appendChild(elem);
+        }
+    }
+
+    $.when(contest.loadInfo()).done(function () {
+        update()
+    }).fail(function (result) {
+        console.log("Error loading page: " + result);
     })
+})
 </script>

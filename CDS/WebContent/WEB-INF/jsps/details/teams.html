@@ -17,56 +17,27 @@
                     <th>Group</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=4>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     </div>
 </div>
 </div>
+<script type="text/html" id="teams-template">
+  <td>{{id}}</td>
+  <td style="width: 20px;" align=center>{{{logo}}}</td>
+  <td>{{name}}</td>
+  <td>{{orgName}}</td>
+  <td>{{groupNames}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function teamTd(team) {
-        	var name = team.display_name;
-        	if (name == null)
-        		name = team.name;
-            var org = findById(contest.getOrganizations(), team.organization_id);
-            var orgName = '';
-            var logoSrc = '';
-            if (org != null) {
-                if (org.formal_name != null)
-                    orgName = org.formal_name + '(' + org.name + ')';
-                else
-                	orgName = org.name;
-                var logo = bestSquareLogo(org.logo, 20);
-                if (logo != null)
-                    logoSrc = '/api/' + logo.href;
-            }
-            var groupNames = '';
-            var groups2 = findManyById(contest.getGroups(), team.group_ids);
-            if (groups2 != null) {
-                var first = true;
-                for (var j = 0; j < groups2.length; j++) {
-                    if (!first)
-                        groupNames += ', ';
-                    groupNames += groups2[j].name;
-                    first = false;
-                }
-            }
+registerContestObjectTable("teams");
 
-            return $('<td>' + team.id + '</td><td align=center><img src="' + logoSrc + '" height=20/></td><td>' + sanitizeHTML(name) + '</td><td>' + sanitizeHTML(orgName) + '</td><td>' + sanitizeHTML(groupNames) + '</td>');
-        }
-
-        $.when(contest.loadTeams(), contest.loadOrganizations(), contest.loadGroups()).done(function () {
-            fillContestObjectTable("teams", contest.getTeams(), teamTd)
-        }).fail(function (result) {
-        	console.log("Error loading teams: " + result);
-        })
-
+$(document).ready(function () {
+    $.when(contest.loadTeams(), contest.loadOrganizations(), contest.loadGroups()).done(function () {
+        fillContestObjectTable("teams", contest.getTeams())
+    }).fail(function (result) {
+    	console.log("Error loading teams: " + result);
     })
+})
 </script>

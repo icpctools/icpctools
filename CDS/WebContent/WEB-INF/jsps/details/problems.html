@@ -15,28 +15,24 @@
                     <th>Name</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=3>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
 </div>
+<script type="text/html" id="problems-template">
+  <td><div class="circle" style="background-color:{{rgb}}"></div></td>
+  <td>{{label}}</td>
+  <td>{{name}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function problemTd(problem) {
-            return $('<td><div class="circle" style="background-color:' + problem.rgb + '"></div></td><td>' + problem.label
-                + '</td><td>' + sanitizeHTML(problem.name) + '</td>');
-        }
+registerContestObjectTable("problems");
 
-        $.when(contest.loadProblems()).done(function () {
-            fillContestObjectTable("problems", contest.getProblems(), problemTd)
-        }).fail(function (result) {
-        	console.log("Error loading problems: " + result);
-        });
+$(document).ready(function () {
+	$.when(contest.loadProblems()).done(function () {
+        fillContestObjectTable("problems", contest.getProblems())
+    }).fail(function (result) {
+    	console.log("Error loading problems: " + result);
     });
+});
 </script>

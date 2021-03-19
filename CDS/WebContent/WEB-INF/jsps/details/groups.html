@@ -13,27 +13,22 @@
                     <th>Name</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
 </div>
+<script type="text/html" id="groups-template">
+  <td>{{name}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function groupTd(group) {
-            return $('<td>' + sanitizeHTML(group.name) + '</td>');
-        }
+registerContestObjectTable("groups");
 
-        $.when(contest.loadGroups()).done(function () {
-            fillContestObjectTable("groups", contest.getGroups(), groupTd)
-        }).fail(function (result) {
-        	console.log("Error loading groups: " + result);
-        });
+$(document).ready(function () {
+    $.when(contest.loadGroups()).done(function () {
+        fillContestObjectTable("groups", contest.getGroups(), groupsTd)
+    }).fail(function (result) {
+    	console.log("Error loading groups: " + result);
     });
+});
 </script>

@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseProblems">Problems</a></h4>
         <div class="card-tools">
             <span id="problems-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button id="problems-button" type="button" class="btn btn-tool">API</button>
+            <button id="problems-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseProblems" class="panel-collapse collapse in">
@@ -20,29 +20,28 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=6>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     </div>
 </div>
 </div>
+<script type="text/html" id="problems-template">
+  <td><a href="{{api}}">{{id}}</a></td>
+  <td>{{label}}</td>
+  <td>{{name}}</td>
+  <td>{{color}}</td>
+  <td>{{rgb}}</td>
+  <td><div class="circle" style="background-color:{{rgb}}"></div></td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function problemTd(problem) {
-            return $('<td><a href="' + contest.getURL('problems', problem.id) + '">' + problem.id + '</td><td>' + problem.label
-                + '</td><td>' + sanitizeHTML(problem.name) + '</td><td>' + problem.color + '</td><td>' + problem.rgb + '</td><td><div class="circle" style="background-color:' + problem.rgb + '"></div></td>');
-        }
+registerContestObjectTable("problems");
 
-        $.when(contest.loadProblems()).done(function () {
-            fillContestObjectTable("problems", contest.getProblems(), problemTd)
-        }).fail(function (result) {
-        	console.log("Error loading problems: " + result);
-        });
+$(document).ready(function () {
+    $.when(contest.loadProblems()).done(function () {
+        fillContestObjectTable("problems", contest.getProblems())
+    }).fail(function (result) {
+    	console.log("Error loading problems: " + result);
     });
+});
 </script>
