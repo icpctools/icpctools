@@ -8,6 +8,8 @@
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script src="${pageContext.request.contextPath}/js/types.js"></script>
+<script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/javascript">
     contest.setContestURL("/api","<%= cc.getId() %>");
 </script>
@@ -131,19 +133,19 @@
         })
 
         $.when(contest.loadSubmissions()).done(function () {
-        	fillContestObjectHeader("submissions", contest.getSubmissions());
+        	updateContestObjectHeader("submissions", contest.getSubmissions());
         }).fail(function (result) {
         	console.log("Error loading submissions: " + result);
         })
         
         $.when(contest.loadJudgements()).done(function () {
-        	fillContestObjectHeader("judgements", contest.getJudgements());
+        	updateContestObjectHeader("judgements", contest.getJudgements());
         }).fail(function (result) {
         	console.log("Error loading judgements: " + result);
         })
         
         $.when(contest.loadRuns()).done(function () {
-        	fillContestObjectHeader("runs", contest.getRuns());
+        	updateContestObjectHeader("runs", contest.getRuns());
         }).fail(function (result) {
         	console.log("Error loading runs: " + result);
         })

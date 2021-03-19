@@ -23,7 +23,28 @@ function sortByColumn(table) {
   }
 }
 
-function fillContestObjectHeader(name, objs) {
+function registerContestObjectTable(name) {
+	if (name == null)
+		return;
+
+	// add temporary spinner row, api link, and column sorter
+	var table = $("#" + name + "-table tbody");
+	if (table != null) {
+		var numCols = $("#" + name + "-table thead").find("tr:first th").length;
+	    col = $('<td colspan=' + numCols + ' align=middle><div class="spinner-border"></div></td>');
+	    row = $('<tr></tr>');
+	    row.append(col);
+	    $(table).append(row);
+	}
+    
+    var x = $("#" + name + "-api");
+    if (x != null)
+    	x.attr("onclick", 'location.href="' + contest.getURL(name) + '"');
+    
+    sortByColumn($('#' + name + "-table"));
+}
+
+function updateContestObjectHeader(name, objs) {
 	if (name == null)
 		return;
 
@@ -32,34 +53,58 @@ function fillContestObjectHeader(name, objs) {
     	x.attr("title", objs.length);
     	x.html(objs.length);
     }
-    var x = $("#" + name + "-button");
-    if (x != null) {
-    	x.attr("onclick", 'location.href="' + contest.getURL(name) + '"');
-    }
 }
 
-function fillContestObjectTable(name, objs, tdGen) {
-	if (name == null || objs == null || tdGen == null)
+function fillContestObjectTable(name, objs) {
+	if (name == null || objs == null)
 		return;
 
-	sortByColumn($('#' + name + "-table"));
+	// remove all rows with no id (spinner and/or 'None' row)
+	var table = $("#" + name + "-table tbody");
+	$(table).find("tr").not(':has([id])').remove();
 
-    $("#" + name + "-table tbody").find("tr").remove();
+	// build list of existing row ids
+	var list = [];
+	var rows = $(table).find("tr");
+	for (var i = 0; i < rows.length; i++)
+	   list.push(rows[i].id);
+
+	// load row template
+	var template = $('#' + name + '-template').html();
+
+	// walk through all the current objects and add or replace rows as necessary
     for (var i = 0; i < objs.length; i++) {
-        var row = $('<tr></tr>');
-        row.append(tdGen(objs[i]));
-        $("#" + name + "-table tbody").append(row);
+        id = objs[i].id;
+        var rowObj = this[name.replace("-", "")+"Td"](objs[i]);
+        rowObj.id = id;
+        if (rowObj.api == null)
+        	rowObj.api = contest.getURL(name, id);
+        rowTDs = Mustache.render(template, rowObj);
+        
+    	var row = $(table).find("tr #" + id);
+    	if (row == null || row.length == 0) {
+    		var row = $('<tr id="' + objs[i].id + '"></tr>').append(rowTDs);
+        	$(table).append(row);
+        } else {
+        	list.pop(id);
+        	row.replaceWith(rowTDs);
+        }
     }
 
-    if (objs.length === 0) {
+    // remove any rows for objects that don't exist anymore
+    for (var i = 0; i < list.length; i++)
+	   $(table).find("tr #" + list[i]).remove();
+
+	// add "None" if there are no elements
+	if (objs.length === 0) {
     	var numCols = $("#" + name + "-table thead").find("tr:first th").length;
         col = $('<td colspan="' + numCols + '">None</td>');
         row = $('<tr></tr>');
         row.append(col);
         $("#" + name + "-table tbody").append(row);
     }
-    
-    fillContestObjectHeader(name, objs);
+
+	updateContestObjectHeader(name, objs);
 }
 
 var tagsToReplace = {

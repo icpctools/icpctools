@@ -3,7 +3,7 @@
     <div class="card-header">
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseState">State</a></h4>
         <div class="card-tools">
-            <button id="state-button" type="button" class="btn btn-tool">API</button>
+            <button id="state-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseState" class="panel-collapse collapse in">
@@ -41,19 +41,19 @@
 </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {
-        $.when(contest.loadState()).done(function () {
-            fillContestObjectHeader("state", null);
-            
-            state = contest.getState();
-            $("#state-started").html(formatTimestamp(state.started));
-            $("#state-frozen").html(formatTimestamp(state.frozen));
-            $("#state-ended").html(formatTimestamp(state.ended));
-            $("#state-finalized").html(formatTimestamp(state.finalized));
-            $("#state-thawed").html(formatTimestamp(state.thawed));
-            $("#state-end_of_updates").html(formatTimestamp(state.end_of_updates));
-        }).fail(function (result) {
-        	console.log("Error loading state: " + result);
-        })
+registerContestObjectTable("state");
+
+$(document).ready(function () {
+    $.when(contest.loadState()).done(function () {
+        state = contest.getState();
+        $("#state-started").html(formatTimestamp(state.started));
+        $("#state-frozen").html(formatTimestamp(state.frozen));
+        $("#state-ended").html(formatTimestamp(state.ended));
+        $("#state-finalized").html(formatTimestamp(state.finalized));
+        $("#state-thawed").html(formatTimestamp(state.thawed));
+        $("#state-end_of_updates").html(formatTimestamp(state.end_of_updates));
+    }).fail(function (result) {
+    	console.log("Error loading state: " + result);
     })
+})
 </script>

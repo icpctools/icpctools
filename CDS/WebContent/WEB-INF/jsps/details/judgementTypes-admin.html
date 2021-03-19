@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseJudgementTypes">Judgement Types</a></h4>
         <div class="card-tools">
             <span id="judgement-types-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button id="judgement-types-button" type="button" class="btn btn-tool">API</button>
+            <button id="judgement-types-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseJudgementTypes" class="panel-collapse collapse in">
@@ -18,30 +18,26 @@
                     <th>Solved</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=4>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     </div>
 </div>
 </div>
+<script type="text/html" id="judgement-types-template">
+  <td><a href="{{api}}">{{id}}</a></td>
+  <td>{{name}}</td>
+  <td>{{{penalty}}}</td>
+  <td>{{{solved}}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function judgementTypeTd(jt) {
-            var penalty = jt.penalty;
-            var solved = jt.solved;
-            return $('<td><a href="' + contest.getURL('judgement-types', jt.id) + '">' + jt.id + '</td><td>' + sanitizeHTML(jt.name) + '</td><td>' + penalty + '</td><td>' + solved + '</td>');
-        }
+registerContestObjectTable("judgement-types");
 
-        $.when(contest.loadJudgementTypes()).done(function () {
-            fillContestObjectTable("judgement-types", contest.getJudgementTypes(), judgementTypeTd)
-        }).fail(function (result) {
-        	console.log("Error loading judgement types: " + result);
-        });
+$(document).ready(function () {
+    $.when(contest.loadJudgementTypes()).done(function () {
+        fillContestObjectTable("judgement-types", contest.getJudgementTypes())
+    }).fail(function (result) {
+    	console.log("Error loading judgement types: " + result);
     });
+});
 </script>

@@ -15,33 +15,25 @@
                     <th>Solved</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=4>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
 </div>
+<script type="text/html" id="judgement-types-template">
+  <td>{{id}}</td>
+  <td>{{name}}</td>
+  <td>{{{penalty}}}</td>
+  <td>{{{solved}}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function judgementTypeTd(jt) {
-            var penalty = '';
-            if (jt.penalty)
-            	penalty = '<i class="fas fa-times text-danger"></i> Yes';
-            var solved = '';
-            if (jt.solved)
-            	solved = '<i class="fas fa-check text-success"></i> Yes';
-            return $('<td>' + jt.id + "</td><td>" + sanitizeHTML(jt.name) + '</td><td>' + penalty + '</td><td>' + solved + '</td>');
-        }
+registerContestObjectTable("judgement-types");
 
-        $.when(contest.loadJudgementTypes()).done(function () {
-            fillContestObjectTable("judgement-types", contest.getJudgementTypes(), judgementTypeTd)
-        }).fail(function (result) {
-        	console.log("Error loading judgement types: " + result);
-        });
+$(document).ready(function () {
+    $.when(contest.loadJudgementTypes()).done(function () {
+        fillContestObjectTable("judgement-types", contest.getJudgementTypes())
+    }).fail(function (result) {
+    	console.log("Error loading judgement types: " + result);
     });
+});
 </script>

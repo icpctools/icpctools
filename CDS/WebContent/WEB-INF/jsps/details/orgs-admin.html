@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseOrganizations">Organizations</a></h4>
         <div class="card-tools">
             <span id="organizations-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button id="organizations-button" type="button" class="btn btn-tool">API</button>
+            <button id="organizations-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseOrganizations" class="panel-collapse collapse in">
@@ -19,42 +19,27 @@
                     <th>Country</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=5>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     </div>
 </div>
 </div>
+<script type="text/html" id="organizations-template">
+  <td><a href="{{api}}">{{id}}</a></td>
+  <td style="width: 20px;" align=middle>{{{logo}}}</td>
+  <td>{{name}}</td>
+  <td>{{formalName}}</td>
+  <td>{{country}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function orgTd(org) {
-            var logoSrc = '';
-            var logo = bestSquareLogo(org.logo, 20);
-            if (logo != null)
-                logoSrc = '/api/' + logo.href;
+registerContestObjectTable("organizations");
 
-            var formal_name = '';
-            if (org.formal_name != null)
-                formal_name = org.formal_name;
-
-            var country = '';
-            if (org.country != null)
-                country = org.country;
-
-            return $('<td><a href="' + contest.getURL('organizations', org.id) + '">' + org.id + '</a></td><td align=middle><img src="' + logoSrc + '" height=20/></td>' +
-                '<td>' + sanitizeHTML(org.name) + '</td><td>' + sanitizeHTML(formal_name) + '</td><td>' + country + '</td>');
-        }
-
-        $.when(contest.loadOrganizations()).done(function () {
-            fillContestObjectTable("organizations", contest.getOrganizations(), orgTd);
-        }).fail(function (result) {
-        	console.log("Error loading orgs: " + result);
-        })
+$(document).ready(function () {
+    $.when(contest.loadOrganizations()).done(function () {
+        fillContestObjectTable("organizations", contest.getOrganizations());
+    }).fail(function (result) {
+    	console.log("Error loading orgs: " + result);
     })
+})
 </script>

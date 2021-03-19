@@ -232,10 +232,6 @@ var contest=(function() {
         post('clarifications', obj, ok, fail);
 	}
 
-	var getURL = function(type) {
-		return contestURL + '/' + type;
-	}
-
 	var getURL = function(type, id) {
 		if (id == null)
 			return contestURL + '/' + type;

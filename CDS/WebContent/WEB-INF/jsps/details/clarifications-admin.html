@@ -4,7 +4,7 @@
         <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseClarifications">Clarifications</a></h4>
         <div class="card-tools">
             <span id="clarifications-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-            <button id="clarifications-button" type="button" class="btn btn-tool">API</button>
+            <button id="clarifications-api" type="button" class="btn btn-tool">API</button>
         </div>
     </div>
     <div id="collapseClarifications" class="panel-collapse collapse in">
@@ -21,67 +21,40 @@
                     <th>Text</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td colspan=6>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
     </div>
 </div>
 </div>
+<script type="text/html" id="clarifications-template">
+  <td><a href="' + contest.getURL('clarifications', {{id}})">{{id}}</a></td>
+  <td align="center">{{time}}</td>
+  <td>{{problem}}</td>
+  <td>{{fromTeam}}</td>
+  <td>{{toTeam}}</td>
+  <td>{{replyTo}}</td>
+  <td class="pre-line">{{{text}}}</td>
+</script>
 <script type="text/javascript">
-    $(document).ready(function () {
-        function clarTd(clar) {
-            var problem = '';
-            var time = '';
-            var fromTeam = '';
-            var toTeam = '';
-            var replyTo = '';
-            if (clar.contest_time != null)
-                time = formatTime(parseTime(clar.contest_time));
-            if (clar.problem_id != null) {
-                problem = findById(contest.getProblems(), clar.problem_id);
-                if (problem != null)
-                    problem = problem.label + ' (' + problem.id + ')';
-            }
-            var teams = contest.getTeams();
-            if (clar.from_team_id != null) {
-                fromTeam = findById(teams, clar.from_team_id);
-                if (fromTeam != null)
-                    fromTeam = fromTeam.id + ' (' + fromTeam.name + ')';
-            }
-            if (clar.to_team_id != null) {
-                toTeam = findById(teams, clar.to_team_id);
-                if (toTeam != null)
-                    toTeam = toTeam.id + ' (' + toTeam.name + ')';
-            }
-            if (clar.reply_to_id != null)
-            	replyTo = clar.reply_to_id;
+registerContestObjectTable("clarifications");
 
-            return $('<td><a href="' + contest.getURL('clarifications', clar.id) + '">' + clar.id + '</a></td>' +
-                '<td align="center">' + time + '</td><td>' + problem + '</td><td>' + fromTeam + '</td>' +
-                '<td>' + toTeam + '</td><td>' + replyTo + '</td><td class="pre-line">' + sanitizeHTML(clar.text) + '</td>');
-        }
-
-        $.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
-            fillContestObjectTable("clarifications", contest.getClarifications(), clarTd)
-        }).fail(function (result) {
-        	console.log("Error loading clarifications: " + result);
-        })
+$(document).ready(function () {
+    $.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
+        fillContestObjectTable("clarifications", contest.getClarifications())
+    }).fail(function (result) {
+    	console.log("Error loading clarifications: " + result);
     })
-    
-    function submitClarification(to_team, text) {
-    	var obj = { to_team_id: to_team, text: text };
-    	console.log(obj);
-    	console.log(JSON.stringify(obj));
-    	contest.postClarification(JSON.stringify(obj), function(body) {
-    		$('#object-status').text("Posted successfully: " + body);
-    	}, function(result) {
-    		$('#object-status').text("Post failed: " + result.responseText);
-    	})
-    }
+})
+
+function submitClarification(to_team, text) {
+	var obj = { to_team_id: to_team, text: text };
+	console.log(obj);
+	console.log(JSON.stringify(obj));
+	contest.postClarification(JSON.stringify(obj), function(body) {
+		$('#object-status').text("Posted successfully: " + body);
+	}, function(result) {
+		$('#object-status').text("Post failed: " + result.responseText);
+	})
+}
 </script>

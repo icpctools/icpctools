@@ -5,10 +5,6 @@ var cds=(function() {
 		contestURL = '/api/contests/' + contestId;
 		console.log("CDS URL: " + contestURL);
 	}
-	
-	var getURL = function(type) {
-		return contestURL + '/' + type;
-	}
 
 	var getURL = function(type, id) {
 		if (id == null)
