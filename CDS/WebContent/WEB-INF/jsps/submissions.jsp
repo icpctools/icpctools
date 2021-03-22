@@ -60,7 +60,7 @@
 <script type="text/html" id="queue-template">
   <td><a href="{{api}}">{{id}}</td>
   <td class="text-center">{{time}}</td>
-  <td>{{problem}}</td>
+  <td><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
   <td>{{lang}}</td>
   <td>{{team}}</td>
   <td>{{org}}</td>
@@ -69,7 +69,7 @@
 <script type="text/html" id="submissions-template">
   <td><a href="{{api}}">{{id}}</td>
   <td class="text-center">{{time}}</td>
-  <td>{{problem}}</td>
+  <td><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
   <td>{{lang}}</td>
   <td>{{team}}</td>
   <td>{{org}}</td>

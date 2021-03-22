@@ -12,8 +12,8 @@
         <table id="judgement-types-table" class="table table-sm table-hover table-striped table-head-fixed">
             <thead>
                 <tr>
-                    <th>Id</th>
-                    <th>Name</th>
+                    <th class="text-center">Id</th>
+                    <th width=90%>Name</th>
                     <th>Penalty</th>
                     <th>Solved</th>
                 </tr>
@@ -25,10 +25,10 @@
 </div>
 </div>
 <script type="text/html" id="judgement-types-template">
-  <td><a href="{{api}}">{{id}}</a></td>
+  <td align=center><a href="{{api}}"><span class="badge {{badge}}">{{id}}</span></a></td>
   <td>{{name}}</td>
-  <td>{{{penalty}}}</td>
-  <td>{{{solved}}}</td>
+  <td align=center>{{#penalty}}<span class="badge badge-danger"><i class="fas fa-times"></i></a>{{/penalty}}</td>
+  <td align=center>{{#solved}}<span class="badge badge-success"><i class="fas fa-check"></i></a>{{/solved}}</td>
 </script>
 <script type="text/javascript">
 registerContestObjectTable("judgement-types");

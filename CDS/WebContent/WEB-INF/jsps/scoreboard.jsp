@@ -37,6 +37,26 @@
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script src="${pageContext.request.contextPath}/js/types.js"></script>
+<script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
+<script type="text/html" id="header-start">
+  <th class="text-right">Rank</th><th></th><th>Team</th><th>Organization</th>
+</script>
+<script type="text/html" id="header-end">
+  <th class="text-right">Solved</th><th class="text-right">Time</th>
+</script>
+<script type="text/html" id="problem">
+<th class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></th>
+</script>
+<script type="text/html" id="row-start">
+  <td class="text-right">{{rank}}</td><td class="text-center"><img src="{{logo}}" height=20/></td><td>{{team}}</td><td>{{org}}</td>
+</script>
+<script type="text/html" id="row-end">
+  <td class="text-right">{{numSolved}}</td><td class="text-right">{{totalTime}}</td>
+</script>
+<script type="text/html" id="cell">
+<td class="text-center {{ scoreClass }}">{{num}}{{#solved}} / {{time}}{{/solved}}</td>
+</script>
 <script type="text/javascript">
 contest.setContestURL("/api","<%= cc.getId() %>");
 registerContestObjectTable("score");
@@ -45,15 +65,16 @@ $(document).ready(function () {
     function createTableHeader() {
         $("#score-table thead").find("tr").remove();
         var row = $('<tr></tr>');
-        row.append($('<th class="text-right">Rank</th><th></th><th>Team</th><th>Organization</th>'));
+        row.append(toHtml("header-start"));
    
         problems = contest.getProblems();
         for (var i = 0; i < problems.length; i++) {
-        	row.append($('<th class="text-center">' + problems[i].label + 
-               ' <div class="circle" style="background-color: ' + problems[i].rgb + '"></div></th>'));
+        	var p = { label: problems[i].label };
+        	p = addColors(p, problems[i].rgb);
+        	row.append($(toHtml("problem", p)));
         }
 
-        row.append($('<th class="text-right">Solved</th><th class="text-right">Time</th>'));
+        row.append(toHtml("header-end"));
         $('#score-table thead').append(row);
     }
 
@@ -85,33 +106,36 @@ $(document).ready(function () {
                 }
             }
 
-            var col = $('<td class="text-right">' + scr.rank + '</td><td class="text-center"><img src="' + logoSrc + '" height=20/></td><td>' + sanitizeHTML(team) + '</td><td>' + sanitizeHTML(orgName) + '</td>');
+            obj = { rank: scr.rank, logo: logoSrc, team: team, org: orgName }
+            var col = toHtml("row-start", obj);
             var row = $('<tr></tr>');
             row.append(col);
             for (var j = 0; j < problems.length; j++) {
-                var prb = $('<td  class="text-center"></td>');
+                obj = new Object();
+            	
                 for (var k = 0; k < scr.problems.length; k++) {
                     var prob = scr.problems[k];
-                    var scoreClass;
                     if (prob.problem_id == problems[j].id) {
                         if (prob.first_to_solve == true)
-                            scoreClass = 'bg-success';
+                            obj.scoreClass = 'bg-success';
                         else if (prob.solved == true)
-                            scoreClass = 'table-success';
+                            obj.scoreClass = 'table-success';
                         else if (prob.num_pending > 0)
-                            scoreClass = 'table-warning';
+                            obj.scoreClass = 'table-warning';
                         else
-                            scoreClass = 'table-danger';
-                        var p = '<td class="text-center ' + scoreClass + '">' + (prob.num_judged + prob.num_pending);
-                        if (prob.solved)
-                            p += ' / ' + prob.time;
-                        p += '</td>';
-                        prb = $(p);
+                            obj.scoreClass = 'table-danger';
+                        obj.num = prob.num_judged + prob.num_pending;
+                        if (prob.solved) {
+                        	obj.solved = true;
+                            obj.time = prob.time;
+                    	}
                     }
                 }
+                var prb = toHtml("cell", obj);
                 row.append(prb);
             }
-            var col2 = $('<td  class="text-right">' + scr.score.num_solved + '</td><td  class="text-right">' + scr.score.total_time + '</td>');
+            obj = { numSolved: scr.score.num_solved, totalTime: scr.score.total_time }
+            var col2 = toHtml("row-end", obj);
             row.append(col2);
             $('#score-table tbody').append(row);
         }

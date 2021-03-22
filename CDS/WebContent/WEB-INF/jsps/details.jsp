@@ -20,10 +20,8 @@
         <div class="col-5"><%@ include file="details/groups.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12"><%@ include file="details/teams.html" %></div>
-    </div>
-    <div class="row">
-        <div class="col-12"><%@ include file="details/orgs.html" %></div>
+        <div class="col-8"><%@ include file="details/teams.html" %></div>
+        <div class="col-4"><%@ include file="details/orgs.html" %></div>
     </div>
     <div class="row">
         <div class="col-12"><%@ include file="details/clarifications.html" %></div>

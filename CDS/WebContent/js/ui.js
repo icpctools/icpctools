@@ -55,6 +55,11 @@ function updateContestObjectHeader(name, objs) {
     }
 }
 
+function toHtml(templateName, obj) {
+  var template = $('#' + templateName).html();
+  return Mustache.render(template, obj);
+}
+
 function fillContestObjectTable(name, objs) {
 	if (name == null || objs == null)
 		return;
