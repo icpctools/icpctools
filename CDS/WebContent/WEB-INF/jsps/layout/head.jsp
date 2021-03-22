@@ -21,6 +21,7 @@
 <script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/adminlte.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/theme.js"></script>
 
 <head>
   <meta charset="utf-8"/>
@@ -65,6 +66,23 @@
 
       <!-- Right navbar links -->
       <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown theme-menu">
+          <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="fas fa-user"></i>&nbsp;&nbsp;
+            Theme
+          </a>
+          <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <a class="dropdown-item" href="#" data-theme="auto">
+              <i class="fas fa-check fa-fw"></i>&nbsp;&nbsp;Use device theme
+            </a>
+            <a class="dropdown-item" href="#" data-theme="light">
+              <i class="fas fa-fw"></i>&nbsp;&nbsp;Light theme
+            </a>
+            <a class="dropdown-item" href="#" data-theme="dark">
+              <i class="fas fa-fw"></i>&nbsp;&nbsp;Dark theme
+            </a>
+          </div>
+        </li>
         <% if (request.getRemoteUser() == null) { %>
           <li class="nav-item dropdown">
             <a class="nav-link" href="${pageContext.request.contextPath}/login">
@@ -117,7 +135,7 @@
                 String webroot3 = request.getContextPath() + "/contests/" + cc3.getId(); %>
 
             <li class="nav-item has-treeview menu-<% if (cc == cc3) { %>open<% } else { %>closed<% } %>">
-              <a href="#" class="nav-link">
+              <a href="#" class="nav-link <% if (cc == cc3) { %>active<% } %>">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
                   <%= contest3.getName() != null ? contest3.getName() : "(unnamed contest)" %>
@@ -153,7 +171,7 @@
 
             <% if (Role.isAdmin(request)) { %>
             <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
-              <a href="#" class="nav-link">
+              <a href="#" class="nav-link <% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>active<% } %>">
                 <i class="nav-icon fas fa-video"></i>
                 <p>
                   Video
@@ -199,7 +217,7 @@
               <% String contestName = "";
                if (contest != null && contest.getName() != null)
                    contestName = contest.getName() + " "; %>
-              <h1 class="m-0 text-dark"><%= HttpHelper.sanitizeHTML(contestName) %><%= request.getAttribute("title") %></h1>
+              <h1 class="m-0"><%= HttpHelper.sanitizeHTML(contestName) %><%= request.getAttribute("title") %></h1>
             </div><!-- /.col -->
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
