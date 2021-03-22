@@ -9,3 +9,22 @@ body {
 	margin: 10px;
 	margin-left: 20px;
 }
+
+.default-text-color {
+    color: #343a40;
+}
+
+body.dark-mode .default-text-color {
+    color: #fff;
+}
+
+/* Some elements don't really offer a good dark mode element by default, so we create our own */
+body.dark-mode .table-success {
+    background-color: #00795b !important;
+}
+body.dark-mode .table-danger {
+    background-color: #e74c3c !important;
+}
+body.dark-mode .table-warning {
+    background-color: #f39c12 !important;
+}

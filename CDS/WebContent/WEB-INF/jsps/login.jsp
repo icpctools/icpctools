@@ -11,6 +11,11 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/adminlte.min.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cds.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/source-sans-pro.css"/>
+
+  <script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
+  <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
+  <script src="${pageContext.request.contextPath}/js/adminlte.min.js"></script>
+  <script src="${pageContext.request.contextPath}/js/theme.js"></script>
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
@@ -60,10 +65,6 @@
   </div>
 </div>
 <!-- /.login-box -->
-
-<script src="${pageContext.request.contextPath}/js/jquery.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
-<script src="${pageContext.request.contextPath}/js/adminlte.min.js"></script>
 
 </body>
 </html>

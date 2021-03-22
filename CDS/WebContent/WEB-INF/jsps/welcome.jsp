@@ -22,26 +22,23 @@
                     if (state == null)
                         state = new State();
                     String headerClass = "bg-info";
-                    String textClass = "text-white";
                     if (state.getFinalized() != null) {
                         headerClass = "";
-                        textClass = "text-dark";
                     } else if (state.getEnded() != null)
                         headerClass = "bg-danger";
                     else if (state.getFrozen() != null) {
                         headerClass = "bg-warning";
-                        textClass = "text-dark";
                     } else if (state.getStarted() != null)
                         headerClass = "bg-success";
             %>
       <div class="card mb-4">
         <% String webRootH = "/contests/" + cch.getId();
            String apiRootH = "/api/contests/" + cch.getId(); %>
-        <div class="card-header <%= headerClass %> <%= textClass %>">
+        <div class="card-header <%= headerClass %> default-text-color">
           <a href="<%= webRootH %>">
-            <h2 class="card-title <%= textClass %>"><%= contestH.getActualFormalName() != null ? HttpHelper.sanitizeHTML(contestH.getActualFormalName()) : "(unnamed contest)" %></h2>
+            <h2 class="card-title default-text-color"><%= contestH.getActualFormalName() != null ? HttpHelper.sanitizeHTML(contestH.getActualFormalName()) : "(unnamed contest)" %></h2>
           </a>
-          <div class="card-tools"><a href="<%= apiRootH %>" class="<%= textClass %>">/<%= cch.getId() %></a></div>
+          <div class="card-tools"><a href="<%= apiRootH %>" class="default-text-color">/<%= cch.getId() %></a></div>
         </div>
         <div class="card-body <%= headerClass %>">
           <table class="table table-sm table-fullwidth">
@@ -65,7 +62,7 @@
               <tr>
                 <td colspan="3">
                   <% if (state.isRunning()) { %>
-                  <% if (state.isFrozen()) { %><a class="<%= textClass %>" href="<%= webRootH %>/freeze">Scoreboard frozen</a>. <% } %>
+                  <% if (state.isFrozen()) { %><a class="default-text-color" href="<%= webRootH %>/freeze">Scoreboard frozen</a>. <% } %>
                   Started at <%= ContestUtil.formatStartTime(contestH) %>
                   <% } else if (state.getFinalized() != null) { %>
                   Finalized. Started at <%= ContestUtil.formatStartTime(contestH) %>
@@ -91,14 +88,14 @@
               </tr>
               <tr>
                 <td colspan="3"><a href="<%= webRootH %>/details"
-                    class="<%= textClass %>"><%= contestH.getNumProblems() %> problems, <%= contestH.getNumTeams() %> teams</a>
+                    class="default-text-color"><%= contestH.getNumProblems() %> problems, <%= contestH.getNumTeams() %> teams</a>
                   <span class="float-right"><a href="<%= webRootH %>/scoreboard"
-                      class="<%= textClass %>">Scoreboard</a></span></td>
+                      class="default-text-color">Scoreboard</a></span></td>
               </tr>
               <tr>
                 <td colspan="3"><a href="<%= webRootH %>/submissions"
-                    class="<%= textClass %>"><%= contestH.getNumSubmissions() %> submissions</a>
-                  <span class="float-right"><a href="<%= webRootH %>/admin" class="<%= textClass %>">Admin</a></span>
+                    class="default-text-color"><%= contestH.getNumSubmissions() %> submissions</a>
+                  <span class="float-right"><a href="<%= webRootH %>/admin" class="default-text-color">Admin</a></span>
                 </td>
               </tr>
             </thead>
