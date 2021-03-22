@@ -346,8 +346,7 @@ public class RESTContestSource extends DiskContestSource {
 		if (status == HttpURLConnection.HTTP_NOT_FOUND)
 			return null;
 
-		if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
-				|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+		if (hasMoved(status)) {
 			conn = createConnection(new URL(conn.getHeaderField("Location")));
 			conn.setReadTimeout(10000);
 			if (localFile.exists())
@@ -483,6 +482,11 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
+	private static boolean hasMoved(int status) {
+		return (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
+				|| status == HttpURLConnection.HTTP_SEE_OTHER || status == 307 || status == 308);
+	}
+
 	public void downloadIfNecessaryImpl(String href, File localFile) throws IOException {
 		StringBuilder sb = new StringBuilder("Download " + href + " to " + localFile);
 		long time = System.currentTimeMillis();
@@ -508,8 +512,7 @@ public class RESTContestSource extends DiskContestSource {
 			return;
 		}
 
-		if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
-				|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+		if (hasMoved(status)) {
 			conn = createConnection(new URL(conn.getHeaderField("Location")));
 			conn.setReadTimeout(10000);
 			if (localFile.exists())
@@ -562,8 +565,7 @@ public class RESTContestSource extends DiskContestSource {
 			conn.setReadTimeout(130000);
 
 			int status = conn.getResponseCode();
-			if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
-					|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+			if (hasMoved(status)) {
 				conn = createConnection(new URL(conn.getHeaderField("Location")));
 			} else if (status == HttpURLConnection.HTTP_UNAUTHORIZED)
 				throw new IOException("Not authorized (HTTP response code 401)");
@@ -1102,6 +1104,9 @@ public class RESTContestSource extends DiskContestSource {
 			if (response == HttpURLConnection.HTTP_UNAUTHORIZED) {
 				v.err("Invalid user or password");
 				return v;
+			} else if (hasMoved(response)) {
+				conn = createConnection(new URL(conn.getHeaderField("Location")));
+				response = conn.getResponseCode();
 			} else if (response != HttpURLConnection.HTTP_OK) {
 				if (tryAlternateURLs(v))
 					return v;
@@ -1133,16 +1138,15 @@ public class RESTContestSource extends DiskContestSource {
 		for (String path : paths) {
 			try {
 				HttpURLConnection conn = createConnection(path);
-				int response2 = conn.getResponseCode();
-				if (response2 == HttpURLConnection.HTTP_OK) {
+				int response = conn.getResponseCode();
+				if (response == HttpURLConnection.HTTP_OK) {
 					validateContent(conn, v, path);
 					return true;
-				} else if (response2 == HttpURLConnection.HTTP_MOVED_TEMP || response2 == HttpURLConnection.HTTP_MOVED_PERM
-						|| response2 == HttpURLConnection.HTTP_SEE_OTHER) {
+				} else if (hasMoved(response)) {
 					String newPath = conn.getHeaderField("Location");
 					conn = createConnection(new URL(newPath));
-					int response3 = conn.getResponseCode();
-					if (response3 == HttpURLConnection.HTTP_OK) {
+					response = conn.getResponseCode();
+					if (response == HttpURLConnection.HTTP_OK) {
 						validateContent(conn, v, newPath);
 						return true;
 					}
