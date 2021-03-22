@@ -165,7 +165,10 @@ public class ContestWebService extends HttpServlet {
 		cc.incrementWeb();
 		if (segments.length >= 2) {
 			if (segments[1].equals("details")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/details.jsp").forward(request, response);
+				if (Role.isAdmin(request))
+					request.getRequestDispatcher("/WEB-INF/jsps/details-admin.jsp").forward(request, response);
+				else
+					request.getRequestDispatcher("/WEB-INF/jsps/details.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("orgs")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/orgs.jsp").forward(request, response);
