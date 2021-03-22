@@ -1,14 +1,65 @@
+function parseColor(c) {
+	if (c.substr(0, 1) == "#") {
+		var len = (c.length - 1) / 3;
+		var fact = [17, 1, 0.062272][len - 1];
+	    return [
+	        Math.round(parseInt(c.substr(1, len),16) * fact),
+	        Math.round(parseInt(c.substr(1 + len, len), 16) * fact),
+	        Math.round(parseInt(c.substr(1 + 2 * len, len), 16) * fact)
+	    ];
+    } else
+    	return c.split("(")[1].split(")")[0].split(",").map(x=>+x);
+}
+
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(c) {
+  return "#" + componentToHex(c[0]) + componentToHex(c[1]) + componentToHex(c[2]);
+}
+
+function addColors(obj, rgb) {
+	if (rgb == null) {
+		obj.rgb = "#FFFFFF";
+		obj.border = "#888888";
+		obj.fg = "#000000";
+		return obj;
+	}
+
+	obj.rgb = rgb;
+	
+	darker = parseColor(rgb);
+	darker[0] = Math.max(darker[0] - 64, 0);
+	darker[1] = Math.max(darker[1] - 64, 0);
+	darker[2] = Math.max(darker[2] - 64, 0);
+	obj.border = rgbToHex(darker);
+
+	foreground = parseColor(rgb);
+	if (foreground[0] + foreground[1] + foreground[2] > 450)
+		obj.fg = "#000000";
+	else
+		obj.fg = "#FFFFFF";
+
+	return obj;
+}
+
 function languagesTd(lang) {
-    return { name: sanitizeHTML(lang.name) };
+    return { name: lang.name };
 }
 
 function judgementtypesTd(jt) {
-    return { name: sanitizeHTML(jt.name), penalty: jt.penalty ? '<i class="fas fa-times text-danger"></i> Yes' : null,
-    	solved: jt.solved ? '<i class="fas fa-check text-success"></i> Yes' : null};
+	badge = "badge-info";
+    if (jt.solved)
+    	 badge = "badge-success";
+    else if (jt.penalty)
+    	 badge = "badge-danger";
+    return { name: jt.name, penalty: jt.penalty, solved: jt.solved, badge: badge };
 }
 
 function problemsTd(problem) {
-	return { label: problem.label, name: problem.name, color: problem.color, rgb: problem.rgb };
+	return addColors({ label: problem.label, name: problem.name, color: problem.color }, problem.rgb);
 }
 
 function groupsTd(group) {
@@ -75,8 +126,10 @@ function submissionsTd(submission) {
         sub.time = formatTime(parseTime(submission.contest_time));
 	if (submission.problem_id != null) {
         problem = findById(contest.getProblems(), submission.problem_id);
-        if (problem != null)
-            sub.problem = problem.label + ' (' + problem.id + ')';
+        if (problem != null) {
+            sub.label = problem.label;;
+            addColors(sub, problem.rgb);
+        }
     }
 	if (submission.language_id != null) {
         lang = findById(contest.getLanguages(), submission.language_id);
