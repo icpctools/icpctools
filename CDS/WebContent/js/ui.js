@@ -168,3 +168,21 @@ function formatTimestamp(time2) {
 	var d = new Date(time2);
 	return d.toDateString() + " " + d.toLocaleTimeString();
 }
+
+function getDisplayName(team) {
+	if (team.display_name != null)
+		return team.display_name;
+
+	return team.name;
+}
+
+function getDisplayStr(teamId) {
+	if (teamId == null)
+		return '';
+
+	team = findById(contest.getTeams(), teamId);
+    if (team != null)
+		return teamId + ': ' + getDisplayName(team);
+	
+	return teamId + ': (not found)';
+}

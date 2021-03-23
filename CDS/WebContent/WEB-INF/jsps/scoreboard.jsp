@@ -99,10 +99,7 @@ $(document).ready(function () {
                             logoSrc = '/api/' + logo.href;
                         orgName = org.name;
                     }
-                    if (team.display_name != null)
-                        team = team.id + ': ' + team.display_name;
-                    else
-                        team = team.id + ': ' + team.name;
+                    team = getDisplayStr(team.id);
                 }
             }
 
