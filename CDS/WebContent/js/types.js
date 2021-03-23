@@ -144,12 +144,7 @@ function submissionsTd(submission) {
             if (org != null)
                 sub.org = org.name;
         }
-        if (team2 != null) {
-        	if (team2.display_name != null)
-        	   sub.team = team2.id + ": " +team2.display_name;
-        	else
-        	   sub.team = team2.id + ": " + team2.name;
-		}
+        sub.team = getDisplayStr(submission.team_id);
     }
 	var judgements = findManyBySubmissionId(contest.getJudgements(), submission.id);
 	if (judgements != null && judgements.length > 0) {
@@ -163,19 +158,21 @@ function submissionsTd(submission) {
             }
             var jt = findById(contest.getJudgementTypes(), judgements[j].judgement_type_id);
             if (jt != null) {
-            	sub.judge += jt.name;
-            	sub.result += jt.name;
+            	sub.judge += judgementBadge(jt);
+            	sub.result += judgementBadge(jt);
                 if (jt.solved) {
-                	if (isFirstToSolve(contest,submission))
+                	if (isFirstToSolve(contest,submission)) {
                 		sub.judgeClass = "bg-success";
-                	else
+                		sub.judge += " " + getBadge("FTS", "badge-info");
+                		sub.result += " " + getBadge("FTS", "badge-info");
+                	} else
                 		sub.judgeClass = "table-success";
                 } else if (jt.penalty)
                 	sub.judgeClass = "table-danger";
             } else {
             	sub.judgeClass = "table-warning";
-            	sub.judge += "...";
-            	sub.result += "...";
+            	sub.judge += getBadge("...", "badge-warning");
+            	sub.result += getBadge("...", "badge-warning");
             }
             sub.judge += ' (<a href="' + contest.getURL('judgements', judgements[j].id) + '">' + judgements[j].id + '</a>)';
             first = false;
@@ -184,29 +181,44 @@ function submissionsTd(submission) {
     return sub;
 }
 
+function judgementBadge(jt) {
+	if (jt == null)
+		return '';
+
+	badge = "badge-info";
+    if (jt.solved)
+    	 badge = "badge-success";
+    else if (jt.penalty)
+    	 badge = "badge-danger";
+	return getBadge(jt.id, badge);
+}
+
+function getBadge(label,cl) {
+	if (label == null)
+		return '';
+
+	template = '<span class="badge {{cl}}">{{label}}</span>';
+	obj = new Object();
+	obj.cl = cl;
+	obj.label = label;
+	return Mustache.render(template, obj);
+}
+
 function clarificationsTd(clar) {
-    var problem = '';
-    var fromTeam = '';
-    var toTeam = '';
+	var c = new Object();
+	c.time = formatTime(parseTime(clar.contest_time));
+	c.text = clar.text;
     if (clar.problem_id != null) {
         problem = findById(contest.getProblems(), clar.problem_id);
-        if (problem != null)
-            problem = problem.label + ' (' + problem.id + ')';
+        if (problem != null) {
+            c.label = problem.label;
+            addColors(c, problem.rgb);
+        }
     }
-    var teams = contest.getTeams();
-    if (clar.from_team_id != null) {
-        fromTeam = findById(teams, clar.from_team_id);
-        if (fromTeam != null)
-            fromTeam = fromTeam.id + ' (' + fromTeam.name + ')';
-    }
-    if (clar.to_team_id != null) {
-        toTeam = findById(teams, clar.to_team_id);
-        if (toTeam != null)
-            toTeam = toTeam.id + ' (' + toTeam.name + ')';
-    }
-
-    return { time: formatTime(parseTime(clar.contest_time)), problem: problem, fromTeam: fromTeam, toTeam: toTeam,
-    	replyTo: clar.reply_to_id, text: clar.text };
+    c.fromTeam = getDisplayStr(clar.from_team_id);
+    c.toTeam = getDisplayStr(clar.to_team_id);
+	c.replyTo = clar.reply_to_id;
+    return c;
 }
 
 function awardsTd(award) {
@@ -214,10 +226,7 @@ function awardsTd(award) {
     for (var j = 0; j < award.team_ids.length; j++) {
         if (j > 0)
             teamsStr += "<br>";
-        teamsStr += award.team_ids[j] + ": ";
-        var t = contest.getTeamById(award.team_ids[j]);
-        if (t != null)
-            teamsStr += t.name;
+        teamStr += getDisplayStr(award.team_ids[j]);
     }
     return { citation: award.citation, teamsStr: teamsStr };
 }

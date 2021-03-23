@@ -28,7 +28,7 @@
 				                <tr>
 				                    <th>Id</th>
 				                    <th class="text-center">Time</th>
-				                    <th>Problem</th>
+				                    <th class="text-center">Problem</th>
 				                    <th>From Team</th>
 				                    <th>To Team</th>
 				                    <th>Reply To</th>
@@ -45,8 +45,8 @@
 </div>
 <script type="text/html" id="clarifications-template">
   <td><a href="' + contest.getURL('clarifications', {{id}})">{{id}}</a></td>
-  <td align="center">{{time}}</td>
-  <td>{{problem}}</td>
+  <td class="text-center">{{{time}}}</td>
+  <td class="text-center">{{#label}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/label}}</td>
   <td>{{fromTeam}}</td>
   <td>{{toTeam}}</td>
   <td>{{replyTo}}</td>

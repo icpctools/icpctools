@@ -17,11 +17,11 @@
                             <tr>
                                 <th>Id</th>
                                 <th class="text-center">Time</th>
-                                <th>Problem</th>
-                                <th>Language</th>
+                                <th class="text-center">Problem</th>
+                                <th class="text-center">Language</th>
                                 <th>Team</th>
                                 <th>Organization</th>
-                                <th>Judgements</th>
+                                <th class="text-center">Judgement</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -43,11 +43,11 @@
                             <tr>
                                 <th>Id</th>
                                 <th class="text-center">Time</th>
-                                <th>Problem</th>
-                                <th>Language</th>
+                                <th class="text-center">Problem</th>
+                                <th class="text-center">Language</th>
                                 <th>Team</th>
                                 <th>Organization</th>
-                                <th>Judgements</th>
+                                <th class="text-center">Judgement</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -60,20 +60,20 @@
 <script type="text/html" id="queue-template">
   <td><a href="{{api}}">{{id}}</td>
   <td class="text-center">{{time}}</td>
-  <td><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
-  <td>{{lang}}</td>
+  <td class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
+  <td class="text-center">{{lang}}</td>
   <td>{{team}}</td>
   <td>{{org}}</td>
-  <td class="{{judgeClass}}">{{{judge}}}</td>
+  <td class="text-center">{{{judge}}}</td>
 </script>
 <script type="text/html" id="submissions-template">
   <td><a href="{{api}}">{{id}}</td>
   <td class="text-center">{{time}}</td>
-  <td><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
-  <td>{{lang}}</td>
+  <td class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
+  <td class="text-center">{{lang}}</td>
   <td>{{team}}</td>
   <td>{{org}}</td>
-  <td class="{{judgeClass}}">{{{judge}}}</td>
+  <td class="text-center">{{{judge}}}</td>
 </script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
