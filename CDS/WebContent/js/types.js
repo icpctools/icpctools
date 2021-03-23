@@ -155,12 +155,16 @@ function submissionsTd(submission) {
 	if (judgements != null && judgements.length > 0) {
         var first = true;
         sub.judge = '';
+        sub.result = '';
         for (var j = 0; j < judgements.length; j++) {
-            if (!first)
+            if (!first) {
             	sub.judge += ', ';
+            	sub.result += ', ';
+            }
             var jt = findById(contest.getJudgementTypes(), judgements[j].judgement_type_id);
             if (jt != null) {
             	sub.judge += jt.name;
+            	sub.result += jt.name;
                 if (jt.solved) {
                 	if (isFirstToSolve(contest,submission))
                 		sub.judgeClass = "bg-success";
@@ -171,6 +175,7 @@ function submissionsTd(submission) {
             } else {
             	sub.judgeClass = "table-warning";
             	sub.judge += "...";
+            	sub.result += "...";
             }
             sub.judge += ' (<a href="' + contest.getURL('judgements', judgements[j].id) + '">' + judgements[j].id + '</a>)';
             first = false;
