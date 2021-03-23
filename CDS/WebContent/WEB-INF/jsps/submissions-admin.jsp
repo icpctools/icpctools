@@ -15,6 +15,7 @@
                     <table id="queue-table" class="table table-sm table-hover table-striped table-head-fixed">
                         <thead>
                             <tr>
+                                <th>Id</th>
                                 <th class="text-center">Time</th>
                                 <th>Problem</th>
                                 <th>Language</th>
@@ -33,12 +34,14 @@
                     <h3 class="card-title">Submissions</h3>
                     <div class="card-tools">
                        <span id="submissions-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                       <button id="submissions-api" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
                 <div class="card-body p-0">
                     <table id="submissions-table" class="table table-sm table-hover table-striped table-head-fixed">
                         <thead>
                             <tr>
+                                <th>Id</th>
                                 <th class="text-center">Time</th>
                                 <th>Problem</th>
                                 <th>Language</th>
@@ -55,20 +58,22 @@
     </div>
 </div>
 <script type="text/html" id="queue-template">
+  <td><a href="{{api}}">{{id}}</td>
   <td class="text-center">{{time}}</td>
   <td><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
   <td>{{lang}}</td>
   <td>{{team}}</td>
   <td>{{org}}</td>
-  <td class="{{judgeClass}}">{{{result}}}</td>
+  <td class="{{judgeClass}}">{{{judge}}}</td>
 </script>
 <script type="text/html" id="submissions-template">
+  <td><a href="{{api}}">{{id}}</td>
   <td class="text-center">{{time}}</td>
   <td><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
   <td>{{lang}}</td>
   <td>{{team}}</td>
   <td>{{org}}</td>
-  <td class="{{judgeClass}}">{{{result}}}</td>
+  <td class="{{judgeClass}}">{{{judge}}}</td>
 </script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>

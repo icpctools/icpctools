@@ -164,33 +164,37 @@ public class ContestWebService extends HttpServlet {
 		request.setAttribute("cc", cc);
 		cc.incrementWeb();
 		if (segments.length >= 2) {
+			boolean isAdmin = Role.isAdmin(request);
 			if (segments[1].equals("details")) {
-				if (Role.isAdmin(request))
+				if (isAdmin)
 					request.getRequestDispatcher("/WEB-INF/jsps/details-admin.jsp").forward(request, response);
 				else
 					request.getRequestDispatcher("/WEB-INF/jsps/details.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("orgs")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/orgs.jsp").forward(request, response);
+			} else if (segments[1].equals("registration")) {
+				if (isAdmin)
+					request.getRequestDispatcher("/WEB-INF/jsps/registration-admin.jsp").forward(request, response);
+				else
+					request.getRequestDispatcher("/WEB-INF/jsps/registration.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("teams")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/teams.jsp").forward(request, response);
+			} else if (segments[1].equals("clarifications")) {
+				if (isAdmin)
+					request.getRequestDispatcher("/WEB-INF/jsps/clarifications-admin.jsp").forward(request, response);
+				else
+					request.getRequestDispatcher("/WEB-INF/jsps/clarifications.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("submissions")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/submissions.jsp").forward(request, response);
+				if (isAdmin)
+					request.getRequestDispatcher("/WEB-INF/jsps/submissions-admin.jsp").forward(request, response);
+				else
+					request.getRequestDispatcher("/WEB-INF/jsps/submissions.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("teamSummary") && segments.length == 3) {
 				request.setAttribute("teamId", segments[2]);
 				request.getRequestDispatcher("/WEB-INF/jsps/teamSummary.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("clarifications")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/clarifications.jsp").forward(request, response);
-				return;
 			} else if (segments[1].equals("scoreboard")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/scoreboard.jsp").forward(request, response);
-				return;
-			} else if (segments[1].equals("awards")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/awards.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("contestCompare")) {
 				try {
@@ -295,11 +299,10 @@ public class ContestWebService extends HttpServlet {
 						return;
 					}
 				}
-				if (!Role.isAdmin(request)) {
+				if (isAdmin)
+					request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
+				else
 					request.getRequestDispatcher("/WEB-INF/jsps/non-admin.jsp").forward(request, response);
-					return;
-				}
-				request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("freeze")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/freeze.jsp").forward(request, response);

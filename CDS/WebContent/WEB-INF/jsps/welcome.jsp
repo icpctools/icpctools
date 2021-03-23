@@ -35,7 +35,7 @@
         <% String webRootH = "/contests/" + cch.getId();
            String apiRootH = "/api/contests/" + cch.getId(); %>
         <div class="card-header <%= headerClass %> default-text-color">
-          <a href="<%= webRootH %>">
+          <a href="<%= webRootH %>/details">
             <h2 class="card-title default-text-color"><%= contestH.getActualFormalName() != null ? HttpHelper.sanitizeHTML(contestH.getActualFormalName()) : "(unnamed contest)" %></h2>
           </a>
           <div class="card-tools"><a href="<%= apiRootH %>" class="default-text-color">/<%= cch.getId() %></a></div>
@@ -87,8 +87,8 @@
                   </span></td>
               </tr>
               <tr>
-                <td colspan="3"><a href="<%= webRootH %>/details"
-                    class="default-text-color"><%= contestH.getNumProblems() %> problems, <%= contestH.getNumTeams() %> teams</a>
+                <td colspan="3"><a href="<%= webRootH %>/details" class="default-text-color"><%= contestH.getNumProblems() %> problems</a>,
+                  <a href="<%= webRootH %>/registration" class="default-text-color"><%= contestH.getNumTeams() %> teams</a>
                   <span class="float-right"><a href="<%= webRootH %>/scoreboard"
                       class="default-text-color">Scoreboard</a></span></td>
               </tr>

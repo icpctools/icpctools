@@ -24,35 +24,10 @@
         <div class="col-7"><%@ include file="details-admin/judgementTypes.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12"><%@ include file="details-admin/groups.html" %></div>
-    </div>
-    <div class="row">
         <div class="col-12"><%@ include file="details-admin/problems.html" %></div>
     </div>
     <div class="row">
-        <div class="col-12"><%@ include file="details-admin/teams.html" %></div>
-    </div>
-    <div class="row">
-        <div class="col-12"><%@ include file="details-admin/orgs.html" %></div>
-    </div>
-    <div class="row">
-        <div class="col-12"><%@ include file="details-admin/clarifications.html" %></div>
-    </div>
-    <div class="row">
         <div class="col-12"><%@ include file="details-admin/awards.html" %></div>
-    </div>
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Submissions</h3>
-                    <div class="card-tools">
-                        <span id="submissions-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-                        <button id="submissions-button" type="button" class="btn btn-tool">API</button>
-                    </div>
-                </div>
-            </div>
-         </div>
     </div>
     <div class="row">
         <div class="col-12">
@@ -104,23 +79,17 @@
         }
 
         $.when(contest.loadInfo()).done(function () {
-            update()
+            update();
         }).fail(function (result) {
             console.log("Error loading page: " + result);
         })
 
-        $.when(contest.loadSubmissions()).done(function () {
-        	updateContestObjectHeader("submissions", contest.getSubmissions());
-        }).fail(function (result) {
-        	console.log("Error loading submissions: " + result);
-        })
-        
         $.when(contest.loadJudgements()).done(function () {
         	updateContestObjectHeader("judgements", contest.getJudgements());
         }).fail(function (result) {
         	console.log("Error loading judgements: " + result);
         })
-        
+
         $.when(contest.loadRuns()).done(function () {
         	updateContestObjectHeader("runs", contest.getRuns());
         }).fail(function (result) {
