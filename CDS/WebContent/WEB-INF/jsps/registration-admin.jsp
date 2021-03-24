@@ -113,7 +113,7 @@
   <td style="width: 20px;" align=middle>{{{logo}}}</td>
   <td>{{name}}</td>
   <td>{{formalName}}</td>
-  <td>{{country}}</td>
+  <td>{{#country}}<img src="/countries/{{country}}.png" height=18/> {{country}}{{/country}}</td>
 </script>
 <script type="text/html" id="teams-template">
   <td><a href="{{api}}">{{id}}</a></td>
