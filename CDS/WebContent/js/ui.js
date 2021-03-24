@@ -23,6 +23,17 @@ function sortByColumn(table) {
   }
 }
 
+function refreshTable(name) {
+	console.log("Refreshing: " + name);
+	
+	// add spinner to the table (will be removed by table update) and call the refresh function
+	var table = $("#" + name + "-table");
+	table.parent().parent().append('<div id="' + 'temp" class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>');
+	
+	var refreshFunc = new Function(name + 'Refresh()');
+	refreshFunc();
+}
+
 function registerContestObjectTable(name) {
 	if (name == null)
 		return;
@@ -36,11 +47,15 @@ function registerContestObjectTable(name) {
 	    row.append(col);
 	    $(table).append(row);
 	}
-    
+
     var x = $("#" + name + "-api");
     if (x != null)
     	x.attr("onclick", 'location.href="' + contest.getURL(name) + '"');
-    
+    	
+	var x = $("#" + name + "-refresh");
+    if (x != null)
+    	x.attr("onclick", 'refreshTable("' + name + '")');
+
     sortByColumn($('#' + name + "-table"));
 }
 
@@ -110,6 +125,8 @@ function fillContestObjectTable(name, objs) {
     }
 
 	updateContestObjectHeader(name, objs);
+	
+	$("#temp").remove();
 }
 
 var tagsToReplace = {

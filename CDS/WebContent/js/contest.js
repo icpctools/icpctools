@@ -206,6 +206,10 @@ var contest=(function() {
 	}
 	var clear = function() {
 		startStatus = null;
+		problems = null;
+		submissions = null;
+		judgements = null;
+		clarifications = null;
 	}
 
     var post = function(type, body, ok, fail) {

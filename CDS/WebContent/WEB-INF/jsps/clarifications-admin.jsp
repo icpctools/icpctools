@@ -18,6 +18,7 @@
 				    <div class="card-header">
 				        <h4 class="card-title">Clarifications</h4>
 				        <div class="card-tools">
+				            <button id="clarifications-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
 				            <span id="clarifications-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
 				            <button id="clarifications-api" type="button" class="btn btn-tool">API</button>
 				        </div>
@@ -55,12 +56,17 @@
 <script type="text/javascript">
 registerContestObjectTable("clarifications");
 
-$(document).ready(function () {
-    $.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
-        fillContestObjectTable("clarifications", contest.getClarifications())
+function clarificationsRefresh() {
+	contest.clear();
+	$.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
+        fillContestObjectTable("clarifications", contest.getClarifications());
     }).fail(function (result) {
     	console.log("Error loading clarifications: " + result);
     })
+}
+
+$(document).ready(function () {
+	clarificationsRefresh();
 })
 
 function submitClarification(to_team, text) {
