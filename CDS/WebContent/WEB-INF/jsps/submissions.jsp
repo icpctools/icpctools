@@ -8,6 +8,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Judge Queue</h3>
                     <div class="card-tools">
+                       <button id="queue-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
                        <span id="queue-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
                     </div>
                 </div>
@@ -32,6 +33,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Submissions</h3>
                     <div class="card-tools">
+                   	   <button id="submissions-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
                        <span id="submissions-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
                     </div>
                 </div>
@@ -81,7 +83,12 @@ contest.setContestURL("/api","<%= cc.getId() %>");
 registerContestObjectTable("queue");
 registerContestObjectTable("submissions");
 
-$(document).ready(function () {
+function queueRefresh() {
+	submissionsRefresh();
+}
+
+function submissionsRefresh() {
+	contest.clear();
 	$.when(contest.loadLanguages(), contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadSubmissions(), contest.loadJudgements(), contest.loadJudgementTypes()).done(function () {
     	var queue = [];
     	submissions = contest.getSubmissions();
@@ -102,6 +109,10 @@ $(document).ready(function () {
     }).fail(function (result) {
     	console.log("Error loading submissions: " + result);
     });
+}
+
+$(document).ready(function () {
+	submissionsRefresh();
 });
 </script>
 <%@ include file="layout/footer.jsp" %>
