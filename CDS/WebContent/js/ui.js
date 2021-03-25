@@ -28,7 +28,7 @@ function refreshTable(name) {
 	
 	// add spinner to the table (will be removed by table update) and call the refresh function
 	var table = $("#" + name + "-table");
-	table.parent().parent().append('<div id="' + 'temp" class="overlay"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>');
+	table.parent().parent().append('<div id="' + 'temp" class="overlay dark"><i class="fas fa-2x fa-sync-alt fa-spin"></i></div>');
 	
 	var refreshFunc = new Function(name + 'Refresh()');
 	refreshFunc();
@@ -51,7 +51,7 @@ function registerContestObjectTable(name) {
     var x = $("#" + name + "-api");
     if (x != null)
     	x.attr("onclick", 'location.href="' + contest.getURL(name) + '"');
-    	
+
 	var x = $("#" + name + "-refresh");
     if (x != null)
     	x.attr("onclick", 'refreshTable("' + name + '")');
@@ -191,6 +191,13 @@ function getDisplayName(team) {
 		return team.display_name;
 
 	return team.name;
+}
+
+function getOrganizationName(org) {
+	if (org.formal_name != null)
+		return org.formal_name;
+
+	return org.name;
 }
 
 function getDisplayStr(teamId) {

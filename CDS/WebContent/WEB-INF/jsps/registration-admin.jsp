@@ -30,7 +30,7 @@
 								<th>ICPC Id</th>
 								<th>Name</th>
 								<th>Type</th>
-								<th>Hidden</th>
+								<th class="text-center">Hidden</th>
 			            	</tr>
 			            </thead>
 			            <tbody></tbody>
@@ -85,10 +85,10 @@
 			        <table id="teams-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			                <tr>
-			                    <th>Id</th>
+			                    <th class="text-center">Id</th>
+			                    <th></th>
 			                    <th>Name</th>
-			                    <th colspan=2>Organization</th>
-			                    <th>Organization (formal name)</th>
+			                    <th>Organization</th>
 			                    <th>Group</th>
 			                    <th>Summary</th>
 			                </tr>
@@ -106,21 +106,20 @@
   <td>{{icpc_id}}</td>
   <td>{{name}}</td>
   <td>{{type}}</td>
-  <td align=center>{{#hidden}}<span class="badge badge-info"><i class="fas fa-eye-slash"></i></a>{{/hidden}}</td>
+  <td class="text-center">{{#hidden}}<span class="badge badge-info"><i class="fas fa-eye-slash"></i></a>{{/hidden}}</td>
 </script>
 <script type="text/html" id="organizations-template">
   <td><a href="{{api}}">{{id}}</a></td>
-  <td style="width: 20px;" align=middle>{{{logo}}}</td>
+  <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
   <td>{{formalName}}</td>
   <td>{{#country}}<img src="/countries/{{country}}.png" height=18/> {{country}}{{/country}}</td>
 </script>
 <script type="text/html" id="teams-template">
-  <td><a href="{{api}}">{{id}}</a></td>
+  <td class="text-right"><a href="{{api}}">{{id}}</a></td>
+  <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
-  <td style="width: 20px;" align=middle>{{{logo}}}</td>
-  <td>{{orgName}}</td>
-  <td>{{orgFormalName}}</td>
+  <td>{{orgName}}x</td>
   <td>{{groupNames}}</td>
   <td><a href="<%= webroot  %>/teamSummary/{{id}}">summary</a></td>
 </script>
