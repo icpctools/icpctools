@@ -25,7 +25,8 @@
 			        <table id="teams-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			                <tr>
-			                    <th colspan=2>#</th>
+			                    <th class="text-center">#</th>
+			                    <th></th>
 			                    <th>Name</th>
 			                    <th>Organization</th>
 			                    <th>Group</th>
@@ -84,21 +85,18 @@
     </div>
 </div>
 <script type="text/html" id="teams-template">
-  <td>{{id}}</td>
-  <td style="width: 20px;" align=center>{{{logo}}}</td>
+  <td class="text-right">{{id}}</td>
+  <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
   <td>{{orgName}}</td>
   <td>{{groupNames}}</td>
-</script>
-<script type="text/html" id="groups-th-template">
-  <th>Name</th>
 </script>
 <script type="text/html" id="groups-template">
   <td>{{name}}</td>
 </script>
 <script type="text/html" id="organizations-template">
-  <td style="width: 20px;" align=middle>{{{logo}}}</td>
-  <td>{{formalName}}</td>
+  <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
+  <td>{{#formalName}}{{formalName}} ({{name}}){{/formalName}}{{^formalName}}{{name}}{{/formalName}}</td>
   <td>{{#country}}<img src="/countries/{{country}}.png" height=18/> {{country}}{{/country}}</td>
 </script>
 <script type="text/javascript">

@@ -74,8 +74,6 @@ function organizationsTd(org) {
     var logo2 = bestSquareLogo(org.logo, 20);
     if (logo2 != null)
         logoSrc = '/api/' + logo2.href;
-    if (logoSrc != null)
-    	logoSrc = '<img src="' + logoSrc + '" width="20" height="20"/>';
 
     return { name: org.name, formalName: org.formal_name, country: org.country, logo: logoSrc };
 }
@@ -89,14 +87,10 @@ function teamsTd(team) {
     var orgFormalName = '';
     var logoSrc = '';
     if (org != null) {
-        orgName = org.name;
-        if (org.formal_name != null)
-            orgFormalName = org.formal_name;
+        orgName = getOrganizationName(org);
         var logo = bestSquareLogo(org.logo, 20);
         if (logo != null)
             logoSrc = '/api/' + logo.href;
-        if (logoSrc != null)
-    		logoSrc = '<img src="' + logoSrc + '" width="20" height="20"/>';
     }
     var groupNames = '';
     var groups2 = findManyById(contest.getGroups(), team.group_ids);
@@ -110,8 +104,7 @@ function teamsTd(team) {
         }
     }
 
-    return { name: name, logo: logoSrc, orgName: orgName, orgFormalName: orgFormalName,
-    	groupNames: groupNames };
+    return { name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames };
 }
 
 function queueTd(submission) {
