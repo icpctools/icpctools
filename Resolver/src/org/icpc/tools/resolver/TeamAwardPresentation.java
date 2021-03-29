@@ -425,9 +425,9 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			ITeam team = contest.getTeamById(currentCache.teamId);
 			IStanding s = contest.getStanding(team);
 			if (s.getNumSolved() == 1)
-				list.add(new Award(IAward.OTHER, 0, currentCache.teamId, Messages.getString("awardSolvedOne"), false));
+				list.add(new Award(IAward.OTHER, s.getNumSolved(), currentCache.teamId, Messages.getString("awardSolvedOne"), false));
 			else if (s.getNumSolved() > 1)
-				list.add(new Award(IAward.OTHER, 0, currentCache.teamId,
+				list.add(new Award(IAward.OTHER, s.getNumSolved(), currentCache.teamId,
 						Messages.getString("awardSolvedMultiple").replace("{0}", s.getNumSolved() + ""), false));
 		}
 
