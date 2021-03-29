@@ -1,14 +1,20 @@
 # ICPC Tools Changelog
 
-## V2.3 - TBD
+## V2.3 - March 2021
 -----------------
+* Several fixes based on use at regional contests.
 * CDS:
-  * Support for team login and team-specific contest views.
+  * Initial support for team login and team-specific contest views.
+  * New dark mode!
+  * Several UI improvements.
+  * Preview of API for team submissions & clarifications.
 * Presentation client:
   * Improved support for Windows multi-display and scaling.
-  * Style parameter to configure how teams are displayed.
+  * New --display_name parameter to configure how teams are displayed (replaces --style).
+* Resolver:
+  * New --display_name parameter to configure how teams are displayed (replaces --style).
 
-## V2.2 - February, 2021
+## V2.2 - February 2021
 -----------------
 * First open release!
 * Moved to Github and Gitlab.
