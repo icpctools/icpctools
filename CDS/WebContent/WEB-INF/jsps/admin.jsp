@@ -234,7 +234,7 @@
     </div>
 </div>
 <script>
-	contest.setContestURL("/api", "<%= cc.getId() %>");
+    contest = new Contest("/api", "<%= cc.getId() %>");
 	cds.setContestId("<%= cc.getId() %>");
     var targetTime = 50.0;
 

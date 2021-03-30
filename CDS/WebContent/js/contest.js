@@ -1,94 +1,121 @@
-var contest=(function() {
-	var info;
-	var state;
-	var organizations;
-	var groups;
-	var teams;
-	var languages;
-	var judgementTypes;
-	var problems;
-	var submissions;
-	var judgements;
-	var runs;
-	var clarifications;
-	var awards;
-	var startStatus;
-	var scoreboard;
+class Contest {
+	info;
+	state;
+	organizations;
+	groups;
+	teams;
+	languages;
+	judgementTypes;
+	problems;
+	submissions;
+	judgements;
+	runs;
+	clarifications;
+	awards;
+	startStatus;
+	scoreboard;
 
-	var contestURL;
+	timeDelta = [];
 
-	var setContestURL = function(baseURL, contestId) {
+	constructor(baseURL, contestId) {
 		if (!baseURL.endsWith('/'))
 			baseURL += '/';
-		contestURL = baseURL + 'contests/' + contestId;
-		console.log("Contest URL: " + contestURL);
+		this.contestURL = baseURL + 'contests/' + contestId;
+		console.log("Contest URL: " + this.contestURL);
 	}
 
-	var loadObject = function(type, ok) {
+	getURL(type, id) {
+		if (id == null)
+			return this.contestURL + '/' + type;
+		return this.contestURL + '/' + type + '/' + id;
+	}
+
+	loadObject(type, ok) {
 		console.log("Loading contest " + type);
 		var deferred = new $.Deferred();
+		this.start = Date.now();
 		return $.ajax({
-			url: getURL(type),
-			success: function(result) {
+			url: this.getURL(type),
+			success: (result, status, xhr) => {
+				var time = xhr.getResponseHeader("ICPC-Time");
+				var d = null;
+				if (time == null)
+					d = new Date(xhr.getResponseHeader("Date"));
+				else
+					d = new Date(parseInt(time));
+  				
+  				this.end = Date.now();
+				var serverTime = (Date.now() - d.getTime()) - (this.end - this.start) / 2;
+				if (this.timeDelta.length > 4)
+					this.timeDelta.shift();
+				this.timeDelta.push(serverTime);
+				//console.log("dt: " + (Date.now() - d.getTime()) + " " + (this.end - this.start) + " " + serverTime);
 				ok(result);
 			}
 		});
 	}
 
-	var loadInfo = function() {
-		if (info != null)
+	loadInfo() {
+		if (this.info != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('', function(result) { info = result });
+		return this.loadObject('', (result) => { this.info = result });
 	}
 
-	var loadState = function() {
-		if (state != null)
+	loadState() {
+		if (this.state != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('state', function(result) { state = result });
+		return this.loadObject('state', (result) => { this.state = result });
 	}
 
-	var loadLanguages = function() {
-		if (languages != null)
+	loadStartStatus() {
+		if (this.startStatus != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('languages', function(result) { languages = result });
-	}
-	
-	var loadJudgementTypes = function() {
-		if (judgementTypes != null)
-			return new $.Deferred().resolve();
-
-		return loadObject('judgement-types', function(result) { judgementTypes = result });
+		return this.loadObject('start-status', (result) => { this.startStatus = result });
 	}
 
-	var loadProblems = function() {
-		if (problems != null)
+	loadLanguages() {
+		if (this.languages != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('problems', function(result) { problems = result });
-	}
-	
-	var loadOrganizations = function() {
-		if (organizations != null)
-			return new $.Deferred().resolve();
-
-		return loadObject('organizations', function(result) { organizations = result });
+		return this.loadObject('languages', (result) => { this.languages = result });
 	}
 
-	var loadGroups = function() {
-		if (groups != null)
+	loadJudgementTypes() {
+		if (this.judgementTypes != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('groups', function(result) { groups = result });
+		return this.loadObject('judgement-types', (result) => { this.judgementTypes = result });
 	}
 
-	var loadTeams = function() {
-		if (teams != null)
+	loadProblems() {
+		if (this.problems != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('teams', function(result) {
+		return this.loadObject('problems', (result) => { this.problems = result });
+	}
+
+	loadGroups() {
+		if (this.groups != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('groups', (result) => this.groups = result );
+	}
+
+	loadOrganizations() {
+		if (this.organizations != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('organizations', (result) => { this.organizations = result });
+	}
+
+	loadTeams() {
+		if (this.teams != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('teams', (result) => {
 			 var teams2 = result;
 			    teams2.sort(function(a,b) {
 			    	if (!isNaN(a.id) && !isNaN(b.id))
@@ -96,189 +123,94 @@ var contest=(function() {
 			        else
 			    		return a.id.localeCompare(b.id);
 				   })
-			    teams = teams2;
+			    this.teams = teams2;
 		});
 	}
 
-    var loadSubmissions = function() {
-		if (submissions != null)
+	loadSubmissions() {
+		if (this.submissions != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('submissions', function(result) { submissions = result });
+		return this.loadObject('submissions', (result) => { this.submissions = result });
 	}
 
-	var loadJudgements = function() {
-		if (judgements != null)
+	loadJudgements() {
+		if (this.judgements != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('judgements', function(result) { judgements = result });
+		return this.loadObject('judgements', (result) => { this.judgements = result });
 	}
-
-	var loadRuns = function() {
-		if (runs != null)
+	
+	loadRuns() {
+		if (this.runs != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('runs', function(result) { runs = result });
+		return this.loadObject('runs', (result) => { this.runs = result });
 	}
 
-	var loadClarifications = function() {
-		if (clarifications != null)
+	loadClarifications() {
+		if (this.clarifications != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('clarifications', function(result) { clarifications = result });
+		return this.loadObject('clarifications', (result) => { this.clarifications = result });
 	}
 
-	var loadAwards = function() {
-		if (awards != null)
+	loadScoreboard() {
+		if (this.scoreboard != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('awards', function(result) { awards = result });
+		return this.loadObject('scoreboard', (result) => { this.scoreboard = result });
 	}
 
-	var loadStartStatus = function() {
-		if (startStatus != null)
+	loadAwards() {
+		if (this.awards != null)
 			return new $.Deferred().resolve();
 
-		return loadObject('start-status', function(result) { startStatus = result });
+		return this.loadObject('awards', (result) => { this.awards = result });
 	}
 
-	var loadScoreboard = function() {
-		if (scoreboard != null)
-			return new $.Deferred().resolve();
+	getContestURL() { return this.contestURL }
+	getInfo() { return this.info }
+	getState() { return this.state }
+	getStartStatus() { return this.startStatus }
+	getLanguages() { return this.languages }
+	getJudgementTypes() { return this.judgementTypes }
+	getProblems() { return this.problems }
+	getGroups() { return this.groups }
+	getTeams() { return this.teams }
+	getOrganizations() { return this.organizations }
+	getSubmissions() { return this.submissions }
+	getJudgements() { return this.judgements }
+	getRuns() { return this.runs }
+	getClarifications() { return this.clarifications }
+	getScoreboard() { return this.scoreboard }
+	getAwards() { return this.awards }
 
-		return loadObject('scoreboard', function(result) { scoreboard = result });
-	}
-
-	var getContestURL = function() {
-		return contestURL;
-	}
-	var getInfo = function() {
-		return info;
-	}
-	var getState = function() {
-		return state;
-	}
-	var getLanguages = function() {
-		return languages;
-	}
-	var getJudgementTypes = function() {
-		return judgementTypes;
-	}
-	var getProblems = function() {
-		return problems;
-	}
-	var getSubmissions = function() {
-		return submissions;
-	}
-	var getJudgements = function() {
-		return judgements;
-	}
-	var getRuns = function() {
-		return runs;
-	}
-	var getClarifications = function() {
-		return clarifications;
-	}
-	var getScoreboard = function() {
-		return scoreboard;
-	}
-	var getOrganizations = function() {
-		return organizations;
-	}
-	var getGroups = function() {
-		return groups;
-	}
-	var getAwards = function() {
-		return awards;
-	}
-	var getStartStatus = function() {
-		return startStatus;
-	}
-	var getTeams = function() {
-		return teams;
-	}
-	var getTeamById = function(id) {
-		for (var i = 0; i < teams.length; i++) {
-			if (teams[i].id == id)
-				return teams[i];
-		}
-		return null;
-	}
-	var clear = function() {
-		startStatus = null;
-		problems = null;
-		submissions = null;
-		judgements = null;
-		clarifications = null;
+	clear() {
+		this.startStatus = null;
+		this.problems = null;
+		this.submissions = null;
+		this.judgements = null;
+		this.clarifications = null;
 	}
 
-    var post = function(type, body, ok, fail) {
-        console.log("Posting (POST) contest object: " + type);
+	post(type, body, ok, fail) {
+        console.log("POSTing contest object: " + type);
         return $.ajax({
-		    url: getURL(type),
+		    url: this.getURL(type),
 		    method: 'POST',
 		    headers: { "Accept": "application/json" },
 		    data: body,
-		    success: function(body) {
-		    	ok(body);
-		    },
-		    error: function(result) {
-			    fail(result);
-		    }
+		    success: ok(result),
+		    error: fail(result)
 		});
 	}
 
-	var postSubmission = function(obj, ok, fail) {
+	postSubmission(obj, ok, fail) {
         post('submissions', obj, ok, fail);
 	}
 
-	var postClarification = function(obj, ok, fail) {
+	postClarification(obj, ok, fail) {
         post('clarifications', obj, ok, fail);
 	}
-
-	var getURL = function(type, id) {
-		if (id == null)
-			return contestURL + '/' + type;
-		return contestURL + '/' + type + '/' + id;
-	}
-
-	return {
-		setContestURL: setContestURL,
-		loadInfo: loadInfo,
-		loadState: loadState,
-		loadOrganizations: loadOrganizations,
-		loadGroups: loadGroups,
-		loadLanguages: loadLanguages,
-		loadJudgementTypes: loadJudgementTypes,
-		loadTeams: loadTeams,
-		loadProblems: loadProblems,
-		loadSubmissions: loadSubmissions,
-		loadJudgements: loadJudgements,
-		loadRuns: loadRuns,
-		loadClarifications: loadClarifications,
-		loadAwards: loadAwards,
-		loadStartStatus: loadStartStatus,
-		loadScoreboard: loadScoreboard,
-		getContestURL: getContestURL,
-		getURL: getURL,
-		getInfo: getInfo,
-		getState: getState,
-		getLanguages: getLanguages,
-		getJudgementTypes: getJudgementTypes,
-		getProblems: getProblems,
-		getGroups: getGroups,
-		getOrganizations: getOrganizations,
-		getTeams: getTeams,
-		getSubmissions: getSubmissions,
-		getJudgements: getJudgements,
-		getRuns: getRuns,
-		getClarifications: getClarifications,
-		getAwards: getAwards,
-		getStartStatus: getStartStatus,
-		getScoreboard: getScoreboard,
-		getTeamById: getTeamById,
-		clear: clear,
-		postSubmission: postSubmission,
-		postClarification: postClarification
-	};
-})();
+};

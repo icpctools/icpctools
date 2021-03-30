@@ -58,7 +58,7 @@
 <td class="text-center {{ scoreClass }}">{{num}}{{#solved}} / {{time}}{{/solved}}</td>
 </script>
 <script type="text/javascript">
-contest.setContestURL("/api","<%= cc.getId() %>");
+contest = new Contest("/api", "<%= cc.getId() %>");
 registerContestObjectTable("score");
 
 $(document).ready(function () {
