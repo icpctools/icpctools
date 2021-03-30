@@ -1,14 +1,13 @@
 <%@ page import="org.icpc.tools.contest.model.*" %>
 <% request.setAttribute("title", "Details"); %>
 <%@ include file="layout/head.jsp" %>
-<% IState state = contest.getState(); %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/javascript">
-    contest.setContestURL("/api","<%= cc.getId() %>");
+contest = new Contest("/api", "<%= cc.getId() %>");
 </script>
 <div class="container-fluid">
     <div class="row">
@@ -58,32 +57,6 @@
 </div>
 <script type="text/javascript">
     $(document).ready(function () {
-        function update() {
-            var info = contest.getInfo();
-            var logo = bestSquareLogo(info.logo, 50);
-            console.log(info.name + " - " + info.logo + " -> " + logo);
-            if (logo != null) {
-                var elem = document.createElement("img");
-                elem.setAttribute("src", "/api/" + logo.href);
-                elem.setAttribute("height", "40");
-                document.getElementById("logo").appendChild(elem);
-            }
-            var banner = bestLogo(info.banner, 100, 50);
-            console.log(info.name + " - " + info.banner + " -> " + banner);
-            if (banner != null) {
-                var elem = document.createElement("img");
-                elem.setAttribute("src", "/api/" + banner.href);
-                elem.setAttribute("height", "40");
-                document.getElementById("banner").appendChild(elem);
-            }
-        }
-
-        $.when(contest.loadInfo()).done(function () {
-            update();
-        }).fail(function (result) {
-            console.log("Error loading page: " + result);
-        })
-
         $.when(contest.loadJudgements()).done(function () {
         	updateContestObjectHeader("judgements", contest.getJudgements());
         }).fail(function (result) {

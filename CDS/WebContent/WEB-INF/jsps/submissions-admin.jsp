@@ -83,7 +83,7 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/javascript">
-contest.setContestURL("/api","<%= cc.getId() %>");
+contest = new Contest("/api", "<%= cc.getId() %>");
 
 registerContestObjectTable("queue");
 registerContestObjectTable("submissions");

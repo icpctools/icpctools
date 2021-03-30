@@ -7,9 +7,6 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
-<script type="text/javascript">
-    contest.setContestURL("/api","<%= cc.getId() %>");
-</script>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -50,6 +47,7 @@
   <td class="pre-line">{{{text}}}</td>
 </script>
 <script type="text/javascript">
+contest = new Contest("/api", "<%= cc.getId() %>");
 registerContestObjectTable("clarifications");
 
 function clarificationsRefresh() {

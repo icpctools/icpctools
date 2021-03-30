@@ -6,9 +6,6 @@
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
-<script type="text/javascript">
-    contest.setContestURL("/api","<%= cc.getId() %>");
-</script>
 <div class="container-fluid">
     <div class="row">
         <div class="col-5">
@@ -119,11 +116,13 @@
   <td class="text-right"><a href="{{api}}">{{id}}</a></td>
   <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
-  <td>{{orgName}}x</td>
+  <td>{{orgName}}</td>
   <td>{{groupNames}}</td>
   <td><a href="<%= webroot  %>/teamSummary/{{id}}">summary</a></td>
 </script>
 <script type="text/javascript">
+contest = new Contest("/api", "<%= cc.getId() %>");
+
 registerContestObjectTable("groups");
 registerContestObjectTable("organizations");
 registerContestObjectTable("teams");
