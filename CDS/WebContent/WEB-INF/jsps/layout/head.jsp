@@ -219,6 +219,9 @@
                    contestName = contest.getName() + " "; %>
               <h1 class="m-0"><%= HttpHelper.sanitizeHTML(contestName) %><%= request.getAttribute("title") %></h1>
             </div><!-- /.col -->
+            <div class="col-sm-2">
+            	<div id="contest-time" class="text-right"></div>
+            </div>
           </div><!-- /.row -->
         </div><!-- /.container-fluid -->
       </div>

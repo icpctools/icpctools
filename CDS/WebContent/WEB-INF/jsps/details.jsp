@@ -9,6 +9,7 @@
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/javascript">
 contest = new Contest("/api", "<%= cc.getId() %>");
+updateContestClock(contest, "contest-time");
 </script>
 <div class="container-fluid">
     <div class="row">

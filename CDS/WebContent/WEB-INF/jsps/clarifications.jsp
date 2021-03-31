@@ -73,4 +73,6 @@ function submitClarification(to_team, text) {
 		$('#object-status').text("Post failed: " + result.responseText);
 	})
 }
+
+updateContestClock(contest, "contest-time");
 </script>
