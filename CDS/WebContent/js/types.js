@@ -200,8 +200,8 @@ function getBadge(label,cl) {
 function clarificationsTd(clar) {
 	var c = new Object();
 	c.time = formatTime(parseTime(clar.contest_time));
-	c.text = clar.text;
-    if (clar.problem_id != null) {
+	c.text = sanitizeHTML(clar.text);
+	if (clar.problem_id != null) {
         problem = findById(contest.getProblems(), clar.problem_id);
         if (problem != null) {
             c.label = problem.label;
@@ -219,7 +219,7 @@ function awardsTd(award) {
     for (var j = 0; j < award.team_ids.length; j++) {
         if (j > 0)
             teamsStr += "<br>";
-        teamStr += getDisplayStr(award.team_ids[j]);
+        teamsStr += getDisplayStr(award.team_ids[j]);
     }
     return { citation: award.citation, teamsStr: teamsStr };
 }
