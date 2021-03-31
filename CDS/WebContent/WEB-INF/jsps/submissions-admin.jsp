@@ -119,5 +119,7 @@ function submissionsRefresh() {
 $(document).ready(function () {
 	submissionsRefresh();
 });
+
+updateContestClock(contest, "contest-time");
 </script>
 <%@ include file="layout/footer.jsp" %>

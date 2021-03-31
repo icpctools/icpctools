@@ -136,5 +136,7 @@ $(document).ready(function () {
     	console.log("Error loading teams: " + result);
     })
 })
+
+updateContestClock(contest, "contest-time");
 </script>
 <%@ include file="layout/footer.jsp" %>

@@ -69,5 +69,6 @@ contest = new Contest("/api", "<%= cc.getId() %>");
         	console.log("Error loading runs: " + result);
         })
     })
+    updateContestClock(contest, "contest-time");
 </script>
 <%@ include file="layout/footer.jsp" %>

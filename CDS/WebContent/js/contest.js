@@ -49,7 +49,6 @@ class Contest {
 				if (this.timeDelta.length > 4)
 					this.timeDelta.shift();
 				this.timeDelta.push(serverTime);
-				//console.log("dt: " + (Date.now() - d.getTime()) + " " + (this.end - this.start) + " " + serverTime);
 				ok(result);
 			}
 		});
@@ -186,6 +185,43 @@ class Contest {
 	getScoreboard() { return this.scoreboard }
 	getAwards() { return this.awards }
 
+	getTimeDelta() {
+		if (this.timeDelta.length == 0)
+			return 0;
+		var total = 0;
+		this.timeDelta.forEach(function(item) { total += item });
+		return total / this.timeDelta.length;
+	}
+
+	getContestTime() {
+		if (this.info == null) {
+			// contest info wasn't loaded yet - so let's do that in the background in case we're called again
+			this.loadInfo();
+			return null;
+		}
+
+		var m = this.info.time_multiplier;
+		if (m == null)
+			m = 1;
+
+		if (this.info.start_time == null) {
+			if (this.info.countdown_pause_time == null)
+				return "Contest not scheduled";
+			else
+				return "Countdown paused: " + formatContestTime(parseTime(this.info.countdown_pause_time) * m);
+		}
+
+		var d = new Date(this.info.start_time);
+
+		var time = (Date.now() - d.getTime()) * m - this.getTimeDelta();
+		if (time < 0)
+			return "Countdown: " + formatContestTime(-time);
+		if (time > parseTime(this.info.duration))
+			return "Contest is over";
+		
+		return formatContestTime(time);
+	}
+
 	clear() {
 		this.startStatus = null;
 		this.problems = null;
@@ -201,8 +237,8 @@ class Contest {
 		    method: 'POST',
 		    headers: { "Accept": "application/json" },
 		    data: body,
-		    success: ok(result),
-		    error: fail(result)
+		    success: ok,
+		    error: fail
 		});
 	}
 

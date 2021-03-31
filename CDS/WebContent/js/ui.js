@@ -23,6 +23,11 @@ function sortByColumn(table) {
   }
 }
 
+function toHtml(templateName, obj) {
+  var template = $('#' + templateName).html();
+  return Mustache.render(template, obj);
+}
+
 function refreshTable(name) {
 	console.log("Refreshing: " + name);
 	
@@ -68,11 +73,6 @@ function updateContestObjectHeader(name, objs) {
     	x.attr("title", objs.length);
     	x.html(objs.length);
     }
-}
-
-function toHtml(templateName, obj) {
-  var template = $('#' + templateName).html();
-  return Mustache.render(template, obj);
 }
 
 function fillContestObjectTable(name, objs) {
@@ -179,6 +179,40 @@ function formatTime(time2) {
 	return sb.join("");
 }
 
+function formatContestTime(time) {
+	if (time == null)
+		return "";
+
+	if (time >= 0 && time < 1000)
+		return "0";
+
+	var sb = [];
+	if (time < 0) {
+		sb.push("-");
+		time = -time;
+	}
+	time2 = Math.floor(time / 1000);
+
+	days = Math.floor(time2 / 86400.0);
+	if (days > 0)
+		sb.push(days + "d ");
+
+	sb.push(Math.floor(time2 / 3600.0) % 24);
+
+	sb.push(':');
+	mins = Math.floor(time2 / 60.0) % 60;
+	if (mins < 10)
+		sb.push('0');
+	sb.push(mins);
+
+	sb.push(':');
+	secs = time2 % 60;
+	if (secs < 10)
+		sb.push('0');
+	sb.push(secs);
+	return sb.join("");
+}
+
 function formatTimestamp(time2) {
 	if (time2 == null)
 		return "";
@@ -209,4 +243,8 @@ function getDisplayStr(teamId) {
 		return teamId + ': ' + getDisplayName(team);
 	
 	return teamId + ': (not found)';
+}
+
+function updateContestClock(contest, id) {
+    setInterval(() => { $("#" + id).html(contest.getContestTime()) }, 300);
 }

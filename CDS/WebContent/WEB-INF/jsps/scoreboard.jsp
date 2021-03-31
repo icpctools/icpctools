@@ -146,6 +146,8 @@ $(document).ready(function () {
     }).fail(function (result) {
     	console.log("Error loading scoreboard: " + result);
     })
+    
+    updateContestClock(contest, "contest-time");
 })
 </script>
 <%@ include file="layout/footer.jsp" %>

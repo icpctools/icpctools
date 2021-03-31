@@ -421,6 +421,7 @@ public class ContestRESTService extends HttpServlet {
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("ICPC-Tools", "CDS");
+		response.setHeader("ICPC-Time", System.currentTimeMillis() + "");
 
 		String method = request.getMethod();
 		if (method.equals("PATCH"))
