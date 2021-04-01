@@ -66,7 +66,12 @@ function groupsTd(group) {
 	var hidden = "";
     if (group.hidden != null)
         hidden = "true";
-    return { icpc_id: group.icpc_id, name: group.name, type: group.type, hidden: hidden };
+
+   	var logoSrc = '';
+    var logo2 = bestSquareLogo(group.logo, 20);
+    if (logo2 != null)
+        logoSrc = '/api/' + logo2.href;
+    return { icpc_id: group.icpc_id, name: group.name, type: group.type, hidden: hidden, logo: logoSrc };
 }
 
 function organizationsTd(org) {
@@ -75,7 +80,12 @@ function organizationsTd(org) {
     if (logo2 != null)
         logoSrc = '/api/' + logo2.href;
 
-    return { name: org.name, formalName: org.formal_name, country: org.country, logo: logoSrc };
+    var flagSrc = '';
+    var flag2 = bestSquareLogo(org.country_flag, 20);
+    if (flag2 != null)
+        flagSrc = '/api/' + flag2.href;
+
+    return { name: org.name, formalName: org.formal_name, country: org.country, logo: logoSrc, flag: flagSrc };
 }
 
 function teamsTd(team) {

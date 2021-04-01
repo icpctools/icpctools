@@ -25,6 +25,7 @@
 			            	<tr>
 			            		<th>Id</th>
 								<th>ICPC Id</th>
+								<th></th>
 								<th>Name</th>
 								<th>Type</th>
 								<th class="text-center">Hidden</th>
@@ -101,6 +102,7 @@
 <script type="text/html" id="groups-template">
   <td><a href="{{api}}">{{id}}</td>
   <td>{{icpc_id}}</td>
+  <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
   <td>{{type}}</td>
   <td class="text-center">{{#hidden}}<span class="badge badge-info"><i class="fas fa-eye-slash"></i></a>{{/hidden}}</td>
@@ -110,7 +112,7 @@
   <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
   <td>{{formalName}}</td>
-  <td>{{#country}}<img src="/countries/{{country}}.png" height=18/> {{country}}{{/country}}</td>
+  <td>{{country}}{{#flag}} <img src="{{{flag}}}" width="20" height="20"/>{{/flag}}</td>
 </script>
 <script type="text/html" id="teams-template">
   <td class="text-right"><a href="{{api}}">{{id}}</a></td>
