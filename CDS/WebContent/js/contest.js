@@ -11,6 +11,7 @@ class Contest {
 	judgements;
 	runs;
 	clarifications;
+	commentary;
 	awards;
 	startStatus;
 	scoreboard;
@@ -154,6 +155,13 @@ class Contest {
 		return this.loadObject('clarifications', (result) => { this.clarifications = result });
 	}
 
+	loadCommentary() {
+		if (this.commentary != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('commentary', (result) => { this.commentary = result });
+	}
+
 	loadScoreboard() {
 		if (this.scoreboard != null)
 			return new $.Deferred().resolve();
@@ -182,6 +190,7 @@ class Contest {
 	getJudgements() { return this.judgements }
 	getRuns() { return this.runs }
 	getClarifications() { return this.clarifications }
+	getCommentary() { return this.commentary }
 	getScoreboard() { return this.scoreboard }
 	getAwards() { return this.awards }
 

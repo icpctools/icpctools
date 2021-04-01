@@ -49,6 +49,21 @@ public class Commentary extends TimedEvent implements ICommentary {
 	}
 
 	@Override
+	public String[] getProblemIds() {
+		return problemIds;
+	}
+
+	@Override
+	public String[] getTeamIds() {
+		return teamIds;
+	}
+
+	@Override
+	public String getMessage() {
+		return message;
+	}
+
+	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
 		props.put(MESSAGE, message);

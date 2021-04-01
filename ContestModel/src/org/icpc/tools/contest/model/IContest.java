@@ -465,7 +465,22 @@ public interface IContest {
 	 * @param clarId
 	 * @return a clarification
 	 */
-	IClarification getClarificationById(String clarId);
+	IClarification getClarificationById(String id);
+
+	/**
+	 * Returns a list of all commentary in the contest.
+	 *
+	 * @return a list of all commentary
+	 */
+	ICommentary[] getCommentary();
+
+	/**
+	 * Return the commentary with the given id, or null if it doesn't exist.
+	 *
+	 * @param clarId
+	 * @return a commentary
+	 */
+	ICommentary getCommentaryById(String id);
 
 	/**
 	 * Returns the total number of runs.
