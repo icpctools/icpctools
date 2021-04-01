@@ -13,6 +13,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
+import org.icpc.tools.contest.model.ICommentary;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestListener.Delta;
@@ -58,6 +59,7 @@ public class Contest implements IContest {
 	private ISubmission[] submissions;
 	private IJudgement[] judgements;
 	private IClarification[] clars;
+	private ICommentary[] commentary;
 	private IRun[] runs;
 	private IStartStatus[] startStatus;
 	private IAward[] awards;
@@ -189,6 +191,7 @@ public class Contest implements IContest {
 			members = null;
 			runs = null;
 			clars = null;
+			commentary = null;
 
 			order = null;
 			orderedTeams = null;
@@ -285,6 +288,8 @@ public class Contest implements IContest {
 			runs = null;
 		} else if (type == ContestType.CLARIFICATION) {
 			clars = null;
+		} else if (type == ContestType.COMMENTARY) {
+			commentary = null;
 		} else if (type == ContestType.MAP_INFO) {
 			mapInfo = (MapInfo) obj;
 		}
@@ -1555,6 +1560,34 @@ public class Contest implements IContest {
 
 		IClarification[] temp = getClarifications();
 		for (IClarification c : temp) {
+			if (c.getId().equals(id))
+				return c;
+		}
+		return null;
+	}
+
+	@Override
+	public ICommentary[] getCommentary() {
+		ICommentary[] temp = commentary;
+		if (temp != null)
+			return temp;
+
+		synchronized (data) {
+			if (commentary != null)
+				return commentary;
+
+			commentary = data.getByType(ICommentary.class, ContestType.COMMENTARY);
+			return commentary;
+		}
+	}
+
+	@Override
+	public ICommentary getCommentaryById(String id) {
+		if (id == null)
+			return null;
+
+		ICommentary[] temp = getCommentary();
+		for (ICommentary c : temp) {
 			if (c.getId().equals(id))
 				return c;
 		}

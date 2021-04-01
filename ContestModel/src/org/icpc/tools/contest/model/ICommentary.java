@@ -17,4 +17,25 @@ public interface ICommentary extends IContestObject {
 	 * @return the time
 	 */
 	long getTime();
+
+	/**
+	 * Returns the ids of the problems that this commentary is for.
+	 *
+	 * @return the team id
+	 */
+	String[] getProblemIds();
+
+	/**
+	 * Returns the ids of the teams that this commentary is for.
+	 *
+	 * @return the team id
+	 */
+	String[] getTeamIds();
+
+	/**
+	 * The message of the commentary.
+	 *
+	 * @return the message
+	 */
+	String getMessage();
 }
