@@ -45,6 +45,28 @@ public interface IOrganization extends IContestObject {
 	String getCountry();
 
 	/**
+	 * The file references for the country flag, which clients can use to see exactly what
+	 * resolutions of country flags are available.
+	 *
+	 * @return the file reference list
+	 */
+	FileReferenceList getCountryFlag();
+
+	/**
+	 * The country flag of the organization.
+	 *
+	 * @return the country flag
+	 */
+	File getCountryFlag(int width, int height, boolean force);
+
+	/**
+	 * The country flag of the organization.
+	 *
+	 * @return the country flag
+	 */
+	BufferedImage getCountryFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+
+	/**
 	 * The url of the organization.
 	 *
 	 * @return the url

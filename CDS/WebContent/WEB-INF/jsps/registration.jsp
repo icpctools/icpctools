@@ -48,7 +48,8 @@
 			        <table id="groups-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			            	<tr>
-			            		<th>Name</th>
+			            		<th width=90%>Name</th>
+			            		<th></th>
 			            	</tr>
 			            </thead>
 			            <tbody></tbody>
@@ -90,11 +91,12 @@
 </script>
 <script type="text/html" id="groups-template">
   <td>{{name}}</td>
+  <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
 </script>
 <script type="text/html" id="organizations-template">
   <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{#formalName}}{{formalName}} ({{name}}){{/formalName}}{{^formalName}}{{name}}{{/formalName}}</td>
-  <td>{{#country}}<img src="/countries/{{country}}.png" height=18/> {{country}}{{/country}}</td>
+  <td>{{country}}{{#flag}} <img src="{{{flag}}}" width="20" height="20"/>{{/flag}}</td>
 </script>
 <script type="text/javascript">
 contest = new Contest("/api", "<%= cc.getId() %>");

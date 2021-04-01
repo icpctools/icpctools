@@ -58,6 +58,7 @@ public class DiskContestSource extends ContestSource {
 	private static final String TOOL_DATA = "tool_data";
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
+	private static final String COUNTRY_FLAG = "country_flag";
 
 	private File root;
 	private File cacheFolder;
@@ -783,6 +784,9 @@ public class DiskContestSource extends ContestSource {
 			if (LOGO.equals(property))
 				return new String[] { reg + "organizations" + File.separator + id, "logo{0}.png",
 						"organizations/" + id + "/logo{0}" };
+			if (COUNTRY_FLAG.equals(property))
+				return new String[] { reg + "organizations" + File.separator + id, "flag{0}.png",
+						"organizations/" + id + "/flag{0}" };
 		} else if (type == ContestType.SUBMISSION) {
 			if (FILES.equals(property))
 				return new String[] { events + "submissions" + File.separator + id, "files.zip",
@@ -805,6 +809,7 @@ public class DiskContestSource extends ContestSource {
 		} else if (obj instanceof Organization) {
 			Organization org = (Organization) obj;
 			org.setLogo(getFilesWithPattern(obj, LOGO));
+			org.setCountryFlag(getFilesWithPattern(obj, COUNTRY_FLAG));
 		} else if (obj instanceof Team) {
 			Team team = (Team) obj;
 			team.setPhoto(getFilesWithPattern(obj, PHOTO));

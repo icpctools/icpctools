@@ -24,6 +24,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private static final String LATITUDE = "latitude";
 	private static final String LONGITUDE = "longitude";
 	private static final String LOGO = "logo";
+	private static final String COUNTRY_FLAG = "country_flag";
 
 	private String icpcId;
 	private String name;
@@ -34,6 +35,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private double latitude = Double.NaN;
 	private double longitude = Double.NaN;
 	private FileReferenceList logo;
+	private FileReferenceList countryFlag;
 
 	@Override
 	public ContestType getType() {
@@ -107,8 +109,27 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
+	public File getCountryFlag(int width, int height, boolean force) {
+		return getFile(getBestFileReference(countryFlag, new ImageSizeFit(width, height)), COUNTRY_FLAG, force);
+	}
+
+	@Override
+	public BufferedImage getCountryFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
+		return getRefImage(COUNTRY_FLAG, countryFlag, width, height, forceLoad, resizeToFit);
+	}
+
+	@Override
+	public FileReferenceList getCountryFlag() {
+		return countryFlag;
+	}
+
+	public void setCountryFlag(FileReferenceList list) {
+		countryFlag = list;
+	}
+
+	@Override
 	public Object resolveFileReference(String url2) {
-		return FileReferenceList.resolve(url2, logo);
+		return FileReferenceList.resolve(url2, logo, countryFlag);
 	}
 
 	@Override
@@ -148,6 +169,10 @@ public class Organization extends ContestObject implements IOrganization {
 				logo = new FileReferenceList(value);
 				return true;
 			}
+			case COUNTRY_FLAG: {
+				countryFlag = new FileReferenceList(value);
+				return true;
+			}
 		}
 
 		return false;
@@ -162,6 +187,7 @@ public class Organization extends ContestObject implements IOrganization {
 		o.name = name;
 		o.formalName = formalName;
 		o.country = country;
+		o.countryFlag = countryFlag;
 		o.url = url;
 		o.hashtag = hashtag;
 		o.latitude = latitude;
@@ -176,6 +202,7 @@ public class Organization extends ContestObject implements IOrganization {
 		props.put(NAME, name);
 		props.put(FORMAL_NAME, formalName);
 		props.put(COUNTRY, country);
+		props.put(COUNTRY_FLAG, countryFlag);
 		props.put(URL, url);
 		props.put(HASHTAG, hashtag);
 		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
@@ -197,6 +224,7 @@ public class Organization extends ContestObject implements IOrganization {
 		je.encode(FORMAL_NAME, formalName);
 		if (country != null)
 			je.encode(COUNTRY, country);
+		je.encode(COUNTRY_FLAG, countryFlag, false);
 		if (url != null)
 			je.encode(URL, url);
 		if (hashtag != null)
