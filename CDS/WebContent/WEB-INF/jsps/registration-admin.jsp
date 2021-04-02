@@ -1,4 +1,3 @@
-<%@ page import="org.icpc.tools.contest.model.*" %>
 <% request.setAttribute("title", "Registration"); %>
 <%@ include file="layout/head.jsp" %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>

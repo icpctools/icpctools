@@ -1,7 +1,5 @@
-<%@ page import="org.icpc.tools.contest.model.*" %>
 <% request.setAttribute("title", "Clarifications"); %>
 <%@ include file="layout/head.jsp" %>
-<% IState state = contest.getState(); %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
@@ -42,11 +40,11 @@
     </div>
 </div>
 <script type="text/html" id="clarifications-template">
-  <td><a href="' + contest.getURL('clarifications', {{id}})">{{id}}</a></td>
+  <td><a href="{{api}}">{{id}}</a></td>
   <td class="text-center">{{{time}}}</td>
   <td class="text-center">{{#label}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/label}}</td>
-  <td>{{fromTeam}}</td>
-  <td>{{toTeam}}</td>
+  <td>{{#fromTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/fromTeam}}</td>
+  <td>{{#toTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/toTeam}}</td>
   <td>{{replyTo}}</td>
   <td class="pre-line">{{{text}}}</td>
 </script>
@@ -56,7 +54,7 @@ registerContestObjectTable("clarifications");
 
 function clarificationsRefresh() {
 	contest.clear();
-	$.when(contest.loadClarifications(), contest.loadTeams(), contest.loadProblems()).done(function () {
+	$.when(contest.loadClarifications(), contest.loadTeams(), contest.loadOrganizations(), contest.loadProblems()).done(function () {
         fillContestObjectTable("clarifications", contest.getClarifications());
     }).fail(function (result) {
     	console.log("Error loading clarifications: " + result);

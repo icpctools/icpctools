@@ -46,7 +46,10 @@ function addColors(obj, rgb) {
 }
 
 function languagesTd(lang) {
-    return { name: lang.name, entry_point_required: lang.entry_point_required, entry_point_name: lang.entry_point_name, extensions: lang.extensions.join(', ') };
+	var ext = '';
+	if (lang.extensions != null)
+		ext = lang.extensions.join(', ')
+    return { name: lang.name, entry_point_required: lang.entry_point_required, entry_point_name: lang.entry_point_name, extensions: ext };
 }
 
 function judgementtypesTd(jt) {
@@ -89,6 +92,9 @@ function organizationsTd(org) {
 }
 
 function teamsTd(team) {
+	if (team == null)
+		return null;
+
 	var name = team.display_name;
 	if (name == null)
 		name = team.name;
@@ -114,7 +120,7 @@ function teamsTd(team) {
         }
     }
 
-    return { name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames };
+    return { id: team.id, name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames };
 }
 
 function queueTd(submission) {
@@ -139,16 +145,7 @@ function submissionsTd(submission) {
         if (lang != null)
         	sub.lang = lang.name;
     }
-	if (submission.team_id != null) {
-		team = submission.team_id;
-        var team2 = findById(contest.getTeams(), submission.team_id);
-        if (team2.organization_id != null) {
-        	org = findById(contest.getOrganizations(), team2.organization_id);
-            if (org != null)
-                sub.org = org.name;
-        }
-        sub.team = getDisplayStr(submission.team_id);
-    }
+	sub.team = teamsTd(findById(contest.getTeams(), submission.team_id));
 	var judgements = findManyBySubmissionId(contest.getJudgements(), submission.id);
 	if (judgements != null && judgements.length > 0) {
         var first = true;
@@ -218,10 +215,26 @@ function clarificationsTd(clar) {
             addColors(c, problem.rgb);
         }
     }
-    c.fromTeam = getDisplayStr(clar.from_team_id);
-    c.toTeam = getDisplayStr(clar.to_team_id);
-	c.replyTo = clar.reply_to_id;
+    c.fromTeam = teamsTd(findById(contest.getTeams(), clar.from_team_id));
+    c.toTeam = teamsTd(findById(contest.getTeams(), clar.to_team_id));
+    c.replyTo = clar.reply_to_id;
     return c;
+}
+
+function commentaryTd(comment) {
+    problems = [comment.problem_ids];
+    for (var j = 0; j < comment.problem_ids.length; j++) {
+    	problem = findById(contest.getProblems(), comment.problem_ids[j]);
+    	if (problem != null) {
+	        problems[j] = { label: problem.label };
+	        addColors(problems[j], problem.rgb);
+	    }
+    }
+    teams = [];
+    for (var j = 0; j < comment.team_ids.length; j++)
+    	teams.push(teamsTd(findById(contest.getTeams(), comment.team_ids[j])));
+    
+    return { time: formatTime(parseTime(comment.contest_time)), message: sanitizeHTML(comment.message), problems: problems, teams: teams };
 }
 
 function awardsTd(award) {

@@ -1,7 +1,5 @@
-<%@ page import="org.icpc.tools.contest.model.*" %>
 <% request.setAttribute("title", "Registration"); %>
 <%@ include file="layout/head.jsp" %>
-<% IState state = contest.getState(); %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
