@@ -13,7 +13,9 @@
             <thead>
                 <tr>
                     <th>Id</th>
-                    <th width=90%>Name</th>
+                    <th>Name</th>
+                    <th>Entry point</th>
+                    <th>Extensions</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -25,6 +27,13 @@
 <script type="text/html" id="languages-template">
   <td><a href="{{api}}">{{id}}</a></td>
   <td>{{name}}</td>
+  <td>
+    {{#entry_point_required}}<span class="badge badge-success"><i class="fas fa-check"></i></span> {{entry_point_name}}{{/entry_point_required}}
+    {{^entry_point_required}}<span class="badge badge-danger"><i class="fas fa-times"></i></span>{{/entry_point_required}}
+  </td>
+  <td>
+    {{extensions}}
+  </td>
 </script>
 <script type="text/javascript">
 registerContestObjectTable("languages");

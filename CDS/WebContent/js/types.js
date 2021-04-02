@@ -46,7 +46,7 @@ function addColors(obj, rgb) {
 }
 
 function languagesTd(lang) {
-    return { name: lang.name };
+    return { name: lang.name, entry_point_required: lang.entry_point_required, entry_point_name: lang.entry_point_name, extensions: lang.extensions.join(', ') };
 }
 
 function judgementtypesTd(jt) {
