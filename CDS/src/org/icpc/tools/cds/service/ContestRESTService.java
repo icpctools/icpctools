@@ -30,6 +30,7 @@ import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IInfo;
+import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
@@ -702,6 +703,7 @@ public class ContestRESTService extends HttpServlet {
 		String teamId = obj.getString("team_id");
 		String problemId = obj.getString("problem_id");
 		String languageId = obj.getString("language_id");
+		String entryPoint = obj.getString("entry_point");
 
 		Contest contest = cc.getContestByRole(request);
 		if (teamId != null && contest.getTeamById(teamId) == null) {
@@ -711,6 +713,12 @@ public class ContestRESTService extends HttpServlet {
 
 		if (languageId == null || contest.getLanguageById(languageId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown language");
+			return;
+		}
+
+		ILanguage language = contest.getLanguageById(languageId);
+		if (language.getEntryPointRequired() && entryPoint == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, language.getEntryPointName() + " required for " + language.getName());
 			return;
 		}
 
