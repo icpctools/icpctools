@@ -196,6 +196,9 @@ public class ContestWebService extends HttpServlet {
 			} else if (segments[1].equals("scoreboard")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/scoreboard.jsp").forward(request, response);
 				return;
+			} else if (segments[1].equals("commentary")) {
+				request.getRequestDispatcher("/WEB-INF/jsps/commentary.jsp").forward(request, response);
+				return;
 			} else if (segments[1].equals("contestCompare")) {
 				try {
 					Contest contestA = cc.getContestByRole(request);
