@@ -39,7 +39,7 @@ public class HttpHelper {
 		try {
 			long ifModifiedSince = request.getDateHeader("If-Modified-Since");
 			if (ifModifiedSince != -1 && ifModifiedSince >= lastModified) {
-				response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
+				response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 				return;
 			}
 		} catch (Exception e) {
@@ -54,7 +54,7 @@ public class HttpHelper {
 				while (ifNoneMatch.hasMoreElements()) {
 					String val = ifNoneMatch.nextElement();
 					if (current.equals(val)) {
-						response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
+						response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 						return;
 					}
 				}
@@ -87,6 +87,7 @@ public class HttpHelper {
 		}
 
 		bin.close();
+		out.flush();
 	}
 
 	/**

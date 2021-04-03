@@ -47,7 +47,7 @@ public class PresentationFilesServlet extends HttpServlet {
 		try {
 			long ifModifiedSince = request.getDateHeader("If-Modified-Since");
 			if (ifModifiedSince != -1 && ifModifiedSince >= lastModified) {
-				response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
+				response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
 				return;
 			}
 		} catch (Exception e) {
