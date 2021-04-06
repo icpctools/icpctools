@@ -124,6 +124,12 @@
       description="Slides the logos of all organizations"
       image="images/presentations/logos.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.OrgLogoSlidePresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.commentary"
+      name="Commentary"
+      category="ICPC"
+      description="Displays contest commentary."
+      class="org.icpc.tools.presentation.contest.internal.presentations.CommentaryPresentation"/>
 
    <!-- Fun -->
 
