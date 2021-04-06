@@ -809,6 +809,7 @@ public class ContestRESTService extends HttpServlet {
 		String fromTeamId = obj.getString("from_team_id");
 		String toTeamId = obj.getString("to_team_id");
 		String problemId = obj.getString("problem_id");
+		String text = obj.getString("text");
 
 		Contest contest = cc.getContestByRole(request);
 		if (fromTeamId != null && contest.getTeamById(fromTeamId) == null) {
@@ -818,6 +819,11 @@ public class ContestRESTService extends HttpServlet {
 
 		if (problemId != null && contest.getProblemById(problemId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown problem");
+			return;
+		}
+
+		if (text == null || text.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Clarification is empty");
 			return;
 		}
 
