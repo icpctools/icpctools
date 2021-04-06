@@ -252,10 +252,10 @@ class Contest {
 	}
 
 	postSubmission(obj, ok, fail) {
-        post('submissions', obj, ok, fail);
+        this.post('submissions', obj, ok, fail);
 	}
 
 	postClarification(obj, ok, fail) {
-        post('clarifications', obj, ok, fail);
+        this.post('clarifications', obj, ok, fail);
 	}
 };
