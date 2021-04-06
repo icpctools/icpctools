@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -29,7 +27,6 @@ import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.resolver.SelectType;
 import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.contest.model.util.AwardUtil;
-import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
@@ -37,16 +34,14 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
+import org.icpc.tools.presentation.contest.internal.presentations.TitledPresentation;
 
-public abstract class AbstractScoreboardPresentation extends AbstractICPCPresentation {
-	protected static final int TRANSITION_TIME = 2000;
+public abstract class AbstractScoreboardPresentation extends TitledPresentation {
 	protected static final Movement ROW_MOVEMENT = new Movement(4, 7);
 	protected static final Color COLOR_TEAM_LIST = new Color(40, 192, 192);
 
 	private static final int DEFAULT_TEAMS_PER_SCREEN = 12;
 	protected static final int CUBE_INSET = 5;
-	protected static final int BORDER = 8;
-	protected static final int CLOCK_MARGIN = 2;
 
 	// the color for the blinking rounded rectangle outline on pending submissions
 	private static final Color PENDING_SUBMISSION_BLINK_HILIGHT_COLOR = new Color(255, 255, 0, 255);
@@ -57,10 +52,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 	protected Font rowItalicsFont;
 	public static Font statusFont;
 	public static Font problemFont;
-	private Font titleFont;
-	private Font clockFont;
-	private BufferedImage headerImg;
-	private boolean showClock = true;
 
 	protected SelectType selectType = SelectType.NORMAL;
 	protected List<ITeam> selectedTeams = null;
@@ -74,8 +65,6 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 	protected static final Color BG_COLOR = new Color(60, 60, 60);
 
 	protected int oldNumProblems = -1;
-	protected int titleHeight = 20;
-	protected int headerHeight = 20;
 	protected float rowHeight = 20;
 	protected int cubeHeight;
 	protected int cubeWidth;
@@ -89,12 +78,11 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 
 	protected final Map<String, BufferedImage> teamRowImages = new HashMap<>();
 
+	@Override
 	protected void setup() {
 		final float dpi = 96;
 
 		float size = (int) (height * 72.0 * 0.028 / dpi);
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 2.2f);
-		clockFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 1.25f);
 		headerFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size);
 		headerItalicsFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size);
 
@@ -124,19 +112,15 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		}
 		cubeWidth = newCubeWidth;
 
-		headerImg = createHeaderImage();
+		super.setup();
 	}
 
 	@Override
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		headerImg = null;
-
 		if (d.width == 0 || d.height == 0)
 			return;
-
-		setup();
 
 		teamRowImages.clear();
 		loadTeamLogos();
@@ -324,76 +308,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		showMedals = b;
 	}
 
-	protected boolean isInStartTransition() {
-		if (getPreviousPresentation() != null && getRepeatTimeMs() < TRANSITION_TIME)
-			return true;
-		return false;
-	}
-
-	protected boolean isInEndTransition() {
-		if (getNextPresentation() != null && getRepeatTimeMs() > getRepeat() - TRANSITION_TIME)
-			return true;
-		return false;
-	}
-
-	protected boolean isInTransition() {
-		return isInStartTransition() || isInEndTransition();
-	}
-
-	/**
-	 * Helper method. Returns a number between 0 and 1 if the current time is between 0 and the
-	 * transition time respectively, and 1 and 0 if the time is between the transition and the
-	 * end/repeat time respectively.
-	 *
-	 * @return a number between 0 and 1
-	 */
-	protected double getTransitionTime() {
-		long repeat = getRepeat();
-		long repeatTimeMs = getRepeatTimeMs();
-		if (repeatTimeMs < TRANSITION_TIME)
-			return repeatTimeMs / (double) TRANSITION_TIME;
-		else if (repeatTimeMs > repeat - TRANSITION_TIME)
-			return (repeat - repeatTimeMs) / (double) TRANSITION_TIME;
-
-		return 1.0;
-	}
-
-	protected void paintHeader(Graphics2D g) {
-		int h = 0;
-		if (isInTransition())
-			h = (int) (getTransitionTime() * headerHeight) - headerHeight;
-		g.drawImage(headerImg, 0, h + titleHeight, null);
-
-		if (showClock) {
-			if (getContest().getState().isFrozen())
-				g.setColor(ICPCColors.YELLOW);
-			else
-				g.setColor(Color.WHITE);
-			g.setFont(clockFont);
-			FontMetrics fm = g.getFontMetrics();
-			String s = getContestTime();
-			if (s != null)
-				g.drawString(s, width / 12 - fm.stringWidth(s) / 2, fm.getAscent() + CLOCK_MARGIN);
-
-			s = getRemainingTime();
-			if (s != null)
-				g.drawString(s, width * 11 / 12 - fm.stringWidth(s) / 2, fm.getAscent() + CLOCK_MARGIN);
-		}
-	}
-
-	protected BufferedImage createHeaderImage() {
-		BufferedImage img = new BufferedImage(width, headerHeight, Transparency.OPAQUE);
-		Graphics2D g = (Graphics2D) img.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-		drawHeader(g);
-
-		g.dispose();
-		return img;
-	}
-
+	@Override
 	protected void drawHeader(Graphics2D g) {
 		g.setFont(rowFont);
 		FontMetrics fm = g.getFontMetrics();
@@ -677,10 +592,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 		return smImg;
 	}
 
-	protected String getTitle() {
-		return null;
-	}
-
+	@Override
 	protected void paintImpl(Graphics2D g) {
 		IContest contest = getContest();
 		if (contest == null)
@@ -712,33 +624,11 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 
 	@Override
 	public void paint(Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-		paintHeader(g);
-
-		String s = getTitle();
-		if (s != null) {
-			g.setColor(Color.WHITE);
-			g.setFont(titleFont);
-			FontMetrics fm = g.getFontMetrics();
-			g.drawString(s, (width - fm.stringWidth(s)) / 2, fm.getAscent());
-		}
-
-		IContest c = getContest();
-		if (c == null || c.getNumTeams() == 0)
-			return;
-
-		Graphics2D g2 = (Graphics2D) g.create();
-		g2.translate(0, headerHeight + titleHeight);
-		g2.setClip(0, 0, width, height - headerHeight - titleHeight);
-		paintImpl(g2);
-		g2.dispose();
+		super.paint(g);
 
 		long time = getRepeatTimeMs();
 		if (time < 6000) {
-			g2 = (Graphics2D) g.create();
+			Graphics2D g2 = (Graphics2D) g.create();
 			// fade legends in and out
 			if (time < 1500)
 				g2.setComposite(AlphaComposite.SrcOver.derive(time / 1500f));
@@ -764,9 +654,7 @@ public abstract class AbstractScoreboardPresentation extends AbstractICPCPresent
 			} catch (Exception e) {
 				// ignore
 			}
-		} else if (value.startsWith("clockOn"))
-			showClock = true;
-		else if (value.startsWith("clockOff"))
-			showClock = false;
+		} else
+			super.setProperty(value);
 	}
 }

@@ -29,6 +29,7 @@ public class Messages {
 	public static String titleLeaderboard;
 	public static String titleGroupLeaderboard;
 	public static String titleGroupLeaderboardSubs;
+	public static String titleCommentary;
 
 	static {
 		NLS.initMessages(Messages.class);
