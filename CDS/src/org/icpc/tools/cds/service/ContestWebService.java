@@ -14,8 +14,6 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -46,8 +44,6 @@ import org.icpc.tools.contest.model.util.ScoreboardData;
 import org.icpc.tools.contest.model.util.ScoreboardUtil;
 
 @WebServlet(urlPatterns = { "/contests", "/contests/*" }, asyncSupported = true)
-@ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.BLUE, Role.BALLOON, Role.TRUSTED, Role.TEAM, Role.PUBLIC }))
 public class ContestWebService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

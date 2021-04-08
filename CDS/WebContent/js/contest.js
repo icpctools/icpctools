@@ -116,14 +116,14 @@ class Contest {
 			return new $.Deferred().resolve();
 
 		return this.loadObject('teams', (result) => {
-			 var teams2 = result;
-			    teams2.sort(function(a,b) {
-			    	if (!isNaN(a.id) && !isNaN(b.id))
-			    		return Number(a.id) > Number(b.id);
-			        else
-			    		return a.id.localeCompare(b.id);
-				   })
-			    this.teams = teams2;
+			var teams2 = result;
+			teams2.sort(function(a,b) {
+				if (!isNaN(a.id) && !isNaN(b.id))
+					return Number(a.id) > Number(b.id);
+				else
+					return a.id.localeCompare(b.id);
+			})
+			this.teams = teams2;
 		});
 	}
 
@@ -202,6 +202,34 @@ class Contest {
 		return total / this.timeDelta.length;
 	}
 
+	getContestTimeObj() {
+		// returns a single object with contest time/state
+		// null - if unscheduled
+		// -time - if in countdown
+		// "time" - if countdown is paused
+		// time - time if past contest start
+		if (this.info == null) {
+			// contest info wasn't loaded yet - so let's do that in the background in case we're called again
+			this.loadInfo();
+			return null;
+		}
+
+		var m = this.info.time_multiplier;
+		if (m == null)
+			m = 1;
+
+		if (this.info.start_time == null) {
+			if (this.info.countdown_pause_time == null)
+				return null;
+			else
+				return formatTime(parseTime(this.info.countdown_pause_time) * m) + "";
+		}
+
+		var d = new Date(this.info.start_time);
+
+		return (Date.now() - d.getTime()) * m - this.getTimeDelta();
+	}
+
 	getContestTime() {
 		if (this.info == null) {
 			// contest info wasn't loaded yet - so let's do that in the background in case we're called again
@@ -258,4 +286,49 @@ class Contest {
 	postClarification(obj, ok, fail) {
         this.post('clarifications', obj, ok, fail);
 	}
-};
+}
+
+class Contests {
+	contests;
+	contestObjs;
+
+	constructor(baseURL) {
+		if (!baseURL.endsWith('/'))
+			baseURL += '/';
+		this.baseURL = baseURL;
+		console.log("Base URL: " + this.baseURL);
+	}
+
+	loadContests() {
+		if (this.contests != null)
+			return new $.Deferred().resolve();
+			
+		console.log("Loading contests");
+		var deferred = new $.Deferred();
+		return $.ajax({
+			url: this.baseURL + 'contests',
+			success: (result) => { this.contests = result }
+		});
+	}
+
+	getBaseURL() { return this.baseURL }
+	getContests() { return this.contests }
+
+	getContestObjs() {
+		if (this.contestObjs != null)
+			return this.contestObjs;
+
+		contests = [];
+		for (var i = 0; i < this.contests.length; i++) {
+			var c = new Contest(this.baseURL, this.contests[i].id);
+			c.info = this.contests[i];
+			contests.push(c);
+		}
+		this.contestObjs = contests;
+		return this.contestObjs;
+	}
+
+	clear() {
+		this.contests = null;
+	}
+}

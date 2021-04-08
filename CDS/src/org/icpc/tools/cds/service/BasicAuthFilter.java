@@ -72,14 +72,15 @@ public class BasicAuthFilter implements Filter {
 
 		String authHeader = request.getHeader(AUTHORIZATION_HEADER);
 		if (authHeader == null || !authHeader.startsWith(BASIC_PREFIX)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "BASIC authentication is required");
+			// unauthorized, but let them through for public API
+			filterChain.doFilter(request, response);
 			return;
 		}
 
 		String authValue = authHeader.substring(BASIC_PREFIX.length());
 		String userAndPassword = new String(Base64.getDecoder().decode(authValue));
 		if (!userAndPassword.contains(":")) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "BASIC authentication is required");
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid BASIC authentication");
 			return;
 		}
 

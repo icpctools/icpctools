@@ -14,6 +14,7 @@
     }
     String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/admin", "/video/status", "/reports"};
     String[] menuTitles = {"Overview", "Details", "Registration", "Clarifications", "Submissions", "Scoreboard", "Commentary", "Admin", "Video", "Reports"};
+    String[] menuIcons = {"fa-globe", "fa-info", "fa-users", "fa-comments", "fa-share", "fa-trophy", "fa-comments", "fa-user-cog", "fa-video", "fa-file-alt"};
 %>
 <!DOCTYPE html>
 
@@ -149,7 +150,7 @@
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
-                    <i class="far fa-circle nav-icon"></i>
+                    <i class="far <%= menuIcons[i] %> nav-icon"></i>
                     <p><%= menuTitles[i] %></p>
                   </a>
                 </li>
