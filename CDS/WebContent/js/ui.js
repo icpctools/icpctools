@@ -217,6 +217,9 @@ function formatTimestamp(time2) {
 	if (time2 == null)
 		return "";
 	var d = new Date(time2);
+	var now = new Date();
+	if (d.getDate() == now.getDate() && d.getMonth() == now.getMonth() && d.getYear() == now.getYear())
+		return d.toLocaleTimeString();
 	return d.toDateString() + " " + d.toLocaleTimeString();
 }
 

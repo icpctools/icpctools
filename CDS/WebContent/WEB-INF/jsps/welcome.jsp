@@ -1,115 +1,154 @@
-<%@page import="org.icpc.tools.contest.model.feed.ContestSource.ConnectionState" %>
-<%@page import="org.icpc.tools.contest.model.IContest" %>
-<%@page import="org.icpc.tools.contest.model.IState" %>
-<%@page import="org.icpc.tools.contest.model.internal.State" %>
-<%@page import="org.icpc.tools.contest.model.ContestUtil" %>
-<%@page import="org.icpc.tools.cds.CDSConfig" %>
-<%@page import="org.icpc.tools.cds.ConfiguredContest" %>
-<%@page import="org.icpc.tools.cds.ConfiguredContest.Mode" %>
-<%@page import="org.icpc.tools.cds.util.Role" %>
 <% request.setAttribute("title", "Contests"); %>
+<script src="${pageContext.request.contextPath}/js/contest.js"></script>
+<script src="${pageContext.request.contextPath}/js/model.js"></script>
+<script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script src="${pageContext.request.contextPath}/js/types.js"></script>
+<script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
   <div class="row">
-    <div class="col-12">
-      <% ConfiguredContest[] ccsh = CDSConfig.getContests();
-
-         for (ConfiguredContest cch : ccsh) { %>
-      <% if (!cch.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
-                IContest contestH = cch.getContest();
-                try {
-                    IState state = contestH.getState();
-                    if (state == null)
-                        state = new State();
-                    String headerClass = "bg-info";
-                    if (state.getFinalized() != null) {
-                        headerClass = "";
-                    } else if (state.getEnded() != null)
-                        headerClass = "bg-danger";
-                    else if (state.getFrozen() != null) {
-                        headerClass = "bg-warning";
-                    } else if (state.getStarted() != null)
-                        headerClass = "bg-success";
-            %>
-      <div class="card mb-4">
-        <% String webRootH = "/contests/" + cch.getId();
-           String apiRootH = "/api/contests/" + cch.getId(); %>
-        <div class="card-header <%= headerClass %> default-text-color">
-          <a href="<%= webRootH %>/details">
-            <h2 class="card-title default-text-color"><%= contestH.getActualFormalName() != null ? HttpHelper.sanitizeHTML(contestH.getActualFormalName()) : "(unnamed contest)" %></h2>
-          </a>
-          <div class="card-tools"><a href="<%= apiRootH %>" class="default-text-color">/<%= cch.getId() %></a></div>
-        </div>
-        <div class="card-body <%= headerClass %>">
-          <table class="table table-sm table-fullwidth">
-            <thead>
-              <tr>
-                <% if (state.isRunning()) { %>
-                <td colspan="2" width="98%">
-                  <div class="progress">
-                    <% String progressBg = "bg-warning";
-                             if (state.isFrozen())
-                            	progressBg = "bg-info"; %>
-                    <div class="progress-bar <%= progressBg %>"
-                      style="width: <%= Math.max(0, Math.min(99,(long)((System.currentTimeMillis() - state.getStarted()) * contestH.getTimeMultiplier()) * 100 / contestH.getDuration())) %>%;">
-                      <%= ContestUtil.formatTime((long) ((System.currentTimeMillis() - state.getStarted()) * contestH.getTimeMultiplier())) %>
-                    </div>
-                  </div>
-                </td>
-                <td align="right"><%= ContestUtil.formatDuration(contestH.getDuration()) %></td>
-              </tr>
-              <% } %>
-              <tr>
-                <td colspan="3">
-                  <% if (state.isRunning()) { %>
-                  <% if (state.isFrozen()) { %><a class="default-text-color" href="<%= webRootH %>/freeze">Scoreboard frozen</a>. <% } %>
-                  Started at <%= ContestUtil.formatStartTime(contestH) %>
-                  <% } else if (state.getFinalized() != null) { %>
-                  Finalized. Started at <%= ContestUtil.formatStartTime(contestH) %>
-                  <% } else if (state.getEnded() != null) { %>
-                  Finished. Started at <%= ContestUtil.formatStartTime(contestH) %>
-                  <% } else {
-                    Long startStatus = contestH.getStartStatus();
-                    if (startStatus == null) { %>
-                  No scheduled start time
-                  <% } else if (startStatus > 0) { %>
-                  Scheduled start at <%= ContestUtil.formatStartTime(contestH) %>
-                  (<%= ContestUtil.formatTime(contestH.getStartTime() - System.currentTimeMillis()) %> from now)
-                  <% } else { %>
-                  Countdown - <%= ContestUtil.formatStartTime(contestH.getStartStatus()) %>
-                  <% } %>
-                  <% } %>
-                  <span class="float-right">
-                    <% if (cch.getMode() == Mode.ARCHIVE) { %>Archive
-                    <% } else if (cch.getMode() == Mode.LIVE) { %>Live
-                    <% } else { %>Playback (<%= cch.getTest().getMultiplier() %>x)<% } %>
-                    <%= cch.getError() == null ? "" : " - <span class='text-danger'>" + cch.getError() + "</span>" %>
-                  </span></td>
-              </tr>
-              <tr>
-                <td colspan="3"><a href="<%= webRootH %>/details" class="default-text-color"><%= contestH.getNumProblems() %> problems</a>,
-                  <a href="<%= webRootH %>/registration" class="default-text-color"><%= contestH.getNumTeams() %> teams</a>
-                  <span class="float-right"><a href="<%= webRootH %>/scoreboard"
-                      class="default-text-color">Scoreboard</a></span></td>
-              </tr>
-              <tr>
-                <td colspan="3"><a href="<%= webRootH %>/submissions"
-                    class="default-text-color"><%= contestH.getNumSubmissions() %> submissions</a>
-                  <span class="float-right"><a href="<%= webRootH %>/admin" class="default-text-color">Admin</a></span>
-                </td>
-              </tr>
-            </thead>
-          </table>
-        </div>
-        <% } catch (Exception e) { %>
-        <div class="card-header">
-          Error loading contest <%= cch.getId() %>
-        </div>
-        <% } %>
-      </div>
-      <% }
-      } %>
+    <div id="contests" class="col-12">
     </div>
   </div>
 </div>
+<script type="text/html" id="contest-template">
+<div class="card card-widget">
+  <div class="card-header {{headerClass}} container-fluid">
+    <div class="row">
+     {{#logo}}<div class="col-sm-1" style="padding: 0px"><img style="width: 60px; height: 60px" src="{{{logo}}}"/></div>{{/logo}}
+     <div class="col-lg">
+       <div class="row">
+         <div class="col-lg" style="font-size: 1.5rem; font-weight: 500">{{{ name }}}</div>
+         <div class="col-sm text-right"><a href="{{{ api }}}" class="default-text-color">/{{{ id }}}</a></div>
+       </div>
+       <div class="row">
+         <div class="col-5">{{{ start }}}</div>
+         {{#progress}}
+	     <div class="col-6 progress" style="padding: 0px; font-size: 0.75rem; background: #FFFFFF">
+            <div class="progress-bar{{{ progressBg }}}" style="width: {{{ progress }}}%">{{{ time }}}</div>
+         </div>
+         {{/progress}}
+         {{^progress}}<div class="col-6"></div>{{/progress}}
+	     <div class="col-1 text-right">{{{ len }}}</div>
+       </div>
+     </div>
+   </div>
+  </div>
+<div class="card-body" style="padding: 0.9rem">
+  <div class="row">
+<div class="col-sm"><a href="{{{ web }}}/details">
+  <div class="small-box bg-info" style="margin-bottom: 0px">
+    <div class="inner" style="padding: 6px 10px">
+      <h3 id="numProblems{{{ count }}}">?</h3>
+      <p style="margin-bottom: 0.75rem">Problems</p>
+    </div>
+    <div class="icon">
+      <i class="fas fa-info"></i>
+    </div>
+  </div></a>
+</div>
+<div class="col-sm"><a href="{{{ web }}}/registration">
+  <div class="small-box bg-info" style="margin-bottom: 0px">
+    <div class="inner" style="padding: 6px 10px">
+      <h3 id="numTeams{{{ count }}}">?</h3>
+      <p style="margin-bottom: 0.75rem">Teams</p>
+    </div>
+    <div class="icon">
+      <i class="fas fa-users"></i>
+    </div>
+  </div></a>
+</div>
+<div class="col-sm"><a href="{{{ web }}}/submissions">
+  <div class="small-box bg-info" style="margin-bottom: 0px">
+    <div class="inner" style="padding: 6px 10px">
+      <h3 id="numSubmissions{{{ count }}}">?</h3>
+      <p style="margin-bottom: 0.75rem">Submissions</p>
+    </div>
+    <div class="icon">
+      <i class="fas fa-share"></i>
+    </div>
+  </div></a>
+</div>
+<div class="col-sm"><a href="{{{ web }}}/scoreboard">
+  <div class="small-box bg-info" style="margin-bottom: 0px">
+    <div class="inner" style="padding: 6px 10px">
+      <h3>&nbsp;</h3>
+      <p style="margin-bottom: 0.75rem">Scoreboard</p>
+    </div>
+    <div class="icon">
+      <i class="fas fa-trophy"></i>
+    </div>
+  </div></a>
+</div>
+  </div>
+</div>
+</script>
+<script type="text/javascript">
+contests = new Contests("/api");
+
+function loadDetails(contest, i) {
+	$.when(contest.loadProblems(), contest.loadTeams(), contest.loadSubmissions()).done(function () {
+		$("#numProblems" + i).html(contest.getProblems().length);
+		$("#numTeams" + i).html(contest.getTeams().length);
+		$("#numSubmissions" + i).html(contest.getSubmissions().length);
+	})
+}
+$(document).ready(function () {
+	$.when(contests.loadContests()).done(function () {
+		contests = contests.getContestObjs();
+		var template = $('#contest-template').html();
+
+		for (var i = 0; i < contests.length; i++) {
+			contest = contests[i];
+			info = contest.getInfo();
+			obj = { id: info.id, name: info.name };
+			
+			var logo = bestSquareLogo(info.logo, 60);
+		    if (logo != null)
+		        obj.logo = '/api/' + logo.href;
+			obj.api = contest.getContestURL();
+			obj.web = '/contests/' + info.id;
+			obj.len = formatTime(parseTime(info.duration));
+			if (info.time_multiplier != null)
+				obj.len += ' (' + info.time_multiplier + 'x)';
+			obj.count = i;
+			
+			time = contest.getContestTimeObj();
+			if (time == null) {
+				obj.start = "Not scheduled";
+			} else if (time < 0) {
+				obj.start = "Contest starting at " + formatTimestamp(info.start_time) + " (in " + formatTime(-time) + ")";
+				obj.headerClass = 'bg-warning';
+			} else if (typeof time == "string") {
+				obj.start = "Countdown paused at " + time;
+				obj.headerClass = 'bg-warning';
+			} else {
+				if (time > parseTime(info.duration)) {
+					obj.start = "Contest over. Started at " + formatTimestamp(info.start_time);
+				} else {
+					obj.headerClass = 'bg-success';
+					obj.progressBg = " bg-info";
+					obj.start = "Contest started at " + formatTimestamp(info.start_time);
+					if (info.scoreboard_freeze_duration != null) {
+						freeze = parseTime(info.duration) - parseTime(info.scoreboard_freeze_duration);
+						if (time > freeze) {
+							obj.start += ". Scoreboard frozen";
+							obj.progressBg = " bg-warning";
+						}
+					}
+					obj.progress = time * 100 / parseTime(info.duration);
+					obj.time = formatTime(time);
+				}
+			}
+
+			cc = Mustache.render(template, obj);
+			$('#contests').append(cc);
+
+			loadDetails(contest, i);
+		}
+    }).fail(function (result) {
+    	console.log("Error loading contests: " + result);
+    })
+})
+</script>
 <%@ include file="layout/footer.jsp" %>
