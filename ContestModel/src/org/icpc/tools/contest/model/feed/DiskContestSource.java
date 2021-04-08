@@ -786,7 +786,7 @@ public class DiskContestSource extends ContestSource {
 						"organizations/" + id + "/logo{0}" };
 			if (COUNTRY_FLAG.equals(property))
 				return new String[] { reg + "organizations" + File.separator + id, "flag{0}.png",
-						"organizations/" + id + "/flag{0}" };
+						"organizations/" + id + "/country_flag{0}" };
 		} else if (type == ContestType.SUBMISSION) {
 			if (FILES.equals(property))
 				return new String[] { events + "submissions" + File.separator + id, "files.zip",

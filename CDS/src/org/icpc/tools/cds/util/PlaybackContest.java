@@ -42,6 +42,7 @@ public class PlaybackContest extends Contest {
 	private static final String BANNER = "banner";
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
+	private static final String COUNTRY_FLAG = "country_flag";
 
 	protected ConfiguredContest cc;
 	protected String contestId;
@@ -138,51 +139,44 @@ public class PlaybackContest extends Contest {
 			return;
 
 		if (obj instanceof Info) {
-			downloadMissingFiles(src, obj, LOGO, (o) -> ((Info) o).getLogo());
-			downloadMissingFiles(src, obj, BANNER, (o) -> ((Info) o).getBanner());
+			Info i = (Info) obj;
+			downloadMissingFiles(src, obj, LOGO, i.getLogo());
+			downloadMissingFiles(src, obj, BANNER, i.getBanner());
+			src.attachLocalResources(i);
 		} else if (obj instanceof Team) {
-			downloadMissingFiles(src, obj, PHOTO, (o) -> ((Team) o).getPhoto());
-			downloadMissingFiles(src, obj, VIDEO, (o) -> ((Team) o).getVideo());
-			// downloadMissingFiles(contest, src, obj, "backup", (o) -> ((Team) o).getBackup());
+			Team t = (Team) obj;
+			downloadMissingFiles(src, obj, PHOTO, t.getPhoto());
+			downloadMissingFiles(src, obj, VIDEO, t.getVideo());
+			// later: backup, key_log or tool data
+			src.attachLocalResources(t);
 		} else if (obj instanceof TeamMember) {
-			downloadMissingFiles(src, obj, PHOTO, (o) -> ((TeamMember) o).getPhoto());
+			TeamMember tm = (TeamMember) obj;
+			downloadMissingFiles(src, obj, PHOTO, tm.getPhoto());
+			src.attachLocalResources(tm);
 		} else if (obj instanceof Organization) {
-			downloadMissingFiles(src, obj, LOGO, (o) -> ((Organization) o).getLogo());
+			Organization o = (Organization) obj;
+			downloadMissingFiles(src, obj, LOGO, o.getLogo());
+			downloadMissingFiles(src, obj, COUNTRY_FLAG, o.getCountryFlag());
+			src.attachLocalResources(o);
 		} else if (obj instanceof Submission) {
-			downloadMissingFiles(src, obj, FILES, (o) -> ((Submission) o).getFiles());
-			downloadMissingFiles(src, obj, REACTION, (o) -> ((Submission) o).getReaction());
-		}
-	}
-
-	interface IRefList {
-		FileReferenceList getList(IContestObject obj);
-	}
-
-	private void downloadMissingFiles(RESTContestSource src, IContestObject obj, String name, IRefList test) {
-		try {
-			FileReferenceList newList = test.getList(obj);
-			src.attachLocalResources(obj);
-			if (downloadMissingFiles(src, obj, name, newList, test.getList(obj)))
-				src.attachLocalResources(obj);
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Could not download missing files", e);
+			Submission s = (Submission) obj;
+			downloadMissingFiles(src, obj, FILES, s.getFiles());
+			downloadMissingFiles(src, obj, REACTION, s.getReaction());
+			src.attachLocalResources(s);
 		}
 	}
 
 	protected boolean downloadMissingFiles(RESTContestSource src, IContestObject obj, String property,
-			FileReferenceList newList, FileReferenceList currentList) {
-		if (src == null || newList == null || newList.isEmpty())
+			FileReferenceList sourceFiles) {
+		if (src == null || sourceFiles == null || sourceFiles.isEmpty())
 			return false;
-		FileReferenceList currentList2 = currentList;
-		if (currentList == null)
-			currentList2 = new FileReferenceList();
+		FileReferenceList localFiles = src.getFilesWithPattern(obj, property);
 
-		// if we don't have any files and there is at least one, download it
-		if (!newList.isEmpty() && currentList2.size() == 0) {
-			// download new ref
-			for (FileReference newRef : newList) {
+		// if we don't have any files and there is at least one at the source, download everything
+		if (localFiles == null || localFiles.size() == 0) {
+			for (FileReference sourceFile : sourceFiles) {
 				try {
-					src.downloadFile(obj, newRef, property);
+					src.downloadFile(obj, sourceFile, property);
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error downloading file: " + obj.getType() + ": " + obj.getId(), e);
 				}
@@ -193,23 +187,21 @@ public class PlaybackContest extends Contest {
 
 		// more complex matching
 		// for now, only download new images that have a different width & height than local images
-		for (FileReference newRef : newList) {
-			if (newRef.height <= 0 || newRef.width <= 0)
+		for (FileReference sourceFile : sourceFiles) {
+			if (sourceFile.height <= 0 || sourceFile.width <= 0)
 				continue;
 
 			boolean found = false;
-			for (FileReference currentRef : currentList2) {
-				if (currentRef.height == newRef.height && currentRef.width == newRef.width) {
+			for (FileReference currentRef : localFiles) {
+				if (currentRef.height == sourceFile.height && currentRef.width == sourceFile.width) {
 					found = true;
 					continue;
 				}
 			}
 
-			if (found)
-				continue;
-
 			try {
-				src.downloadFile(obj, newRef, property);
+				if (!found)
+					src.downloadFile(obj, sourceFile, property);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error downloading file: " + obj.getType() + ": " + obj.getId(), e);
 			}
