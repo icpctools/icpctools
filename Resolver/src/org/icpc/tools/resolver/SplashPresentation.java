@@ -38,11 +38,11 @@ public class SplashPresentation extends AbstractICPCPresentation {
 	public void init() {
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 1f);
-		attrFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, inch * 0.5f);
-		smallFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.3f);
+		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 1.25f);
+		attrFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, inch * 0.3f);
+		smallFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.225f);
 
-		image = getContest().getLogoImage((int) (width * 0.5), (int) (height * 0.3), true, true);
+		image = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.5), true, true);
 
 		if (image == null)
 			image = getIdImage();
@@ -52,7 +52,7 @@ public class SplashPresentation extends AbstractICPCPresentation {
 		InputStream in = null;
 		try {
 			in = Thread.currentThread().getContextClassLoader().getResourceAsStream("images/id.png");
-			return ImageScaler.scaleImage(ImageIO.read(in), width * 0.3, height * 0.3);
+			return ImageScaler.scaleImage(ImageIO.read(in), width * 0.8, height * 0.5);
 		} catch (Exception e) {
 			// ignore
 		} finally {
