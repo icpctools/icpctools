@@ -8,31 +8,29 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        	<div id="accordion">
-				<div class="card">
-				    <div class="card-header">
-				        <h4 class="card-title">Commentary</h4>
-				        <div class="card-tools">
-				            <button id="commentary-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
-				            <span id="commentary-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-				            <button id="commentary-api" type="button" class="btn btn-tool">API</button>
-				        </div>
-				    </div>
-				    <div class="card-body p-0">
-				        <table id="commentary-table" class="table table-sm table-hover table-striped table-head-fixed">
-				            <thead>
-				                <tr>
-				                    <th>Id</th>
-				                    <th class="text-center">Time</th>
-				                    <th class="text-center">Problems</th>
-				                    <th>Teams</th>
-				                    <th width=40%>Message</th>
-				                </tr>
-				            </thead>
-				            <tbody></tbody>
-				        </table>
-				    </div>
-				</div>
+			<div class="card">
+			    <div class="card-header">
+			        <h4 class="card-title">Commentary</h4>
+			        <div class="card-tools">
+			            <button id="commentary-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
+			            <span id="commentary-count" title="?" class="badge bg-primary">?</span>
+			            <button id="commentary-api" type="button" class="btn btn-tool">API</button>
+			        </div>
+			    </div>
+			    <div class="card-body p-0">
+			        <table id="commentary-table" class="table table-sm table-hover table-striped table-head-fixed">
+			            <thead>
+			                <tr>
+			                    <th>Id</th>
+			                    <th class="text-center">Time</th>
+			                    <th class="text-center">Problems</th>
+			                    <th>Teams</th>
+			                    <th width=50%>Message</th>
+			                </tr>
+			            </thead>
+			            <tbody></tbody>
+			        </table>
+			    </div>
 			</div>
 		</div>
     </div>

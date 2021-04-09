@@ -33,7 +33,7 @@ contest = new Contest("/api", "<%= cc.getId() %>");
                 <div class="card-header">
                     <h3 class="card-title">Judgements</h3>
                     <div class="card-tools">
-                        <span id="judgements-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                        <span id="judgements-count" title="?" class="badge bg-primary">?</span>
                         <button id="judgements-button" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
@@ -46,7 +46,7 @@ contest = new Contest("/api", "<%= cc.getId() %>");
                 <div class="card-header">
                     <h3 class="card-title">Runs</h3>
                     <div class="card-tools">
-                        <span id="runs-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                        <span id="runs-count" title="?" class="badge bg-primary">?</span>
                         <button id="runs-button" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>

@@ -69,12 +69,11 @@
     </div>
     <div class="row">
         <div class="col-12">
-        <div id="accordion">
 			<div class="card">
 			    <div class="card-header">
 			        <h4 class="card-title">Teams</h4>
 			        <div class="card-tools">
-			            <span id="teams-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+			            <span id="teams-count" title="?" class="badge bg-primary">?</span>
 			            <button id="teams-api" type="button" class="btn btn-tool">API</button>
 			        </div>
 			    </div>
@@ -93,7 +92,6 @@
 			            <tbody></tbody>
 			        </table>
 			    </div>
-			</div>
 			</div>
 		</div>
     </div>

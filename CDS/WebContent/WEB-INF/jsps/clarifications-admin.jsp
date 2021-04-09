@@ -8,33 +8,31 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-        	<div id="accordion">
-				<div class="card">
-				    <div class="card-header">
-				        <h4 class="card-title">Clarifications</h4>
-				        <div class="card-tools">
-				            <button id="clarifications-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
-				            <span id="clarifications-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
-				            <button id="clarifications-api" type="button" class="btn btn-tool">API</button>
-				        </div>
-				    </div>
-				    <div class="card-body p-0">
-				        <table id="clarifications-table" class="table table-sm table-hover table-striped table-head-fixed">
-				            <thead>
-				                <tr>
-				                    <th>Id</th>
-				                    <th class="text-center">Time</th>
-				                    <th class="text-center">Problem</th>
-				                    <th>From Team</th>
-				                    <th>To Team</th>
-				                    <th>Reply To</th>
-				                    <th>Text</th>
-				                </tr>
-				            </thead>
-				            <tbody></tbody>
-				        </table>
-				    </div>
-				</div>
+			<div class="card">
+			    <div class="card-header">
+			        <h4 class="card-title">Clarifications</h4>
+			        <div class="card-tools">
+			            <button id="clarifications-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
+			            <span id="clarifications-count" title="?" class="badge bg-primary">?</span>
+			            <button id="clarifications-api" type="button" class="btn btn-tool">API</button>
+			        </div>
+			    </div>
+			    <div class="card-body p-0">
+			        <table id="clarifications-table" class="table table-sm table-hover table-striped table-head-fixed">
+			            <thead>
+			                <tr>
+			                    <th>Id</th>
+			                    <th class="text-center">Time</th>
+			                    <th class="text-center">Problem</th>
+			                    <th>From Team</th>
+			                    <th>To Team</th>
+			                    <th>Reply To</th>
+			                    <th>Text</th>
+			                </tr>
+			            </thead>
+			            <tbody></tbody>
+			        </table>
+			    </div>
 			</div>
 		</div>
     </div>
