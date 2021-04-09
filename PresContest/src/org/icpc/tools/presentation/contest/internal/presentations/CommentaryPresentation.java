@@ -3,18 +3,24 @@ package org.icpc.tools.presentation.contest.internal.presentations;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.icpc.tools.contest.model.ICPCColors;
 import org.icpc.tools.contest.model.ICommentary;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestListener;
+import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
@@ -25,7 +31,9 @@ public class CommentaryPresentation extends TitledPresentation {
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
 	private static final long TIME_TO_FADE_RECENT = 2000;
-	private static final long LINES_PER_SCREEN = 20;
+	private static final long LINES_PER_SCREEN = 15;
+
+	private static final int GAP = 5;
 
 	private static final Movement COMMENTARY_MOVEMENT = new Movement(5, 9);
 
@@ -53,6 +61,7 @@ public class CommentaryPresentation extends TitledPresentation {
 	protected long timeToKeepSolved = TIME_TO_KEEP_SOLVED;
 	protected Font titleFont;
 	protected Font textFont;
+	protected Font textFont2;
 
 	protected IContestListener listener = (contest, obj, d) -> {
 		if (obj instanceof ICommentary)
@@ -68,7 +77,11 @@ public class CommentaryPresentation extends TitledPresentation {
 		final float dpi = 96;
 		float size = (int) (height * 72.0 * 0.028 / dpi);
 		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 2.2f);
-		textFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, size * 1.25f);
+
+		float tempRowHeight = height / (float) LINES_PER_SCREEN;
+		size = tempRowHeight * 36f * 0.95f / dpi;
+		textFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, size * 1.5f);
+		textFont2 = ICPCFont.getMasterFont().deriveFont(Font.ITALIC, size * 1.5f);
 	}
 
 	@Override
@@ -124,9 +137,62 @@ public class CommentaryPresentation extends TitledPresentation {
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-			g.setColor(Color.WHITE);
 			g.setFont(textFont);
-			g.drawString(commentary.getMessage(), 0, h - 4);
+			FontMetrics fm = g.getFontMetrics();
+			g.setFont(textFont2);
+			FontMetrics fm2 = g.getFontMetrics();
+			int fh = fm.getAscent();
+			int baseLine = (h + fh) / 2;
+			int gh = h - GAP * 3;
+			List<Object> list = parseCommentary(commentary.getMessage());
+			int x = 0;
+			for (Object o : list) {
+				if (o instanceof String) {
+					String s = (String) o;
+					g.setColor(Color.LIGHT_GRAY);
+					g.setFont(textFont);
+					g.drawString(s, x, baseLine);
+					x += fm.getStringBounds(s, g).getWidth();
+				} else if (o instanceof ITeam) {
+					ITeam team = (ITeam) o;
+
+					IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
+					if (org != null) {
+						BufferedImage img = org.getLogoImage(gh, gh, true, true);
+						if (img != null) {
+							g.drawImage(img, x + GAP, (h - img.getWidth()) / 2, null);
+							x += img.getWidth() + GAP * 2;
+						} /* else { // for testing logo spacing
+							g.setColor(Color.GREEN);
+							g.drawRect(x + GAP, (h - gh) / 2, gh, gh);
+							x += gh + GAP * 2;
+							}*/
+					}
+
+					String s = team.getActualDisplayName();
+					g.setColor(Color.WHITE);
+					g.setFont(textFont2);
+					g.drawString(s, x, baseLine);
+					x += fm2.getStringBounds(s, g).getWidth();
+				} else if (o instanceof IProblem) {
+					IProblem p = (IProblem) o;
+
+					Color c = p.getColorVal();
+					Color cc = ICPCColors.getContrastColor(c);
+					ShadedRectangle.drawRoundRect(g, x + GAP, (h - gh) / 2, fh * 3, gh, c, cc, "");
+
+					g.setColor(cc);
+					g.setFont(textFont);
+					g.drawString(p.getLabel(), x + GAP + fh * 3 / 2 - fm.stringWidth(p.getLabel()) / 2, baseLine);
+					x += fh * 3 + GAP * 2;
+
+					String s = p.getName();
+					g.setColor(Color.WHITE);
+					g.setFont(textFont2);
+					g.drawString(s, x, baseLine);
+					x += fm2.getStringBounds(s, g).getWidth();
+				}
+			}
 
 			g.dispose();
 
@@ -178,6 +244,80 @@ public class CommentaryPresentation extends TitledPresentation {
 
 	protected void paintCommentary(Graphics2D g, RecentCommentary comm) {
 		g.drawImage(comm.img, 0, 0, null);
+	}
+
+	protected static int findEndOfToken(String s, int ii) {
+		int i = ii + 1;
+		while (true) {
+			if (i >= s.length())
+				return s.length();
+			if (Character.isWhitespace(s.charAt(i)))
+				return i;
+			if (s.charAt(i) == '(')
+				i++;
+		}
+	}
+
+	protected List<Object> parseCommentary(String ss) {
+		List<Object> list = new ArrayList<>();
+		IContest contest = getContest();
+
+		String s = ss;
+		while (true) {
+			int i = s.indexOf("#");
+			if (i < 0) {
+				list.add(s);
+				return list;
+			}
+			if (s.length() > i + 1) {
+				if (s.charAt(i + 1) == 't' || s.charAt(i + 1) == 'p') {
+					if (i > 0)
+						list.add(s.substring(0, i));
+
+					// find the id and the end of the token (usually the same thing, but there could be
+					// (brackets)
+					String id = null;
+
+					int j = i + 2;
+					int e = 0;
+					while (id == null) {
+						if (j >= s.length()) {
+							id = s.substring(i + 2, j);
+							e = j;
+						} else if (Character.isWhitespace(s.charAt(j))) {
+							id = s.substring(i + 2, j);
+							e = j;
+						} else if (s.charAt(j) == '(') {
+							id = s.substring(i + 2, j);
+							while (j < s.length() && s.charAt(j) != ')') {
+								j++;
+							}
+							e = j + 1;
+						}
+						j++;
+					}
+					if (id.endsWith(".")) {
+						id = id.substring(0, id.length() - 1);
+						e -= 1;
+					}
+
+					Object o = null;
+					if (s.charAt(i + 1) == 't')
+						o = contest.getTeamById(id);
+					else
+						o = contest.getProblemById(id);
+					if (o != null)
+						list.add(o);
+					// if (e < s.length() && s.charAt(e + 1) == ' ')
+					// e++;
+					s = s.substring(e);
+				} else {
+					i = s.indexOf("#", i + 1);
+				}
+			}
+		}
+
+		// return list;
 	}
 
 	protected void updateTargets(boolean force) {
