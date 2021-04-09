@@ -8,12 +8,11 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-8">
-        	<div id="accordion">
 			<div class="card">
 			    <div class="card-header">
 			        <h4 class="card-title">Teams</h4>
 			        <div class="card-tools">
-			            <span id="teams-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+			            <span id="teams-count" title="?" class="badge bg-primary">?</span>
 			        </div>
 			    </div>
 			    <div class="card-body p-0">
@@ -31,15 +30,13 @@
 			        </table>
 			    </div>
 			</div>
-			</div>
 		</div>
         <div class="col-4">
-			<div id="accordion">
 			<div class="card">
 			    <div class="card-header">
 			        <h4 class="card-title">Groups</h4>
 			        <div class="card-tools">
-			            <span id="groups-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+			            <span id="groups-count" title="?" class="badge bg-primary">?</span>
 			        </div>
 			    </div>
 			    <div class="card-body p-0">
@@ -54,13 +51,11 @@
 			        </table>
 			    </div>
 			</div>
-			</div>
-			<div id="accordion">
 			<div class="card">
 			    <div class="card-header">
 			        <h4 class="card-title">Organizations</h4>
 			        <div class="card-tools">
-			            <span id="organizations-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+			            <span id="organizations-count" title="?" class="badge bg-primary">?</span>
 			        </div>
 			    </div>
 			    <div class="card-body p-0">
@@ -75,7 +70,6 @@
 			            <tbody></tbody>
 			        </table>
 			    </div>
-			</div>
 			</div>
 		</div>
     </div>

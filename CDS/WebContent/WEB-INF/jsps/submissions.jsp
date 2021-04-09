@@ -9,7 +9,7 @@
                     <h3 class="card-title">Judge Queue</h3>
                     <div class="card-tools">
                        <button id="queue-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
-                       <span id="queue-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                       <span id="queue-count" title="?" class="badge bg-primary">?</span>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -34,7 +34,7 @@
                     <h3 class="card-title">Submissions</h3>
                     <div class="card-tools">
                    	   <button id="submissions-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
-                       <span id="submissions-count" data-toggle="tooltip" title="?" class="badge bg-primary">?</span>
+                       <span id="submissions-count" title="?" class="badge bg-primary">?</span>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -70,7 +70,7 @@
   <td class="text-center">{{lang}}</td>
   <td>{{#team}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/team}}</td>
   <td>{{#team}}{{orgName}}{{/team}}</td>
-  <td align=center>{{{result}}}</td>
+  <td class="text-center">{{{result}}}</td>
 </script>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
