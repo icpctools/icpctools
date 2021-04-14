@@ -70,6 +70,8 @@ public class HttpHelper {
 			response.setContentType("text/plain");
 		else if (name.endsWith(".png"))
 			response.setContentType("image/png");
+		else if (name.endsWith(".svg"))
+			response.setContentType("image/svg+xml");
 
 		response.setContentLength((int) f.length());
 		response.setDateHeader("Last-Modified", lastModified);
