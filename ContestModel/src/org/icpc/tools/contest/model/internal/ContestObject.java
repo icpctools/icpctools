@@ -1,7 +1,10 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +20,9 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
+
+import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGUniverse;
 
 public abstract class ContestObject implements IContestObject {
 	public static final String ID = "id";
@@ -291,37 +297,79 @@ public abstract class ContestObject implements IContestObject {
 
 	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height, boolean forceLoad,
 			boolean resizeToFit) {
-		BufferedImage img = null;
+		Object data = null;
 
 		FileReference ref = getBestFileReference(list, new ImageSizeFit(width, height));
 		if (ref == null)
 			return null;
 
 		if (ref.data != null)
-			img = (BufferedImage) ref.data;
+			data = ref.data;
 		else if (forceLoad) {
-			img = loadImage(getFile(ref, property, true));
-			if (img == null)
-				img = MISSING_IMAGE;
-			ref.data = img;
+			data = loadImage(getFile(ref, property, true));
+			if (data == null)
+				data = MISSING_IMAGE;
+			ref.data = data;
 		}
 
-		if (img == MISSING_IMAGE)
+		if (data == MISSING_IMAGE)
 			return null;
-		if (resizeToFit)
-			return ImageScaler.scaleImage(img, width, height);
-		return img;
+		if (resizeToFit) {
+			if (data instanceof BufferedImage)
+				return ImageScaler.scaleImage((BufferedImage) data, width, height);
+			// else if (data instanceof SVGDiagram)
+			return resizeSVG((SVGDiagram) data, width, height);
+		}
+		if (data instanceof BufferedImage)
+			return (BufferedImage) data;
+		// else if (data instanceof SVGDiagram)
+		return resizeSVG((SVGDiagram) data, width, height);
 	}
 
-	protected BufferedImage loadImage(File f) {
+	private static Object loadImage(File f) {
 		if (f == null || !f.exists())
 			return null;
 
 		try {
+			if (f.getName().endsWith(".svg"))
+				return loadSVG(f);
 			return ImageIO.read(f);
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	private static SVGDiagram loadSVG(File svgFile) throws Exception {
+		SVGUniverse sRenderer = new SVGUniverse();
+		URI uri = sRenderer.loadSVG(svgFile.toURI().toURL());
+		SVGDiagram diagram = sRenderer.getDiagram(uri);
+		diagram.setIgnoringClipHeuristic(true);
+		return diagram;
+	}
+
+	private static BufferedImage resizeSVG(SVGDiagram diagram, int width, int height) {
+		float w = diagram.getWidth();
+		float h = diagram.getHeight();
+		float scale = Math.min(width / w, height / h);
+
+		int nw = Math.round(w * scale);
+		int nh = Math.round(h * scale);
+
+		BufferedImage image = new BufferedImage(nw, nh, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) image.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+		g.scale(scale, scale);
+
+		try {
+			diagram.render(g);
+		} catch (Exception e) {
+			// ignore
+		}
+		g.dispose();
+		return image;
 	}
 
 	@Override
