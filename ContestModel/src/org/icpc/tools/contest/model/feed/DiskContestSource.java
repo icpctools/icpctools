@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model.feed;
 
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -60,6 +61,9 @@ public class DiskContestSource extends ContestSource {
 	private static final String REACTION = "reaction";
 	private static final String COUNTRY_FLAG = "country_flag";
 
+	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
+	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
+
 	private File root;
 	private File cacheFolder;
 	private boolean isCache;
@@ -68,6 +72,56 @@ public class DiskContestSource extends ContestSource {
 	private Closeable parser;
 	private Validation configValidation = new Validation();
 	private Map<String, List<FileReference>> cache = new HashMap<>();
+
+	static class FilePattern {
+		// true if multiple files are supported, e.g. logo_64x64.png and logo_128x128.png
+		// false if the filename is fixed, e.g. files.zip
+		// this is implied today when there are multiple file extensions, but let's not rely on that
+		protected boolean multiple;
+
+		// the folder containing the file
+		protected String folder;
+
+		// the file name, without extension
+		protected String name; // e.g. "logo" or "files"
+
+		// the file extensions
+		protected String[] extensions; // e.g. "jpg" or "zip"
+
+		// the partial url to access the file
+		protected String url;
+
+		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
+				String fileExtension) {
+			if (type == null) {
+				this.folder = folder;
+				this.url = property;
+			} else {
+				String typeName = IContestObject.getTypeName(type);
+				this.folder = folder + File.separator + typeName + File.separator + id;
+				this.url = typeName + "/" + id + "/" + property;
+			}
+
+			this.name = property;
+			this.extensions = new String[] { fileExtension };
+		}
+
+		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
+				String[] fileExtensions) {
+			if (type == ContestType.CONTEST) {
+				this.folder = folder;
+				this.url = property;
+			} else {
+				String typeName = IContestObject.getTypeName(type);
+				this.folder = folder + File.separator + typeName + File.separator + id;
+				this.url = typeName + "/" + id + "/" + property;
+			}
+
+			this.name = property;
+			this.extensions = fileExtensions;
+			multiple = true;
+		}
+	}
 
 	/**
 	 * Create a disk contest source at the specified folder.
@@ -235,11 +289,11 @@ public class DiskContestSource extends ContestSource {
 			return ref.file;
 
 		// use the pattern to find the right folder
-		String[] fileRef = getLocalPattern(obj.getType(), obj.getId(), property);
+		FilePattern pattern = getLocalPattern(obj.getType(), obj.getId(), property);
 		File rootFolder = getRootFolder();
 		File folder = rootFolder;
-		if (fileRef[0] != null)
-			folder = new File(rootFolder, fileRef[0]);
+		if (pattern.folder != null)
+			folder = new File(rootFolder, pattern.folder);
 
 		// check if any existing files in the folder match
 		synchronized (cache) {
@@ -253,62 +307,42 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		// otherwise, assume the default file name or try a new one if that is taken
-		return getNewFile(obj.getType(), obj.getId(), property);
+		return getNewFile(obj.getType(), obj.getId(), property, ref.mime);
 	}
 
 	/**
 	 * Return a new local file name that is suitable for saving the given property of a contest
 	 * object of a specific type and id to.
-	 *
-	 * @param type
-	 * @param id
-	 * @param property
-	 * @return
 	 */
-	public File getNewFile(IContestObject.ContestType type, String id, String property) {
-		String[] fileRef = getLocalPattern(type, id, property);
-		if (fileRef == null)
+	public File getNewFile(IContestObject.ContestType type, String id, String property, String mimeType) {
+		FilePattern pattern = getLocalPattern(type, id, property);
+		if (pattern == null)
 			return null;
 		File rootFolder = getRootFolder();
 		File folder = rootFolder;
-		if (fileRef[0] != null)
-			folder = new File(rootFolder, fileRef[0]);
+		if (pattern.folder != null)
+			folder = new File(rootFolder, pattern.folder);
 
-		if (!fileRef[1].contains("{0}"))
-			return new File(folder, fileRef[1]);
+		if (!pattern.multiple)
+			return new File(folder, pattern.name + "." + pattern.extensions[0]);
 
-		File file = new File(folder, fileRef[1].replace("{0}", ""));
+		String ext = getExtension(mimeType);
+		if (ext == null) // couldn't recognize mime type, so assume the default file extension
+			ext = pattern.extensions[0];
+		ext = "." + ext;
+
+		File file = new File(folder, pattern.name + ext);
 		int n = 2;
 		while (file.exists()) {
-			file = new File(folder, fileRef[1].replace("{0}", "" + n++));
+			file = new File(folder, pattern.name + n + ext);
+			n++;
 		}
 		return file;
 	}
 
 	@Override
 	public File getFile(String path) throws IOException {
-		String path2 = path;
-		if (path.startsWith("submissions/")) {
-			if (path.endsWith("files"))
-				path2 += ".zip";
-			if (path.endsWith("reaction"))
-				path2 += ".mts";
-		}
-		if (path.startsWith("organizations/")) {
-			if (path.endsWith("logo"))
-				path2 += ".png";
-		}
-		if (path.startsWith("teams/")) {
-			if (path.endsWith("photo"))
-				path2 += ".jpg";
-			if (path.endsWith("video"))
-				path2 += ".mts";
-			if (path.endsWith("backup"))
-				path2 += ".tar.gz";
-		}
-		if (path2.endsWith("/"))
-			path2 += "listing.dir";
-		return new File(root, path2);
+		return new File(root, path);
 	}
 
 	@Override
@@ -570,6 +604,8 @@ public class DiskContestSource extends ContestSource {
 			return "image/png";
 		else if (name.endsWith(".jpg"))
 			return "image/jpg";
+		else if (name.endsWith(".svg"))
+			return "image/svg+xml";
 		else if (name.endsWith(".m2ts"))
 			return "video/MP2T";
 		else if (name.endsWith(".txt"))
@@ -579,20 +615,47 @@ public class DiskContestSource extends ContestSource {
 		return null;
 	}
 
+	private static String getExtension(String mimeType) {
+		if (mimeType == null)
+			return null;
+
+		if (mimeType.equals("application/zip"))
+			return "zip";
+		else if (mimeType.equals("image/png"))
+			return "png";
+		else if (mimeType.equals("image/jpg"))
+			return "jpg";
+		else if (mimeType.equals("image/svg+xml"))
+			return "svg";
+		else if (mimeType.equals("video/MP2T"))
+			return "m2ts";
+		else if (mimeType.equals("text/plain"))
+			return "txt";
+		return null;
+	}
+
 	protected static FileReference readMetadata(File file) {
 		FileReference ref = new FileReference();
 		ref.mime = getMimeType(file.getName());
-
 		ref.file = file;
 		ref.lastModified = file.lastModified();
 		try {
-			FileImageInputStream fin = new FileImageInputStream(file);
-			Iterator<ImageReader> iter = ImageIO.getImageReaders(fin);
-			while (iter.hasNext()) {
-				ImageReader ir = iter.next();
-				ir.setInput(fin);
-				ref.width = ir.getWidth(0);
-				ref.height = ir.getHeight(0);
+			String name = file.getName().toLowerCase();
+			if (name.endsWith(".png") || name.endsWith(".jpg")) {
+				FileImageInputStream fin = new FileImageInputStream(file);
+				Iterator<ImageReader> iter = ImageIO.getImageReaders(fin);
+				while (iter.hasNext()) {
+					ImageReader ir = iter.next();
+					ir.setInput(fin);
+					ref.width = ir.getWidth(0);
+					ref.height = ir.getHeight(0);
+				}
+			} else if (name.endsWith(".svg")) {
+				Dimension d = SVGParser.parse(file);
+				if (d != null) {
+					ref.width = d.width;
+					ref.height = d.height;
+				}
 			}
 		} catch (Exception e) {
 			// ignore
@@ -682,45 +745,35 @@ public class DiskContestSource extends ContestSource {
 		if (obj == null)
 			return null;
 
-		final String[] s = getLocalPattern(obj.getType(), obj.getId(), property);
-		if (s == null) {
+		FilePattern pattern = getLocalPattern(obj.getType(), obj.getId(), property);
+		if (pattern == null) {
 			Trace.trace(Trace.ERROR, "No file pattern: " + obj.getType() + " " + property);
 			return null;
 		}
-		return getFilesWithPattern(s[0], s[1], s[2]);
-	}
-
-	public FileReference getFileWithPattern(String folderName, String filename, String url) {
-		File folder = getRootFolder();
-		if (folderName != null)
-			folder = new File(folder, folderName);
-
-		File[] files = folder.listFiles((dir, name) -> (name.equalsIgnoreCase(filename)));
-		if (files == null || files.length == 0)
-			return null;
-
-		return getMetadata(url, files[0]);
+		return getFilesWithPattern(pattern);
 	}
 
 	/**
 	 * Returns a list of files if they match the pattern, or <code>null</code> if there are no
 	 * matching files.
 	 *
-	 * @param folderName
-	 * @param filename
-	 * @param url
+	 * @param pattern a filename pattern
 	 * @return
 	 */
-	public FileReferenceList getFilesWithPattern(String folderName, String filename, String url) {
+	private FileReferenceList getFilesWithPattern(FilePattern pattern) {
 		File folder = getRootFolder();
-		if (folderName != null)
-			folder = new File(folder, folderName);
+		if (pattern.folder != null)
+			folder = new File(folder, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
 
-		int ind = filename.indexOf("{0}");
-		if (ind < 0) { // no substitutions
-			FileReference ref = getFileWithPattern(folderName, filename, url);
+		if (!pattern.multiple) { // single file
+			File[] files = folder
+					.listFiles((dir, name) -> (name.equalsIgnoreCase(pattern.name + "." + pattern.extensions[0])));
+			if (files == null || files.length == 0)
+				return null;
+
+			FileReference ref = getMetadata(pattern.url, files[0]);
 			if (ref == null)
 				return null;
 
@@ -729,74 +782,62 @@ public class DiskContestSource extends ContestSource {
 			return list;
 		}
 
-		String start = filename.substring(0, ind);
-		String end = filename.substring(ind + 3);
-		File[] files = folder
-				.listFiles((dir, name) -> (name.toLowerCase().startsWith(start) && name.toLowerCase().endsWith(end)));
+		// multiple possible filenames and/or file extensions
+		for (String ext : pattern.extensions) {
+			File[] files = folder.listFiles(
+					(dir, name) -> (name.toLowerCase().startsWith(pattern.name) && name.toLowerCase().endsWith("." + ext)));
 
-		if (files == null || files.length == 0)
-			return null;
-
-		for (File file : files) {
-			String subs = file.getName();
-			subs = subs.substring(start.length(), subs.length() - end.length());
-			refList.add(getMetadata(url.replace("{0}", subs), file));
+			if (files != null) {
+				for (File file : files) {
+					String diff = file.getName();
+					diff = diff.substring(pattern.name.length(), diff.length() - ext.length() - 1);
+					refList.add(getMetadata(pattern.url + diff, file));
+					// TODO future: url currently would not be able to handle logo2.svg and logo2.png
+				}
+			}
 		}
 		return refList;
 	}
 
 	/**
-	 * Returns an array containing 3 strings: a local folder, a file pattern, and the remote URL
-	 * pattern.
-	 *
-	 * @param obj
-	 * @param property
-	 * @return
+	 * Returns the file pattern for a given contest object type, id, and property.
 	 */
-	protected String[] getLocalPattern(IContestObject obj, String property) {
-		return getLocalPattern(obj.getType(), obj.getId(), property);
-	}
-
-	protected String[] getLocalPattern(IContestObject.ContestType type, String id, String property) {
+	protected FilePattern getLocalPattern(IContestObject.ContestType type, String id, String property) {
+		String config = "config";
 		String reg = ""; // "registration" + File.separator;
 		String events = ""; // "events" + File.separator;
 		if (type == ContestType.CONTEST) {
 			if (LOGO.equals(property))
-				return new String[] { "config", "logo{0}.png", "logo{0}" };
+				return new FilePattern(null, id, property, config, LOGO_EXTENSIONS);
 			if (BANNER.equals(property))
-				return new String[] { "config", "banner{0}.png", "banner{0}" };
+				return new FilePattern(null, id, property, config, LOGO_EXTENSIONS);
 		} else if (type == ContestType.TEAM) {
 			if (PHOTO.equals(property))
-				return new String[] { reg + "teams" + File.separator + id, "photo{0}.jpg", "teams/" + id + "/photo{0}" };
+				return new FilePattern(type, id, property, reg, PHOTO_EXTENSIONS);
 			if (VIDEO.equals(property))
-				return new String[] { reg + "teams" + File.separator + id, "video.m2ts", "teams/" + id + "/video" };
+				return new FilePattern(type, id, property, reg, "m2ts");
 			if (BACKUP.equals(property))
-				return new String[] { reg + "teams" + File.separator + id, "backup.zip", "teams/" + id + "/backup" };
+				return new FilePattern(type, id, property, reg, "zip");
 			if (KEY_LOG.equals(property))
-				return new String[] { reg + "teams" + File.separator + id, "keys.log", "teams/" + id + "/keylog" };
+				return new FilePattern(type, id, property, reg, "txt");
 			if (TOOL_DATA.equals(property))
-				return new String[] { reg + "teams" + File.separator + id, "tools.txt", "teams/" + id + "/tooldata" };
+				return new FilePattern(type, id, property, reg, "txt");
 		} else if (type == ContestType.TEAM_MEMBER) {
 			if (PHOTO.equals(property))
-				return new String[] { reg + "team-members" + File.separator + id, "photo{0}.jpg",
-						"team-members/" + id + "/photo{0}" };
+				return new FilePattern(type, id, property, reg, PHOTO_EXTENSIONS);
 		} else if (type == ContestType.ORGANIZATION) {
 			if (LOGO.equals(property))
-				return new String[] { reg + "organizations" + File.separator + id, "logo{0}.png",
-						"organizations/" + id + "/logo{0}" };
+				return new FilePattern(type, id, property, reg, LOGO_EXTENSIONS);
 			if (COUNTRY_FLAG.equals(property))
-				return new String[] { reg + "organizations" + File.separator + id, "flag{0}.png",
-						"organizations/" + id + "/country_flag{0}" };
+				return new FilePattern(type, id, property, reg, LOGO_EXTENSIONS);
 		} else if (type == ContestType.SUBMISSION) {
 			if (FILES.equals(property))
-				return new String[] { events + "submissions" + File.separator + id, "files.zip",
-						"submissions/" + id + "/files" };
+				return new FilePattern(type, id, property, events, "zip");
 			if (REACTION.equals(property))
-				return new String[] { events + "submissions" + File.separator + id, "reaction.m2ts",
-						"submissions/" + id + "/reaction" };
+				return new FilePattern(type, id, property, events, "m2ts");
 		} else if (type == ContestType.GROUP) {
 			if (LOGO.equals(property))
-				return new String[] { reg + "groups" + File.separator + id, "logo{0}.png", "groups/" + id + "/logo{0}" };
+				return new FilePattern(type, id, property, reg, LOGO_EXTENSIONS);
 		}
 		return null;
 	}

@@ -718,7 +718,8 @@ public class ContestRESTService extends HttpServlet {
 
 		ILanguage language = contest.getLanguageById(languageId);
 		if (language.getEntryPointRequired() && entryPoint == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, language.getEntryPointName() + " required for " + language.getName());
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+					language.getEntryPointName() + " required for " + language.getName());
 			return;
 		}
 
@@ -776,7 +777,7 @@ public class ContestRESTService extends HttpServlet {
 		// cache accepted submission file locally to avoid asking CCS for it later
 		if (source instanceof DiskContestSource) {
 			DiskContestSource dsource = (DiskContestSource) source;
-			File f = dsource.getNewFile(ContestType.SUBMISSION, sId, "files");
+			File f = dsource.getNewFile(ContestType.SUBMISSION, sId, "files", null);
 			if (!f.getParentFile().exists())
 				f.getParentFile().mkdirs();
 			Object[] files = (Object[]) obj.get("files");
