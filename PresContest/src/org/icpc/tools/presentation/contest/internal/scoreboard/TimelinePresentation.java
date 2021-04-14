@@ -132,7 +132,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 		if (state.getEnded() != null)
 			currentTime = contest.getDuration();
 		else if (state.getStarted() != null)
-			currentTime = (int) (getTimeMs() - state.getStarted());
+			currentTime = (int) ((getTimeMs() - state.getStarted()) * contest.getTimeMultiplier());
 		ct = getX(currentTime);
 		g.drawLine(ct, 0, ct, (int) (numTeams * rowHeight));
 		g.setStroke(oldStroke);
