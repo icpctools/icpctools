@@ -253,11 +253,12 @@ public class ContestData implements Iterable<IContestObject> {
 			tc.cache = new IContestObject[20];
 			tc.index = new int[20];
 		} else if (tc.size == tc.cache.length) {
-			IContestObject[] temp = new IContestObject[tc.cache.length * 3 / 2];
+			int newLen = Math.max(10, tc.cache.length * 3 / 2);
+			IContestObject[] temp = new IContestObject[newLen];
 			System.arraycopy(tc.cache, 0, temp, 0, tc.cache.length);
 			tc.cache = temp;
 
-			int[] temp2 = new int[tc.index.length * 3 / 2];
+			int[] temp2 = new int[newLen];
 			System.arraycopy(tc.index, 0, temp2, 0, tc.index.length);
 			tc.index = temp2;
 		}
