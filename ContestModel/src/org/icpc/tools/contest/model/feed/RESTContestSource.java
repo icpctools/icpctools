@@ -68,6 +68,7 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private URL url;
+	private File feedFile;
 	private final String user;
 	private final String password;
 	private String baseUrl;
@@ -181,6 +182,32 @@ public class RESTContestSource extends DiskContestSource {
 				feedCacheFile.delete();
 			}
 		}
+	}
+
+	/**
+	 * Creates a REST contest source from a local event feed file, with a local caching policy.
+	 *
+	 * @param url
+	 * @param user
+	 * @param password
+	 * @throws MalformedURLException
+	 */
+	public RESTContestSource(File feedFile, String user, String password) {
+		super(feedFile.getAbsolutePath());
+
+		this.feedFile = feedFile;
+
+		if (user == null || user.trim().length() == 0)
+			this.user = null;
+		else
+			this.user = user;
+
+		if (password == null || password.trim().length() == 0)
+			this.password = null;
+		else
+			this.password = password;
+
+		instance = this;
 	}
 
 	/**
@@ -699,7 +726,44 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	@Override
+	protected void initializeContestImpl() throws Exception {
+		super.initializeContestImpl();
+
+		if (feedFile == null || !feedFile.exists())
+			return;
+
+		InputStream in;
+		try {
+			in = new FileInputStream(feedFile);
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not read event feed", e);
+			throw e;
+		}
+		try {
+			if (feedFile.getName().endsWith("json")) {
+				NDJSONFeedParser parser2 = new NDJSONFeedParser();
+				parser2.parse(contest, in);
+			} else {
+				XMLFeedParser parser2 = new XMLFeedParser();
+				parser2.parse(contest, in);
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error reading event feed", e);
+			throw e;
+		} finally {
+			try {
+				in.close();
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+	}
+
+	@Override
 	protected void loadContestImpl() throws Exception {
+		if (feedFile != null)
+			return;
+
 		InputStream in = null;
 
 		try {
@@ -1097,6 +1161,8 @@ public class RESTContestSource extends DiskContestSource {
 	@Override
 	public Validation validate() {
 		Validation v = new Validation();
+		if (feedFile != null)
+			return v;
 
 		try {
 			HttpURLConnection conn = createConnection("");

@@ -108,7 +108,7 @@ public class DiskContestSource extends ContestSource {
 
 		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
 				String[] fileExtensions) {
-			if (type == ContestType.CONTEST) {
+			if (type == null) {
 				this.folder = folder;
 				this.url = property;
 			} else {
