@@ -541,6 +541,17 @@ public class Resolver {
 				Trace.trace(Trace.INFO, "Resolved for problems labels " + cc.getNumProblems());
 			}
 
+			// error if no teams
+			if (cc.getTeams().length == 0) {
+				Trace.trace(Trace.ERROR, "Contest has no teams, exiting.");
+				System.exit(2);
+			}
+
+			if (cc.getProblems().length == 0) {
+				Trace.trace(Trace.ERROR, "Contest has no problems, exiting.");
+				System.exit(2);
+			}
+
 			if (!hasAwards) {
 				Trace.trace(Trace.USER, "Generating awards");
 				AwardUtil.createDefaultAwards(cc);
