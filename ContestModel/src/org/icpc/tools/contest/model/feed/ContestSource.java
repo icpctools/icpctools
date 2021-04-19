@@ -72,7 +72,7 @@ public abstract class ContestSource {
 			if (f.isDirectory())
 				return new DiskContestSource(f);
 
-			return new EventFeedContestSource(source);
+			return new RESTContestSource(f, arg1, arg2);
 		}
 
 		throw new IOException("Could not parse or resolve contest source");
