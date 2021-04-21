@@ -27,23 +27,22 @@ import org.icpc.tools.presentation.contest.internal.nls.Messages;
  * Shows incoming commentary.
  */
 public class CommentaryPresentation extends TitledPresentation {
-	private static final long TIME_TO_KEEP_SOLVED = 11000;
-	private static final long TIME_TO_KEEP_FAILED = 8000;
-	private static final long TIME_TO_KEEP_RECENT = 14000;
-	private static final long TIME_TO_FADE_RECENT = 2000;
-	private static final long LINES_PER_SCREEN = 15;
+	private static final long TIME_TO_KEEP_RECENT = 20000;
+	private static final long TIME_TO_FADE_RECENT = 2500;
+	private static final long LINES_PER_SCREEN = 16;
 
 	private static final int GAP = 5;
 
 	private static final Movement COMMENTARY_MOVEMENT = new Movement(5, 9);
 
 	enum Action {
-		MOVE_UP, MOVE_DOWN, MOVE_OUT
+		MOVE_OUT
 	}
 
 	protected class RecentCommentary {
 		public ICommentary commentary;
 		protected BufferedImage img;
+		protected int rows = 1;
 		protected Animator anim;
 		protected long fullAge;
 		protected long actionAge;
@@ -57,8 +56,6 @@ public class CommentaryPresentation extends TitledPresentation {
 	}
 
 	protected List<RecentCommentary> comments = new ArrayList<>();
-	protected long timeToKeepFailed = TIME_TO_KEEP_FAILED;
-	protected long timeToKeepSolved = TIME_TO_KEEP_SOLVED;
 	protected Font titleFont;
 	protected Font textFont;
 	protected Font textFont2;
@@ -129,78 +126,122 @@ public class CommentaryPresentation extends TitledPresentation {
 				initalX = Math.min(comments.get(comments.size() - 1).anim.getValue() + 1, LINES_PER_SCREEN * 2);
 			comm.anim = new Animator(Math.max(initalX, LINES_PER_SCREEN + 2), COMMENTARY_MOVEMENT);
 
-			// create image
-			int h = (int) (height / LINES_PER_SCREEN);
-			comm.img = new BufferedImage(width, h, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D g = comm.img.createGraphics();
-			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-			g.setFont(textFont);
-			FontMetrics fm = g.getFontMetrics();
-			g.setFont(textFont2);
-			FontMetrics fm2 = g.getFontMetrics();
-			int fh = fm.getAscent();
-			int baseLine = (h + fh) / 2;
-			int gh = h - GAP * 3;
-			List<Object> list = parseCommentary(commentary.getMessage());
-			int x = 0;
-			for (Object o : list) {
-				if (o instanceof String) {
-					String s = (String) o;
-					g.setColor(Color.LIGHT_GRAY);
-					g.setFont(textFont);
-					g.drawString(s, x, baseLine);
-					x += fm.getStringBounds(s, g).getWidth();
-				} else if (o instanceof ITeam) {
-					ITeam team = (ITeam) o;
-
-					IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
-					if (org != null) {
-						BufferedImage img = org.getLogoImage(gh, gh, true, true);
-						if (img != null) {
-							g.drawImage(img, x + GAP, (h - img.getWidth()) / 2, null);
-							x += img.getWidth() + GAP * 2;
-						} /* else { // for testing logo spacing
-							g.setColor(Color.GREEN);
-							g.drawRect(x + GAP, (h - gh) / 2, gh, gh);
-							x += gh + GAP * 2;
-							}*/
-					}
-
-					String s = team.getActualDisplayName();
-					g.setColor(Color.WHITE);
-					g.setFont(textFont2);
-					g.drawString(s, x, baseLine);
-					x += fm2.getStringBounds(s, g).getWidth();
-				} else if (o instanceof IProblem) {
-					IProblem p = (IProblem) o;
-
-					Color c = p.getColorVal();
-					Color cc = ICPCColors.getContrastColor(c);
-					ShadedRectangle.drawRoundRect(g, x + GAP, (h - gh) / 2, fh * 3, gh, c, cc, "");
-
-					g.setColor(cc);
-					g.setFont(textFont);
-					g.drawString(p.getLabel(), x + GAP + fh * 3 / 2 - fm.stringWidth(p.getLabel()) / 2, baseLine);
-					x += fh * 3 + GAP * 2;
-
-					String s = p.getName();
-					g.setColor(Color.WHITE);
-					g.setFont(textFont2);
-					g.drawString(s, x, baseLine);
-					x += fm2.getStringBounds(s, g).getWidth();
-				}
-			}
-
-			g.dispose();
-
 			comments.add(comm);
 
 			updateTargets(false);
 			return comm;
 		}
+	}
+
+	private void createImage(Graphics2D gg, RecentCommentary comm) {
+		int h = (int) (height / LINES_PER_SCREEN);
+		int bh = h;
+
+		// estimate width to see if we need to wrap
+		gg.setFont(textFont);
+		FontMetrics fm = gg.getFontMetrics();
+		gg.setFont(textFont2);
+		FontMetrics fm2 = gg.getFontMetrics();
+		int fh = fm.getAscent();
+		int baseLine = (h + fh) / 2;
+		int gh = h - GAP * 3;
+
+		List<Object> list = parseCommentary(comm.commentary.getMessage());
+		int x = 0;
+		Object wrap = null;
+		for (Object o : list) {
+			if (o instanceof String) {
+				String s = (String) o;
+				x += fm.getStringBounds(s, gg).getWidth();
+			} else if (o instanceof ITeam) {
+				ITeam team = (ITeam) o;
+
+				IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
+				if (org != null) {
+					BufferedImage img = org.getLogoImage(gh, gh, true, true);
+					if (img != null) {
+						x += img.getWidth() + GAP * 2;
+					} // else - add logo gap for testing
+						// x += gh + GAP * 2;
+				}
+
+				String s = team.getActualDisplayName();
+				x += fm2.getStringBounds(s, gg).getWidth();
+			} else if (o instanceof IProblem) {
+				IProblem p = (IProblem) o;
+				x += fh * 3 + GAP * 2;
+
+				String s = p.getName();
+				x += fm2.getStringBounds(s, gg).getWidth();
+			}
+			if (x > width - GAP) {
+				bh += h - GAP;
+				wrap = o;
+				comm.rows++;
+			}
+		}
+
+		comm.img = new BufferedImage(width, bh, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = comm.img.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+		x = 0;
+		int y = 0;
+		for (Object o : list) {
+			if (o == wrap) {
+				x = 100;
+				y += h;
+			}
+			if (o instanceof String) {
+				String s = (String) o;
+				g.setColor(Color.LIGHT_GRAY);
+				g.setFont(textFont);
+				g.drawString(s, x, y + baseLine);
+				x += fm.getStringBounds(s, g).getWidth();
+			} else if (o instanceof ITeam) {
+				ITeam team = (ITeam) o;
+
+				IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
+				if (org != null) {
+					BufferedImage img = org.getLogoImage(gh, gh, true, true);
+					if (img != null) {
+						g.drawImage(img, x + GAP, y + (h - img.getWidth()) / 2, null);
+						x += img.getWidth() + GAP * 2;
+					} /*else { // for testing logo spacing
+						g.setColor(Color.GREEN);
+						g.drawRect(x + GAP, y + (h - gh) / 2, gh, gh);
+						x += gh + GAP * 2;
+						}*/
+				}
+
+				String s = team.getActualDisplayName();
+				g.setColor(Color.WHITE);
+				g.setFont(textFont2);
+				g.drawString(s, x, y + baseLine);
+				x += fm2.getStringBounds(s, g).getWidth();
+			} else if (o instanceof IProblem) {
+				IProblem p = (IProblem) o;
+
+				Color c = p.getColorVal();
+				Color cc = ICPCColors.getContrastColor(c);
+				ShadedRectangle.drawRoundRect(g, x + GAP, (h - gh) / 2, fh * 3, gh, c, cc, "");
+
+				g.setColor(cc);
+				g.setFont(textFont);
+				g.drawString(p.getLabel(), x + GAP + fh * 3 / 2 - fm.stringWidth(p.getLabel()) / 2, y + baseLine);
+				x += fh * 3 + GAP * 2;
+
+				String s = p.getName();
+				g.setColor(Color.WHITE);
+				g.setFont(textFont2);
+				g.drawString(s, x, y + baseLine);
+				x += fm2.getStringBounds(s, g).getWidth();
+			}
+		}
+
+		g.dispose();
 	}
 
 	@Override
@@ -228,11 +269,7 @@ public class CommentaryPresentation extends TitledPresentation {
 			if (yy < height - headerHeight) {
 				Graphics2D g2 = (Graphics2D) g.create();
 				g2.translate(0, (int) yy);
-				if (comm.action == Action.MOVE_DOWN) {
-					float tr = (float) Math.min(1.0,
-							Math.max(0.1, 1.0 - (comm.actionAge - timeToKeepFailed * 0.75) * 2.0 / timeToKeepFailed));
-					g2.setComposite(AlphaComposite.SrcOver.derive(tr));
-				} else if (comm.action == Action.MOVE_OUT) {
+				if (comm.action == Action.MOVE_OUT) {
 					float tr = (float) (1.0 - comm.actionAge / (double) TIME_TO_FADE_RECENT);
 					g2.setComposite(AlphaComposite.SrcOver.derive(tr));
 				}
@@ -243,19 +280,19 @@ public class CommentaryPresentation extends TitledPresentation {
 	}
 
 	protected void paintCommentary(Graphics2D g, RecentCommentary comm) {
+		if (comm.img == null)
+			createImage(g, comm);
 		g.drawImage(comm.img, 0, 0, null);
 	}
 
-	protected static int findEndOfToken(String s, int ii) {
-		int i = ii + 1;
-		while (true) {
-			if (i >= s.length())
-				return s.length();
-			if (Character.isWhitespace(s.charAt(i)))
-				return i;
-			if (s.charAt(i) == '(')
-				i++;
-		}
+	private static int firstTag(String s) {
+		int t = s.indexOf("#t");
+		int p = s.indexOf("#p");
+		if (t >= 0 && (p == -1 || t < p))
+			return t;
+		if (p >= 0 && (t == -1 || p < t))
+			return p;
+		return -1;
 	}
 
 	protected List<Object> parseCommentary(String ss) {
@@ -263,61 +300,52 @@ public class CommentaryPresentation extends TitledPresentation {
 		IContest contest = getContest();
 
 		String s = ss;
-		while (true) {
-			int i = s.indexOf("#");
-			if (i < 0) {
-				list.add(s);
-				return list;
+		int i = firstTag(s);
+		while (i >= 0) {
+			if (i > 0)
+				list.add(s.substring(0, i));
+
+			int j = i + 2;
+			char c = s.charAt(j);
+			while (j < s.length() && (Character.isLetterOrDigit(c) || c == '_' || c == '.')) {
+				j++;
+				if (j < s.length())
+					c = s.charAt(j);
 			}
-			if (s.length() > i + 1) {
-				if (s.charAt(i + 1) == 't' || s.charAt(i + 1) == 'p') {
-					if (i > 0)
-						list.add(s.substring(0, i));
 
-					// find the id and the end of the token (usually the same thing, but there could be
-					// (brackets)
-					String id = null;
+			String id = s.substring(i + 2, j);
 
-					int j = i + 2;
-					int e = 0;
-					while (id == null) {
-						if (j >= s.length()) {
-							id = s.substring(i + 2, j);
-							e = j;
-						} else if (Character.isWhitespace(s.charAt(j))) {
-							id = s.substring(i + 2, j);
-							e = j;
-						} else if (s.charAt(j) == '(') {
-							id = s.substring(i + 2, j);
-							while (j < s.length() && s.charAt(j) != ')') {
-								j++;
-							}
-							e = j + 1;
-						}
-						j++;
-					}
-					if (id.endsWith(".")) {
-						id = id.substring(0, id.length() - 1);
-						e -= 1;
-					}
+			// if the last char was a period, it isn't part of the id
+			if (id.endsWith(".")) {
+				id = s.substring(i + 2, j - 1);
+				j -= 1;
+			}
 
-					Object o = null;
-					if (s.charAt(i + 1) == 't')
-						o = contest.getTeamById(id);
-					else
-						o = contest.getProblemById(id);
-					if (o != null)
-						list.add(o);
-					// if (e < s.length() && s.charAt(e + 1) == ' ')
-					// e++;
-					s = s.substring(e);
-				} else {
-					i = s.indexOf("#", i + 1);
+			Object o = null;
+			if (s.charAt(i + 1) == 't')
+				o = contest.getTeamById(id);
+			else
+				o = contest.getProblemById(id);
+			if (o != null)
+				list.add(o);
+			s = s.substring(j);
+
+			// if the next char is an open bracket, remove the text until close bracket
+			if (s.length() > 0 && s.charAt(0) == '(') {
+				j = 1;
+				while (j < s.length() && s.charAt(j) != ')') {
+					j++;
 				}
+				if (j < s.length())
+					j++;
+				s = s.substring(j);
 			}
-		}
 
-		// return list;
+			i = firstTag(s);
+		}
+		if (!s.isEmpty())
+			list.add(s);
+		return list;
 	}
 
 	protected void updateTargets(boolean force) {
@@ -325,19 +353,14 @@ public class CommentaryPresentation extends TitledPresentation {
 			return;
 
 		int count = 0;
-		// IContest contest = getContest();
 		synchronized (comments) {
 			for (RecentCommentary comment : comments) {
 				double target = 0;
 				target = count;
-				if (comment.action == Action.MOVE_UP && (comment.actionAge > timeToKeepSolved))
-					target = -LINES_PER_SCREEN;
-				else if (comment.action == Action.MOVE_DOWN && comment.actionAge > timeToKeepFailed)
-					target = LINES_PER_SCREEN * 2;
-				else if (comment.action == Action.MOVE_OUT && comment.actionAge > TIME_TO_FADE_RECENT / 3) {
+				if (comment.action == Action.MOVE_OUT && comment.actionAge > TIME_TO_FADE_RECENT / 3) {
 					// don't move count
 				} else if (count < LINES_PER_SCREEN * 2)
-					count++;
+					count += comment.rows;
 
 				if (force)
 					comment.anim.reset(target);
@@ -350,7 +373,6 @@ public class CommentaryPresentation extends TitledPresentation {
 	protected void updateRecords(long dt) {
 		List<RecentCommentary> remove = new ArrayList<>();
 
-		// IContest contest = getContest();
 		synchronized (comments) {
 			for (RecentCommentary comment : comments) {
 				comment.anim.incrementTimeMs(dt);
@@ -359,26 +381,10 @@ public class CommentaryPresentation extends TitledPresentation {
 				if (comment.action == null) {
 					if (comment.fullAge > TIME_TO_KEEP_RECENT)
 						comment.action = Action.MOVE_OUT;
-
-					/*if (contest.getState().isFrozen() && contest.getState().isRunning()) {
-						if (comment.fullAge > TIME_TO_KEEP_RECENT)
-							comment.action = Action.MOVE_OUT;
-					} else {
-						if (contest.isJudged(comment.commentary)) {
-							if (contest.isSolved(comment.commentary))
-								comment.action = Action.MOVE_UP;
-							else
-								comment.action = Action.MOVE_DOWN;
-						}
-					}*/
 				} else
 					comment.actionAge += dt;
 
-				if (comment.action == Action.MOVE_UP && comment.anim.getValue() < -1)
-					remove.add(comment);
-				else if (comment.action == Action.MOVE_DOWN && comment.anim.getValue() > LINES_PER_SCREEN)
-					remove.add(comment);
-				else if (comment.action == Action.MOVE_OUT && comment.actionAge > TIME_TO_FADE_RECENT)
+				if (comment.action == Action.MOVE_OUT && comment.actionAge > TIME_TO_FADE_RECENT)
 					remove.add(comment);
 			}
 
