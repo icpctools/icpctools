@@ -1,10 +1,15 @@
 package org.icpc.tools.balloon;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.DirectColorModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +48,9 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedParser;
 import org.icpc.tools.contest.model.internal.Contest;
 
+import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGUniverse;
+
 public class BalloonPrinter {
 	public static final String[] DEFAULT_MESSAGES = new String[] { "First balloon in contest!",
 			"First balloon for group {0}!", "First solution to problem {1}!", "First balloon for this team" };
@@ -70,7 +78,7 @@ public class BalloonPrinter {
 			public void run() {
 				try {
 					File f = ContestSource.getInstance().getContest().getInfo().getBanner(1920, 300, true);
-					bannerImage = new Image(device, new FileInputStream(f));
+					bannerImage = loadImage(device, f);
 				} catch (Exception e) {
 					// ignore
 				}
@@ -209,6 +217,47 @@ public class BalloonPrinter {
 		return new Font(device, fontData);
 	}
 
+	private static Image loadImage(Device device, File f) throws Exception {
+		if (f == null)
+			return null;
+
+		if (!f.getName().endsWith("svg"))
+			return new Image(device, new FileInputStream(f));
+
+		// SVG image. Start by loading diagram
+		SVGUniverse sRenderer = new SVGUniverse();
+		URI uri = sRenderer.loadSVG(f.toURI().toURL());
+		SVGDiagram diagram = sRenderer.getDiagram(uri);
+		diagram.setIgnoringClipHeuristic(true);
+
+		// create a BufferedImage from it
+		BufferedImage img = new BufferedImage((int) diagram.getWidth(), (int) diagram.getHeight(),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = (Graphics2D) img.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		diagram.render(g);
+		g.dispose();
+
+		// then convert to ImageData
+		DirectColorModel colorModel = (DirectColorModel) img.getColorModel();
+		PaletteData palette = new PaletteData(colorModel.getRedMask(), colorModel.getGreenMask(),
+				colorModel.getBlueMask());
+		ImageData data = new ImageData(img.getWidth(), img.getHeight(), colorModel.getPixelSize(), palette);
+		for (int y = 0; y < data.height; y++) {
+			for (int x = 0; x < data.width; x++) {
+				int rgb = img.getRGB(x, y);
+				int pixel = palette.getPixel(new RGB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF));
+				data.setPixel(x, y, pixel);
+				if (colorModel.hasAlpha()) {
+					data.setAlpha(x, y, (rgb >> 24) & 0xFF);
+				}
+			}
+		}
+		return new Image(device, data);
+	}
+
 	/**
 	 *
 	 * @param bc
@@ -317,7 +366,7 @@ public class BalloonPrinter {
 			if (org != null) {
 				File f = org.getLogo(fm.getHeight(), fm.getHeight(), true);
 				if (f != null) {
-					Image logo = new Image(device, new FileInputStream(f));
+					Image logo = loadImage(device, f);
 					Rectangle logoR = logo.getBounds();
 					int h = fm.getHeight();
 					int w = (logoR.width * h) / logoR.height;
