@@ -183,8 +183,7 @@ public abstract class ContestSource {
 					return;
 				}
 				notifyListeners(ConnectionState.INITIALZED);
-				boolean reconnect = (ContestSource.this instanceof CCSContestSource)
-						|| (ContestSource.this instanceof RESTContestSource);
+				boolean reconnect = (ContestSource.this instanceof RESTContestSource);
 
 				final IContestListener readListener = new IContestListener() {
 					@Override
