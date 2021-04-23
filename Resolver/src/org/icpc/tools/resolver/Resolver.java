@@ -511,7 +511,7 @@ public class Resolver {
 			boolean hasAwards = fullAwards != null && fullAwards.length > 0;
 			Contest cc = finalContest.clone(true);
 			if (groups != null) {
-				Trace.trace(Trace.INFO, "Resolving for group ids " + groups + " " + cc.getNumTeams());
+				Trace.trace(Trace.INFO, "Resolving for group ids " + groups + " (Initial teams: " + cc.getNumTeams() + ")");
 
 				// set the current group to be visible and all others hidden
 				Pattern pattern = Pattern.compile(groups.trim());
@@ -523,11 +523,12 @@ public class Resolver {
 				}
 
 				cc.removeHiddenTeams();
-				Trace.trace(Trace.INFO, "Resolved for group ids " + cc.getNumTeams());
+				Trace.trace(Trace.INFO, "Resolved for group ids. Teams left: " + cc.getNumTeams());
 			}
 
 			if (problems != null) {
-				Trace.trace(Trace.INFO, "Resolving for problem labels " + problems + " " + cc.getNumProblems());
+				Trace.trace(Trace.INFO,
+						"Resolving for problem labels " + problems + " (Initial problems: " + cc.getNumProblems() + ")");
 				List<String> removeProblems = new ArrayList<String>();
 				IProblem[] probs = cc.getProblems();
 
@@ -538,7 +539,7 @@ public class Resolver {
 				}
 				cc.removeProblems(removeProblems);
 
-				Trace.trace(Trace.INFO, "Resolved for problems labels " + cc.getNumProblems());
+				Trace.trace(Trace.INFO, "Resolved for problems labels. Problems left: " + cc.getNumProblems());
 			}
 
 			// error if no teams
