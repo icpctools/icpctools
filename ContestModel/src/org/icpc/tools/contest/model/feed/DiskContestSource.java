@@ -703,14 +703,14 @@ public class DiskContestSource extends ContestSource {
 			throw e;
 		}
 		try {
-			if (contestFile.getName().endsWith("json")) {
-				NDJSONFeedParser jsonParser = new NDJSONFeedParser();
-				jsonParser.parse(contest, in);
-				parser = jsonParser;
-			} else {
+			if (contestFile.getName().endsWith("xml")) {
 				XMLFeedParser xmlParser = new XMLFeedParser();
 				xmlParser.parse(contest, in);
 				parser = xmlParser;
+			} else {
+				NDJSONFeedParser jsonParser = new NDJSONFeedParser();
+				jsonParser.parse(contest, in);
+				parser = jsonParser;
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading event feed", e);
