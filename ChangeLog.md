@@ -1,5 +1,17 @@
 # ICPC Tools Changelog
 
+## V2.4 - TBD
+-----------------
+* Contest API improvements:
+  * SVG image support throughout.
+  * Language entry points.
+  * Support for country flags.
+* Several fixes based on use at regional contests.
+* CDS:
+  * UI improvements, new welcome page.
+* Presentation client:
+  * Initial Commentary presentation.
+
 ## V2.3 - March 2021
 -----------------
 * Several fixes based on use at regional contests.
