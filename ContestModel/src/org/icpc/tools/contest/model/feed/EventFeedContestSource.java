@@ -47,11 +47,11 @@ public class EventFeedContestSource extends ContestSource {
 			throw e;
 		}
 		try {
-			if (file.getName().endsWith("json")) {
-				NDJSONFeedParser parser = new NDJSONFeedParser();
+			if (file.getName().endsWith("xml")) {
+				XMLFeedParser parser = new XMLFeedParser();
 				parser.parse(contest, in);
 			} else {
-				XMLFeedParser parser = new XMLFeedParser();
+				NDJSONFeedParser parser = new NDJSONFeedParser();
 				parser.parse(contest, in);
 			}
 		} catch (Exception e) {

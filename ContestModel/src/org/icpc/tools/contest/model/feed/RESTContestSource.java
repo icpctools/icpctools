@@ -740,11 +740,11 @@ public class RESTContestSource extends DiskContestSource {
 			throw e;
 		}
 		try {
-			if (feedFile.getName().endsWith("json")) {
-				NDJSONFeedParser parser2 = new NDJSONFeedParser();
+			if (feedFile.getName().endsWith("xml")) {
+				XMLFeedParser parser2 = new XMLFeedParser();
 				parser2.parse(contest, in);
 			} else {
-				XMLFeedParser parser2 = new XMLFeedParser();
+				NDJSONFeedParser parser2 = new NDJSONFeedParser();
 				parser2.parse(contest, in);
 			}
 		} catch (Exception e) {
