@@ -6,11 +6,6 @@
     <ccs url="https://my-ccs" user="" password=""/>
     -->
 
-    <!-- Or configure your older CCS via the XML event feed and optional start time interface -->
-    <!--
-    <ccs eventFeed="my-ccs:4713" startTime="https://..." user="" password=""/>
-    -->
-
     <!-- Uncomment to enable test (contest playback) mode. Countdown in seconds *or* specific start time, and contest speed multiplier -->
     <!--
     <test countdown="30" startTime="2020-02-19T12:30:00.000-05" multiplier="10.0"/>
