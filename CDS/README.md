@@ -198,31 +198,6 @@ If the *ccs* element is present then the CDS will use the CCS as the master sour
 *contest* folder is used as an initial source, cache, and can provide additional data (e.g. logos if the CCS does
 not provide those) but the event feed and all other contest data will come from or be overridden by the CCS.
 
-###### ccs Child Element (deprecated)
-
-```
-<ccs
-    eventFeed=""
-    startTime=""
-    user=""
-    password=""/>
-```
-
-Only one *ccs* element may be used. This alternate and deprecated *ccs* element is provided to connect to older
-CCSs that do not support the CLI Contest API. It provides support for the final
-[XML Event Feed specification](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016) and
-[Contest Start Interface](https://clics.ecs.baylor.edu/index.php?title=Contest_Start_Interface).
-The attributes associated with this element are as follows:
-
-* eventFeed: (host:port) the IP address and port at which the CDS should contact the CCS to obtain its event feed
-
-* startTime: the optional URL at which the CDS should contact the CCS to obtain the scheduled start time of the contest.
-The return start time is expected to be in mSec since the start of the Unix epoch (i.e., since midnight January 1st, 1970)
-
-* user: the optional user account name to log into the CCS Start Interface
-
-* password: the optional password for the CCS Start Interface user account
-
 ###### video Child Element
 
 ```
