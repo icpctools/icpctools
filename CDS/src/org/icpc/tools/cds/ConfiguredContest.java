@@ -33,7 +33,6 @@ import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.ITeamMember;
-import org.icpc.tools.contest.model.feed.CCSContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
 import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
@@ -248,15 +247,11 @@ public class ConfiguredContest {
 		private String url;
 		private String user;
 		private String password;
-		private String eventFeed;
-		private String startTime;
 
 		protected CCS(Element e) {
 			url = CDSConfig.getString(e, "url");
 			user = CDSConfig.getString(e, "user");
 			password = CDSConfig.getString(e, "password");
-			eventFeed = CDSConfig.getString(e, "eventFeed");
-			startTime = CDSConfig.getString(e, "startTime");
 		}
 
 		public String getURL() {
@@ -271,24 +266,9 @@ public class ConfiguredContest {
 			return password;
 		}
 
-		public String getEventFeed() {
-			return eventFeed;
-		}
-
-		public String getStartTime() {
-			return startTime;
-		}
-
 		@Override
 		public String toString() {
-			if (getURL() != null)
-				return getUser() + "@" + getURL();
-
-			StringBuilder sb = new StringBuilder();
-			sb.append(getUser() + "@" + getEventFeed());
-			if (startTime != null)
-				sb.append(", start " + startTime);
-			return sb.toString();
+			return getUser() + "@" + getURL();
 		}
 	}
 
@@ -556,11 +536,7 @@ public class ConfiguredContest {
 				contestSource = new EventFeedContestSource(folder.getAbsoluteFile());
 		} else {
 			try {
-				if (ccs.getURL() != null)
-					contestSource = new RESTContestSource(ccs.getURL(), ccs.getUser(), ccs.getPassword(), folder);
-				else
-					contestSource = new CCSContestSource(ccs.getEventFeed(), ccs.getUser(), ccs.getPassword(),
-							ccs.getStartTime(), folder);
+				contestSource = new RESTContestSource(ccs.getURL(), ccs.getUser(), ccs.getPassword(), folder);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not configure contest source", e);
 				contestSource = new DiskContestSource(folder);

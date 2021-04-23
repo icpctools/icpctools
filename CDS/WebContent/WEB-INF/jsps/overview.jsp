@@ -1,5 +1,4 @@
 <%@ page import="org.icpc.tools.contest.model.feed.ContestSource" %>
-<%@ page import="org.icpc.tools.contest.model.feed.CCSContestSource" %>
 <%@ page import="org.icpc.tools.contest.model.feed.RESTContestSource" %>
 <%@ page import="org.icpc.tools.contest.model.feed.ContestSource.ConnectionState" %>
 <%@ page import="java.util.List" %>
@@ -29,8 +28,6 @@
    String source = "Local folder";
    if (cc.getContestSource() instanceof RESTContestSource)
 	   source = "CCS event feed";
-   else if (cc.getContestSource() instanceof CCSContestSource)
-	   source = "CCS XML feed";
 
    ConnectionState conState = cc.getContestState();
    String connectionState = ContestSource.getStateLabel(conState);
