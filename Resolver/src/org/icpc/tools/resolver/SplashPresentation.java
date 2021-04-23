@@ -33,6 +33,7 @@ public class SplashPresentation extends AbstractICPCPresentation {
 	protected Font smallFont;
 
 	private BufferedImage image;
+	private BufferedImage icpcToolsImage;
 
 	@Override
 	public void init() {
@@ -46,6 +47,8 @@ public class SplashPresentation extends AbstractICPCPresentation {
 
 		if (image == null)
 			image = getIdImage();
+
+		icpcToolsImage = getICPCToolsImage();
 	}
 
 	private BufferedImage getIdImage() {
@@ -53,6 +56,26 @@ public class SplashPresentation extends AbstractICPCPresentation {
 		try {
 			in = Thread.currentThread().getContextClassLoader().getResourceAsStream("images/id.png");
 			return ImageScaler.scaleImage(ImageIO.read(in), width * 0.8, height * 0.5);
+		} catch (Exception e) {
+			// ignore
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private BufferedImage getICPCToolsImage() {
+		InputStream in = null;
+		try {
+			in = Thread.currentThread().getContextClassLoader().getResourceAsStream("images/logo.png");
+			return ImageScaler.scaleImage(ImageIO.read(in), width * 0.11, height * 0.11);
 		} catch (Exception e) {
 			// ignore
 		} finally {
@@ -131,44 +154,49 @@ public class SplashPresentation extends AbstractICPCPresentation {
 		g.drawString(title, (width - fm.stringWidth(title)) / 2, h);
 		h += (fm.getHeight() * 2f + GAP);
 
-		int ww = Math.max(fm.stringWidth(conceptAttr1), fm.stringWidth(conceptAttr2)) + fm.stringWidth(implAttr)
-				+ BORDER * 3;
-		int col1 = (width - ww) / 2;
-		int col2 = (width + ww) / 2;
+		int tw = 0;
+		if (icpcToolsImage != null) {
+			tw = icpcToolsImage.getWidth() / 2;
+			g.drawImage(icpcToolsImage, (width - icpcToolsImage.getWidth()) / 2,
+					height - BORDER - icpcToolsImage.getHeight(), null);
+		}
+
+		int col1 = width / 2 - tw - BORDER;
+		int col2 = width / 2 + tw + BORDER;
 
 		GAP = fm2.getHeight() / 3;
-		ShadedRectangle.drawRoundRect(g, col1 - GAP, h - fm2.getAscent() - GAP, fm2.stringWidth(conceptBy) + GAP * 2,
-				fm2.getHeight() + (int) (GAP * 1.7f), ICPCColors.SOLVED[ICPCColors.CCOUNT / 3]);
-		g.setColor(Color.WHITE);
-		g.setFont(smallFont);
-		g.drawString(conceptBy, col1, h);
-
-		ShadedRectangle.drawRoundRect(g, col2 - fm2.stringWidth(implBy) - GAP, h - fm2.getAscent() - GAP,
-				fm2.stringWidth(implBy) + GAP * 2, fm2.getHeight() + (int) (GAP * 1.7f),
+		ShadedRectangle.drawRoundRect(g, col1 - GAP - fm2.stringWidth(conceptBy), h - fm2.getAscent() - GAP,
+				fm2.stringWidth(conceptBy) + GAP * 2, fm2.getHeight() + (int) (GAP * 1.7f),
 				ICPCColors.SOLVED[ICPCColors.CCOUNT / 3]);
 		g.setColor(Color.WHITE);
 		g.setFont(smallFont);
-		g.drawString(implBy, col2 - fm2.stringWidth(implBy), h);
+		g.drawString(conceptBy, col1 - fm2.stringWidth(conceptBy), h);
+
+		ShadedRectangle.drawRoundRect(g, col2 - GAP, h - fm2.getAscent() - GAP, fm2.stringWidth(implBy) + GAP * 2,
+				fm2.getHeight() + (int) (GAP * 1.7f), ICPCColors.SOLVED[ICPCColors.CCOUNT / 3]);
+		g.setColor(Color.WHITE);
+		g.setFont(smallFont);
+		g.drawString(implBy, col2, h);
 		h += (fm.getHeight() * 1.5f + GAP);
 
 		g.setColor(Color.WHITE);
 		g.setFont(attrFont);
-		g.drawString(conceptAttr1, col1, h);
+		g.drawString(conceptAttr1, col1 - fm.stringWidth(conceptAttr1), h);
 
 		g.setColor(Color.WHITE);
 		g.setFont(attrFont);
-		g.drawString(implAttr, col2 - fm.stringWidth(implAttr), h);
+		g.drawString(implAttr, col2, h);
 		h += fm.getHeight();
 
 		g.setColor(Color.WHITE);
 		g.setFont(attrFont);
-		g.drawString(conceptAttr2, col1, h);
+		g.drawString(conceptAttr2, col1 - fm.stringWidth(conceptAttr2), h);
 
 		g.setFont(smallFont);
-		g.drawString(implOrg, col2 - fm2.stringWidth(implOrg), h);
+		g.drawString(implOrg, col2, h);
 		h += fm.getHeight();
 
 		g.setFont(smallFont);
-		g.drawString(conceptOrg, col1, h);
+		g.drawString(conceptOrg, col1 - fm2.stringWidth(conceptOrg), h);
 	}
 }
