@@ -56,8 +56,6 @@ import org.icpc.tools.contest.model.feed.LinkParser.ILinkListener;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.Info;
-import org.icpc.tools.contest.model.internal.Organization;
-import org.icpc.tools.contest.model.internal.Team;
 
 public class RESTContestSource extends DiskContestSource {
 	protected static final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -69,9 +67,10 @@ public class RESTContestSource extends DiskContestSource {
 
 	private URL url;
 	private File feedFile;
-	private final String user;
-	private final String password;
+	private String user = null;
+	private String password = null;
 	private String baseUrl;
+	private String contestId;
 
 	private NDJSONFeedParser parser = new NDJSONFeedParser();
 
@@ -142,40 +141,26 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws MalformedURLException
 	 */
 	public RESTContestSource(String url, String user, String password) throws MalformedURLException {
-		this(new URL(url), user, password);
-	}
+		super(url);
 
-	/**
-	 * Creates a REST contest source with a local caching policy.
-	 *
-	 * @param url
-	 * @param user
-	 * @param password
-	 * @throws MalformedURLException
-	 */
-	public RESTContestSource(URL url, String user, String password) {
-		super(url.getHost() + url.getPath());
+		this.url = new URL(url);
 
-		// make sure URL doesn't end with /
-		this.url = removeTrailingSlash(url);
-
-		if (user == null || user.trim().length() == 0)
-			this.user = null;
-		else
+		if (user != null && user.trim().length() > 0)
 			this.user = user;
 
-		if (password == null || password.trim().length() == 0)
-			this.password = null;
-		else
+		if (password != null && password.trim().length() > 0)
 			this.password = password;
 
 		instance = this;
+
+		validateURL();
+		setup();
 
 		// store temporary events cache in log folder
 		File logFolder = new File("logs");
 		if (!logFolder.exists())
 			logFolder.mkdir();
-		feedCacheFile = new File(logFolder, "events-" + getRemoteContestId() + "-" + user + ".log");
+		feedCacheFile = new File(logFolder, "events-" + contestId + "-" + user + ".log");
 		if (feedCacheFile.exists()) {
 			// delete if older than 8h
 			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
@@ -185,7 +170,7 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
-	 * Creates a REST contest source from a local event feed file, with a local caching policy.
+	 * Creates a REST contest source from a local event feed file, with no local caching policy.
 	 *
 	 * @param url
 	 * @param user
@@ -197,14 +182,10 @@ public class RESTContestSource extends DiskContestSource {
 
 		this.feedFile = feedFile;
 
-		if (user == null || user.trim().length() == 0)
-			this.user = null;
-		else
+		if (user != null && user.trim().length() > 0)
 			this.user = user;
 
-		if (password == null || password.trim().length() == 0)
-			this.password = null;
-		else
+		if (password != null && password.trim().length() > 0)
 			this.password = password;
 
 		instance = this;
@@ -221,8 +202,7 @@ public class RESTContestSource extends DiskContestSource {
 	public RESTContestSource(String url, String user, String password, File folder) throws MalformedURLException {
 		super(folder, false);
 
-		// make sure URL doesn't end with /
-		this.url = removeTrailingSlash(new URL(url));
+		this.url = new URL(url);
 
 		if (user == null || user.trim().length() == 0)
 			this.user = null;
@@ -236,12 +216,27 @@ public class RESTContestSource extends DiskContestSource {
 
 		instance = this;
 
-		feedCacheFile = new File("events-" + getRemoteContestId() + "-" + user + ".log");
+		validateURL();
+		setup();
+
+		feedCacheFile = new File("events-" + contestId + "-" + user + ".log");
 		if (feedCacheFile.exists()) {
 			// delete if older than 6h
 			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 6 * 60 * 60 * 1000)
 				feedCacheFile.delete();
 		}
+	}
+
+	private void setup() {
+		String path = url.getPath();
+		contestId = path.substring(path.lastIndexOf("/") + 1);
+
+		Pattern pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
+		Matcher matcher = pattern.matcher(url.toExternalForm());
+		if (matcher.find())
+			baseUrl = matcher.group(1);
+		else
+			baseUrl = url.toExternalForm();
 	}
 
 	public static RESTContestSource ensureContestAPI(ContestSource source) {
@@ -260,7 +255,7 @@ public class RESTContestSource extends DiskContestSource {
 		RESTContestSource restSource = (RESTContestSource) source;
 
 		try {
-			HttpURLConnection conn = restSource.createConnection("");
+			HttpURLConnection conn = restSource.createConnection("", false);
 			int response = conn.getResponseCode();
 			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
 				restSource.isCDS = true;
@@ -278,7 +273,6 @@ public class RESTContestSource extends DiskContestSource {
 			Trace.trace(Trace.INFO, "Validation error", e);
 		}
 
-		// restSource.outputValidation();
 		if (!restSource.isCDS()) {
 			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
 			System.exit(1);
@@ -290,57 +284,12 @@ public class RESTContestSource extends DiskContestSource {
 		return url;
 	}
 
-	protected static URL removeTrailingSlash(URL urls) {
-		String extForm = urls.toExternalForm();
-		if (!extForm.endsWith("/"))
-			return urls;
+	private URL getChildURL(String path) throws MalformedURLException {
+		String u = url.toExternalForm();
+		if (u.endsWith("/"))
+			return new URL(u + path);
 
-		try {
-			return new URL(extForm.substring(0, extForm.length() - 1));
-		} catch (Exception e) {
-			// ignore
-		}
-		return urls;
-	}
-
-	protected static URL ensureTrailingSlash(URL urls) {
-		String extForm = urls.toExternalForm();
-		if (extForm.endsWith("/"))
-			return urls;
-
-		try {
-			return new URL(extForm + "/");
-		} catch (Exception e) {
-			// ignore
-		}
-		return urls;
-	}
-
-	protected URL getChildURL(String path) {
-		if (path == null || path.isEmpty())
-			return url;
-
-		// check for root url
-		if (path.startsWith("http"))
-			try {
-				return new URL(path);
-			} catch (Exception e) {
-				return null;
-			}
-
-		if (path.startsWith("/"))
-			try {
-				return new URL(url, path);
-			} catch (Exception e) {
-				return null;
-			}
-
-		String extForm = url.toExternalForm();
-		try {
-			return new URL(extForm + "/" + path);
-		} catch (Exception e) {
-			return url;
-		}
+		return new URL(u + "/" + path);
 	}
 
 	public String getUser() {
@@ -355,68 +304,21 @@ public class RESTContestSource extends DiskContestSource {
 		return Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
 	}
 
-	protected InputStream getResource(String path) throws IOException {
-		InputStream in = null;
+	/**
+	 *
+	 * @param partialURL
+	 * @param baseURL true for base url relative, false for contest url relative
+	 * @return
+	 * @throws IOException
+	 */
+	private HttpURLConnection createConnection(String partialURL, boolean baseURL) throws IOException {
+		if (baseURL)
+			return createConnection(new URL(getResolvedURL(partialURL)));
 
-		HttpURLConnection conn = createConnection(path);
-		conn.setReadTimeout(10000);
-
-		File localFile = null;
-		long localTime = -1;
-		localFile = super.getFile(path);
-		if (localFile.exists()) {
-			localTime = localFile.lastModified();
-			conn.setIfModifiedSince(localTime);
-		}
-
-		int status = conn.getResponseCode();
-		if (status == HttpURLConnection.HTTP_NOT_FOUND)
-			return null;
-
-		if (hasMoved(status)) {
-			conn = createConnection(new URL(conn.getHeaderField("Location")));
-			conn.setReadTimeout(10000);
-			if (localFile.exists())
-				conn.setIfModifiedSince(localTime);
-			status = conn.getResponseCode();
-		}
-
-		if (status == HttpURLConnection.HTTP_NOT_MODIFIED)
-			return new FileInputStream(localFile);
-
-		if (status == HttpURLConnection.HTTP_UNAUTHORIZED)
-			throw new IOException("Not authorized (HTTP response code 401)");
-
-		if (conn.getLastModified() <= 0)
-			return conn.getInputStream();
-
-		if (localFile.exists())
-			localFile.delete();
-
-		in = conn.getInputStream();
-
-		if (!localFile.getParentFile().exists())
-			localFile.getParentFile().mkdirs();
-		FileOutputStream out = new FileOutputStream(localFile);
-
-		byte[] buf = new byte[8096];
-		int n = in.read(buf);
-		while (n >= 0) {
-			out.write(buf, 0, n);
-			n = in.read(buf);
-		}
-		in.close();
-		out.close();
-		localFile.setLastModified(conn.getLastModified());
-
-		return new FileInputStream(localFile);
+		return createConnection(getChildURL(partialURL));
 	}
 
-	public HttpURLConnection createConnection(String path) throws IOException {
-		return createConnection(getChildURL(path));
-	}
-
-	public HttpURLConnection createConnection(URL url2) throws IOException {
+	private HttpURLConnection createConnection(URL url2) throws IOException {
 		try {
 			return HTTPSSecurity.createConnection(url2, user, password);
 		} catch (IOException e) {
@@ -432,7 +334,7 @@ public class RESTContestSource extends DiskContestSource {
 		if (localFile.exists() && !super.isCache())
 			return localFile;
 
-		downloadIfNecessary(getRealURL(path), localFile);
+		downloadIfNecessary(path, localFile);
 		return localFile;
 	}
 
@@ -454,43 +356,30 @@ public class RESTContestSource extends DiskContestSource {
 		return downloadIfNecessary(ref, file);
 	}
 
-	protected String getBaseUrl() {
-		if (baseUrl == null) {
-			Pattern pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
-			Matcher matcher = pattern.matcher(url.toExternalForm());
-			if (matcher.find()) {
-				baseUrl = matcher.group(1);
-			} else {
-				baseUrl = url.toExternalForm();
-			}
-		}
-
-		return baseUrl;
-	}
-
-	protected String getRealURL(String href) {
+	private String getResolvedURL(String href) {
 		if (href.startsWith("http"))
 			return href;
 
+		if (feedFile != null)
+			return null;
+
 		// if href starts with / it means from the root
-		if (href.startsWith("/")) {
-			String root = url.getProtocol() + "://" + url.getAuthority();
-			return root + href;
-		}
+		if (href.startsWith("/"))
+			return url.getProtocol() + "://" + url.getAuthority() + href;
 
 		// otherwise, it's relative to the API, so determine that
-		return getBaseUrl() + href;
+		return baseUrl + href;
 	}
 
-	public File downloadIfNecessary(FileReference ref, File localFile) throws IOException {
+	private File downloadIfNecessary(FileReference ref, File localFile) throws IOException {
 		if (localFile == null)
 			return null;
 
-		downloadIfNecessary(getRealURL(ref.href), localFile);
+		downloadIfNecessary(ref.href, localFile);
 		return localFile;
 	}
 
-	public void downloadIfNecessary(String href, File localFile) throws IOException {
+	private void downloadIfNecessary(String href, File localFile) throws IOException {
 		try {
 			downloadIfNecessaryImpl(href, localFile);
 		} catch (Exception e) {
@@ -514,10 +403,10 @@ public class RESTContestSource extends DiskContestSource {
 				|| status == HttpURLConnection.HTTP_SEE_OTHER || status == 307 || status == 308);
 	}
 
-	public void downloadIfNecessaryImpl(String href, File localFile) throws IOException {
+	private void downloadIfNecessaryImpl(String href, File localFile) throws IOException {
 		StringBuilder sb = new StringBuilder("Download " + href + " to " + localFile);
 		long time = System.currentTimeMillis();
-		HttpURLConnection conn = createConnection(href);
+		HttpURLConnection conn = createConnection(href, true);
 		conn.setReadTimeout(10000);
 
 		long localTime = -1;
@@ -588,7 +477,7 @@ public class RESTContestSource extends DiskContestSource {
 
 	private InputStream connect(String path) throws IOException {
 		try {
-			HttpURLConnection conn = createConnection(path);
+			HttpURLConnection conn = createConnection(path, false);
 			conn.setReadTimeout(130000);
 
 			int status = conn.getResponseCode();
@@ -651,13 +540,6 @@ public class RESTContestSource extends DiskContestSource {
 			Trace.trace(Trace.ERROR, "Error reading filenames", e);
 		}
 		return null;
-	}
-
-	public URI getURI(String protocol, String path) throws URISyntaxException {
-		String path2 = path;
-		if (path2 != null && path2.startsWith("/"))
-			path2 = path2.substring(1);
-		return new URI(protocol, null, url.getHost(), url.getPort(), url.getPath() + "/" + path2, null, null);
 	}
 
 	public URI getRootURI(String protocol, String path) throws URISyntaxException {
@@ -863,12 +745,7 @@ public class RESTContestSource extends DiskContestSource {
 
 	@Override
 	public String getContestId() {
-		return getRemoteContestId();
-	}
-
-	private String getRemoteContestId() {
-		String path = url.getPath();
-		return path.substring(path.lastIndexOf("/") + 1);
+		return contestId;
 	}
 
 	/**
@@ -878,7 +755,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @return an error message suitable for returning to clients
 	 * @throws IOException
 	 */
-	protected static String getResponseError(HttpURLConnection conn) throws IOException {
+	private static String getResponseError(HttpURLConnection conn) throws IOException {
 		try {
 			InputStream in = conn.getErrorStream();
 			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
@@ -909,14 +786,14 @@ public class RESTContestSource extends DiskContestSource {
 		try {
 			Trace.trace(Trace.INFO, "Setting contest time at " + url);
 
-			HttpURLConnection conn = HTTPSSecurity.createConnection(url, user, password);
+			HttpURLConnection conn = createConnection(url);
 			// conn.setRequestMethod("PATCH") not allowed
 			setRequestMethod(conn, "PATCH");
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setDoOutput(true);
 
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
-			bw.write("{ \"id\":\"" + getRemoteContestId() + "\", \"start_time\":");
+			bw.write("{ \"id\":\"" + contestId + "\", \"start_time\":");
 
 			if (time == null || time <= 0)
 				bw.write("null");
@@ -1012,7 +889,7 @@ public class RESTContestSource extends DiskContestSource {
 			jw.writeObject(obj);
 			Trace.trace(Trace.INFO, "Submitting to " + url + ": " + sw.toString());
 
-			HttpURLConnection conn = HTTPSSecurity.createConnection(getChildURL("submissions"), user, password);
+			HttpURLConnection conn = createConnection("submissions", false);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("Accept", "application/json");
@@ -1060,7 +937,7 @@ public class RESTContestSource extends DiskContestSource {
 			jw.writeObject(obj);
 			Trace.trace(Trace.INFO, "Submitting clarification to " + url + ": " + sw.toString());
 
-			HttpURLConnection conn = HTTPSSecurity.createConnection(getChildURL("clarifications"), user, password);
+			HttpURLConnection conn = createConnection("clarifications", false);
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("Accept", "application/json");
@@ -1107,18 +984,17 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	public ITeam getTeam(String teamId) throws IOException {
-		return (Team) parseContestObject("teams/" + teamId, ContestType.TEAM);
+		return (ITeam) parseContestObject("teams/" + teamId, ContestType.TEAM);
 	}
 
 	public IOrganization getOrganization(String orgId) throws IOException {
-		return (Organization) parseContestObject("organizations/" + orgId, ContestType.ORGANIZATION);
+		return (IOrganization) parseContestObject("organizations/" + orgId, ContestType.ORGANIZATION);
 	}
 
 	private IContestObject parseContestObject(String partialURL, ContestType type) throws IOException {
 		try {
-			URL url2 = new URL(url.toExternalForm() + "/" + partialURL);
-			Trace.trace(Trace.INFO, "Getting contest object from " + url2 + " - " + type.name());
-			HttpURLConnection conn = HTTPSSecurity.createConnection(url2, user, password);
+			Trace.trace(Trace.INFO, "Getting contest object: " + type.name());
+			HttpURLConnection conn = createConnection(partialURL, false);
 			conn.setRequestProperty("Content-Type", "application/json");
 
 			if (conn.getResponseCode() != 200)
@@ -1158,77 +1034,64 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
-	@Override
-	public Validation validate() {
-		Validation v = new Validation();
+	private void validateURL() {
 		if (feedFile != null)
-			return v;
+			return;
 
 		try {
-			HttpURLConnection conn = createConnection("");
-			int response = conn.getResponseCode();
-			if (response == HttpURLConnection.HTTP_UNAUTHORIZED) {
-				v.err("Invalid user or password");
-				return v;
-			} else if (hasMoved(response)) {
-				conn = createConnection(new URL(conn.getHeaderField("Location")));
-				response = conn.getResponseCode();
-			} else if (response != HttpURLConnection.HTTP_OK) {
-				if (tryAlternateURLs(v))
-					return v;
-				v.err("Invalid response code: " + response);
-				return v;
-			}
-			try {
-				validateContent(conn, v, null);
-			} catch (Exception ex) {
-				if (tryAlternateURLs(v))
-					return v;
-				v.err("Could not parse content: " + ex.getMessage());
-				return v;
-			}
-		} catch (SocketException se) {
-			Trace.trace(Trace.INFO, "Socket error", se);
-			v.err("Socket error, may be due to invalid URL, user, or password");
+			this.url = validateURL(url);
+			return;
 		} catch (Exception e) {
-			v.err("Unexpected error during validation: " + e.getMessage());
-			Trace.trace(Trace.INFO, "Validation error", e);
+			Trace.trace(Trace.INFO, "Invalid contest URL: " + e.getMessage());
 		}
 
-		return v;
+		try {
+			this.url = tryAlternateURLs();
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not find valid Contest API at " + url);
+		}
 	}
 
-	protected boolean tryAlternateURLs(Validation v) {
-		String[] paths = new String[] { "/api/contests/", "contests/", "api/contests/", "/domjudge/api/contests/",
-				"/clics-api/contests/" };
+	private URL tryAlternateURLs() {
+		String[] paths = new String[] { "api/contests", "contests", "/api/contests", "/contests",
+				"/domjudge/api/contests", "/clics-api/contests" };
 		for (String path : paths) {
 			try {
-				HttpURLConnection conn = createConnection(path);
-				int response = conn.getResponseCode();
-				if (response == HttpURLConnection.HTTP_OK) {
-					validateContent(conn, v, path);
-					return true;
-				} else if (hasMoved(response)) {
-					String newPath = conn.getHeaderField("Location");
-					conn = createConnection(new URL(newPath));
-					response = conn.getResponseCode();
-					if (response == HttpURLConnection.HTTP_OK) {
-						validateContent(conn, v, newPath);
-						return true;
-					}
-				}
+				URL testURL = null;
+				if (path.startsWith("/"))
+					testURL = new URL(url.getProtocol() + "://" + url.getAuthority() + path);
+				else
+					testURL = getChildURL(path);
+				return validateURL(testURL);
 			} catch (Exception e) {
-				Trace.trace(Trace.INFO, "Check for " + path + " URL failed");
+				Trace.trace(Trace.INFO, "Check for " + path + " URL failed: " + e.getMessage());
 			}
 		}
 
-		return false;
+		throw new IllegalArgumentException("Could not detect valid contest API");
 	}
 
-	protected void validateContent(HttpURLConnection conn, Validation v, String postURL) throws Exception {
-		if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
-			isCDS = true;
+	private URL validateURL(URL aURL) throws Exception {
+		HttpURLConnection conn = createConnection(aURL);
+		int response = conn.getResponseCode();
 
+		if (response == HttpURLConnection.HTTP_UNAUTHORIZED)
+			throw new IllegalArgumentException("Invalid user or password (401)");
+		else if (hasMoved(response)) {
+			URL newURL = new URL(conn.getHeaderField("Location"));
+			return validateURL(newURL);
+		} else if (response == HttpURLConnection.HTTP_NOT_FOUND) {
+			throw new IllegalArgumentException("Invalid, URL not found (404)");
+		} else if (response == HttpURLConnection.HTTP_OK) {
+			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
+				isCDS = true;
+			return validateContent(conn, aURL);
+		}
+
+		throw new IllegalArgumentException("Invalid response code (" + response + ")");
+	}
+
+	private static URL validateContent(HttpURLConnection conn, URL theURL) throws Exception {
 		InputStream in = conn.getInputStream();
 		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 		StringBuilder sb = new StringBuilder();
@@ -1238,22 +1101,16 @@ public class RESTContestSource extends DiskContestSource {
 			s = br.readLine();
 		}
 
-		validateJSON(v, postURL, sb.toString());
-	}
+		s = sb.toString();
 
-	protected void validateJSON(Validation v, String path, String s) throws Exception {
 		try {
 			// try as array
 			JSONParser parser2 = new JSONParser(s);
 			Object[] arr = parser2.readArray();
-			URL url2 = getChildURL(path);
 
-			if (arr.length == 0) {
-				v.err("Possible Contest API at " + url2 + ", but no contests found");
-				return;
-			}
+			if (arr.length == 0)
+				throw new IllegalArgumentException("Possible Contest API at " + theURL + ", but no contests found");
 
-			List<String> poss = new ArrayList<>();
 			Info[] infos = new Info[arr.length];
 			for (int i = 0; i < arr.length; i++) {
 				JsonObject obj = (JsonObject) arr[i];
@@ -1262,33 +1119,33 @@ public class RESTContestSource extends DiskContestSource {
 				for (String key : obj.props.keySet())
 					info.add(key, obj.props.get(key));
 			}
+			String u = theURL.toExternalForm();
+			if (!u.endsWith("/"))
+				u += "/";
 			Info bestContest = pickBestContest(infos);
 			if (bestContest != null) {
-				url2 = new URL(ensureTrailingSlash(url2), bestContest.getId());
-				this.url = url2;
+				URL newURL = new URL(u + bestContest.getId());
 				if (infos.length == 1)
 					Trace.trace(Trace.USER, "The URL did not point to a specific contest, but one contest was found.");
 				else
 					Trace.trace(Trace.USER,
 							"The URL did not point to a specific contest, but " + infos.length + " contests were found.");
-				Trace.trace(Trace.USER, "Auto-connecting to: " + url);
-				return;
+				Trace.trace(Trace.USER, "Auto-connecting to: " + newURL);
+				return newURL;
 			}
 
+			StringBuilder sb2 = new StringBuilder(
+					"Contest API found, but couldn't pick a contest. Try one of the following URLs:\n");
 			for (int i = 0; i < arr.length; i++) {
 				Info info = infos[i];
-				if (info.getId() == null || info.getName() == null || info.getDuration() <= 0) {
-					v.err("Unrecognized REST endpoint");
-					return;
-				}
-				poss.add(ensureTrailingSlash(url2) + info.getId() + " (" + info.getName() + " starting at "
+				if (info.getId() == null || info.getName() == null || info.getDuration() <= 0)
+					throw new IllegalArgumentException("Unrecognized REST endpoint");
+
+				sb2.append(u + info.getId() + " (" + info.getName() + " starting at "
 						+ ContestUtil.formatStartTime(info.getStartTime()) + ")");
 			}
 
-			v.err("Contest API found, but couldn't pick a contest. Try one of the following URLs:");
-			for (String p : poss)
-				v.ok("  " + p);
-			return;
+			throw new IllegalArgumentException(sb2.toString());
 		} catch (Exception e) {
 			// ignore, not an array
 		}
@@ -1297,10 +1154,9 @@ public class RESTContestSource extends DiskContestSource {
 			JSONParser parser2 = new JSONParser(s);
 			JsonObject obj = parser2.readObject();
 			if (obj.getString("id") != null && obj.getString("name") != null && obj.getString("duration") != null)
-				v.ok("Confirmed Contest API connection");
-			else
-				v.err("Unrecognized REST endpoint");
-			return;
+				return theURL; // confirmed good contest endpoint
+
+			throw new IllegalArgumentException("Unrecognized REST endpoint");
 		} catch (Exception e) {
 			// ignore, not an object
 		}
