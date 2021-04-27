@@ -765,8 +765,22 @@ public class RESTContestSource extends DiskContestSource {
 				sb.append(s);
 				s = br.readLine();
 			}
-			if (sb.length() > 0)
+
+			if (sb.length() > 0) {
+				// try to parse as json error object first
+				try {
+					JSONParser rdr = new JSONParser(sb.toString());
+					JsonObject obj = rdr.readObject();
+					String message = obj.getString("message");
+					if (message != null && message.length() > 0)
+						return message;
+				} catch (Exception x) {
+					// ignore
+				}
+
+				// otherwise, just return the text
 				return sb.toString();
+			}
 		} catch (Exception e) {
 			// ignore
 		}
@@ -998,7 +1012,7 @@ public class RESTContestSource extends DiskContestSource {
 			conn.setRequestProperty("Content-Type", "application/json");
 
 			if (conn.getResponseCode() != 200)
-				throw new IOException(conn.getResponseCode() + ": " + conn.getResponseMessage());
+				throw new IOException(getResponseError(conn));
 
 			InputStream in = conn.getInputStream();
 			JSONParser rdr = new JSONParser(in);

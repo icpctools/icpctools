@@ -267,24 +267,31 @@ class Contest {
 		this.clarifications = null;
 	}
 
-	post(type, body, ok, fail) {
+	post(type, body, success, error) {
         console.log("POSTing contest object: " + type);
         return $.ajax({
 		    url: this.getURL(type),
 		    method: 'POST',
 		    headers: { "Accept": "application/json" },
 		    data: body,
-		    success: ok,
-		    error: fail
+		    success: success,
+		    error: function(result, ajaxOptions, thrownError) {
+		       var obj = jQuery.parseJSON(result.responseText);
+		       if (obj != null && obj.message != null) {
+		          error(obj.message)
+	              return
+	           }
+		       error(result.responseText)
+		    }
 		});
 	}
 
-	postSubmission(obj, ok, fail) {
-        this.post('submissions', obj, ok, fail);
+	postSubmission(obj, success, error) {
+        this.post('submissions', obj, success, error);
 	}
 
-	postClarification(obj, ok, fail) {
-        this.post('clarifications', obj, ok, fail);
+	postClarification(obj, success, error) {
+        this.post('clarifications', obj, success, error);
 	}
 }
 
