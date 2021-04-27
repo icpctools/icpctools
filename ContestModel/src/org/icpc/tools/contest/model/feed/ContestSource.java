@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,13 +58,8 @@ public abstract class ContestSource {
 		if (source == null)
 			throw new IOException("No contest source");
 
-		try {
-			URL url = new URL(source);
-			if ("http".equals(url.getProtocol()) || "https".equals(url.getProtocol()))
-				return new RESTContestSource(url, arg1, arg2);
-		} catch (Exception e) {
-			// could not parse as a url, ignore
-		}
+		if (source.startsWith("http"))
+			return new RESTContestSource(source, arg1, arg2);
 
 		File f = new File(source);
 		if (f.exists()) {
