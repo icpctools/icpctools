@@ -99,7 +99,7 @@ function submitClarification() {
 	contest.postClarification(JSON.stringify(obj), function(body) {
 		$('#clar-status').text("Submitted successfully");
 	}, function(result) {
-		$('#clar-status').html("Not accepted: " + sanitizeHTML(result.responseText));
+		$('#clar-status').html("Not accepted: " + sanitizeHTML(result));
 	})
 }
 

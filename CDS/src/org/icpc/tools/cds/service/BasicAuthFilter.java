@@ -38,6 +38,11 @@ public class BasicAuthFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+		// mark API calls
+		String uri = request.getRequestURI();
+		if (uri.startsWith("/api"))
+			request.setAttribute("CDS-api", true);
+
 		// already logged in
 		if (request.getRemoteUser() != null) {
 			filterChain.doFilter(request, response);
@@ -64,7 +69,6 @@ public class BasicAuthFilter implements Filter {
 		}
 
 		// try basic auth - but only for API
-		String uri = request.getRequestURI();
 		if (!uri.startsWith("/api/") && !uri.startsWith("/presentation/")) {
 			filterChain.doFilter(request, response);
 			return;
