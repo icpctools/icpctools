@@ -679,9 +679,6 @@ public class DiskContestSource extends ContestSource {
 
 		loadConfigFiles();
 
-		// Trace.trace(Trace.INFO, "Time to load EF 0: " + (System.currentTimeMillis() - time) +
-		// "ms");
-
 		// load event feed
 		File file = getRootFolder();
 		File contestFile = new File(file, "event-feed.json");
@@ -938,10 +935,11 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing problem set");
 			List<IProblem> problems = YamlParser.importProblems(root);
 			for (IProblem p : problems)
 				contest.add(p);
+
+			Trace.trace(Trace.INFO, "Imported problem set");
 		} catch (FileNotFoundException e) {
 			Trace.trace(Trace.INFO, e.getMessage());
 		} catch (Exception e) {
@@ -950,7 +948,7 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing groups");
+			String s = "Imported groups";
 			File f = getRegistrationFile(root, "groups.json");
 			if (f.exists())
 				loadFile(contest, f, "groups");
@@ -959,15 +957,16 @@ public class DiskContestSource extends ContestSource {
 				if (f.exists())
 					TSVImporter.importGroups(contest, f);
 				else
-					Trace.trace(Trace.INFO, "Group config file (groups.json/groups.tsv) not found");
+					s = "Group config file (groups.json/groups.tsv) not found";
 			}
+			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing groups: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing groups", e);
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing organizations");
+			String s = "Imported organizations";
 			File f = getRegistrationFile(root, "organizations.json");
 			if (f.exists())
 				loadFile(contest, f, "organizations");
@@ -979,16 +978,16 @@ public class DiskContestSource extends ContestSource {
 				if (f.exists())
 					TSVImporter.importInstitutions(contest, f);
 				else
-					Trace.trace(Trace.INFO,
-							"Institutions config file (institutions.json/institutions2.tsv/institutions.tsv) not found");
+					s = "Institutions config file (institutions.json/institutions2.tsv/institutions.tsv) not found";
 			}
+			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing institutions: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing institutions", e);
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing teams");
+			String s = "Imported teams";
 			File f = getRegistrationFile(root, "teams.json");
 			if (f.exists())
 				loadFile(contest, f, "teams");
@@ -1001,15 +1000,16 @@ public class DiskContestSource extends ContestSource {
 				if (f.exists())
 					TSVImporter.importTeams(contest, f);
 				else
-					Trace.trace(Trace.INFO, "Team config file (teams.json/teams2.tsv/teams.tsv) not found");
+					s = "Team config file (teams.json/teams2.tsv/teams.tsv) not found";
 			}
+			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing teams: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing teams", e);
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing team-members");
+			String s = "Imported team-members";
 			File f = getRegistrationFile(root, "members.json");
 			if (f.exists())
 				loadFile(contest, f, "members");
@@ -1018,19 +1018,20 @@ public class DiskContestSource extends ContestSource {
 				if (f.exists())
 					TSVImporter.importTeamMembers(contest, f);
 				else
-					Trace.trace(Trace.INFO, "Team member config file (members.json/members.tsv) not found");
+					s = "Team member config file (members.json/members.tsv) not found";
 			}
+			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing team-members: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing team-members", e);
 		}
 
 		try {
-			Trace.trace(Trace.INFO, "Importing contest floor map");
 			File f = getConfigFile(root, "floor-map.tsv");
 			if (f.exists()) {
 				FloorMap map = new FloorMap(contest);
 				map.load(new FileInputStream(f));
+				Trace.trace(Trace.INFO, "Imported contest floor map");
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing floor map: " + e.getMessage());

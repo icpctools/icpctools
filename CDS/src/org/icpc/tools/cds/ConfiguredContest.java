@@ -750,17 +750,8 @@ public class ConfiguredContest {
 			});
 
 			// wait up to 2s to connect
-			int count = 0;
-			ConnectionState state = contestSource.getConnectionState();
-			while ((state == null || state.ordinal() < ConnectionState.CONNECTED.ordinal()) && count < 20) {
-				try {
-					Thread.sleep(100);
-				} catch (Exception e) {
-					// ignore
-				}
-				count++;
-				state = contestSource.getConnectionState();
-			}
+			if (contestSource instanceof RESTContestSource)
+				contestSource.waitForContestConnect();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading event feed: " + e.getMessage());
 		}
