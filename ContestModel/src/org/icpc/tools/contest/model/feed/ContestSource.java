@@ -166,6 +166,9 @@ public abstract class ContestSource {
 		notifyListeners(ConnectionState.INITIALIZING);
 
 		Thread thread = new Thread("Contest loader") {
+			// try to connect right away, then add some incremental back-off
+			private int[] DELAY = new int[] { 2, 5, 20 };
+
 			@Override
 			public void run() {
 				Trace.trace(Trace.INFO, "Loading contest from " + ContestSource.this.toString());
@@ -187,6 +190,7 @@ public abstract class ContestSource {
 					}
 				};
 				contest.addListener(readListener);
+				int i = 0;
 				do {
 					try {
 						notifyListeners(ConnectionState.CONNECTING);
@@ -206,10 +210,12 @@ public abstract class ContestSource {
 						Trace.trace(Trace.INFO, "Waiting to reconnect");
 						// wait a few seconds to reconnect
 						try {
-							Thread.sleep(5000);
+							Thread.sleep(1000 * DELAY[i]);
 						} catch (Exception e) {
 							// ignore
 						}
+						while (i < DELAY.length - 1)
+							i++;
 					} else {
 						Trace.trace(Trace.INFO, "Contest loaded");
 						notifyListeners(ConnectionState.COMPLETE);
@@ -242,25 +248,27 @@ public abstract class ContestSource {
 	 *         <code>false</code> otherwise
 	 */
 	public boolean waitForContestRead() {
-		final int timeout = 2000;
-		long time = System.currentTimeMillis();
-		synchronized (lock) {
-			while (true) {
-				long dt = time + timeout - System.currentTimeMillis();
-				if (dt <= 0)
-					return false;
-
-				if (lastState == ConnectionState.READING || lastState == ConnectionState.COMPLETE
-						|| lastState == ConnectionState.FAILED)
-					return true;
-
-				try {
-					lock.wait(dt);
-				} catch (Exception e) {
-					// ignore
-				}
+		return waitForContest(new Ready() {
+			@Override
+			public boolean isReady(ConnectionState state) {
+				return state == ConnectionState.READING;
 			}
-		}
+		}, 2000);
+	}
+
+	/**
+	 * Wait for the contest to be reading from a live source, or done/failed from any other source.
+	 *
+	 * @return <code>true</code> if the contest is or was successfully loaded, and
+	 *         <code>false</code> otherwise
+	 */
+	public boolean waitForContestConnect() {
+		return waitForContest(new Ready() {
+			@Override
+			public boolean isReady(ConnectionState state) {
+				return state == ConnectionState.CONNECTED;
+			}
+		}, 2000);
 	}
 
 	/**
@@ -270,25 +278,12 @@ public abstract class ContestSource {
 	 *         <code>false</code> otherwise
 	 */
 	public boolean waitForContestLoad() {
-		final int timeout = 2000;
-		long time = System.currentTimeMillis();
-		synchronized (lock) {
-			while (true) {
-				long dt = time + timeout - System.currentTimeMillis();
-				if (dt <= 0)
-					return false;
-
-				if (lastState == ConnectionState.CONNECTED || lastState == ConnectionState.COMPLETE
-						|| lastState == ConnectionState.FAILED)
-					return true;
-
-				try {
-					lock.wait(dt);
-				} catch (Exception e) {
-					// ignore
-				}
+		return waitForContest(new Ready() {
+			@Override
+			public boolean isReady(ConnectionState state) {
+				return state == ConnectionState.CONNECTED;
 			}
-		}
+		}, 2000);
 	}
 
 	/**
@@ -299,6 +294,15 @@ public abstract class ContestSource {
 	 *         otherwise
 	 */
 	public boolean waitForContest(int timeout) {
+		return waitForContest(null, timeout);
+	}
+
+	interface Ready {
+		public boolean isReady(ConnectionState state);
+	}
+
+	private boolean waitForContest(Ready r, int timeout) {
+		System.out.println("wait for contest");
 		long time = System.currentTimeMillis();
 		synchronized (lock) {
 			while (true) {
@@ -306,7 +310,8 @@ public abstract class ContestSource {
 				if (dt <= 0)
 					return false;
 
-				if (lastState == ConnectionState.COMPLETE || lastState == ConnectionState.FAILED)
+				if (lastState == ConnectionState.COMPLETE || lastState == ConnectionState.FAILED
+						|| (r != null && r.isReady(lastState)))
 					return true;
 
 				try {
