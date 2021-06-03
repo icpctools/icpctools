@@ -3,6 +3,8 @@
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/cds.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script src="${pageContext.request.contextPath}/js/types.js"></script>
+<script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <div class="container-fluid">
     <div class="row">
         <div class="col-8">
@@ -86,11 +88,6 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td colspan=3>
-                        <div class="spinner-border"></div>
-                    </td>
-                </tr>
             </tbody>
                 </table>
                 <div class="input-group margin">
@@ -183,9 +180,10 @@
                 </div>
               </div>
               <div class="box-footer">
-                <button type="submit" class="btn btn-danger pull-right" onclick="addContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Add</button>
-                <button type="submit" class="btn btn-danger pull-right" onclick="updateContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Update</button>
-                <button type="submit" class="btn btn-danger pull-right" onclick="removeContestObject($('#input-type').val(),$('#input-id').val())">Remove</button>
+                <button type="submit" class="btn btn-danger pull-right" onclick="postContestObject($('#input-type').val(),$('#input-body').val())">Post</button>
+                <button type="submit" class="btn btn-danger pull-right" onclick="putContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Put</button>
+                <button type="submit" class="btn btn-danger pull-right" onclick="patchContestObject($('#input-type').val(),$('#input-id').val(),$('#input-body').val())">Patch</button>
+                <button type="submit" class="btn btn-danger pull-right" onclick="deleteContestObject($('#input-type').val(),$('#input-id').val())">Delete</button>
                 <span id="object-status">&nbsp;</span>
               </div>
          </div>
@@ -233,6 +231,14 @@
         </div></div>
     </div>
 </div>
+<script type="text/html" id="start-status-template">
+  <td>{{{label}}}</td>
+  <td><div class="btn-group">
+    <button type="button" class="btn btn-sm btn-flat btn-{{a}}" onclick="updateStartStatus('{{{id}}}',0)">No</button>
+    <button type="button" class="btn btn-sm btn-{{b}}" onclick="updateStartStatus('{{{id}}}',1)">Unknown</button>
+    <button type="button" class="btn btn-sm btn-{{c}}" onclick="updateStartStatus('{{{id}}}',2)">Yes</button>
+  </div>&nbsp; &nbsp;<button type="button" class="btn btn-sm btn-danger" onclick="removeStartStatus('{{{id}}}')">Remove</button></td>
+</script>
 <script>
     contest = new Contest("/api", "<%= cc.getId() %>");
 	cds.setContestId("<%= cc.getId() %>");
@@ -360,52 +366,21 @@
     }
 
     function addStartStatus(id, status) {
-    	cds.add("start-status", id, '{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
+    	cds.doPut("start-status", id, '{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
     }
 
     function updateStartStatus(id, status) {
-    	if (id == null)
-    		return;
-    	
-    	console.log(id + " -> " + status);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-            	updateStartStatusTable();
-            }
-        }
-        xmlhttp.open("PATCH", "<%= apiRoot %>/start-status/" + id, true);
-        xmlhttp.send('{"id":"' + id + '","status":"' + status + '"}');
+    	cds.doPatch("start-status", id, '{"id":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
     }
 
     function removeStartStatus(id) {
-    	cds.remove("start-status", id, function() { updateStartStatusTable(); });
-    }
-
-    function startStatusTd(startStatus) {
-    	var id = "\'" + startStatus.id + "\'";
-    	var a = 'default';
-    	var b = 'default';
-    	var c = 'default';
-    	if (startStatus.status == 0)
-    		a = 'danger';
-    	else if (startStatus.status == 1)
-    		b = 'warning';
-    	else if (startStatus.status == 2)
-    		c = 'success';
-        return $('<td>' + startStatus.label + '</td><td><div class="btn-group">'
-           + '<button type="button" class="btn btn-sm btn-flat btn-'+a+'" onclick="updateStartStatus(' + id + ',0)">No</button>'
-           + '<button type="button" class="btn btn-sm btn-'+b+'" onclick="updateStartStatus(' + id + ',1)">Unknown</button>'
-           + '<button type="button" class="btn btn-sm btn-'+c+'" onclick="updateStartStatus(' + id + ',2)">Yes</button>'
-           + '</div> &nbsp; &nbsp;'
-           + '<button type="button" class="btn btn-sm btn-danger" onclick="removeStartStatus(' + id + ')">Remove</button>'
-           + '</td>');
+    	cds.doDelete("start-status", id, function() { updateStartStatusTable(); });
     }
 
     function updateStartStatusTable() {
     	contest.clear();
     	$.when(contest.loadStartStatus()).done(function () {
-            fillContestObjectTable("start-status", contest.getStartStatus(), startStatusTd);
+            fillContestObjectTable("start-status", contest.getStartStatus());
             
             if (contest.getStartStatus().length == 0) {
               col = $('<td colspan="2"><button type="button" class="btn btn-sm btn-default" onclick="addStartStatusDefaults()">Add default statuses</button></td>');
@@ -471,27 +446,35 @@
         xmlhttp.send();
     }
 
-    function addContestObject(type, id, body) {
-    	cds.add(type, id, body, function() {
-    		$('#object-status').text(id + " added successfully");
+    function postContestObject(type, body) {
+    	cds.doPost(type, body, function() {
+    		$('#object-status').text("Posted successfully");
     	}, function(result) {
-    		$('#object-status').text("Add failed: " + result.responseText);
+    		$('#object-status').text("Post failed: " + result.message);
     	})
     }
 
-    function updateContestObject(type, id, body) {
-    	cds.update(type, id, body, function() {
-    		$('#object-status').text(id + " updated successfully");
+    function putContestObject(type, id, body) {
+    	cds.doPut(type, id, body, function() {
+    		$('#object-status').text(id + " put successfully");
     	}, function(result) {
-    		$('#object-status').text("Update failed: " + result.responseText);
+    		$('#object-status').text("Put failed: " + result.message);
     	})
     }
 
-    function removeContestObject(type, id) {
-    	cds.remove(type, id, function() {
+    function patchContestObject(type, id, body) {
+    	cds.doPatch(type, id, body, function() {
+    		$('#object-status').text(id + " patched successfully");
+    	}, function(result) {
+    		$('#object-status').text("Patch failed: " + result.message);
+    	})
+    }
+
+    function deleteContestObject(type, id) {
+    	cds.doDelete(type, id, function() {
     		$('#object-status').text(id + " deleted successfully");
     	}, function(result) {
-    		$('#object-status').text("Delete failed: " + result.responseText);
+    		$('#object-status').text("Delete failed: " + result.message);
     	})
     }
     

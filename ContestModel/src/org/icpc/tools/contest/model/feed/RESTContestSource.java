@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
@@ -875,6 +874,54 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
+	 * Utility method to send JSON object to a specific URL with the given HTTP method.
+	 *
+	 * @param method
+	 * @param partialURL
+	 * @param obj
+	 * @param expectReturn
+	 * @return an object (if expectReturn is true)
+	 * @throws IOException
+	 */
+	private JsonObject httpUtil(String method, String partialURL, JsonObject obj, boolean expectReturn)
+			throws IOException {
+
+		try {
+			Trace.trace(Trace.INFO, method + "ing to " + partialURL + " at " + url);
+
+			HttpURLConnection conn = createConnection(partialURL, false);
+			conn.setRequestMethod(method);
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Accept", "application/json");
+			conn.setDoOutput(true);
+
+			if (obj != null) {
+				JSONWriter jw = new JSONWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
+				jw.writeObject(obj);
+				jw.close();
+			}
+
+			if (conn.getResponseCode() != 200)
+				throw new IOException("Error " + method + "ing (" + getResponseError(conn) + ")");
+
+			if (!expectReturn)
+				return null;
+
+			JSONParser parser2 = new JSONParser(conn.getInputStream());
+			JsonObject rObj = parser2.readObject();
+			if (rObj == null)
+				throw new IOException(method + " successful but invalid object returned");
+
+			return rObj;
+		} catch (IOException e) {
+			Trace.trace(Trace.INFO, "Error " + method + "ing", e);
+			throw e;
+		} catch (Exception e) {
+			throw new IOException("Connection error", e);
+		}
+	}
+
+	/**
 	 * Enter a submission to the contest, as either a team or an admin.
 	 *
 	 * JSON attributes: 'language_id', 'problem_id', and 'files' are required. Files can either be
@@ -884,10 +931,10 @@ public class RESTContestSource extends DiskContestSource {
 	 *
 	 * @param obj a json object with the submission attributes
 	 * @param files an optional list of files to zip and submit as the "files" attribute
-	 * @return the submission id
+	 * @return the accepted submission
 	 * @throws IOException if there is any problem connecting to the server or with the submission
 	 */
-	public String submit(JsonObject obj, File... files) throws IOException {
+	public JsonObject postSubmission(JsonObject obj, File... files) throws IOException {
 		if (obj == null)
 			throw new IllegalArgumentException();
 
@@ -897,37 +944,11 @@ public class RESTContestSource extends DiskContestSource {
 				filesObj.put("data", zipAndEncode(files));
 				obj.props.put("files", new Object[] { filesObj });
 			}
-
-			StringWriter sw = new StringWriter();
-			JSONWriter jw = new JSONWriter(sw);
-			jw.writeObject(obj);
-			Trace.trace(Trace.INFO, "Submitting to " + url + ": " + sw.toString());
-
-			HttpURLConnection conn = createConnection("submissions", false);
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Accept", "application/json");
-			conn.setDoOutput(true);
-
-			jw = new JSONWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
-			jw.writeObject(obj);
-			jw.close();
-
-			if (conn.getResponseCode() != 200)
-				throw new IOException("Error submitting (" + getResponseError(conn) + ")");
-
-			JSONParser parser2 = new JSONParser(conn.getInputStream());
-			String sId = parser2.readValue();
-			if (sId == null)
-				throw new IOException("Submission successful but invalid submission id returned");
-
-			return sId;
-		} catch (IOException e) {
-			Trace.trace(Trace.INFO, "Error while submitting", e);
-			throw e;
 		} catch (Exception e) {
-			throw new IOException("Connection error", e);
+			Trace.trace(Trace.INFO, "Error attaching files to submission", e);
+			throw e;
 		}
+		return httpUtil("POST", "submissions", obj, true);
 	}
 
 	/**
@@ -937,45 +958,64 @@ public class RESTContestSource extends DiskContestSource {
 	 * optional.
 	 *
 	 * @param obj a json object with the clarification attributes
-	 * @return the clarification id
+	 * @return the accepted clarification
 	 * @throws IOException if there is any problem connecting to the server or with the
 	 *            clarification
 	 */
-	public String submitClar(JsonObject obj) throws IOException {
-		if (obj == null)
-			throw new IllegalArgumentException();
+	public JsonObject postClarification(JsonObject obj) throws IOException {
+		return httpUtil("POST", "clarifications", obj, true);
+	}
 
-		try {
-			StringWriter sw = new StringWriter();
-			JSONWriter jw = new JSONWriter(sw);
-			jw.writeObject(obj);
-			Trace.trace(Trace.INFO, "Submitting clarification to " + url + ": " + sw.toString());
+	/**
+	 * POST an award to the contest.
+	 *
+	 * JSON attributes: 'citation' and 'team_ids' are required.
+	 *
+	 * @param obj a json object with the award attributes
+	 * @return the accepted award
+	 * @throws IOException if there is any problem connecting to the server or with the award
+	 */
+	public JsonObject postAward(JsonObject obj) throws IOException {
+		return httpUtil("POST", "awards", obj, true);
+	}
 
-			HttpURLConnection conn = createConnection("clarifications", false);
-			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Accept", "application/json");
-			conn.setDoOutput(true);
+	/**
+	 * PUT an award to the contest.
+	 *
+	 * JSON attributes: 'id', 'citation', and 'team_ids' are required.
+	 *
+	 * @param obj a json object with the award attributes
+	 * @return the updated award
+	 * @throws IOException if there is any problem connecting to the server or with the award
+	 */
+	public JsonObject putAward(JsonObject obj) throws IOException {
+		return httpUtil("PUT", "awards/" + obj.getString("id"), obj, true);
+	}
 
-			jw = new JSONWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
-			jw.writeObject(obj);
-			jw.close();
+	/**
+	 * PATCH an award to the contest.
+	 *
+	 * JSON attributes: 'id' is required, 'citation' and 'team_ids' are optional (but at least one
+	 * is required).
+	 *
+	 * @param obj a json object with the award attributes
+	 * @return the updated award
+	 * @throws IOException if there is any problem connecting to the server or with the award
+	 */
+	public JsonObject patchAward(JsonObject obj) throws IOException {
+		return httpUtil("PATCH", "awards/" + obj.getString("id"), obj, true);
+	}
 
-			if (conn.getResponseCode() != 200)
-				throw new IOException("Error submitting clar (" + getResponseError(conn) + ")");
-
-			JSONParser parser2 = new JSONParser(conn.getInputStream());
-			String sId = parser2.readValue();
-			if (sId == null)
-				throw new IOException("Submission successful but invalid clarification id returned");
-
-			return sId;
-		} catch (IOException e) {
-			Trace.trace(Trace.INFO, "Error while submitting clarification", e);
-			throw e;
-		} catch (Exception e) {
-			throw new IOException("Connection error", e);
-		}
+	/**
+	 * DELETE an award from the contest.
+	 *
+	 * JSON attributes: 'id' is required.
+	 *
+	 * @param obj a json object with the award attributes
+	 * @throws IOException if there is any problem connecting to the server or with the award
+	 */
+	public void deleteAward(String id) throws IOException {
+		httpUtil("DELETE", "awards/" + id, null, false);
 	}
 
 	public void cacheClientSideEvent(IContestObject obj, Delta d) {

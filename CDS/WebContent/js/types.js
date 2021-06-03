@@ -246,3 +246,16 @@ function awardsTd(award) {
     }
     return { citation: award.citation, teamsStr: teamsStr };
 }
+
+function startstatusTd(startStatus) {
+	var a = 'default';
+	var b = 'default';
+	var c = 'default';
+	if (startStatus.status == 0)
+		a = 'danger';
+	else if (startStatus.status == 1)
+		b = 'warning';
+	else if (startStatus.status == 2)
+		c = 'success';
+	return { label: startStatus.label, id: startStatus.id, a: a, b: b, c: c };
+}

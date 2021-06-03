@@ -302,7 +302,6 @@ public abstract class ContestSource {
 	}
 
 	private boolean waitForContest(Ready r, int timeout) {
-		System.out.println("wait for contest");
 		long time = System.currentTimeMillis();
 		synchronized (lock) {
 			while (true) {

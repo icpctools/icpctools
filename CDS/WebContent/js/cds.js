@@ -12,8 +12,31 @@ var cds=(function() {
 		return contestURL + '/' + type + '/' + id;
 	}
 
-	var add = function(type, id, body, ok, fail) {
- 	    console.log("Adding (PUT) contest object: " + type + "/" + id + ", " + body);
+    var getMessage = function(result) {
+    	try {
+			return JSON.parse(result.responseText);
+		} catch (err) {
+			return { "code": result.status, "message":"Invalid response: " + result.responseText };
+		}
+	}
+
+	var doPost = function(type, body, ok, fail) {
+ 	    console.log("POSTing contest object: " + type + ", " + body);
+ 	    return $.ajax({
+		    url: getURL(type, null),
+		    method: 'POST',
+		    data: body,
+		    success: function(result) {
+		    	ok(result);
+		    },
+		    error: function(result) {
+			    fail(getMessage(result));
+		    }
+		});
+    }
+
+	var doPut = function(type, id, body, ok, fail) {
+ 	    console.log("PUTting contest object: " + type + "/" + id + ", " + body);
  	    return $.ajax({
 		    url: getURL(type, id),
 		    method: 'PUT',
@@ -22,13 +45,13 @@ var cds=(function() {
 		    	ok(result);
 		    },
 		    error: function(result) {
-			    fail(result);
+			    fail(getMessage(result));
 		    }
 		});
     }
 
-	var update = function(type, id, body, ok, fail) {
-        console.log("Updating (PATCH) contest object: " + type + "/" + id);
+	var doPatch = function(type, id, body, ok, fail) {
+        console.log("PATCHing contest object: " + type + "/" + id);
         return $.ajax({
 		    url: getURL(type, id),
 		    method: 'PATCH',
@@ -37,13 +60,13 @@ var cds=(function() {
 		    	ok(result);
 		    },
 		    error: function(result) {
-			    fail(result);
+			    fail(getMessage(result));
 		    }
 		});
 	}
 
-	var remove = function(type, id, ok, fail) {
-        console.log("Deleting (DELETE) contest object: " + type + "/" + id);
+	var doDelete = function(type, id, ok, fail) {
+        console.log("DELETEing contest object: " + type + "/" + id);
         return $.ajax({
 		    url: getURL(type, id),
 		    method: 'DELETE',
@@ -51,15 +74,16 @@ var cds=(function() {
 		    	ok(result);
 		    },
 		    error: function(result) {
-			    fail(result);
+			    fail(getMessage(result));
 		    }
 		});
 	}
 
 	return {
 		setContestId: setContestId,
-		add: add,
-		update: update,
-		remove: remove
+		doPost: doPost,
+		doPut: doPut,
+		doPatch: doPatch,
+		doDelete: doDelete
 	};
 })();
