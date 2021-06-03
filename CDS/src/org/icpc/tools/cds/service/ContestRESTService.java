@@ -37,6 +37,7 @@ import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.JSONArrayWriter;
+import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
@@ -50,6 +51,13 @@ import org.icpc.tools.contest.model.internal.Deletion;
 @WebServlet(urlPatterns = { "/api/", "/api/*" }, asyncSupported = true)
 public class ContestRESTService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+
+	static class EndpointInfo {
+		ConfiguredContest cc;
+		String type;
+		ContestType cType;
+		String id;
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -441,23 +449,12 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
+		EndpointInfo ei = getEndpointInfo(request, response);
+		if (ei == null)
+			return;
+
 		String path = request.getPathInfo();
-		if (path == null || path.equals("/") || path.length() < 10) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
 		String[] segments = path.substring(10).split("/");
-		if (segments == null || segments.length == 0 || segments.length > 3) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
-		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
-		if (cc == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
-			return;
-		}
 
 		if (segments.length == 1) {
 			// attempting to change the start time
@@ -472,7 +469,7 @@ public class ContestRESTService extends HttpServlet {
 
 			// confirm the contest id is correct
 			String id = obj.getString("id");
-			if (id == null || !id.equals(cc.getId())) {
+			if (id == null || !id.equals(ei.cc.getId())) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid contest id");
 				return;
 			}
@@ -504,7 +501,7 @@ public class ContestRESTService extends HttpServlet {
 
 			try {
 				Trace.trace(Trace.INFO, "Patching start time");
-				StartTimeService.setStartTime(cc, newTime);
+				StartTimeService.setStartTime(ei.cc, newTime);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error setting start time", e);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
@@ -512,23 +509,18 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		String type = segments[1];
-		IContestObject.ContestType cType = IContestObject.getTypeByName(type);
-		if (cType == null) {
+		if (ei.cType == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
 			return;
 		}
 
-		String id = null;
-		if (segments.length == 3)
-			id = segments[2];
-		else if (!IContestObject.isSingleton(cType)) {
+		if (ei.id == null && !IContestObject.isSingleton(ei.cType)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
 			return;
 		}
 
-		Contest contest = cc.getContest();
-		ContestObject co = (ContestObject) contest.getObjectByTypeAndId(cType, id);
+		Contest contest = ei.cc.getContest();
+		ContestObject co = (ContestObject) contest.getObjectByTypeAndId(ei.cType, ei.id);
 		if (co == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object does not exist");
 			return;
@@ -541,10 +533,10 @@ public class ContestRESTService extends HttpServlet {
 			obj = parser.readObject();
 
 			// confirm the id is correct
-			if (id != null) {
+			if (ei.id != null) {
 				String jsonId = obj.getString("id");
-				if (jsonId == null || !jsonId.equals(id)) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+				if (jsonId == null || !jsonId.equals(ei.id)) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object id does not match URL");
 					return;
 				}
 			}
@@ -554,16 +546,148 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		try {
-			Trace.trace(Trace.USER, "Updating contest object: " + type + "/" + id);
+			Trace.trace(Trace.USER, "Updating contest object: " + ei.type + "/" + ei.id);
 			co = (ContestObject) co.clone();
 			for (String key : obj.props.keySet())
 				co.add(key, obj.props.get(key));
 
 			contest.add(co);
+
+			writeObj(response, co);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not update object");
-			Trace.trace(Trace.ERROR, "Could not update contest " + id, e);
+			Trace.trace(Trace.ERROR, "Could not update contest " + ei.id, e);
 		}
+	}
+
+	private static void writeObj(HttpServletResponse response, ContestObject co) throws IOException {
+		response.setContentType("application/json");
+		JSONEncoder je = new JSONEncoder(response.getWriter());
+		je.open();
+		co.writeBody(je);
+		je.close();
+	}
+
+	private static EndpointInfo getEndpointInfo(HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		String path = request.getPathInfo();
+		if (path == null || path.equals("/") || path.length() < 10) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return null;
+		}
+
+		String[] segments = path.substring(10).split("/");
+		if (segments == null || segments.length < 1 || segments.length > 3) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return null;
+		}
+
+		EndpointInfo a = new EndpointInfo();
+		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
+		if (cc == null) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
+			return null;
+		}
+		a.cc = cc;
+
+		if (segments.length > 0) {
+			a.type = segments[1];
+			ContestType cType = IContestObject.getTypeByName(a.type);
+			if (cType == null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
+				return null;
+			}
+			a.cType = cType;
+		}
+
+		if (segments.length == 3)
+			a.id = segments[2];
+
+		return a;
+	}
+
+	/**
+	 * Handle POST messages.
+	 *
+	 * No id attribute should be specified as it is up to the server to assign one, which is
+	 * returned in the location header.
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (!Role.isAdmin(request) && !Role.isTeam(request)) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+
+		EndpointInfo ei = getEndpointInfo(request, response);
+		if (ei == null)
+			return;
+
+		if (ei.cType == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing element type");
+			return;
+		} else if (ei.id != null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot POST to an element id");
+			return;
+		}
+
+		if (Role.isTeam(request) && (ei.cType != ContestType.SUBMISSION && ei.cType != ContestType.CLARIFICATION)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Teams can only post submissions and clarifications");
+			return;
+		}
+
+		JsonObject obj = null;
+		try {
+			InputStream is = request.getInputStream();
+			JSONParser parser = new JSONParser(is);
+			obj = parser.readObject();
+
+			String jsonId = obj.getString("id");
+			if (jsonId != null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Posts cannot assign an id");
+				return;
+			}
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse object");
+			return;
+		}
+
+		JsonObject rObj = null;
+		if (ei.cType == ContestType.SUBMISSION)
+			rObj = postSubmission(request, response, ei.cc, obj);
+		else if (ei.cType == ContestType.CLARIFICATION)
+			rObj = postClarification(request, response, ei.cc, obj);
+		else if (ei.cType == ContestType.AWARD)
+			rObj = postAward(request, response, ei.cc, obj);
+
+		if (rObj == null)
+			return;
+
+		ContestObject co = null;
+		Contest contest = ei.cc.getContest();
+		try {
+			Trace.trace(Trace.USER, "Adding contest object: " + ei.type);
+			co = (ContestObject) IContestObject.createByType(ei.cType);
+			for (String key : obj.props.keySet())
+				co.add(key, obj.props.get(key));
+
+			contest.add(co);
+
+			writeObj(response, co);
+		} catch (Exception e) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
+			Trace.trace(Trace.ERROR, "Could not add " + ei.type + " to contest", e);
+			return;
+		}
+
+		// add Location header
+		String uri = request.getRequestURI();
+		if (!uri.endsWith("/"))
+			uri += "/";
+		uri += ei.type + "/" + co.getId();
+		response.addHeader("Location", uri);
+
+		writeObj(response, co);
 	}
 
 	@Override
@@ -573,43 +697,21 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		String path = request.getPathInfo();
-		if (path == null || path.equals("/") || path.length() < 10) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		EndpointInfo ei = getEndpointInfo(request, response);
+		if (ei == null)
 			return;
-		}
 
-		String[] segments = path.substring(10).split("/");
-		if (segments == null || segments.length < 2 || segments.length > 3) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+		if (ei.cType == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing element type");
 			return;
-		}
-
-		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
-		if (cc == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
-			return;
-		}
-
-		String type = segments[1];
-		ContestType cType = IContestObject.getTypeByName(type);
-		if (cType == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
-			return;
-		}
-
-		String id = null;
-		if (segments.length == 3)
-			id = segments[2];
-		else if (!IContestObject.isSingleton(cType)) {
+		} else if (ei.id == null && !IContestObject.isSingleton(ei.cType)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
 			return;
 		}
 
-		Contest contest = cc.getContest();
-		if (contest.getObjectByTypeAndId(cType, id) != null) {
-			Trace.trace(Trace.USER, "Replacing contest object: " + type + "/" + id);
-		}
+		Contest contest = ei.cc.getContest();
+		if (contest.getObjectByTypeAndId(ei.cType, ei.id) != null)
+			Trace.trace(Trace.USER, "Replacing contest object: " + ei.cType + "/" + ei.id);
 
 		JsonObject obj = null;
 		try {
@@ -618,10 +720,10 @@ public class ContestRESTService extends HttpServlet {
 			obj = parser.readObject();
 
 			// confirm the id is correct
-			if (id != null) {
+			if (ei.id != null) {
 				String jsonId = obj.getString("id");
-				if (jsonId == null || !jsonId.equals(id)) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+				if (jsonId == null || !jsonId.equals(ei.id)) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object id does not match URL");
 					return;
 				}
 			}
@@ -631,72 +733,21 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		try {
-			Trace.trace(Trace.USER, "Adding contest object: " + type + "/" + id);
-			ContestObject co = (ContestObject) IContestObject.createByType(cType);
+			Trace.trace(Trace.USER, "Adding contest object: " + ei.cType + "/" + ei.id);
+			ContestObject co = (ContestObject) IContestObject.createByType(ei.cType);
 			for (String key : obj.props.keySet())
 				co.add(key, obj.props.get(key));
 
 			contest.add(co);
+
+			writeObj(response, co);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
-			Trace.trace(Trace.ERROR, "Could not add to contest " + id, e);
+			Trace.trace(Trace.ERROR, "Could not add to contest " + ei.id, e);
 		}
 	}
 
-	/**
-	 * Handle POST messages. The only thing you can currently post is a submission, either as a team
-	 * or as an admin user.
-	 */
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!Role.isAdmin(request) && !Role.isTeam(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-
-		String path = request.getPathInfo();
-		if (path == null || path.equals("/") || path.length() < 10) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
-		String[] segments = path.substring(10).split("/");
-		if (segments == null || segments.length != 2) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
-		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
-		if (cc == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
-			return;
-		}
-
-		String type = segments[1];
-		ContestType cType = IContestObject.getTypeByName(type);
-		if (cType != ContestType.SUBMISSION && cType != ContestType.CLARIFICATION) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-					"POST can only be used for submissions and clarifications");
-			return;
-		}
-
-		JsonObject obj = null;
-		try {
-			InputStream is = request.getInputStream();
-			JSONParser parser = new JSONParser(is);
-			obj = parser.readObject();
-		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not parse object");
-			return;
-		}
-
-		if (cType == ContestType.SUBMISSION)
-			handleSubmission(request, response, cc, obj);
-		else if (cType == ContestType.CLARIFICATION)
-			handleClarification(request, response, cc, obj);
-	}
-
-	protected void handleSubmission(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
+	protected JsonObject postSubmission(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
 			JsonObject obj) throws IOException {
 		String id = obj.getString("id");
 		String time = obj.getString("time");
@@ -708,39 +759,39 @@ public class ContestRESTService extends HttpServlet {
 		Contest contest = cc.getContestByRole(request);
 		if (teamId != null && contest.getTeamById(teamId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown team");
-			return;
+			return null;
 		}
 
 		if (languageId == null || contest.getLanguageById(languageId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown language");
-			return;
+			return null;
 		}
 
 		ILanguage language = contest.getLanguageById(languageId);
 		if (language.getEntryPointRequired() && entryPoint == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
 					language.getEntryPointName() + " required for " + language.getName());
-			return;
+			return null;
 		}
 
 		if (problemId == null || contest.getProblemById(problemId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown problem");
-			return;
+			return null;
 		}
 
 		if (Role.isTeam(request)) {
 			if (id != null || time != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
-				return;
+				return null;
 			}
 			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
 			if (teamId2 == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not determine request user's team");
-				return;
+				return null;
 			}
 			if (teamId != null && !teamId.equals(teamId2)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot submit for a different team");
-				return;
+				return null;
 			}
 			// make sure team_id is not null in case we're forwarding to CCS
 			if (teamId == null)
@@ -749,30 +800,33 @@ public class ContestRESTService extends HttpServlet {
 
 		if (Role.isAdmin(request) && teamId == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
-			return;
+			return null;
 		}
 
-		String sId = null;
+		JsonObject rObj = null;
 		ContestSource source = cc.getContestSource();
 
 		if (cc.isTesting()) {
 			// when in test mode just accept submissions and return dummy id
-			sId = "test-" + obj.getString("team_id");
+			obj.put("id", "test-" + obj.getString("team_id"));
+			rObj = obj;
 		} else if (cc.getCCS() == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
-			return;
+			return null;
 		} else if (!(source instanceof RESTContestSource)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support submissions via the CDS");
-			return;
+			return null;
 		} else {
 			try {
 				RESTContestSource restSource = (RESTContestSource) source;
-				sId = restSource.submit(obj);
+				rObj = restSource.postSubmission(obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting to CCS: " + e.getMessage());
-				return;
+				return null;
 			}
 		}
+
+		String sId = rObj.getString("id");
 
 		// cache accepted submission file locally to avoid asking CCS for it later
 		if (source instanceof DiskContestSource) {
@@ -797,14 +851,11 @@ public class ContestRESTService extends HttpServlet {
 			}
 		}
 
-		// send submission id back to client
-		PrintWriter pw = response.getWriter();
-		response.setContentType("application/json");
-		pw.append("\"" + sId + "\"");
+		return rObj;
 	}
 
-	protected void handleClarification(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
-			JsonObject obj) throws IOException {
+	protected JsonObject postClarification(HttpServletRequest request, HttpServletResponse response,
+			ConfiguredContest cc, JsonObject obj) throws IOException {
 		String id = obj.getString("id");
 		String time = obj.getString("time");
 		String fromTeamId = obj.getString("from_team_id");
@@ -815,36 +866,36 @@ public class ContestRESTService extends HttpServlet {
 		Contest contest = cc.getContestByRole(request);
 		if (fromTeamId != null && contest.getTeamById(fromTeamId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown from team");
-			return;
+			return null;
 		}
 
 		if (problemId != null && contest.getProblemById(problemId) == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown problem");
-			return;
+			return null;
 		}
 
 		if (text == null || text.isEmpty()) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Clarification is empty");
-			return;
+			return null;
 		}
 
 		if (Role.isTeam(request)) {
 			if (id != null || time != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
-				return;
+				return null;
 			}
 			if (toTeamId != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot send to another team");
-				return;
+				return null;
 			}
 			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
 			if (teamId2 == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not determine request user's team");
-				return;
+				return null;
 			}
 			if (fromTeamId != null && !fromTeamId.equals(teamId2)) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot submit clarification for a different team");
-				return;
+				return null;
 			}
 			// make sure team_id is not null in case we're forwarding to CCS
 			if (fromTeamId == null)
@@ -853,36 +904,151 @@ public class ContestRESTService extends HttpServlet {
 
 		if (Role.isAdmin(request) && fromTeamId == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
-			return;
+			return null;
 		}
 
-		String cId = null;
 		ContestSource source = cc.getContestSource();
 
 		if (cc.isTesting()) {
 			// when in test mode just accept clarification and return dummy id
-			cId = "test-" + obj.getString("from_team_id");
+			obj.put("id", "test-" + obj.getString("from_team_id"));
+			return obj;
+		} else if (cc.getCCS() == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
+			return null;
+		} else if (!(source instanceof RESTContestSource)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support clarification via the CDS");
+			return null;
+		} else {
+			try {
+				RESTContestSource restSource = (RESTContestSource) source;
+				return restSource.postClarification(obj);
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY,
+						"Error submitting clarification to CCS: " + e.getMessage());
+				return null;
+			}
+		}
+	}
+
+	protected JsonObject postAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
+			JsonObject obj) throws IOException {
+		if (!Role.isAdmin(request))
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
+
+		String id = obj.getString("id");
+		String citation = obj.getString("citation");
+		String teamIds = obj.getString("team_ids");
+
+		Contest contest = cc.getContestByRole(request);
+		if (id == null || id.isEmpty() || contest.getAwardById(id) != null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Award already exists");
+			return null;
+		}
+
+		if (citation == null || citation.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Citation is missing");
+			return null;
+		}
+
+		if (teamIds == null || teamIds.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team ids is missing");
+			return null;
+		}
+
+		ContestSource source = cc.getContestSource();
+
+		if (cc.isTesting()) {
+			// when in test mode just accept award
+			return obj;
+		} else if (cc.getCCS() == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
+			return null;
+		} else if (!(source instanceof RESTContestSource)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support awards via the CDS");
+			return null;
+		} else {
+			try {
+				RESTContestSource restSource = (RESTContestSource) source;
+				return restSource.postAward(obj);
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
+				return null;
+			}
+		}
+	}
+
+	protected void patchAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
+			JsonObject obj) throws IOException {
+		if (!Role.isAdmin(request))
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
+
+		String id = obj.getString("id");
+		String citation = obj.getString("citation");
+		String teamIds = obj.getString("team_ids");
+
+		Contest contest = cc.getContestByRole(request);
+		if (id == null || contest.getAwardById(id) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Award doesn't exist");
+			return;
+		}
+
+		if ((citation == null || citation.isEmpty()) && (teamIds == null || teamIds.isEmpty())) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No change (no citation or team ids update)");
+			return;
+		}
+
+		ContestSource source = cc.getContestSource();
+
+		if (cc.isTesting()) {
+			// when in test mode just accept award
 		} else if (cc.getCCS() == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
 			return;
 		} else if (!(source instanceof RESTContestSource)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support clarification via the CDS");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support awards via the CDS");
 			return;
 		} else {
 			try {
 				RESTContestSource restSource = (RESTContestSource) source;
-				cId = restSource.submitClar(obj);
+				restSource.patchAward(obj);
 			} catch (Exception e) {
-				response.sendError(HttpServletResponse.SC_BAD_GATEWAY,
-						"Error submitting clarification to CCS: " + e.getMessage());
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
 				return;
 			}
 		}
+	}
 
-		// send clarification id back to client
-		PrintWriter pw = response.getWriter();
-		response.setContentType("application/json");
-		pw.append("\"" + cId + "\"");
+	protected void deleteAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc, String id)
+			throws IOException {
+		if (!Role.isAdmin(request))
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
+
+		Contest contest = cc.getContestByRole(request);
+		if (id == null || contest.getAwardById(id) == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Award doesn't exist");
+			return;
+		}
+
+		ContestSource source = cc.getContestSource();
+
+		if (cc.isTesting()) {
+			// when in test mode just accept award
+		} else if (cc.getCCS() == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
+			return;
+		} else if (!(source instanceof RESTContestSource)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support awards via the CDS");
+			return;
+		} else {
+			try {
+				RESTContestSource restSource = (RESTContestSource) source;
+				restSource.deleteAward(id);
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
+				return;
+			}
+		}
 	}
 
 	@Override
@@ -892,44 +1058,27 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		String path = request.getPathInfo();
-		if (path == null || path.equals("/") || path.length() < 10) {
+		EndpointInfo ei = getEndpointInfo(request, response);
+		if (ei == null)
+			return;
+
+		if (ei.id == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
-		String[] segments = path.substring(10).split("/");
-		if (segments == null || segments.length != 3) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
-
-		ConfiguredContest cc = CDSConfig.getContest(segments[0]);
-		if (cc == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Contest not found");
-			return;
-		}
-
-		String type = segments[1];
-		IContestObject.ContestType cType = IContestObject.getTypeByName(type);
-		if (cType == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
-			return;
-		}
-
-		String id = segments[2];
 		try {
-			Trace.trace(Trace.USER, "Deleting contest object: " + type + "/" + id);
-			Deletion d = new Deletion(id, cType);
-			Contest contest = cc.getContest();
-			if (contest.getObjectByTypeAndId(cType, id) == null) {
+			Trace.trace(Trace.USER, "Deleting contest object: " + ei.type + "/" + ei.id);
+			Deletion d = new Deletion(ei.id, ei.cType);
+			Contest contest = ei.cc.getContest();
+			if (contest.getObjectByTypeAndId(ei.cType, ei.id) == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object does not exist");
 				return;
 			}
 			contest.add(d);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not remove object");
-			Trace.trace(Trace.ERROR, "Could not remove from contest! " + id, e);
+			Trace.trace(Trace.ERROR, "Could not remove from contest! " + ei.id, e);
 		}
 	}
 }

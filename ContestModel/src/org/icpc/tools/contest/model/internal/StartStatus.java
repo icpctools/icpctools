@@ -52,11 +52,7 @@ public class StartStatus extends ContestObject implements IStartStatus {
 			label = (String) value;
 			return true;
 		} else if (STATUS.equals(name)) {
-			try {
-				status = Integer.parseInt((String) value);
-			} catch (Exception e) {
-				// ignore
-			}
+			status = parseInt(value);
 			return true;
 		}
 

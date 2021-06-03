@@ -1,7 +1,6 @@
 package org.icpc.tools.cds.service;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +16,8 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.ISubmission;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+import org.icpc.tools.contest.model.feed.JSONWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
@@ -38,20 +38,25 @@ public class ResolverService {
 	protected static boolean localControl;
 
 	protected static void doGet(HttpServletResponse response, ConfiguredContest cc) throws IOException {
-		if (control == null)
-			return;
-
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setContentType("application/json");
-		PrintWriter pw = response.getWriter();
-		JSONEncoder je = new JSONEncoder(pw);
-		je.open();
-		je.encode("pause", control.getCurrentPause());
-		je.encode("total_pauses", ResolutionUtil.getTotalPauses(steps));
-		je.encode("total_time", ResolutionUtil.getTotalTime(steps));
-		je.encode("stepping", control.isStepping());
-		je.close();
+
+		JsonObject obj = new JsonObject();
+		if (control != null) {
+			obj.put("pause", control.getCurrentPause());
+			obj.put("total_pauses", ResolutionUtil.getTotalPauses(steps));
+			obj.put("total_time", ResolutionUtil.getTotalTime(steps));
+			obj.put("stepping", control.isStepping());
+		} else {
+			obj.put("pause", -1);
+			obj.put("total_pauses", -1);
+			obj.put("total_time", -1);
+			obj.put("stepping", false);
+		}
+
+		JSONWriter pw = new JSONWriter(response.getWriter());
+		pw.writeObject(obj);
 	}
 
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {

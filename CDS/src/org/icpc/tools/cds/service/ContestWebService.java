@@ -367,7 +367,6 @@ public class ContestWebService extends HttpServlet {
 				request.getRequestDispatcher("/WEB-INF/jsps/balloon.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("resolver")) {
-				request.setCharacterEncoding("UTF-8");
 				ResolverService.doGet(response, cc);
 				return;
 			} /* else if (segments.length == 4 && segments[1].equals("video") && segments[2].equals("map")) {
