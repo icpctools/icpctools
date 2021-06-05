@@ -11,18 +11,18 @@ public class Timestamp {
 	// parser for old spec times like: 1265335256.480
 	private static final Pattern OLD_TIME_PATTERN = Pattern.compile("([0-9]+)(\\.([0-9]{1,}))?");
 
-	// parser for times like: 2014-06-25T11:22:05.034+01
+	// parser for times like: 2014-06-25T11:22:05.034+01:00
 	private static final ThreadLocal<DateFormat> TIME_FORMAT = new ThreadLocal<DateFormat>() {
 		@Override
 		protected DateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		}
 	};
-	// parser for times like: 2014-06-25T11:22:05+01
+	// parser for times like: 2014-06-25T11:22:05+01:00
 	private static final ThreadLocal<DateFormat> TIME_FORMAT2 = new ThreadLocal<DateFormat>() {
 		@Override
 		protected DateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
 		}
 	};
 
