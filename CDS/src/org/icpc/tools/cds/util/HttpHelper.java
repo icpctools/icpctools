@@ -151,8 +151,8 @@ public class HttpHelper {
 					break;
 				default:
 					if (c < 0x0020 || c > 0x007e) {
-						String t = "000" + Integer.toHexString(c);
-						sb.append("&" + t.substring(t.length() - 4));
+						String t = Integer.toString(c);
+						sb.append("&#" + t + ";");
 					} else
 						sb.append(c);
 			}
