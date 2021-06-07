@@ -366,8 +366,10 @@ public class AwardUtil {
 				if (a.getAwardType() == IAward.MEDAL && a.getId().contains("bronze")) {
 					lastBronze = 0;
 					String[] teamIds = a.getTeamIds();
-					for (String tId : teamIds) {
-						lastBronze = Math.max(lastBronze, contest.getOrderOf(contest.getTeamById(tId)) + 1);
+					if (teamIds != null) {
+						for (String tId : teamIds) {
+							lastBronze = Math.max(lastBronze, contest.getOrderOf(contest.getTeamById(tId)) + 1);
+						}
 					}
 				}
 		}
@@ -380,12 +382,14 @@ public class AwardUtil {
 		if (awards != null) {
 			for (IAward a : awards)
 				if (a.getAwardType() == IAward.MEDAL) {
-					if (a.getId().contains("gold"))
-						num[0] = a.getTeamIds().length;
-					else if (a.getId().contains("silver"))
-						num[1] = a.getTeamIds().length;
-					else if (a.getId().contains("bronze"))
-						num[2] = a.getTeamIds().length;
+					if (a.getTeamIds() != null) {
+						if (a.getId().contains("gold"))
+							num[0] = a.getTeamIds().length;
+						else if (a.getId().contains("silver"))
+							num[1] = a.getTeamIds().length;
+						else if (a.getId().contains("bronze"))
+							num[2] = a.getTeamIds().length;
+					}
 				}
 		}
 		return num;
@@ -520,13 +524,15 @@ public class AwardUtil {
 		Map<String, List<IAward>> map = new HashMap<>();
 		for (IAward award : awards) {
 			String[] teamIds = award.getTeamIds();
-			for (String teamId : teamIds) {
-				List<IAward> aw = map.get(teamId);
-				if (aw == null) {
-					aw = new ArrayList<>();
-					map.put(teamId, aw);
+			if (teamIds != null) {
+				for (String teamId : teamIds) {
+					List<IAward> aw = map.get(teamId);
+					if (aw == null) {
+						aw = new ArrayList<>();
+						map.put(teamId, aw);
+					}
+					aw.add(award);
 				}
-				aw.add(award);
 			}
 		}
 

@@ -52,10 +52,12 @@ public class EditAwardsDialog extends Dialog {
 
 		for (IAward aw : previewContest.getAwards()) {
 			String[] teamIds = aw.getTeamIds();
-			for (String teamId : teamIds) {
-				if (teamId.equals(team.getId())) {
-					originalAwards.add(aw);
-					awards.add(aw);
+			if (teamIds != null) {
+				for (String teamId : teamIds) {
+					if (teamId.equals(team.getId())) {
+						originalAwards.add(aw);
+						awards.add(aw);
+					}
 				}
 			}
 		}
@@ -275,11 +277,16 @@ public class EditAwardsDialog extends Dialog {
 	}
 
 	private boolean isMultiTeamAwardSelected() {
+		if (selectedAward.getTeamIds() == null)
+			return false;
 		return selectedAward.getTeamIds().length > 1;
 	}
 
 	private void removeTeamFromAward() {
 		String[] teamIds = selectedAward.getTeamIds();
+		if (teamIds == null)
+			return;
+
 		String[] newTeamIds = new String[teamIds.length - 1];
 		int count = 0;
 		for (int i = 0; i < teamIds.length; i++) {
@@ -314,10 +321,12 @@ public class EditAwardsDialog extends Dialog {
 			for (IAward a : awards) {
 				TableItem ti = new TableItem(awardTable, SWT.NONE);
 				String name = a.getAwardType().getName();
-				if (a.getTeamIds().length == 2)
-					name += " (shared with 1 other team)";
-				else if (a.getTeamIds().length > 2)
-					name += " (shared with " + (a.getTeamIds().length - 1) + " other teams)";
+				if (a.getTeamIds() != null) {
+					if (a.getTeamIds().length == 2)
+						name += " (shared with 1 other team)";
+					else if (a.getTeamIds().length > 2)
+						name += " (shared with " + (a.getTeamIds().length - 1) + " other teams)";
+				}
 				ti.setText(name);
 				ti.setData(a);
 			}

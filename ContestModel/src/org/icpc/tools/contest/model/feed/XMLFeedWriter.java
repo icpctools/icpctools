@@ -258,8 +258,9 @@ public class XMLFeedWriter {
 				write("show", "true");
 			else
 				write("show", "false");
-			for (String t : a.getTeamIds())
-				write("teamId", t);
+			if (a.getTeamIds() != null)
+				for (String t : a.getTeamIds())
+					write("teamId", t);
 			writeEnd(XMLFeedParser.AWARD);
 		} else if (obj instanceof Finalized) {
 			Finalized f = (Finalized) obj;

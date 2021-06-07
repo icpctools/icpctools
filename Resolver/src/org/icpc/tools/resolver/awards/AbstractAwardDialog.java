@@ -89,13 +89,15 @@ public abstract class AbstractAwardDialog extends Dialog {
 			for (AwardType type : types)
 				if (type == null || type.equals(award.getAwardType())) {
 					String[] teamIds = award.getTeamIds();
-					for (String teamId : teamIds) {
-						ITeam team = previewContest.getTeamById(teamId);
-						IStanding standing = previewContest.getStanding(team);
+					if (teamIds != null) {
+						for (String teamId : teamIds) {
+							ITeam team = previewContest.getTeamById(teamId);
+							IStanding standing = previewContest.getStanding(team);
 
-						TableItem ti = new TableItem(previewTable, SWT.NONE);
-						ti.setText(new String[] { standing.getRank(), team.getId(), team.getActualDisplayName(),
-								award.getCitation() });
+							TableItem ti = new TableItem(previewTable, SWT.NONE);
+							ti.setText(new String[] { standing.getRank(), team.getId(), team.getActualDisplayName(),
+									award.getCitation() });
+						}
 					}
 				}
 		}

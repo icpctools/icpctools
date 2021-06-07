@@ -1017,6 +1017,9 @@ public class Contest implements IContest {
 		if (team == null)
 			return false;
 
+		if (team.isHidden())
+			return true;
+
 		String[] groupIds = team.getGroupIds();
 		if (groupIds == null || groupIds.length == 0)
 			return false;
@@ -1676,22 +1679,24 @@ public class Contest implements IContest {
 
 		for (IAward award : getAwards()) {
 			String[] awardTeamIds = award.getTeamIds();
-			int found = 0;
-			for (String teamId : awardTeamIds) {
-				if (teamId != null && teamIds.contains(teamId))
-					found++;
-			}
-			if (found > 0) {
-				if (awardTeamIds.length != found) {
-					String[] newTeamIds = new String[awardTeamIds.length - found];
-					found = 0;
-					for (String teamId : awardTeamIds) {
-						if (teamId != null && !teamIds.contains(teamId))
-							newTeamIds[found++] = teamId;
-					}
-					((Award) award).setTeamIds(newTeamIds);
-				} else
-					remove.add(award);
+			if (awardTeamIds != null) {
+				int found = 0;
+				for (String teamId : awardTeamIds) {
+					if (teamId != null && teamIds.contains(teamId))
+						found++;
+				}
+				if (found > 0) {
+					if (awardTeamIds.length != found) {
+						String[] newTeamIds = new String[awardTeamIds.length - found];
+						found = 0;
+						for (String teamId : awardTeamIds) {
+							if (teamId != null && !teamIds.contains(teamId))
+								newTeamIds[found++] = teamId;
+						}
+						((Award) award).setTeamIds(newTeamIds);
+					} else
+						remove.add(award);
+				}
 			}
 		}
 
