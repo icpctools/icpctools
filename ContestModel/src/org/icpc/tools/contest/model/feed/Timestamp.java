@@ -1,9 +1,10 @@
 package org.icpc.tools.contest.model.feed;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,20 +12,12 @@ public class Timestamp {
 	// parser for old spec times like: 1265335256.480
 	private static final Pattern OLD_TIME_PATTERN = Pattern.compile("([0-9]+)(\\.([0-9]{1,}))?");
 
-	// parser for times like: 2014-06-25T11:22:05.034+01:00
-	private static final ThreadLocal<DateFormat> TIME_FORMAT = new ThreadLocal<DateFormat>() {
-		@Override
-		protected DateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-		}
-	};
-	// parser for times like: 2014-06-25T11:22:05+01:00
-	private static final ThreadLocal<DateFormat> TIME_FORMAT2 = new ThreadLocal<DateFormat>() {
-		@Override
-		protected DateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-		}
-	};
+	// parser for times like: 2014-06-25T11:22:05.034+01:00, 2014-06-25T11:22:05+01, or
+	// 2014-06-25T11:22:05.034Z
+	public static final DateTimeFormatter TIME_FORMAT;
+	static {
+		TIME_FORMAT = DateTimeFormatter.ofPattern("[yyyy-MM-dd]'T'[HH:mm:ss][.SSS][z][XXX][X]");
+	}
 
 	public static long parseOld(String value) {
 		Matcher match = OLD_TIME_PATTERN.matcher(value);
@@ -45,27 +38,24 @@ public class Timestamp {
 		return time;
 	}
 
-	public static Long parse(String timeMs) throws ParseException {
+	public static Long parse(String timeMs) throws DateTimeParseException {
 		if (timeMs == null || "null".equals(timeMs))
 			return null;
 
-		try {
-			return TIME_FORMAT.get().parse(timeMs).getTime();
-		} catch (Exception e) {
-			// ignore
-		}
-		return TIME_FORMAT2.get().parse(timeMs).getTime();
+		return Instant.from(TIME_FORMAT.parse(timeMs)).toEpochMilli();
 	}
 
 	public static String format(Long timeMs) {
 		if (timeMs == null)
 			return "null";
 
-		return TIME_FORMAT.get().format(new Date(timeMs));
+		return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeMs), ZoneId.systemDefault())
+				.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
 	public static String format(long timeMs) {
-		return TIME_FORMAT.get().format(new Date(timeMs));
+		return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeMs), ZoneId.systemDefault())
+				.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 	}
 
 	public static String now() {
@@ -73,12 +63,19 @@ public class Timestamp {
 	}
 
 	/*public static void main(String[] args) {
-		// String o = "2014-06-25T11:22:05.034+01";
-		String o = "2014-06-25T11:22:05.034Z";
-		long num = parse(o);
-		System.out.println(o + " -> " + num + " -> ");
-		System.out.println(format(num));
-		num = parse(format(num));
-		System.out.println(format(num));
+		String[] s = new String[] { "2014-06-25T11:22:05.034Z", "2014-06-25T11:22:05.034-02",
+				"2014-06-25T11:22:05.034+09", "2014-06-25T11:22:05.034-09:00", "2014-06-25T11:22:05.034-09:30",
+				"2014-06-25T11:22:05-09:00", "2014-06-25T11:22:05-09:30" };
+		for (String o : s) {
+			try {
+				long num = parse(o);
+				System.out.println(o + " -> " + num);
+				System.out.println(format(num));
+				num = parse(format(num));
+				System.out.println(format(num));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}*/
 }

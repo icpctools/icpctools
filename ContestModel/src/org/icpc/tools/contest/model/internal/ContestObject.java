@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URI;
 import java.text.ParseException;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,7 @@ public abstract class ContestObject implements IContestObject {
 		return Double.parseDouble((String) value);
 	}
 
-	protected static Long parseTimestamp(Object value) throws ParseException {
+	protected static Long parseTimestamp(Object value) throws DateTimeParseException {
 		return Timestamp.parse((String) value);
 	}
 
