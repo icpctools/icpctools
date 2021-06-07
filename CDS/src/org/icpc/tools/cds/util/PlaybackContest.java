@@ -14,6 +14,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
+import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
@@ -342,6 +343,14 @@ public class PlaybackContest extends Contest {
 				team.setAudio(new FileReferenceList(audioRef));
 			} else
 				team.setAudio(null);
+
+			if (team.getGroupIds() != null) {
+				for (String gId : team.getGroupIds()) {
+					IGroup g = getGroupById(gId);
+					if (g != null && g.isHidden())
+						team.add("hidden", "true");
+				}
+			}
 		}
 
 		if (obj instanceof Submission) {
