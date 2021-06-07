@@ -1,6 +1,7 @@
 <% request.setAttribute("title", "Contests"); %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
+<script src="${pageContext.request.contextPath}/js/luxon.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
