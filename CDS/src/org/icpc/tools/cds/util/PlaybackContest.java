@@ -288,23 +288,25 @@ public class PlaybackContest extends Contest {
 				}
 
 				String[] teamIds = a.getTeamIds();
-				int count = 0;
-				for (String teamId : teamIds) {
-					ITeam team = getTeamById(teamId);
-					if (team != null)
-						count++;
-				}
-				if (count == 0)
-					return;
-
-				if (count != teamIds.length) {
-					List<String> ids = new ArrayList<String>(count);
+				if (teamIds != null) {
+					int count = 0;
 					for (String teamId : teamIds) {
 						ITeam team = getTeamById(teamId);
 						if (team != null)
-							ids.add(teamId);
+							count++;
 					}
-					a.setTeamIds(ids.toArray(new String[count]));
+					if (count == 0)
+						return;
+
+					if (count != teamIds.length) {
+						List<String> ids = new ArrayList<String>(count);
+						for (String teamId : teamIds) {
+							ITeam team = getTeamById(teamId);
+							if (team != null)
+								ids.add(teamId);
+						}
+						a.setTeamIds(ids.toArray(new String[count]));
+					}
 				}
 			}
 		}

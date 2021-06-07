@@ -31,6 +31,7 @@ public class Team extends ContestObject implements ITeam {
 	private static final String AUDIO = "audio";
 	private static final String KEY_LOG = "key_log";
 	private static final String TOOL_DATA = "tool_data";
+	private static final String HIDDEN = "hidden";
 
 	private String name;
 	private String displayName;
@@ -48,6 +49,7 @@ public class Team extends ContestObject implements ITeam {
 	private FileReferenceList backup;
 	private FileReferenceList keylog;
 	private FileReferenceList tooldata;
+	private boolean isHidden;
 
 	@Override
 	public ContestType getType() {
@@ -224,6 +226,11 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
+	public boolean isHidden() {
+		return isHidden;
+	}
+
+	@Override
 	public Object resolveFileReference(String url) {
 		return FileReferenceList.resolve(url, photo, video, backup, desktop, webcam, audio, keylog, tooldata);
 	}
@@ -313,6 +320,10 @@ public class Team extends ContestObject implements ITeam {
 				audio = new FileReferenceList(value);
 				return true;
 			}
+			case HIDDEN: {
+				isHidden = parseBoolean(value);
+				return true;
+			}
 		}
 
 		return false;
@@ -338,6 +349,7 @@ public class Team extends ContestObject implements ITeam {
 		t.x = x;
 		t.y = y;
 		t.rotation = rotation;
+		t.isHidden = isHidden;
 		return t;
 	}
 
@@ -369,6 +381,8 @@ public class Team extends ContestObject implements ITeam {
 				attrs.add("\"" + ROTATION + "\":" + round(rotation));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
+		if (isHidden)
+			props.put(HIDDEN, "true");
 	}
 
 	@Override
@@ -404,6 +418,8 @@ public class Team extends ContestObject implements ITeam {
 				attrs.add("\"" + ROTATION + "\":" + round(rotation));
 			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
+		if (isHidden)
+			je.encode(HIDDEN, true);
 	}
 
 	private static double round(double d) {

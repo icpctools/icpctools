@@ -86,6 +86,7 @@
 			                    <th>Name</th>
 			                    <th>Organization</th>
 			                    <th>Group</th>
+			                    <th class="text-center">Hidden</th>
 			                    <th>Summary</th>
 			                </tr>
 			            </thead>
@@ -117,6 +118,7 @@
   <td>{{name}}</td>
   <td>{{orgName}}</td>
   <td>{{groupNames}}</td>
+  <td class="text-center">{{#hidden}}<span class="badge badge-info"><i class="fas fa-eye-slash"></i></a>{{/hidden}}</td>
   <td><a href="<%= webroot  %>/teamSummary/{{id}}">summary</a></td>
 </script>
 <script type="text/javascript">

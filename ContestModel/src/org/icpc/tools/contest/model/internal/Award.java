@@ -100,10 +100,14 @@ public class Award extends ContestObject implements IAward {
 	@Override
 	protected boolean addImpl(String name, Object value) throws Exception {
 		if (TEAM_IDS.equals(name)) {
-			Object[] ob = JSONParser.getOrReadArray(value);
-			teamIds = new String[ob.length];
-			for (int i = 0; i < ob.length; i++)
-				teamIds[i] = (String) ob[i];
+			if (value == null || "null".equals(value))
+				teamIds = null;
+			else {
+				Object[] ob = JSONParser.getOrReadArray(value);
+				teamIds = new String[ob.length];
+				for (int i = 0; i < ob.length; i++)
+					teamIds[i] = (String) ob[i];
+			}
 			return true;
 		} else if (name.equals(CITATION)) {
 			citation = (String) value;
@@ -122,13 +126,13 @@ public class Award extends ContestObject implements IAward {
 	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
+		props.put(CITATION, citation);
 		if (teamIds != null) {
 			if (teamIds.length == 0)
 				props.put(TEAM_IDS, "[]");
 			else
 				props.put(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		}
-		props.put(CITATION, citation);
 		if (show == false)
 			props.put(SHOW, show);
 		if (count >= 0)
@@ -159,7 +163,7 @@ public class Award extends ContestObject implements IAward {
 		if (citation == null || citation.isEmpty())
 			errors.add("Citation missing");
 
-		if (teamIds != null || teamIds.length > 0) {
+		if (teamIds != null && teamIds.length > 0) {
 			for (String tId : teamIds) {
 				if (c.getTeamById(tId) == null)
 					errors.add("Invalid team " + tId);

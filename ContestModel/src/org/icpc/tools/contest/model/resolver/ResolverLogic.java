@@ -145,11 +145,13 @@ public class ResolverLogic {
 			IAward[] awards2 = finalContest.getAwards();
 			for (IAward a : awards2) {
 				if (a.getAwardType() == IAward.MEDAL) {
-					for (String id : a.getTeamIds()) {
-						ITeam team = finalContest.getTeamById(id);
-						if (team != null) {
-							int row = finalContest.getOrderOf(team);
-							this.singleStepStartRow = Math.max(row, this.singleStepStartRow);
+					if (a.getTeamIds() != null) {
+						for (String id : a.getTeamIds()) {
+							ITeam team = finalContest.getTeamById(id);
+							if (team != null) {
+								int row = finalContest.getOrderOf(team);
+								this.singleStepStartRow = Math.max(row, this.singleStepStartRow);
+							}
 						}
 					}
 				}
@@ -173,13 +175,15 @@ public class ResolverLogic {
 		AwardUtil.sortAwards(contest, contestAwards);
 		for (IAward award : contestAwards) {
 			String[] teamIds = award.getTeamIds();
-			for (String teamId : teamIds) {
-				List<IAward> aw = awards.get(teamId);
-				if (aw == null) {
-					aw = new ArrayList<>();
-					awards.put(teamId, aw);
+			if (teamIds != null) {
+				for (String teamId : teamIds) {
+					List<IAward> aw = awards.get(teamId);
+					if (aw == null) {
+						aw = new ArrayList<>();
+						awards.put(teamId, aw);
+					}
+					aw.add(award);
 				}
-				aw.add(award);
 			}
 		}
 
@@ -408,7 +412,6 @@ public class ResolverLogic {
 	}
 
 	private void resolveEverything(boolean bill) {
-		int currentRow = contest.getNumTeams() - 1;
 		// boolean singleStep = false;
 
 		Timing timing = null;
@@ -432,6 +435,7 @@ public class ResolverLogic {
 		SubmissionInfo runInfo = getNextResolve();
 		projectStandings(runInfo);
 
+		int currentRow = contest.getOrderedTeams().length - 1;
 		while (currentRow >= 0) {
 			Trace.trace(Trace.INFO, "Resolving row: " + currentRow);
 

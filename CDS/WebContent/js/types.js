@@ -119,8 +119,11 @@ function teamsTd(team) {
             first = false;
         }
     }
+    var hidden = "";
+    if (team.hidden != null)
+        hidden = "true";
 
-    return { id: team.id, name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames };
+    return { id: team.id, name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames, hidden: hidden };
 }
 
 function queueTd(submission) {

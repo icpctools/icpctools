@@ -119,4 +119,11 @@ public interface ITeam extends IContestObject, IPosition {
 	 * @return the audio stream
 	 */
 	String getAudioURL();
+
+	/**
+	 * Returns <code>true</code> if the team is hidden.
+	 *
+	 * @return <code>true</code> if the team is hidden, <code>false</code> otherwise
+	 */
+	boolean isHidden();
 }
