@@ -14,11 +14,13 @@ public class Submission extends TimedEvent implements ISubmission {
 	private static final String PROBLEM_ID = "problem_id";
 	private static final String LANGUAGE_ID = "language_id";
 	private static final String TEAM_ID = "team_id";
+	private static final String TEAM_MEMBER_ID = "team_member_id";
 	private static final String ENTRY_POINT = "entry_point";
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
 
 	private String teamId;
+	private String teamMemberId;
 	private String problemId;
 	private String languageId;
 	private String entryPoint;
@@ -33,6 +35,11 @@ public class Submission extends TimedEvent implements ISubmission {
 	@Override
 	public String getTeamId() {
 		return teamId;
+	}
+
+	@Override
+	public String getTeamMemberId() {
+		return teamMemberId;
 	}
 
 	@Override
@@ -109,6 +116,9 @@ public class Submission extends TimedEvent implements ISubmission {
 		if (TEAM_ID.equals(name)) {
 			teamId = (String) value;
 			return true;
+		} else if (TEAM_MEMBER_ID.equals(name)) {
+			teamMemberId = (String) value;
+			return true;
 		} else if (PROBLEM_ID.equals(name)) {
 			problemId = (String) value;
 			return true;
@@ -133,6 +143,8 @@ public class Submission extends TimedEvent implements ISubmission {
 		super.getPropertiesImpl(props);
 		props.put(PROBLEM_ID, problemId);
 		props.put(TEAM_ID, teamId);
+		if (teamMemberId != null)
+			props.put(TEAM_MEMBER_ID, teamMemberId);
 		props.put(LANGUAGE_ID, languageId);
 		props.put(ENTRY_POINT, entryPoint);
 		props.put(FILES, files);
@@ -144,6 +156,8 @@ public class Submission extends TimedEvent implements ISubmission {
 		je.encode(ID, id);
 		je.encode(PROBLEM_ID, problemId);
 		je.encode(TEAM_ID, teamId);
+		if (teamMemberId != null)
+			je.encode(TEAM_MEMBER_ID, teamMemberId);
 		je.encode(LANGUAGE_ID, languageId);
 		if (entryPoint != null)
 			je.encode(ENTRY_POINT, entryPoint);
@@ -170,6 +184,9 @@ public class Submission extends TimedEvent implements ISubmission {
 			if (c.getStartTime() == null || c.getStartTime() > getTime())
 				errors.add("Submission occured before the contest started");
 		}
+
+		if (teamMemberId != null && c.getTeamMemberById(teamMemberId) == null)
+			errors.add("Invalid team member " + teamMemberId);
 
 		if (errors.isEmpty())
 			return null;

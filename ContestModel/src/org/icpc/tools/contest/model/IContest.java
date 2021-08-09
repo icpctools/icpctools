@@ -387,6 +387,14 @@ public interface IContest {
 	ITeamMember[] getTeamMembers();
 
 	/**
+	 * Returns the team member with the given id.
+	 *
+	 * @param id an identifier
+	 * @return a team member, or <code>null</code> if the id was invalid
+	 */
+	ITeamMember getTeamMemberById(String teamId);
+
+	/**
 	 * Returns a list of all team members in the given team id.
 	 *
 	 * @return a list of all team members in the given team id

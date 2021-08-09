@@ -23,9 +23,16 @@ public interface ISubmission extends IContestObject {
 	/**
 	 * Returns the id of the team that made this submission.
 	 *
-	 * @return the team
+	 * @return the team id
 	 */
 	String getTeamId();
+
+	/**
+	 * Returns the id of the team member that made this submission.
+	 *
+	 * @return the team member id
+	 */
+	String getTeamMemberId();
 
 	/**
 	 * Returns the optional entry point this submission.
@@ -50,7 +57,7 @@ public interface ISubmission extends IContestObject {
 
 	/**
 	 * Return the URL to the reaction video
-	 * 
+	 *
 	 * @return
 	 */
 	String getReactionURL();
