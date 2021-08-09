@@ -1291,6 +1291,11 @@ public class Contest implements IContest {
 	}
 
 	@Override
+	public ITeamMember getTeamMemberById(String id) {
+		return (ITeamMember) data.getById(id, ContestType.TEAM_MEMBER);
+	}
+
+	@Override
 	public IProblem getProblemById(String id) {
 		return (IProblem) data.getById(id, ContestType.PROBLEM);
 	}
