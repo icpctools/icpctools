@@ -401,8 +401,11 @@ public class ImagesGenerator {
 						break;
 				}
 
-				if (imgFile == null)
-					break;
+				if (imgFile == null) {
+					Trace.trace(Trace.ERROR, "Warning: no image found (" + f.getName() + ")");
+					numWarnings++;
+					continue;
+				}
 
 				try {
 					String orgStr = imgFile.getParentFile().getName();
@@ -472,7 +475,7 @@ public class ImagesGenerator {
 			}
 		}
 
-		Trace.trace(Trace.USER, numWarnings + " warnings");
+		Trace.trace(Trace.USER, numWarnings + " warnings out of " + contest.getNumOrganizations());
 	}
 
 	private static void createDesktop(BufferedImage img, String name, Font[] fonts, File file) throws IOException {
