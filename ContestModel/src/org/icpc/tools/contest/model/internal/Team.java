@@ -116,6 +116,11 @@ public class Team extends ContestObject implements ITeam {
 		return getFile(getBestFileReference(photo, new ImageSizeFit(width, height)), PHOTO, force);
 	}
 
+	@Override
+	public File[] getPhotos(boolean force) {
+		return getFiles(photo, PHOTO, force);
+	}
+
 	public void setPhoto(FileReferenceList list) {
 		photo = list;
 	}
@@ -131,7 +136,12 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public File getVideo(boolean force) {
-		return getFile(getBestFileReference(video, null), VIDEO, force);
+		return getFile(video.first(), VIDEO, force);
+	}
+
+	@Override
+	public File[] getVideos(boolean force) {
+		return getFiles(video, VIDEO, force);
 	}
 
 	public FileReferenceList getBackup() {
@@ -140,7 +150,12 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public File getBackup(boolean force) {
-		return getFile(getBestFileReference(backup, null), BACKUP, force);
+		return getFile(backup.first(), BACKUP, force);
+	}
+
+	@Override
+	public File[] getBackups(boolean force) {
+		return getFiles(backup, BACKUP, force);
 	}
 
 	public void setBackup(FileReferenceList list) {
@@ -153,7 +168,12 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public File getKeyLog(boolean force) {
-		return getFile(getBestFileReference(keylog, null), KEY_LOG, force);
+		return getFile(keylog.first(), KEY_LOG, force);
+	}
+
+	@Override
+	public File[] getKeylogs(boolean force) {
+		return getFiles(keylog, KEY_LOG, force);
 	}
 
 	public void setKeyLog(FileReferenceList list) {
@@ -166,7 +186,12 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public File getToolData(boolean force) {
-		return getFile(getBestFileReference(tooldata, null), TOOL_DATA, force);
+		return getFile(tooldata.first(), TOOL_DATA, force);
+	}
+
+	@Override
+	public File[] getToolDatas(boolean force) {
+		return getFiles(tooldata, TOOL_DATA, force);
 	}
 
 	public void setToolData(FileReferenceList list) {
@@ -189,6 +214,14 @@ public class Team extends ContestObject implements ITeam {
 		return desktop.first().href;
 	}
 
+	@Override
+	public String[] getDesktopURLs() {
+		if (desktop == null || desktop.isEmpty())
+			return null;
+
+		return desktop.getHrefs();
+	}
+
 	public void setDesktop(FileReferenceList list) {
 		desktop = list;
 	}
@@ -205,6 +238,14 @@ public class Team extends ContestObject implements ITeam {
 		return webcam.first().href;
 	}
 
+	@Override
+	public String[] getWebcamURLs() {
+		if (webcam == null || webcam.isEmpty())
+			return null;
+
+		return webcam.getHrefs();
+	}
+
 	public void setWebcam(FileReferenceList list) {
 		webcam = list;
 	}
@@ -219,6 +260,14 @@ public class Team extends ContestObject implements ITeam {
 			return null;
 
 		return audio.first().href;
+	}
+
+	@Override
+	public String[] getAudioURLs() {
+		if (audio == null || audio.isEmpty())
+			return null;
+
+		return audio.getHrefs();
 	}
 
 	public void setAudio(FileReferenceList list) {

@@ -74,11 +74,6 @@ public class DiskContestSource extends ContestSource {
 	private Map<String, List<FileReference>> cache = new HashMap<>();
 
 	static class FilePattern {
-		// true if multiple files are supported, e.g. logo_64x64.png and logo_128x128.png
-		// false if the filename is fixed, e.g. files.zip
-		// this is implied today when there are multiple file extensions, but let's not rely on that
-		protected boolean multiple;
-
 		// the folder containing the file
 		protected String folder;
 
@@ -93,17 +88,7 @@ public class DiskContestSource extends ContestSource {
 
 		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
 				String fileExtension) {
-			if (type == null) {
-				this.folder = folder;
-				this.url = property;
-			} else {
-				String typeName = IContestObject.getTypeName(type);
-				this.folder = folder + File.separator + typeName + File.separator + id;
-				this.url = typeName + "/" + id + "/" + property;
-			}
-
-			this.name = property;
-			this.extensions = new String[] { fileExtension };
+			this(type, id, property, folder, new String[] { fileExtension });
 		}
 
 		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
@@ -119,7 +104,6 @@ public class DiskContestSource extends ContestSource {
 
 			this.name = property;
 			this.extensions = fileExtensions;
-			multiple = true;
 		}
 	}
 
@@ -322,9 +306,6 @@ public class DiskContestSource extends ContestSource {
 		File folder = rootFolder;
 		if (pattern.folder != null)
 			folder = new File(rootFolder, pattern.folder);
-
-		if (!pattern.multiple)
-			return new File(folder, pattern.name + "." + pattern.extensions[0]);
 
 		String ext = getExtension(mimeType);
 		if (ext == null) // couldn't recognize mime type, so assume the default file extension
@@ -763,23 +744,6 @@ public class DiskContestSource extends ContestSource {
 			folder = new File(folder, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
-
-		if (!pattern.multiple) { // single file
-			File[] files = folder
-					.listFiles((dir, name) -> (name.equalsIgnoreCase(pattern.name + "." + pattern.extensions[0])));
-			if (files == null || files.length == 0)
-				return null;
-
-			FileReference ref = getMetadata(pattern.url, files[0]);
-			if (ref == null)
-				return null;
-
-			FileReferenceList list = new FileReferenceList();
-			list.add(ref);
-			return list;
-		}
-
-		// multiple possible filenames and/or file extensions
 		for (String ext : pattern.extensions) {
 			File[] files = folder.listFiles(
 					(dir, name) -> (name.toLowerCase().startsWith(pattern.name) && name.toLowerCase().endsWith("." + ext)));

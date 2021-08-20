@@ -9,6 +9,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.util.Role;
+import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IJudgement;
@@ -37,11 +39,11 @@ public class ReactionVideoRecorder {
 	private static final int MAX_DURATION = 5 * 60; // 5 minutes
 
 	protected class Info {
-		int stream;
-		VideoStreamListener listener;
-		OutputStream out;
-		File tempFile;
-		File file;
+		int[] stream;
+		VideoStreamListener[] listener;
+		OutputStream[] out;
+		File[] tempFile;
+		File[] file;
 		ScheduledFuture<?> future;
 	}
 
@@ -101,80 +103,102 @@ public class ReactionVideoRecorder {
 		if (scheduledExecutor.isShutdown())
 			return;
 
-		final VideoMapper map = VideoMapper.WEBCAM;
-
 		String teamId = submission.getTeamId();
 		ITeam team = contest.getTeamById(teamId);
 		if (team != null && contest.isTeamHidden(team))
 			return;
 
 		// check if already recorded in a previous run
-		File reactDir = new File(rootFolder, "submissions" + File.separator + submissionId);
-		if (!reactDir.exists())
-			reactDir.mkdirs();
+		File submissionDir = new File(rootFolder, "submissions" + File.separator + submissionId);
+		if (!submissionDir.exists())
+			submissionDir.mkdirs();
 
-		File file = new File(reactDir, "reaction.m2ts");
-		if (file.exists()) {
-			FileReference ref = new FileReference();
-			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/reaction";
-			ref.mime = "application/m2ts";
-			ref.file = file;
-			// webcamRef.data = "webcam";
-			((Submission) submission).setReaction(new FileReferenceList(ref));
+		File file = new File(submissionDir, "reaction.m2ts");
+		if (file.exists()) { // recordings already exist, just return the files
+			FileReferenceList list = new FileReferenceList();
+			File[] files = submissionDir.listFiles(
+					(dir, name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith(".m2ts")));
+
+			if (files != null) {
+				for (File f : files) {
+					FileReference ref = new FileReference();
+					String name = f.getName().substring(f.getName().length() - 5);
+					ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
+					ref.mime = "application/m2ts";
+					ref.file = f;
+					list.add(ref);
+				}
+			}
+
+			((Submission) submission).setReaction(list);
 			return;
 		}
-		info.file = file;
 
-		// create marker file
-		info.tempFile = new File(reactDir, file.getName() + "-temp");
-		boolean secondary = false;
-		if (info.tempFile.exists()) // another CDS already recording
-			secondary = true;
+		List<Integer> streams = cc.getStreams(teamId, StreamType.WEBCAM);
+		if (streams == null || streams.isEmpty())
+			return;
 
-		if (!secondary) {
-			try {
-				if (!info.tempFile.createNewFile()) {
-					// warning, couldn't create temp file
-					if (info.tempFile.exists()) // another CDS already recording
-						secondary = true;
+		int numStreams = streams.size();
+		info.file = new File[numStreams];
+		info.stream = new int[numStreams];
+		info.listener = new VideoStreamListener[numStreams];
+		info.out = new OutputStream[numStreams];
+		info.tempFile = new File[numStreams];
+
+		FileReferenceList list = new FileReferenceList();
+		for (int i = 0; i < numStreams; i++) {
+			if (i > 0)
+				file = new File(submissionDir, "reaction-" + (i + 1) + ".m2ts");
+			info.file[i] = file;
+			info.stream[i] = streams.get(i);
+
+			// create marker file
+			info.tempFile[i] = new File(submissionDir, file.getName() + "-temp");
+			boolean secondary = false;
+			if (info.tempFile[i].exists()) // another CDS already recording
+				secondary = true;
+
+			if (!secondary) {
+				try {
+					if (!info.tempFile[i].createNewFile()) {
+						// warning, couldn't create temp file
+						if (info.tempFile[i].exists()) // another CDS already recording
+							secondary = true;
+					}
+				} catch (Exception e) {
+					// ignore
+					Trace.trace(Trace.ERROR, "Error creating file", e);
 				}
-			} catch (Exception e) {
-				// ignore
-				Trace.trace(Trace.ERROR, "Error creating file", e);
 			}
+
+			if (!secondary) {
+				info.tempFile[i].deleteOnExit();
+
+				try {
+					info.out[i] = new BufferedOutputStream(new FileOutputStream(file));
+				} catch (Exception e) {
+					// could not create file
+					Trace.trace(Trace.ERROR, "Error creating output stream", e);
+					return;
+				}
+
+				info.listener[i] = new VideoStreamListener(info.out[i], true);
+
+				VideoAggregator aggregator = VideoAggregator.getInstance();
+				Trace.trace(Trace.INFO, "Recording reaction for " + submissionId + " from " + teamId + " on "
+						+ aggregator.getStreamName(info.stream[i]));
+				aggregator.addStreamListener(info.stream[i], info.listener[i]);
+			}
+
+			FileReference ref = new FileReference();
+			String name = file.getName().substring(file.getName().length() - 5);
+			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
+			ref.mime = "application/m2ts";
+			ref.file = file;
+			list.add(ref);
 		}
 
-		if (!secondary) {
-			info.tempFile.deleteOnExit();
-
-			try {
-				info.out = new BufferedOutputStream(new FileOutputStream(file));
-			} catch (Exception e) {
-				// could not create file
-				Trace.trace(Trace.ERROR, "Error creating output stream", e);
-				return;
-			}
-
-			info.listener = new VideoStreamListener(info.out, true);
-			try {
-				info.stream = map.getVideoStream(teamId);
-			} catch (Exception e) {
-				// invalid team
-				return;
-			}
-
-			VideoAggregator aggregator = VideoAggregator.getInstance();
-			Trace.trace(Trace.INFO, "Recording reaction for " + submissionId + " from " + teamId + " on "
-					+ aggregator.getStreamName(info.stream));
-			aggregator.addStreamListener(info.stream, info.listener);
-		}
-
-		FileReference ref = new FileReference();
-		ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/reaction";
-		ref.mime = "application/m2ts";
-		ref.file = file;
-		// webcamRef.data = "webcam";
-		((Submission) submission).setReaction(new FileReferenceList(ref));
+		((Submission) submission).setReaction(list);
 
 		info.future = scheduleEndOfRecording(info, MAX_DURATION);
 	}
@@ -200,22 +224,24 @@ public class ReactionVideoRecorder {
 			public void run() {
 				if (info.out != null) {
 					VideoAggregator aggregator = VideoAggregator.getInstance();
-					Trace.trace(Trace.INFO, "Reaction recording done: " + aggregator.getStreamName(info.stream));
-					aggregator.removeStreamListener(info.stream, info.listener);
+					for (int i = 0; i < info.stream.length; i++) {
+						Trace.trace(Trace.INFO, "Reaction recording done: " + aggregator.getStreamName(info.stream[i]));
+						aggregator.removeStreamListener(info.stream[i], info.listener[i]);
 
-					try {
-						info.out.close();
-					} catch (Exception e) {
-						// ignore
-					}
-					info.out = null;
+						try {
+							info.out[i].close();
+						} catch (Exception e) {
+							// ignore
+						}
+						info.out = null;
 
-					if (info.tempFile.exists())
-						info.tempFile.delete();
+						if (info.tempFile[i].exists())
+							info.tempFile[i].delete();
 
-					if (info.file.exists() && info.file.length() == 0) {
-						Trace.trace(Trace.WARNING, "No video received for submission. Stream: " + info.stream);
-						info.file.delete();
+						if (info.file[i].exists() && info.file[i].length() == 0) {
+							Trace.trace(Trace.WARNING, "No video received for submission. Stream: " + info.stream);
+							info.file[i].delete();
+						}
 					}
 				}
 			}
@@ -223,7 +249,7 @@ public class ReactionVideoRecorder {
 	}
 
 	public static void streamReaction(ConfiguredContest cc, ISubmission submission, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+			HttpServletResponse response) throws IOException { // TODO
 		String rootFolder = cc.getLocation();
 		if (rootFolder == null) {
 			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -242,8 +268,8 @@ public class ReactionVideoRecorder {
 			return;
 		}
 
-		File reactDir = new File(rootFolder, "video" + File.separator + "reactions");
-		File file = new File(reactDir, "reaction" + submission.getId() + ".m2ts");
+		File submissionDir = new File(rootFolder, "submissions" + File.separator + submission.getId());
+		File file = new File(submissionDir, "reaction" + ".m2ts"); // TODO 3 per team
 		if (!file.exists()) {
 			if (cc.isTesting())
 				file = new File(CDSConfig.getFolder(), "test" + File.separator + "reaction.m2ts");
@@ -258,7 +284,7 @@ public class ReactionVideoRecorder {
 		response.setContentType("application/octet");
 		response.setHeader("Content-Disposition", "inline; filename=\"reaction" + submission.getId() + ".m2ts\"");
 
-		final File tempFile = new File(reactDir, file.getName() + "-temp");
+		final File tempFile = new File(submissionDir, file.getName() + "-temp");
 		if (!tempFile.exists()) {
 			long lastModified = file.lastModified() / 1000 * 1000;
 			try {

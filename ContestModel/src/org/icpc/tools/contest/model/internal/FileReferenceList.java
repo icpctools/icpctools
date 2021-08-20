@@ -58,7 +58,13 @@ public class FileReferenceList implements Iterable<FileReference> {
 	}
 
 	public FileReference first() {
+		if (refs.isEmpty())
+			return null;
 		return refs.get(0);
+	}
+
+	public FileReference get(int i) {
+		return refs.get(i);
 	}
 
 	@Override
@@ -76,6 +82,15 @@ public class FileReferenceList implements Iterable<FileReference> {
 			}
 		}
 		return null;
+	}
+
+	public String[] getHrefs() {
+		String[] hrefs = new String[refs.size()];
+		int i = 0;
+		for (FileReference ref : refs)
+			hrefs[i++] = ref.href;
+
+		return hrefs;
 	}
 
 	public String getJSON() {

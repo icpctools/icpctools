@@ -10,6 +10,7 @@ import org.icpc.tools.cds.ConfiguredContest.Test;
 import org.icpc.tools.cds.ConfiguredContest.View;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
+import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject;
@@ -212,6 +213,20 @@ public class PlaybackContest extends Contest {
 		return false;
 	}
 
+	private static FileReferenceList getMediaList(List<Integer> in) {
+		if (in == null || in.isEmpty())
+			return null;
+
+		FileReferenceList list = new FileReferenceList();
+		for (Integer i : in) {
+			FileReference ref = new FileReference();
+			ref.href = "http://<host>/stream/" + i;
+			ref.mime = "application/m2ts";
+			list.add(ref);
+		}
+		return list;
+	}
+
 	@Override
 	public void add(IContestObject obj) {
 		if (cc.getView() != null) {
@@ -315,34 +330,15 @@ public class PlaybackContest extends Contest {
 		if (cc.getContestSource() instanceof RESTContestSource)
 			downloadAndSync((RESTContestSource) cc.getContestSource(), obj);
 
-		// set team video references
+		// set team streaming references
 		if (obj instanceof Team) {
 			Team team = (Team) obj;
-			String teamId = team.getId();
-			if (cc.isDesktopEnabled(teamId)) {
-				FileReference desktopRef = new FileReference();
-				desktopRef.href = "http://<host>/video/desktop/" + team.getId();
-				desktopRef.mime = "application/m2ts";
-				// desktopRef.data = "desktop";
-				team.setDesktop(new FileReferenceList(desktopRef));
-			} else
-				team.setDesktop(null);
-			if (cc.isWebcamEnabled(teamId)) {
-				FileReference webcamRef = new FileReference();
-				webcamRef.href = "http://<host>/video/webcam/" + team.getId();
-				webcamRef.mime = "application/m2ts";
-				// webcamRef.data = "webcam";
-				team.setWebcam(new FileReferenceList(webcamRef));
-			} else
-				team.setWebcam(null);
-			if (cc.isAudioEnabled(teamId)) {
-				FileReference audioRef = new FileReference();
-				audioRef.href = "http://<host>/video/audio/" + team.getId();
-				audioRef.mime = "application/m2ts";
-				// webcamRef.data = "audio";
-				team.setAudio(new FileReferenceList(audioRef));
-			} else
-				team.setAudio(null);
+			Map<StreamType, List<Integer>> streams = cc.getStreams(this, team);
+			if (streams != null) {
+				team.setDesktop(getMediaList(streams.get(StreamType.DESKTOP)));
+				team.setWebcam(getMediaList(streams.get(StreamType.WEBCAM)));
+				team.setAudio(getMediaList(streams.get(StreamType.AUDIO)));
+			}
 
 			if (team.getGroupIds() != null) {
 				for (String gId : team.getGroupIds()) {

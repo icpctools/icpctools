@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -19,6 +21,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
+import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -85,14 +88,12 @@ public class CDSConfig {
 	public static class TeamUser {
 		private String name = null;
 		private String teamId = null;
-		private String host = null;
 		private String password = null;
 
 		protected TeamUser(Element e) {
-			name = e.getAttribute("name");
-			teamId = e.getAttribute("teamId");
-			host = e.getAttribute("host");
-			password = e.getAttribute("password");
+			name = getString(e, "name");
+			teamId = getString(e, "teamId");
+			password = getString(e, "password");
 		}
 
 		@Override
@@ -101,10 +102,30 @@ public class CDSConfig {
 		}
 	}
 
+	public static class Host {
+		private String teamId = null;
+		private String host = null;
+
+		protected Host(Element e) {
+			teamId = getString(e, "teamId");
+			host = getString(e, "host");
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder("Host [");
+			if (teamId != null)
+				sb.append(teamId + " / ");
+			sb.append(host + "]");
+			return sb.toString();
+		}
+	}
+
 	private ConfiguredContest[] contests;
 	private long[] contestHashes;
 	private Domain[] domains;
 	private TeamUser[] teamUsers;
+	private Host[] hosts;
 	private File file;
 	private long lastModified;
 
@@ -117,7 +138,7 @@ public class CDSConfig {
 			loadContests(e);
 			loadOtherConfig(e);
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Could not read from CDS config! No contests loaded");
+			Trace.trace(Trace.ERROR, "Could not read from CDS config! No contests loaded", e);
 		}
 
 		ExecutorListener.getExecutor().scheduleAtFixedRate(new Runnable() {
@@ -231,10 +252,6 @@ public class CDSConfig {
 		Trace.trace(Trace.USER, "Configured contests:");
 		for (ConfiguredContest cc : contests)
 			Trace.trace(Trace.USER, "   " + cc);
-
-		// initialize
-		for (int i = 0; i < contests.length; i++)
-			contests[i].init();
 	}
 
 	private void loadOtherConfig(Element e) {
@@ -243,7 +260,7 @@ public class CDSConfig {
 			for (int i = 0; i < children.length; i++) {
 				UserVideo video = new UserVideo(children[i]);
 				ConnectionMode mode = VideoAggregator.getConnectionMode(video.getMode());
-				VideoAggregator.getInstance().addReservation(video.getName(), video.getURL(), mode, i);
+				VideoAggregator.getInstance().addReservation(video.getName(), video.getURL(), StreamType.OTHER, mode);
 			}
 		}
 
@@ -266,24 +283,36 @@ public class CDSConfig {
 				temp[i] = new TeamUser(children[i]);
 			}
 			teamUsers = temp;
+
+			String users = teamElement.getAttribute("users");
+			if (users == null || users.isEmpty())
+				users = "../users.xml";
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(new File(file.getParentFile(), users));
+				parseBasicRegistry(in);
+			} catch (Exception ex) {
+				Trace.trace(Trace.ERROR, "Could not load team password info", ex);
+			} finally {
+				if (in != null)
+					try {
+						in.close();
+					} catch (Exception ex) {
+						// ignore
+					}
+			}
 		}
 
-		String users = teamElement.getAttribute("users");
-		if (users == null || users.isEmpty())
-			users = "../users.xml";
-		FileInputStream in = null;
-		try {
-			in = new FileInputStream(new File(file.getParentFile(), users));
-			parseBasicRegistry(in);
-		} catch (Exception ex) {
-			Trace.trace(Trace.ERROR, "Could not load team password info", ex);
-		} finally {
-			if (in != null)
-				try {
-					in.close();
-				} catch (Exception ex) {
-					// ignore
-				}
+		Element hostElement = getChild(e, "hosts");
+		if (hostElement != null) {
+			children = CDSConfig.getChildren(hostElement, "host");
+			int num = children.length;
+
+			Host[] temp = new Host[num];
+			for (int i = 0; i < num; i++) {
+				temp[i] = new Host(children[i]);
+			}
+			hosts = temp;
 		}
 	}
 
@@ -367,18 +396,46 @@ public class CDSConfig {
 	}
 
 	/**
+	 * Converts from team id to host name or IP, e.g. "43" to "10.0.0.43".
+	 *
+	 * @param team id
+	 * @return a list of hosts, or null if not found
+	 */
+	public List<String> getHostsForTeamId(String teamId) {
+		if (hosts == null || teamId == null)
+			return null;
+
+		List<String> list = new ArrayList<String>();
+		for (Host host : hosts) {
+			if (host.teamId != null && !host.teamId.equals(teamId))
+				continue;
+			list.add(host.host.replace("{0}", teamId));
+		}
+		return list;
+	}
+
+	/**
 	 * Converts from team host name or IP to team id, e.g. "10.0.0.43" to "43".
 	 *
 	 * @param host
 	 * @return the team's id, or null if not found
 	 */
-	public String getTeamIdFromHost(String host) {
-		if (teamUsers == null || host == null)
+	public String getTeamIdFromHost(String teamHost) {
+		if (hosts == null || teamHost == null)
 			return null;
 
-		for (TeamUser login : teamUsers) {
-			if (host.equalsIgnoreCase(login.host))
-				return login.teamId;
+		for (Host host : hosts) {
+			// simple case is direct mapping with no substitution
+			if (host.teamId != null && host.host.equals(teamHost))
+				return host.teamId;
+
+			// harder case, match to find the substitution
+			Pattern p = Pattern.compile(host.host.replace(".", "\\.").replace("{0}", ".*"));
+			Matcher m = p.matcher(teamHost);
+			if (!m.matches())
+				continue;
+
+			return m.group(1);
 		}
 		return null;
 	}
