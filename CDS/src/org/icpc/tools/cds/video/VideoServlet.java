@@ -1,15 +1,8 @@
 package org.icpc.tools.cds.video;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
-import javax.imageio.ImageIO;
 import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.ServletException;
@@ -24,14 +17,12 @@ import org.icpc.tools.cds.service.AppAsyncListener;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
-import org.icpc.tools.cds.video.VideoAggregator.Status;
+import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
-import org.icpc.tools.contest.model.FloorMap;
-import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
-
+// OLD (will be removed once admin page is working again
 // video/x?resetAll=true - reset all streams
 // video/x?mode=y - set connection mode to y for all teams
 // video/x/<teamId> - stream video for the given team id
@@ -39,112 +30,104 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 // video/x - list stream status
 // video - list status of all streams
 // where x = desktop or webcam
-@WebServlet(urlPatterns = "/video/*", asyncSupported = true)
+
+// NEW
+// stream/x - stream x
+// stream/x?reset - reset stream x
+// stream/channel/x - stream channel x
+// stream/status - list status of all streams
+// stream?team=x - action on streams for the given team id
+// stream?type=x - action on streams of the given type
+// stream?action=reset/eager/lazy/lazy_close - actions on streams
+@WebServlet(urlPatterns = "/stream/*", asyncSupported = true)
 public class VideoServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private static final String RESET_ALL = "resetAll";
 	private static final String RESET = "reset";
-	private static final String MODE = "mode";
-
-	private static final Dimension SIZE = new Dimension(800, 600);
-
-	private static final Color[] STATUS_COLORS = new Color[] { Color.WHITE, new Color(230, 63, 63),
-			new Color(95, 95, 230), new Color(63, 230, 63) };
+	private static final String ACTION = "action";
+	private static final String TEAM = "team";
+	private static final String TYPE = "type";
 
 	private static VideoAggregator va = VideoAggregator.getInstance();
-
-	public static VideoMapper getMapper(String s) {
-		if (s.equals("desktop"))
-			return VideoMapper.DESKTOP;
-		else if (s.equals("webcam"))
-			return VideoMapper.WEBCAM;
-		else if (s.equals("audio"))
-			return VideoMapper.AUDIO;
-		return null;
-	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = request.getPathInfo();
-		if (path == null || !path.startsWith("/")) {
-			response.setContentType("application/json");
-			writeStatus(response.getWriter());
+		if (path == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
-		VideoMapper map = null;
 		boolean channel = false;
-		if (path.startsWith("/desktop")) {
-			map = VideoMapper.DESKTOP;
-			path = path.substring(8);
-		} else if (path.startsWith("/webcam")) {
-			map = VideoMapper.WEBCAM;
-			path = path.substring(7);
-		} else if (path.startsWith("/audio")) {
-			map = VideoMapper.AUDIO;
-			path = path.substring(6);
-		} else if (path.startsWith("/stream")) {
-			path = path.substring(7);
+		if (path.startsWith("/status")) {
+			response.setContentType("application/json");
+			JSONEncoder je = new JSONEncoder(response.getWriter());
+			writeStatus(je);
+			return;
 		} else if (path.startsWith("/channel")) {
 			path = path.substring(8);
 			channel = true;
-		}
+		} else if (path.startsWith("/")) {
+			path = path.substring(1);
 
-		if (path == null || !path.startsWith("/")) {
-			if (!Role.isBlue(request)) {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-				return;
-			}
-			String resetAll = request.getParameter(RESET_ALL);
-			String modeParam = request.getParameter(MODE);
-			if ((resetAll != null || modeParam != null) && !Role.isAdmin(request)) {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-				return;
-			}
-
-			if (resetAll != null) {
-				map.resetAll();
-				return;
-			} else if (modeParam != null) {
-				ConnectionMode mode = VideoAggregator.getConnectionMode(modeParam);
-				if (mode == null) {
-					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			if (path.isEmpty()) {
+				if (!Role.isBlue(request)) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				}
-				map.setConnectionMode(mode);
-				return;
+				String actionParam = request.getParameter(ACTION);
+				if (actionParam != null) {
+					if (!Role.isAdmin(request)) {
+						response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+						return;
+					}
+
+					String typeParam = request.getParameter(TYPE);
+					StreamType streamType = StreamType.valueOf(typeParam);
+					if (typeParam != null) {
+						streamType = StreamType.valueOf(typeParam);
+						if (streamType == null) {
+							response.sendError(HttpServletResponse.SC_NOT_FOUND);
+							return;
+						}
+					}
+					String teamParam = request.getParameter(TEAM);
+					if ("reset".equals(actionParam)) {
+						va.reset(teamParam, streamType);
+					} else {
+						ConnectionMode mode = VideoAggregator.getConnectionMode(actionParam);
+						if (mode == null) {
+							response.sendError(HttpServletResponse.SC_NOT_FOUND);
+							return;
+						}
+						va.setConnectionMode(teamParam, streamType, mode);
+					}
+
+					return;
+				}
 			}
-			response.setContentType("application/json");
-			JSONEncoder je = new JSONEncoder(response.getWriter());
-			map.writeStatus(je);
-			return;
 		}
 
-		String teamId = null;
-		String filename = "video";
+		String videoId = null;
+		String filename = "stream";
 		int stream = -1;
 		boolean trusted = Role.isTrusted(request);
 		try {
-			teamId = path.substring(1);
-			if (map != null) {
-				stream = map.getVideoStream(teamId);
-				filename = teamId;
-			} else {
-				stream = Integer.parseInt(teamId);
-				if (!channel) {
-					if (stream < 0 || stream >= VideoAggregator.MAX_STREAMS) {
-						response.sendError(HttpServletResponse.SC_NOT_FOUND);
-						return;
-					}
-					filename = "stream-" + stream;
-				} else {
-					if (stream < 0 || stream >= VideoAggregator.MAX_CHANNELS) {
-						response.sendError(HttpServletResponse.SC_NOT_FOUND);
-						return;
-					}
-					filename = "channel-" + stream;
+			videoId = path.substring(1);
+			stream = Integer.parseInt(videoId);
+
+			if (!channel) {
+				if (stream < 0 || stream >= VideoAggregator.MAX_STREAMS) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
 				}
+				filename = "stream-" + stream;
+			} else {
+				if (stream < 0 || stream >= VideoAggregator.MAX_CHANNELS) {
+					response.sendError(HttpServletResponse.SC_NOT_FOUND);
+					return;
+				}
+				filename = "channel-" + stream;
 			}
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -179,18 +162,20 @@ public class VideoServlet extends HttpServlet {
 		}
 
 		// increment stats
-		if (teamId != null) {
+		if (videoId != null) {
+			StreamType st = va.getStreamType(stream);
 			for (ConfiguredContest cc : CDSConfig.getContests()) {
-				if (cc.getContest().getTeamById(teamId) != null) {
-					if (map == VideoMapper.DESKTOP)
-						cc.incrementDesktop();
-					else
-						cc.incrementWebcam();
-				}
+				// if (cc.getContest().getTeamById(videoId) != null) { // TODO 3 per team
+				if (st == StreamType.DESKTOP)
+					cc.incrementDesktop();
+				else if (st == StreamType.WEBCAM)
+					cc.incrementWebcam();
+				else if (st == StreamType.AUDIO)
+					cc.incrementAudio();
 			}
 		}
 
-		Trace.trace(Trace.INFO, "Video request: " + ConfiguredContest.getUser(request) + " requesting team " + teamId
+		Trace.trace(Trace.INFO, "Video request: " + ConfiguredContest.getUser(request) + " requesting video " + videoId
 				+ " -> " + va.getStreamName(stream) + " (channel: " + channel + ")");
 
 		doVideo(request, response, filename, stream, channel, trusted);
@@ -226,8 +211,7 @@ public class VideoServlet extends HttpServlet {
 		asyncCtx.setTimeout(0);
 	}
 
-	private static void writeStatus(PrintWriter pw) {
-		JSONEncoder je = new JSONEncoder(pw);
+	private static void writeStatus(JSONEncoder je) {
 		je.open();
 		je.openChildArray("streams");
 		int c = 0;
@@ -235,7 +219,7 @@ public class VideoServlet extends HttpServlet {
 			je.open();
 			je.encode("id", c++ + "");
 			je.encode("name", vi.getName());
-			je.encode("order", vi.getOrder());
+			je.encode("type", vi.getType().name());
 			je.encode("mode", vi.getMode().name());
 			je.encode("status", vi.getStatus().name());
 			Stats s = vi.getStats();
@@ -251,24 +235,5 @@ public class VideoServlet extends HttpServlet {
 		je.encode("total_listeners", va.getTotal());
 		je.encode("total_time", ContestUtil.formatTime(va.getTotalTime()));
 		je.close();
-	}
-
-	public static void writeStatusImage(IContest contest, VideoMapper mapper, OutputStream out) throws IOException {
-		FloorMap map = new FloorMap(contest);
-		Rectangle r = new Rectangle(SIZE);
-		BufferedImage image = new BufferedImage(SIZE.width, SIZE.height, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = (Graphics2D) image.getGraphics();
-		map.drawFloor(g, r, new FloorMap.FloorColors() {
-			@Override
-			public Color getDeskFillColor(String teamId) {
-				Status status = mapper.getStatus(teamId);
-				if (status == null)
-					return null;
-				return STATUS_COLORS[status.ordinal()];
-			}
-		}, true);
-		g.dispose();
-
-		ImageIO.write(image, "png", out);
 	}
 }

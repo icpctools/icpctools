@@ -18,7 +18,7 @@ import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
-import org.icpc.tools.cds.video.VideoMapper;
+import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
@@ -72,6 +72,8 @@ public class ConfiguredContest {
 	private Map<Object, String> clients = new HashMap<>();
 	private long[] metrics = new long[11]; // REST, feed, ws, web, download, scoreboard, XML,
 														// desktop, webcam, audio, total
+
+	private Map<String, Map<StreamType, List<Integer>>> streamMap = new HashMap<>();
 
 	public static class Video {
 		private Element video;
@@ -312,42 +314,98 @@ public class ConfiguredContest {
 			view = new View(ee);
 	}
 
-	public void init() {
-		if (videos == null)
-			return;
+	private static boolean isTeamOrSpare(IContest contest2, ITeam team) {
+		if (team == null)
+			return false;
 
-		for (Video video : videos) {
-			String teamId = video.getId();
-			String urlPattern = video.getDesktop();
-			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getDesktopMode());
+		if (!contest2.isTeamHidden(team))
+			return true;
 
-			if (urlPattern != null) {
-				if (teamId != null)
-					VideoMapper.DESKTOP.mapTeam(teamId, urlPattern, mode);
-				else
-					VideoMapper.DESKTOP.mapAllTeams(this, urlPattern, mode);
-			}
-
-			urlPattern = video.getWebcam();
-			mode = VideoAggregator.getConnectionMode(video.getWebcamMode());
-
-			if (urlPattern != null) {
-				if (teamId != null)
-					VideoMapper.WEBCAM.mapTeam(teamId, urlPattern, mode);
-				else
-					VideoMapper.WEBCAM.mapAllTeams(this, urlPattern, mode);
-			}
-
-			urlPattern = video.getAudio();
-			mode = VideoAggregator.getConnectionMode(video.getAudioMode());
-
-			if (urlPattern != null) {
-				if (teamId != null)
-					VideoMapper.AUDIO.mapTeam(teamId, urlPattern, mode);
-				else
-					VideoMapper.AUDIO.mapAllTeams(this, urlPattern, mode);
+		String[] groupIds = team.getGroupIds();
+		int hidden = 0;
+		for (String groupId : groupIds) {
+			IGroup group = contest2.getGroupById(groupId);
+			if (group != null) {
+				if (group.getId() != null && group.getId().contains("spare"))
+					return true;
+				if (group.isHidden())
+					hidden++;
 			}
 		}
+		if (hidden == 0)
+			return true;
+		if (hidden == groupIds.length)
+			return false;
+
+		// some hidden and some non-hidden groups, assume this is a public team
+		return true;
+	}
+
+	private static void mapStreams(String teamId, String urlPattern, ConnectionMode mode, List<String> hosts,
+			Map<StreamType, List<Integer>> map, StreamType type) {
+		VideoAggregator va = VideoAggregator.getInstance();
+		List<Integer> in = new ArrayList<Integer>();
+		map.put(type, in);
+
+		String name = type.name() + " " + teamId;
+		String url = urlPattern.replace("{0}", teamId);
+		if (!hosts.isEmpty()) {
+			for (String host : hosts) {
+				String url2 = url.replace("{host}", host);
+				in.add(va.addReservation(name + " " + host, url2, mode, type, teamId));
+			}
+		} else
+			in.add(va.addReservation(name, url, mode, type, teamId));
+	}
+
+	private void setupTeamStreams(String teamId) {
+		for (Video v : videos)
+			setupTeamStreams(teamId, v);
+	}
+
+	private void setupTeamStreams(String teamId, Video video) {
+		if (teamId == null)
+			return;
+
+		if (streamMap.containsKey(teamId))
+			return;
+
+		List<String> hosts = CDSConfig.getInstance().getHostsForTeamId(teamId);
+
+		Map<StreamType, List<Integer>> map = new HashMap<StreamType, List<Integer>>();
+		streamMap.put(teamId, map);
+
+		String urlPattern = video.getDesktop();
+		if (urlPattern != null) {
+			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getDesktopMode());
+			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.DESKTOP);
+		}
+
+		urlPattern = video.getWebcam();
+		if (urlPattern != null) {
+			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getWebcamMode());
+			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.WEBCAM);
+		}
+
+		urlPattern = video.getAudio();
+		if (urlPattern != null) {
+			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getAudioMode());
+			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.AUDIO);
+		}
+	}
+
+	public Map<StreamType, List<Integer>> getStreams(IContest c, ITeam team) {
+		String teamId = team.getId();
+		if (videos != null && streamMap.get(teamId) == null && isTeamOrSpare(c, team))
+			setupTeamStreams(teamId);
+		return streamMap.get(teamId);
+	}
+
+	public List<Integer> getStreams(String teamId, StreamType type) {
+		Map<StreamType, List<Integer>> map = streamMap.get(teamId);
+		if (map == null)
+			return null;
+		return map.get(type);
 	}
 
 	public void close() {
@@ -624,6 +682,10 @@ public class ConfiguredContest {
 						for (IContestObject co : objs)
 							c.add(co);
 						teamContests.put(teamId, c);
+					}
+
+					if (videos != null && !videos.isEmpty() && isTeamOrSpare(contest, team)) {
+						setupTeamStreams(team.getId());
 					}
 				}
 

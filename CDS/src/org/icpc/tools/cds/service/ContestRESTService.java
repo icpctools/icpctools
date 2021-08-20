@@ -378,14 +378,14 @@ public class ContestRESTService extends HttpServlet {
 				if (!Role.isTrusted(request) && "files".equals(url)) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
-				} else if (!Role.isTrusted(request) && "reactions".equals(url) && !contest.isBeforeFreeze(s)) {
+				} else if (!Role.isTrusted(request) && url.startsWith("reactions") && !contest.isBeforeFreeze(s)) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
 				}
 			}
 
 			if (obj instanceof ITeam) {
-				if (!Role.isTrusted(request) && ("key_log".equals(url) || "tool_data".equals(url))) {
+				if (!Role.isTrusted(request) && (url.startsWith("key_log") || url.startsWith("tool_data"))) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
 				}
@@ -401,22 +401,7 @@ public class ContestRESTService extends HttpServlet {
 				ReactionVideoRecorder.streamReaction(cc, sub, request, response);
 				return true;
 			}
-			/*VideoAggregator aggregator = null;
-			if ("desktop".equals(s))
-				aggregator = DesktopAggregator.getInstance();
-			else if ("webcam".equals(s))
-				aggregator = WebcamAggregator.getInstance();
-			else
-				return false;
 
-			int num = -1;
-			try {
-				num = Integer.parseInt(id);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			VideoServlet.doVideo(request, response, aggregator, num, false);
-			return true;*/
 			return false;
 		}
 
@@ -672,8 +657,6 @@ public class ContestRESTService extends HttpServlet {
 				co.add(key, obj.props.get(key));
 
 			contest.add(co);
-
-			writeObj(response, co);
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not add object");
 			Trace.trace(Trace.ERROR, "Could not add " + ei.type + " to contest", e);
@@ -912,6 +895,7 @@ public class ContestRESTService extends HttpServlet {
 		if (cc.isTesting()) {
 			// when in test mode just accept clarification and return dummy id
 			obj.put("id", "test-" + obj.getString("from_team_id"));
+			obj.put("contest_time", "1:23:45");
 			return obj;
 		} else if (cc.getCCS() == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");

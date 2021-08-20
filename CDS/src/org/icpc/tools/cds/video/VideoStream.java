@@ -31,24 +31,26 @@ public class VideoStream {
 		void execute(VideoStreamListener listener) throws IOException;
 	}
 
+	public enum StreamType {
+		DESKTOP, WEBCAM, AUDIO, OTHER
+	}
+
 	private String name;
-	private int order = 0;
+	private StreamType type;
+	private String teamId;
 	private String url;
 	private Status status = Status.UNKNOWN;
 	private ConnectionMode mode = ConnectionMode.LAZY;
 	private ReadThread thread;
 	private List<VideoStreamListener> listeners = new ArrayList<>(3);
 
-	public VideoStream(VideoAggregator videoAggregator, String name, String url) {
-		this(videoAggregator, name, url, 0);
-	}
-
-	public VideoStream(VideoAggregator videoAggregator, String name, String url, int order) {
+	public VideoStream(VideoAggregator videoAggregator, String name, String url, StreamType type, String teamId) {
 		this.executor = videoAggregator.executor;
 		this.handler = videoAggregator.handler;
 		this.name = name;
 		this.url = url;
-		this.order = order;
+		this.type = type;
+		this.teamId = teamId;
 	}
 
 	public String getName() {
@@ -59,16 +61,20 @@ public class VideoStream {
 		return status;
 	}
 
+	public StreamType getType() {
+		return type;
+	}
+
+	public String getTeamId() {
+		return teamId;
+	}
+
 	public Stats getStats() {
 		return stats;
 	}
 
 	public ConnectionMode getMode() {
 		return mode;
-	}
-
-	public int getOrder() {
-		return order;
 	}
 
 	public int getConnections() {

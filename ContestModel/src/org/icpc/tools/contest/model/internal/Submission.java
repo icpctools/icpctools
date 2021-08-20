@@ -59,7 +59,7 @@ public class Submission extends TimedEvent implements ISubmission {
 
 	@Override
 	public File getFiles(boolean force) {
-		return getFile(getBestFileReference(files, null), FILES, force);
+		return getFile(files.first(), FILES, force);
 	}
 
 	public FileReferenceList getFiles() {
@@ -72,7 +72,12 @@ public class Submission extends TimedEvent implements ISubmission {
 
 	@Override
 	public File getReaction(boolean force) {
-		return getFile(getBestFileReference(reaction, null), REACTION, force);
+		return getFile(reaction.first(), REACTION, force);
+	}
+
+	@Override
+	public File[] getReactions(boolean force) {
+		return getFiles(reaction, REACTION, force);
 	}
 
 	@Override
@@ -81,6 +86,14 @@ public class Submission extends TimedEvent implements ISubmission {
 			return null;
 
 		return reaction.first().href;
+	}
+
+	@Override
+	public String[] getReactionURLs() {
+		if (reaction == null || reaction.isEmpty())
+			return null;
+
+		return reaction.getHrefs();
 	}
 
 	@Override
