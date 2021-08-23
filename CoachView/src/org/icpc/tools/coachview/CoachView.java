@@ -101,6 +101,16 @@ public class CoachView extends Panel {
 		}
 	}
 
+	private static class TeamSelect {
+		int teamIndex;
+		int option;
+
+		public TeamSelect(int teamIndex, int option) {
+			this.teamIndex = teamIndex;
+			this.option = option;
+		}
+	}
+
 	private MediaPlayerFactory mediaPlayerFactory;
 	private EmbeddedMediaPlayer mediaPlayerCamera;
 	private EmbeddedMediaPlayer mediaPlayerScreen;
@@ -119,6 +129,7 @@ public class CoachView extends Panel {
 	private Choice teamList;
 	private Checkbox[] modes;
 	private ITeam[] teams;
+	private List<TeamSelect> selections;
 	private boolean showDetails = true;
 
 	private BufferedImage footerImage;
@@ -133,6 +144,7 @@ public class CoachView extends Panel {
 	private String pwd;
 
 	protected ITeam currentTeam = null;
+	protected int currentNum = -1;
 	protected IContest contest;
 	protected BufferedImage logoImg;
 
@@ -553,13 +565,33 @@ public class CoachView extends Panel {
 			return;
 
 		int sel = teamList.getSelectedIndex();
+		selections = new ArrayList<>();
 
 		teamList.removeAll();
 		teamList.add("Select a team to view");
 
 		if (teams != null) {
-			for (ITeam team : teams) {
-				teamList.add(team.getId() + ": " + team.getActualDisplayName());
+			for (int i = 0; i < teams.length; i++) {
+				ITeam team = teams[i];
+
+				int max = 1;
+				String[] s = team.getDesktopURLs();
+				if (s != null && s.length > max)
+					max = s.length;
+
+				s = team.getWebcamURLs();
+				if (s != null && s.length > max)
+					max = s.length;
+
+				if (max == 1) {
+					teamList.add(team.getId() + ": " + team.getActualDisplayName());
+					selections.add(new TeamSelect(i, 0));
+				} else {
+					for (int j = 0; j < max; j++) {
+						teamList.add(team.getId() + ": " + team.getActualDisplayName() + " (" + (j + 1) + ")");
+						selections.add(new TeamSelect(i, j));
+					}
+				}
 			}
 		}
 
@@ -631,25 +663,30 @@ public class CoachView extends Panel {
 				if (teams == null)
 					return;
 
-				int newTeamIndex = teamList.getSelectedIndex();
+				int newIndex = teamList.getSelectedIndex();
 
 				// get the team id directly in case there are any missing/skipped team ids
 				ITeam newTeam = null;
-				if (teams == null || newTeamIndex == 0 || newTeamIndex > teams.length)
+				if (teams == null || newIndex == 0 || newIndex > selections.size())
 					return;
 
-				newTeam = teams[newTeamIndex - 1];
+				TeamSelect sel = selections.get(newIndex - 1);
+				newTeam = teams[sel.teamIndex];
+				int num = sel.option;
 
 				if ((newTeam == null && currentTeam == null)
 						|| (newTeam != null && currentTeam != null && newTeam.equals(currentTeam)))
 					return;
 
-				connectToTeam(newTeam);
+				if (currentTeam == newTeam && currentNum == num)
+					return;
+
+				connectToTeam(newTeam, num);
 
 				mainPanel.repaint();
 			}
 
-			private void connectToTeam(ITeam newTeam) {
+			private void connectToTeam(ITeam newTeam, int num) {
 				if (mediaPlayerScreen != null) {
 					mediaPlayerScreen.release();
 					mediaPlayerScreen = null;
@@ -662,6 +699,7 @@ public class CoachView extends Panel {
 				}
 
 				currentTeam = newTeam;
+				currentNum = num;
 				setModeEnablement(currentTeam);
 
 				if (currentTeam == null) {
@@ -670,8 +708,12 @@ public class CoachView extends Panel {
 				}
 
 				try {
-					String webcamURL = addAuth(currentTeam.getWebcamURL());
-					String desktopURL = addAuth(currentTeam.getDesktopURL());
+					String webcamURL = null;
+					if (currentTeam.getWebcamURLs() != null && currentTeam.getWebcamURLs().length < num)
+						webcamURL = addAuth(currentTeam.getWebcamURLs()[num]);
+					String desktopURL = null;
+					if (currentTeam.getDesktopURLs() != null && currentTeam.getDesktopURLs().length < num)
+						desktopURL = addAuth(currentTeam.getDesktopURLs()[num]);
 					logoImg = null;
 
 					Trace.trace(Trace.INFO,
