@@ -10,6 +10,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -25,7 +28,12 @@ import org.icpc.tools.cds.RSSWriter;
 import org.icpc.tools.cds.presentations.PresentationFilesServlet;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.util.Role;
+import org.icpc.tools.cds.video.VideoAggregator;
+import org.icpc.tools.cds.video.VideoAggregator.Stats;
+import org.icpc.tools.cds.video.VideoStream;
+import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
@@ -33,6 +41,7 @@ import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.Validation;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
+import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
@@ -44,6 +53,14 @@ import org.icpc.tools.contest.model.util.ScoreboardUtil;
 @WebServlet(urlPatterns = { "/contests", "/contests/*" }, asyncSupported = true)
 public class ContestWebService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+
+	private static class VideoStats {
+		int numStreams;
+		int current;
+		int total;
+		int time;
+		String mode;
+	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -320,10 +337,98 @@ public class ContestWebService extends HttpServlet {
 				writer.writePostlude();
 				return;
 			} else if (segments[1].equals("video")) {
-				if (segments.length == 3 && segments[2].equals("status")) {
-					request.getRequestDispatcher("/WEB-INF/jsps/video.jsp").forward(request, response);
+				if (!isAdmin) {
+					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access only");
 					return;
 				}
+				if (segments.length == 3 && segments[2].equals("status")) {
+					response.setContentType("application/json");
+					JSONEncoder je = new JSONEncoder(response.getWriter());
+					je.open();
+
+					je.openChildArray("teams");
+					VideoAggregator va = VideoAggregator.getInstance();
+					Map<String, Map<StreamType, List<Integer>>> streamMap = cc.getStreams();
+					Map<StreamType, VideoStats> videoStats = new HashMap<>();
+
+					for (String teamId : streamMap.keySet()) {
+						Map<StreamType, List<Integer>> teamStreams = streamMap.get(teamId);
+						je.open();
+						je.encode("team_id", teamId);
+						long teamTime = 0;
+
+						for (StreamType s : teamStreams.keySet()) {
+							VideoStats vs = videoStats.get(s);
+							if (vs == null) {
+								vs = new VideoStats();
+								videoStats.put(s, vs);
+							}
+
+							je.openChild(s.toString().toLowerCase());
+							je.openChildArray("streams");
+							int time = 0;
+							int current = 0;
+							int listeners = 0;
+							List<Integer> streams = teamStreams.get(s);
+							for (Integer in : streams) {
+								je.open();
+								je.encode("id", in);
+								VideoStream stream = va.getStream(in);
+								je.encode("mode", stream.getMode().name().toLowerCase());
+								je.encode("status", stream.getStatus().name().toLowerCase());
+								Stats stats = stream.getStats();
+								je.encode("time", ContestUtil.formatTime(stats.getTotalTime()));
+								je.encode("current", stats.getCurrentListeners());
+								je.encode("total", stats.getTotalListeners());
+								time += stats.getTotalTime();
+								teamTime += stats.getTotalTime();
+								vs.time += stats.getTotalTime();
+								current += stats.getCurrentListeners();
+								vs.current += stats.getCurrentListeners();
+								listeners = stats.getTotalListeners();
+								vs.total += stats.getTotalListeners();
+								vs.mode = stream.getMode().name().toLowerCase();
+								vs.numStreams++;
+
+								je.close();
+							}
+							je.closeArray();
+							je.encode("current", current);
+							je.encode("total_listeners", listeners);
+							je.encode("total_time", ContestUtil.formatTime(time));
+							je.close();
+
+						}
+						je.encode("total_time", ContestUtil.formatTime(teamTime));
+						je.close();
+					}
+
+					je.closeArray();
+
+					int numStreams = 0;
+					for (StreamType s : videoStats.keySet()) {
+						VideoStats vs = videoStats.get(s);
+						je.openChild(s.toString().toLowerCase());
+						je.encode("num_streams", vs.numStreams);
+						numStreams += vs.numStreams;
+						je.encode("current", vs.current);
+						je.encode("total_listeners", vs.total);
+						je.encode("total_time", ContestUtil.formatTime(vs.time));
+						je.encode("mode", vs.mode);
+						je.close();
+					}
+
+					je.encode("num_streams", numStreams);
+					je.encode("current", va.getConcurrent());
+					je.encode("max_current", va.getMaxConcurrent());
+					je.encode("total_listeners", va.getTotal());
+					je.encode("total_time", ContestUtil.formatTime(va.getTotalTime()));
+					je.close();
+					return;
+				}
+
+				request.getRequestDispatcher("/WEB-INF/jsps/video.jsp").forward(request, response);
+				return;
 			} else if (segments[1].equals("reports")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/reports.jsp").forward(request, response);
 				return;

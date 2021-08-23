@@ -314,7 +314,7 @@ public class ConfiguredContest {
 			view = new View(ee);
 	}
 
-	private static boolean isTeamOrSpare(IContest contest2, ITeam team) {
+	public static boolean isTeamOrSpare(IContest contest2, ITeam team) {
 		if (team == null)
 			return false;
 
@@ -349,7 +349,7 @@ public class ConfiguredContest {
 
 		String name = type.name() + " " + teamId;
 		String url = urlPattern.replace("{0}", teamId);
-		if (!hosts.isEmpty()) {
+		if (!hosts.isEmpty() && url.contains("{host}")) {
 			for (String host : hosts) {
 				String url2 = url.replace("{host}", host);
 				in.add(va.addReservation(name + " " + host, url2, mode, type, teamId));
@@ -392,6 +392,10 @@ public class ConfiguredContest {
 			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getAudioMode());
 			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.AUDIO);
 		}
+	}
+
+	public Map<String, Map<StreamType, List<Integer>>> getStreams() {
+		return streamMap;
 	}
 
 	public Map<StreamType, List<Integer>> getStreams(IContest c, ITeam team) {

@@ -12,7 +12,7 @@
     	webroot = request.getContextPath() + "/contests/" + cc.getId();
     	apiRoot = request.getContextPath() + "/api/contests/" + cc.getId();
     }
-    String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/admin", "/video/status", "/reports"};
+    String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/admin", "/video", "/reports"};
     String[] menuTitles = {"Overview", "Details", "Registration", "Clarifications", "Submissions", "Scoreboard", "Commentary", "Admin", "Video", "Reports"};
     String[] menuIcons = {"fa-globe", "fa-info", "fa-users", "fa-comments", "fa-share", "fa-trophy", "fa-comments", "fa-user-cog", "fa-video", "fa-file-alt"};
 %>

@@ -20,37 +20,54 @@ public class VideoAggregator {
 		LAZY, EAGER, LAZY_CLOSE
 	}
 
-	public static final int MAX_STREAMS = 850; // 140 * 3 * 2 + 10
+	private static final int MAX_STREAMS = 850; // 140 * 3 * 2 + 10
 	public static final int MAX_CHANNELS = 20;
 
 	public static class Stats {
-		protected int concurrentListeners;
+		protected int currentListeners;
 		protected int maxConcurrentListeners;
 		protected int totalListeners;
 		protected long totalTime;
 
 		public void newListener() {
-			concurrentListeners++;
-			if (concurrentListeners > maxConcurrentListeners)
-				maxConcurrentListeners = concurrentListeners;
+			currentListeners++;
+			if (currentListeners > maxConcurrentListeners)
+				maxConcurrentListeners = currentListeners;
 			totalListeners++;
 
 			if (this != stats) {
 				stats.newListener();
 			} else if (totalListeners % 5 == 0) {
-				Trace.trace(Trace.INFO, "Video info [current:" + concurrentListeners + ", maxConcurrent:"
-						+ maxConcurrentListeners + ", total:" + totalListeners + "]");
+				Trace.trace(Trace.INFO, this.toString());
 			}
 		}
 
 		public void dropListener(VideoStreamListener listener) {
 			long startTime = listener.getStartTime();
 			totalTime += System.currentTimeMillis() - startTime;
-			concurrentListeners--;
+			currentListeners--;
 
 			if (this != stats) {
 				stats.dropListener(listener);
 			}
+		}
+
+		public int getCurrentListeners() {
+			return currentListeners;
+		}
+
+		public int getTotalListeners() {
+			return totalListeners;
+		}
+
+		public long getTotalTime() {
+			return totalTime;
+		}
+
+		@Override
+		public String toString() {
+			return "Video stats [current:" + currentListeners + ", maxConcurrent:" + maxConcurrentListeners + ", total:"
+					+ totalListeners + "]";
 		}
 	}
 
@@ -118,6 +135,10 @@ public class VideoAggregator {
 		Trace.trace(Trace.INFO, "Video reservation for " + name + " at " + url + " on stream " + numReserved);
 
 		return numReserved;
+	}
+
+	public int getNumStreams() {
+		return videoStreams.size();
 	}
 
 	public int getChannel(int channel) {
@@ -219,8 +240,9 @@ public class VideoAggregator {
 		if (stream < 0 || stream >= videoStreams.size())
 			return;
 
-		VideoStream info = videoStreams.get(stream);
-		info.setConnectionMode(mode);
+		VideoStream vs = videoStreams.get(stream);
+		Trace.trace(Trace.INFO, "Connection mode: " + vs.getMode() + " -> " + mode);
+		vs.setConnectionMode(mode);
 	}
 
 	public boolean removeChannelListener(int channel, VideoStreamListener listener) {
@@ -260,6 +282,7 @@ public class VideoAggregator {
 	 * @return
 	 */
 	public void reset(int stream) {
+
 		if (stream < 0 || stream >= videoStreams.size())
 			return;
 
@@ -269,7 +292,9 @@ public class VideoAggregator {
 			}
 		}
 
-		videoStreams.get(stream).reset();
+		VideoStream vs = videoStreams.get(stream);
+		Trace.trace(Trace.INFO, "Resetting stream: " + vs);
+		vs.reset();
 	}
 
 	public void reset(String teamId, StreamType type) {
@@ -297,7 +322,7 @@ public class VideoAggregator {
 	}
 
 	public int getConcurrent() {
-		return stats.concurrentListeners;
+		return stats.currentListeners;
 	}
 
 	public int getMaxConcurrent() {
