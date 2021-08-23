@@ -74,11 +74,12 @@ public class ChannelControlServlet extends HttpServlet {
 			return;
 		}
 
-		if (stream < 0 || stream >= VideoAggregator.MAX_STREAMS) {
+		VideoAggregator va = VideoAggregator.getInstance();
+		if (stream < 0 || stream >= va.getNumStreams()) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		VideoAggregator.getInstance().setChannel(channel, stream);
+		va.setChannel(channel, stream);
 	}
 }

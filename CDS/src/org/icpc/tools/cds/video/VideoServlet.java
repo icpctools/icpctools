@@ -22,16 +22,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
-// OLD (will be removed once admin page is working again
-// video/x?resetAll=true - reset all streams
-// video/x?mode=y - set connection mode to y for all teams
-// video/x/<teamId> - stream video for the given team id
-// video/x/<teamId>?reset - reset video for the given team id
-// video/x - list stream status
-// video - list status of all streams
-// where x = desktop or webcam
 
-// NEW
 // stream/x - stream x
 // stream/x?reset - reset stream x
 // stream/channel/x - stream channel x
@@ -53,13 +44,49 @@ public class VideoServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = request.getPathInfo();
-		if (path == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-			return;
-		}
 
 		boolean channel = false;
-		if (path.startsWith("/status")) {
+		if (path == null || path.equals("/") || path.isEmpty()) {
+			if (!Role.isAdmin(request)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			String actionParam = request.getParameter(ACTION);
+			if (actionParam == null) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+			StreamType streamType = null;
+			String typeParam = request.getParameter(TYPE);
+			if (typeParam != null) {
+				if ("desktop".equalsIgnoreCase(typeParam))
+					streamType = StreamType.DESKTOP;
+				else if ("webcam".equalsIgnoreCase(typeParam))
+					streamType = StreamType.WEBCAM;
+				else if ("audio".equalsIgnoreCase(typeParam))
+					streamType = StreamType.AUDIO;
+				else if ("other".equalsIgnoreCase(typeParam))
+					streamType = StreamType.OTHER;
+
+				if (streamType == null) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+			}
+			String teamParam = request.getParameter(TEAM);
+			if ("reset".equals(actionParam)) {
+				va.reset(teamParam, streamType);
+			} else {
+				ConnectionMode mode = VideoAggregator.getConnectionMode(actionParam);
+				if (mode == null) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					return;
+				}
+				va.setConnectionMode(teamParam, streamType, mode);
+			}
+
+			return;
+		} else if (path.startsWith("/status")) {
 			response.setContentType("application/json");
 			JSONEncoder je = new JSONEncoder(response.getWriter());
 			writeStatus(je);
@@ -67,45 +94,6 @@ public class VideoServlet extends HttpServlet {
 		} else if (path.startsWith("/channel")) {
 			path = path.substring(8);
 			channel = true;
-		} else if (path.startsWith("/")) {
-			path = path.substring(1);
-
-			if (path.isEmpty()) {
-				if (!Role.isBlue(request)) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-					return;
-				}
-				String actionParam = request.getParameter(ACTION);
-				if (actionParam != null) {
-					if (!Role.isAdmin(request)) {
-						response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-						return;
-					}
-
-					String typeParam = request.getParameter(TYPE);
-					StreamType streamType = StreamType.valueOf(typeParam);
-					if (typeParam != null) {
-						streamType = StreamType.valueOf(typeParam);
-						if (streamType == null) {
-							response.sendError(HttpServletResponse.SC_NOT_FOUND);
-							return;
-						}
-					}
-					String teamParam = request.getParameter(TEAM);
-					if ("reset".equals(actionParam)) {
-						va.reset(teamParam, streamType);
-					} else {
-						ConnectionMode mode = VideoAggregator.getConnectionMode(actionParam);
-						if (mode == null) {
-							response.sendError(HttpServletResponse.SC_NOT_FOUND);
-							return;
-						}
-						va.setConnectionMode(teamParam, streamType, mode);
-					}
-
-					return;
-				}
-			}
 		}
 
 		String videoId = null;
@@ -117,7 +105,7 @@ public class VideoServlet extends HttpServlet {
 			stream = Integer.parseInt(videoId);
 
 			if (!channel) {
-				if (stream < 0 || stream >= VideoAggregator.MAX_STREAMS) {
+				if (stream < 0 || stream >= va.getNumStreams()) {
 					response.sendError(HttpServletResponse.SC_NOT_FOUND);
 					return;
 				}
@@ -130,7 +118,7 @@ public class VideoServlet extends HttpServlet {
 				filename = "channel-" + stream;
 			}
 		} catch (Exception e) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 
@@ -220,16 +208,18 @@ public class VideoServlet extends HttpServlet {
 			je.encode("id", c++ + "");
 			je.encode("name", vi.getName());
 			je.encode("type", vi.getType().name());
+			je.encode("team_id", vi.getTeamId());
 			je.encode("mode", vi.getMode().name());
 			je.encode("status", vi.getStatus().name());
 			Stats s = vi.getStats();
-			je.encode("current", s.concurrentListeners);
+			je.encode("current", s.currentListeners);
 			je.encode("max_current", s.maxConcurrentListeners);
 			je.encode("total_listeners", s.totalListeners);
 			je.encode("total_time", ContestUtil.formatTime(s.totalTime));
 			je.close();
 		}
 		je.closeArray();
+
 		je.encode("current", va.getConcurrent());
 		je.encode("max_current", va.getMaxConcurrent());
 		je.encode("total_listeners", va.getTotal());

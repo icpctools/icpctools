@@ -161,8 +161,6 @@ public class VideoStream {
 	}
 
 	public void reset() {
-		Trace.trace(Trace.INFO, "Resetting video stream: " + name);
-
 		synchronized (listeners) {
 			for (VideoStreamListener listener : listeners) {
 				listener.close();
@@ -216,7 +214,6 @@ public class VideoStream {
 		if (newMode == mode)
 			return;
 
-		Trace.trace(Trace.INFO, "Connection mode: " + mode + " -> " + newMode);
 		if (newMode == ConnectionMode.LAZY && listeners.isEmpty())
 			stopThread(false);
 
