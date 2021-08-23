@@ -156,23 +156,26 @@ The supported service-defining elements and their structure and functions are de
 <contest id="id" location="path" recordReactions="false"/>
 ```
 
-The optional _id_ attribute specifies the contest id to expose, which will override any contest id used by the underlying CCS or event feed.
-If unspecified, the id will be picked up from the CCS' Contest API endpoint (e.g. 'finals' in 'http://api/contests/finals') or by the last
+The attributes associated with this element are as follows:
+
+* id: an optional _id_ specifying the contest id to expose, which will override any contest id used by the underlying CCS or event feed.
+
+  If unspecified, the id will be picked up from the CCS' Contest API endpoint (e.g. 'finals' in 'http://api/contests/finals') or by the last
 segment of the location (e.g. 'test' in 'C:\\icpc\\test').
 
-The _location_ attribute specifies the full path to a *_contest data package_* (CDP) defining the organization of the contest
+* location: specifies the full path to a *_contest data package_* (CDP) defining the organization of the contest
 (config files, logos, etc.). See the [CLI CDP specification](https://clics.ecs.baylor.edu/index.php/CDP) for details on how
 to organize a Contest Data Package. Note that _the location attribute is required_; the CDS will not 
 operate if it does not have a folder to store contest related data, even when it is empty and getting all data from the CCS.
 
-** recordReactions: an optional string ("true" or "false" [default]) instructing the CDS whether or not to record reaction videos
+* recordReactions: an optional string ("true" or "false" [default]) instructing the CDS whether or not to record reaction videos
 and make them available through the contest API.
-+
-If the value of this attribute is "true", then clients will be able to access reaction videos (60-second snippets following the moment a
+
+  If the value of this attribute is "true", then clients will be able to access reaction videos (webcam snippets following the moment a
 team sent a submission to the judges). The value of the _recordReactions_ attribute should only be set "true" if the
 _webcam_ URL template has been set and team machines are actively streaming webcam video.
 
-The optional _hidden_ attribute specifies that a contest should be hidden from contest listings unless the request is coming from
+* The optional _hidden_ attribute specifies that a contest should be hidden from contest listings unless the request is coming from
 an admin or blue user. This allows contest administrators to configure the next contest prior to broadcasting it's existence. Note
 that this is just meant to allow some configuration to happen in private, not a way to completely secure these contests.
 
@@ -213,18 +216,21 @@ not provide those) but the event feed and all other contest data will come from 
 
 The *video* element is used if your contest supports team desktop (screen), webcam, and/or audio streaming, in which case
 the CDS can make these streams available to clients.
-Also, if the contest does support team webcam streaming, then the CDS can be instructed to record "reaction videos", which are 60-second
-snippets of webcam video started at the moment a team submits a run to be judged (which, assuming the automated judging result is
-returned to the team within 60 seconds, will have the effect of capturing the team's "reaction" when they receive the judgment). 
+Also, if the contest does support team webcam streaming, then the CDS can be instructed to record "reaction videos", which are
+snippets of webcam video started at the moment a team submits a run to be judged (and should the effect of capturing the team's
+"reaction" when they receive the judgment). 
 
 The attributes associated with the *video* element are as follows:
 
 * id: an optional team id. If this is specified, the video URLs below will be configured only for the given team. If not specified then
 the video URLs will be configured for all teams.
 
-* desktop: an optional template for the URL at which the CDS should access team desktop streams. The URL template may include the characters
-_{0}_, which will be replaced with the team id by the CDS.
-For example, if each team machine was on a single /24 subnet (i.e., the first three octets of the team machine IP addresses were
+* desktop: an optional template for the URL at which the CDS should access team desktop streams. The URL template may include two substitution
+variables:
+  * "_{0}_", which will be replaced with the team id by the CDS.
+  * "_{host}_", which will be replaced by one or more host entries (see host configuration element for more details).
+
+  For example, if each team machine was on a single /24 subnet (i.e., the first three octets of the team machine IP addresses were
 all the same) and further the last octet of each team machine's IP address was the team number, then a _desktop_ attribute of the
 form _http://a.b.c.{0}:9090_ would direct the CDS to access each team's desktop at port 9090 on the machine with IP address a.b.c.X, where
 'X' was the team id (typically team number).
@@ -241,13 +247,13 @@ when the first client requests the stream and disconnect when the last client dr
 stream but will stay connected afterward, thus allowing any subsequent clients to connect faster. "Eager" will connect immediately and stay
 connected even when there are no clients - using up lots of resources, but allowing clients to always connect as fast as possible.
 
-* webcam: an optional template for the URL at which the CDS should access team webcam streams. The URL template may include the characters _{0}_,
+* webcam: an optional template for the URL at which the CDS should access team webcam streams. The URL template may include the substitution _{0}_ or _{host}_,
 which will be replaced with the team id by the CDS. See the desktop attribute for further details.
 
 * webcamMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the webcam stream.
 See the desktopMode attribute for further details.
 
-* audio: an optional template for the URL at which the CDS should access team audio streams. The URL template may include the characters _{0}_,
+* audio: an optional template for the URL at which the CDS should access team audio streams. The URL template may include the substitution _{0}_ or _{host}_,
 which will be replaced with the team id by the CDS. See the desktop attribute for further details.
 
 * audioMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the audio stream.
@@ -335,26 +341,43 @@ The attribute associated with the *user* element is as follows:
 ```
 <teamUser>
   <user name="team1" teamId="1"/>
-  <user name="steven" teamId="2" host="steven.com"/>
-  <user name="mark" teamId="2" host="10.0.0.2"/>
+  <user name="steven" teamId="2"/>
+  <user name="mark" teamId="2"/>
 </teamUser>
 ```
 
-The global *teamUser* element allows you to map a team user login to their identity (team id) within a contest. By providing
+The global *teamUser* element allows you to map a team user login (account) to their identity (team id) within a contest. By providing
 this mapping the team will be able to see all of their own judgements and clarifications in the contest. In the example above,
 there is one login for the team with id 1, and two logins for team 2.
 
-If your users are on a locked-down network with known host names or IP addresses, you can add a host attribute to enable
+If your users are on a locked-down network with known host names or IP addresses, you can also use the hosts attribute to enable
 auto-login. When this is specified any user from the given host will be automatically logged into the CDS. In order for this
 feature to work, you must be using basic authentication with the users.xml in the default location (in order for the CDS to
 look up passwords).
 
-The attribute associated with the *user* element is as follows:
+The attributes associated with the *user* element is as follows:
 
 * name: the name of a user, which must match one of the existing users.
 * teamId: the team's id within a contest.
-* host: an optional host to use for auto-login.
 
+###### hosts Element
+
+```
+<hosts>
+  <host teamId="team1" host="myhost.com"/>
+  <host host="10.0.0.{0}"/>
+</hosts>
+```
+
+The global *hosts* element allows you to map hostnames to teams, either for ease of configuring streaming video urls or auto-login.
+Each element can either specify a single team id and host to map that specific team to one machine, or omit the teamId attribute
+and use the substitution variable {0} to map all teams to a host. When using this second option, {0} will be substituted with every
+team id.
+
+The attributes associated with the *host* element is as follows:
+
+* teamId: the team's id within a contest. Do not include when using the {0} substitution variable to map all teams.
+* host: an IP address or host name.
 
 ### Starting the CDS
 
