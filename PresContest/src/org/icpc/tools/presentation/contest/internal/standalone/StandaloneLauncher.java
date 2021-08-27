@@ -124,36 +124,88 @@ public class StandaloneLauncher {
 		System.out.println();
 
 		Trace.trace(Trace.USER, "Available presentations:");
-		Trace.trace(Trace.USER, "|  # | Name | Id  | Description");
-		Trace.trace(Trace.USER, " --: | ---- | --- | ---");
+		Trace.trace(Trace.USER, "");
+
+		// set to true when generating the readme.md documentation section
+		boolean generateGFM = false;
+
+		// find the max width needed
+		int maxName = 0;
+		int maxId = 0;
+		for (PresentationInfo pw : presentations) {
+			maxName = Math.max(maxName, pw.getName().length());
+			if (pw.getId().startsWith("org.icpc.tools.presentation.contest."))
+				maxId = Math.max(maxId, pw.getId().length() - 35);
+			else
+				maxId = Math.max(maxId, pw.getId().length());
+		}
+
+		String thumb = "";
+		if (generateGFM) {
+			Trace.trace(Trace.USER,
+					"|   # | " + pad("Name", maxName) + " | " + pad("Id", maxId) + " | Thumbnails | Description");
+			Trace.trace(Trace.USER, "| --: | " + pad("----", maxName) + " | " + pad("----", maxId) + " | ---- | ----");
+		} else
+			Trace.trace(Trace.USER,
+					"   # | " + pad("Name", maxName) + " | " + pad("Id", maxId) + thumb + " | Description");
+
 		int count = 1;
 		String lastCategory = null;
 		for (PresentationInfo pw : presentations) {
 			String cat = pw.getCategory();
 			if (cat != null && !cat.equals(lastCategory)) {
-				Trace.trace(Trace.USER, cat);
+				if (generateGFM)
+					Trace.trace(Trace.USER, "| | **" + cat + "**");
+				else
+					Trace.trace(Trace.USER, cat);
 				lastCategory = cat;
 			}
 
-			StringBuilder sb = new StringBuilder("  ");
+			StringBuilder sb = new StringBuilder("");
+			if (generateGFM)
+				sb.append("| ");
+			else
+				sb.append("  ");
 			if (count < 10)
 				sb.append(" ");
 			sb.append(count + " | ");
-			sb.append(pw.getName() + " | ");
+			sb.append(pad(pw.getName(), maxName) + " | ");
+
 			if (pw.getId().startsWith("org.icpc.tools.presentation.contest."))
-				sb.append(pw.getId().substring(35));
+				sb.append(pad(pw.getId().substring(35), maxId));
 			else
-				sb.append(pw.getId());
+				sb.append(pad(pw.getId(), maxId));
+			sb.append(" | ");
+
+			if (generateGFM) {
+				if (pw.getImage() != null)
+					sb.append("![](src/" + pw.getImage() + ")");
+
+				sb.append(" | ");
+			}
+
 			if (pw.getDescription() != null) {
 				String s = pw.getDescription();
 				if (s.contains("\n"))
 					s = s.substring(0, s.indexOf("\n")) + "...";
-				sb.append(" | " + s);
+				sb.append(s);
 			}
 			Trace.trace(Trace.USER, sb.toString());
 
 			count++;
 		}
+	}
+
+	private static String pad(String s, int width) {
+		int p = width - s.length();
+		if (p <= 0)
+			return s;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(s);
+		for (int i = 0; i < p; i++)
+			sb.append(" ");
+		return sb.toString();
 	}
 
 	private static void sortPresentationsByCategory(List<PresentationInfo> presentations) {

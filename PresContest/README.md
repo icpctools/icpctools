@@ -272,123 +272,82 @@ presentations are only useful when used in conjunction with the Presentation Adm
 
 Available presentations:
 
-|  # | Name | Thumbnail | Id  | Description
- --: | ---- | ---- | --- | ---
-Beta
-   1 | Better Fireworks | ![](src/images/presentations/fireworks.png) | .better.fireworks
-   2 | Contest Floor |  | .floor | Shows the contest floor and all the teams competing
-   3 | Floor Activity |  | .old.floor | Displays the contest floor
-Chart
-   4 | Historical comparison | ![](src/images/presentations/chartTotalSubmissions.png) | .chart.historical
-   5 | Judge Queue Depth |  | .chart.queue.depth
-   6 | Judgement time | ![](src/images/presentations/chartTotalSubmissions.png) | .chart.judgement.time
-   7 | Languages | ![](src/images/presentations/chartProblem.png) | .chart.language
-   8 | Problem comparison | ![](src/images/presentations/chartProblem.png) | .chart.problem.comparison
-   9 | Problem detail | ![](src/images/presentations/chartProblem.png) | .chart.problem.detail
-  10 | Problem summary | ![](src/images/presentations/chartProblems.png) | .chart.problem.summary | Shows attempts, solutions, and fastest solution time for each problem.
-  11 | Scoreboard | ![](src/images/presentations/chartScoreboard.png) | .chart.score | Shows position of contest leaders through the contest.
-  12 | Total Problems | ![](src/images/presentations/chartTotalSubmissions.png) | .chart.total.problems
-Clock
-  13 | Contest clock | ![](src/images/presentations/clock.png) | .clock | The contest time remaining.
-  14 | Countdown | ![](src/images/presentations/clockCountdown.png) | .countdown | A countdown clock for start and end of a contest.
-  15 | Polar countdown | ![](src/images/presentations/clockPolar.png) | .polar | A polar countdown clock for start and end of a contest.
-Fun
-  16 | Bill Poucher | ![](src/images/presentations/bill.png) | .bill | The venerable ICPC Executive Director.
-  17 | Do not touch anything | ![](src/images/presentations/doNotTouch.png) | .doNotTouch | A pre-contest message from the ICPC World Finals Systems Director.
-  18 | Fireworks | ![](src/images/presentations/fireworks.png) | .fireworks
-  19 | Mohamed Fouad | ![](src/images/presentations/mohamed.png) | .mohamed
-ICPC
-  20 | Balloon Path | ![](src/images/presentations/balloonPath.png) | .balloon.path | Contest floor showing moving submissions and balloons
-  21 | Commentary |  | .commentary | Displays contest commentary.
-  22 | Fading Logos | ![](src/images/presentations/logos.png) | .org.logo.fade | Shows the logos of all organizations by fading between them
-  23 | Logo Wall | ![](src/images/presentations/logos.png) | .org.logo.wall | Shows all organization logos
-  24 | Photo and caption | ![](src/images/presentations/photo.png) | .single.photo | The photo at CDP/present/photo.jpg and an optional message.
-  25 | Photos | ![](src/images/presentations/photos.png) | .photos | A rotating set of photos found in CDP/present/photos/.
-  26 | Problem Colours | ![](src/images/presentations/problemColors.png) | .problems.colors | The problem colors
-  27 | Problem summary | ![](src/images/presentations/problems.png) | .problem.summary
-  28 | Single Team |  | .team | A team photo and name.
-  29 | Sliding Logos | ![](src/images/presentations/logos.png) | .org.logo.slide | Slides the logos of all organizations
-  30 | Staff | ![](src/images/presentations/staff.png) | .staff | ICPC staff titles
-Logos and Messages
-  31 | CCS | ![](src/images/presentations/ccs.png) | .ccs | The primary (and optional shadow) CCS images found in CDP/present/ccs/primary.png and shadow.png.
-  32 | ICPC Tools | ![](src/images/presentations/icpcTools.png) | .icpc.tools | The ICPC Tools logo
-  33 | Image progression | ![](src/images/presentations/logoB.png) | .imagebuild | Fades through a set of images in progression (CDP/present/path*).
-  34 | Logo A | ![](src/images/presentations/logoA.png) | .logo | Displays the contest logo (CDP/present/logoA*.png).
-  35 | Logo B | ![](src/images/presentations/logoB.png) | .logo2 | Displays the contest logo (CDP/present/logoB*.png).
-  36 | Message | ![](src/images/presentations/message.png) | .message | A message and contest banner.
-  37 | Promotions | ![](src/images/presentations/promo.png) | .promo | A rotating set of promotional images found in CDP/present/promo/.
-Maps
-  38 | Group | ![](src/images/presentations/world.png) | .map.group | Shows where groups are from on a map.
-  39 | Submissions | ![](src/images/presentations/worldJudge.png) | .map.balloon | A world map with team submissions coming from their location
-  40 | Team Intro | ![](src/images/presentations/world.png) | .map.team | Steps through all teams on a map.
-  41 | World | ![](src/images/presentations/world.png) | .map.world | Map of the world.
-Scoreboard
-  42 | All Groups leaderboard | ![](src/images/presentations/allGroups.png) | .leaderboard.group.all
-  43 | First solution | ![](src/images/presentations/firstSolution.png) | .first.solution | Tracks the first solution in the contest.
-  44 | First to solve | ![](src/images/presentations/firstToSolve.png) | .first.to.solve | Shows which team was the first to solve each problem.
-  45 | Group leaderboard | ![](src/images/presentations/groupLeaderboard.png) | .leaderboard.group
-  46 | Judge queue | ![](src/images/presentations/judgeQueue.png) | .judge | The judgement queue. Shows all incoming submissions and the judgement.
-  47 | Leaderboard | ![](src/images/presentations/leaderboard.png) | .leaderboard
-  48 | Scoreboard | ![](src/images/presentations/scoreboard.png) | .scoreboard | The current contest standings.
-  49 | Team Judgements | ![](src/images/presentations/teamJudgeQueue.png) | .judge.team | A team judgement queue. Shows all incoming submissions and the judgement.
-  50 | Timeline | ![](src/images/presentations/scoreboardTimeline.png) | .scoreboard.timeline
-Team
-  51 | Desktop |  | .icpc.team | Team machine desktop display. Shows the team logo and name.
-  52 | Logo |  | .icpc.logo | The ICPC identifier.
-  53 | Snake |  | .icpc.team.snake | Wave based on team labels
-  54 | Sync |  | .icpc.sync | Flashing ICPC in sync.
-  55 | Video test |  | .icpc.team.video | A tool to verify video.
-  56 | Wave |  | .icpc.team.wave | Do the wave!
-Test
-  57 | Alignment | ![](src/images/presentations/testAlign.png) | .test.align | A grid to help with projector alignment.
-  58 | BSoD | ![](src/images/presentations/testBSoD.png) | .test.bsod | A special hello from the other Bill
-  59 | Chart | ![](src/images/presentations/testChart.png) | .test.chart | A test chart
-  60 | Clock | ![](src/images/presentations/testClock.png) | .test.clock | The current system time on the presentation machine.
-  61 | FPS | ![](src/images/presentations/testFPS.png) | .test.fps | A frame rate guage
-  62 | Synchronization | ![](src/images/presentations/testSync.png) | .test.sync | A moving ball to test synchronization of the system clock.
-Tile Scoreboards
-  63 | Team scoreboard |  | .tile.team | Team picture with overlayed scoreboard tile
-  64 | Tile list | ![](src/images/presentations/tile2.png) | .tile.scoreboard.list | A contest scoreboard listed alphabetically by team
-  65 | Tile rank | ![](src/images/presentations/tileRank.png) | .tile.scoreboard.rank | A ranked contest scoreboard
-  66 | Tiles | ![](src/images/presentations/tile.png) | .tile.scoreboard | The current contest standings.
-
-
-
-## Team Clients
-
-At some contests you may want to run a presentation client on every team machine. If you just want to display static or common
-content like the contest logo you can do this with the standalone client, e.g.:
-
-```
-  standalone.bat https://contestSource user pwd --p logo
-```
-
-If you want to run more interesting presentations or control from the admin, use the admin-controlled client with the special id 'team':
-
-```
-  client.sh https://contestDataServer user pwd --name team
-```
-
-This will start a client that understands which team it is running on, and can display team-specific presentations. A good
-example is the "team desktop" presentation, which shows the team's logo and name, contest logo, and contest time.
-
-The client decides which team machine it is running on by checking the following sources:
-
- | Source | Example
- | --- | ---
- | team-id environment variable | 47
- | team-id system property (would require changing the script) | 47
- | end of host name | teamnum47
- | end of host address | 195.13.4.47
-
-The first source that correctly resolves into a number is used. All of the examples above resolve to team id 47.
-
-## Additional Notes
-
-The Presentation System is written in Java and will run on any platform supporting Java Version 8 or greater.
-However, it makes heavy use of screen-level graphics and is therefore heavily dependent on the
-graphics drivers on the platform.
-In our experience, Linux graphics drivers tend to be substantially less robust than others;
-we have had much better success running the Presentation components
-on Windows and Mac platforms.
-Your mileage may vary (substantially).
+|   # | Name                   | Id                        | Thumbnails | Description
+| --: | ----                   | ----                      | ---- | ----
+| | **Beta**
+|  1 | Better Fireworks       | .better.fireworks         | ![](src/images/presentations/fireworks.png) | 
+|  2 | Contest Floor          | .floor                    |  | Shows the contest floor and all the teams competing
+|  3 | Floor Activity         | .old.floor                |  | Displays the contest floor
+| | **Chart**
+|  4 | Historical comparison  | .chart.historical         | ![](src/images/presentations/chartTotalSubmissions.png) | 
+|  5 | Judge Queue Depth      | .chart.queue.depth        |  | 
+|  6 | Judgement time         | .chart.judgement.time     | ![](src/images/presentations/chartTotalSubmissions.png) | 
+|  7 | Languages              | .chart.language           | ![](src/images/presentations/chartProblem.png) | 
+|  8 | Problem comparison     | .chart.problem.comparison | ![](src/images/presentations/chartProblem.png) | 
+|  9 | Problem detail         | .chart.problem.detail     | ![](src/images/presentations/chartProblem.png) | 
+| 10 | Problem summary        | .chart.problem.summary    | ![](src/images/presentations/chartProblems.png) | Shows attempts, solutions, and fastest solution time for each problem.
+| 11 | Scoreboard             | .chart.score              | ![](src/images/presentations/chartScoreboard.png) | Shows position of contest leaders through the contest.
+| 12 | Total Problems         | .chart.total.problems     | ![](src/images/presentations/chartTotalSubmissions.png) | 
+| | **Clock**
+| 13 | Contest clock          | .clock                    | ![](src/images/presentations/clock.png) | The contest time remaining.
+| 14 | Countdown              | .countdown                | ![](src/images/presentations/clockCountdown.png) | A countdown clock for start and end of a contest.
+| 15 | Polar countdown        | .polar                    | ![](src/images/presentations/clockPolar.png) | A polar countdown clock for start and end of a contest.
+| | **Fun**
+| 16 | Bill Poucher           | .bill                     | ![](src/images/presentations/bill.png) | The venerable ICPC Executive Director.
+| 17 | Do not touch anything  | .doNotTouch               | ![](src/images/presentations/doNotTouch.png) | A pre-contest message from the ICPC World Finals Systems Director.
+| 18 | Fireworks              | .fireworks                | ![](src/images/presentations/fireworks.png) | 
+| 19 | Mohamed Fouad          | .mohamed                  | ![](src/images/presentations/mohamed.png) | 
+| | **ICPC**
+| 20 | Balloon Path           | .balloon.path             | ![](src/images/presentations/balloonPath.png) | Contest floor showing moving submissions and balloons
+| 21 | Commentary             | .commentary               |  | Displays contest commentary.
+| 22 | Fading Logos           | .org.logo.fade            | ![](src/images/presentations/logos.png) | Shows the logos of all organizations by fading between them
+| 23 | Logo Wall              | .org.logo.wall            | ![](src/images/presentations/logos.png) | Shows all organization logos
+| 24 | Photo and caption      | .single.photo             | ![](src/images/presentations/photo.png) | The photo at CDP/present/photo.jpg and an optional message.
+| 25 | Photos                 | .photos                   | ![](src/images/presentations/photos.png) | A rotating set of photos found in CDP/present/photos/.
+| 26 | Problem Colours        | .problems.colors          | ![](src/images/presentations/problemColors.png) | The problem colors
+| 27 | Problem summary        | .problem.summary          | ![](src/images/presentations/problems.png) | 
+| 28 | Single Team            | .team                     |  | A team photo and name.
+| 29 | Sliding Logos          | .org.logo.slide           | ![](src/images/presentations/logos.png) | Slides the logos of all organizations
+| 30 | Staff                  | .staff                    | ![](src/images/presentations/staff.png) | ICPC staff titles
+| | **Logos and Messages**
+| 31 | CCS                    | .ccs                      | ![](src/images/presentations/ccs.png) | The primary (and optional shadow) CCS images found in CDP/present/ccs/primary.png and shadow.png.
+| 32 | ICPC Tools             | .icpc.tools               | ![](src/images/presentations/icpcTools.png) | The ICPC Tools logo
+| 33 | Image progression      | .imagebuild               | ![](src/images/presentations/logoB.png) | Fades through a set of images in progression (CDP/present/path*).
+| 34 | Logo A                 | .logo                     | ![](src/images/presentations/logoA.png) | Displays the contest logo (CDP/present/logoA*.png).
+| 35 | Logo B                 | .logo2                    | ![](src/images/presentations/logoB.png) | Displays the contest logo (CDP/present/logoB*.png).
+| 36 | Message                | .message                  | ![](src/images/presentations/message.png) | A message and contest banner.
+| 37 | Promotions             | .promo                    | ![](src/images/presentations/promo.png) | A rotating set of promotional images found in CDP/present/promo/.
+| | **Maps**
+| 38 | Group                  | .map.group                | ![](src/images/presentations/world.png) | Shows where groups are from on a map.
+| 39 | Submissions            | .map.balloon              | ![](src/images/presentations/worldJudge.png) | A world map with team submissions coming from their location
+| 40 | Team Intro             | .map.team                 | ![](src/images/presentations/world.png) | Steps through all teams on a map.
+| 41 | World                  | .map.world                | ![](src/images/presentations/world.png) | Map of the world.
+| | **Scoreboard**
+| 42 | All Groups leaderboard | .leaderboard.group.all    | ![](src/images/presentations/allGroups.png) | 
+| 43 | First solution         | .first.solution           | ![](src/images/presentations/firstSolution.png) | Tracks the first solution in the contest.
+| 44 | First to solve         | .first.to.solve           | ![](src/images/presentations/firstToSolve.png) | Shows which team was the first to solve each problem.
+| 45 | Group leaderboard      | .leaderboard.group        | ![](src/images/presentations/groupLeaderboard.png) | 
+| 46 | Judge queue            | .judge                    | ![](src/images/presentations/judgeQueue.png) | The judgement queue. Shows all incoming submissions and the judgement.
+| 47 | Leaderboard            | .leaderboard              | ![](src/images/presentations/leaderboard.png) | 
+| 48 | Scoreboard             | .scoreboard               | ![](src/images/presentations/scoreboard.png) | The current contest standings.
+| 49 | Team Judgements        | .judge.team               | ![](src/images/presentations/teamJudgeQueue.png) | A team judgement queue. Shows all incoming submissions and the judgement.
+| 50 | Timeline               | .scoreboard.timeline      | ![](src/images/presentations/scoreboardTimeline.png) | 
+| | **Team**
+| 51 | Desktop                | .icpc.team                |  | Team machine desktop display. Shows the team logo and name.
+| 52 | Logo                   | .icpc.logo                |  | The ICPC identifier.
+| 53 | Snake                  | .icpc.team.snake          |  | Wave based on team labels
+| 54 | Sync                   | .icpc.sync                |  | Flashing ICPC in sync.
+| 55 | Video test             | .icpc.team.video          |  | A tool to verify video.
+| 56 | Wave                   | .icpc.team.wave           |  | Do the wave!
+| | **Test**
+| 57 | Alignment              | .test.align               | ![](src/images/presentations/testAlign.png) | A grid to help with projector alignment.
+| 58 | BSoD                   | .test.bsod                | ![](src/images/presentations/testBSoD.png) | A special hello from the other Bill
+| 59 | Chart                  | .test.chart               | ![](src/images/presentations/testChart.png) | A test chart
+| 60 | Clock                  | .test.clock               | ![](src/images/presentations/testClock.png) | The current system time on the presentation machine.
+| 61 | FPS                    | .test.fps                 | ![](src/images/presentations/testFPS.png) | A frame rate guage
+| 62 | Synchronization        | .test.sync                | ![](src/images/presentations/testSync.png) | A moving ball to test synchronization of the system clock.
+| | **Tile Scoreboards**
+| 63 | Team scoreboard        | .tile.team                |  | Team picture with overlayed scoreboard tile
+| 64 | Tile list              | .tile.scoreboard.list     | ![](src/images/presentations/tile2.png) | A contest scoreboard listed alphabetically by team
+| 65 | Tile rank              | .tile.scoreboard.rank     | ![](src/images/presentations/tileRank.png) | A ranked contest scoreboard
+| 66 | Tiles                  | .tile.scoreboard          | ![](src/images/presentations/tile.png) | The current contest standings.
