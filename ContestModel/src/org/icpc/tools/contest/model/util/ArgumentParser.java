@@ -28,6 +28,12 @@ public class ArgumentParser {
 		public void showHelp();
 	}
 
+	public static class Source {
+		public String[] src;
+		public String user;
+		public String password;
+	}
+
 	/**
 	 * Confirms that there were no arguments for the given option, and prints a consistent message
 	 * if not.
@@ -113,15 +119,31 @@ public class ArgumentParser {
 		Trace.trace(Trace.INFO, "Option found: " + option + " " + sb.toString());
 	}
 
-	private static ContestSource[] parseSource(List<Object> args) {
-		ContestSource[] source = null;
+	private static Source parseMultiSource(String source, String user, String password) throws IOException {
+		if (source == null)
+			throw new IOException("No contest source");
+
+		String[] ss = source.split("&");
+		Source cs = new Source();
+		cs.src = new String[ss.length];
+		for (int i = 0; i < ss.length; i++) {
+			cs.src[i] = ss[i];
+			cs.user = user;
+			cs.password = password;
+		}
+
+		return cs;
+	}
+
+	private static Source parseSource(List<Object> args) {
+		Source source = null;
 		try {
 			if (args.size() == 3) {
 				expectOptions("Contest source", args, "url:string", "user:string", "password:string");
-				source = ContestSource.parseMultiSource((String) args.get(0), (String) args.get(1), (String) args.get(2));
+				source = parseMultiSource((String) args.get(0), (String) args.get(1), (String) args.get(2));
 			} else if (args.size() == 1) {
 				expectOptions("Contest source", args, "url:string");
-				source = ContestSource.parseMultiSource((String) args.get(0));
+				source = parseMultiSource((String) args.get(0), null, null);
 			} else
 				Trace.trace(Trace.ERROR, "Invalid contest source");
 		} catch (IOException e) {
@@ -132,7 +154,7 @@ public class ArgumentParser {
 		return source;
 	}
 
-	private static ContestSource[] setOption(OptionParser parser, String option, List<Object> list)
+	private static Source setOption(OptionParser parser, String option, List<Object> list)
 			throws IllegalArgumentException {
 		if (option == null) {
 			if (!list.isEmpty())
@@ -163,10 +185,26 @@ public class ArgumentParser {
 	 * @throws IllegalArgumentException
 	 */
 	public static ContestSource parse(String[] args, OptionParser parser) throws IllegalArgumentException {
-		ContestSource[] cs = parseMulti(args, parser);
-		if (cs == null || cs.length == 0)
+		return parseMulti(args, parser)[0];
+	}
+
+	private static ContestSource[] convertMulti(Source source) {
+		if (source == null)
 			return null;
-		return cs[0];
+
+		try {
+			int size = source.src.length;
+			ContestSource[] cs = new ContestSource[size];
+			for (int i = 0; i < size; i++)
+				cs[i] = ContestSource.parseSource(source.src[i], source.user, source.password);
+
+			return cs;
+		} catch (IOException e) {
+			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
+			System.exit(1);
+		}
+		return null;
+
 	}
 
 	/**
@@ -187,11 +225,15 @@ public class ArgumentParser {
 	 * @throws IllegalArgumentException
 	 */
 	public static ContestSource[] parseMulti(String[] args, OptionParser parser) throws IllegalArgumentException {
+		return convertMulti(parseSource(args, parser));
+	}
+
+	public static Source parseSource(String[] args, OptionParser parser) throws IllegalArgumentException {
 		if (args == null || args.length == 0)
 			return null;
 
 		List<String> used = new ArrayList<String>();
-		ContestSource[] source = null;
+		Source source = null;
 		try {
 			String option = null;
 			List<Object> list = new ArrayList<>(2);
@@ -208,7 +250,7 @@ public class ArgumentParser {
 						throw new IllegalArgumentException("Duplicate option " + s);
 					used.add(s);
 
-					ContestSource[] cs = setOption(parser, option, list);
+					Source cs = setOption(parser, option, list);
 					if (cs != null)
 						source = cs;
 
@@ -258,7 +300,7 @@ public class ArgumentParser {
 				}
 			}
 
-			ContestSource[] cs = setOption(parser, option, list);
+			Source cs = setOption(parser, option, list);
 			if (cs != null)
 				source = cs;
 

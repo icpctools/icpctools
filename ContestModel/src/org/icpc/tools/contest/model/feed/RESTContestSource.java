@@ -1,10 +1,8 @@
 package org.icpc.tools.contest.model.feed;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,31 +12,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Enumeration;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -51,11 +36,15 @@ import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
-import org.icpc.tools.contest.model.feed.LinkParser.ILinkListener;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.Info;
 
+/**
+ * A REST contest source for loading a contest over HTTP. The contest may be backed by data in a
+ * local folder (and additional contest files will be stored here), otherwise data will be cached
+ * in a temp folder.
+ */
 public class RESTContestSource extends DiskContestSource {
 	protected static final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
 	static {
@@ -79,60 +68,8 @@ public class RESTContestSource extends DiskContestSource {
 	private int contestSizeBeforeFeed;
 	private boolean isCDS;
 
-	// Based on https://stackoverflow.com/a/11024200
-	static class Version implements Comparable<Version> {
-		private String version;
-
-		public Version(String version) {
-			if (version == null)
-				throw new IllegalArgumentException("Version can not be null");
-			if (!version.matches("[0-9]+(\\.[0-9]+)*"))
-				throw new IllegalArgumentException("Invalid version format");
-			this.version = version;
-		}
-
-		@Override
-		public int compareTo(Version that) {
-			if (that == null)
-				return 1;
-			String[] thisParts = this.version.split("\\.");
-			String[] thatParts = that.version.split("\\.");
-			int length = Math.max(thisParts.length, thatParts.length);
-			for (int i = 0; i < length; i++) {
-				int thisPart = i < thisParts.length ? Integer.parseInt(thisParts[i]) : 0;
-				int thatPart = i < thatParts.length ? Integer.parseInt(thatParts[i]) : 0;
-				if (thisPart < thatPart)
-					return -1;
-				if (thisPart > thatPart)
-					return 1;
-			}
-			return 0;
-		}
-
-		@Override
-		public boolean equals(Object that) {
-			if (this == that)
-				return true;
-			if (that == null)
-				return false;
-			if (!(that instanceof Version))
-				return false;
-			return compareTo((Version) that) == 0;
-		}
-
-		@Override
-		public String toString() {
-			return version;
-		}
-
-		@Override
-		public int hashCode() {
-			return version.hashCode();
-		}
-	}
-
 	/**
-	 * Creates a REST contest source with a local caching policy.
+	 * Creates a REST contest source with local (temp) caching.
 	 *
 	 * @param url
 	 * @param user
@@ -140,77 +77,50 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws MalformedURLException
 	 */
 	public RESTContestSource(String url, String user, String password) throws MalformedURLException {
-		super(url);
-
-		this.url = new URL(url);
-
-		if (user != null && user.trim().length() > 0)
-			this.user = user;
-
-		if (password != null && password.trim().length() > 0)
-			this.password = password;
-
-		instance = this;
-
-		validateURL();
-		setup();
-
-		// store temporary events cache in log folder
-		File logFolder = new File("logs");
-		if (!logFolder.exists())
-			logFolder.mkdir();
-		feedCacheFile = new File(logFolder, "events-" + contestId + "-" + user + ".log");
-		if (feedCacheFile.exists()) {
-			// delete if older than 8h
-			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
-				feedCacheFile.delete();
-			}
-		}
+		this(null, null, url, user, password);
 	}
 
 	/**
-	 * Creates a REST contest source from a local event feed file, with no local caching policy.
+	 * Creates a contest source from a local event feed file, with ability to load absolute
+	 * references, with local temp caching.
 	 *
-	 * @param url
+	 * @param eventFeedFile
 	 * @param user
 	 * @param password
 	 * @throws MalformedURLException
 	 */
-	public RESTContestSource(File feedFile, String user, String password) {
-		super(feedFile.getAbsolutePath());
-
-		this.feedFile = feedFile;
-
-		if (user != null && user.trim().length() > 0)
-			this.user = user;
-
-		if (password != null && password.trim().length() > 0)
-			this.password = password;
-
-		instance = this;
+	public RESTContestSource(File eventFeedFile, String user, String password) throws MalformedURLException {
+		this(eventFeedFile, null, user, password);
 	}
 
 	/**
-	 * Creates a REST contest source backed by a local contest archive.
+	 * Creates a REST contest source backed by a local contest archive format folder.
 	 *
+	 * @param folder
 	 * @param url
 	 * @param user
 	 * @param password
 	 * @param folder
 	 */
-	public RESTContestSource(String url, String user, String password, File folder) throws MalformedURLException {
-		super(folder, false);
+	public RESTContestSource(File folder, String url, String user, String password) throws MalformedURLException {
+		this(null, folder, url, user, password);
+	}
+
+	/**
+	 * General purpose constructor for a REST contest source. Usually only one of the eventFeedFile
+	 * and folder are used. URL is only optional if you already have a local contest cached and only
+	 * want the ability to load absolute file references.
+	 */
+	private RESTContestSource(File eventFeedFile, File folder, String url, String user, String password)
+			throws MalformedURLException {
+		super(eventFeedFile, folder, url);
 
 		this.url = new URL(url);
 
-		if (user == null || user.trim().length() == 0)
-			this.user = null;
-		else
+		if (user != null && user.trim().length() > 0)
 			this.user = user;
 
-		if (password == null || password.trim().length() == 0)
-			this.password = null;
-		else
+		if (password != null && password.trim().length() > 0)
 			this.password = password;
 
 		instance = this;
@@ -218,11 +128,13 @@ public class RESTContestSource extends DiskContestSource {
 		validateURL();
 		setup();
 
-		feedCacheFile = new File("events-" + contestId + "-" + user + ".log");
-		if (feedCacheFile.exists()) {
-			// delete if older than 6h
-			if (feedCacheFile.lastModified() < System.currentTimeMillis() - 6 * 60 * 60 * 1000)
+		if (eventFeedFile == null) {
+			feedCacheFile = new File(cacheFolder, "events.log");
+
+			// delete if older than 8h
+			if (feedCacheFile.exists() && feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
 				feedCacheFile.delete();
+			}
 		}
 	}
 
@@ -297,10 +209,6 @@ public class RESTContestSource extends DiskContestSource {
 
 	public String getPassword() {
 		return password;
-	}
-
-	public String getAuth() throws UnsupportedEncodingException {
-		return Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
 	}
 
 	/**
@@ -510,39 +418,11 @@ public class RESTContestSource extends DiskContestSource {
 			if (file == null || !file.exists())
 				return null;
 
-			final List<String> list = new ArrayList<>();
-
-			// We need to remove the doctype from the file, if it has any
-			InputStream fs = new FileInputStream(file);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(fs));
-			StringBuilder sb = new StringBuilder();
-			String line;
-
-			do {
-				line = reader.readLine();
-				if (line != null && !line.startsWith("<!doctype")) {
-					sb.append(line).append("\n");
-				}
-			} while (line != null);
-
-			String contents = sb.toString();
-
-			LinkParser.parse(new ILinkListener() {
-				@Override
-				public void linkFound(String s) {
-					list.add(s);
-				}
-			}, new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)));
-
-			return list.toArray(new String[0]);
+			return LinkParser.parse(file);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading filenames", e);
 		}
 		return null;
-	}
-
-	public URI getRootURI(String protocol, String path) throws URISyntaxException {
-		return new URI(protocol, null, url.getHost(), url.getPort(), path, null, null);
 	}
 
 	private String getLastCachedEventId() throws Exception {
@@ -1336,173 +1216,13 @@ public class RESTContestSource extends DiskContestSource {
 		return previous;
 	}
 
-	private static Class<?> getCallerClass() {
-		try {
-			StackTraceElement[] stes = Thread.currentThread().getStackTrace();
-			for (int i = 1; i < stes.length; i++) {
-				String className = stes[i].getClassName();
-				if (className.indexOf("RESTContestSource") < 0) {
-					return Class.forName(className);
-				}
-			}
-			return null;
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	private static String getVersion(String ver) {
-		if (ver == null)
-			return "dev";
-		return ver;
-	}
-
-	private static String getVersion() {
-		Class<?> c = getCallerClass();
-		Package pack = c.getPackage();
-		String spec = pack.getSpecificationVersion();
-		String impl = pack.getImplementationVersion();
-		if (spec == null && impl == null)
-			try {
-				java.util.Properties prop = new java.util.Properties();
-				prop.load(c.getResourceAsStream("/META-INF/MANIFEST.MF"));
-				spec = prop.getProperty("Specification-Version");
-				impl = prop.getProperty("Implementation-Version");
-			} catch (Exception e) {
-				// ignore
-			}
-
-		return getVersion(spec) + "." + getVersion(impl);
-	}
-
-	/**
-	 * This method will only work when the remote server is a CDS!
-	 *
-	 * Checks for existence of a specific zip file pattern on the server. If one or more exist, the
-	 * newest copy's version will be compared with the local version. If the remote version is
-	 * newer, it will be downloaded to the /update folder, and the process will exit with code 254.
-	 * The calling script must support replacing the folders contents with the update and
-	 * restarting.
-	 *
-	 * @param prefix the file pattern, e.g. "presentations-".
-	 */
-	public void checkForUpdates(String prefix) {
-		if (!isCDS())
-			return;
-
-		try {
-			// remove any previous updates
-			File updateDir = new File("update");
-			if (updateDir.exists()) {
-				Files.walkFileTree(updateDir.toPath(), new SimpleFileVisitor<Path>() {
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-						Files.delete(file);
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-						Files.delete(dir);
-						return FileVisitResult.CONTINUE;
-					}
-				});
-			}
-
-			// check on CDS for which versions are available
-			String[] files = getDirectory("/presentation");
-			List<Version> presVersions = new ArrayList<>();
-			if (files != null && files.length > 0)
-				for (String f : files) {
-					if (f.startsWith(prefix) && f.endsWith(".zip")) {
-						String version = f.substring(prefix.length(), f.length() - 4);
-						presVersions.add(new Version(version));
-					}
-				}
-
-			Trace.trace(Trace.INFO, "Updates found on CDS: " + presVersions.size());
-			if (presVersions.size() > 0) {
-				// pick latest version and compare with local
-				presVersions.sort((s1, s2) -> -s1.compareTo(s2));
-				String localVersionString = getVersion();
-				Version remoteVersion = presVersions.get(0);
-				Trace.trace(Trace.INFO,
-						"Version check: " + localVersionString + " (local) vs " + remoteVersion + " (remote)");
-				if (localVersionString.contains("dev"))
-					return;
-
-				Version localVersion = new Version(localVersionString);
-				if (localVersion.compareTo(remoteVersion) < 0) {
-					// download and unzip new version, restart
-					Trace.trace(Trace.USER,
-							"Newer version found on CDS (" + remoteVersion + "). Downloading and restarting...");
-					File f = getFile("/presentation/" + prefix + remoteVersion + ".zip");
-
-					// unzip to /update
-					unzip(f, updateDir);
-
-					System.exit(254);
-				}
-			}
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Failure while checking for updates", e);
-		}
-	}
-
-	private static void unzip(File zipFile2, File folder) throws IOException {
-		ZipFile zipFile = new ZipFile(zipFile2);
-		Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
-		boolean commonRootFolder = true;
-		String rootFolder = null;
-		while (zipEntries.hasMoreElements()) {
-			ZipEntry zipEntry = zipEntries.nextElement();
-			String name = zipEntry.getName();
-			int ind = name.indexOf("/");
-			if (ind < 0) {
-				commonRootFolder = false;
-				break;
-			}
-			name = name.substring(ind + 1);
-			if (rootFolder == null)
-				rootFolder = name;
-			else if (!name.equals(rootFolder)) {
-				commonRootFolder = false;
-				break;
-			}
-		}
-
-		zipFile = new ZipFile(zipFile2);
-		zipEntries = zipFile.entries();
-		while (zipEntries.hasMoreElements()) {
-			ZipEntry zipEntry = zipEntries.nextElement();
-
-			if (!zipEntry.isDirectory()) {
-				String name = zipEntry.getName();
-				if (commonRootFolder)
-					name = name.substring(rootFolder.length() + 1);
-				File f = new File(folder, name);
-				if (!f.getParentFile().exists())
-					f.getParentFile().mkdirs();
-				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f));
-				BufferedInputStream bin = new BufferedInputStream(zipFile.getInputStream(zipEntry));
-				byte[] b = new byte[1024 * 8];
-				int n = bin.read(b);
-				while (n != -1) {
-					out.write(b, 0, n);
-					n = bin.read(b);
-				}
-
-				out.close();
-				bin.close();
-				f.setLastModified(zipEntry.getTime());
-				if (f.getName().endsWith(".sh") || f.getName().endsWith(".bat"))
-					f.setExecutable(true, false);
-			}
-		}
-	}
-
 	public boolean isCDS() {
 		return isCDS;
+	}
+
+	public void checkForUpdates(String prefix) {
+		CDSUtil util = new CDSUtil(url.getProtocol() + "://" + url.getAuthority(), user, password);
+		util.checkForUpdates(prefix);
 	}
 
 	@Override

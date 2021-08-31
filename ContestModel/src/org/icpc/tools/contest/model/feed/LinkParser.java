@@ -1,7 +1,15 @@
 package org.icpc.tools.contest.model.feed;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -52,5 +60,33 @@ public class LinkParser {
 		} catch (XMLStreamException e) {
 			throw new IOException("Error reading xml", e);
 		}
+	}
+
+	public static String[] parse(File file) throws IOException {
+		final List<String> list = new ArrayList<>();
+
+		// We need to remove the doctype from the file, if it has any
+		InputStream fs = new FileInputStream(file);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(fs));
+		StringBuilder sb = new StringBuilder();
+		String line;
+
+		do {
+			line = reader.readLine();
+			if (line != null && !line.startsWith("<!doctype")) {
+				sb.append(line).append("\n");
+			}
+		} while (line != null);
+
+		String contents = sb.toString();
+
+		LinkParser.parse(new ILinkListener() {
+			@Override
+			public void linkFound(String s) {
+				list.add(s);
+			}
+		}, new ByteArrayInputStream(contents.getBytes(StandardCharsets.UTF_8)));
+
+		return list.toArray(new String[0]);
 	}
 }

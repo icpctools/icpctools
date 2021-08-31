@@ -5,7 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,12 +124,6 @@ public class BasicClient {
 	}
 
 	class AuthorizationConfigurator extends Configurator {
-		private final String auth;
-
-		public AuthorizationConfigurator(String auth) {
-			this.auth = auth;
-		}
-
 		@Override
 		public void beforeRequest(Map<String, List<String>> headers) {
 			headers.put("Authorization", Arrays.asList("Basic " + auth));
@@ -153,7 +149,9 @@ public class BasicClient {
 	private String name = "Unknown";
 	private int uid;
 	private Client[] clients;
-	private RESTContestSource contestSource;
+	private String url;
+	private String auth;
+	private String[] contestIds;
 	private String role;
 	private long nanoTimeDelta;
 
@@ -162,8 +160,34 @@ public class BasicClient {
 
 	private WSClientEndpoint clientEndpoint;
 
+	public BasicClient(String url, String user, String password, String contestIds, String name, int uid, String role,
+			String type) {
+		this.url = url.replace("https", "wss").replace("http", "wss");
+		try {
+			this.auth = getAuth(user, password);
+		} catch (Exception e) {
+			// ignore
+		}
+		if (contestIds != null)
+			this.contestIds = new String[] { contestIds };
+		this.name = name;
+		this.uid = uid;
+		this.role = role;
+		this.clientType = type;
+		if (this.name == null)
+			this.name = NetworkUtil.getLocalAddress();
+	}
+
+	// helper method to create based on a REST contest source
 	public BasicClient(RESTContestSource contestSource, String name, int uid, String role, String type) {
-		this.contestSource = contestSource;
+		try {
+			URL url2 = contestSource.getURL();
+			this.url = "wss://" + url2.getHost() + ":" + url2.getPort();
+			this.auth = getAuth(contestSource.getUser(), contestSource.getPassword());
+		} catch (Exception e) {
+			// ignore
+		}
+		this.contestIds = new String[] { contestSource.getContestId() };
 		this.name = name;
 		this.uid = uid;
 		this.role = role;
@@ -179,13 +203,25 @@ public class BasicClient {
 	 * @param clientType
 	 */
 	public BasicClient(RESTContestSource contestSource, String clientType) {
-		this.contestSource = contestSource;
+		try {
+			URL url2 = contestSource.getURL();
+			this.url = "wss://" + url2.getHost() + ":" + url2.getPort();
+			this.auth = getAuth(contestSource.getUser(), contestSource.getPassword());
+		} catch (Exception e) {
+			// ignore
+		}
+		this.contestIds = new String[] { contestSource.getContestId() };
+
 		this.name = clientType;
 		this.clientType = clientType.toLowerCase();
 
 		String s = contestSource.getUser();
 		name += " " + NetworkUtil.getLocalAddress();
 		uid = s.hashCode();
+	}
+
+	private static String getAuth(String user, String password) throws UnsupportedEncodingException {
+		return Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
 	}
 
 	protected void setUID(int uid) {
@@ -225,11 +261,11 @@ public class BasicClient {
 		if (cl == null)
 			return;
 
-		Object[] contestIds = obj.getArray(CONTEST_IDS);
-		if (contestIds != null) {
-			cl.contestIds = new String[contestIds.length];
-			for (int j = 0; j < contestIds.length; j++)
-				cl.contestIds[j] = (String) contestIds[j];
+		Object[] contestIds2 = obj.getArray(CONTEST_IDS);
+		if (contestIds2 != null) {
+			cl.contestIds = new String[contestIds2.length];
+			for (int j = 0; j < contestIds2.length; j++)
+				cl.contestIds[j] = (String) contestIds2[j];
 		}
 		if (obj.containsKey(CLIENT_TYPE))
 			cl.type = obj.getString(CLIENT_TYPE);
@@ -431,11 +467,12 @@ public class BasicClient {
 			je.encode("locale", Locale.getDefault().toString());
 			je.encode("timezone", Calendar.getInstance().getTimeZone().getDisplayName());
 
-			je.openChildArray(CONTEST_IDS);
-			je.encodeValue(contestSource.getContestId());
-			// for (String cId : c.contestIds)
-			// je.encode(cId);
-			je.closeArray();
+			if (contestIds != null) {
+				je.openChildArray(CONTEST_IDS);
+				for (String id : contestIds)
+					je.encodeValue(id);
+				je.closeArray();
+			}
 
 			addBasicClientInfo(je);
 		});
@@ -589,8 +626,9 @@ public class BasicClient {
 
 			clientEndpoint = new WSClientEndpoint();
 			ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create()
-					.configurator(new AuthorizationConfigurator(contestSource.getAuth())).build();
-			StringBuilder sb = new StringBuilder("/presentation/ws");
+					.configurator(new AuthorizationConfigurator()).build();
+			StringBuilder sb = new StringBuilder(url);
+			sb.append("/presentation/ws");
 			sb.append("?name=" + URLEncoder.encode(name, "UTF-8"));
 			sb.append("&uid=" + Integer.toHexString(uid));
 			if (role == null)
@@ -598,7 +636,8 @@ public class BasicClient {
 			else
 				sb.append("&role=" + role);
 			sb.append("&version=1.0");
-			URI uri = contestSource.getRootURI("wss", sb.toString());
+
+			URI uri = new URI(sb.toString());
 
 			client.setDefaultMaxSessionIdleTimeout(60000L);
 			s = client.connectToServer(clientEndpoint, endpointConfig, uri);
@@ -610,16 +649,14 @@ public class BasicClient {
 			String msg = e.getMessage();
 			if (e.getCause() != null)
 				msg += " (" + e.getCause().getMessage() + ")";
-			Trace.trace(Trace.ERROR, "Error connecting to " + contestSource.getURL().toExternalForm() + ": " + msg
-					+ ". Confirm URL and user/password or view log for details");
+			Trace.trace(Trace.ERROR,
+					"Error connecting to " + url + ": " + msg + ". Confirm URL and user/password or view log for details");
 			Trace.trace(Trace.INFO, "Failure details", e);
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR,
-					"Unexected error connecting to " + contestSource.getURL().toExternalForm() + ": " + e.getMessage());
+			Trace.trace(Trace.ERROR, "Unexected error connecting to " + url + ": " + e.getMessage());
 			Trace.trace(Trace.INFO, "Failure details", e);
 		} catch (Throwable t) {
-			Trace.trace(Trace.ERROR,
-					"Unexected error connecting to " + contestSource.getURL().toExternalForm() + ": " + t.getMessage());
+			Trace.trace(Trace.ERROR, "Unexected error connecting to " + url + ": " + t.getMessage());
 			Trace.trace(Trace.INFO, "Failure details", t);
 		}
 		return s;

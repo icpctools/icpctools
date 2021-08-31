@@ -18,6 +18,21 @@ import org.icpc.tools.contest.model.internal.FileReference;
 
 /**
  * A generic interface for sources of contest data, either file, URL, or other.
+ *
+ * The two primary contest sources (DiskContestSource and RESTContestSource) support five different
+ * ways to load contest data:
+ *
+ * [1] A folder on disk following the Contest Archive Format.
+ *
+ * [2] A stand-alone event feed file, either JSON or XML.
+ *
+ * [3] A REST contest source with local caching in temp.
+ *
+ * [4] A REST contest feed with a local backing folder.
+ *
+ * [5] A local file or folder with ability to pull from REST resource references.
+ *
+ * A corresponding folder is usually created in temp to cache information and improve performance.
  */
 public abstract class ContestSource {
 	protected static ContestSource instance;
@@ -54,42 +69,32 @@ public abstract class ContestSource {
 		// instance = this;
 	}
 
-	public static ContestSource parseSource(String source, String arg1, String arg2) throws IOException {
+	/**
+	 * Convenience method to obtain a contest source from three parameters: url [user] [password],
+	 * folder, or file [user] [password].
+	 *
+	 * @param source
+	 * @param user
+	 * @param password
+	 * @return
+	 * @throws IOException
+	 */
+	public static ContestSource parseSource(String source, String user, String password) throws IOException {
 		if (source == null)
 			throw new IOException("No contest source");
 
 		if (source.startsWith("http"))
-			return new RESTContestSource(source, arg1, arg2);
+			return new RESTContestSource(source, user, password);
 
 		File f = new File(source);
 		if (f.exists()) {
 			if (f.isDirectory())
 				return new DiskContestSource(f);
 
-			return new RESTContestSource(f, arg1, arg2);
+			return new RESTContestSource(f, user, password);
 		}
 
 		throw new IOException("Could not parse or resolve contest source");
-	}
-
-	public static ContestSource[] parseMultiSource(String source, String arg1, String arg2) throws IOException {
-		if (source == null)
-			throw new IOException("No contest source");
-
-		String[] ss = source.split("&");
-		ContestSource[] cs = new ContestSource[ss.length];
-		for (int i = 0; i < ss.length; i++)
-			cs[i] = parseSource(ss[i], arg1, arg2);
-
-		return cs;
-	}
-
-	public static ContestSource parseSource(String source) throws IOException {
-		return parseSource(source, null, null);
-	}
-
-	public static ContestSource[] parseMultiSource(String source) throws IOException {
-		return parseMultiSource(source, null, null);
 	}
 
 	public String getContestId() {

@@ -26,7 +26,6 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
 import org.icpc.tools.contest.model.TypeFilter;
-import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -148,13 +147,8 @@ public class ContestFeedService {
 	protected static void reset(HttpServletResponse response, ConfiguredContest cc) throws IOException {
 		Trace.trace(Trace.USER, "Resetting contest event feed");
 		try {
-			ContestSource source = cc.getContestSource();
-			if (!(source instanceof DiskContestSource)) {
-				response.sendError(HttpServletResponse.SC_EXPECTATION_FAILED, "Contest not stored on disk");
-				return;
-			}
-			DiskContestSource diskSource = (DiskContestSource) source;
-			File root = diskSource.getRootFolder();
+			DiskContestSource source = cc.getContestSource();
+			File root = source.getRootFolder();
 			int hash = -1;
 			File hashFile = new File(root, "hash.txt");
 			if (hashFile.exists()) {

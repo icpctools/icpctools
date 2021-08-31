@@ -1,5 +1,6 @@
 package org.icpc.tools.presentation.admin.internal;
 
+import java.net.URL;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
@@ -13,16 +14,16 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.feed.CDSUtil;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
+import org.icpc.tools.contest.model.util.ArgumentParser.Source;
 
 public class Admin {
 	public static void main(String[] args) {
 		Trace.init("ICPC Presentation Admin", "presAdmin", args);
 
-		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
+		Source source = ArgumentParser.parseSource(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
 				return false;
@@ -41,14 +42,30 @@ public class Admin {
 			}
 		});
 
-		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
-		if (cdsSource.getURL().getPath() != null && cdsSource.getURL().getPath().length() > 1) {
-			Trace.trace(Trace.ERROR, "URL should not contain a path");
+		String url = source.src[0];
+
+		try {
+			URL url2 = new URL(url);
+			if (url2.getPath() != null && url2.getPath().length() > 1) {
+				Trace.trace(Trace.ERROR, "URL should not contain a path");
+				return;
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not parse URL");
 			return;
 		}
-		cdsSource.checkForUpdates("presentationAdmin-");
 
-		View v = new View(cdsSource);
+		CDSUtil util = new CDSUtil(url, source.user, source.password);
+		try {
+			util.verifyCDS();
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "CDS connection failure: " + e.getMessage());
+			return;
+		}
+
+		util.checkForUpdates("presentationAdmin-");
+
+		View v = new View(url, source.user, source.password);
 
 		Display.setAppName("Presentation Admin");
 		final Display display = new Display();

@@ -12,7 +12,7 @@ import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
-import org.icpc.tools.contest.model.feed.EventFeedContestSource;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.feed.XMLFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -29,7 +29,7 @@ public class Awards {
 
 		Trace.trace(Trace.INFO, "Loading event feed: " + file.getAbsolutePath());
 		try {
-			return EventFeedContestSource.loadContest(file, listener);
+			return DiskContestSource.loadContest(file, listener);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not parse event feed: " + file);
 			System.exit(2);
