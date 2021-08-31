@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.contest.model.feed.EventFeedContestSource;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 
 public class ContestConnectionDialog extends Dialog {
@@ -83,13 +83,13 @@ public class ContestConnectionDialog extends Dialog {
 		if (method == ConnectMethod.REST)
 			return new RESTContestSource(url, user, password);
 		else if (method == ConnectMethod.DISK)
-			return new EventFeedContestSource(file);
+			return new DiskContestSource(file);
 		else if (method == ConnectMethod.RECENT) {
 			String[] vals = recent;
 			if ("REST".equals(vals[1]))
 				return new RESTContestSource(vals[2], vals[3], vals[4]);
-			else if ("FILE".equals(vals[1]))
-				return new EventFeedContestSource(vals[2]);
+			else if ("DISK".equals(vals[1]))
+				return new DiskContestSource(file);
 		}
 		return null;
 	}
@@ -100,7 +100,7 @@ public class ContestConnectionDialog extends Dialog {
 		else if (method == ConnectMethod.REST)
 			return user + " @ " + url + "`REST`" + url + "`" + user + "`" + password;
 		else if (method == ConnectMethod.DISK)
-			return file + "`FILE`" + file;
+			return file + "`DISK`" + file;
 		return null;
 	}
 

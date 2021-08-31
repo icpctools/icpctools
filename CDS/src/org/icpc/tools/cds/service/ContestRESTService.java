@@ -787,7 +787,7 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		JsonObject rObj = null;
-		ContestSource source = cc.getContestSource();
+		DiskContestSource source = cc.getContestSource();
 
 		if (cc.isTesting()) {
 			// when in test mode just accept submissions and return dummy id
@@ -812,26 +812,23 @@ public class ContestRESTService extends HttpServlet {
 		String sId = rObj.getString("id");
 
 		// cache accepted submission file locally to avoid asking CCS for it later
-		if (source instanceof DiskContestSource) {
-			DiskContestSource dsource = (DiskContestSource) source;
-			File f = dsource.getNewFile(ContestType.SUBMISSION, sId, "files", null);
-			if (!f.getParentFile().exists())
-				f.getParentFile().mkdirs();
-			Object[] files = (Object[]) obj.get("files");
-			JsonObject file = (JsonObject) files[0];
-			String fb = (String) file.get("data");
-			Trace.trace(Trace.INFO, "Saving submission " + sId + " to " + f);
-			BufferedOutputStream out = null;
-			try {
-				byte[] b = Base64.getDecoder().decode(fb);
-				out = new BufferedOutputStream(new FileOutputStream(f));
-				out.write(b);
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Could not cache submission file locally", e);
-			} finally {
-				if (out != null)
-					out.close();
-			}
+		File f = source.getNewFile(ContestType.SUBMISSION, sId, "files", null);
+		if (!f.getParentFile().exists())
+			f.getParentFile().mkdirs();
+		Object[] files = (Object[]) obj.get("files");
+		JsonObject file = (JsonObject) files[0];
+		String fb = (String) file.get("data");
+		Trace.trace(Trace.INFO, "Saving submission " + sId + " to " + f);
+		BufferedOutputStream out = null;
+		try {
+			byte[] b = Base64.getDecoder().decode(fb);
+			out = new BufferedOutputStream(new FileOutputStream(f));
+			out.write(b);
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not cache submission file locally", e);
+		} finally {
+			if (out != null)
+				out.close();
 		}
 
 		return rObj;

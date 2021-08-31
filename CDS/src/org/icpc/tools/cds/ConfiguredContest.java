@@ -37,7 +37,6 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
 import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
-import org.icpc.tools.contest.model.feed.EventFeedContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -61,7 +60,7 @@ public class ConfiguredContest {
 	private Boolean isTesting;
 	private View view;
 
-	private ContestSource contestSource;
+	private DiskContestSource contestSource;
 
 	private Contest contest;
 	private Contest trustedContest;
@@ -582,7 +581,7 @@ public class ConfiguredContest {
 		return source.getConnectionState();
 	}
 
-	public ContestSource getContestSource() {
+	public DiskContestSource getContestSource() {
 		if (contestSource != null)
 			return contestSource;
 
@@ -592,21 +591,17 @@ public class ConfiguredContest {
 		File folder = new File(location);
 
 		if (ccs == null) {
-			if (!folder.exists() || folder.isDirectory())
-				contestSource = new DiskContestSource(folder);
-			else
-				contestSource = new EventFeedContestSource(folder.getAbsoluteFile());
+			contestSource = new DiskContestSource(folder);
 		} else {
 			try {
-				contestSource = new RESTContestSource(ccs.getURL(), ccs.getUser(), ccs.getPassword(), folder);
+				contestSource = new RESTContestSource(folder, ccs.getURL(), ccs.getUser(), ccs.getPassword());
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not configure contest source", e);
 				contestSource = new DiskContestSource(folder);
 			}
 		}
 
-		if (contestSource instanceof DiskContestSource)
-			((DiskContestSource) contestSource).setContestId(id);
+		contestSource.setContestId(id);
 		return contestSource;
 	}
 

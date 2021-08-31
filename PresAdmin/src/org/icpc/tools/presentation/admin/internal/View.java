@@ -38,7 +38,6 @@ import org.icpc.tools.client.core.BasicClient;
 import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
-import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.core.internal.PresentationInfo;
 import org.icpc.tools.presentation.core.internal.PresentationsParser;
@@ -90,10 +89,10 @@ public class View {
 		}
 	}
 
-	public View(RESTContestSource source) {
-		String s = source.getUser() + NetworkUtil.getLocalAddress();
+	public View(String url, String user, String password) {
+		String s = user + NetworkUtil.getLocalAddress();
 
-		client = new BasicClient(source, source.getUser(), s.hashCode(), "admin", "pres-admin") {
+		client = new BasicClient(url, user, password, null, user, s.hashCode(), "admin", "pres-admin") {
 			/**
 			 * @throws IOException
 			 */

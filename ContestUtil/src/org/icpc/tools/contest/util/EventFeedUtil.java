@@ -34,7 +34,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.contest.model.feed.EventFeedContestSource;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.feed.XMLFeedWriter;
@@ -205,7 +205,7 @@ public class EventFeedUtil {
 		Trace.trace(Trace.USER, "Loading event feed: " + file.getAbsolutePath());
 
 		try {
-			Contest c = EventFeedContestSource.loadContest(file, listener);
+			Contest c = DiskContestSource.loadContest(file, listener);
 			ContestSource.getInstance().waitForContest(10000);
 			return c;
 		} catch (Exception e) {

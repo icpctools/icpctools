@@ -24,6 +24,7 @@ import javax.imageio.stream.FileImageInputStream;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IProblem;
@@ -43,7 +44,9 @@ import org.icpc.tools.contest.model.internal.TeamMember;
 import org.icpc.tools.contest.model.internal.YamlParser;
 
 /**
- * A contest source that reads from a Contest Data Package exploded on disk.
+ * A contest source that is backed by either a Contest Archive Format (CAF) exploded on disk or an
+ * event feed (JSON or XML). A cache folder in temp is used to store metadata to improve
+ * performance.
  */
 public class DiskContestSource extends ContestSource {
 	private static final String CACHE_PREFIX = "org.icpc.tools.cache.";
@@ -64,11 +67,10 @@ public class DiskContestSource extends ContestSource {
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
 
+	private File eventFeedFile;
 	private File root;
-	private File cacheFolder;
-	private boolean isCache;
+	protected File cacheFolder;
 	private String contestId;
-	private boolean expectFeed = true;
 	private Closeable parser;
 	private Validation configValidation = new Validation();
 	private Map<String, List<FileReference>> cache = new HashMap<>();
@@ -108,54 +110,66 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	/**
-	 * Create a disk contest source at the specified folder.
+	 * Create a disk contest source reading from the contest archive format (CAF).
 	 *
-	 * @param folder
-	 */
-	public DiskContestSource(File folder, boolean expectFeed) {
-		this(folder);
-		this.expectFeed = expectFeed;
-	}
-
-	/**
-	 * Create a disk contest source at the specified folder.
-	 *
-	 * @param folder
+	 * @param folder - a contest archive folder
 	 */
 	public DiskContestSource(File folder) {
-		root = folder;
-		cacheFolder = createTempDir(folder.getName() + "-" + getSafeHash(folder.getAbsolutePath()));
-		cleanUpTempDir(root);
+		this(null, folder, folder.getAbsolutePath());
+	}
 
-		if (root == null) {
-			throw new IllegalArgumentException("Contest archive not set.");
+	/**
+	 * Create a disk contest source reading from a JSON or XML event feed.
+	 *
+	 * @param eventFeedFile - a JSON or XML event feed file
+	 */
+	public DiskContestSource(String eventFeedFile) {
+		this(new File(eventFeedFile), null, eventFeedFile);
+	}
+
+	/**
+	 * General constructor for a disk contest source. Typically, only one of the event feed file and
+	 * CAF folder are provided. A hash must be provided to seed the temporary caching folder name
+	 * (so that it is consistent across restarts).
+	 *
+	 * @param eventFeedFile - a JSON or XML event feed file
+	 * @param folder - a contest archive folder
+	 * @param hash - any uid or hash that's consistent across restarts
+	 */
+	protected DiskContestSource(File eventFeedFile, File folder, String hash) {
+		this.eventFeedFile = eventFeedFile;
+		root = folder;
+		if (folder != null)
+			cacheFolder = createTempDir(folder.getName() + "-" + getSafeHash(folder.getAbsolutePath()));
+		else {
+			cacheFolder = createTempDir(getSafeHash(hash));
+			root = cacheFolder;
 		}
-		if (!root.exists()) {
+
+		cleanUpTempDir();
+
+		if (eventFeedFile != null && !eventFeedFile.exists()) {
+			throw new IllegalArgumentException(
+					"Event feed (" + root.toString() + ") must be valid JSON or XML event feed.");
+		}
+
+		if (root != null && !root.exists()) {
 			if (!root.mkdirs()) {
 				throw new IllegalArgumentException(
-						"Contest archive (" + root.toString() + ") did not exist and directory creation failed.");
+						"Contest location (" + root.toString() + ") did not exist and directory creation failed.");
 			}
-		}
-		if (root.isFile()) {
-			throw new IllegalArgumentException(
-					"Contest archive (" + root.toString() + ") should point to directory, points to file instead.");
 		}
 
 		instance = this;
 	}
 
-	/**
-	 * Create a disk contest source that's backed by a temp folder.
-	 */
-	public DiskContestSource(String hash) {
-		root = createTempDir(getSafeHash(hash));
-		isCache = true;
-		expectFeed = false;
+	public static Contest loadContest(File file, IContestListener listener) throws Exception {
+		DiskContestSource source = new DiskContestSource(file, null, file.getAbsolutePath());
+		return source.loadContest(listener);
+	}
 
-		if (root == null || !root.exists() || root.isFile())
-			throw new IllegalArgumentException("Could not create temp folder");
-		cleanUpTempDir(root);
-		instance = this;
+	public File getRootFolder() {
+		return root;
 	}
 
 	@Override
@@ -178,10 +192,10 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public boolean isCache() {
-		return isCache;
+		return root != null;
 	}
 
-	private static void cleanUpTempDir(File cacheTempDir) {
+	private void cleanUpTempDir() {
 		File tempDir = new File(System.getProperty("java.io.tmpdir"));
 		File[] files = tempDir.listFiles((dir, name) -> name != null && name.startsWith(CACHE_PREFIX));
 
@@ -189,7 +203,7 @@ public class DiskContestSource extends ContestSource {
 			return;
 
 		for (File f : files) {
-			if (f.isDirectory() && !f.equals(cacheTempDir)) {
+			if (f.isDirectory() && !f.equals(cacheFolder)) {
 				// delete cached files older than 10 days
 				long tenDaysInMillis = 10 * 24 * 3600 * 1000;
 				if (f.lastModified() < System.currentTimeMillis() - tenDaysInMillis)
@@ -236,12 +250,8 @@ public class DiskContestSource extends ContestSource {
 		return tempDir;
 	}
 
-	public File getRootFolder() {
-		return root;
-	}
-
 	private int getDiskHash() {
-		File hashFile = new File(root, "hash.txt");
+		File hashFile = new File(cacheFolder, "hash.txt");
 		if (hashFile.exists()) {
 			try (BufferedReader br = new BufferedReader(new FileReader(hashFile))) {
 				String s = br.readLine();
@@ -252,6 +262,8 @@ public class DiskContestSource extends ContestSource {
 			}
 			// ignore
 		}
+		if (root == null)
+			return 0;
 		File configFolder = new File(root, "config");
 		File[] files = configFolder.listFiles();
 		if (files == null)
@@ -274,10 +286,10 @@ public class DiskContestSource extends ContestSource {
 
 		// use the pattern to find the right folder
 		FilePattern pattern = getLocalPattern(obj.getType(), obj.getId(), property);
-		File rootFolder = getRootFolder();
-		File folder = rootFolder;
+
+		File folder = root;
 		if (pattern.folder != null)
-			folder = new File(rootFolder, pattern.folder);
+			folder = new File(root, pattern.folder);
 
 		// check if any existing files in the folder match
 		synchronized (cache) {
@@ -302,10 +314,10 @@ public class DiskContestSource extends ContestSource {
 		FilePattern pattern = getLocalPattern(type, id, property);
 		if (pattern == null)
 			return null;
-		File rootFolder = getRootFolder();
-		File folder = rootFolder;
+
+		File folder = root;
 		if (pattern.folder != null)
-			folder = new File(rootFolder, pattern.folder);
+			folder = new File(root, pattern.folder);
 
 		String ext = getExtension(mimeType);
 		if (ext == null) // couldn't recognize mime type, so assume the default file extension
@@ -323,12 +335,19 @@ public class DiskContestSource extends ContestSource {
 
 	@Override
 	public File getFile(String path) throws IOException {
-		return new File(root, path);
+		if (root != null)
+			return new File(root, path);
+
+		return new File(cacheFolder, path);
 	}
 
 	@Override
 	public String[] getDirectory(String path) throws IOException {
-		File f = new File(root, path);
+		File f = null;
+		if (root != null)
+			f = new File(root, path);
+		else
+			f = new File(cacheFolder, path);
 
 		if (!f.isDirectory())
 			return null;
@@ -424,7 +443,7 @@ public class DiskContestSource extends ContestSource {
 			return new File(folder, CACHE_FILE);
 
 		// otherwise, put all files in the same temp folder and name them based on subpath
-		String s = folder.getAbsolutePath().substring(root.getAbsolutePath().length() + 1);
+		String s = folder.getAbsolutePath().substring(root.getAbsolutePath().length() + 1); // TODO
 		s = s.replace("/", "-").replace("\\", "-");
 
 		return new File(cacheFolder, s + ".cache");
@@ -477,7 +496,7 @@ public class DiskContestSource extends ContestSource {
 		return list;
 	}
 
-	protected List<FileReference> getCache(File folder) {
+	private List<FileReference> getCache(File folder) {
 		List<FileReference> list = cache.get(folder.getAbsolutePath());
 		if (list != null)
 			return list;
@@ -661,12 +680,14 @@ public class DiskContestSource extends ContestSource {
 		loadConfigFiles();
 
 		// load event feed
-		File file = getRootFolder();
-		File contestFile = new File(file, "event-feed.json");
-		if (!contestFile.exists())
-			contestFile = new File(file, "events.xml");
-		if (!contestFile.exists()) {
-			if (expectFeed)
+		File feedFile = eventFeedFile;
+		if (feedFile == null && root != null) {
+			feedFile = new File(root, "event-feed.json");
+			if (!feedFile.exists())
+				feedFile = new File(root, "events.xml");
+		}
+		if (!feedFile.exists()) {
+			if (eventFeedFile != null || root != null)
 				Trace.trace(Trace.WARNING, "No local event feed found");
 			contest.removeModifier(mod);
 			return;
@@ -674,14 +695,14 @@ public class DiskContestSource extends ContestSource {
 
 		InputStream in;
 		try {
-			in = new FileInputStream(contestFile);
+			in = new FileInputStream(feedFile);
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Could not read event feed", e);
 			contest.removeModifier(mod);
 			throw e;
 		}
 		try {
-			if (contestFile.getName().endsWith("xml")) {
+			if (feedFile.getName().endsWith("xml")) {
 				XMLFeedParser xmlParser = new XMLFeedParser();
 				xmlParser.parse(contest, in);
 				parser = xmlParser;
@@ -739,9 +760,9 @@ public class DiskContestSource extends ContestSource {
 	 * @return
 	 */
 	private FileReferenceList getFilesWithPattern(FilePattern pattern) {
-		File folder = getRootFolder();
+		File folder = root;
 		if (pattern.folder != null)
-			folder = new File(folder, pattern.folder);
+			folder = new File(root, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
 		for (String ext : pattern.extensions) {
@@ -868,15 +889,19 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	private static File getConfigFile(File root, String file) {
+		if (root == null)
+			return null;
 		return new File(root, "config" + File.separator + file);
 	}
 
 	private static File getRegistrationFile(File root, String file) {
+		if (root == null)
+			return null;
 		return new File(root, "registration" + File.separator + file);
 	}
 
 	protected void loadConfigFiles() {
-		if (isCache())
+		if (root == null) // this is a cache
 			return;
 
 		configValidation = new Validation();
@@ -1010,6 +1035,6 @@ public class DiskContestSource extends ContestSource {
 
 	@Override
 	public String toString() {
-		return "DiskContestSource[" + root + "]";
+		return "DiskContestSource[" + eventFeedFile + "/" + root + "]";
 	}
 }
