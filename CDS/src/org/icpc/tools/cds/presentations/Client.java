@@ -212,6 +212,12 @@ public class Client {
 	}
 
 	private void writeTime(long delta) throws IOException {
+		// if last guess time is close enough, return w/o syncing time again
+		if (lastTimeSync >= 0 && Math.abs(delta) < 20)
+			return;
+
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time to " + delta + "ms.");
+
 		lastTimeSync = delta;
 		createJSON(Type.TIME, je -> {
 			je.encode("time", System.currentTimeMillis() + delta);
@@ -248,6 +254,14 @@ public class Client {
 			}
 		}
 
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Recent pings: [" + sb.toString() + "] " + lastTimeSync);
+
+		// if delta difference is < 20ms, we're close enough
+		if (count > 1 && max < 20) {
+			writeTime(total / count);
+			return 0;
+		}
+
 		if (count < 3) {
 			// not enough response time data yet, ping again in 500ms
 			writePing();
@@ -255,22 +269,14 @@ public class Client {
 		}
 
 		if (count == 3 && max - min > 50) {
-			// very inconsistent response times, ping again in 500ms
+			// very inconsistent response times, ping once more in 750ms
 			writePing();
-			return 500;
+			return 750;
 		}
 
 		// get rid of 'worst' time outlier and determine new average time sync
-		long newTimeSync = (total - max) / (count - 1);
-
-		// if last guess time is still good enough, return w/o pinging again
-		if (lastTimeSync >= 0 && Math.abs(newTimeSync - lastTimeSync) < 25)
-			return 0;
-
-		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time to " + newTimeSync + "ms. Recent pings: ["
-				+ sb.toString() + "]");
-		writeTime(newTimeSync);
-		return 10;
+		writeTime((total - max) / (count - 1));
+		return 0;
 	}
 
 	protected void writePing() {
