@@ -25,6 +25,11 @@ public interface IAward extends IContestObject {
 		public String getPattern(int id) {
 			return regEx.replace(".*", id + "");
 		}
+
+		@Override
+		public String toString() {
+			return "AwardType [" + name + "/" + regEx + "]";
+		}
 	}
 
 	AwardType WINNER = new AwardType("Winner", "winner");
@@ -34,10 +39,11 @@ public interface IAward extends IContestObject {
 	AwardType GROUP = new AwardType("Group Winner", "group-winner-.*");
 	AwardType ORGANIZATION = new AwardType("Organization Winner", "organization-winner-.*");
 	AwardType GROUP_HIGHLIGHT = new AwardType("Group Highlight", "group-highlight-.*");
+	AwardType TOP = new AwardType("Top", "top-.*");
 	AwardType OTHER = new AwardType("Other", ".*");
 
 	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP, ORGANIZATION,
-			GROUP_HIGHLIGHT, OTHER };
+			GROUP_HIGHLIGHT, TOP, OTHER };
 
 	/**
 	 * Returns the ids of the teams that this award is for.

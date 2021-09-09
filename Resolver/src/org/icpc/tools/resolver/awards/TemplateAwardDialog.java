@@ -32,6 +32,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 			"{\"id\":\"silver-medal\",\"count\":4}\n" + // silver medals
 			"{\"id\":\"bronze-medal\",\"count\":4}\n" + // bronze medals
 			"{\"id\":\"first-to-solve-*\"}\n" + // first to solve awards
+			"{\"id\":\"top-25\",\"count\":25}\n" + // top 25% of teams
 			"{\"id\":\"group-winner-*\"}"; // group winners
 
 	protected Text text;
@@ -110,7 +111,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 
 	@Override
 	protected AwardType[] getAwardTypes() {
-		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL };
+		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL, IAward.TOP };
 	}
 
 	protected Award parseAward(JsonObject data) {
