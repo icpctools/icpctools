@@ -376,6 +376,36 @@ public class AwardUtil {
 		return lastBronze;
 	}
 
+	public static void createTopAwards(Contest contest, int percent) {
+		Award rank = new Award(IAward.TOP, "*", null, true);
+		rank.setCount(percent);
+		createTopAwards(contest, rank);
+	}
+
+	public static void createTopAwards(Contest contest, IAward template) {
+		if (template.getCount() < 1)
+			return;
+
+		ITeam[] teams = contest.getOrderedTeams();
+		if (teams.length == 0)
+			return;
+
+		int n = teams.length;
+		if (template.getCount() < 100)
+			n = template.getCount() * teams.length / 100;
+
+		String[] teamIds = new String[n];
+		for (int i = 0; i < n; i++)
+			teamIds[i] = teams[i].getId();
+
+		String citation = template.getCitation();
+		if (citation == null || citation.trim().length() < 1)
+			citation = Messages.getString("awardTop");
+		citation = citation.replace("{0}", template.getCount() + "");
+
+		contest.add(new Award(IAward.TOP, template.getId(), teamIds, citation, true));
+	}
+
 	public static int[] getMedalCounts(IContest contest) {
 		int[] num = new int[3];
 		IAward[] awards = contest.getAwards();
@@ -434,6 +464,8 @@ public class AwardUtil {
 				createRankAwards(contest, award);
 			} else if (award.getAwardType() == IAward.FIRST_TO_SOLVE) {
 				createFirstToSolveAwards(contest, award);
+			} else if (award.getAwardType() == IAward.TOP) {
+				createTopAwards(contest, award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
 				if (award.getId().contains("gold"))
 					gold = award;
@@ -457,6 +489,8 @@ public class AwardUtil {
 			// createFirstToSolveAwards(contest, awardTemplate);
 		} else if (awardTemplate.getAwardType() == IAward.WINNER) {
 			createWinnerAward(contest, awardTemplate);
+		} else if (awardTemplate.getAwardType() == IAward.TOP) {
+			createTopAwards(contest, awardTemplate);
 		}
 	}
 
