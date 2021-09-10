@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	protected Font headerFont;
 	protected Font headerItalicsFont;
 	protected Font rowFont;
+	protected Font[] rowFonts;
 	protected Font rowItalicsFont;
 	public static Font statusFont;
 	public static Font problemFont;
@@ -83,8 +85,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		final float dpi = 96;
 
 		float size = (int) (height * 72.0 * 0.028 / dpi);
-		headerFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size);
-		headerItalicsFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size);
+		headerFont = ICPCFont.deriveFont(Font.BOLD, size);
+		headerItalicsFont = ICPCFont.deriveFont(Font.BOLD, size);
 
 		headerHeight = (int) (height / 50.0);
 
@@ -96,10 +98,11 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 		float tempRowHeight = height / (float) teamsPerScreen;
 		size = tempRowHeight * 36f * 0.95f / dpi;
-		rowFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 1.25f);
-		rowItalicsFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 1.25f);
-		statusFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 0.7f);
-		problemFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, size * 0.5f);
+		rowFonts = ICPCFont.deriveFonts(Font.BOLD, size * 1.25f);
+		rowFont = rowFonts[0];
+		rowItalicsFont = ICPCFont.deriveFont(Font.BOLD, size * 1.25f);
+		statusFont = ICPCFont.deriveFont(Font.BOLD, size * 0.7f);
+		problemFont = ICPCFont.deriveFont(Font.PLAIN, size * 0.5f);
 
 		rowHeight = (height - headerHeight - titleHeight) / (float) teamsPerScreen;
 		cubeHeight = (int) (rowHeight / 2.5f) - CUBE_INSET;
@@ -440,16 +443,16 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		float nn = 1f;
 		int xx = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
 		float wid = width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight;
-		while (fm.stringWidth(s) > wid) {
-			Font f = rowFont.deriveFont(AffineTransform.getScaleInstance(nn, 1.0));
-			g.setFont(f);
-			fm = g.getFontMetrics();
+		TextLayout textLayout = renderString(g, s, Integer.MAX_VALUE, rowFonts);
+		while (textLayout.getBounds().getWidth() > wid) {
 			nn -= 0.025f;
+			Font[] ff = new Font[rowFonts.length];
+			for (int i = 0; i < ff.length; i++) {
+				ff[i] = rowFonts[i].deriveFont(AffineTransform.getScaleInstance(nn, 1.0));
+			}
+			textLayout = renderString(g, s, Integer.MAX_VALUE, ff);
 		}
-		g.drawString(s, xx, fm.getAscent() + 5);
-
-		g.setFont(rowFont);
-		fm = g.getFontMetrics();
+		textLayout.draw(g, xx, fm.getAscent() + 5);
 
 		int n = standing.getNumSolved();
 

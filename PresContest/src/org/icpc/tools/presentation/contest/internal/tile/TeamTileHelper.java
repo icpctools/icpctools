@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Recent;
+import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 
@@ -32,6 +34,7 @@ public class TeamTileHelper {
 
 	private Font rankFont;
 	private Font teamFont;
+	private Font[] teamFonts;
 	private Font problemFont;
 	private Font penaltyFont;
 
@@ -56,11 +59,11 @@ public class TeamTileHelper {
 		final float dpi = 96;
 
 		float size = tileDim.height * 36f * 0.95f / dpi;
-		Font masterFont = ICPCFont.getMasterFont();
-		teamFont = masterFont.deriveFont(Font.BOLD, size * 1.4f);
-		rankFont = masterFont.deriveFont(Font.BOLD, size * 1.4f);
-		problemFont = masterFont.deriveFont(Font.PLAIN, size * 0.7f);
-		penaltyFont = masterFont.deriveFont(Font.BOLD, size * 0.85f);
+		teamFonts = ICPCFont.deriveFonts(Font.BOLD, size * 1.4f);
+		teamFont = teamFonts[0];
+		rankFont = ICPCFont.deriveFont(Font.BOLD, size * 1.4f);
+		problemFont = ICPCFont.deriveFont(Font.PLAIN, size * 0.7f);
+		penaltyFont = ICPCFont.deriveFont(Font.BOLD, size * 0.85f);
 	}
 
 	public void cacheTile(ITeam team) {
@@ -254,14 +257,21 @@ public class TeamTileHelper {
 
 		String s = team.getActualDisplayName();
 		float n = 1f;
-		while (fm.stringWidth(s + " 10") > tileDim.width - tileDim.height - ww - IN_TILE_GAP * 2 - 2) {
-			Font f = teamFont.deriveFont(AffineTransform.getScaleInstance(n, 1.0));
-			g.setFont(f);
-			fm = g.getFontMetrics();
-			n -= 0.0125f;
+
+		int wid = tileDim.width - tileDim.height - ww - IN_TILE_GAP * 2 - 2;
+
+		TextLayout textLayout = AbstractICPCPresentation.renderString(g, s + " 10", Integer.MAX_VALUE, teamFonts);
+		while (textLayout.getBounds().getWidth() > wid) {
+			n -= 0.025f;
+			Font[] ff = new Font[teamFonts.length];
+			for (int i = 0; i < ff.length; i++) {
+				ff[i] = teamFonts[i].deriveFont(AffineTransform.getScaleInstance(n, 1.0));
+			}
+			textLayout = AbstractICPCPresentation.renderString(g, s, Integer.MAX_VALUE, ff);
 		}
+
 		g.setColor(Color.WHITE);
-		g.drawString(s, ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 + fm.getAscent()) / 2 - 2);
+		textLayout.draw(g, ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 + fm.getAscent()) / 2 - 2);
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, boolean includeName, long timeMs) {
