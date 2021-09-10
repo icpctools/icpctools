@@ -18,6 +18,7 @@ import org.icpc.tools.contest.model.feed.CDSUtil;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.Source;
+import org.icpc.tools.contest.model.util.Taskbar;
 
 public class Admin {
 	public static void main(String[] args) {
@@ -68,6 +69,8 @@ public class Admin {
 		View v = new View(url, source.user, source.password);
 
 		Display.setAppName("Presentation Admin");
+		Taskbar.setTaskbarImage(Admin.class.getClassLoader().getResourceAsStream("images/adminIcon.png"));
+
 		final Display display = new Display();
 		ImageResource.initializeImageRegistry(v.getClass(), display);
 		PresentationHelper.setDisplay(display);

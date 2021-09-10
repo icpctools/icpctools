@@ -15,7 +15,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Image;
 import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Rectangle;
@@ -30,7 +29,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -61,6 +59,7 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
+import org.icpc.tools.contest.model.util.Taskbar;
 
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -888,7 +887,7 @@ public class CoachView extends Panel {
 		try {
 			BufferedImage image = ImageIO.read(CoachView.class.getClassLoader().getResource("images/coachViewIcon.png"));
 			frame.setIconImage(image);
-			setTaskbarImage(image);
+			Taskbar.setTaskbarImage(image);
 		} catch (Exception e) {
 			// could not set icon
 		}
@@ -979,35 +978,6 @@ public class CoachView extends Panel {
 			device.setDisplayMode(bestMode);
 
 		requestFocus();
-	}
-
-	private static void setTaskbarImage(Image iconImage) {
-		// call java.awt.Taskbar.getTaskbar().setIconImage() (Java 9+) or
-		// for Mac Java 8 call com.apple.eawt.Application.getApplication().setDockIconImage()
-		// without direct dependencies
-		try {
-			Class<?> c = Class.forName("java.awt.Taskbar");
-			Method m = c.getDeclaredMethod("getTaskbar");
-			Object o = m.invoke(null);
-			m = c.getDeclaredMethod("setIconImage", Image.class);
-			m.invoke(o, iconImage);
-			return;
-		} catch (Exception e) {
-			// ignore
-		}
-
-		if (!System.getProperty("os.name").contains("Mac"))
-			return;
-
-		try {
-			Class<?> c = Class.forName("com.apple.eawt.Application");
-			Method m = c.getDeclaredMethod("getApplication");
-			Object o = m.invoke(null);
-			m = c.getDeclaredMethod("setDockIconImage", Image.class);
-			m.invoke(o, iconImage);
-		} catch (Exception e) {
-			// ignore
-		}
 	}
 
 	@Override

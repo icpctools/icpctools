@@ -65,6 +65,7 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
+import org.icpc.tools.contest.model.util.Taskbar;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -996,6 +997,8 @@ public class BalloonUtility {
 		});
 
 		Display.setAppName("Balloon Utility");
+		Taskbar.setTaskbarImage(BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
+
 		Display display = new Display();
 		final Shell shell = new Shell(display);
 		Image image = new Image(display, BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
