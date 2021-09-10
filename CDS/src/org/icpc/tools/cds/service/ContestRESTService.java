@@ -903,7 +903,7 @@ public class ContestRESTService extends HttpServlet {
 		} else {
 			try {
 				RESTContestSource restSource = (RESTContestSource) source;
-				return restSource.postClarification(obj);
+				return restSource.post(ContestType.CLARIFICATION, obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY,
 						"Error submitting clarification to CCS: " + e.getMessage());
@@ -951,7 +951,7 @@ public class ContestRESTService extends HttpServlet {
 		} else {
 			try {
 				RESTContestSource restSource = (RESTContestSource) source;
-				return restSource.postAward(obj);
+				return restSource.post(ContestType.AWARD, obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
 				return null;
@@ -992,7 +992,7 @@ public class ContestRESTService extends HttpServlet {
 		} else {
 			try {
 				RESTContestSource restSource = (RESTContestSource) source;
-				restSource.patchAward(obj);
+				restSource.patch(ContestType.AWARD, obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
 				return;
@@ -1024,7 +1024,7 @@ public class ContestRESTService extends HttpServlet {
 		} else {
 			try {
 				RESTContestSource restSource = (RESTContestSource) source;
-				restSource.deleteAward(id);
+				restSource.delete(ContestType.AWARD, id);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
 				return;

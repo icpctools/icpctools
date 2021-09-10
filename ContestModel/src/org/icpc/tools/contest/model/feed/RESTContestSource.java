@@ -801,6 +801,54 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
+	private IContestObject httpUtil(String method, ContestType type, String partialURL2, IContestObject obj,
+			boolean expectReturn) throws IOException {
+
+		try {
+			String partialURL = IContestObject.getTypeName(type);
+			if (partialURL2 != null)
+				partialURL += partialURL2;
+			Trace.trace(Trace.INFO, method + "ing to " + partialURL + " at " + url);
+
+			HttpURLConnection conn = createConnection(partialURL, false);
+			conn.setRequestMethod(method);
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setRequestProperty("Accept", "application/json");
+			conn.setDoOutput(true);
+
+			if (obj != null) {
+				PrintWriter pw = new PrintWriter(conn.getOutputStream());
+				JSONEncoder je = new JSONEncoder(pw);
+				je.open();
+				((ContestObject) obj).writeBody(je);
+				je.close();
+				pw.flush();
+			}
+
+			if (conn.getResponseCode() != 200)
+				throw new IOException("Error " + method + "ing (" + getResponseError(conn) + ")");
+
+			if (!expectReturn)
+				return null;
+
+			JSONParser parser2 = new JSONParser(conn.getInputStream());
+			JsonObject rObj = parser2.readObject();
+			if (rObj == null)
+				throw new IOException(method + " successful but invalid object returned");
+
+			ContestObject co = (ContestObject) IContestObject.createByType(type);
+			for (String key : rObj.props.keySet())
+				co.add(key, rObj.props.get(key));
+
+			return co;
+		} catch (IOException e) {
+			Trace.trace(Trace.INFO, "Error " + method + "ing", e);
+			throw e;
+		} catch (Exception e) {
+			throw new IOException("Connection error", e);
+		}
+	}
+
 	/**
 	 * Enter a submission to the contest, as either a team or an admin.
 	 *
@@ -832,70 +880,93 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
-	 * Enter a clarification to the contest, as either a team or an admin.
+	 * POST an object to the contest.
 	 *
-	 * JSON attributes: 'text' is required. When submitting as an admin 'id' and/or 'time' are
-	 * optional.
-	 *
-	 * @param obj a json object with the clarification attributes
-	 * @return the accepted clarification
-	 * @throws IOException if there is any problem connecting to the server or with the
-	 *            clarification
+	 * @param type the contest type of the object
+	 * @param obj a json object containing the attributes
+	 * @return the accepted object
+	 * @throws IOException if there is any problem connecting to the server or posting the object
 	 */
-	public JsonObject postClarification(JsonObject obj) throws IOException {
-		return httpUtil("POST", "clarifications", obj, true);
+	public JsonObject post(ContestType type, JsonObject obj) throws IOException {
+		return httpUtil("POST", IContestObject.getTypeName(type), obj, true);
 	}
 
 	/**
-	 * POST an award to the contest.
+	 * POST an object to the contest.
 	 *
-	 * JSON attributes: 'citation' and 'team_ids' are required.
-	 *
-	 * @param obj a json object with the award attributes
-	 * @return the accepted award
-	 * @throws IOException if there is any problem connecting to the server or with the award
+	 * @param obj a contest object
+	 * @return the accepted object
+	 * @throws IOException if there is any problem connecting to the server or posting the object
 	 */
-	public JsonObject postAward(JsonObject obj) throws IOException {
-		return httpUtil("POST", "awards", obj, true);
+	public IContestObject post(IContestObject obj) throws IOException {
+		return httpUtil("POST", obj.getType(), null, obj, true);
 	}
 
 	/**
-	 * PUT an award to the contest.
+	 * PUT an object to the contest. JSON attribute 'id' is required.
 	 *
-	 * JSON attributes: 'id', 'citation', and 'team_ids' are required.
-	 *
-	 * @param obj a json object with the award attributes
-	 * @return the updated award
-	 * @throws IOException if there is any problem connecting to the server or with the award
+	 * @param type the contest type of the object
+	 * @param obj a json object containing the attributes
+	 * @return the updated object
+	 * @throws IOException if there is any problem connecting to the server or putting the object
 	 */
-	public JsonObject putAward(JsonObject obj) throws IOException {
-		return httpUtil("PUT", "awards/" + obj.getString("id"), obj, true);
+	public JsonObject put(ContestType type, JsonObject obj) throws IOException {
+		return httpUtil("PUT", IContestObject.getTypeName(type) + "/" + obj.getString("id"), obj, true);
 	}
 
 	/**
-	 * PATCH an award to the contest.
+	 * PUT an object to the contest.
 	 *
-	 * JSON attributes: 'id' is required, 'citation' and 'team_ids' are optional (but at least one
-	 * is required).
-	 *
-	 * @param obj a json object with the award attributes
-	 * @return the updated award
-	 * @throws IOException if there is any problem connecting to the server or with the award
+	 * @param obj a contest object
+	 * @return the updated object
+	 * @throws IOException if there is any problem connecting to the server or putting the object
 	 */
-	public JsonObject patchAward(JsonObject obj) throws IOException {
-		return httpUtil("PATCH", "awards/" + obj.getString("id"), obj, true);
+	public IContestObject put(IContestObject obj) throws IOException {
+		return httpUtil("PUT", obj.getType(), "/" + obj.getId(), obj, true);
 	}
 
 	/**
-	 * DELETE an award from the contest.
+	 * PATCH an object to the contest. JSON attribute 'id' is required.
 	 *
-	 * JSON attributes: 'id' is required.
-	 *
-	 * @param obj a json object with the award attributes
-	 * @throws IOException if there is any problem connecting to the server or with the award
+	 * @param type the contest type of the object
+	 * @param obj a json object containing the attributes
+	 * @return the updated object
+	 * @throws IOException if there is any problem connecting to the server or patching the object
 	 */
-	public void deleteAward(String id) throws IOException {
-		httpUtil("DELETE", "awards/" + id, null, false);
+	public JsonObject patch(ContestType type, JsonObject obj) throws IOException {
+		return httpUtil("PATCH", IContestObject.getTypeName(type) + "/" + obj.getString("id"), obj, true);
+	}
+
+	/**
+	 * PATCH an object to the contest.
+	 *
+	 * @param obj a json object containing the attributes
+	 * @return the updated object
+	 * @throws IOException if there is any problem connecting to the server or patching the object
+	 */
+	public IContestObject patch(IContestObject obj) throws IOException {
+		return httpUtil("PATCH", obj.getType(), "/" + obj.getId(), obj, true);
+	}
+
+	/**
+	 * DELETE an object from the contest.
+	 *
+	 * @param type the contest type of the object
+	 * @param id the id of the object
+	 * @throws IOException if there is any problem connecting to the server or deleting the object
+	 */
+	public void delete(ContestType type, String id) throws IOException {
+		httpUtil("DELETE", type, "/" + id, null, false);
+	}
+
+	/**
+	 * DELETE an object from the contest.
+	 *
+	 * @param obj a contest object
+	 * @throws IOException if there is any problem connecting to the server or deleting the object
+	 */
+	public void delete(IContestObject obj) throws IOException {
+		httpUtil("DELETE", obj.getType(), "/" + obj.getId(), null, false);
 	}
 
 	public void cacheClientSideEvent(IContestObject obj, Delta d) {

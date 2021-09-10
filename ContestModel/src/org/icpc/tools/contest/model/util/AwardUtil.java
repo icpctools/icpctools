@@ -403,7 +403,7 @@ public class AwardUtil {
 			citation = Messages.getString("awardTop");
 		citation = citation.replace("{0}", template.getCount() + "");
 
-		contest.add(new Award(IAward.TOP, template.getId(), teamIds, citation, true));
+		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation, true));
 	}
 
 	public static int[] getMedalCounts(IContest contest) {

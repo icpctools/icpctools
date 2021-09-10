@@ -1,6 +1,7 @@
 package org.icpc.tools.resolver.awards;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -43,6 +44,7 @@ import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -61,6 +63,7 @@ public class AwardUI {
 	private static Preferences awardPrefs = new PropertiesPreferences(PREF_ID);
 
 	protected Thread readThread;
+	protected ContestSource contestSource;
 	protected Contest contest;
 	protected ITeam[] teams;
 
@@ -82,6 +85,7 @@ public class AwardUI {
 	protected Button finalsAwards;
 	protected Button templateAwards;
 	protected Button save;
+	protected Button upload;
 
 	private Map<String, List<IAward>> awards;
 
@@ -271,6 +275,41 @@ public class AwardUI {
 				}
 			}
 		});
+
+		upload = SWTUtil.createButton(opsGroup, "Upload...");
+		upload.setEnabled(false);
+		upload.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				Shell shell = teamTable.getShell();
+				MessageBox dialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+				dialog.setText(shell.getText());
+				dialog.setMessage(
+						"This will PUT all awards on the server, which may override previous award data. Are you sure?");
+				if (dialog.open() != SWT.OK)
+					return;
+
+				try {
+					upload();
+					Trace.trace(Trace.INFO, "Awards uploaded");
+				} catch (Exception e) {
+					Trace.trace(Trace.ERROR, "Could not upload awards", e);
+				}
+			}
+		});
+	}
+
+	protected void upload() throws IOException {
+		if (!(contestSource instanceof RESTContestSource))
+			return;
+
+		RESTContestSource source = (RESTContestSource) contestSource;
+
+		// for now, just put the current awards on the server
+		// TODO delete previous awards or provide other options for syncing
+
+		for (IAward a : contest.getAwards())
+			source.put(a);
 	}
 
 	protected boolean promptToOverwrite(File f) {
@@ -303,7 +342,9 @@ public class AwardUI {
 		return false;
 	}
 
-	protected void connectToContest(final ContestSource contestSource) {
+	protected void connectToContest(ContestSource source) {
+		this.contestSource = source;
+
 		try {
 			final ProgressDialog dialog = new ProgressDialog(contestNameLabel.getShell(), "Loading event feed...");
 			final Shell progressShell = dialog.open();
@@ -357,6 +398,8 @@ public class AwardUI {
 						templateAwards.setEnabled(true);
 
 						save.setEnabled(true);
+						if (contestSource instanceof RESTContestSource)
+							upload.setEnabled(true);
 
 						progressShell.dispose();
 					});
