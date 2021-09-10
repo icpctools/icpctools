@@ -45,6 +45,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
+import org.icpc.tools.contest.model.util.Taskbar;
 
 public class AwardUI {
 	private static final String PREF_ID = "org.icpc.tools.award";
@@ -669,6 +670,8 @@ public class AwardUI {
 		}
 
 		Display.setAppName("Award Utility");
+		Taskbar.setTaskbarImage(AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
+
 		Display display = new Display();
 
 		final Shell shell = new Shell(display);

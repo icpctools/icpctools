@@ -1,13 +1,11 @@
 package org.icpc.tools.resolver;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +31,7 @@ import org.icpc.tools.contest.model.resolver.ResolverLogic.PredeterminedStep;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
+import org.icpc.tools.contest.model.util.Taskbar;
 import org.icpc.tools.contest.model.util.TeamDisplay;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.core.DisplayConfig;
@@ -150,35 +149,6 @@ public class Resolver {
 		System.out.println("     i      - Toggle additional info");
 	}
 
-	private static void setTaskbarImage(Image iconImage) {
-		// call java.awt.Taskbar.getTaskbar().setIconImage() (Java 9+) or
-		// for Mac Java 8 call com.apple.eawt.Application.getApplication().setDockIconImage()
-		// without direct dependencies
-		try {
-			Class<?> c = Class.forName("java.awt.Taskbar");
-			Method m = c.getDeclaredMethod("getTaskbar");
-			Object o = m.invoke(null);
-			m = c.getDeclaredMethod("setIconImage", Image.class);
-			m.invoke(o, iconImage);
-			return;
-		} catch (Exception e) {
-			// ignore
-		}
-
-		if (!System.getProperty("os.name").contains("Mac"))
-			return;
-
-		try {
-			Class<?> c = Class.forName("com.apple.eawt.Application");
-			Method m = c.getDeclaredMethod("getApplication");
-			Object o = m.invoke(null);
-			m = c.getDeclaredMethod("setDockIconImage", Image.class);
-			m.invoke(o, iconImage);
-		} catch (Exception e) {
-			// ignore
-		}
-	}
-
 	public static void main(String[] args) {
 		String log = "resolver";
 		List<String> argList = Arrays.asList(args);
@@ -214,7 +184,7 @@ public class Resolver {
 		} catch (Exception e) {
 			// could not set title or icon
 		}
-		setTaskbarImage(iconImage);
+		Taskbar.setTaskbarImage(iconImage);
 
 		for (ContestSource cs : contestSource)
 			cs.outputValidation();
