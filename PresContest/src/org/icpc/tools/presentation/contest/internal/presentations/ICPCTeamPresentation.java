@@ -20,7 +20,7 @@ public class ICPCTeamPresentation extends AbstractICPCPresentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 0.8f);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 0.8f);
 		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.3), true, true);
 	}
 

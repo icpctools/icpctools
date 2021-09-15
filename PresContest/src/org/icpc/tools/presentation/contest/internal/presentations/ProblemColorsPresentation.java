@@ -55,7 +55,7 @@ public class ProblemColorsPresentation extends AbstractICPCPresentation {
 		int h = height * 4 / 5;
 
 		float dpi = 96;
-		Font font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, h * 45f / dpi);
+		Font font = ICPCFont.deriveFont(Font.BOLD, h * 45f / dpi);
 
 		IProblem[] problems = contest.getProblems();
 		problemInfos = new ProblemInfo[problems.length];

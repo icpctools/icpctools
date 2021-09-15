@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator3D;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static final long GROUP_INTRO_TIME = 4000;
@@ -94,8 +94,8 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		super.setSize(d);
 
 		final float dpi = 96;
-		groupFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 72f * 0.12f / dpi);
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 72f * 0.07f / dpi);
+		groupFont = ICPCFont.deriveFont(Font.BOLD, height * 72f * 0.12f / dpi);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 72f * 0.07f / dpi);
 	}
 
 	@Override
@@ -352,28 +352,24 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 
 		// draw team name and logo across the bottom
 		g.setFont(font);
-		FontMetrics fm = g.getFontMetrics();
-		String s = pos.label;
-		int tw = fm.stringWidth(s);
-		float f = 0.9f;
+		int max = width - border * 5;
+		if (pos.smImage != null)
+			max -= pos.smImage.getWidth();
+		TextHelper text = new TextHelper(g, pos.label, max);
+		int tw = text.getWidth();
+
 		if (pos.smImage != null) {
-			if (tw > width - pos.smImage.getWidth() - border * 5) {
-				Font narrowFont = font.deriveFont(AffineTransform.getScaleInstance(f, 1.0));
-				g.setFont(narrowFont);
-				fm = g.getFontMetrics();
-				tw = fm.stringWidth(s);
-				f -= 0.05f;
-			}
 			border = Math.max(border, pos.smImage.getHeight() / 2 + 10);
 			g.drawImage(pos.smImage, (width - tw) / 2 - pos.smImage.getWidth() / 2 - border,
 					height - border - 20 - pos.smImage.getHeight() / 2, null);
 		}
 
+		FontMetrics fm = g.getFontMetrics();
 		int ty = fm.getAscent();
 		g.setColor(Color.DARK_GRAY);
-		g.drawString(s, (width - tw) / 2 + 20 + border + 2, height - border - 20 + ty / 2);
-		g.drawString(s, (width - tw) / 2 + 20 + border, height - border - 20 + ty / 2 + 2);
+		text.draw((width - tw) / 2 + 20 + border + 2, height - border - 20 + ty / 2);
+		text.draw((width - tw) / 2 + 20 + border, height - border - 20 + ty / 2 + 2);
 		g.setColor(Color.WHITE);
-		g.drawString(s, (width - tw) / 2 + 20 + border, height - border - 20 + ty / 2);
+		text.draw((width - tw) / 2 + 20 + border, height - border - 20 + ty / 2);
 	}
 }

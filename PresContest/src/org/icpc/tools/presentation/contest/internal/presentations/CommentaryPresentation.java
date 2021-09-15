@@ -73,12 +73,12 @@ public class CommentaryPresentation extends TitledPresentation {
 
 		final float dpi = 96;
 		float size = (int) (height * 72.0 * 0.028 / dpi);
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 2.2f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, size * 2.2f);
 
 		float tempRowHeight = height / (float) LINES_PER_SCREEN;
 		size = tempRowHeight * 36f * 0.95f / dpi;
-		textFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, size * 1.5f);
-		textFont2 = ICPCFont.getMasterFont().deriveFont(Font.ITALIC, size * 1.5f);
+		textFont = ICPCFont.deriveFont(Font.PLAIN, size * 1.5f);
+		textFont2 = ICPCFont.deriveFont(Font.ITALIC, size * 1.5f);
 	}
 
 	@Override

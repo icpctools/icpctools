@@ -20,7 +20,7 @@ public class Legend {
 	protected static Font font;
 
 	private static void init(Graphics2D g) {
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, 24);
+		font = ICPCFont.deriveFont(Font.BOLD, 24);
 	}
 
 	public static void drawLegend(Graphics2D g) {

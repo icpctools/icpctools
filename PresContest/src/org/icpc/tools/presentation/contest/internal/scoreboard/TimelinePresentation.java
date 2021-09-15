@@ -43,7 +43,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 	@Override
 	public void setSize(Dimension d) {
 		super.setSize(d);
-		cubeFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, rowFont.getSize() * 0.8f);
+		cubeFont = ICPCFont.deriveFont(Font.BOLD, rowFont.getSize() * 0.8f);
 		arrowImg = null;
 	}
 

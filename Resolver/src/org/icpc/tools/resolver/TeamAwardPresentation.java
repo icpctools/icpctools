@@ -65,9 +65,9 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 	public void init() {
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
-		teamFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.9f);
-		groupFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.7f);
-		memberFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.3f);
+		teamFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.9f);
+		groupFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.7f);
+		memberFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.3f);
 	}
 
 	@Override

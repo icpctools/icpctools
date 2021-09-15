@@ -89,7 +89,7 @@ public class TeamJudgePresentation extends AbstractICPCPresentation {
 		float size = (int) (height * 72.0 * 0.028 / dpi);
 
 		size = height * 36f * 0.06f / dpi;
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 1.2f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, size * 1.2f);
 	}
 
 	@Override

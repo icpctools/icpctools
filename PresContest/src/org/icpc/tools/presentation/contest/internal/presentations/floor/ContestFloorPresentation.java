@@ -15,6 +15,7 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class ContestFloorPresentation extends AbstractICPCPresentation {
 	private static final int MS_PER_TEAM = 2000;
@@ -29,7 +30,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void init() {
-		font = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, 36);
+		font = ICPCFont.deriveFont(Font.PLAIN, 36);
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 				}
 			}
 
-			g.drawString(s, x + 20, fm.getAscent() + 20);
+			TextHelper.drawString(g, s, x + 20, fm.getAscent() + 20);
 		}
 	}
 }

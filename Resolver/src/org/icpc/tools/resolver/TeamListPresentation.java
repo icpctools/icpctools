@@ -52,10 +52,9 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		rowHeight = (height - 40) / ROWS_PER_SCREEN;
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
-		Font masterFont = ICPCFont.getMasterFont();
-		teamFont = masterFont.deriveFont(Font.PLAIN, inch * 0.62f);
-		titleFont = masterFont.deriveFont(Font.BOLD, inch);
-		subTitleFont = masterFont.deriveFont(Font.BOLD, inch * 0.5f);
+		teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * 0.62f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, inch);
+		subTitleFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.5f);
 	}
 
 	@Override

@@ -52,9 +52,9 @@ public class ProblemSummaryPresentation extends AbstractICPCPresentation {
 		boxHeight = (height - 78 - OUTER_MARGIN * 2 - INNER_MARGIN * 2 - SPACING * 2) / 3;
 		final float dpi = 96;
 		float inch = boxHeight * 72f / dpi;
-		font1 = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.95f);
-		font2 = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.33f);
-		font3 = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.22f);
+		font1 = ICPCFont.deriveFont(Font.BOLD, inch * 0.95f);
+		font2 = ICPCFont.deriveFont(Font.BOLD, inch * 0.33f);
+		font3 = ICPCFont.deriveFont(Font.BOLD, inch * 0.22f);
 	}
 
 	@Override

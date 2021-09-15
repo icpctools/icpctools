@@ -16,6 +16,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class BalloonPresentation extends AbstractICPCPresentation {
 	private static final int LINES_PER_SCREEN = 10;
@@ -55,7 +56,7 @@ public class BalloonPresentation extends AbstractICPCPresentation {
 		final int dpi = 96;
 		rowHeight = height / (float) LINES_PER_SCREEN;
 		float inch = rowHeight / dpi;
-		textFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 72f);
+		textFont = ICPCFont.deriveFont(Font.BOLD, inch * 72f);
 	}
 
 	@Override
@@ -119,7 +120,7 @@ public class BalloonPresentation extends AbstractICPCPresentation {
 			String[] st = tokenize(balloon.team, fm, width - 285);
 			int size = st.length;
 			for (int i = 0; i < size; i++) {
-				g.drawString(st[i], 270, y);
+				TextHelper.drawString(g, st[i], 270, y);
 				y += fm.getHeight();
 			}
 		}

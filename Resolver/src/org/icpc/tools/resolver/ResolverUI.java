@@ -317,7 +317,7 @@ public class ResolverUI {
 
 		final float dpi = 96;
 		float size = (window.getHeight() / 14f) * 36f / dpi;
-		messageFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, size);
+		messageFont = ICPCFont.deriveFont(Font.PLAIN, size);
 
 		processAction(Action.FORWARD);
 	}

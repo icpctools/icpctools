@@ -53,7 +53,7 @@ public class CCSPresentation extends Presentation {
 		}
 
 		final float dpi = 96;
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 4f / dpi);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 4f / dpi);
 	}
 
 	@Override
