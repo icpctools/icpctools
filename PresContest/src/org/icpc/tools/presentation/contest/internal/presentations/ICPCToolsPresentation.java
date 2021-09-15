@@ -48,7 +48,7 @@ public class ICPCToolsPresentation extends Presentation {
 			Trace.trace(Trace.ERROR, "Error loading images", e);
 		}
 
-		font = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, height * 3f / 96f);
+		font = ICPCFont.deriveFont(Font.PLAIN, height * 3f / 96f);
 
 		scale = Math.min(width * 0.8 / FULL_DIM.width, (height * 0.8 - 50) / FULL_DIM.height);
 		origin = new Point((int) (width - FULL_DIM.width * scale) / 2, (int) (height - FULL_DIM.height * scale) / 2 - 20);

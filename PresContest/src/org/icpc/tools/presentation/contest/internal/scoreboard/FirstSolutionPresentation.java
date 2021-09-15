@@ -26,6 +26,7 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
@@ -327,16 +328,10 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		String s = team.getActualDisplayName();
 		g.setColor(Color.white);
 		g.setFont(rowFont);
-		fm = g.getFontMetrics();
 
-		float n = 1f;
-		while (fm.stringWidth(s) > width - BORDER * 2 - col1 - rowHeight) {
-			n -= 0.025f;
-			Font f = rowFont.deriveFont(AffineTransform.getScaleInstance(n, 1.0));
-			g.setFont(f);
-			fm = g.getFontMetrics();
-		}
-		g.drawString(s, BORDER + col1 + (int) rowHeight, fm.getAscent() + 5);
+		fm = g.getFontMetrics();
+		TextHelper.drawString(g, team.getActualDisplayName(), BORDER + col1 + (int) rowHeight, fm.getAscent() + 5,
+				(int) (width - BORDER * 2 - col1 - rowHeight));
 
 		g.setFont(rowFont);
 		fm = g.getFontMetrics(); // row font

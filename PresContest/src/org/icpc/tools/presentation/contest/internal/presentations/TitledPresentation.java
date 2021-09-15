@@ -33,8 +33,8 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 	protected void setup() {
 		final float dpi = 96;
 		float size = (int) (height * 72.0 * 0.028 / dpi);
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 2.2f);
-		clockFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 1.25f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, size * 2.2f);
+		clockFont = ICPCFont.deriveFont(Font.BOLD, size * 1.25f);
 
 		headerImg = createHeaderImage();
 	}

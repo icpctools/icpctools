@@ -19,9 +19,8 @@ public class TeamListSidePresentation extends AbstractICPCPresentation {
 	@Override
 	public void init() {
 		float inch = height * 72f / 96f / 4.5f;
-		Font masterFont = ICPCFont.getMasterFont();
-		titleFont = masterFont.deriveFont(Font.BOLD, inch);
-		subTitleFont = masterFont.deriveFont(Font.BOLD, inch * 0.5f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, inch);
+		subTitleFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.5f);
 	}
 
 	public void setTeams(TeamListStep step) {

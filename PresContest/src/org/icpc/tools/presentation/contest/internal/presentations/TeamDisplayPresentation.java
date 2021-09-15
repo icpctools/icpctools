@@ -27,6 +27,7 @@ import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ClientLauncher;
 import org.icpc.tools.presentation.contest.internal.DigitalFont;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.standalone.TeamUtil;
 
 public class TeamDisplayPresentation extends AbstractICPCPresentation {
@@ -90,7 +91,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 		final float dpi = 96;
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 36f / 6f / dpi);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 36f / 6f / dpi);
 		fontTouch = font;
 	}
 
@@ -265,7 +266,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 		if (teamName != null) {
 			String[] s = splitString(g, teamName, width - MARGIN * 2);
 			for (int i = 0; i < s.length; i++) {
-				g.drawString(s[i], (width - fm.stringWidth(s[i])) / 2,
+				TextHelper.drawString(g, s[i], (width - fm.stringWidth(s[i])) / 2,
 						height - fm.getDescent() - MARGIN - (s.length - i - 1) * fm.getHeight());
 			}
 		}

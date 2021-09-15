@@ -2,10 +2,8 @@ package org.icpc.tools.presentation.contest.internal.scoreboard;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +22,7 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.Utility;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
@@ -322,16 +321,9 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 		s = team.getActualDisplayName();
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
-		float nn = 1f;
 		int xx = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
-		float wid = width - BORDER * 2 - fm.stringWidth("199 9 9999") - rowHeight;
-		while (fm.stringWidth(s) > wid) {
-			nn -= 0.025f;
-			Font f = rowFont.deriveFont(AffineTransform.getScaleInstance(nn, 1.0));
-			g.setFont(f);
-			fm = g.getFontMetrics();
-		}
-		g.drawString(s, xx, fm.getAscent() + 5);
+		TextHelper.drawString(g, s, xx, fm.getAscent() + 5,
+				(int) (width - BORDER * 2 - fm.stringWidth("199 9 9999") - rowHeight));
 
 		drawRight(g, contest, team, standing, sr);
 	}

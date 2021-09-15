@@ -11,6 +11,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class FloorNamePresentation extends AbstractICPCPresentation {
 	protected FloorMap floor;
@@ -49,9 +50,9 @@ public class FloorNamePresentation extends AbstractICPCPresentation {
 		if (team != null) {
 			g.setFont(font);
 			g.setColor(Color.WHITE);
-			String s = team.getActualDisplayName();
 			FontMetrics fm = g.getFontMetrics();
-			g.drawString(s, (width - fm.stringWidth(s)) / 2, fm.getAscent() + 20);
+			TextHelper text = new TextHelper(g, team.getActualDisplayName());
+			text.draw((width - text.getWidth()) / 2, fm.getAscent() + 20);
 		}
 	}
 }

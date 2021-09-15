@@ -34,7 +34,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 36f / 10f / 96f);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 36f / 10f / 96f);
 	}
 
 	@Override

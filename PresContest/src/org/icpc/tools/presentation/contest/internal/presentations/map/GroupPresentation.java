@@ -49,7 +49,7 @@ public class GroupPresentation extends AbstractICPCPresentation {
 		images.clear();
 
 		final float dpi = 96;
-		groupFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 72f * 0.07f / dpi);
+		groupFont = ICPCFont.deriveFont(Font.BOLD, height * 72f * 0.07f / dpi);
 	}
 
 	@Override

@@ -39,9 +39,9 @@ public class SplashPresentation extends AbstractICPCPresentation {
 	public void init() {
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 1.25f);
-		attrFont = ICPCFont.getMasterFont().deriveFont(Font.PLAIN, inch * 0.3f);
-		smallFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, inch * 0.225f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, inch * 1.25f);
+		attrFont = ICPCFont.deriveFont(Font.PLAIN, inch * 0.3f);
+		smallFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.225f);
 
 		image = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.5), true, true);
 

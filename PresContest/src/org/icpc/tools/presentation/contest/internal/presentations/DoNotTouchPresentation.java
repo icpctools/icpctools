@@ -85,7 +85,7 @@ public class DoNotTouchPresentation extends Presentation {
 		}
 
 		if (font == null)
-			font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, 55);
+			font = ICPCFont.deriveFont(Font.BOLD, 55);
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 

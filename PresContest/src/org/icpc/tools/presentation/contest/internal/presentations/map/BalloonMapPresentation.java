@@ -126,7 +126,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 		super.setSize(d);
 
 		final float dpi = 96;
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 72f * 0.04f / dpi);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 72f * 0.04f / dpi);
 	}
 
 	@Override

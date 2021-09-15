@@ -71,7 +71,7 @@ public class MohamedPresentation extends Presentation {
 			int w = 50000;
 
 			do {
-				font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, n);
+				font = ICPCFont.deriveFont(Font.BOLD, n);
 				n -= 2;
 
 				g.setFont(font);

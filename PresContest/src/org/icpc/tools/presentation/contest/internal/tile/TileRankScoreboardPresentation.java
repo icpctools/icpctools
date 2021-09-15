@@ -37,9 +37,8 @@ public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPrese
 
 		final float dpi = 96;
 		float size = tileDim.height * 36f * 0.95f / dpi;
-		Font masterFont = ICPCFont.getMasterFont();
-		numFont = masterFont.deriveFont(Font.BOLD, size * 1.9f);
-		solvedFont = masterFont.deriveFont(Font.PLAIN, size * 0.85f);
+		numFont = ICPCFont.deriveFont(Font.BOLD, size * 1.9f);
+		solvedFont = ICPCFont.deriveFont(Font.PLAIN, size * 0.85f);
 	}
 
 	@Override

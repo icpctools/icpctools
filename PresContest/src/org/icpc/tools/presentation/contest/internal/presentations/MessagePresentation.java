@@ -24,7 +24,7 @@ public class MessagePresentation extends AbstractICPCPresentation {
 		super.setSize(d);
 
 		final float dpi = 96;
-		font = ICPCFont.getMasterFont().deriveFont(Font.BOLD, height * 36f / 3f / dpi);
+		font = ICPCFont.deriveFont(Font.BOLD, height * 36f / 3f / dpi);
 		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.3), true, true);
 
 		messageList = null;

@@ -1,14 +1,7 @@
 package org.icpc.tools.presentation.contest.internal;
 
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
-import java.awt.font.TextAttribute;
-import java.awt.font.TextLayout;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,66 +139,5 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		}
 		list.add(s);
 		return list.toArray(new String[0]);
-	}
-
-	/**
-	 * @return A TextLayout that wraps the String <code>text</code> into lines of a given
-	 *         </code>width</code>. If some characters in the text are not supported by the first
-	 *         font, one of the other fonts is used, in order.
-	 */
-	public static TextLayout renderString(Graphics2D g, String text, int width, Font[] fonts) {
-		AttributedString attributedString = createFallbackString(text, fonts);
-		// https://stackoverflow.com/a/21357419
-		AttributedCharacterIterator characterIterator = attributedString.getIterator();
-		FontRenderContext fontRenderContext = g.getFontRenderContext();
-		LineBreakMeasurer lbm = new LineBreakMeasurer(characterIterator, fontRenderContext);
-		return lbm.nextLayout(width);
-	}
-
-	/**
-	 * @return An AttributedString that attributes the String <code>text</code> with font
-	 *         attributes. If some characters in <code>text</code> are not supported by the first
-	 *         font, one of the other fonts is used, in order.
-	 */
-	protected static AttributedString createFallbackString(String s, Font[] fonts) {
-		// https://stackoverflow.com/a/9482676, adapted to support Unicode values > 0x10000 and
-		// multiple fallback fonts
-		AttributedString result = new AttributedString(s);
-
-		int textLength = s.length();
-		result.addAttribute(TextAttribute.FONT, fonts[0], 0, textLength);
-
-		int lastFont = -1;
-		int fontBegin = 0;
-		for (int i = 0; i < s.length();) {
-			int codePoint = s.codePointAt(i);
-			int charCount = Character.charCount(codePoint); // high-valued Unicode code points span
-																			// two chars
-
-			// detect which font (if any) can be used to display the current character
-			int curFont = 0;
-			for (int j = 0; j < fonts.length; j++) {
-				if (fonts[j].canDisplay(codePoint)) {
-					curFont = j;
-					break;
-				}
-			}
-
-			// if the font changes, add attribute for last region
-			if (curFont != lastFont) {
-				if (lastFont >= 0)
-					result.addAttribute(TextAttribute.FONT, fonts[lastFont], fontBegin, i);
-
-				fontBegin = i;
-				lastFont = curFont;
-			}
-
-			i += charCount;
-		}
-
-		if (lastFont >= 0)
-			result.addAttribute(TextAttribute.FONT, fonts[lastFont], fontBegin, textLength);
-
-		return result;
 	}
 }

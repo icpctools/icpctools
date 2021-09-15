@@ -7,8 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +31,7 @@ import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 import org.icpc.tools.presentation.contest.internal.presentations.TitledPresentation;
@@ -50,7 +49,6 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	protected Font headerFont;
 	protected Font headerItalicsFont;
 	protected Font rowFont;
-	protected Font[] rowFonts;
 	protected Font rowItalicsFont;
 	public static Font statusFont;
 	public static Font problemFont;
@@ -98,8 +96,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 		float tempRowHeight = height / (float) teamsPerScreen;
 		size = tempRowHeight * 36f * 0.95f / dpi;
-		rowFonts = ICPCFont.deriveFonts(Font.BOLD, size * 1.25f);
-		rowFont = rowFonts[0];
+		rowFont = ICPCFont.deriveFont(Font.BOLD, size * 1.25f);
 		rowItalicsFont = ICPCFont.deriveFont(Font.BOLD, size * 1.25f);
 		statusFont = ICPCFont.deriveFont(Font.BOLD, size * 0.7f);
 		problemFont = ICPCFont.deriveFont(Font.PLAIN, size * 0.5f);
@@ -440,19 +437,9 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 
-		float nn = 1f;
 		int xx = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
-		float wid = width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight;
-		TextLayout textLayout = renderString(g, s, Integer.MAX_VALUE, rowFonts);
-		while (textLayout.getBounds().getWidth() > wid) {
-			nn -= 0.025f;
-			Font[] ff = new Font[rowFonts.length];
-			for (int i = 0; i < ff.length; i++) {
-				ff[i] = rowFonts[i].deriveFont(AffineTransform.getScaleInstance(nn, 1.0));
-			}
-			textLayout = renderString(g, s, Integer.MAX_VALUE, ff);
-		}
-		textLayout.draw(g, xx, fm.getAscent() + 5);
+		TextHelper text = new TextHelper(g, s, (int) (width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight));
+		text.draw(xx, fm.getAscent() + 5);
 
 		int n = standing.getNumSolved();
 

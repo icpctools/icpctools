@@ -60,8 +60,8 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		super.setSize(d);
 
 		float size = tileDim.height * 36f * 0.95f / 96;
-		titleFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 1.9f);
-		clockFont = ICPCFont.getMasterFont().deriveFont(Font.BOLD, size * 0.8f);
+		titleFont = ICPCFont.deriveFont(Font.BOLD, size * 1.9f);
+		clockFont = ICPCFont.deriveFont(Font.BOLD, size * 0.8f);
 	}
 
 	@Override
