@@ -1,13 +1,14 @@
-package org.icpc.tools.contest.model;
+package org.icpc.tools.contest.util.cms;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
-import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Organization;
@@ -40,12 +41,11 @@ public class TSVImporter {
 			if (s.trim().isEmpty() || "null".equals(s))
 				return;
 		}
-
 		co.add(name, value);
 	}
 
-	public static void importGroups(Contest contest, File f) throws IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+	public static void importGroups(List<Group> list, File f) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "groups.tsv")))) {
 			// read header
 			br.readLine();
 
@@ -58,7 +58,7 @@ public class TSVImporter {
 						add(g, ID, st[0]);
 						add(g, ICPC_ID, st[0]);
 						add(g, NAME, st[1]);
-						contest.add(g);
+						list.add(g);
 					} catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Error parsing groups.tsv", e);
 					}
@@ -68,8 +68,11 @@ public class TSVImporter {
 		}
 	}
 
-	public static void importTeams(Contest contest, File f) throws IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+	public static void importTeams(List<Team> list, File f) throws IOException {
+		File file = new File(f, "teams2.tsv");
+		if (!file.exists())
+			file = new File(f, "teams.tsv");
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			// read header
 			br.readLine();
 
@@ -79,7 +82,10 @@ public class TSVImporter {
 				if (st != null && st.length > 0) {
 					Team t = new Team();
 					try {
-						add(t, ContestObject.ID, st[0]);
+						if ("null".equals(st[0]))
+							add(t, ContestObject.ID, "0");
+						else
+							add(t, ContestObject.ID, st[0]);
 						if (st.length < 7)
 							Trace.trace(Trace.WARNING, "Team missing columns: " + s);
 						else {
@@ -89,10 +95,13 @@ public class TSVImporter {
 							if (st.length > 7) {
 								String id = realOrgId(st[7]);
 								add(t, ORGANIZATION_ID, id);
-							}
-							// TODO: group_id
 
-							contest.add(t);
+								Organization o = JsonToTSVConverter.getOrganizationById(id);
+								o.add(FORMAL_NAME, st[4]);
+								o.add(COUNTRY, st[6]);
+							}
+
+							list.add(t);
 						}
 					} catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Error parsing teams.tsv, team " + t.getId(), e);
@@ -113,8 +122,11 @@ public class TSVImporter {
 		return id;
 	}
 
-	public static void importInstitutions(Contest contest, File f) throws IOException {
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+	public static void importInstitutions(List<Organization> list, File f) throws IOException {
+		File file = new File(f, "institutions2.tsv");
+		if (!file.exists())
+			file = new File(f, "institutions.tsv");
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 			// read header
 			br.readLine();
 
@@ -132,6 +144,14 @@ public class TSVImporter {
 					if (st.length > 4)
 						add(org, COUNTRY, st[4]);
 
+					// temp for Moscow - map over two columns
+					if (st.length == 7) {
+						String[] st2 = new String[9];
+						for (int i = 4; i < 9; i++)
+							st2[i] = st[i - 2];
+						st = st2;
+					}
+
 					if (st.length > 5)
 						add(org, URL, st[5]);
 					if (st.length > 6)
@@ -146,16 +166,16 @@ public class TSVImporter {
 							org.add(LOCATION, obj);
 					}
 
-					contest.add(org);
+					list.add(org);
 				}
 				s = br.readLine();
 			}
 		}
 	}
 
-	public static void importTeamMembers(Contest contest, File f) throws IOException {
+	public static void importTeamMembers(List<TeamMember> list, File f) throws IOException {
 		int id = 1;
-		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "members.tsv")))) {
 			// read header
 			br.readLine();
 
@@ -183,7 +203,72 @@ public class TSVImporter {
 						}
 						if (st.length >= 6)
 							add(p, ICPC_ID, st[5]);
-						contest.add(p);
+						list.add(p);
+					}
+				}
+				s = br.readLine();
+			}
+		}
+	}
+
+	public static void importTeamMembersTab(List<TeamMember> list, List<Team> teams, File f) throws IOException {
+		List<TeamMember> temp = new ArrayList<>();
+		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "Person.tab")))) {
+			// read header
+			br.readLine();
+
+			String s = br.readLine();
+			while (s != null) {
+				String[] st = s.split("\\t");
+				if (st != null && st.length > 0) {
+					TeamMember p = new TeamMember();
+					add(p, ID, st[0]);
+					add(p, ICPC_ID, st[0]);
+					// add(p, TEAM_ID, st[0]);
+					add(p, FIRST_NAME, st[2]);
+					add(p, LAST_NAME, st[3]);
+					String sex = st[29];
+					if (sex != null)
+						add(p, SEX, sex.toLowerCase());
+					temp.add(p);
+				}
+				s = br.readLine();
+			}
+		}
+		System.out.println(temp.size());
+
+		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "TeamPerson.tab")))) {
+			// read header
+			br.readLine();
+
+			String s = br.readLine();
+			while (s != null) {
+				String[] st = s.split("\\t");
+				if (st != null && st.length > 0) {
+					String id = st[0];
+
+					TeamMember p = null;
+					for (TeamMember tm : temp)
+						if (id.equals(tm.getICPCId()))
+							p = tm;
+
+					if (p == null) {
+						System.err.println("Warning: unknown team person");
+					} else {
+						String teamId = st[1];
+						Team t = null;
+						for (Team tm : teams)
+							if (teamId.equals(tm.getICPCId()))
+								t = tm;
+
+						if (t == null) {
+							// System.err.println("Warning: person in unknown team");
+						} else {
+							add(p, TEAM_ID, t.getId());
+							String role = st[3];
+							add(p, ROLE, role.toLowerCase());
+							list.add(p);
+						}
 					}
 				}
 				s = br.readLine();
