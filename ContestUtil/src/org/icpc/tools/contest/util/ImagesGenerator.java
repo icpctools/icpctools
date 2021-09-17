@@ -780,6 +780,13 @@ public class ImagesGenerator {
 		Arrays.sort(orgs, new Comparator<IOrganization>() {
 			@Override
 			public int compare(IOrganization o1, IOrganization o2) {
+				try {
+					Integer i1 = Integer.parseInt(o1.getId());
+					Integer i2 = Integer.parseInt(o2.getId());
+					return Integer.compare(i1, i2);
+				} catch (Exception e) {
+					// ignore
+				}
 				return o1.getId().compareTo(o2.getId());
 			}
 		});
