@@ -76,7 +76,12 @@ public class TextHelper {
 
 			// detect if the font can be used to display the current character
 			int curSegment = -1;
-			if (codePoint != ZERO_WIDTH_JOINER && font.canDisplay(codePoint)) {
+			if (codePoint == ZERO_WIDTH_JOINER) {
+				// keep with last
+				curSegment = lastSegment;
+				if (curSegment == 2)
+					emojiList.add(codePoint);
+			} else if (font.canDisplay(codePoint)) {
 				curSegment = 1;
 			} else {
 				curSegment = 2;
@@ -150,7 +155,7 @@ public class TextHelper {
 		BufferedImage img = getEmoji(hex);
 		Text t = new Text();
 		// TODO should resize emojis when we scale text
-		t.img = ImageScaler.scaleImage(img, height, height);
+		t.img = ImageScaler.scaleImage(img, height - 2, height - 2);
 		t.dx = (int) xx;
 		xx += t.img.getWidth();
 		h = Math.max(h, t.img.getHeight());
@@ -170,20 +175,22 @@ public class TextHelper {
 	}
 
 	public void draw(int x, int y) {
+		FontMetrics fm = g.getFontMetrics();
 		for (Text t : list) {
 			if (t.gv != null)
 				g.drawGlyphVector(t.gv, x + t.dx, y);
 			else
-				g.drawImage(t.img, x + (int) t.dx, y - t.img.getHeight(), null);
+				g.drawImage(t.img, x + (int) t.dx, y + fm.getDescent() - t.img.getHeight() - 1, null);
 		}
 	}
 
 	public void draw(float x, float y) {
+		FontMetrics fm = g.getFontMetrics();
 		for (Text t : list) {
 			if (t.gv != null)
 				g.drawGlyphVector(t.gv, x + t.dx, y);
 			else
-				g.drawImage(t.img, (int) (x + t.dx), (int) y - t.img.getHeight(), null);
+				g.drawImage(t.img, (int) (x + t.dx), (int) y + fm.getDescent() - t.img.getHeight() - 1, null);
 		}
 	}
 

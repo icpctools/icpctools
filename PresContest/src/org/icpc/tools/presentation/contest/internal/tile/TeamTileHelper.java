@@ -254,7 +254,8 @@ public class TeamTileHelper {
 		String s = team.getActualDisplayName();
 
 		g.setColor(Color.WHITE);
-		TextHelper text = new TextHelper(g, s + " 10", tileDim.width - tileDim.height - ww - IN_TILE_GAP * 2 - 2);
+		TextHelper text = new TextHelper(g, s,
+				tileDim.width - tileDim.height - ww - IN_TILE_GAP * 2 - 2 - fm.stringWidth(" 10"));
 		text.draw(ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 + fm.getAscent()) / 2 - 2);
 	}
 
