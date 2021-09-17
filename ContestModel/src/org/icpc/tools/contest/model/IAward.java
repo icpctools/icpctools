@@ -39,11 +39,14 @@ public interface IAward extends IContestObject {
 	AwardType GROUP = new AwardType("Group Winner", "group-winner-.*");
 	AwardType ORGANIZATION = new AwardType("Organization Winner", "organization-winner-.*");
 	AwardType GROUP_HIGHLIGHT = new AwardType("Group Highlight", "group-highlight-.*");
+	AwardType SOLVED = new AwardType("Solved", "solved-.*");
 	AwardType TOP = new AwardType("Top", "top-.*");
+	AwardType HONORS = new AwardType("Honors", "honors-.*");
+	// AwardType HONORABLE_MENTION = new AwardType("Honorable Mention", "honorable-mention");
 	AwardType OTHER = new AwardType("Other", ".*");
 
 	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP, ORGANIZATION,
-			GROUP_HIGHLIGHT, TOP, OTHER };
+			GROUP_HIGHLIGHT, SOLVED, TOP, HONORS, OTHER };
 
 	/**
 	 * Returns the ids of the teams that this award is for.
@@ -60,11 +63,11 @@ public interface IAward extends IContestObject {
 	AwardType getAwardType();
 
 	/**
-	 * Return the number of awards given.
+	 * Return the awards for an award template, e.g. number of awards given.
 	 *
 	 * @return
 	 */
-	int getCount();
+	String getParameter();
 
 	/**
 	 * Return the citation for this award.

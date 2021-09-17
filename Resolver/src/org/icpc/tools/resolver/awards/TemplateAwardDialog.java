@@ -28,11 +28,13 @@ import org.icpc.tools.contest.model.util.AwardUtil;
 
 public class TemplateAwardDialog extends AbstractAwardDialog {
 	protected String templateString = "{\"id\":\"winner\"}\n" + // champion
-			"{\"id\":\"gold-medal\",\"count\":4}\n" + // gold medals
-			"{\"id\":\"silver-medal\",\"count\":4}\n" + // silver medals
-			"{\"id\":\"bronze-medal\",\"count\":4}\n" + // bronze medals
+			"{\"id\":\"gold-medal\",\"parameter\":\"4\"}\n" + // gold medals
+			"{\"id\":\"silver-medal\",\"parameter\":\"4\"}\n" + // silver medals
+			"{\"id\":\"bronze-medal\",\"parameter\":\"4\"}\n" + // bronze medals
 			"{\"id\":\"first-to-solve-*\"}\n" + // first to solve awards
-			"{\"id\":\"top-25\",\"count\":25}\n" + // top 25% of teams
+			"{\"id\":\"top-25\",\"parameter\":\"25\"}\n" + // top 25% of teams
+			"{\"id\":\"honors-50\",\"parameter\":\"50-100\"}\n" + // honorable mention for teams
+																					// scoring below 50th percentile
 			"{\"id\":\"group-winner-*\"}"; // group winners
 
 	protected Text text;
@@ -88,7 +90,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 
 		status = new Label(comp, SWT.NONE);
 		status.setText("");
-		data = new GridData(SWT.END, SWT.CENTER, true, false);
+		data = new GridData(SWT.BEGINNING, SWT.CENTER, true, false);
 		data.horizontalSpan = 2;
 		status.setLayoutData(data);
 	}
@@ -111,7 +113,8 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 
 	@Override
 	protected AwardType[] getAwardTypes() {
-		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL, IAward.TOP };
+		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL, IAward.TOP,
+				IAward.HONORS };
 	}
 
 	protected Award parseAward(JsonObject data) {
@@ -124,6 +127,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 	@Override
 	protected void applyAwards(Contest aContest) {
 		template = new IAward[0];
+		String error = null;
 
 		String firstLine = templateString.trim();
 		if (firstLine.length() < 3 || !(firstLine.startsWith("[") || firstLine.startsWith("{"))) {
@@ -143,7 +147,6 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 			}
 		} else { // { - parse as NDJSON
 			List<IAward> list = new ArrayList<>();
-			String error = null;
 			String[] lines = templateString.split("\n");
 			for (int i = 0; i < lines.length; i++) {
 				if (lines[i] != null && lines[i].trim().length() > 0)
@@ -156,12 +159,16 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 					}
 			}
 			template = list.toArray(new Award[0]);
-			if (error != null)
-				status.setText(error + " (" + template.length + " awards applied)");
-			else
-				status.setText(template.length + " awards applied");
 		}
 
-		AwardUtil.applyAwards(aContest, template);
+		try {
+			AwardUtil.applyAwards(aContest, template);
+			if (error != null)
+				status.setText(error + " (" + template.length + " templates applied)");
+			else
+				status.setText(template.length + " templates applied");
+		} catch (Exception e) {
+			status.setText("Couldn't apply: " + e.getMessage());
+		}
 	}
 }
