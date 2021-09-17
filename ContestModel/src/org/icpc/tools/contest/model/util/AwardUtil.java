@@ -116,15 +116,23 @@ public class AwardUtil {
 
 	public static void createGroupAwards(Contest contest, int numPerGroup) {
 		Award group = new Award(IAward.GROUP, "*", null, null, true);
-		group.setCount(numPerGroup);
+		group.setParameter(numPerGroup + "");
 		createGroupAwards(contest, group);
 	}
 
-	public static void createGroupAwards(Contest contest, IAward awardTemplate) {
-		int numPerGroup = awardTemplate.getCount();
-		if (numPerGroup < 0)
-			numPerGroup = 1;
-		if (awardTemplate.getId().equals("group-winner-*")) {
+	public static void createGroupAwards(Contest contest, IAward template) {
+		int numPerGroup = 1;
+		try {
+			if (template.getParameter() != null)
+				numPerGroup = Integer.parseInt(template.getParameter());
+
+			if (numPerGroup < 1)
+				throw new IllegalArgumentException("Cannot assign group awards to less than one team");
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse group parameter: " + template.getParameter());
+		}
+
+		if (template.getId().equals("group-winner-*")) {
 			// to all groups
 			for (IGroup group : contest.getGroups()) {
 				if (group.isHidden())
@@ -136,7 +144,7 @@ public class AwardUtil {
 				assignGroup(contest, groupAward, numPerGroup);
 			}
 		} else {
-			assignGroup(contest, (Award) awardTemplate, numPerGroup);
+			assignGroup(contest, (Award) template, numPerGroup);
 		}
 	}
 
@@ -176,15 +184,15 @@ public class AwardUtil {
 		}
 	}
 
-	public static void createFirstToSolveAwards(Contest contest, IAward awardTemplate) {
-		if (awardTemplate.getId().equals("first-to-solve-*")) {
+	public static void createFirstToSolveAwards(Contest contest, IAward template) {
+		if (template.getId().equals("first-to-solve-*")) {
 			for (IProblem problem : contest.getProblems()) {
 				Award ftsAward = new Award(IAward.FIRST_TO_SOLVE, problem.getId(), null, null, true);
 				contest.add(ftsAward);
 				assignFirstToSolve(contest, ftsAward);
 			}
 		} else {
-			assignFirstToSolve(contest, (Award) awardTemplate);
+			assignFirstToSolve(contest, (Award) template);
 		}
 	}
 
@@ -234,18 +242,25 @@ public class AwardUtil {
 
 	public static void createRankAwards(Contest contest, int num) {
 		Award rank = new Award(IAward.RANK, "*", null, true);
-		rank.setCount(num);
+		rank.setParameter(num + "");
 		createRankAwards(contest, rank);
 	}
 
 	public static void createRankAwards(Contest contest, IAward template) {
-		if (template.getCount() < 1)
+		int numTeams = 0;
+		try {
+			numTeams = Integer.parseInt(template.getParameter());
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse rank parameter: " + template.getParameter());
+		}
+
+		if (numTeams < 1)
 			return;
 
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
-		int n = Math.min(template.getCount(), teams.length);
+		int n = Math.min(numTeams, teams.length);
 
 		for (int i = 0; i < n; i++) {
 			ITeam team = teams[i];
@@ -323,17 +338,24 @@ public class AwardUtil {
 		if (award == null)
 			return firstTeamIndex;
 
-		int numTeamIds = award.getCount();
-		if (numTeamIds <= 0)
-			numTeamIds = 1;
+		int numTeams = 1;
+		try {
+			if (award.getParameter() != null)
+				numTeams = Integer.parseInt(award.getParameter());
 
-		numTeamIds = Math.min(numTeamIds, teams.length - firstTeamIndex);
-		if (numTeamIds == 0)
+			if (numTeams < 1)
+				throw new IllegalArgumentException("Cannot assign medals to less than one team");
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse medal parameter: " + award.getParameter());
+		}
+
+		numTeams = Math.min(numTeams, teams.length - firstTeamIndex);
+		if (numTeams == 0)
 			return firstTeamIndex;
 
 		int count = 0;
-		String[] teamIds = new String[numTeamIds];
-		while (count < numTeamIds) {
+		String[] teamIds = new String[numTeams];
+		while (count < numTeams) {
 			teamIds[count] = teams[firstTeamIndex + count].getId();
 			count++;
 		}
@@ -341,7 +363,7 @@ public class AwardUtil {
 		if (award.getCitation() == null)
 			((Award) award).setCitation(citation);
 
-		return firstTeamIndex + numTeamIds;
+		return firstTeamIndex + numTeams;
 	}
 
 	public static void createMedalAwards(Contest contest, IAward gold, IAward silver, IAward bronze) {
@@ -378,21 +400,27 @@ public class AwardUtil {
 
 	public static void createTopAwards(Contest contest, int percent) {
 		Award rank = new Award(IAward.TOP, "*", null, true);
-		rank.setCount(percent);
+		rank.setParameter(percent + "");
 		createTopAwards(contest, rank);
 	}
 
 	public static void createTopAwards(Contest contest, IAward template) {
-		if (template.getCount() < 1)
-			return;
+		int percent = 0;
+		try {
+			percent = Integer.parseInt(template.getParameter());
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse top parameter: " + template.getParameter());
+		}
+		if (percent < 1 || percent > 100)
+			throw new IllegalArgumentException(percent + " is not a valid top percentage");
 
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
 
 		int n = teams.length;
-		if (template.getCount() < 100)
-			n = template.getCount() * teams.length / 100;
+		if (percent < 100)
+			n = percent * teams.length / 100;
 
 		String[] teamIds = new String[n];
 		for (int i = 0; i < n; i++)
@@ -401,9 +429,78 @@ public class AwardUtil {
 		String citation = template.getCitation();
 		if (citation == null || citation.trim().length() < 1)
 			citation = Messages.getString("awardTop");
-		citation = citation.replace("{0}", template.getCount() + "");
+		citation = citation.replace("{0}", percent + "");
 
 		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation, true));
+	}
+
+	public static void createHonorsAwards(Contest contest, int percentile) {
+		Award rank = new Award(IAward.HONORS, "*", null, true);
+		rank.setParameter(percentile + "");
+		createTopAwards(contest, rank);
+	}
+
+	public static void createHonorsAwards(Contest contest, IAward template) throws IllegalArgumentException {
+		int percentileTop = 0;
+		int percentileBottom = 100;
+		try {
+			String param = template.getParameter();
+			int ind = param.indexOf("-");
+			percentileTop = Integer.parseInt(param.substring(0, ind));
+			percentileBottom = Integer.parseInt(param.substring(ind + 1, param.length()));
+
+			if (percentileTop < 0 || percentileTop > 99)
+				throw new IllegalArgumentException("Honor parameter invalid");
+			if (percentileBottom < 1 || percentileBottom > 100)
+				throw new IllegalArgumentException("Honor parameter invalid");
+			if (percentileBottom < percentileTop)
+				throw new IllegalArgumentException("Honor parameter invalid");
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse honor parameter: " + template.getParameter());
+		}
+
+		// find teams we're going to base this on
+		ITeam[] teams = contest.getOrderedTeams();
+		if (teams.length == 0)
+			return;
+
+		int n = teams.length;
+		int t = 0;
+		if (percentileTop > 0) {
+			t = (int) Math.round(percentileTop * n / 100.0);
+			IStanding standing = contest.getStanding(teams[t]);
+			int numSolved = standing.getNumSolved();
+
+			while (t < n && contest.getStanding(teams[t]).getNumSolved() == numSolved) {
+				t++;
+			}
+		}
+
+		// find the bottom team
+		int b = n;
+		if (percentileBottom < 100) {
+			b = (int) Math.round(percentileBottom * n / 100.0);
+			IStanding standing = contest.getStanding(teams[b]);
+			int numSolved = standing.getNumSolved();
+			while (b < n && contest.getStanding(teams[b]).getNumSolved() == numSolved) {
+				b++;
+			}
+		}
+
+		String[] teamIds = new String[b - t];
+		for (int i = 0; i < b - t; i++) {
+			teamIds[i] = teams[t + i].getId();
+		}
+
+		String citation = template.getCitation();
+		if (citation == null || citation.trim().length() < 1) {
+			if (percentileTop > 1 && percentileBottom == 100)
+				citation = Messages.getString("awardHonorableMention");
+			else
+				citation = Messages.getString("awardHonors");
+		}
+
+		contest.add(new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, true));
 	}
 
 	public static int[] getMedalCounts(IContest contest) {
@@ -435,15 +532,15 @@ public class AwardUtil {
 
 	public static void createWorldFinalsAwards(Contest contest, int b) {
 		Award gold = new Award(IAward.MEDAL, "gold", null, null, true);
-		gold.setCount(4);
+		gold.setParameter("4");
 		Award silver = new Award(IAward.MEDAL, "silver", null, null, true);
-		silver.setCount(4);
+		silver.setParameter("4");
 		Award bronze = new Award(IAward.MEDAL, "bronze", null, null, true);
-		bronze.setCount(4 + b);
+		bronze.setParameter((4 + b) + "");
 		createMedalAwards(contest, gold, silver, bronze);
 
 		Award group = new Award(IAward.GROUP, "*", null, null, true);
-		group.setCount(1);
+		group.setParameter("1");
 		createGroupAwards(contest, group);
 
 		Award fts = new Award(IAward.FIRST_TO_SOLVE, "*", null, null, true);
@@ -466,6 +563,8 @@ public class AwardUtil {
 				createFirstToSolveAwards(contest, award);
 			} else if (award.getAwardType() == IAward.TOP) {
 				createTopAwards(contest, award);
+			} else if (award.getAwardType() == IAward.HONORS) {
+				createHonorsAwards(contest, award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
 				if (award.getId().contains("gold"))
 					gold = award;
@@ -491,37 +590,9 @@ public class AwardUtil {
 			createWinnerAward(contest, awardTemplate);
 		} else if (awardTemplate.getAwardType() == IAward.TOP) {
 			createTopAwards(contest, awardTemplate);
+		} else if (awardTemplate.getAwardType() == IAward.HONORS) {
+			createHonorsAwards(contest, awardTemplate);
 		}
-	}
-
-	private static String appendCitation(IAward awardTemplate, String s) {
-		String citation = awardTemplate.getCitation();
-		if (citation == null)
-			return s;
-
-		return s + " (citation: " + citation + ")";
-	}
-
-	public static String getAwardText(IAward awardTemplate) {
-		String id = awardTemplate.getId();
-		int count = awardTemplate.getCount();
-		if (awardTemplate.getAwardType() == IAward.WINNER) {
-			return appendCitation(awardTemplate, "1st place team");
-		} else if (awardTemplate.getAwardType() == IAward.GROUP) {
-			return appendCitation(awardTemplate, "Group");
-		} else if (awardTemplate.getAwardType() == IAward.FIRST_TO_SOLVE) {
-			return "First to solve " + id;
-		} else if (awardTemplate.getAwardType() == IAward.MEDAL) {
-			String type = "gold";
-			if (id.endsWith("silver"))
-				type = "silver";
-			else if (id.endsWith("bronze"))
-				type = "bronze";
-			if (count <= 2)
-				return "1 " + type + " medal";
-			return "";
-		}
-		return "";
 	}
 
 	public static void sortAwards(IContest contest, IAward[] awards) {

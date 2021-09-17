@@ -13,12 +13,12 @@ public class Award extends ContestObject implements IAward {
 	public static final String CITATION = "citation";
 	public static final String TEAM_IDS = "team_ids";
 	public static final String SHOW = "show";
-	public static final String COUNT = "count";
+	public static final String PARAMETER = "parameter";
 
 	private String[] teamIds;
 	private boolean show = true;
 	private String citation;
-	private int count = -1;
+	private String parameter;
 
 	public Award() {
 		// create an empty award
@@ -79,8 +79,8 @@ public class Award extends ContestObject implements IAward {
 		this.citation = citation;
 	}
 
-	public void setCount(int count) {
-		this.count = count;
+	public void setParameter(String parameter) {
+		this.parameter = parameter;
 	}
 
 	@Override
@@ -93,8 +93,8 @@ public class Award extends ContestObject implements IAward {
 	}
 
 	@Override
-	public int getCount() {
-		return count;
+	public String getParameter() {
+		return parameter;
 	}
 
 	@Override
@@ -115,8 +115,8 @@ public class Award extends ContestObject implements IAward {
 		} else if (name.equals(SHOW)) {
 			show = parseBoolean(value);
 			return true;
-		} else if (name.equals(COUNT)) {
-			count = parseInt(value);
+		} else if (name.equals(PARAMETER)) {
+			parameter = (String) value;
 			return true;
 		}
 
@@ -135,8 +135,8 @@ public class Award extends ContestObject implements IAward {
 		}
 		if (show == false)
 			props.put(SHOW, show);
-		if (count >= 0)
-			props.put(COUNT, count);
+		if (parameter != null)
+			props.put(PARAMETER, parameter);
 	}
 
 	@Override
@@ -152,8 +152,8 @@ public class Award extends ContestObject implements IAward {
 		}
 		if (show == false)
 			je.encode(SHOW, show);
-		if (count >= 0)
-			je.encode(COUNT, count);
+		if (parameter != null)
+			je.encode(PARAMETER, parameter);
 	}
 
 	@Override
