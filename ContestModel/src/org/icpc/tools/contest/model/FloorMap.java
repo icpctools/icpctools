@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.MapInfo;
@@ -827,9 +828,11 @@ public class FloorMap {
 				double rotation = Double.parseDouble(st.nextToken());
 				ITeam tt = contest.getTeamById(id);
 				if (tt != null) {
-					((ContestObject) tt).add("x", x + "");
-					((ContestObject) tt).add("y", y + "");
-					((ContestObject) tt).add("rotation", rotation + "");
+					JsonObject obj = new JsonObject();
+					obj.props.put("x", x + "");
+					obj.props.put("y", y + "");
+					obj.props.put("rotation", rotation + "");
+					((ContestObject) tt).add("location", obj);
 				} // else
 					// createTeam(id, x, y, rotation); // TODO make spare team
 			} else if ("balloon".equals(type)) {
@@ -882,9 +885,11 @@ public class FloorMap {
 	public ITeam createTeam(String id, double x, double y, double rotation) {
 		Team t = new Team();
 		t.add("id", id);
-		t.add("x", x + "");
-		t.add("y", y + "");
-		t.add("rotation", rotation + "");
+		JsonObject obj = new JsonObject();
+		obj.props.put("x", x + "");
+		obj.props.put("y", y + "");
+		obj.props.put("rotation", rotation + "");
+		t.add("location", obj);
 		((Contest) contest).add(t);
 		return t;
 	}
@@ -1061,8 +1066,11 @@ public class FloorMap {
 		}
 
 		for (ITeam t : contest.getTeams()) {
-			((Team) t).add("x", t.getX() - ox);
-			((Team) t).add("y", t.getY() - oy);
+			JsonObject obj = new JsonObject();
+			obj.props.put("x", t.getX() - ox + "");
+			obj.props.put("y", t.getY() - oy + "");
+			obj.props.put("rotation", t.getRotation() + "");
+			((Team) t).add("location", obj);
 		}
 
 		for (IProblem p : contest.getProblems()) {
