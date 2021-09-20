@@ -824,16 +824,19 @@ public class PresentationWindowImpl extends PresentationWindow {
 				}
 			}
 			int hh = 0;
+			Dimension d = getSize();
 			if (logo != null) {
-				Dimension d = getSize();
 				hh = d.height / 2;
 				g.drawImage(logo, (d.width - hh) / 2, (d.height - hh) / 2 - 15, hh, hh, null);
 			}
 			g.setColor(Color.WHITE);
 			FontMetrics fm = g.getFontMetrics();
 			String s = "No presentation assigned";
-			Dimension d = getSize();
 			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, (d.height) * 7 / 8);
+
+			g.setColor(Color.DARK_GRAY);
+			s = Trace.getVersion();
+			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height - 20);
 		}
 		if (showFPS) {
 			g.setColor(Color.WHITE);

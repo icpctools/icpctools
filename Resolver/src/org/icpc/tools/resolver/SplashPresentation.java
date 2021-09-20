@@ -10,6 +10,7 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
@@ -198,5 +199,11 @@ public class SplashPresentation extends AbstractICPCPresentation {
 
 		g.setFont(smallFont);
 		g.drawString(conceptOrg, col1 - fm2.stringWidth(conceptOrg), h);
+
+		g.setColor(Color.DARK_GRAY);
+		g.setFont(smallFont);
+		fm = g.getFontMetrics();
+		s = Messages.getString(Trace.getVersion());
+		g.drawString(s, width - BORDER - fm.stringWidth(s), height - BORDER);
 	}
 }
