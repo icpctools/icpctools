@@ -531,7 +531,7 @@ public class Resolver {
 			// create the official scoreboard
 			cc.officialResults();
 
-			ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, rowOffset, show_info, predeterminedSteps);
+			ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, show_info, predeterminedSteps);
 
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(bill);
@@ -549,8 +549,7 @@ public class Resolver {
 			// create the official scoreboard
 			finalContest.officialResults();
 
-			ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, rowOffset, show_info,
-					predeterminedSteps);
+			ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, show_info, predeterminedSteps);
 
 			int showHour = -1;
 			if (showHour > 0) {
@@ -572,7 +571,7 @@ public class Resolver {
 
 	protected void launch(List<ResolutionStep> steps) {
 		ui = new ResolverUI(steps, show_info, new DisplayConfig(displayStr, multiDisplayStr),
-				isPresenter || client == null, screen, new ClickListener() {
+				isPresenter || client == null, rowOffset, screen, new ClickListener() {
 					@Override
 					public void clicked(int num) {
 						clicks = num;

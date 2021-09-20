@@ -116,7 +116,6 @@ public class ResolverLogic {
 
 	// which row to start single-stepping on
 	private int singleStepStartRow;
-	private int rowOffset;
 	private boolean calculateProjections;
 
 	// map from all the teamIds getting an award to the list of awards they're getting
@@ -130,11 +129,10 @@ public class ResolverLogic {
 
 	private List<PredeterminedStep> predeterminedSteps = new ArrayList<>();
 
-	public ResolverLogic(Contest contest, int singleStepStartRow, int rowOffset, boolean calculateProjections,
+	public ResolverLogic(Contest contest, int singleStepStartRow, boolean calculateProjections,
 			List<PredeterminedStep> predeterminedSteps) {
 		finalContest = filter(contest);
 		this.singleStepStartRow = singleStepStartRow;
-		this.rowOffset = rowOffset;
 		this.calculateProjections = calculateProjections;
 		this.predeterminedSteps = predeterminedSteps;
 		if (predeterminedSteps == null)
@@ -291,9 +289,8 @@ public class ResolverLogic {
 		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 		steps.add(new PauseStep());
 
-		// second click - scroll down to bottom (so last team is at bottom of screen),
-		// turn off the scoreboard presentation Legend, then do nothing else
-		steps.add(new ScrollStep(getScrollToCurrentRow(contest.getNumTeams() - 1, 0)));
+		// second click - scroll down to bottom (so last team is at bottom of screen)
+		steps.add(new ScrollStep(contest.getOrderedTeams().length - 1));
 		steps.add(new PauseStep());
 
 		// third click - select the team or switch to judge queue
@@ -445,7 +442,7 @@ public class ResolverLogic {
 			}
 
 			// scroll to row
-			steps.add(new ScrollStep(getScrollToCurrentRow(currentRow, singleStepStartRow)));
+			steps.add(new ScrollStep(currentRow));
 
 			// highlight team
 			boolean doneWithRow = false;
@@ -672,26 +669,6 @@ public class ResolverLogic {
 		teams = finalContest.getOrderedTeams();
 		next = teams[row - 1];
 		return numSolved == finalContest.getStanding(next).getNumSolved();
-	}
-
-	/**
-	 * Returns the row number which should be put at the TOP of the screen in order to have the
-	 * "currentRow" at the desired position on the screen. "Desired position" is normally at the
-	 * BOTTOM; in this case the returned "scroll-to row" is above the "currentRow" by a constant
-	 * based on the number of teams which should appear on one screen. A special case where "desired
-	 * position" is NOT at the bottom is when the command-line option "--offsetMedalDisplay" has
-	 * been specified; in this case the intent is to position the "currentRow" some number of rows
-	 * upward (offsetting it above the heads of Bronze Medalists on-stage).
-	 *
-	 * @return the row number which should be at the top of the screen
-	 */
-	private int getScrollToCurrentRow(int currentRow, int lastMedalRow) {
-		// TODOint offset = scoreboardPresentation.getTeamsPerScreen() - 2;
-		int offset = 12 - 3;
-		if (currentRow < lastMedalRow)
-			offset -= rowOffset;
-
-		return Math.max(0, currentRow - offset);
 	}
 
 	/**
