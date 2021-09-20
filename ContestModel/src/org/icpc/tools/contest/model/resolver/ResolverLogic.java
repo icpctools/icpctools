@@ -687,7 +687,7 @@ public class ResolverLogic {
 	 */
 	private int getScrollToCurrentRow(int currentRow, int lastMedalRow) {
 		// TODOint offset = scoreboardPresentation.getTeamsPerScreen() - 2;
-		int offset = 12 - 2;
+		int offset = 12 - 3;
 		if (currentRow < lastMedalRow)
 			offset -= rowOffset;
 
