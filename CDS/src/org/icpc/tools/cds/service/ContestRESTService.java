@@ -285,8 +285,8 @@ public class ContestRESTService extends HttpServlet {
 	}
 
 	/**
-	 * Parses HTTP parameters like "?filter=language:C,team-id:46" into a property filter.
-	 * filter=<attribute>:<value>[,<attribute>:<value>...]
+	 * Parses HTTP parameters like "?language=C&team_id=46" into a property filter.
+	 * <attribute>=<value>[&<attribute>=<value>...]
 	 *
 	 * @param request
 	 * @return
@@ -296,19 +296,12 @@ public class ContestRESTService extends HttpServlet {
 		Enumeration<String> en = request.getParameterNames();
 		while (en.hasMoreElements()) {
 			String name = en.nextElement();
-			if ("filter".equals(name)) {
-				String[] values = request.getParameterValues(name);
-				for (String val2 : values) {
-					StringTokenizer st = new StringTokenizer(val2, ",");
-					while (st.hasMoreTokens()) {
-						String val = st.nextToken();
-						int ind = val.indexOf(":");
-						if (ind > 0) {
-							String n = val.substring(0, ind);
-							String v = val.substring(ind + 1, val.length());
-							propFilter.addFilter(n, v);
-						}
-					}
+			String[] values = request.getParameterValues(name);
+			for (String val2 : values) {
+				StringTokenizer st = new StringTokenizer(val2, ",");
+				while (st.hasMoreTokens()) {
+					String val = st.nextToken();
+					propFilter.addFilter(name, val);
 				}
 			}
 		}
