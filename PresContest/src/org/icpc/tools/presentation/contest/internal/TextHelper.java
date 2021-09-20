@@ -200,7 +200,6 @@ public class TextHelper {
 	private static String loadEmojis() {
 		emojis = new ArrayList<String>();
 		String filename = "font/emoji.txt";
-		Trace.trace(Trace.USER, "loading: " + filename);
 		try (BufferedReader br = new BufferedReader(
 				new InputStreamReader(ICPCFont.class.getClassLoader().getResourceAsStream(filename)))) {
 			String s = br.readLine();
@@ -255,7 +254,6 @@ public class TextHelper {
 
 	private static BufferedImage getEmojiFromFile(String hex) {
 		String filename = "font/twemoji/" + hex + ".png";
-		Trace.trace(Trace.USER, "loading: " + filename);
 		try (InputStream in = ICPCFont.class.getClassLoader().getResourceAsStream(filename)) {
 			return ImageIO.read(in);
 		} catch (Exception e) {
