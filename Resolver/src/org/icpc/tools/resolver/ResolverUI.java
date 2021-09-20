@@ -101,14 +101,16 @@ public class ResolverUI {
 
 	private long lastClickTime = -1;
 	private Thread thread;
+	private int rowOffset;
 
 	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, DisplayConfig displayConfig, boolean isPresenter,
-			Screen screen, ClickListener listener) {
+			int rowOffset, Screen screen, ClickListener listener) {
 		this.steps = steps;
 		this.showInfo = showInfo;
 		this.displayConfig = displayConfig;
 		this.isPresenter = isPresenter;
 		this.screen = screen;
+		this.rowOffset = rowOffset;
 		if (screen == null)
 			this.screen = Screen.MAIN;
 		this.listener = listener;
@@ -465,7 +467,8 @@ public class ResolverUI {
 			teamListPresentation.scrollIt(scroll.top);
 		} else if (step instanceof ScrollStep) {
 			ScrollStep scroll = (ScrollStep) step;
-			scoreboardPresentation.setScrollToRow(scroll.row);
+			int row = Math.max(0, scroll.row - scoreboardPresentation.getNumRows() - rowOffset + 3);
+			scoreboardPresentation.setScrollToRow(row);
 		} else if (step instanceof PresentationStep) {
 			PresentationStep pstep = (PresentationStep) step;
 			if (pstep.p == PresentationStep.Presentations.SPLASH)
