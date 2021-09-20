@@ -19,6 +19,12 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	private static final String SEX = "sex";
 	private static final String ROLE = "role";
 	private static final String PHOTO = "photo";
+	private static final String DESKTOP = "desktop";
+	private static final String WEBCAM = "webcam";
+	private static final String AUDIO = "audio";
+	private static final String BACKUP = "backup";
+	private static final String KEY_LOG = "key_log";
+	private static final String TOOL_DATA = "tool_data";
 
 	private String icpcId;
 	private String firstName;
@@ -27,6 +33,12 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	private String teamId;
 	private String role;
 	private FileReferenceList photo;
+	private FileReferenceList desktop;
+	private FileReferenceList webcam;
+	private FileReferenceList audio;
+	private FileReferenceList backup;
+	private FileReferenceList keylog;
+	private FileReferenceList tooldata;
 
 	@Override
 	public ContestType getType() {
@@ -117,9 +129,134 @@ public class TeamMember extends ContestObject implements ITeamMember {
 				photo = new FileReferenceList(value);
 				return true;
 			}
+			case DESKTOP: {
+				desktop = new FileReferenceList(value);
+				return true;
+			}
+			case WEBCAM: {
+				webcam = new FileReferenceList(value);
+				return true;
+			}
+			case AUDIO: {
+				audio = new FileReferenceList(value);
+				return true;
+			}
+			case BACKUP: {
+				backup = new FileReferenceList(value);
+				return true;
+			}
+			case KEY_LOG: {
+				keylog = new FileReferenceList(value);
+				return true;
+			}
+			case TOOL_DATA: {
+				tooldata = new FileReferenceList(value);
+				return true;
+			}
 		}
 
 		return false;
+	}
+
+	public FileReferenceList getDesktop() {
+		return desktop;
+	}
+
+	@Override
+	public String getDesktopURL() {
+		if (desktop == null || desktop.isEmpty())
+			return null;
+
+		return desktop.first().href;
+	}
+
+	public String[] getDesktopURLs() {
+		if (desktop == null || desktop.isEmpty())
+			return null;
+
+		return desktop.getHrefs();
+	}
+
+	public void setDesktop(FileReferenceList list) {
+		desktop = list;
+	}
+
+	public FileReferenceList getWebcam() {
+		return webcam;
+	}
+
+	@Override
+	public String getWebcamURL() {
+		if (webcam == null || webcam.isEmpty())
+			return null;
+
+		return webcam.first().href;
+	}
+
+	public String[] getWebcamURLs() {
+		if (webcam == null || webcam.isEmpty())
+			return null;
+
+		return webcam.getHrefs();
+	}
+
+	public void setWebcam(FileReferenceList list) {
+		webcam = list;
+	}
+
+	public FileReferenceList getAudio() {
+		return audio;
+	}
+
+	@Override
+	public String getAudioURL() {
+		if (audio == null || audio.isEmpty())
+			return null;
+
+		return audio.first().href;
+	}
+
+	public void setAudio(FileReferenceList list) {
+		audio = list;
+	}
+
+	public FileReferenceList getBackup() {
+		return backup;
+	}
+
+	@Override
+	public File getBackup(boolean force) {
+		return getFile(backup.first(), BACKUP, force);
+	}
+
+	public void setBackup(FileReferenceList list) {
+		backup = list;
+	}
+
+	public FileReferenceList getKeyLog() {
+		return keylog;
+	}
+
+	@Override
+	public File getKeyLog(boolean force) {
+		return getFile(keylog.first(), KEY_LOG, force);
+	}
+
+	public void setKeyLog(FileReferenceList list) {
+		keylog = list;
+	}
+
+	public FileReferenceList getToolData() {
+		return tooldata;
+	}
+
+	@Override
+	public File getToolData(boolean force) {
+		return getFile(tooldata.first(), TOOL_DATA, force);
+	}
+
+	public void setToolData(FileReferenceList list) {
+		tooldata = list;
 	}
 
 	@Override
@@ -146,6 +283,12 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		props.put(TEAM_ID, teamId);
 		props.put(ROLE, role);
 		props.put(PHOTO, photo);
+		props.put(DESKTOP, desktop);
+		props.put(WEBCAM, webcam);
+		props.put(AUDIO, audio);
+		props.put(BACKUP, backup);
+		props.put(KEY_LOG, keylog);
+		props.put(TOOL_DATA, tooldata);
 	}
 
 	@Override
@@ -159,6 +302,12 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		je.encode(TEAM_ID, teamId);
 		je.encode(ROLE, role);
 		je.encode(PHOTO, photo, false);
+		je.encodeSubs(DESKTOP, desktop, false);
+		je.encodeSubs(WEBCAM, webcam, false);
+		je.encodeSubs(AUDIO, audio, false);
+		je.encode(BACKUP, backup, false);
+		je.encode(KEY_LOG, keylog, false);
+		je.encode(TOOL_DATA, tooldata, false);
 	}
 
 	@Override

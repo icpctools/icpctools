@@ -49,7 +49,59 @@ public interface ITeamMember extends IContestObject {
 	 */
 	String getRole();
 
+	/**
+	 * The registration photo.
+	 *
+	 * @return the photo file
+	 */
 	File getPhoto(int width, int height, boolean force);
 
+	/**
+	 * The registration photo.
+	 *
+	 * @return the photo
+	 */
 	BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+
+	/**
+	 * The desktop stream.
+	 *
+	 * @return the desktop stream
+	 */
+	String getDesktopURL();
+
+	/**
+	 * The webcam stream.
+	 *
+	 * @return the webcam stream
+	 */
+	String getWebcamURL();
+
+	/**
+	 * The audio stream.
+	 *
+	 * @return the audio stream
+	 */
+	String getAudioURL();
+
+	/**
+	 * The disk backup.
+	 *
+	 * @return the backup file
+	 */
+	File getBackup(boolean force);
+
+	/**
+	 * The key log.
+	 *
+	 * @return the key log file
+	 */
+	File getKeyLog(boolean force);
+
+	/**
+	 * The tool usage data.
+	 *
+	 * @return the tool usage data file
+	 */
+	File getToolData(boolean force);
 }
