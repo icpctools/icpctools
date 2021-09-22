@@ -583,7 +583,7 @@ public class BasicClient {
 	}
 
 	public void connect() {
-		connect(false);
+		connect(true);
 	}
 
 	public void connect(boolean daemon) {
