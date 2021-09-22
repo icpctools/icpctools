@@ -14,8 +14,13 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +29,6 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.contest.Trace;
 
 public class TextHelper {
-	private static final int ZERO_WIDTH_JOINER = 0x200d;
 
 	static class Text {
 		GlyphVector gv;
@@ -66,51 +70,30 @@ public class TextHelper {
 		Font font = g.getFont();
 		FontMetrics fm = g.getFontMetrics();
 
-		int textLength = s.length();
 		char[] c = s.toCharArray();
 
-		int lastSegment = -1;
-		int fontBegin = 0;
-		List<Integer> emojiList = new ArrayList<>();
-		for (int i = 0; i < s.length();) {
+		int fontBegin = -1;
+		for (int i = 0; i < s.length(); ) {
 			int codePoint = s.codePointAt(i);
 			int charCount = Character.charCount(codePoint); // high Unicode code points span two chars
 
-			// detect if the font can be used to display the current character
-			int curSegment = -1;
-			if (codePoint == ZERO_WIDTH_JOINER) {
-				// keep with last
-				curSegment = lastSegment;
-				if (curSegment == 2)
-					emojiList.add(codePoint);
-			} else if (font.canDisplay(codePoint)) {
-				curSegment = 1;
+			// detect if we have an emoji PNG for the current position
+			EmojiEntry emojiEntry = findEmoji(s, i);
+			if (emojiEntry == null) {
+				if (fontBegin == -1)
+					fontBegin = i;
+				i += charCount;
 			} else {
-				curSegment = 2;
-				emojiList.add(codePoint);
-			}
-
-			if (curSegment != lastSegment && lastSegment != -1) {
-				// segment type has changed, output last segment
-				if (lastSegment == 1) {
+				if (fontBegin != -1)
 					addText(font.layoutGlyphVector(frc, c, fontBegin, i, 0));
-				} else if (lastSegment == 2) {
-					addEmojis(emojiList, fm.getHeight());
-				}
-
-				fontBegin = i;
+				addEmoji(fm.getHeight(), emojiEntry.hex);
+				fontBegin = -1;
+				i += emojiEntry.raw.length();
 			}
-
-			i += charCount;
-			lastSegment = curSegment;
 		}
 
-		if (fontBegin < textLength) {
-			if (lastSegment == 1) {
-				addText(font.layoutGlyphVector(frc, c, fontBegin, c.length, 0));
-			} else if (lastSegment == 2) {
-				addEmojis(emojiList, fm.getHeight());
-			}
+		if (fontBegin != -1) {
+			addText(font.layoutGlyphVector(frc, c, fontBegin, c.length, 0));
 		}
 
 		bounds = new Dimension((int) xx, (int) h);
@@ -124,33 +107,6 @@ public class TextHelper {
 		xx += b.getWidth();
 		h = Math.max(h, b.getHeight());
 		list.add(t);
-	}
-
-	private void addEmojis(List<Integer> emojiList, int height) {
-		int n = emojiList.size();
-		while (n > 0) {
-			// find the longest emoji set that we have an image for
-			String hex = getEmojiHex(emojiList, n);
-			while (n > 0 && !hasEmoji(hex)) {
-				n--;
-				hex = getEmojiHex(emojiList, n);
-			}
-
-			//
-			if (n == 0) {
-				// we don't have any matching emoji :(
-				emojiList.remove(0);
-			} else {
-				// add the emoji
-				addEmoji(height, hex);
-				while (n > 0) {
-					emojiList.remove(0);
-					n--;
-				}
-
-			}
-			n = emojiList.size();
-		}
 	}
 
 	private void addEmoji(double height, String hex) {
@@ -196,7 +152,35 @@ public class TextHelper {
 		}
 	}
 
+	private static final class EmojiEntry {
+		final String hex;
+		final String raw;
+
+		public EmojiEntry(String hex, String raw) {
+			this.hex = hex;
+			this.raw = raw;
+		}
+
+		@Override public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
+			EmojiEntry that = (EmojiEntry) o;
+			return Objects.equals(hex, that.hex) && Objects.equals(raw, that.raw);
+		}
+
+		@Override public int hashCode() {
+			return Objects.hash(hex, raw);
+		}
+
+		@Override public String toString() {
+			return '[' + hex + '=' + raw + ']';
+		}
+	}
+
 	private static final Set<String> emojis = new HashSet<>();
+	private static final Map<Integer, List<EmojiEntry>> emojiMap = new HashMap<>();
 	private static final ConcurrentHashMap<String, BufferedImage> map = new ConcurrentHashMap<>();
 
 	private static void loadEmojis() {
@@ -206,26 +190,34 @@ public class TextHelper {
 			String s;
 			while ((s = br.readLine()) != null) {
 				emojis.add(s);
+				String[] hexCodes = s.split("-");
+				int[] codePoints = Arrays.stream(hexCodes).mapToInt(hex -> Integer.parseInt(hex, 16)).toArray();
+				String raw = new String(codePoints, 0, hexCodes.length);
+				emojiMap.putIfAbsent(codePoints[0], new ArrayList<>());
+				emojiMap.get(codePoints[0]).add(new EmojiEntry(s, raw));
+			}
+			for (List<EmojiEntry> entryList : emojiMap.values()) {
+				// Sort entries from long to short, so that combined emoji (with e.g. Zero-Width Joiner) are found first
+				entryList.sort(Comparator.<EmojiEntry>comparingInt(l -> l.raw.length()).reversed());
 			}
 		} catch (Exception e) {
 			// ignore
 		}
 	}
 
-	private static String getEmojiHex(List<Integer> codePoints, int max) {
-		StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		int count = 0;
-		for (int cp : codePoints) {
-			if (!first)
-				sb.append("-");
-			first = false;
-			sb.append(Integer.toHexString(cp));
-			count++;
-			if (count >= max)
-				break;
+	private EmojiEntry findEmoji(String s, int i) {
+		if (emojis.isEmpty())
+			loadEmojis();
+
+		int first = s.codePointAt(i);
+		List<EmojiEntry> entries = emojiMap.get(first);
+		if (entries == null)
+			return null;
+		for (EmojiEntry entry : entries) {
+			if (s.regionMatches(i, entry.raw, 0, entry.raw.length()))
+				return entry;
 		}
-		return sb.toString();
+		return null;
 	}
 
 	private static boolean hasEmoji(String hex) {
