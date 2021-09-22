@@ -23,7 +23,9 @@ public class ICPCFont {
 		String overrideFont = System.getenv("ICPC_FONT");
 		if (overrideFont != null) {
 			Trace.trace(Trace.INFO, "Font override: " + overrideFont);
-			MASTER_FONT = new Font(overrideFont, Font.PLAIN, 20);
+			MASTER_FONT = new File(overrideFont).exists() ?
+					getFontFromFile(FONT_TYPE, overrideFont) :
+					new Font(overrideFont, Font.PLAIN, 20);
 		} else
 			MASTER_FONT = getFontFromFile(FONT_TYPE, FONT_NAME);
 
