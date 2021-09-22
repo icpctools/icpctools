@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.ImageIO;
@@ -22,17 +24,17 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.contest.Trace;
 
 public class TextHelper {
-	private static final int ZERO_WIDTH_JOINER = 8205; // 200d
+	private static final int ZERO_WIDTH_JOINER = 0x200d;
 
-	class Text {
+	static class Text {
 		GlyphVector gv;
 		BufferedImage img;
 		float dx;
 	}
 
-	private Graphics2D g;
+	private final Graphics2D g;
+	private final List<Text> list = new ArrayList<>();
 	private Dimension bounds;
-	private List<Text> list = new ArrayList<>();
 	private double xx;
 	private double h;
 
@@ -129,7 +131,7 @@ public class TextHelper {
 		while (n > 0) {
 			// find the longest emoji set that we have an image for
 			String hex = getEmojiHex(emojiList, n);
-			while (n > 0 && !hasEmojis(hex)) {
+			while (n > 0 && !hasEmoji(hex)) {
 				n--;
 				hex = getEmojiHex(emojiList, n);
 			}
@@ -194,23 +196,20 @@ public class TextHelper {
 		}
 	}
 
-	private static List<String> emojis;
-	private static ConcurrentHashMap<String, BufferedImage> map = new ConcurrentHashMap<>();
+	private static final Set<String> emojis = new HashSet<>();
+	private static final ConcurrentHashMap<String, BufferedImage> map = new ConcurrentHashMap<>();
 
-	private static String loadEmojis() {
-		emojis = new ArrayList<String>();
+	private static void loadEmojis() {
 		String filename = "font/emoji.txt";
 		try (BufferedReader br = new BufferedReader(
 				new InputStreamReader(ICPCFont.class.getClassLoader().getResourceAsStream(filename)))) {
-			String s = br.readLine();
-			while (s != null) {
+			String s;
+			while ((s = br.readLine()) != null) {
 				emojis.add(s);
-				s = br.readLine();
 			}
 		} catch (Exception e) {
 			// ignore
 		}
-		return null;
 	}
 
 	private static String getEmojiHex(List<Integer> codePoints, int max) {
@@ -229,27 +228,15 @@ public class TextHelper {
 		return sb.toString();
 	}
 
-	private static boolean hasEmojis(String hex) {
-		if (emojis == null)
+	private static boolean hasEmoji(String hex) {
+		if (emojis.isEmpty())
 			loadEmojis();
 
 		return emojis.contains(hex);
 	}
 
 	private static BufferedImage getEmoji(String hex) {
-		BufferedImage img = map.get(hex);
-		if (img != null)
-			return img;
-
-		if (emojis == null)
-			loadEmojis();
-
-		if (!emojis.contains(hex))
-			return null;
-		img = getEmojiFromFile(hex);
-		if (img != null)
-			map.put(hex, img);
-		return img;
+		return map.computeIfAbsent(hex, key -> hasEmoji(key) ? getEmojiFromFile(key) : null);
 	}
 
 	private static BufferedImage getEmojiFromFile(String hex) {
@@ -269,30 +256,16 @@ public class TextHelper {
 
 	/**
 	 * An equivalent to g.drawString(), except that it takes emojis and maximum width into account.
-	 *
-	 * @param g
-	 * @param s
-	 * @param x
-	 * @param y
-	 * @param width
 	 */
 	public static void drawString(Graphics2D g, String s, int x, int y, int width) {
-		TextHelper text = new TextHelper(g, s, width);
-		text.draw(x, y);
+		new TextHelper(g, s, width).draw(x, y);
 	}
 
 	/**
 	 * An equivalent to g.drawString(), except that it takes emojis into account.
-	 *
-	 * @param g
-	 * @param s
-	 * @param x
-	 * @param y
-	 * @param width
 	 */
 	public static void drawString(Graphics2D g, String s, int x, int y) {
-		TextHelper text = new TextHelper(g, s);
-		text.draw(x, y);
+		new TextHelper(g, s).draw(x, y);
 	}
 
 	public static void main(String[] args) {
