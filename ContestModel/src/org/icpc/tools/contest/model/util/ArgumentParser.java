@@ -135,7 +135,7 @@ public class ArgumentParser {
 		return cs;
 	}
 
-	private static Source parseSource(List<Object> args) {
+	private static Source parseSource(List<Object> args, OptionParser parser) {
 		Source source = null;
 		try {
 			if (args.size() == 3) {
@@ -144,10 +144,14 @@ public class ArgumentParser {
 			} else if (args.size() == 1) {
 				expectOptions("Contest source", args, "url:string");
 				source = parseMultiSource((String) args.get(0), null, null);
-			} else
+			} else {
 				Trace.trace(Trace.ERROR, "Invalid contest source");
+				parser.showHelp();
+				System.exit(1);
+			}
 		} catch (IOException e) {
 			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
+			parser.showHelp();
 			System.exit(1);
 		}
 
@@ -158,7 +162,7 @@ public class ArgumentParser {
 			throws IllegalArgumentException {
 		if (option == null) {
 			if (!list.isEmpty())
-				return parseSource(list);
+				return parseSource(list, parser);
 
 			throw new IllegalArgumentException("Options without argument");
 		}
@@ -185,7 +189,11 @@ public class ArgumentParser {
 	 * @throws IllegalArgumentException
 	 */
 	public static ContestSource parse(String[] args, OptionParser parser) throws IllegalArgumentException {
-		return parseMulti(args, parser)[0];
+		ContestSource[] sources = parseMulti(args, parser);
+		if (sources == null || sources.length < 1)
+			return null;
+
+		return sources[0];
 	}
 
 	private static ContestSource[] convertMulti(Source source) {

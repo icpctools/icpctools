@@ -85,6 +85,11 @@ public class ClientLauncher {
 			}
 		});
 
+		if (contestSource == null) {
+			showHelp();
+			return;
+		}
+
 		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
 		cdsSource.outputValidation();
 		cdsSource.checkForUpdates("presentations-");
@@ -123,7 +128,7 @@ public class ClientLauncher {
 				}
 			}
 		});
-		client.connect();
+		client.connect(false);
 	}
 
 	protected static void createWindow(final PresentationClient client, final boolean sendthumbnails, boolean showFPS) {
