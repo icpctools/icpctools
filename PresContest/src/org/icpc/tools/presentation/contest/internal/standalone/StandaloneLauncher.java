@@ -69,7 +69,7 @@ public class StandaloneLauncher {
 		});
 
 		if (source == null) {
-			Trace.trace(Trace.ERROR, "Must provide a contest source");
+			showHelp(presentations);
 			return;
 		}
 

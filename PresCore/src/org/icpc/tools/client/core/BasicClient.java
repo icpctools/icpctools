@@ -583,6 +583,10 @@ public class BasicClient {
 	}
 
 	public void connect() {
+		connect(false);
+	}
+
+	public void connect(boolean daemon) {
 		Thread connectionThread = new Thread("Client connection thread") {
 			// try to connect right away, then add some incremental back-off
 			private int[] DELAY = new int[] { 2, 5, 20 };
@@ -609,7 +613,7 @@ public class BasicClient {
 		};
 
 		connectionThread.setPriority(Thread.NORM_PRIORITY + 1);
-		connectionThread.setDaemon(true);
+		connectionThread.setDaemon(daemon);
 		connectionThread.start();
 	}
 
