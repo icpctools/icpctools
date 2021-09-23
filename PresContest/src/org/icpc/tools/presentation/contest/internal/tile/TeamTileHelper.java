@@ -254,9 +254,9 @@ public class TeamTileHelper {
 		String s = team.getActualDisplayName();
 
 		g.setColor(Color.WHITE);
-		TextHelper text = new TextHelper(g, s,
+		TextHelper text = new TextHelper(g, s);
+		text.drawFit(ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 - fm.getAscent()) / 2 - 1,
 				tileDim.width - tileDim.height - ww - IN_TILE_GAP * 2 - 2 - fm.stringWidth(" 10"));
-		text.draw(ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 + fm.getAscent()) / 2 - 2);
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, boolean includeName, long timeMs) {

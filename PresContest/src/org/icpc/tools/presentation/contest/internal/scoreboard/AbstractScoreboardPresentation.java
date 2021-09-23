@@ -438,8 +438,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		fm = g.getFontMetrics();
 
 		int xx = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
-		TextHelper text = new TextHelper(g, s, (int) (width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight));
-		text.draw(xx, fm.getAscent() + 5);
+		TextHelper text = new TextHelper(g, s);
+		text.drawFit(xx, 5, (int) (width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight));
 
 		int n = standing.getNumSolved();
 
