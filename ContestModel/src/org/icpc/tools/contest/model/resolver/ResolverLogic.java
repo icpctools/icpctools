@@ -8,6 +8,7 @@ import java.util.Map;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FreezeFilter;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
@@ -34,7 +35,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
-import org.icpc.tools.contest.model.util.Messages;
 
 /**
  * The Resolver 'logic'. This is the class that performs the actual resolving of submissions to
@@ -165,7 +165,7 @@ public class ResolverLogic {
 	 * @param time the starting time (in seconds) to resolve from
 	 * @return the full list of resolution steps
 	 */
-	public List<ResolutionStep> resolveFrom(boolean bill) {
+	public List<ResolutionStep> resolveFrom(boolean startWithJudgeQueue) {
 		Trace.trace(Trace.INFO, "Resolving...");
 
 		// cache all the awards by team id
@@ -174,95 +174,30 @@ public class ResolverLogic {
 		for (IAward award : contestAwards) {
 			String[] teamIds = award.getTeamIds();
 			if (teamIds != null) {
-				for (String teamId : teamIds) {
-					List<IAward> aw = awards.get(teamId);
-					if (aw == null) {
-						aw = new ArrayList<>();
-						awards.put(teamId, aw);
+				if (award.getDisplayMode() != DisplayMode.LIST) {
+					for (String teamId : teamIds) {
+						List<IAward> aw = awards.get(teamId);
+						if (aw == null) {
+							aw = new ArrayList<>();
+							awards.put(teamId, aw);
+						}
+						aw.add(award);
 					}
-					aw.add(award);
+				} else {
+					String subTitle = ""; // Messages.getString("teamListSubtitle").replace("{0}",
+													// solved + ""); // TODO
+
+					int size = teamIds.length;
+					ITeam[] teams = new ITeam[size];
+					Map<String, SelectType> selections = new HashMap<>();
+					for (int i = 0; i < size; i++) {
+						teams[i] = finalContest.getTeamById(teamIds[i]);
+
+						// TODO figure out selections
+					}
+
+					teamLists.add(new TeamListStep(award.getCitation(), subTitle, teams, selections));
 				}
-			}
-		}
-
-		// find team lists
-		if (bill) {
-			List<ITeam> teamGroup = new ArrayList<>();
-			ITeam[] teams = finalContest.getOrderedTeams();
-			String rank = null;
-			int solved = 0;
-			for (int i = teams.length - 1; i >= 0; i--) {
-				ITeam team = teams[i];
-				IStanding standing = finalContest.getStanding(team);
-				if (rank != null && !standing.getRank().equals(rank)) {
-					boolean showList = true;
-					if (teamGroup.size() == 1) {
-						ITeam team2 = teamGroup.get(0);
-						List<IAward> aw = awards.get(team2.getId());
-						if (aw != null) {
-							for (IAward a : aw) {
-								if (a.getAwardType() == IAward.MEDAL)
-									showList = false;
-							}
-						}
-					}
-					if (showList) {
-						String title = null;
-						String subTitle = null;
-						if ("H".equals(rank))
-							title = Messages.getString("teamListHM");
-						else {
-							title = Messages.getString("teamListTitle").replace("{0}", getPlace(rank));
-							subTitle = Messages.getString("teamListSubtitle").replace("{0}", solved + "");
-						}
-
-						int size = teamGroup.size();
-						ITeam[] teamList = new ITeam[size];
-						Map<String, SelectType> selections = new HashMap<>();
-						for (int j = 0; j < size; j++) {
-							teamList[j] = teamGroup.get(size - j - 1);
-
-							// figure out awards
-							String teamId = teamList[j].getId();
-							List<IAward> teamAwards = awards.get(teamId);
-							if (teamAwards != null && !teamAwards.isEmpty()) {
-								IOrganization org = finalContest.getOrganizationById(teamList[j].getOrganizationId());
-								if (org == null)
-									Trace.trace(Trace.INFO, "Team list award for: " + teamId);
-								else
-									Trace.trace(Trace.INFO, "Team list award for: " + teamId + " " + org.getActualFormalName());
-
-								// are we going to show this on a separate page?
-								boolean show = false;
-								for (IAward award : teamAwards) {
-									if (award.showAward())
-										show = true;
-								}
-
-								boolean hasFTS = false;
-								if (!teamAwards.isEmpty()) {
-									for (IAward a : teamAwards) {
-										if (a.getAwardType() == IAward.FIRST_TO_SOLVE)
-											hasFTS = true;
-									}
-								}
-								if (hasFTS) {
-									if (show)
-										selections.put(teamId, SelectType.FTS_HIGHLIGHT);
-									else
-										selections.put(teamId, SelectType.FTS);
-								} else
-									selections.put(teamId, SelectType.HIGHLIGHT);
-							}
-						}
-
-						teamLists.add(new TeamListStep(title, subTitle, teamList, selections));
-					}
-					teamGroup = new ArrayList<>();
-				}
-				rank = standing.getRank();
-				solved = standing.getNumSolved();
-				teamGroup.add(team);
 			}
 		}
 
@@ -296,7 +231,7 @@ public class ResolverLogic {
 		// third click - select the team or switch to judge queue
 
 		// fourth click and beyond: start resolving!
-		resolveEverything(bill);
+		resolveEverything(startWithJudgeQueue);
 
 		ResolutionUtil.numberThePauses(steps);
 
@@ -408,11 +343,11 @@ public class ResolverLogic {
 		return newResult.getStatus() == Status.SOLVED;
 	}
 
-	private void resolveEverything(boolean bill) {
+	private void resolveEverything(boolean startWithJudgeQueue) {
 		// boolean singleStep = false;
 
 		Timing timing = null;
-		if (bill) {
+		if (startWithJudgeQueue) {
 			steps.add(new PresentationStep(PresentationStep.Presentations.JUDGE));
 			timing = new JudgeQueueTiming();
 		} else {
@@ -423,7 +358,7 @@ public class ResolverLogic {
 		steps.add(new PauseStep());
 
 		ToJudgeStep judgeStep = new ToJudgeStep(null);
-		if (bill) {
+		if (startWithJudgeQueue) {
 			steps.add(judgeStep);
 			steps.add(new PauseStep());
 		}
@@ -539,7 +474,7 @@ public class ResolverLogic {
 									// are we going to show this on a separate page?
 									boolean show = false;
 									for (IAward award : teamAwards) {
-										if (award.showAward())
+										if (award.getDisplayMode() == DisplayMode.DETAIL)
 											show = true;
 									}
 
@@ -576,7 +511,7 @@ public class ResolverLogic {
 						// are we going to show this on a separate page?
 						boolean show = false;
 						for (IAward award : teamAwards) {
-							if (award.showAward())
+							if (award.getDisplayMode() == DisplayMode.DETAIL)
 								show = true;
 						}
 
@@ -602,8 +537,7 @@ public class ResolverLogic {
 
 						if (show) {
 							// we have successfully resolved up to and including the next award row, so
-							// show
-							// it
+							// show it
 							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
 							steps.add(new AwardStep(team.getId(), teamAwards));
 							steps.add(new PauseStep());

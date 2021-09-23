@@ -9,6 +9,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IAward.AwardType;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
@@ -62,13 +63,13 @@ public class AwardUtil {
 				} else
 					beforeFreeze = true;
 
-				boolean show = false;
+				DisplayMode mode = null;
 				if ((beforeFreeze && showBeforeFreeze) || (afterFreeze && showAfterFreeze))
-					show = true;
+					mode = DisplayMode.DETAIL;
 
 				String citation = Messages.getString("awardFTS").replace("{0}", p.getLabel());
 				contest.add(
-						new Award(IAward.FIRST_TO_SOLVE, s.getProblemId(), new String[] { team.getId() }, citation, show));
+						new Award(IAward.FIRST_TO_SOLVE, s.getProblemId(), new String[] { team.getId() }, citation, mode));
 			}
 		}
 	}
@@ -115,7 +116,7 @@ public class AwardUtil {
 	}
 
 	public static void createGroupAwards(Contest contest, int numPerGroup) {
-		Award group = new Award(IAward.GROUP, "*", null, null, true);
+		Award group = new Award(IAward.GROUP, "*", null, (String) null);
 		group.setParameter(numPerGroup + "");
 		createGroupAwards(contest, group);
 	}
@@ -138,7 +139,7 @@ public class AwardUtil {
 				if (group.isHidden())
 					continue;
 
-				Award groupAward = new Award(IAward.GROUP, group.getId(), null, null, true);
+				Award groupAward = new Award(IAward.GROUP, group.getId(), null, (String) null);
 				// groupAward.setCount("1");
 				contest.add(groupAward);
 				assignGroup(contest, groupAward, numPerGroup);
@@ -172,14 +173,14 @@ public class AwardUtil {
 				} else
 					beforeFreeze = true;
 
-				boolean show = false;
+				DisplayMode mode = DisplayMode.PAUSE;
 				if ((beforeFreeze && showBeforeFreeze) || (afterFreeze && showAfterFreeze))
-					show = true;
+					mode = null;
 
 				a.setTeamIds(new String[] { team.getId() });
 				if (a.getCitation() == null)
 					a.setCitation(Messages.getString("awardFTS").replace("{0}", p.getLabel()));
-				a.setShowAward(show);
+				a.setDisplayMode(mode);
 			}
 		}
 	}
@@ -187,7 +188,7 @@ public class AwardUtil {
 	public static void createFirstToSolveAwards(Contest contest, IAward template) {
 		if (template.getId().equals("first-to-solve-*")) {
 			for (IProblem problem : contest.getProblems()) {
-				Award ftsAward = new Award(IAward.FIRST_TO_SOLVE, problem.getId(), null, null, true);
+				Award ftsAward = new Award(IAward.FIRST_TO_SOLVE, problem.getId(), null, (String) null);
 				contest.add(ftsAward);
 				assignFirstToSolve(contest, ftsAward);
 			}
@@ -197,7 +198,7 @@ public class AwardUtil {
 	}
 
 	public static void createGroupHighlightAwards(Contest contest, String groupId2, int numToHighlight, String citation,
-			boolean show) {
+			DisplayMode show) {
 		IGroup group = contest.getGroupById(groupId2);
 		if (group == null)
 			return;
@@ -226,7 +227,7 @@ public class AwardUtil {
 			return;
 
 		ITeam team = teams[0];
-		contest.add(new Award(IAward.WINNER, team.getId(), citation, true));
+		contest.add(new Award(IAward.WINNER, team.getId(), citation));
 	}
 
 	public static void createWinnerAward(Contest contest, IAward awardTemplate) {
@@ -237,11 +238,11 @@ public class AwardUtil {
 		String citation = awardTemplate.getCitation();
 		if (citation == null)
 			citation = Messages.getString("awardWorldChampion");
-		contest.add(new Award(IAward.WINNER, teams[0].getId(), citation, true));
+		contest.add(new Award(IAward.WINNER, teams[0].getId(), citation));
 	}
 
 	public static void createRankAwards(Contest contest, int num) {
-		Award rank = new Award(IAward.RANK, "*", null, true);
+		Award rank = new Award(IAward.RANK, "*", null);
 		rank.setParameter(num + "");
 		createRankAwards(contest, rank);
 	}
@@ -264,14 +265,15 @@ public class AwardUtil {
 
 		for (int i = 0; i < n; i++) {
 			ITeam team = teams[i];
+			String[] teamIds = new String[] { team.getId() };
 			IStanding standing = contest.getStanding(team);
 			try {
 				int rank = Integer.parseInt(standing.getRank());
-				contest.add(new Award(IAward.RANK, i + 1, team.getId(),
-						Messages.getString("awardPlace").replace("{0}", getPlaceString(rank)), true));
+				contest.add(new Award(IAward.RANK, (i + 1) + "", teamIds,
+						Messages.getString("awardPlace").replace("{0}", getPlaceString(rank))));
 			} catch (Exception e) {
-				contest.add(new Award(IAward.RANK, i + 1, team.getId(),
-						Messages.getString("awardPlace").replace("{0}", standing.getRank()), true));
+				contest.add(new Award(IAward.RANK, (i + 1) + "", teamIds,
+						Messages.getString("awardPlace").replace("{0}", standing.getRank())));
 			}
 		}
 	}
@@ -312,7 +314,7 @@ public class AwardUtil {
 			int count = 0;
 			while (nextAwardNum < numGold2 && nextAwardNum < teams.length)
 				teamIds[count++] = teams[nextAwardNum++].getId();
-			contest.add(new Award(IAward.MEDAL, "gold", teamIds, Messages.getString("awardMedalGold"), true));
+			contest.add(new Award(IAward.MEDAL, "gold", teamIds, Messages.getString("awardMedalGold")));
 		}
 
 		// silver medals
@@ -321,7 +323,7 @@ public class AwardUtil {
 			int count = 0;
 			while (nextAwardNum < numGold2 + numSilver2 && nextAwardNum < teams.length)
 				teamIds[count++] = teams[nextAwardNum++].getId();
-			contest.add(new Award(IAward.MEDAL, "silver", teamIds, Messages.getString("awardMedalSilver"), true));
+			contest.add(new Award(IAward.MEDAL, "silver", teamIds, Messages.getString("awardMedalSilver")));
 		}
 
 		// bronze medals
@@ -330,7 +332,7 @@ public class AwardUtil {
 			int count = 0;
 			while (nextAwardNum < numGold2 + numSilver2 + numBronze2 && nextAwardNum < teams.length)
 				teamIds[count++] = teams[nextAwardNum++].getId();
-			contest.add(new Award(IAward.MEDAL, "bronze", teamIds, Messages.getString("awardMedalBronze"), true));
+			contest.add(new Award(IAward.MEDAL, "bronze", teamIds, Messages.getString("awardMedalBronze")));
 		}
 	}
 
@@ -399,7 +401,7 @@ public class AwardUtil {
 	}
 
 	public static void createTopAwards(Contest contest, int percent) {
-		Award rank = new Award(IAward.TOP, "*", null, true);
+		Award rank = new Award(IAward.TOP, "*", null);
 		rank.setParameter(percent + "");
 		createTopAwards(contest, rank);
 	}
@@ -431,11 +433,11 @@ public class AwardUtil {
 			citation = Messages.getString("awardTop");
 		citation = citation.replace("{0}", percent + "");
 
-		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation, true));
+		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation));
 	}
 
 	public static void createHonorsAwards(Contest contest, int percentile) {
-		Award rank = new Award(IAward.HONORS, "*", null, true);
+		Award rank = new Award(IAward.HONORS, "*", null);
 		rank.setParameter(percentile + "");
 		createTopAwards(contest, rank);
 	}
@@ -500,7 +502,7 @@ public class AwardUtil {
 				citation = Messages.getString("awardHonors");
 		}
 
-		contest.add(new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, true));
+		contest.add(new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation));
 	}
 
 	public static int[] getMedalCounts(IContest contest) {
@@ -531,19 +533,19 @@ public class AwardUtil {
 	}
 
 	public static void createWorldFinalsAwards(Contest contest, int b) {
-		Award gold = new Award(IAward.MEDAL, "gold", null, null, true);
+		Award gold = new Award(IAward.MEDAL, "gold", null, (String) null);
 		gold.setParameter("4");
-		Award silver = new Award(IAward.MEDAL, "silver", null, null, true);
+		Award silver = new Award(IAward.MEDAL, "silver", null, (String) null);
 		silver.setParameter("4");
-		Award bronze = new Award(IAward.MEDAL, "bronze", null, null, true);
+		Award bronze = new Award(IAward.MEDAL, "bronze", null, (String) null);
 		bronze.setParameter((4 + b) + "");
 		createMedalAwards(contest, gold, silver, bronze);
 
-		Award group = new Award(IAward.GROUP, "*", null, null, true);
+		Award group = new Award(IAward.GROUP, "*", null, (String) null);
 		group.setParameter("1");
 		createGroupAwards(contest, group);
 
-		Award fts = new Award(IAward.FIRST_TO_SOLVE, "*", null, null, true);
+		Award fts = new Award(IAward.FIRST_TO_SOLVE, "*", null, (String) null);
 		createFirstToSolveAwards(contest, fts);
 	}
 

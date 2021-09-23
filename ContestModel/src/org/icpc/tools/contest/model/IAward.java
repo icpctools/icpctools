@@ -32,6 +32,15 @@ public interface IAward extends IContestObject {
 		}
 	}
 
+	// An optional attribute that controls how to display the award in the resolver.
+	// The default 'detail' (or null/missing display mode) will stop to show the team photo and
+	// details.
+	// 'Pause' will pause but then move on.
+	// 'List' will stop to show a list, but only after all teams have been resolved.
+	public enum DisplayMode {
+		DETAIL, PAUSE, LIST
+	}
+
 	AwardType WINNER = new AwardType("Winner", "winner");
 	AwardType RANK = new AwardType("Rank", "rank-.*");
 	AwardType MEDAL = new AwardType("Medal", ".*-medal");
@@ -77,10 +86,9 @@ public interface IAward extends IContestObject {
 	String getCitation();
 
 	/**
-	 * Returns <code>true</code> if the award should be recognized by showing on a separate screen
-	 * with the teams photo or other graphics, and <code>false</code> otherwise.
+	 * Returns the resolver display mode.
 	 *
 	 * @return
 	 */
-	boolean showAward();
+	DisplayMode getDisplayMode();
 }

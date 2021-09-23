@@ -16,8 +16,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IAward.AwardType;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
+import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -129,6 +130,6 @@ public class GroupHighlightAwardDialog extends AbstractAwardDialog {
 
 	@Override
 	protected void applyAwards(Contest aContest) {
-		AwardUtil.createGroupHighlightAwards(aContest, groupId, numToHighlight, citation, showPicture);
+		AwardUtil.createGroupHighlightAwards(aContest, groupId, numToHighlight, citation, showPicture ? DisplayMode.DETAIL : null);
 	}
 }

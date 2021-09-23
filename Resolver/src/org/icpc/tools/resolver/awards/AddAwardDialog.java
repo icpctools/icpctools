@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
@@ -122,12 +123,13 @@ public class AddAwardDialog extends Dialog {
 		citation.setLayoutData(data);
 
 		// show
-		Button show = new Button(comp, SWT.CHECK);
-		show.setText("Show team picture and citation (after pausing in the resolver)");
+		Combo mode = new Combo(comp, SWT.NONE);
+		mode.setItems(new String[] { "Stop to show details", "Pause and move on", "Show as list" });
+		mode.setText("Show team picture and citation (after pausing in the resolver)");
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.horizontalSpan = 3;
-		show.setLayoutData(data);
-		show.setSelection(true);
+		mode.setLayoutData(data);
+		mode.select(DisplayMode.DETAIL.ordinal());
 
 		Label warning = new Label(comp, SWT.NONE);
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
@@ -185,10 +187,10 @@ public class AddAwardDialog extends Dialog {
 					warning.setText("");
 			}
 		});
-		show.addSelectionListener(new SelectionAdapter() {
+		mode.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				award.setShowAward(show.getSelection());
+				award.setDisplayMode(DisplayMode.values()[mode.getSelectionIndex()]);
 			}
 		});
 		citation.addModifyListener(new ModifyListener() {

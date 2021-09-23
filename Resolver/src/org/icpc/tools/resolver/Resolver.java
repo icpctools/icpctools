@@ -16,13 +16,17 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -531,15 +535,16 @@ public class Resolver {
 			// create the official scoreboard
 			cc.officialResults();
 
+			if (bill)
+				addBillAwards();
+
 			ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, show_info, predeterminedSteps);
 
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(bill);
 			steps.addAll(subSteps);
 			outputStats(steps, time);
-		} else
-
-		{
+		} else {
 			IAward[] contestAwards = finalContest.getAwards();
 			if (contestAwards == null || contestAwards.length == 0) {
 				Trace.trace(Trace.USER, "Generating awards");
@@ -548,6 +553,9 @@ public class Resolver {
 
 			// create the official scoreboard
 			finalContest.officialResults();
+
+			if (bill)
+				addBillAwards();
 
 			ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, show_info, predeterminedSteps);
 
@@ -567,6 +575,64 @@ public class Resolver {
 		Trace.trace(Trace.INFO, "Resolution steps:");
 		for (ResolutionStep step : steps)
 			Trace.trace(Trace.INFO, "  " + step);
+	}
+
+	protected void addBillAwards() {
+		if (!bill)
+			return;
+
+		// find team lists
+		List<ITeam> teamGroup = new ArrayList<>();
+		ITeam[] teams = finalContest.getOrderedTeams();
+		String rank = null;
+		// int solved = 0;
+		for (int i = teams.length - 1; i >= 0; i--) {
+			ITeam team = teams[i];
+			IStanding standing = finalContest.getStanding(team);
+			if (rank != null && !standing.getRank().equals(rank)) {
+				boolean showList = true;
+				/*if (teamGroup.size() == 1) {
+					ITeam team2 = teamGroup.get(0);
+					List<IAward> aw = awards.get(team2.getId());
+					if (aw != null) {
+						for (IAward a : aw) {
+							if (a.getAwardType() == IAward.MEDAL)
+								showList = false;
+						}
+					}
+				}*/
+				if (showList) {
+					String citation = null;
+					if ("H".equals(rank))
+						citation = Messages.getString("teamListHM");
+					else
+						citation = Messages.getString("teamListTitle").replace("{0}", getPlace(rank));
+
+					int size = teamGroup.size();
+					String[] teamIds = new String[size];
+					for (int j = 0; j < size; j++) {
+						teamIds[j] = teamGroup.get(size - j - 1).getId();
+						Trace.trace(Trace.INFO, "Team list award for: " + teamIds[j]);
+					}
+
+					Trace.trace(Trace.USER, "list award: " + citation + " " + rank);
+					finalContest.add(new Award(IAward.OTHER, i + "", teamIds, citation, DisplayMode.LIST));
+				}
+				teamGroup = new ArrayList<>();
+			}
+			rank = standing.getRank();
+			// solved = standing.getNumSolved();
+			teamGroup.add(team);
+		}
+	}
+
+	protected String getPlace(String place) {
+		try {
+			int n = Integer.parseInt(place);
+			return AwardUtil.getPlaceString(n);
+		} catch (Exception e) {
+			return place;
+		}
 	}
 
 	protected void launch(List<ResolutionStep> steps) {

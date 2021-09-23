@@ -13,10 +13,11 @@ public class Award extends ContestObject implements IAward {
 	public static final String CITATION = "citation";
 	public static final String TEAM_IDS = "team_ids";
 	public static final String SHOW = "show";
+	public static final String DISPLAY_MODE = "display_mode";
 	public static final String PARAMETER = "parameter";
 
 	private String[] teamIds;
-	private boolean show = true;
+	private DisplayMode mode;
 	private String citation;
 	private String parameter;
 
@@ -24,27 +25,31 @@ public class Award extends ContestObject implements IAward {
 		// create an empty award
 	}
 
-	public Award(AwardType type, String teamId, String citation, boolean show) {
-		this(type.getPattern(""), new String[] { teamId }, citation, show);
+	public Award(AwardType type, String teamId, String citation) {
+		this(type.getPattern(""), new String[] { teamId }, citation);
 	}
 
-	public Award(AwardType type, int id, String teamId, String citation, boolean show) {
-		this(type.getPattern(id + ""), new String[] { teamId }, citation, show);
+	public Award(AwardType type, String id, String[] teamIds, String citation) {
+		this(type.getPattern(id), teamIds, citation);
 	}
 
-	public Award(AwardType type, int id, String[] teamIds, String citation, boolean show) {
-		this(type.getPattern(id + ""), teamIds, citation, show);
+	private Award(String id, String[] teamIds, String citation) {
+		this(id, teamIds, citation, null);
 	}
 
-	public Award(AwardType type, String id, String[] teamIds, String citation, boolean show) {
-		this(type.getPattern(id), teamIds, citation, show);
+	public Award(AwardType type, String teamId, String citation, DisplayMode mode) {
+		this(type.getPattern(""), new String[] { teamId }, citation, mode);
 	}
 
-	private Award(String id, String[] teamIds, String citation, boolean show) {
+	public Award(AwardType type, String id, String[] teamIds, String citation, DisplayMode mode) {
+		this(type.getPattern(id), teamIds, citation, mode);
+	}
+
+	private Award(String id, String[] teamIds, String citation, DisplayMode mode) {
 		super(id);
 		this.teamIds = teamIds;
 		this.citation = citation;
-		this.show = show;
+		this.mode = mode;
 	}
 
 	@Override
@@ -84,12 +89,14 @@ public class Award extends ContestObject implements IAward {
 	}
 
 	@Override
-	public boolean showAward() {
-		return show;
+	public DisplayMode getDisplayMode() {
+		if (mode == null)
+			return DisplayMode.DETAIL;
+		return mode;
 	}
 
-	public void setShowAward(boolean b) {
-		this.show = b;
+	public void setDisplayMode(DisplayMode s) {
+		this.mode = s;
 	}
 
 	@Override
@@ -113,7 +120,18 @@ public class Award extends ContestObject implements IAward {
 			citation = (String) value;
 			return true;
 		} else if (name.equals(SHOW)) {
-			show = parseBoolean(value);
+			if (parseBoolean(value))
+				mode = DisplayMode.DETAIL;
+			else
+				mode = DisplayMode.PAUSE;
+		} else if (name.equals(DISPLAY_MODE)) {
+			if ("detail".equals(value))
+				mode = DisplayMode.DETAIL;
+			else if ("pause".equals(value))
+				mode = DisplayMode.PAUSE;
+			else if ("list".equals(value))
+				mode = DisplayMode.LIST;
+
 			return true;
 		} else if (name.equals(PARAMETER)) {
 			parameter = (String) value;
@@ -133,8 +151,8 @@ public class Award extends ContestObject implements IAward {
 			else
 				props.put(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		}
-		if (show == false)
-			props.put(SHOW, show);
+		if (mode != null && mode != DisplayMode.DETAIL)
+			props.put(DISPLAY_MODE, mode.name().toLowerCase());
 		if (parameter != null)
 			props.put(PARAMETER, parameter);
 	}
@@ -150,8 +168,8 @@ public class Award extends ContestObject implements IAward {
 			else
 				je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		}
-		if (show == false)
-			je.encode(SHOW, show);
+		if (mode != null && mode != DisplayMode.DETAIL)
+			je.encode(DISPLAY_MODE, mode.name().toLowerCase());
 		if (parameter != null)
 			je.encode(PARAMETER, parameter);
 	}
