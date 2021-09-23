@@ -11,6 +11,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Group;
@@ -20,6 +21,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Award;
@@ -40,7 +42,7 @@ public class EditAwardsDialog extends Dialog {
 
 	protected Label citationLabel;
 	protected Text citation;
-	protected Button show;
+	protected Combo mode;
 
 	protected int rc;
 
@@ -169,7 +171,7 @@ public class EditAwardsDialog extends Dialog {
 				removeTeamFromAward();
 
 				Award a = new Award(selectedAward.getAwardType(), team.getId(), selectedAward.getCitation(),
-						selectedAward.showAward());
+						selectedAward.getDisplayMode());
 				awards.add(a);
 
 				updateAwards();
@@ -199,16 +201,16 @@ public class EditAwardsDialog extends Dialog {
 		});
 
 		// show
-		show = new Button(awardGroup, SWT.CHECK);
-		show.setText("Show team picture and citation (after pausing in the resolver)");
+		mode = new Combo(awardGroup, SWT.CHECK);
+		mode.setItems(new String[] { "Stop to show details", "Pause and move on", "Show as list" });
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.horizontalSpan = 3;
-		show.setLayoutData(data);
-		show.addSelectionListener(new SelectionAdapter() {
+		mode.setLayoutData(data);
+		mode.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				if (selectedAward != null)
-					selectedAward.setShowAward(show.getSelection());
+					selectedAward.setDisplayMode(DisplayMode.values()[mode.getSelectionIndex()]);
 			}
 		});
 
@@ -311,11 +313,11 @@ public class EditAwardsDialog extends Dialog {
 			awardTable.setEnabled(false);
 
 			citation.setText("");
-			show.setSelection(false);
+			mode.select(0);
 
 			citationLabel.setEnabled(false);
 			citation.setEnabled(false);
-			show.setEnabled(false);
+			mode.setEnabled(false);
 			remove.setEnabled(false);
 		} else {
 			for (IAward a : awards) {
@@ -348,7 +350,11 @@ public class EditAwardsDialog extends Dialog {
 
 		selectedAward = (Award) awards.get(sel);
 		citation.setText(selectedAward.getCitation());
-		show.setSelection(selectedAward.showAward());
+		DisplayMode m = selectedAward.getDisplayMode();
+		if (m == null)
+			m = DisplayMode.DETAIL;
+
+		mode.select(m.ordinal());
 
 		remove.setEnabled(true);
 		split.setEnabled(isMultiTeamAwardSelected());

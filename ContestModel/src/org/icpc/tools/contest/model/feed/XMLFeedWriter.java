@@ -254,10 +254,8 @@ public class XMLFeedWriter {
 			writeStart(XMLFeedParser.AWARD);
 			write("id", a.getId());
 			write("citation", a.getCitation());
-			if (a.showAward())
-				write("show", "true");
-			else
-				write("show", "false");
+			if (a.getDisplayMode() != null)
+				write("display_mode", a.getDisplayMode().name().toLowerCase());
 			if (a.getTeamIds() != null)
 				for (String t : a.getTeamIds())
 					write("teamId", t);

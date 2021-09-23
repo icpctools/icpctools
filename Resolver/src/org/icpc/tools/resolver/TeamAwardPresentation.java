@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IAward.AwardType;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IOrganization;
@@ -374,7 +375,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 
 		currentCache.mergedAwards = true;
 
-		boolean show = false;
+		DisplayMode mode = null;
 		int patternLen = IAward.FIRST_TO_SOLVE.getPattern("").length();
 		List<String> fts = new ArrayList<>();
 		List<IAward> list = new ArrayList<>();
@@ -389,8 +390,8 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 					continue;
 				}
 				fts.add(p.getLabel());
-				if (a.showAward())
-					show = true;
+				if (a.getDisplayMode() != null)
+					mode = a.getDisplayMode();
 			} else if (a.getId().contains("solution")) {
 				hasSolutionAward = true;
 				list.add(a);
@@ -401,10 +402,10 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			}
 		}
 
+		String[] teamIds = new String[] { currentCache.teamId };
 		int numFTS = fts.size();
 		if (numFTS == 1) {
-			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), new String[] { currentCache.teamId },
-					"First to solve problem " + fts.get(0), show));
+			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), teamIds, "First to solve problem " + fts.get(0), mode));
 		} else if (numFTS >= 2) {
 			fts.sort((s1, s2) -> s1.compareTo(s2));
 			fts.set(numFTS - 1, "and " + fts.get(numFTS - 1));
@@ -415,11 +416,10 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			else
 				citation = "First to solve problems " + String.join(", ", fts);
 
-			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId },
-					citation, show));
+			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), teamIds, citation, mode));
 		} else if (fts.size() == 1) {
-			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), new String[] { currentCache.teamId },
-					"First to solve problem " + fts.get(0), show));
+			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), teamIds,
+					"First to solve problem " + fts.get(0), mode));
 		}
 
 		if (hasMedal && !hasSolutionAward) {
@@ -427,11 +427,11 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			ITeam team = contest.getTeamById(currentCache.teamId);
 			IStanding s = contest.getStanding(team);
 			if (s.getNumSolved() == 1)
-				list.add(new Award(IAward.OTHER, s.getNumSolved(), currentCache.teamId,
-						Messages.getString("awardSolvedOne"), false));
+				list.add(new Award(IAward.OTHER, s.getNumSolved() + "", teamIds, Messages.getString("awardSolvedOne"),
+						DisplayMode.PAUSE));
 			else if (s.getNumSolved() > 1)
-				list.add(new Award(IAward.OTHER, s.getNumSolved(), currentCache.teamId,
-						Messages.getString("awardSolvedMultiple").replace("{0}", s.getNumSolved() + ""), false));
+				list.add(new Award(IAward.OTHER, s.getNumSolved() + "", teamIds,
+						Messages.getString("awardSolvedMultiple").replace("{0}", s.getNumSolved() + ""), DisplayMode.PAUSE));
 		}
 
 		currentCache.awards = list;
