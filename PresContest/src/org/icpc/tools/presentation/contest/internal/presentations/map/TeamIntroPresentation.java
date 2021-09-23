@@ -22,6 +22,7 @@ import org.icpc.tools.presentation.contest.internal.Animator3D;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
+import org.icpc.tools.presentation.contest.internal.TextHelper.Alignment;
 
 public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static final long GROUP_INTRO_TIME = 4000;
@@ -352,24 +353,21 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 
 		// draw team name and logo across the bottom
 		g.setFont(font);
-		int max = width - border * 5;
-		if (pos.smImage != null)
-			max -= pos.smImage.getWidth();
-		TextHelper text = new TextHelper(g, pos.label, max);
-		int tw = text.getWidth();
-
+		TextHelper text = new TextHelper(g);
 		if (pos.smImage != null) {
-			border = Math.max(border, pos.smImage.getHeight() / 2 + 10);
-			g.drawImage(pos.smImage, (width - tw) / 2 - pos.smImage.getWidth() / 2 - border,
-					height - border - 20 - pos.smImage.getHeight() / 2, null);
+			text.addImage(pos.smImage, Alignment.MIDDLE);
+			text.addSpacer(border);
 		}
 
-		FontMetrics fm = g.getFontMetrics();
-		int ty = fm.getAscent();
-		g.setColor(Color.DARK_GRAY);
-		text.draw((width - tw) / 2 + 20 + border + 2, height - border - 20 + ty / 2);
-		text.draw((width - tw) / 2 + 20 + border, height - border - 20 + ty / 2 + 2);
+		text.addString(pos.label, Alignment.MIDDLE);
+		int h = Math.max(border, height / 12) + border;
+		int y = height - border - h;
+
+		g.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+		g.setColor(Color.BLACK);
+		g.fillRect(0, y, width, h);
+		g.setComposite(AlphaComposite.SrcOver.derive(1f));
 		g.setColor(Color.WHITE);
-		text.draw((width - tw) / 2 + 20 + border, height - border - 20 + ty / 2);
+		text.drawFit(Math.max(border, (width - text.getWidth()) / 2), y + (h - text.getHeight()) / 2, width - border * 2);
 	}
 }

@@ -14,152 +14,199 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 
 public class TextHelper {
-	private static final int ZERO_WIDTH_JOINER = 8205; // 200d
+	public enum Alignment {
+		TOP, MIDDLE, BOTTOM
+	}
 
-	class Text {
-		GlyphVector gv;
-		BufferedImage img;
-		float dx;
+	abstract class Item {
+		protected Alignment align = Alignment.MIDDLE;
+		protected Dimension d;
+
+		protected abstract void draw();
+	}
+
+	class ImageItem extends Item {
+		protected BufferedImage img;
+
+		@Override
+		protected void draw() {
+			if (align == Alignment.TOP)
+				g.drawImage(img, 0, 0, null);
+			else if (align == Alignment.MIDDLE)
+				g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
+			else if (align == Alignment.BOTTOM)
+				g.drawImage(img, 0, bounds.height - img.getHeight(), null);
+		}
+	}
+
+	// same as ImageItem, but aligns with text
+	class EmojiItem extends ImageItem {
+		@Override
+		protected void draw() {
+			if (align == Alignment.TOP)
+				g.drawImage(img, 0, 1, null);
+			else if (align == Alignment.MIDDLE)
+				g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
+			else if (align == Alignment.BOTTOM)
+				g.drawImage(img, 0, bounds.height - img.getHeight() - 1, null);
+		}
+	}
+
+	class StringItem extends Item {
+		protected String s;
+
+		@Override
+		protected void draw() {
+			if (align == Alignment.TOP)
+				g.drawString(s, 0, fm.getAscent());
+			else if (align == Alignment.MIDDLE)
+				g.drawString(s, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
+			else if (align == Alignment.BOTTOM)
+				g.drawString(s, 0, bounds.height - fm.getDescent());
+		}
+	}
+
+	class GlyphItem extends Item {
+		protected GlyphVector gv;
+
+		@Override
+		protected void draw() {
+			if (align == Alignment.TOP)
+				g.drawGlyphVector(gv, 0, fm.getAscent());
+			else if (align == Alignment.MIDDLE)
+				g.drawGlyphVector(gv, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
+			else if (align == Alignment.BOTTOM)
+				g.drawGlyphVector(gv, 0, (bounds.height - fm.getDescent()));
+		}
+	}
+
+	class SpacerItem extends Item {
+		@Override
+		protected void draw() {
+			// ignore
+		}
 	}
 
 	private Graphics2D g;
-	private Dimension bounds;
-	private List<Text> list = new ArrayList<>();
-	private double xx;
-	private double h;
-
-	public TextHelper(Graphics2D g, String s, int width) {
-		this.g = g;
-		Font font = g.getFont();
-		layout(s);
-		float nn = 1;
-		while (bounds.getWidth() > width) {
-			list.clear();
-			bounds = null;
-			xx = 0;
-			h = 0;
-
-			nn -= 0.025f;
-			g.setFont(font.deriveFont(AffineTransform.getScaleInstance(nn, 1.0)));
-			layout(s);
-		}
-		g.setFont(font);
-	}
+	private FontMetrics fm;
+	private Dimension bounds = new Dimension(0, 0);
+	private List<Item> list = new ArrayList<>();
 
 	public TextHelper(Graphics2D g, String s) {
 		this.g = g;
-		layout(s);
+		this.fm = g.getFontMetrics();
+		addString(s, Alignment.MIDDLE);
 	}
 
-	private void layout(String s) {
+	public TextHelper(Graphics2D g) {
+		this.g = g;
+		this.fm = g.getFontMetrics();
+	}
+
+	public void addPlainText(String s, Alignment align) {
+		StringItem item = new StringItem();
+		item.s = s;
+		item.align = align;
+		item.d = new Dimension(fm.stringWidth(s), fm.getHeight());
+		add(item);
+	}
+
+	public void addString(String s, Alignment align) {
 		FontRenderContext frc = g.getFontRenderContext();
 		Font font = g.getFont();
-		FontMetrics fm = g.getFontMetrics();
 
-		int textLength = s.length();
 		char[] c = s.toCharArray();
 
-		int lastSegment = -1;
-		int fontBegin = 0;
-		List<Integer> emojiList = new ArrayList<>();
+		int fontBegin = -1;
 		for (int i = 0; i < s.length();) {
 			int codePoint = s.codePointAt(i);
 			int charCount = Character.charCount(codePoint); // high Unicode code points span two chars
 
-			// detect if the font can be used to display the current character
-			int curSegment = -1;
-			if (codePoint == ZERO_WIDTH_JOINER) {
-				// keep with last
-				curSegment = lastSegment;
-				if (curSegment == 2)
-					emojiList.add(codePoint);
-			} else if (font.canDisplay(codePoint)) {
-				curSegment = 1;
+			// detect if we have an emoji PNG for the current position
+			EmojiEntry emojiEntry = findEmoji(s, i);
+			if (emojiEntry == null) {
+				if (fontBegin == -1)
+					fontBegin = i;
+				i += charCount;
 			} else {
-				curSegment = 2;
-				emojiList.add(codePoint);
-			}
-
-			if (curSegment != lastSegment && lastSegment != -1) {
-				// segment type has changed, output last segment
-				if (lastSegment == 1) {
+				if (fontBegin != -1)
 					addText(font.layoutGlyphVector(frc, c, fontBegin, i, 0));
-				} else if (lastSegment == 2) {
-					addEmojis(emojiList, fm.getHeight());
-				}
-
-				fontBegin = i;
-			}
-
-			i += charCount;
-			lastSegment = curSegment;
-		}
-
-		if (fontBegin < textLength) {
-			if (lastSegment == 1) {
-				addText(font.layoutGlyphVector(frc, c, fontBegin, c.length, 0));
-			} else if (lastSegment == 2) {
-				addEmojis(emojiList, fm.getHeight());
+				addEmoji(emojiEntry);
+				fontBegin = -1;
+				i += emojiEntry.raw.length();
 			}
 		}
 
-		bounds = new Dimension((int) xx, (int) h);
+		if (fontBegin != -1)
+			addText(font.layoutGlyphVector(frc, c, fontBegin, c.length, 0));
+	}
+
+	private void add(Item i) {
+		list.add(i);
+		bounds.width += i.d.width;
+		bounds.height = Math.max(bounds.height, i.d.height);
 	}
 
 	private void addText(GlyphVector gv) {
-		Text t = new Text();
-		t.gv = gv;
-		t.dx = (int) xx;
-		Rectangle2D b = t.gv.getLogicalBounds();
-		xx += b.getWidth();
-		h = Math.max(h, b.getHeight());
-		list.add(t);
+		GlyphItem item = new GlyphItem();
+		item.gv = gv;
+		Rectangle2D b = gv.getLogicalBounds();
+		item.d = new Dimension((int) b.getWidth(), (int) b.getHeight());
+		add(item);
 	}
 
-	private void addEmojis(List<Integer> emojiList, int height) {
-		int n = emojiList.size();
-		while (n > 0) {
-			// find the longest emoji set that we have an image for
-			String hex = getEmojiHex(emojiList, n);
-			while (n > 0 && !hasEmojis(hex)) {
-				n--;
-				hex = getEmojiHex(emojiList, n);
-			}
+	private static EmojiEntry findEmoji(String s, int i) {
+		if (emojiMap.isEmpty())
+			loadEmojis();
 
-			//
-			if (n == 0) {
-				// we don't have any matching emoji :(
-				emojiList.remove(0);
-			} else {
-				// add the emoji
-				addEmoji(height, hex);
-				while (n > 0) {
-					emojiList.remove(0);
-					n--;
-				}
+		int first = s.codePointAt(i);
+		List<EmojiEntry> entries = emojiMap.get(first);
+		if (entries == null)
+			return null;
 
-			}
-			n = emojiList.size();
+		for (EmojiEntry entry : entries) {
+			if (s.regionMatches(i, entry.raw, 0, entry.raw.length()))
+				return entry;
 		}
+		return null;
 	}
 
-	private void addEmoji(double height, String hex) {
-		BufferedImage img = getEmoji(hex);
-		Text t = new Text();
-		// TODO should resize emojis when we scale text
-		t.img = ImageScaler.scaleImage(img, height - 2, height - 2);
-		t.dx = (int) xx;
-		xx += t.img.getWidth();
-		h = Math.max(h, t.img.getHeight());
-		list.add(t);
+	private void addEmoji(EmojiEntry emoji) {
+		if (emoji.img == null)
+			emoji.img = loadEmojiFromFile(emoji.hex);
+		int height = fm.getHeight() - 2;
+		BufferedImage img = ImageScaler.scaleImage(emoji.img, height, height);
+
+		EmojiItem item = new EmojiItem();
+		item.img = img;
+		item.d = new Dimension(img.getWidth(), img.getHeight());
+		add(item);
+	}
+
+	public void addImage(BufferedImage img, Alignment align) {
+		ImageItem item = new ImageItem();
+		item.img = img;
+		item.align = align;
+		item.d = new Dimension(img.getWidth(), img.getHeight());
+		add(item);
+	}
+
+	public void addSpacer(int width) {
+		SpacerItem item = new SpacerItem();
+		item.d = new Dimension(width, 0);
+		add(item);
 	}
 
 	public int getWidth() {
@@ -175,84 +222,90 @@ public class TextHelper {
 	}
 
 	public void draw(int x, int y) {
-		FontMetrics fm = g.getFontMetrics();
-		for (Text t : list) {
-			if (t.gv != null)
-				g.drawGlyphVector(t.gv, x + t.dx, y);
-			else
-				g.drawImage(t.img, x + (int) t.dx, y + fm.getDescent() - t.img.getHeight() - 1, null);
+		g.translate(x, y);
+		int tx = x;
+		for (Item i : list) {
+			i.draw();
+			g.translate(i.d.width, 0);
+			tx += i.d.width;
 		}
+		g.translate(-tx, -y);
 	}
 
 	public void draw(float x, float y) {
-		FontMetrics fm = g.getFontMetrics();
-		for (Text t : list) {
-			if (t.gv != null)
-				g.drawGlyphVector(t.gv, x + t.dx, y);
-			else
-				g.drawImage(t.img, (int) (x + t.dx), (int) y + fm.getDescent() - t.img.getHeight() - 1, null);
+		draw((int) x, (int) y);
+	}
+
+	public void drawFit(int x, int y, int width) {
+		if (bounds.width <= width) {
+			draw(x, y);
+			return;
+		}
+		AffineTransform old = g.getTransform();
+		g.translate(x, 0);
+		double sc = (double) width / (double) bounds.width;
+		g.transform(AffineTransform.getScaleInstance(sc, 1.0));
+		draw(0, y);
+
+		g.setTransform(old);
+	}
+
+	private static final Map<Integer, List<EmojiEntry>> emojiMap = new HashMap<>();
+
+	private static final class EmojiEntry {
+		final String hex;
+		final String raw;
+		BufferedImage img;
+
+		public EmojiEntry(String hex, String raw) {
+			this.hex = hex;
+			this.raw = raw;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
+			EmojiEntry that = (EmojiEntry) o;
+			return Objects.equals(hex, that.hex) && Objects.equals(raw, that.raw);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(hex, raw);
+		}
+
+		@Override
+		public String toString() {
+			return '[' + hex + '=' + raw + ']';
 		}
 	}
 
-	private static List<String> emojis;
-	private static ConcurrentHashMap<String, BufferedImage> map = new ConcurrentHashMap<>();
-
-	private static String loadEmojis() {
-		emojis = new ArrayList<String>();
+	private static void loadEmojis() {
 		String filename = "font/emoji.txt";
 		try (BufferedReader br = new BufferedReader(
 				new InputStreamReader(ICPCFont.class.getClassLoader().getResourceAsStream(filename)))) {
-			String s = br.readLine();
-			while (s != null) {
-				emojis.add(s);
-				s = br.readLine();
+			String s;
+			while ((s = br.readLine()) != null) {
+				String[] hexCodes = s.split("-");
+				int[] codePoints = Arrays.stream(hexCodes).mapToInt(hex -> Integer.parseInt(hex, 16)).toArray();
+				String raw = new String(codePoints, 0, hexCodes.length);
+				emojiMap.putIfAbsent(codePoints[0], new ArrayList<>());
+				emojiMap.get(codePoints[0]).add(new EmojiEntry(s, raw));
+			}
+			for (List<EmojiEntry> entryList : emojiMap.values()) {
+				// sort entries from long to short, so that combined emoji (with e.g. Zero-Width
+				// Joiner) are found first
+				entryList.sort(Comparator.<EmojiEntry> comparingInt(l -> l.raw.length()).reversed());
 			}
 		} catch (Exception e) {
 			// ignore
 		}
-		return null;
 	}
 
-	private static String getEmojiHex(List<Integer> codePoints, int max) {
-		StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		int count = 0;
-		for (int cp : codePoints) {
-			if (!first)
-				sb.append("-");
-			first = false;
-			sb.append(Integer.toHexString(cp));
-			count++;
-			if (count >= max)
-				break;
-		}
-		return sb.toString();
-	}
-
-	private static boolean hasEmojis(String hex) {
-		if (emojis == null)
-			loadEmojis();
-
-		return emojis.contains(hex);
-	}
-
-	private static BufferedImage getEmoji(String hex) {
-		BufferedImage img = map.get(hex);
-		if (img != null)
-			return img;
-
-		if (emojis == null)
-			loadEmojis();
-
-		if (!emojis.contains(hex))
-			return null;
-		img = getEmojiFromFile(hex);
-		if (img != null)
-			map.put(hex, img);
-		return img;
-	}
-
-	private static BufferedImage getEmojiFromFile(String hex) {
+	private static BufferedImage loadEmojiFromFile(String hex) {
 		String filename = "font/twemoji/" + hex + ".png";
 		try (InputStream in = ICPCFont.class.getClassLoader().getResourceAsStream(filename)) {
 			return ImageIO.read(in);
@@ -269,30 +322,18 @@ public class TextHelper {
 
 	/**
 	 * An equivalent to g.drawString(), except that it takes emojis and maximum width into account.
-	 *
-	 * @param g
-	 * @param s
-	 * @param x
-	 * @param y
-	 * @param width
 	 */
 	public static void drawString(Graphics2D g, String s, int x, int y, int width) {
-		TextHelper text = new TextHelper(g, s, width);
-		text.draw(x, y);
+		TextHelper text = new TextHelper(g, s);
+		text.drawFit(x, y - text.fm.getAscent(), width);
 	}
 
 	/**
 	 * An equivalent to g.drawString(), except that it takes emojis into account.
-	 *
-	 * @param g
-	 * @param s
-	 * @param x
-	 * @param y
-	 * @param width
 	 */
 	public static void drawString(Graphics2D g, String s, int x, int y) {
 		TextHelper text = new TextHelper(g, s);
-		text.draw(x, y);
+		new TextHelper(g, s).draw(x, y - text.fm.getAscent());
 	}
 
 	public static void main(String[] args) {

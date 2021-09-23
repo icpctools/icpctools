@@ -2,7 +2,6 @@ package org.icpc.tools.presentation.contest.internal.presentations.old;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
@@ -50,9 +49,8 @@ public class FloorNamePresentation extends AbstractICPCPresentation {
 		if (team != null) {
 			g.setFont(font);
 			g.setColor(Color.WHITE);
-			FontMetrics fm = g.getFontMetrics();
 			TextHelper text = new TextHelper(g, team.getActualDisplayName());
-			text.draw((width - text.getWidth()) / 2, fm.getAscent() + 20);
+			text.draw((width - text.getWidth()) / 2, 20);
 		}
 	}
 }
