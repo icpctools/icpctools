@@ -6,7 +6,7 @@ ARG CDS_VERSION
 
 # Install dependencies
 RUN apt-get update && \ 
-    apt-get install -y --no-install-recommends openjdk-16-jdk-headless unzip ca-certificates curl && \
+    apt-get install -y --no-install-recommends openjdk-17-jdk-headless unzip ca-certificates curl && \
     rm -rf /var/lib/apt/lists/
 
 # Install CDS
