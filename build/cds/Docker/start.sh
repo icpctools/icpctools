@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-if [ -n "${ADMIN_PASSWORD}" ]; then
-    sed -i "s|ADMIN_PASSWORD|${ADMIN_PASSWORD}|" /opt/wlp/usr/servers/cds/users.xml
-fi
 if [ -n "${PRESADMIN_PASSWORD}" ]; then
     sed -i "s|PRESADMIN_PASSWORD|${PRESADMIN_PASSWORD}|" /opt/wlp/usr/servers/cds/users.xml
+fi
+if [ -n "${ADMIN_PASSWORD}" ]; then
+    sed -i "s|ADMIN_PASSWORD|${ADMIN_PASSWORD}|" /opt/wlp/usr/servers/cds/users.xml
 fi
 if [ -n "${BLUE_PASSWORD}" ]; then
     sed -i "s|BLUE_PASSWORD|${BLUE_PASSWORD}|" /opt/wlp/usr/servers/cds/users.xml
@@ -25,7 +25,6 @@ fi
 if [ -n "${LIVE_PASSWORD}" ]; then
     sed -i "s|LIVE_PASSWORD|${LIVE_PASSWORD}|" /opt/wlp/usr/servers/cds/users.xml
 fi
-
 if [ -n "${CCS_URL}" ]; then
     sed -i "s|CCS_URL|${CCS_URL}|" /opt/wlp/usr/servers/cds/config/cdsConfig.xml
 fi
