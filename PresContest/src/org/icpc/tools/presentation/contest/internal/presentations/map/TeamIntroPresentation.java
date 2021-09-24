@@ -22,7 +22,6 @@ import org.icpc.tools.presentation.contest.internal.Animator3D;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
-import org.icpc.tools.presentation.contest.internal.TextHelper.Alignment;
 
 public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static final long GROUP_INTRO_TIME = 4000;
@@ -355,11 +354,11 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		g.setFont(font);
 		TextHelper text = new TextHelper(g);
 		if (pos.smImage != null) {
-			text.addImage(pos.smImage, Alignment.MIDDLE);
+			text.addImage(pos.smImage);
 			text.addSpacer(border);
 		}
 
-		text.addString(pos.label, Alignment.MIDDLE);
+		text.addString(pos.label);
 		int h = Math.max(border, height / 12) + border;
 		int y = height - border - h;
 

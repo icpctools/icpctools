@@ -25,13 +25,13 @@ import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 
+/**
+ * A helper class that can layout and draw a set of text and images. It handles some special cases
+ * like automatically converting emojis in strings to colour images. All items are automatically
+ * vertically aligned in the middle.
+ */
 public class TextHelper {
-	public enum Alignment {
-		TOP, MIDDLE, BOTTOM
-	}
-
 	abstract class Item {
-		protected Alignment align = Alignment.MIDDLE;
 		protected Dimension d;
 
 		protected abstract void draw();
@@ -42,12 +42,7 @@ public class TextHelper {
 
 		@Override
 		protected void draw() {
-			if (align == Alignment.TOP)
-				g.drawImage(img, 0, 0, null);
-			else if (align == Alignment.MIDDLE)
-				g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
-			else if (align == Alignment.BOTTOM)
-				g.drawImage(img, 0, bounds.height - img.getHeight(), null);
+			g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
 		}
 	}
 
@@ -55,12 +50,7 @@ public class TextHelper {
 	class EmojiItem extends ImageItem {
 		@Override
 		protected void draw() {
-			if (align == Alignment.TOP)
-				g.drawImage(img, 0, 1, null);
-			else if (align == Alignment.MIDDLE)
-				g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
-			else if (align == Alignment.BOTTOM)
-				g.drawImage(img, 0, bounds.height - img.getHeight() - 1, null);
+			g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
 		}
 	}
 
@@ -69,12 +59,7 @@ public class TextHelper {
 
 		@Override
 		protected void draw() {
-			if (align == Alignment.TOP)
-				g.drawString(s, 0, fm.getAscent());
-			else if (align == Alignment.MIDDLE)
-				g.drawString(s, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
-			else if (align == Alignment.BOTTOM)
-				g.drawString(s, 0, bounds.height - fm.getDescent());
+			g.drawString(s, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
 		}
 	}
 
@@ -83,12 +68,7 @@ public class TextHelper {
 
 		@Override
 		protected void draw() {
-			if (align == Alignment.TOP)
-				g.drawGlyphVector(gv, 0, fm.getAscent());
-			else if (align == Alignment.MIDDLE)
-				g.drawGlyphVector(gv, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
-			else if (align == Alignment.BOTTOM)
-				g.drawGlyphVector(gv, 0, (bounds.height - fm.getDescent()));
+			g.drawGlyphVector(gv, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
 		}
 	}
 
@@ -107,7 +87,7 @@ public class TextHelper {
 	public TextHelper(Graphics2D g, String s) {
 		this.g = g;
 		this.fm = g.getFontMetrics();
-		addString(s, Alignment.MIDDLE);
+		addString(s);
 	}
 
 	public TextHelper(Graphics2D g) {
@@ -115,15 +95,14 @@ public class TextHelper {
 		this.fm = g.getFontMetrics();
 	}
 
-	public void addPlainText(String s, Alignment align) {
+	public void addPlainText(String s) {
 		StringItem item = new StringItem();
 		item.s = s;
-		item.align = align;
 		item.d = new Dimension(fm.stringWidth(s), fm.getHeight());
 		add(item);
 	}
 
-	public void addString(String s, Alignment align) {
+	public void addString(String s) {
 		FontRenderContext frc = g.getFontRenderContext();
 		Font font = g.getFont();
 
@@ -195,10 +174,9 @@ public class TextHelper {
 		add(item);
 	}
 
-	public void addImage(BufferedImage img, Alignment align) {
+	public void addImage(BufferedImage img) {
 		ImageItem item = new ImageItem();
 		item.img = img;
-		item.align = align;
 		item.d = new Dimension(img.getWidth(), img.getHeight());
 		add(item);
 	}
