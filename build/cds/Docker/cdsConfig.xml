@@ -1,5 +1,5 @@
 <cds>
   <contest location="/contest" recordReactions="false">
-    <ccs url="CCS_URL" user="CCS_USER" password="CCS_PASSWORD"/>
+    <ccs url="__CCS_URL__" user="__CCS_USER__" password="__CCS_PASSWORD__"/>
   </contest>
 </cds>
