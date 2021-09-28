@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -21,9 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import javax.imageio.ImageIO;
-
-import org.icpc.tools.contest.Trace;
+import com.kitfox.svg.SVGDiagram;
+import com.kitfox.svg.SVGUniverse;
 
 /**
  * A helper class that can layout and draw a set of text and images. It handles some special cases
@@ -49,10 +49,25 @@ public class TextHelper {
 	}
 
 	// same as ImageItem, but aligns with text
-	class EmojiItem extends ImageItem {
+	class EmojiItem extends Item {
+		protected SVGDiagram svg;
+
 		@Override
 		protected void draw() {
-			g.drawImage(img, x - img.getWidth() / 2, y - img.getHeight() / 2, null);
+			float w = svg.getWidth();
+			float h = svg.getHeight();
+			float scale = Math.min(d.width / w, d.height / h);
+
+			Graphics2D gg = (Graphics2D) g.create();
+			gg.translate(x - d.width / 2, y - d.height / 2);
+			gg.scale(scale, scale);
+
+			try {
+				svg.render(gg);
+			} catch (Exception e) {
+				// ignore
+			}
+			gg.dispose();
 		}
 	}
 
@@ -185,14 +200,17 @@ public class TextHelper {
 	}
 
 	private void addEmoji(EmojiEntry emoji) {
-		if (emoji.img == null)
-			emoji.img = loadEmojiFromFile(emoji.hex);
-		int height = fm.getHeight() - 2;
-		BufferedImage img = ImageScaler.scaleImage(emoji.img, height, height);
+		if (emoji.svg == null)
+			emoji.svg = loadEmojiFromFile(emoji.hex);
+		int size = fm.getHeight() - 2;
+
+		float w = emoji.svg.getWidth();
+		float h = emoji.svg.getHeight();
+		float scale = Math.min(size / w, size / h);
 
 		EmojiItem item = new EmojiItem();
-		item.img = img;
-		item.d = new Dimension(img.getWidth(), img.getHeight());
+		item.svg = emoji.svg;
+		item.d = new Dimension((int) (w * scale), (int) (h * scale));
 		add(item);
 	}
 
@@ -263,9 +281,9 @@ public class TextHelper {
 	private static final Map<Integer, List<EmojiEntry>> emojiMap = new HashMap<>();
 
 	private static final class EmojiEntry {
-		final String hex;
-		final String raw;
-		BufferedImage img;
+		protected final String hex;
+		protected final String raw;
+		protected SVGDiagram svg;
 
 		public EmojiEntry(String hex, String raw) {
 			this.hex = hex;
@@ -315,18 +333,16 @@ public class TextHelper {
 		}
 	}
 
-	private static BufferedImage loadEmojiFromFile(String hex) {
-		String filename = "font/twemoji/" + hex + ".png";
+	private static SVGDiagram loadEmojiFromFile(String hex) {
+		String filename = "font/twemoji/" + hex + ".svg";
 		try (InputStream in = ICPCFont.class.getClassLoader().getResourceAsStream(filename)) {
-			return ImageIO.read(in);
+			SVGUniverse sRenderer = new SVGUniverse();
+			URI uri = sRenderer.loadSVG(in, hex);
+			SVGDiagram diagram = sRenderer.getDiagram(uri);
+			diagram.setIgnoringClipHeuristic(true);
+			return diagram;
 		} catch (Exception e) {
-			// in case we are not in a jar, re-try as a file
-			try {
-				return ImageIO.read(new File(filename));
-			} catch (Exception e1) {
-				Trace.trace(Trace.ERROR, "Error loading font", e1);
-				return null;
-			}
+			return null;
 		}
 	}
 
@@ -357,7 +373,7 @@ public class TextHelper {
 
 		for (File f : files) {
 			String name = f.getName();
-			if (name.endsWith(".png"))
+			if (name.endsWith(".svg"))
 				System.out.println(name.substring(0, name.length() - 4));
 		}
 	}
