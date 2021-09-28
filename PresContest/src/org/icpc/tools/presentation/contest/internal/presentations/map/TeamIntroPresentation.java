@@ -121,9 +121,6 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			zooms[i].startTime = time;
 			time += TIME_PER_GROUP + zooms[i].instPos.length * TIME_PER_TEAM;
 			zooms[i].endTime = time;
-			// System.out
-			// .println(zooms[i].name + " " + zooms[i].numTeams + " " + zooms[i].startTime + " " +
-			// zooms[i].endTime);
 		}
 	}
 
@@ -367,6 +364,6 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		g.fillRect(0, y, width, h);
 		g.setComposite(AlphaComposite.SrcOver.derive(1f));
 		g.setColor(Color.WHITE);
-		text.drawFit(Math.max(border, (width - text.getWidth()) / 2), y + (h - text.getHeight()) / 2, width - border * 2);
+		text.drawFit(Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2, width - border * 2);
 	}
 }

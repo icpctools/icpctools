@@ -322,8 +322,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 		int xx = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
-		TextHelper.drawString(g, s, xx, fm.getAscent() + 5,
-				(int) (width - BORDER * 2 - fm.stringWidth("199 9 9999") - rowHeight));
+		TextHelper.drawString(g, s, xx, 5, (int) (width - BORDER * 2 - fm.stringWidth("199 9 9999") - rowHeight));
 
 		drawRight(g, contest, team, standing, sr);
 	}

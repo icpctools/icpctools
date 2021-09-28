@@ -405,8 +405,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 			g.fillRect(0, 0, width, (int) (rowHeight + 0.9f));
 
 			// check if the selection type indicates there should be a white outline box
-			if (selectType == SelectType.HIGHLIGHT || selectType == SelectType.FTS_HIGHLIGHT
-					|| selectType == SelectType.TEAM_LIST) {
+			if (selectType == SelectType.HIGHLIGHT || selectType == SelectType.FTS_HIGHLIGHT) {
 				g.setColor(Color.WHITE);
 				g.drawRect(-1, 0, width + 2, (int) (rowHeight));
 			}

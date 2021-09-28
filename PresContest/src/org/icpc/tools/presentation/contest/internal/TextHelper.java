@@ -33,6 +33,8 @@ import org.icpc.tools.contest.Trace;
 public class TextHelper {
 	abstract class Item {
 		protected Dimension d;
+		protected int x;
+		protected int y;
 
 		protected abstract void draw();
 	}
@@ -42,7 +44,7 @@ public class TextHelper {
 
 		@Override
 		protected void draw() {
-			g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
+			g.drawImage(img, x - img.getWidth() / 2, y - img.getHeight() / 2, null);
 		}
 	}
 
@@ -50,7 +52,7 @@ public class TextHelper {
 	class EmojiItem extends ImageItem {
 		@Override
 		protected void draw() {
-			g.drawImage(img, 0, (bounds.height - img.getHeight()) / 2, null);
+			g.drawImage(img, x - img.getWidth() / 2, y - img.getHeight() / 2, null);
 		}
 	}
 
@@ -59,7 +61,7 @@ public class TextHelper {
 
 		@Override
 		protected void draw() {
-			g.drawString(s, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
+			g.drawString(s, x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
 		}
 	}
 
@@ -68,7 +70,7 @@ public class TextHelper {
 
 		@Override
 		protected void draw() {
-			g.drawGlyphVector(gv, 0, (bounds.height - fm.getHeight()) / 2 + fm.getAscent());
+			g.drawGlyphVector(gv, x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
 		}
 	}
 
@@ -82,7 +84,7 @@ public class TextHelper {
 	private Graphics2D g;
 	private FontMetrics fm;
 	private Dimension bounds = new Dimension(0, 0);
-	private List<Item> list = new ArrayList<>();
+	private List<Item> list = new ArrayList<>(4);
 
 	public TextHelper(Graphics2D g, String s) {
 		this.g = g;
@@ -134,8 +136,28 @@ public class TextHelper {
 
 	private void add(Item i) {
 		list.add(i);
-		bounds.width += i.d.width;
-		bounds.height = Math.max(bounds.height, i.d.height);
+
+		layout();
+	}
+
+	private void layout() {
+		// find max height
+		int w = 0;
+		int h = 0;
+		for (Item i : list) {
+			h = Math.max(h, i.d.height);
+			w += i.d.width;
+		}
+		bounds.width = w;
+		bounds.height = h;
+
+		// layout items horizontally
+		w = 0;
+		for (Item i : list) {
+			i.x = w + i.d.width / 2;
+			i.y = h / 2;
+			w += i.d.width;
+		}
 	}
 
 	private void addText(GlyphVector gv) {
@@ -181,9 +203,22 @@ public class TextHelper {
 		add(item);
 	}
 
+	public void addImage(BufferedImage img, int width, int height) {
+		ImageItem item = new ImageItem();
+		item.img = img;
+		item.d = new Dimension(width, height);
+		add(item);
+	}
+
 	public void addSpacer(int width) {
 		SpacerItem item = new SpacerItem();
 		item.d = new Dimension(width, 0);
+		add(item);
+	}
+
+	public void addSpacer(int width, int height) {
+		SpacerItem item = new SpacerItem();
+		item.d = new Dimension(width, height);
 		add(item);
 	}
 
@@ -201,13 +236,10 @@ public class TextHelper {
 
 	public void draw(int x, int y) {
 		g.translate(x, y);
-		int tx = x;
-		for (Item i : list) {
+		for (Item i : list)
 			i.draw();
-			g.translate(i.d.width, 0);
-			tx += i.d.width;
-		}
-		g.translate(-tx, -y);
+
+		g.translate(-x, -y);
 	}
 
 	public void draw(float x, float y) {
@@ -221,7 +253,7 @@ public class TextHelper {
 		}
 		AffineTransform old = g.getTransform();
 		g.translate(x, 0);
-		double sc = (double) width / (double) bounds.width;
+		double sc = width / (double) bounds.width;
 		g.transform(AffineTransform.getScaleInstance(sc, 1.0));
 		draw(0, y);
 

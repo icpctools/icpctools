@@ -1,10 +1,12 @@
 package org.icpc.tools.resolver;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
@@ -19,19 +21,18 @@ import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class TeamListPresentation extends AbstractICPCPresentation {
-	private static final int TEAM_SPACING = 15;
-	private static final int COLUMN_GAP = 10;
+	private static final float SPACING = 1.2f;
 	private static final int GAP = 8;
-	private static final int ROWS_PER_SCREEN = 15; // multiply by 2 columns for # of teams shown
+	private static final int ROWS_PER_SCREEN = 15;
 
 	private Animator scroll = new Animator(0, new Movement(0.4, 0.5));
 	private boolean scrollPause = false;
 
 	class TeamInfo {
 		private String teamName;
-		private String[] name;
 		private String id;
 	}
 
@@ -102,6 +103,8 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		}
 
 		selections = step.selections;
+
+		bottom = size + height / rowHeight;
 	}
 
 	/**
@@ -150,68 +153,58 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 		Graphics2D g = (Graphics2D) g2.create();
 		g.setClip(0, headerHeight, width, height - headerHeight);
-		int scr = (int) (scroll.getValue() * rowHeight);
-		g.translate(0, headerHeight - scr);
+		int scr = (int) (scroll.getValue() * rowHeight * SPACING);
 
 		// draw team list
-		int y = height - headerHeight + TEAM_SPACING;
 		g.setFont(teamFont);
 		g.setColor(Color.WHITE);
 		fm = g.getFontMetrics();
 		int size = teams.length;
-		int x = 0;
-		int yy = 0;
 		for (int i = 0; i < size; i++) {
 			TeamInfo t = teams[i];
 
-			if (t.name == null)
-				t.name = splitString(g, t.teamName, width / 2 - TEAM_SPACING - rowHeight - COLUMN_GAP);
+			TextHelper text = new TextHelper(g);
+			text = new TextHelper(g);
+			BufferedImage img = logos.get(t.id);
+			if (img != null)
+				text.addImage(img);
+			text.addSpacer(GAP, rowHeight);
+			text.addString(t.teamName);
 
-			int hh = Math.max(t.name.length * fm.getHeight(), rowHeight);
-			if (y - scr + hh > 0 && y - scr < height - headerHeight) {
-				BufferedImage img = logos.get(t.id);
-				int h = 0;
-				if (img != null) {
-					h = hh / 2 - fm.getHeight() * (t.name.length - 1) / 2;
-					g.drawImage(img, x + (rowHeight - img.getWidth()) / 2, (hh - img.getHeight()) / 2 + y, null);
-				}
+			int y = height - headerHeight + rowHeight - scr + (int) (rowHeight * i * SPACING);
+			if (y >= height)
+				continue;
 
-				SelectType sel = selections.get(t.id);
-				if (sel != null) {
-					if (sel == SelectType.FTS)
-						g.setColor(ICPCColors.FIRST_TO_SOLVE_COLOR);
-					else if (sel == SelectType.FTS_HIGHLIGHT)
-						g.setColor(ICPCColors.SOLVED_COLOR.brighter());
-					else
-						g.setColor(ICPCColors.SELECTION_COLOR);
-				} else
-					g.setColor(Color.WHITE);
+			SelectType sel = selections.get(t.id);
+			if (sel != null) {
+				if (sel == SelectType.FTS)
+					g.setColor(ICPCColors.FIRST_TO_SOLVE_COLOR);
+				else if (sel == SelectType.FTS_HIGHLIGHT)
+					g.setColor(ICPCColors.SOLVED_COLOR.brighter());
+				else
+					g.setColor(ICPCColors.SELECTION_COLOR);
+			} else
+				g.setColor(Color.WHITE);
 
-				for (int j = 0; j < t.name.length; j++) {
-					if (j == 0)
-						g.drawString(t.name[j], x + rowHeight + GAP * 2, y + fm.getAscent() / 2 + h);
-					else
-						g.drawString(t.name[j], x + rowHeight * 3 / 2 + GAP * 2,
-								y + fm.getAscent() / 2 + fm.getHeight() * j + h);
-				}
+			AffineTransform old = g.getTransform();
+			if (y > height * 2f / 3f)
+				g.setComposite(AlphaComposite.SrcOver.derive(1f - (y - height * 2f / 3f) / (height / 3f)));
+
+			g.translate(width / 2, y);
+			if (y > height * 3f / 4f) {
+				g.translate(0, (y - height * 3f / 4f) * 1f);
+				double sc = 1.0 + (y - height * 3f / 4f) / (height / 4f) * 2.0;
+				g.transform(AffineTransform.getScaleInstance(sc, sc));
 			}
 
-			yy = Math.max(yy, hh);
-
-			if (x > 1) {
-				x = 0;
-				y += yy + TEAM_SPACING;
-				yy = 0;
-			} else
-				x = (width + COLUMN_GAP) / 2;
+			text.drawFit(-text.getWidth() / 2, 0, width);
+			g.setTransform(old);
 		}
 
-		if (x > 0)
-			y += yy + TEAM_SPACING;
-
-		g.setColor(Color.WHITE);
+		g.setComposite(AlphaComposite.SrcOver.derive(1.0f));
+		int y = height - headerHeight - scr + (int) (rowHeight * (size + 2) * SPACING);
+		g.setColor(Color.LIGHT_GRAY);
 		g.drawLine(0, y, width, y);
-		bottom = (y + TEAM_SPACING * 2) / (double) rowHeight;
 		g.dispose();
 	}
 
