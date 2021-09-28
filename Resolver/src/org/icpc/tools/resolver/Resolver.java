@@ -615,7 +615,7 @@ public class Resolver {
 						Trace.trace(Trace.INFO, "Team list award for: " + teamIds[j]);
 					}
 
-					Trace.trace(Trace.USER, "list award: " + citation + " " + rank);
+					Trace.trace(Trace.INFO, "list award: " + citation + " " + rank);
 					finalContest.add(new Award(IAward.OTHER, i + "", teamIds, citation, DisplayMode.LIST));
 				}
 				teamGroup = new ArrayList<>();
