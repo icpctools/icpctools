@@ -182,7 +182,9 @@ public class BasicClient {
 	public BasicClient(RESTContestSource contestSource, String name, int uid, String role, String type) {
 		try {
 			URL url2 = contestSource.getURL();
-			this.url = "wss://" + url2.getHost() + ":" + url2.getPort();
+			this.url = "wss://" + url2.getHost();
+			if (url2.getPort() > 0)
+				this.url += ":" + url2.getPort();
 			this.auth = getAuth(contestSource.getUser(), contestSource.getPassword());
 		} catch (Exception e) {
 			// ignore
@@ -205,7 +207,9 @@ public class BasicClient {
 	public BasicClient(RESTContestSource contestSource, String clientType) {
 		try {
 			URL url2 = contestSource.getURL();
-			this.url = "wss://" + url2.getHost() + ":" + url2.getPort();
+			this.url = "wss://" + url2.getHost();
+			if (url2.getPort() > 0)
+				this.url += ":" + url2.getPort();
 			this.auth = getAuth(contestSource.getUser(), contestSource.getPassword());
 		} catch (Exception e) {
 			// ignore
