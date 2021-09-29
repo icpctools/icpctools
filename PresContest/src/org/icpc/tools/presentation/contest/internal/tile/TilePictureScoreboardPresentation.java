@@ -23,7 +23,6 @@ public class TilePictureScoreboardPresentation extends AbstractICPCPresentation 
 				@Override
 				public void run() {
 					teamImage = team.getPhotoImage(width, height, true, true);
-					tileHelper.cacheTile(team);
 				}
 			});
 		}

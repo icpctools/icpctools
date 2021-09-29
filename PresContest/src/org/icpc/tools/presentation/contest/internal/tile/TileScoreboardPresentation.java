@@ -10,14 +10,34 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.presentation.contest.internal.Animator;
+import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentation {
 	private List<Integer> breaks = new ArrayList<>();
+	protected final Animator initScroll = new Animator(1, new Movement(0.4, 0.5));
 
 	@Override
 	protected String getTitle() {
 		return Messages.titleCurrentStandings;
+	}
+
+	@Override
+	public void incrementTimeMs(long dt) {
+		initScroll.incrementTimeMs(dt);
+
+		super.incrementTimeMs(dt);
+	}
+
+	@Override
+	public void aboutToShow() {
+		super.aboutToShow();
+
+		if (getRepeatTimeMs() < 5000)
+			initScroll.reset(1);
+		else
+			initScroll.reset(columns);
 	}
 
 	@Override
@@ -36,6 +56,19 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 				breaks.add(i);
 			}
 		}
+
+		if (getRepeatTimeMs() < 5000)
+			initScroll.reset(1);
+		else
+			initScroll.setTarget(columns);
+	}
+
+	@Override
+	protected void paintImpl(Graphics2D g) {
+		double cols = initScroll.getValue();
+		setColumns(cols);
+
+		super.paintImpl(g);
 	}
 
 	@Override
@@ -58,7 +91,7 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 		gg.dispose();
 
 		// draw lines at each change in num solved
-		int arc = tileDim.width / 40;
+		int arc = tileDim.width / 90;
 		g.setColor(Color.LIGHT_GRAY);
 		g.setStroke(new BasicStroke(2f));
 		for (Integer i : breaks) {
