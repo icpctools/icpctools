@@ -212,7 +212,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		for (int i = 0; i < rows; i += 2) {
 			for (int j = 0; j < n; j++) {
 				int x = (int) ((tileDim.width + TILE_H_GAP) * (j - hScroll));
-				if (x + tileDim.width > margin && x < width)
+				if (x + tileDim.width > 0 && x < width)
 					g.fillRoundRect(x, (tileDim.height + TILE_V_GAP) * i, tileDim.width, tileDim.height, arc, arc);
 			}
 		}
@@ -271,7 +271,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 			return;
 
 		ITeam[] teams = contest.getOrderedTeams();
-		long timeMs = getTimeMs();
+		int timeMs = (int) getRepeatTimeMs();
 		for (int i = teams.length - 1; i >= 0; i--) {
 			ITeam team = teams[i];
 
@@ -304,7 +304,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 			return;
 
 		int vScrollv = (int) (vScroll.getValue() * height);
-		long timeMs = getTimeMs();
+		int timeMs = (int) getRepeatTimeMs();
 		ITeam[] teams = contest.getOrderedTeams();
 		for (int i = teams.length - 1; i >= 0; i--) {
 			TileAnimator anim = teamMap.get(teams[i].getId());

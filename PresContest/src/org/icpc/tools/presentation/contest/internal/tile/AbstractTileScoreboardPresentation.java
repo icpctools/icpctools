@@ -212,7 +212,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 				int x = (int) (p.getX() * (tileDim.width + TILE_H_GAP));
 				int y = (int) (p.getY() * (tileDim.height + TILE_V_GAP));
 
-				tileHelper.paintTile(g, x, y, teams[i], getTimeMs());
+				tileHelper.paintTile(g, x, y, teams[i], (int) getRepeatTimeMs());
 			}
 		}
 	}
