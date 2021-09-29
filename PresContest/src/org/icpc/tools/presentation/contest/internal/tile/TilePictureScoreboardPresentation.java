@@ -48,7 +48,7 @@ public class TilePictureScoreboardPresentation extends AbstractICPCPresentation 
 			g.drawImage(teamImage, (width - teamImage.getWidth()) / 2, 0, null);
 
 		if (team != null)
-			tileHelper.paintTile(g, width / 12, height * 17 / 20, team, getTimeMs());
+			tileHelper.paintTile(g, width / 12, height * 17 / 20, team, (int) getRepeatTimeMs());
 	}
 
 	@Override

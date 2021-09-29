@@ -112,6 +112,10 @@ public class TextHelper {
 		this.fm = g.getFontMetrics();
 	}
 
+	public void setGraphics(Graphics2D g) {
+		this.g = g;
+	}
+
 	public void addPlainText(String s) {
 		StringItem item = new StringItem();
 		item.s = s;

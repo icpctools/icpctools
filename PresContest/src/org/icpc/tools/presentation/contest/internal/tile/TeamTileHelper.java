@@ -7,6 +7,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
@@ -36,6 +38,8 @@ public class TeamTileHelper {
 
 	private Dimension tileDim = null;
 	private IContest contest;
+	private Map<String, TextHelper> nameHelper = new HashMap<>();
+	private Map<String, BufferedImage> bgImg = new HashMap<>();
 
 	public TeamTileHelper(Dimension tileDim, IContest contest) {
 		this.tileDim = tileDim;
@@ -59,16 +63,14 @@ public class TeamTileHelper {
 		penaltyFont = ICPCFont.deriveFont(Font.BOLD, size * 0.85f);
 	}
 
-	public void paintTile(Graphics2D g, int x, int y, ITeam team, long timeMs) {
+	public void paintTile(Graphics2D g, int x, int y, ITeam team, int timeMs) {
 		paintTile(g, x, y, 1.0, team, timeMs);
 	}
 
-	public void paintTile(Graphics2D g, int x, int y, double scale, ITeam team, long timeMs) {
+	public void paintTile(Graphics2D g, int x, int y, double scale, ITeam team, int timeMs) {
 		Graphics2D gg = (Graphics2D) g.create();
 		gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		gg.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		gg.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 
 		if (scale != 1.0) {
 			gg.translate(x + tileDim.width / 2, y + tileDim.height / 2);
@@ -96,8 +98,6 @@ public class TeamTileHelper {
 		FontMetrics fm = gg.getFontMetrics();
 		int ww = fm.stringWidth("199");
 
-		gg.clipRect(0, 0, tileDim.width, tileDim.height);
-
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 		if (org != null) {
 			BufferedImage logoImg = org.getLogoImage(tileDim.height - 10, tileDim.height - 10, true, true);
@@ -117,14 +117,18 @@ public class TeamTileHelper {
 		g.setFont(teamFont);
 		FontMetrics fm = g.getFontMetrics();
 
-		String s = team.getActualDisplayName();
-
 		g.setColor(Color.WHITE);
-		TextHelper text = new TextHelper(g, s);
+		TextHelper text = nameHelper.get(team.getId());
+		if (text == null) {
+			text = new TextHelper(g, team.getActualDisplayName());
+			nameHelper.put(team.getId(), text);
+		} else
+			text.setGraphics(g);
+
 		text.drawFit(ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 - fm.getAscent()) / 2 - 1, maxwid);
 	}
 
-	private void paintTileForeground(Graphics2D g, ITeam team, long timeMs) {
+	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
 		g.setFont(rankFont);
 		FontMetrics fm = g.getFontMetrics();
 		int ww = fm.stringWidth("199");
@@ -171,7 +175,6 @@ public class TeamTileHelper {
 		int y = tileDim.height * 7 / 10 - 2;
 		int h = tileDim.height * 3 / 10;
 		float w = (float) maxwid / (float) numProblems;
-		// int www = (int) w;
 		int xx = ww + tileDim.height + IN_TILE_GAP;
 		int arc = tileDim.width / 120;
 
@@ -182,63 +185,82 @@ public class TeamTileHelper {
 
 		for (int i = 0; i < numProblems; i++) {
 			IResult r = contest.getResult(team, i);
-			Color c = null;
-			if (ContestUtil.isRecent(contest, r)) {
-				// flash more than once per second
-				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
-				if (k > (ICPCColors.COUNT2 - 1))
-					k = (ICPCColors.COUNT2 * 2 - 1) - k;
-
-				if (r.getStatus() == Status.SOLVED) {
-					if (r.isFirstToSolve())
-						c = ICPCColors.FIRST_TO_SOLVE3[k];
-					else
-						c = ICPCColors.SOLVED3[k];
-				} else if (r.getStatus() == Status.FAILED)
-					c = ICPCColors.FAILED3[k];
-				else if (r.getStatus() == Status.SUBMITTED)
-					c = ICPCColors.PENDING3[k];
-			} else {
-				if (r.getStatus() == Status.SOLVED) {
-					if (r.isFirstToSolve())
-						c = ICPCColors.FIRST_TO_SOLVE[5];
-					else
-						c = ICPCColors.SOLVED[5];
-				} else if (r.getStatus() == Status.FAILED)
-					c = ICPCColors.FAILED[5];
-				else if (r.getStatus() == Status.SUBMITTED)
-					c = ICPCColors.PENDING[5];
+			if (r.getNumSubmissions() == 0) {
+				String label = problems[i].getLabel();
+				BufferedImage img = bgImg.get(label + w);
+				if (img != null)
+					g.drawImage(img, xx + (int) (w * i), y, null);
 				else {
-					g.setColor(PROBLEM_BG);
-					g.fillRoundRect(xx + (int) (w * i), y, (int) w - 3, h - 1, arc, arc);
-					g.setColor(Color.LIGHT_GRAY);
-					s = problems[i].getLabel();
-					g.setFont(problemFont);
-					g.drawString(s, (int) (xx + w * i + (w - fm2.stringWidth(s)) / 2) - 1,
-							y + (h + fm2.getAscent()) / 2 - 1);
+					img = new BufferedImage((int) w, h, BufferedImage.TYPE_4BYTE_ABGR);
+					Graphics2D gg = (Graphics2D) img.getGraphics();
+					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					paintProblem(gg, (int) w, h, arc, fm2, label);
+					gg.dispose();
+					g.drawImage(img, xx + (int) (w * i), y, null);
+					bgImg.put(label + w, img);
 				}
+			} else {
+				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
+				paintResult(g, k, r, xx + (int) (w * i), y, (int) w, h, arc, fm);
 			}
+		}
+	}
 
-			if (c != null) {
-				g.setColor(c);
-				g.fillRoundRect(xx + (int) (w * i), y, (int) w - 3, h - 1, arc, arc);
-				g.setColor(Color.WHITE);
-				s = "";
+	private void paintProblem(Graphics2D g, int w, int h, int arc, FontMetrics fm, String label) {
+		g.setColor(PROBLEM_BG);
+		g.fillRoundRect(0, 0, w - 3, h - 1, arc, arc);
+		g.setColor(Color.LIGHT_GRAY);
+		g.setFont(problemFont);
+		g.drawString(label, (w - fm.stringWidth(label)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
+	}
 
-				if (r.getNumSubmissions() > 0) {
-					if (fm.stringWidth("9\u200A-\u200A999") > w - 5)
-						s = r.getNumSubmissions() + "";
-					else
-						s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+	private void paintResult(Graphics2D g, int kk, IResult r, int x, int y, int w, int h, int arc, FontMetrics fm) {
+		Color c = null;
+		if (ContestUtil.isRecent(contest, r)) {
+			int k = kk;
+			// flash more than once per second
+			if (k > (ICPCColors.COUNT2 - 1))
+				k = (ICPCColors.COUNT2 * 2 - 1) - k;
 
-					g.setFont(statusFont);
-					g.drawString(s, (int) (xx + w * i + (w - fm.stringWidth(s)) / 2) - 1, y + (h + fm.getAscent()) / 2 - 1);
+			if (r.getStatus() == Status.SOLVED) {
+				if (r.isFirstToSolve())
+					c = ICPCColors.FIRST_TO_SOLVE3[k];
+				else
+					c = ICPCColors.SOLVED3[k];
+			} else if (r.getStatus() == Status.FAILED)
+				c = ICPCColors.FAILED3[k];
+			else if (r.getStatus() == Status.SUBMITTED)
+				c = ICPCColors.PENDING3[k];
+		} else {
+			if (r.getStatus() == Status.SOLVED) {
+				if (r.isFirstToSolve())
+					c = ICPCColors.FIRST_TO_SOLVE[5];
+				else
+					c = ICPCColors.SOLVED[5];
+			} else if (r.getStatus() == Status.FAILED)
+				c = ICPCColors.FAILED[5];
+			else if (r.getStatus() == Status.SUBMITTED)
+				c = ICPCColors.PENDING[5];
+		}
 
-					if (r.isFirstToSolve()) {
-						g.setColor(ICPCColors.SOLVED_COLOR);
-						g.drawRoundRect(xx + (int) (w * i), y, (int) w - 3, h - 1, arc, arc);
-					}
-				}
+		g.setColor(c);
+		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
+		g.setColor(Color.WHITE);
+		String s = "";
+
+		if (r.getNumSubmissions() > 0) {
+			if (fm.stringWidth("9\u200A-\u200A999") > w - 5)
+				s = r.getNumSubmissions() + "";
+			else
+				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+
+			g.setFont(statusFont);
+			g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
+
+			if (r.isFirstToSolve()) {
+				g.setColor(ICPCColors.SOLVED_COLOR);
+				g.drawRoundRect(x, y, w - 3, h - 1, arc, arc);
 			}
 		}
 	}
