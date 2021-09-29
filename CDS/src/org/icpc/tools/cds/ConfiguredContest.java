@@ -72,7 +72,7 @@ public class ConfiguredContest {
 	private long[] metrics = new long[11]; // REST, feed, ws, web, download, scoreboard, XML,
 														// desktop, webcam, audio, total
 
-	private Map<String, Map<StreamType, List<Integer>>> streamMap = new HashMap<>();
+	private static Map<String, Map<StreamType, List<Integer>>> streamMap = new HashMap<>();
 
 	public static class Video {
 		private Element video;
@@ -362,7 +362,7 @@ public class ConfiguredContest {
 			setupTeamStreams(teamId, v);
 	}
 
-	private void setupTeamStreams(String teamId, Video video) {
+	private static void setupTeamStreams(String teamId, Video video) {
 		if (teamId == null)
 			return;
 
@@ -455,51 +455,6 @@ public class ConfiguredContest {
 		if (videos.size() == 1)
 			return videos.get(0).toString();
 		return videos.size() + " configured";
-	}
-
-	public boolean isWebcamEnabled(String teamId) {
-		if (videos.isEmpty() || teamId == null || teamId.isEmpty())
-			return false;
-
-		for (Video v : videos) {
-			if (v.getWebcam() == null || v.getWebcam().isEmpty())
-				continue;
-			if (v.getId() == null)
-				return true;
-			if (teamId.equals(v.getId()))
-				return true;
-		}
-		return false;
-	}
-
-	public boolean isAudioEnabled(String teamId) {
-		if (videos.isEmpty() || teamId == null || teamId.isEmpty())
-			return false;
-
-		for (Video v : videos) {
-			if (v.getAudio() == null || v.getAudio().isEmpty())
-				continue;
-			if (v.getId() == null)
-				return true;
-			if (teamId.equals(v.getId()))
-				return true;
-		}
-		return false;
-	}
-
-	public boolean isDesktopEnabled(String teamId) {
-		if (videos.isEmpty() || teamId == null || teamId.isEmpty())
-			return false;
-
-		for (Video v : videos) {
-			if (v.getDesktop() == null || v.getDesktop().isEmpty())
-				continue;
-			if (v.getId() == null)
-				return true;
-			if (teamId.equals(v.getId()))
-				return true;
-		}
-		return false;
 	}
 
 	public Test getTest() {
