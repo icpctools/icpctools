@@ -17,7 +17,7 @@ import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPresentation {
 	protected static final int DEFAULT_COLUMNS = 2;
 	protected static final int DEFAULT_ROWS = 14;
-	protected static final int TILE_H_GAP = 5;
+	protected static final int TILE_H_GAP = 10;
 	protected static final int TILE_V_GAP = 3;
 
 	protected int rows = DEFAULT_ROWS;
@@ -29,7 +29,6 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 	private Point2D[] teamTargets;
 	private double[] teamZoomTargets;
 	protected final Map<String, TileAnimator> teamMap = new HashMap<>();
-	private Runnable cacheRunnable;
 
 	protected TeamTileHelper createTileHelper() {
 		tileDim = new Dimension((width - (columns - 1) * TILE_H_GAP) / columns,
@@ -46,22 +45,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 
 		tileHelper = createTileHelper();
 
-		cacheTiles();
 		initTeamPosition();
-	}
-
-	protected void cacheTiles() {
-		if (cacheRunnable != null)
-			return;
-
-		cacheRunnable = new Runnable() {
-			@Override
-			public void run() {
-				tileHelper.cacheAllTiles();
-				cacheRunnable = null;
-			}
-		};
-		execute(cacheRunnable);
 	}
 
 	@Override
@@ -240,9 +224,6 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 			return;
 
 		paintImpl(g);
-
-		if (!tileHelper.areTilesCached())
-			cacheTiles();
 	}
 
 	public void setScrollToRow(int i) {

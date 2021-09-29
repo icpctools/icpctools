@@ -72,13 +72,24 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		if (header == Header.TOP) {
 			margin = (int) ((height - (rows - 1) * TILE_V_GAP) * 1.2 / rows);
 			tileDim = new Dimension((width - (columns - 1) * TILE_H_GAP) / columns,
-					(height - (rows - 1) * TILE_H_GAP - margin) / rows);
+					(height - (rows - 1) * TILE_V_GAP - margin) / rows);
 		} else if (header == Header.LEFT) {
 			margin = (int) ((height - (rows - 1) * TILE_V_GAP) * 1.3 / rows);
 			tileDim = new Dimension((width - (columns - 1) * TILE_H_GAP - margin) / columns,
-					(height - (rows - 1) * TILE_H_GAP) / rows);
+					(height - (rows - 1) * TILE_V_GAP) / rows);
 		}
 		return new TeamTileHelper(tileDim, getContest());
+	}
+
+	protected void setColumns(double cols) {
+		if (header == Header.TOP) {
+			tileDim = new Dimension((int) ((width - (cols - 1) * TILE_H_GAP) / cols),
+					(height - (rows - 1) * TILE_V_GAP - margin) / rows);
+		} else if (header == Header.LEFT) {
+			tileDim = new Dimension((int) ((width - (cols - 1) * TILE_H_GAP - margin) / cols),
+					(height - (rows - 1) * TILE_V_GAP) / rows);
+		}
+		tileHelper.setSize(tileDim);
 	}
 
 	private int getNumColumns() {
@@ -148,16 +159,11 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		if (header == Header.LEFT) {
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-			// int arc = tileDim.width / 40;
 			int h = rows * (tileDim.height + TILE_V_GAP) - TILE_V_GAP;
 			g.setColor(Color.DARK_GRAY);
-			// g.fillRoundRect(0, TILE_GAP, margin - TILE_GAP, height - TILE_GAP, arc, arc);
-			// g.fillRoundRect(0, 0, margin - TILE_GAP, rows * (tileDim.height + TILE_GAP) - TILE_GAP,
-			// arc, arc);
 			g.fillRect(0, 0, margin - TILE_H_GAP, h);
-
-			g.setColor(Color.BLACK);
-			g.drawLine(margin - TILE_H_GAP, 0, margin - TILE_V_GAP, h);
+			g.setColor(Color.GRAY);
+			g.drawLine(margin - TILE_H_GAP, 0, margin - TILE_H_GAP, h);
 
 			String title = getTitle();
 			if (title != null) {
@@ -182,14 +188,15 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				if (s != null) {
 					String[] ss = splitString(g, s, margin);
 					for (int i = 0; i < ss.length; i++)
-						g.drawString(ss[i], (margin - fm.stringWidth(ss[i])) / 2, fm.getHeight() * (i + 1) + TILE_V_GAP);
+						g.drawString(ss[i], (margin - TILE_H_GAP - fm.stringWidth(ss[i])) / 2,
+								fm.getHeight() * (i + 1) + TILE_V_GAP);
 				}
 
 				s = getRemainingTime();
 				if (s != null) {
 					String[] ss = splitString(g, s, margin);
 					for (int i = 0; i < ss.length; i++)
-						g.drawString(ss[i], (margin - fm.stringWidth(ss[i])) / 2,
+						g.drawString(ss[i], (margin - TILE_H_GAP - fm.stringWidth(ss[i])) / 2,
 								h - TILE_V_GAP - (ss.length - i - 1) * fm.getHeight());
 				}
 			}
@@ -197,12 +204,16 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 	}
 
 	protected void paintBackground(Graphics2D g) {
-		int arc = tileDim.width / 70;
+		int arc = tileDim.width / 80;
+		long time = getRepeatTimeMs();
+		double hScroll = scroll.getScroll(time);
+		int n = getNumColumns();
 		g.setColor(TeamTileHelper.TILE_BG);
 		for (int i = 0; i < rows; i += 2) {
-			for (int j = 0; j < columns; j++) {
-				g.fillRoundRect((tileDim.width + TILE_H_GAP) * j, (tileDim.height + TILE_V_GAP) * i,
-						tileDim.width + TILE_H_GAP / 2, tileDim.height + TILE_V_GAP / 2, arc, arc);
+			for (int j = 0; j < n; j++) {
+				int x = (int) ((tileDim.width + TILE_H_GAP) * (j - hScroll));
+				if (x + tileDim.width > margin && x < width)
+					g.fillRoundRect(x, (tileDim.height + TILE_V_GAP) * i, tileDim.width, tileDim.height, arc, arc);
 			}
 		}
 	}
@@ -215,7 +226,8 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		else if (header == Header.TOP)
 			gg.translate(0, margin);
 
-		gg.setClip(0, 0, columns * (tileDim.width + TILE_H_GAP), rows * (tileDim.height + TILE_V_GAP));
+		gg.setClip(-TILE_H_GAP, -TILE_V_GAP, columns * (tileDim.width + TILE_H_GAP),
+				rows * (tileDim.height + TILE_V_GAP));
 
 		if (dir == Direction.HORIZONTAL) {
 			long time = getRepeatTimeMs();
