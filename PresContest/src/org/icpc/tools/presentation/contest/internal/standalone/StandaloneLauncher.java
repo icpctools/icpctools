@@ -281,7 +281,7 @@ public class StandaloneLauncher {
 			try {
 				String className = info.getClassName();
 				Class<?> c = pres.getClass().getClassLoader().loadClass(className);
-				presentation[i] = (Presentation) c.newInstance();
+				presentation[i] = (Presentation) c.getDeclaredConstructor().newInstance();
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "      Could not load presentation");
 				return;

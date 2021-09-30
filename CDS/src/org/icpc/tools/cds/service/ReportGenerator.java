@@ -57,7 +57,7 @@ public class ReportGenerator {
 			return;
 
 		Integer in = (Integer) obj;
-		map2.put(key, new Integer(in.intValue() + 1));
+		map2.put(key, in + 1);
 	}
 
 	// { {"name":"Catch the Plane", "solved":5, "failed":2, "total":7 }, ... }
@@ -82,10 +82,10 @@ public class ReportGenerator {
 			map.put(ID, id);
 			map.put(NAME, name);
 			for (IJudgementType jt : jts)
-				map.put(jt.getId(), new Integer(0));
-			map.put(SOLVED, new Integer(0));
-			map.put(FAILED, new Integer(0));
-			map.put(TOTAL, new Integer(0));
+				map.put(jt.getId(), 0);
+			map.put(SOLVED, 0);
+			map.put(FAILED, 0);
+			map.put(TOTAL, 0);
 			list.add(map);
 		}
 
@@ -133,10 +133,10 @@ public class ReportGenerator {
 			map.put(ID, id);
 			map.put(NAME, name);
 			for (IJudgementType jt : jts)
-				map.put(jt.getId(), new Integer(0));
-			map.put(SOLVED, new Integer(0));
-			map.put(FAILED, new Integer(0));
-			map.put(TOTAL, new Integer(0));
+				map.put(jt.getId(), 0);
+			map.put(SOLVED, 0);
+			map.put(FAILED, 0);
+			map.put(TOTAL, 0);
 			list.add(map);
 		}
 
@@ -194,7 +194,7 @@ public class ReportGenerator {
 			map.put(ID, id);
 			map.put("Id", id);
 			map.put(NAME, name);
-			map.put(TOTAL, new Integer(0));
+			map.put(TOTAL, 0);
 			list.add(map);
 		}
 

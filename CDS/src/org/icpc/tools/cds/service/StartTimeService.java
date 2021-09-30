@@ -66,7 +66,7 @@ public class StartTimeService {
 			if (command.startsWith("absolute:")) {
 				setStartTime(cc, Timestamp.parse(command.substring(8).trim()));
 			} else if (command.startsWith("set:")) {
-				setStartTime(cc, new Long(-RelativeTime.parse(command.substring(4).trim())));
+				setStartTime(cc, (long) -RelativeTime.parse(command.substring(4).trim()));
 			} else if (command.startsWith("add:")) {
 				if (errorIfContestNotPaused(currentStart, response))
 					return;
