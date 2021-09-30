@@ -81,7 +81,7 @@ public abstract class ContestObject implements IContestObject {
 		try {
 			@SuppressWarnings("unchecked")
 			Class<ContestObject> cl = (Class<ContestObject>) getClass();
-			ContestObject co = cl.newInstance();
+			ContestObject co = cl.getDeclaredConstructor().newInstance();
 			Map<String, Object> props = getProperties();
 			for (String key : props.keySet())
 				co.add(key, props.get(key));

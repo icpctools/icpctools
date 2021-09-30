@@ -95,7 +95,7 @@ public class ArgumentParser {
 				throw new IllegalArgumentException("Integer expected " + o + " for " + option + " " + name);
 			else if ("float".contentEquals(type) && !(o instanceof Float)) {
 				if (o instanceof Integer)
-					args.set(i, new Float((Integer) o)); // auto-convert from int to float
+					args.set(i, (float) (int) o); // auto-convert from int to float
 				else
 					throw new IllegalArgumentException("Float expected " + o + " for " + option + " " + name);
 			} else if ("boolean".contentEquals(type) && !(o instanceof Boolean))

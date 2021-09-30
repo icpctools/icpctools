@@ -95,11 +95,11 @@ public class Balloon {
 
 	public void load(String s) throws NumberFormatException {
 		StringTokenizer st = new StringTokenizer(s, DELIM);
-		id = new Integer(st.nextToken()).intValue();
+		id = Integer.parseInt(st.nextToken());
 		submissionId = st.nextToken();
-		flags = new Integer(st.nextToken()).intValue();
-		printed = new Boolean(st.nextToken()).booleanValue();
-		delivered = new Boolean(st.nextToken()).booleanValue();
+		flags = Integer.parseInt(st.nextToken());
+		printed = Boolean.parseBoolean(st.nextToken());
+		delivered = Boolean.parseBoolean(st.nextToken());
 	}
 
 	public String save() {

@@ -147,7 +147,7 @@ public class PresentationClient extends BasicClient {
 			ClassLoader classLoader = getClass().getClassLoader();
 			Class<?> c = classLoader.loadClass(className);
 			if (c != null) {
-				T newObject = (T) c.newInstance();
+				T newObject = (T) c.getDeclaredConstructor().newInstance();
 
 				if (newObject != null) {
 					Trace.trace(Trace.INFO, "Class loaded ok");

@@ -469,7 +469,7 @@ public class ContestRESTService extends HttpServlet {
 
 			if (countdownTime != null && !"null".equals(countdownTime))
 				try {
-					newTime = new Long(-RelativeTime.parse(countdownTime.toString()));
+					newTime = (long) -RelativeTime.parse(countdownTime.toString());
 					Trace.trace(Trace.INFO, "Patch countdown time: " + RelativeTime.format(newTime.intValue()));
 				} catch (Exception e) {
 					Trace.trace(Trace.WARNING, "Invalid patch countdown time: " + e.getMessage());
