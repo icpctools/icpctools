@@ -38,8 +38,9 @@ public class TeamTileHelper {
 
 	private Dimension tileDim = null;
 	private IContest contest;
-	private Map<String, TextHelper> nameHelper = new HashMap<>();
-	private Map<String, BufferedImage> bgImg = new HashMap<>();
+	private Map<String, BufferedImage> nameImages = new HashMap<>();
+	private Map<String, BufferedImage> resultImages = new HashMap<>();
+	private Map<String, BufferedImage> problemImages = new HashMap<>();
 
 	public TeamTileHelper(Dimension tileDim, IContest contest) {
 		this.tileDim = tileDim;
@@ -114,18 +115,27 @@ public class TeamTileHelper {
 	}
 
 	private void paintName(Graphics2D g, ITeam team, int ww, int maxwid) {
-		g.setFont(teamFont);
-		FontMetrics fm = g.getFontMetrics();
+		String hash = team.getId() + maxwid;
+		BufferedImage img = nameImages.get(hash);
+		if (img == null) {
+			g.setFont(teamFont);
+			FontMetrics fm = g.getFontMetrics();
+			img = new BufferedImage(maxwid, fm.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+			Graphics2D gg = (Graphics2D) img.getGraphics();
+			gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		g.setColor(Color.WHITE);
-		TextHelper text = nameHelper.get(team.getId());
-		if (text == null) {
-			text = new TextHelper(g, team.getActualDisplayName());
-			nameHelper.put(team.getId(), text);
-		} else
-			text.setGraphics(g);
+			gg.setFont(teamFont);
+			gg.setColor(Color.WHITE);
+			TextHelper text = new TextHelper(gg, team.getActualDisplayName());
+			text.drawFit(0, 0, maxwid);
+			gg.dispose();
 
-		text.drawFit(ww + tileDim.height + IN_TILE_GAP, (tileDim.height * 7 / 10 - fm.getAscent()) / 2 - 1, maxwid);
+			nameImages.put(hash, img);
+		}
+
+		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP, tileDim.height * 1 / 10, null);
+
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
@@ -187,7 +197,7 @@ public class TeamTileHelper {
 			IResult r = contest.getResult(team, i);
 			if (r.getNumSubmissions() == 0) {
 				String label = problems[i].getLabel();
-				BufferedImage img = bgImg.get(label + w);
+				BufferedImage img = problemImages.get(label + w);
 				if (img != null)
 					g.drawImage(img, xx + (int) (w * i), y, null);
 				else {
@@ -198,11 +208,26 @@ public class TeamTileHelper {
 					paintProblem(gg, (int) w, h, arc, fm2, label);
 					gg.dispose();
 					g.drawImage(img, xx + (int) (w * i), y, null);
-					bgImg.put(label + w, img);
+					problemImages.put(label + w, img);
 				}
-			} else {
+			} else if (ContestUtil.isRecent(contest, r)) {
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
 				paintResult(g, k, r, xx + (int) (w * i), y, (int) w, h, arc, fm);
+			} else {
+				String hash = r.getNumSubmissions() + "-" + r.getContestTime() + " " + r.getStatus().name() + " " + w;
+				BufferedImage img = resultImages.get(hash);
+				if (img != null)
+					g.drawImage(img, xx + (int) (w * i), y, null);
+				else {
+					img = new BufferedImage((int) w, h, BufferedImage.TYPE_4BYTE_ABGR);
+					Graphics2D gg = (Graphics2D) img.getGraphics();
+					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					paintResult(gg, r, (int) w, h, arc, fm);
+					gg.dispose();
+					g.drawImage(img, xx + (int) (w * i), y, null);
+					resultImages.put(hash, img);
+				}
 			}
 		}
 	}
@@ -232,16 +257,6 @@ public class TeamTileHelper {
 				c = ICPCColors.FAILED3[k];
 			else if (r.getStatus() == Status.SUBMITTED)
 				c = ICPCColors.PENDING3[k];
-		} else {
-			if (r.getStatus() == Status.SOLVED) {
-				if (r.isFirstToSolve())
-					c = ICPCColors.FIRST_TO_SOLVE[5];
-				else
-					c = ICPCColors.SOLVED[5];
-			} else if (r.getStatus() == Status.FAILED)
-				c = ICPCColors.FAILED[5];
-			else if (r.getStatus() == Status.SUBMITTED)
-				c = ICPCColors.PENDING[5];
 		}
 
 		g.setColor(c);
@@ -261,6 +276,39 @@ public class TeamTileHelper {
 			if (r.isFirstToSolve()) {
 				g.setColor(ICPCColors.SOLVED_COLOR);
 				g.drawRoundRect(x, y, w - 3, h - 1, arc, arc);
+			}
+		}
+	}
+
+	private void paintResult(Graphics2D g, IResult r, int w, int h, int arc, FontMetrics fm) {
+		Color c = null;
+		if (r.getStatus() == Status.SOLVED) {
+			if (r.isFirstToSolve())
+				c = ICPCColors.FIRST_TO_SOLVE[5];
+			else
+				c = ICPCColors.SOLVED[5];
+		} else if (r.getStatus() == Status.FAILED)
+			c = ICPCColors.FAILED[5];
+		else if (r.getStatus() == Status.SUBMITTED)
+			c = ICPCColors.PENDING[5];
+
+		g.setColor(c);
+		g.fillRoundRect(0, 0, w - 3, h - 1, arc, arc);
+		g.setColor(Color.WHITE);
+		String s = "";
+
+		if (r.getNumSubmissions() > 0) {
+			if (fm.stringWidth("9\u200A-\u200A999") > w - 5)
+				s = r.getNumSubmissions() + "";
+			else
+				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+
+			g.setFont(statusFont);
+			g.drawString(s, (w - fm.stringWidth(s)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
+
+			if (r.isFirstToSolve()) {
+				g.setColor(ICPCColors.SOLVED_COLOR);
+				g.drawRoundRect(0, 0, w - 3, h - 1, arc, arc);
 			}
 		}
 	}
