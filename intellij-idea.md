@@ -14,7 +14,9 @@ click `Add SDK` and add one. Also select a directory under `Project compiler out
 
 Next, go to Modules on the same window. Remove the `icpctools` module (or how it is called, depends on
 your directory name).
-Now perform the following steps for each of the directories listed below:
+Now perform the following steps for the top level icpctools directory, and it should find all the modules:
+
+Alternatively, if this doesn't work, perform the steps for each of the directories listed below.
 
 * Click `+`
 * Click `Import Module`
@@ -47,27 +49,30 @@ and select `JARs or Directories...` to add a directory or JAR.
 Add the dependencies listed below. If you need to add the SWT JAR for your platform, select the correct JAR in
 `SWTLauncher/lib` based on your operating system.
 
+Module dependencies might be added automatically when importing all the modules at once.
+
 * For `BalloonUtility` add:
   * Module `ContestModel`
   * Module `PresCore`
   * The SWT JAR for your platform
+  * The file 'svgSalamander-1.1.2.4.jar' from the 'ContestModel/lib' directory.
 * For `CoachView` add:
- * Module `ContestModel`
- * Module `PresCore`
- * The `lib` directory in the `CoachView` directory
+  * Module `ContestModel`
+  * Module `PresCore`
+  * The `lib` directory in the `CoachView` directory
 * For `CDS` add:
- * Module `ContestModel`
- * The files `javax.servlet-api-4.0.1.jar`, `javax.servlet.jsp-api-2.3.3.jar` and `javax.websocket-api-1.1.jar`
-   from the `CDS` directory.
+  * Module `ContestModel`
+  * The files `javax.servlet-api-4.0.1.jar`, `javax.servlet.jsp-api-2.3.3.jar` and `javax.websocket-api-1.1.jar`
+    from the `CDS` directory.
 * For `ContestModel` add:
- * The `lib` directory in the project root
- * The `testlib` directory in the project root
- * The `lib` directory in the `ContestModel` directory
+  * The `lib` directory in the project root
+  * The `testlib` directory in the project root
+  * The `lib` directory in the `ContestModel` directory
 * For `ContestUtil` add:
- * Module `ContestModel`
+  * Module `ContestModel`
 * For `PresCore` add:
- * Module `ContestModel`
- * The `lib` directory in the `PresCore` directory
+  * Module `ContestModel`
+  * The `lib` directory in the `PresCore` directory
 * For `PresAdmin` add:
   * Module `ContestModel`
   * Module `PresCore`
@@ -76,14 +81,14 @@ Add the dependencies listed below. If you need to add the SWT JAR for your platf
   * Module `ContestModel`
   * Module `PresCore`
   * The `lib` directory in the `PresContest` directory
+  * The file 'svgSalamander-1.1.2.4.jar' from the 'ContestModel/lib' directory.
 * For `ProblemSet` add:
-  * The `lib` directory in the `PresContest` directory
+  * The `lib` directory in the `ProblemSet` directory
   * The SWT JAR for your platform
 * For `Resolver` add:b
- * Module `ContestModel`
- * Module `PresCore`
- * Module `PresContest`
- * The `lib` directory in the `Resolver` directory
+  * Module `ContestModel`
+  * Module `PresCore`
+  * Module `PresContest`
 
 ## Creating the artifact for the CDS
 
