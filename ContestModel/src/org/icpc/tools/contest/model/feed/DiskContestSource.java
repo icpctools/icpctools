@@ -335,10 +335,14 @@ public class DiskContestSource extends ContestSource {
 
 	@Override
 	public File getFile(String path) throws IOException {
-		if (root != null)
-			return new File(root, path);
+		String path2 = path;
+		if (path.endsWith("/"))
+			path2 += "listing.dir";
 
-		return new File(cacheFolder, path);
+		if (root != null)
+			return new File(root, path2);
+
+		return new File(cacheFolder, path2);
 	}
 
 	@Override

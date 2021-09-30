@@ -27,8 +27,6 @@ public class JSONEncoder {
 		}
 	}
 
-	public static String HOST = null;
-
 	private boolean first = true;
 	private PrintWriter pw;
 
