@@ -6,4 +6,5 @@
 2016	Chulalongkorn University	11
 2017	KAIST	5
 2018	St. Petersburg ITMO University	13
-2019	?	-1
+2019	University of Warsaw	14
+2020	?	-1
