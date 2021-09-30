@@ -139,13 +139,13 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			String[] groupIds = t.getGroupIds();
 			if (org != null && GroupPresentation.belongsToGroup(groupIds, groupId)) {
 				double lat = org.getLatitude();
-				if (lat != Double.MIN_VALUE) {
+				if (!Double.isNaN(lat)) {
 					minLat = Math.min(minLat, lat);
 					maxLat = Math.max(maxLat, lat);
 				}
 
 				double lon = org.getLongitude();
-				if (lon != Double.MIN_VALUE) {
+				if (!Double.isNaN(lon)) {
 					minLon = Math.min(minLon, lon);
 					maxLon = Math.max(maxLon, lon);
 				}

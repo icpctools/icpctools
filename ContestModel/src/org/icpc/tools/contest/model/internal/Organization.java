@@ -209,7 +209,7 @@ public class Organization extends ContestObject implements IOrganization {
 			List<String> attrs = new ArrayList<>(2);
 			if (!Double.isNaN(latitude))
 				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (!Double.isNaN(Double.NaN))
+			if (!Double.isNaN(longitude))
 				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
