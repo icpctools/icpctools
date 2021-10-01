@@ -725,7 +725,7 @@ public class PresentationServer {
 	public void setExecutor(ScheduledExecutorService executor) {
 		this.executor = executor;
 
-		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 30L, TimeUnit.SECONDS);
+		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 45L, TimeUnit.SECONDS);
 	}
 
 	public void scheduleCallback(IContest c, int contestTimeMs) {
@@ -734,7 +734,7 @@ public class PresentationServer {
 		int nextEventTime = Integer.MAX_VALUE;
 		for (TimedEvent event : events)
 			nextEventTime = (int) Math.min(event.contestTimeMs, nextEventTime);
-		
+
 		// leave if there are no scheduled events
 		if (nextEventTime == Integer.MAX_VALUE)
 			return;*/
