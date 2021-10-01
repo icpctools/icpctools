@@ -24,6 +24,8 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Client {
+	private static final int SYNC_TIME = 5 * 60 * 1000; // sync time every 5 minutes
+
 	private static final String VERSION = "version";
 	private static final String CLIENT_TYPE = "client.type";
 	private static final String CONTEST_IDS = "contest.ids";
@@ -212,15 +214,15 @@ public class Client {
 	}
 
 	private void writeTime(long delta) throws IOException {
-		// if last guess time is close enough, return w/o syncing time again
-		if (lastTimeSync >= 0 && Math.abs(delta) < 20)
+		// if last guess time was recent enough, don't sync time again
+		if (lastTimeSync > 0 && System.currentTimeMillis() < lastTimeSync + SYNC_TIME)
 			return;
 
-		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time to " + delta + "ms.");
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time with " + delta + "ms delta.");
 
-		lastTimeSync = delta;
 		createJSON(Type.TIME, je -> {
-			je.encode("time", System.currentTimeMillis() + delta);
+			lastTimeSync = System.currentTimeMillis();
+			je.encode("time", lastTimeSync + delta);
 		});
 	}
 
@@ -254,7 +256,7 @@ public class Client {
 			}
 		}
 
-		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Recent pings: [" + sb.toString() + "] " + lastTimeSync);
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Recent pings: [" + sb.toString() + "] ");
 
 		// if delta difference is < 20ms, we're close enough
 		if (count > 1 && max < 20) {
