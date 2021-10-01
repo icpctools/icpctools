@@ -4,6 +4,7 @@ java_binary(
     srcs = glob(["**/*.java"]),
     deps = [
         "//ContestModel/src:contestModel",
+        "//ContestModel/lib:svgSalamander",
         "//PresContest/src:presentations",
         "//PresCore/src:presentCore",
         "//SWTLauncher/lib:swt",

@@ -3,6 +3,7 @@ java_library(
     srcs = glob(["**/*.java"]),
     deps = [
         "//ContestModel/src:contestModel",
+        "//ContestModel/lib:svgSalamander",
         "//PresCore/src:presentCore",
         "//PresContest/lib:jna",
         "//PresContest/lib:vlcj",
