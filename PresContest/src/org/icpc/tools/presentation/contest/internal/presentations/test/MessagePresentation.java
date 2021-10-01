@@ -38,7 +38,7 @@ public class MessagePresentation extends Presentation {
 		float x = width / 2f - w / 2f;
 		float y = height / 2f + fm.getDescent();
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawString(text, x, y);
 	}
 }

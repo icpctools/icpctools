@@ -153,7 +153,6 @@ public class BasicClient {
 	private String auth;
 	private String[] contestIds;
 	private String role;
-	private long nanoTimeDelta;
 
 	private List<IPropertyListener> listeners;
 	private List<IConnectionListener> listeners2;
@@ -680,10 +679,7 @@ public class BasicClient {
 	}
 
 	protected void handleTime(long time) {
-		long newNanoTimeDelta = time * 1000000L - System.nanoTime();
-		long diff = Math.abs(newNanoTimeDelta - nanoTimeDelta) / 1000000L;
-		Trace.trace(Trace.INFO, "Nano time diff: " + diff);
-		nanoTimeDelta = newNanoTimeDelta;
+		Trace.trace(Trace.INFO, "New time: " + time + "ms");
 	}
 
 	private static void trace(String message, boolean user) {

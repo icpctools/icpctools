@@ -10,7 +10,8 @@ import org.icpc.tools.presentation.contest.internal.DigitalFont;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class TestClockPresentation extends Presentation {
-	private static final Color DARK_GRAY = new Color(8, 8, 8);
+	private static final Color DARK_GRAY = new Color(12, 12, 12);
+	private static final Color LIGHT_GRAY = new Color(250, 250, 250);
 
 	@Override
 	public void setSize(Dimension d) {
@@ -58,6 +59,6 @@ public class TestClockPresentation extends Presentation {
 
 		int w = DigitalFont.stringWidth(sb.toString(), (int) (0.19f * width));
 		DigitalFont.drawString(g, sb.toString(), (width - w) / 2, (int) (height * 0.6f), (int) (0.19f * width),
-				Color.WHITE, DARK_GRAY);
+				isLightMode() ? Color.BLACK : Color.WHITE, isLightMode() ? LIGHT_GRAY : DARK_GRAY);
 	}
 }

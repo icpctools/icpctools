@@ -97,7 +97,7 @@ public class MessagePresentation extends AbstractICPCPresentation {
 
 		int y = (int) ((height - h - 20f) / 2f - (fm.getHeight() + 10) * messageList.size() / 2f) + fm.getAscent();
 
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		for (String s : messageList) {
 			g.drawString(s, (width - fm.stringWidth(s)) / 2, y);
 			y += fm.getHeight() + 10;

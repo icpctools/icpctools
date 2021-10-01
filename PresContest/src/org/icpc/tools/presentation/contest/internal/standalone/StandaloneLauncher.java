@@ -35,6 +35,7 @@ public class StandaloneLauncher {
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
 		boolean[] showFPS = new boolean[1];
+		boolean[] lightMode = new boolean[1];
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
@@ -53,6 +54,9 @@ public class StandaloneLauncher {
 					return true;
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
+					return true;
+				} else if ("--light".equals(option)) {
+					lightMode[0] = true;
 					return true;
 				} else if ("--display_name".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "display_name:string");
@@ -95,7 +99,7 @@ public class StandaloneLauncher {
 
 		ContestSource.getInstance().outputValidation();
 
-		launch(pres, displayStr, showFPS[0]);
+		launch(pres, displayStr, showFPS[0], lightMode[0]);
 	}
 
 	protected static void showHelp(List<PresentationInfo> presentations) {
@@ -268,7 +272,7 @@ public class StandaloneLauncher {
 		return null;
 	}
 
-	protected static void launch(PresentationInfo[] pres, String[] displayStr, boolean showFPS) {
+	protected static void launch(PresentationInfo[] pres, String[] displayStr, boolean showFPS, boolean lightMode) {
 		Trace.trace(Trace.INFO, "Launching presentation");
 		Trace.trace(Trace.INFO, "Source: " + ContestSource.getInstance());
 		Trace.trace(Trace.INFO, "Presentations:");
@@ -296,5 +300,7 @@ public class StandaloneLauncher {
 		}
 		window.setPresentations(0, presentation, null);
 		((PresentationWindowImpl) window).showFPS(true);
+		if (lightMode)
+			((PresentationWindowImpl) window).setLightMode(true);
 	}
 }
