@@ -37,8 +37,9 @@ public interface IAward extends IContestObject {
 	// details.
 	// 'Pause' will pause but then move on.
 	// 'List' will stop to show a list, but only after all teams have been resolved.
+	// 'Ignore' will skip award (but will be listed if you stop for detail for another award).
 	public enum DisplayMode {
-		DETAIL, PAUSE, LIST
+		DETAIL, PAUSE, LIST, IGNORE
 	}
 
 	AwardType WINNER = new AwardType("Winner", "winner");
@@ -84,6 +85,13 @@ public interface IAward extends IContestObject {
 	 * @return
 	 */
 	String getCitation();
+
+	/**
+	 * Returns true if the display mode has been set.
+	 *
+	 * @return
+	 */
+	boolean hasDisplayMode();
 
 	/**
 	 * Returns the resolver display mode.
