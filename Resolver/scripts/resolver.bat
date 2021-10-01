@@ -17,4 +17,4 @@ goto :loop
 
 :continue
 
-java -Xmx1024m -cp "%LIBDIR%\resolver.jar";"%LIBDIR%\tyrus-standalone-client-1.17.jar" org.icpc.tools.resolver.Resolver %params%
+java -Xmx1024m -cp "%LIBDIR%\resolver.jar";"%LIBDIR%\svgSalamander-1.1.2.4.jar";"%LIBDIR%\tyrus-standalone-client-1.17.jar" org.icpc.tools.resolver.Resolver %params%
