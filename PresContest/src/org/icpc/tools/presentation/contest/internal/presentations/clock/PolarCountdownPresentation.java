@@ -81,7 +81,7 @@ public class PolarCountdownPresentation extends CountdownPresentation {
 		else
 			g.fillArc(arcDim[arc].x, arcDim[arc].y, arcDim[arc].width, arcDim[arc].height, 450 + ang, -720 - ang);
 
-		g.setColor(Color.BLACK);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillOval(arcDim[arc].x + arcWidth, arcDim[arc].y + arcWidth, arcDim[arc].width - arcWidth * 2,
 				arcDim[arc].height - arcWidth * 2);
 	}

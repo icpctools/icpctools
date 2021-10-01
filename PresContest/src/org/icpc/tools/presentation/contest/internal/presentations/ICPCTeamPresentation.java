@@ -38,7 +38,7 @@ public class ICPCTeamPresentation extends AbstractICPCPresentation {
 			g.drawImage(image, (width - w) / 2, height - h - 20, null);
 		}
 
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();

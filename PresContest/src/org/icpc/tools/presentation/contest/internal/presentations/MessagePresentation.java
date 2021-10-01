@@ -106,6 +106,7 @@ public class MessagePresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
 		synchronized (this) {
 			message = value;
 			messageList = null;
