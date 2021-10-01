@@ -121,7 +121,7 @@ public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPrese
 	@Override
 	protected void paintBackground(Graphics2D g) {
 		int arc = tileDim.width / 70;
-		g.setColor(TeamTileHelper.TILE_BG);
+		g.setColor(isLightMode() ? TeamTileHelper.TILE_BG_LIGHT : TeamTileHelper.TILE_BG);
 		for (Group gr : groups) {
 			for (int i = 0; i < gr.numRows; i += 2) {
 				for (int j = 0; j < columns; j++) {

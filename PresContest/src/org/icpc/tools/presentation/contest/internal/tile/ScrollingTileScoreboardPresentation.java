@@ -208,7 +208,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 		long time = getRepeatTimeMs();
 		double hScroll = scroll.getScroll(time);
 		int n = getNumColumns();
-		g.setColor(TeamTileHelper.TILE_BG);
+		g.setColor(isLightMode() ? TeamTileHelper.TILE_BG_LIGHT : TeamTileHelper.TILE_BG);
 		for (int i = 0; i < rows; i += 2) {
 			for (int j = 0; j < n; j++) {
 				int x = (int) ((tileDim.width + TILE_H_GAP) * (j - hScroll));
