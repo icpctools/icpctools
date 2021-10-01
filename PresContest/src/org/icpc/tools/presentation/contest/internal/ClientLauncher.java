@@ -105,11 +105,13 @@ public class ClientLauncher {
 
 		String name = nameStr[0];
 		PresentationClient client = null;
-		int uid = -1;
 		if ("team".equals(name)) {
 			String teamLabel = TeamUtil.getTeamId();
-			uid = Integer.parseInt(teamLabel);
-			client = new PresentationClient(cdsSource, teamLabel, uid, "!admin");
+			String member = TeamUtil.getTeamMember();
+			if (member != null) {
+				teamLabel += member;
+			}
+			client = new PresentationClient(cdsSource, teamLabel, teamLabel.hashCode(), "!admin");
 		} else
 			client = new PresentationClient(name, "!admin", cdsSource);
 		instance = client;
