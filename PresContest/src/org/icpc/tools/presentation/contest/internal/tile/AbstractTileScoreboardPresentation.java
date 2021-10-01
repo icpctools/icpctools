@@ -44,6 +44,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 			return;
 
 		tileHelper = createTileHelper();
+		tileHelper.setLightMode(isLightMode());
 
 		initTeamPosition();
 	}
@@ -256,6 +257,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
 		if (value.startsWith("rows:")) {
 			try {
 				rows = Integer.parseInt(value.substring(5));
@@ -270,6 +272,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 			} catch (Exception e) {
 				// ignore
 			}
-		}
+		} else if (value.startsWith("lightMode:") && tileHelper != null)
+			tileHelper.setLightMode(value.substring(10).equals("light"));
 	}
 }

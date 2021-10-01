@@ -28,7 +28,9 @@ import org.icpc.tools.presentation.contest.internal.TextHelper;
 public class TeamTileHelper {
 	private static final int IN_TILE_GAP = 3;
 	protected static final Color TILE_BG = new Color(50, 50, 50);
+	protected static final Color TILE_BG_LIGHT = new Color(200, 200, 200);
 	private static final Color PROBLEM_BG = new Color(90, 90, 90);
+	private static final Color PROBLEM_BG_LIGHT = new Color(160, 160, 160);
 
 	private Font rankFont;
 	private Font teamFont;
@@ -38,6 +40,8 @@ public class TeamTileHelper {
 
 	private Dimension tileDim = null;
 	private IContest contest;
+	private boolean lightMode;
+
 	private Map<String, BufferedImage> nameImages = new HashMap<>();
 	private Map<String, BufferedImage> resultImages = new HashMap<>();
 	private Map<String, BufferedImage> problemImages = new HashMap<>();
@@ -51,6 +55,10 @@ public class TeamTileHelper {
 
 	protected void setSize(Dimension d) {
 		this.tileDim = d;
+	}
+
+	protected void setLightMode(boolean lightMode) {
+		this.lightMode = lightMode;
 	}
 
 	protected void setup() {
@@ -120,21 +128,21 @@ public class TeamTileHelper {
 		if (img == null) {
 			g.setFont(teamFont);
 			FontMetrics fm = g.getFontMetrics();
-			img = new BufferedImage(maxwid, fm.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+			img = new BufferedImage(maxwid + 2, fm.getHeight() + 2, BufferedImage.TYPE_4BYTE_ABGR);
 			Graphics2D gg = (Graphics2D) img.getGraphics();
 			gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 			gg.setFont(teamFont);
-			gg.setColor(Color.WHITE);
+			gg.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			TextHelper text = new TextHelper(gg, team.getActualDisplayName());
-			text.drawFit(0, 0, maxwid);
+			text.drawFit(1, 1, maxwid);
 			gg.dispose();
 
 			nameImages.put(hash, img);
 		}
 
-		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP, tileDim.height * 1 / 10, null);
+		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 1, null);
 
 	}
 
@@ -149,7 +157,7 @@ public class TeamTileHelper {
 
 		// draw rank & score
 		g.setFont(rankFont);
-		g.setColor(Color.WHITE);
+		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		fm = g.getFontMetrics();
 
 		IStanding standing = contest.getStanding(team);
@@ -167,7 +175,7 @@ public class TeamTileHelper {
 					(tileDim.height * 7 / 10 + fm.getAscent()) / 2 - 2);
 		}
 
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setFont(penaltyFont);
 		fm = g.getFontMetrics();
 		if (standing.getTime() > 0) {
@@ -233,9 +241,9 @@ public class TeamTileHelper {
 	}
 
 	private void paintProblem(Graphics2D g, int w, int h, int arc, FontMetrics fm, String label) {
-		g.setColor(PROBLEM_BG);
+		g.setColor(lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG);
 		g.fillRoundRect(0, 0, w - 3, h - 1, arc, arc);
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setFont(problemFont);
 		g.drawString(label, (w - fm.stringWidth(label)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
 	}
@@ -261,7 +269,7 @@ public class TeamTileHelper {
 
 		g.setColor(c);
 		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
-		g.setColor(Color.WHITE);
+		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		String s = "";
 
 		if (r.getNumSubmissions() > 0) {
@@ -294,7 +302,7 @@ public class TeamTileHelper {
 
 		g.setColor(c);
 		g.fillRoundRect(0, 0, w - 3, h - 1, arc, arc);
-		g.setColor(Color.WHITE);
+		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		String s = "";
 
 		if (r.getNumSubmissions() > 0) {
@@ -342,19 +350,19 @@ public class TeamTileHelper {
 			if (ps.getNumPending() > 0)
 				draw(g, ICPCColors.PENDING[5], xx + w * i, y - h * 5 / 4, w, h, arc2, ps.getNumPending() + "", fm);
 			else
-				draw(g, PROBLEM_BG, xx + w * i, y - h * 5 / 4, w, h, arc2, "", fm);
+				draw(g, lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG, xx + w * i, y - h * 5 / 4, w, h, arc2, "", fm);
 
 			if (ps.getNumSolved() > 0)
 				draw(g, ICPCColors.SOLVED[5], xx + w * i, y, w, h, arc2, ps.getNumSolved() + "", fm);
 			else
-				draw(g, PROBLEM_BG, xx + w * i, y, w, h, arc2, "", fm);
+				draw(g, lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG, xx + w * i, y, w, h, arc2, "", fm);
 		}
 	}
 
-	private static void draw(Graphics2D g, Color c, int x, int y, int w, int h, int arc, String s, FontMetrics fm) {
+	private void draw(Graphics2D g, Color c, int x, int y, int w, int h, int arc, String s, FontMetrics fm) {
 		g.setColor(c);
 		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
-		g.setColor(Color.WHITE);
+		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		g.drawString(s, x + (w - fm.stringWidth(s)) / 2, y + (h + fm.getAscent()) / 2 - 1);
 	}
 }
