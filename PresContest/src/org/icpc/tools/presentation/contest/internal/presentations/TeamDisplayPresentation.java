@@ -23,6 +23,7 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ClientLauncher;
 import org.icpc.tools.presentation.contest.internal.DigitalFont;
@@ -48,6 +49,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 	private BufferedImage contestImage;
 	private String teamName;
 	private String teamId;
+	private String teamMember;
 
 	private static final Color[] FADE;
 	private static Job job;
@@ -84,7 +86,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void init() {
-		setTeam(TeamUtil.getTeamId());
+		setTeam(TeamUtil.getTeamId(), TeamUtil.getTeamMember());
 	}
 
 	@Override
@@ -95,9 +97,10 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 		fontTouch = font;
 	}
 
-	public void setTeam(String id) {
+	public void setTeam(String id, String member) {
 		try {
 			teamId = id;
+			teamMember = member;
 
 			IContest contest = getContest();
 			FloorMap map = new FloorMap(contest);
@@ -269,6 +272,10 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 				TextHelper.drawString(g, s[i], (width - fm.stringWidth(s[i])) / 2,
 						height - fm.getDescent() - MARGIN - (s.length - i - 1) * fm.getHeight());
 			}
+		}
+
+		if (teamMember != null) {
+			TextHelper.drawString(g, teamId + teamMember + " - " + NetworkUtil.getHostName() + " - " + NetworkUtil.getLocalAddress(), MARGIN, MARGIN + fm.getAscent());
 		}
 
 		Long ms = getClock();

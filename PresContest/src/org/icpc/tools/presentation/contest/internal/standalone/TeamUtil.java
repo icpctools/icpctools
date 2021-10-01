@@ -11,7 +11,7 @@ public class TeamUtil {
 	 * <ol>
 	 * <li>The team-id environment variable (e.g. "team-id=37" -> team "37")</li>
 	 * <li>The team-id system property (e.g. "team-id=37" -> team "37")</li>
-	 * <li>The hostname. (e.g. "host73" -> team "73")</li>
+	 * <li>The hostname. (e.g. "host73a" -> team "73")</li>
 	 * <li>The last segment of the IP v4 host address. (e.g. "192.168.0.45" -> team "45")</li>
 	 * </ol>
 	 *
@@ -27,7 +27,7 @@ public class TeamUtil {
 			return prop;
 
 		try {
-			String num = getNumberFromEnd(NetworkUtil.getHostName());
+			String num = getTeamNumber(NetworkUtil.getHostName());
 			if (num != null)
 				return num;
 		} catch (Exception e) {
@@ -35,7 +35,7 @@ public class TeamUtil {
 		}
 
 		try {
-			String num = getNumberFromEnd(NetworkUtil.getLocalAddress());
+			String num = getTeamNumber(NetworkUtil.getLocalAddress());
 			if (num != null)
 				return num;
 		} catch (Exception e) {
@@ -46,24 +46,81 @@ public class TeamUtil {
 	}
 
 	/**
-	 * Utility method that returns any numeric digits from the end of a string, e.g.
-	 * "some36string82" returns "82".
+	 * Find a good default for which team member is using the local machine. This is decided by looking for
+	 * team-identifying information in the following order:
+	 * <ol>
+	 * <li>The team-member environment variable (e.g. "team-member=a" -> team "a")</li>
+	 * <li>The team-member system property (e.g. "team-member37" -> team "a")</li>
+	 * <li>The hostname. (e.g. "host73a" -> team "73")</li>
+	 * </ol>
+	 *
+	 * @return the team member label
+	 */
+	public static String getTeamMember() {
+		String prop = System.getenv("team-member");
+		if (prop != null)
+			return prop;
+
+		prop = System.getProperty("team-member");
+		if (prop != null)
+			return prop;
+
+		try {
+			String member = getTeamMember(NetworkUtil.getHostName());
+			if (member != null)
+				return member;
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not determine host", e);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Utility method that returns team number from a string, e.g.
+	 * "some36string82a" returns "82".
 	 *
 	 * @param s
 	 * @return
 	 */
-	public static String getNumberFromEnd(String s) {
+	public static String getTeamNumber(String s) {
 		if (s == null || s.isEmpty())
 			return null;
-		int n = s.length() - 1;
-		while (n >= 0 && Character.isDigit(s.charAt(n))) {
-			n--;
+		int end = s.length() - 1;
+		while (end >= 0 && Character.isAlphabetic(s.charAt(end))) {
+			end--;
+		}
+		int start = end - 1;
+		while (start >= 0 && Character.isDigit(s.charAt(start))) {
+			start--;
 		}
 
-		if (n == s.length() - 1)
+		if (start == end)
 			return null;
-		if (n == -1)
+		if (start == -1)
+			return s.substring(0, end + 1);
+		return s.substring(start + 1, end + 1);
+	}
+
+	/**
+	 * Utility method that returns team member from a string, e.g.
+	 * "some36string82a" returns "a".
+	 *
+	 * @param s
+	 * @return
+	 */
+	public static String getTeamMember(String s) {
+		if (s == null || s.isEmpty())
+			return null;
+		int start = s.length() - 1;
+		while (start >= 0 && Character.isAlphabetic(s.charAt(start))) {
+			start--;
+		}
+
+		if (start == s.length() - 1)
+			return null;
+		if (start == -1)
 			return s;
-		return s.substring(n + 1, s.length());
+		return s.substring(start + 1);
 	}
 }
