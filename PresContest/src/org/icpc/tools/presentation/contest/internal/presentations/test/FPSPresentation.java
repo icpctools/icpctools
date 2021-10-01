@@ -16,7 +16,6 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class FPSPresentation extends Presentation {
-	private static final Color darkGray = new Color(32, 32, 32);
 	private static final NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
 	private static final int AVG = 15;
 	private static final int NUM_FLIPS = 10;
@@ -69,7 +68,7 @@ public class FPSPresentation extends Presentation {
 			if (count % bb >= bb / 2)
 				g.fillRect(width - fl - 10, y, fl, fl);
 		}
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		for (int i = 0; i < NUM_FLIPS; i++) {
 			int y = height / 2 + (NUM_FLIPS / 2 - i - 1) * fl;
 			g.drawRect(10, y, fl, fl);
@@ -92,9 +91,9 @@ public class FPSPresentation extends Presentation {
 		int w = r / 5;
 		double fps = getFPS();
 
-		g.setColor(darkGray);
+		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 		g.fillArc(width / 2 - r, height / 2 - r, r * 2, r * 2, 225, -270);
-		g.setColor(Color.BLACK);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillArc(width / 2 - r + w, height / 2 - r + w, (r - w) * 2, (r - w) * 2, 225, -270);
 
 		// 5s - small ticks
@@ -109,7 +108,7 @@ public class FPSPresentation extends Presentation {
 			g.drawLine(x1, y1, x2, y2);
 		}
 		// 10s - bigger ticks
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setStroke(new BasicStroke(2));
 		d = 1;
 		for (int i = 0; i <= 60; i += 10) {
@@ -128,7 +127,7 @@ public class FPSPresentation extends Presentation {
 		int y = (int) (height / 2 - Math.sin(rad) * r);
 		g.drawLine(x, y, width / 2, height / 2);
 
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(largeFont);
 		FontMetrics fm = g.getFontMetrics();
 		String fpsStr = nf.format(fps);

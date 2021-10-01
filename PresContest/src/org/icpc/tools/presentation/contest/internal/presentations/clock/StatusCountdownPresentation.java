@@ -129,7 +129,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		x = px - o / 2 + (int) (val * o * 3 / 100);
 		y = py - o / 2;
 		g.fillOval(x, y, o, o);
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawOval(x, y, o, o);
 
 		FontMetrics fm = g.getFontMetrics();
@@ -151,6 +151,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 				s = "Status: Paused";
 		}
 
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(s, (width - fm.stringWidth(s)) / 2, (int) ((height + height / 2.5f) / 2f) + fm.getHeight() * 2);
 

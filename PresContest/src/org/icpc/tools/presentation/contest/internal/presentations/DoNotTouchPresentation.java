@@ -93,7 +93,7 @@ public class DoNotTouchPresentation extends Presentation {
 		int w = 0;
 		float x = xx - 10;
 		float y = height - john.getHeight() + 150;
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 
 		for (int i = 0; i < 3; i++)
 			x -= fm.stringWidth(text[i]);

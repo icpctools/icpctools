@@ -14,7 +14,7 @@ public class CountdownPresentation extends ClockPresentation {
 
 	protected static long targetTime;
 	protected static Animator clock = new Animator(0, TIME_ANIM);
-	protected Color clockColor = Color.WHITE;
+	protected Color clockColor;
 
 	public CountdownPresentation() {
 		//
@@ -102,7 +102,7 @@ public class CountdownPresentation extends ClockPresentation {
 			return -Math.round((startTime - now) * timeMultiplier + duration);
 		}
 
-		clockColor = Color.WHITE;
+		clockColor = isLightMode() ? Color.BLACK : Color.WHITE;
 		return Math.round((startTime - now) * timeMultiplier);
 	}
 

@@ -11,7 +11,8 @@ import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.DigitalFont;
 
 public class ClockPresentation extends AbstractICPCPresentation {
-	private static final Color DARK_GRAY = new Color(8, 8, 8);
+	private static final Color DARK_GRAY = new Color(12, 12, 12);
+	private static final Color LIGHT_GRAY = new Color(250, 250, 250);
 
 	private BufferedImage image;
 	protected int verticalOffset;
@@ -33,11 +34,11 @@ public class ClockPresentation extends AbstractICPCPresentation {
 	}
 
 	public Color getTextBackgroundColor() {
-		return DARK_GRAY;
+		return isLightMode() ? LIGHT_GRAY : DARK_GRAY;
 	}
 
 	public Color getTextForegroundColor() {
-		return Color.WHITE;
+		return isLightMode() ? Color.BLACK : Color.WHITE;
 	}
 
 	@Override

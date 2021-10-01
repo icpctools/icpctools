@@ -44,6 +44,8 @@ public abstract class Presentation {
 	private List<MouseListener> mouseListeners;
 	private List<MouseMotionListener> mouseMotionListeners;
 
+	private boolean lightMode;
+
 	/**
 	 * Sets the size of this presentation.
 	 *
@@ -69,7 +71,15 @@ public abstract class Presentation {
 	 * @param value
 	 */
 	public void setProperty(String value) {
-		// do nothing
+		if (value != null && value.startsWith("lightMode:"))
+			lightMode = value.substring(10).equals("light");
+	}
+
+	/**
+	 * True if light mode is enabled, false otherwise.
+	 */
+	public boolean isLightMode() {
+		return lightMode;
 	}
 
 	/**

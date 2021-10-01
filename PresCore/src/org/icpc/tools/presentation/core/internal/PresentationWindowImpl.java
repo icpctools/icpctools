@@ -50,6 +50,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private static final long PLAN_FADE_TIME = 800; // time to fade in/out when changing plan
 	private static final long MAX_FPS = 1000000000L / 60L; // limit to 60fps max
 
+	private boolean lightMode;
+
 	private static final NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
 	static {
@@ -119,6 +121,11 @@ public class PresentationWindowImpl extends PresentationWindow {
 				if (key.equals(getPresentationKey(p.getClass().getName())))
 					p.setProperty(value);
 			}
+
+			if (isGlobalKey(key))
+				for (Presentation p : presentations) {
+					p.setProperty(key + ":" + value);
+				}
 		}
 
 		public void dispose() {
@@ -259,6 +266,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 		setCursor(getCustomCursor());
 
 		logDevices();
+	}
+
+	protected static boolean isGlobalKey(String key) {
+		return "lightMode".equals(key) || "name".equals(key);
 	}
 
 	private static void logDevices() {
@@ -463,6 +474,11 @@ public class PresentationWindowImpl extends PresentationWindow {
 		// trace plan
 		Trace.trace(Trace.INFO, "Next presentation plan: " + nextPlan);
 
+		if (lightMode)
+			setProperty("lightMode", "light");
+		else
+			setProperty("lightMode", "dark");
+
 		notifyPaintThread();
 	}
 
@@ -509,10 +525,20 @@ public class PresentationWindowImpl extends PresentationWindow {
 	 */
 	@Override
 	public void setZeroTimeMs(long time) {
-		long newNanoTimeDelta = time * 1000000L - System.nanoTime();
-		long diff = Math.abs(newNanoTimeDelta - nanoTimeDelta) / 1000000;
-		Trace.trace(Trace.INFO, "Nano time diff: " + diff);
-		nanoTimeDelta = newNanoTimeDelta;
+		Trace.trace(Trace.INFO, "New pres time: " + time + "ms");
+		nanoTimeDelta = time * 1000000L - System.nanoTime();
+	}
+
+	public void setClientName(String name) {
+		setProperty("name", name);
+	}
+
+	public void setLightMode(boolean light) {
+		this.lightMode = light;
+		if (lightMode)
+			setProperty("lightMode", "light");
+		else
+			setProperty("lightMode", "dark");
 	}
 
 	@Override
@@ -829,17 +855,17 @@ public class PresentationWindowImpl extends PresentationWindow {
 				hh = d.height / 2;
 				g.drawImage(logo, (d.width - hh) / 2, (d.height - hh) / 2 - 15, hh, hh, null);
 			}
-			g.setColor(Color.WHITE);
+			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			FontMetrics fm = g.getFontMetrics();
 			String s = "No presentation assigned";
 			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, (d.height) * 7 / 8);
 
-			g.setColor(Color.DARK_GRAY);
+			g.setColor(lightMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 			s = Trace.getVersion();
 			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height - 20);
 		}
 		if (showFPS) {
-			g.setColor(Color.WHITE);
+			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
 			String s = fps + " fps";
@@ -864,7 +890,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		Graphics2D bg = (Graphics2D) bs.getDrawGraphics();
 		Dimension d = getSize();
-		bg.setColor(Color.BLACK);
+		if (lightMode)
+			bg.setColor(Color.WHITE);
+		else
+			bg.setColor(Color.BLACK);
 		bg.fillRect(0, 0, d.width, d.height);
 
 		if (displayRect != null)

@@ -39,6 +39,8 @@ public class ClientLauncher {
 		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
 		System.out.println("     --fps");
 		System.out.println("         Show the frame rate on screen");
+		System.out.println("     --light");
+		System.out.println("         Use light mode");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -53,6 +55,7 @@ public class ClientLauncher {
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
 		boolean[] showFPS = new boolean[1];
+		boolean[] lightMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
@@ -70,6 +73,9 @@ public class ClientLauncher {
 					return true;
 				} else if ("--fps".equals(option)) {
 					showFPS[0] = true;
+					return true;
+				} else if ("--light".equals(option)) {
+					lightMode[0] = true;
 					return true;
 				} else if ("--display_name".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "display_name:string");
@@ -125,6 +131,9 @@ public class ClientLauncher {
 					windowImpl.setDisplayConfig(new DisplayConfig(displayStr[0], displayStr[1]));
 					windowImpl.openIt();
 					client2.writeInfo();
+					windowImpl.setClientName(client2.getClientId());
+					if (lightMode[0])
+						windowImpl.setLightMode(true);
 				}
 			}
 		});

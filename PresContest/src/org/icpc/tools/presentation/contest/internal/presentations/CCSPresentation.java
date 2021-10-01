@@ -82,7 +82,7 @@ public class CCSPresentation extends Presentation {
 					(height - shadowImage.getHeight() - BORDER) / 2 - fm.getHeight(), null);
 		}
 
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		if (shadowImage == null) {
 			g.drawString(PRIMARY_TEXT, (width - fm.stringWidth(PRIMARY_TEXT)) / 2, height - BORDER - fm.getDescent());
 		} else {
