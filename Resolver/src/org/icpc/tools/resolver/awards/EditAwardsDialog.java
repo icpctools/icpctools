@@ -42,6 +42,7 @@ public class EditAwardsDialog extends Dialog {
 
 	protected Label citationLabel;
 	protected Text citation;
+	protected Label modeLabel;
 	protected Combo mode;
 
 	protected int rc;
@@ -200,11 +201,15 @@ public class EditAwardsDialog extends Dialog {
 			}
 		});
 
-		// show
-		mode = new Combo(awardGroup, SWT.CHECK);
-		mode.setItems(new String[] { "Stop to show details", "Pause and move on", "Show as list" });
+		// display mode
+		modeLabel = new Label(awardGroup, SWT.NONE);
+		modeLabel.setText("Action:");
+		modeLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+
+		mode = new Combo(awardGroup, SWT.READ_ONLY);
+		mode.setItems(new String[] { "Stop to show details", "Pause and move on", "Show as list", "Ignore" });
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
-		data.horizontalSpan = 3;
+		data.horizontalSpan = 2;
 		mode.setLayoutData(data);
 		mode.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -317,6 +322,7 @@ public class EditAwardsDialog extends Dialog {
 
 			citationLabel.setEnabled(false);
 			citation.setEnabled(false);
+			modeLabel.setEnabled(false);
 			mode.setEnabled(false);
 			remove.setEnabled(false);
 		} else {

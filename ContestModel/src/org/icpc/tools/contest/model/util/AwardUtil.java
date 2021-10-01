@@ -133,13 +133,15 @@ public class AwardUtil {
 			throw new IllegalArgumentException("Could not parse group parameter: " + template.getParameter());
 		}
 
+		DisplayMode mode = template.getDisplayMode();
+
 		if (template.getId().equals("group-winner-*")) {
 			// to all groups
 			for (IGroup group : contest.getGroups()) {
 				if (group.isHidden())
 					continue;
 
-				Award groupAward = new Award(IAward.GROUP, group.getId(), null, (String) null);
+				Award groupAward = new Award(IAward.GROUP, group.getId(), null, (String) null, mode);
 				// groupAward.setCount("1");
 				contest.add(groupAward);
 				assignGroup(contest, groupAward, numPerGroup);
@@ -230,15 +232,16 @@ public class AwardUtil {
 		contest.add(new Award(IAward.WINNER, team.getId(), citation));
 	}
 
-	public static void createWinnerAward(Contest contest, IAward awardTemplate) {
+	public static void createWinnerAward(Contest contest, IAward template) {
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
 
-		String citation = awardTemplate.getCitation();
+		String citation = template.getCitation();
 		if (citation == null)
 			citation = Messages.getString("awardWorldChampion");
-		contest.add(new Award(IAward.WINNER, teams[0].getId(), citation));
+
+		contest.add(new Award(IAward.WINNER, teams[0].getId(), citation, template.getDisplayMode()));
 	}
 
 	public static void createRankAwards(Contest contest, int num) {
@@ -258,6 +261,8 @@ public class AwardUtil {
 		if (numTeams < 1)
 			return;
 
+		DisplayMode mode = template.getDisplayMode();
+
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
@@ -270,10 +275,10 @@ public class AwardUtil {
 			try {
 				int rank = Integer.parseInt(standing.getRank());
 				contest.add(new Award(IAward.RANK, (i + 1) + "", teamIds,
-						Messages.getString("awardPlace").replace("{0}", getPlaceString(rank))));
+						Messages.getString("awardPlace").replace("{0}", getPlaceString(rank)), mode));
 			} catch (Exception e) {
 				contest.add(new Award(IAward.RANK, (i + 1) + "", teamIds,
-						Messages.getString("awardPlace").replace("{0}", standing.getRank())));
+						Messages.getString("awardPlace").replace("{0}", standing.getRank()), mode));
 			}
 		}
 	}
@@ -416,6 +421,10 @@ public class AwardUtil {
 		if (percent < 1 || percent > 100)
 			throw new IllegalArgumentException(percent + " is not a valid top percentage");
 
+		DisplayMode mode = template.getDisplayMode();
+		if (!template.hasDisplayMode())
+			mode = IAward.DisplayMode.LIST;
+
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
@@ -433,7 +442,7 @@ public class AwardUtil {
 			citation = Messages.getString("awardTop");
 		citation = citation.replace("{0}", percent + "");
 
-		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation));
+		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation, mode));
 	}
 
 	public static void createHonorsAwards(Contest contest, int percentile) {
@@ -445,6 +454,10 @@ public class AwardUtil {
 	public static void createHonorsAwards(Contest contest, IAward template) throws IllegalArgumentException {
 		int percentileTop = 0;
 		int percentileBottom = 100;
+		DisplayMode mode = template.getDisplayMode();
+		if (!template.hasDisplayMode())
+			mode = IAward.DisplayMode.LIST;
+
 		try {
 			String param = template.getParameter();
 			int ind = param.indexOf("-");
@@ -502,7 +515,7 @@ public class AwardUtil {
 				citation = Messages.getString("awardHonors");
 		}
 
-		contest.add(new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation));
+		contest.add(new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, mode));
 	}
 
 	public static int[] getMedalCounts(IContest contest) {

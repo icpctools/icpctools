@@ -33,8 +33,8 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 			"{\"id\":\"bronze-medal\",\"parameter\":\"4\"}\n" + // bronze medals
 			"{\"id\":\"first-to-solve-*\"}\n" + // first to solve awards
 			"{\"id\":\"top-25\",\"parameter\":\"25\"}\n" + // top 25% of teams
-			"{\"id\":\"honors-50\",\"parameter\":\"50-100\"}\n" + // honorable mention for teams
-																					// scoring below 50th percentile
+			"{\"id\":\"honors-mention\",\"parameter\":\"50-100\"}\n" + // honorable mention for teams
+			// scoring below 50th percentile
 			"{\"id\":\"group-winner-*\"}"; // group winners
 
 	protected Text text;
