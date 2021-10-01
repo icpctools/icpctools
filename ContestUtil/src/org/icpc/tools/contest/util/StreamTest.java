@@ -23,7 +23,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  */
 public class StreamTest {
     static final String CDS = "172.29.1.207";
-    static final int CONCURRENT_STREAMS = 400;
+    static final int CONCURRENT_STREAMS = 300;
 
     static class StreamRate {
         long total;
@@ -159,7 +159,7 @@ public class StreamTest {
 
                 int j = 0;
                 for (KeepRequesting req : reqs) {
-                    if (j % 25 == 0) {
+                    if (j % 20 == 0) {
                         if (j > 0) {
                             System.out.println();
                         }
