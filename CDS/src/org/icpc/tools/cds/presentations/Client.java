@@ -226,7 +226,14 @@ public class Client {
 		});
 	}
 
-	protected long handlePing() throws IOException {
+	/**
+	 * Handle a ping. Returns true if we've decided to sync time and need to send an event
+	 * immediately, false otherwise.
+	 *
+	 * @return
+	 * @throws IOException
+	 */
+	protected boolean handlePing() throws IOException {
 		int count = 0;
 		int total = 0;
 		long min = Long.MAX_VALUE;
@@ -258,27 +265,27 @@ public class Client {
 
 		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Recent pings: [" + sb.toString() + "] ");
 
-		// if delta difference is < 20ms, we're close enough
+		// delta difference is < 20ms for at least 2 pings, we're close enough to sync time
 		if (count > 1 && max < 20) {
 			writeTime(total / count);
-			return 0;
+			return true;
 		}
 
 		if (count < 3) {
-			// not enough response time data yet, ping again in 500ms
+			// not enough response time data yet, ping again
 			writePing();
-			return 500;
+			return false;
 		}
 
 		if (count == 3 && max - min > 50) {
-			// very inconsistent response times, ping once more in 750ms
+			// very inconsistent response times, ping at least once more
 			writePing();
-			return 750;
+			return false;
 		}
 
-		// get rid of 'worst' time outlier and determine new average time sync
+		// we've had at least 3 pings, get rid of 'worst' time outlier and send average time sync
 		writeTime((total - max) / (count - 1));
-		return 0;
+		return true;
 	}
 
 	protected void writePing() {
@@ -433,9 +440,7 @@ public class Client {
 			Object[] keys = p.keySet().toArray();
 			for (int i = 0; i < keys.length; i++) {
 				String key = keys[i].toString();
-				// je.openChild("property");
 				je.encode(key, p.getProperty(key));
-				// je.close();
 			}
 			je.close();
 		});

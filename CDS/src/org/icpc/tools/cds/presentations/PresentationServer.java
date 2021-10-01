@@ -158,9 +158,8 @@ public class PresentationServer {
 					return;
 				}
 				case PING: {
-					long delay = c.handlePing();
-					if (delay > 0)
-						scheduleClient(c, delay);
+					if (c.handlePing())
+						scheduleNow(c);
 					return;
 				}
 				default: {
@@ -400,6 +399,16 @@ public class PresentationServer {
 
 			pendingClients.add(cl);
 			executor.schedule(() -> sendData(cl), delay, TimeUnit.MILLISECONDS);
+		}
+	}
+
+	protected void scheduleNow(Client cl) {
+		synchronized (pendingClients) {
+			if (pendingClients.contains(cl))
+				return;
+
+			pendingClients.add(cl);
+			executor.schedule(() -> sendData(cl), 0, TimeUnit.MILLISECONDS);
 		}
 	}
 
