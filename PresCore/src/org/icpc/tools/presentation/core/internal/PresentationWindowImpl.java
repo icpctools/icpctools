@@ -925,6 +925,12 @@ public class PresentationWindowImpl extends PresentationWindow {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
+		if (lightMode)
+			g.setColor(Color.WHITE);
+		else
+			g.setColor(Color.BLACK);
+		g.fillRect(0, 0, image.getWidth(), image.getHeight());
+
 		g.scale(scale, scale);
 		paintImpl(g, false);
 		g.dispose();

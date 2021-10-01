@@ -357,7 +357,7 @@ public abstract class Presentation {
 	 */
 	protected void paintHelp(Graphics2D g, String[] message, String subs) {
 		Dimension d = getSize();
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		Font f = g.getFont().deriveFont(16f);
 		g.setFont(f);
 		FontMetrics fm = g.getFontMetrics();

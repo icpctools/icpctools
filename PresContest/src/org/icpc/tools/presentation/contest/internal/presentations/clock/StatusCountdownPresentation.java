@@ -108,7 +108,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 	protected void drawStatus(Graphics2D g, int px, int py, IStartStatus ss) {
 		// int o = 7;
 		int o = height / 42;
-		g.setColor(Color.GRAY);
+		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.GRAY);
 		int x = px - o / 2;
 		int y = py - o / 2;
 		g.drawOval(x, y, o, o);
@@ -124,7 +124,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		else if (val > 95)
 			g.setColor(Color.GREEN);
 		else
-			g.setColor(Color.YELLOW);
+			g.setColor(Color.ORANGE);
 
 		x = px - o / 2 + (int) (val * o * 3 / 100);
 		y = py - o / 2;
@@ -132,6 +132,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawOval(x, y, o, o);
 
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f));
 	}
@@ -140,6 +141,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 	public void paint(Graphics2D g) {
 		super.paint(g);
 
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(font);
 		String s = "Status: Go";
 		IContest contest = getContest();
