@@ -22,6 +22,7 @@ public class CountdownPresentation extends ClockPresentation {
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
 		if (value == null || value.isEmpty())
 			return;
 
