@@ -408,18 +408,28 @@ public class Team extends ContestObject implements ITeam {
 		props.put(NAME, name);
 		if (displayName != null)
 			props.put(DISPLAY_NAME, displayName);
-		props.put(ICPC_ID, icpcId);
+		if (icpcId != null)
+			props.put(ICPC_ID, icpcId);
 		if (groupIds != null)
 			props.put(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
-		props.put(ORGANIZATION_ID, organizationId);
-		props.put(PHOTO, photo);
-		props.put(VIDEO, video);
-		props.put(BACKUP, backup);
-		props.put(KEY_LOG, keylog);
-		props.put(TOOL_DATA, tooldata);
-		props.put(DESKTOP, desktop);
-		props.put(WEBCAM, webcam);
-		props.put(AUDIO, audio);
+		if (organizationId != null)
+			props.put(ORGANIZATION_ID, organizationId);
+		if (photo != null)
+			props.put(PHOTO, photo);
+		if (video != null)
+			props.put(VIDEO, video);
+		if (backup != null)
+			props.put(BACKUP, backup);
+		if (keylog != null)
+			props.put(KEY_LOG, keylog);
+		if (tooldata != null)
+			props.put(TOOL_DATA, tooldata);
+		if (desktop != null)
+			props.put(DESKTOP, desktop);
+		if (webcam != null)
+			props.put(WEBCAM, webcam);
+		if (audio != null)
+			props.put(AUDIO, audio);
 		if (!Double.isNaN(x) || !Double.isNaN(y) || !Double.isNaN(rotation)) {
 			List<String> attrs = new ArrayList<>(3);
 			if (!Double.isNaN(x))
