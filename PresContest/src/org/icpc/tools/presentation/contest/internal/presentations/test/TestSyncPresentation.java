@@ -22,25 +22,26 @@ public class TestSyncPresentation extends Presentation {
 		Graphics2D g = (Graphics2D) g2.create();
 		Dimension d = getSize();
 
+		float wf = 2f * width / (width + height);
 		float xx = 0f;
 		float yy = 0f;
-		if (t < 1.0f) {
-			xx = t;
+		if (t < wf) {
+			xx = t / wf;
 		} else if (t < 2.0f) {
 			xx = 1.0f;
-			yy = t - 1.0f;
-		} else if (t < 3.0f) {
-			xx = 1.0f - (t - 2.0f);
+			yy = (t - wf) / (2 - wf);
+		} else if (t < 2.0f + wf) {
+			xx = 1.0f - (t - 2.0f) / wf;
 			yy = 1.0f;
 		} else {
-			yy = 1.0f - (t - 3.0f);
+			yy = 1.0f - (t - 2.0f - wf) / (2 - wf);
 		}
 
 		float x = (d.width - 50) * xx;
 		float y = (d.height - 50) * yy;
 
 		g.translate(x, y);
-		g.setColor(Color.YELLOW);
+		g.setColor(isLightMode() ? Color.ORANGE : Color.YELLOW);
 
 		g.fillOval(0, 0, 50, 50);
 		g.dispose();
