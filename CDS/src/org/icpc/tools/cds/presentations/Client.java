@@ -261,7 +261,7 @@ public class Client {
 					break;
 
 				count++;
-				totalDelta = ts.delta;
+				totalDelta += ts.delta;
 				if (outlier == null || outlier.pingTime < ts.pingTime)
 					outlier = ts;
 			}
