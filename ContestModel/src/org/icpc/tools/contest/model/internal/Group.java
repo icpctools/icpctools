@@ -108,13 +108,16 @@ public class Group extends ContestObject implements IGroup {
 	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
-		props.put(ICPC_ID, icpcId);
-		props.put(NAME, name);
+		if (icpcId != null)
+			props.put(ICPC_ID, icpcId);
+		if (name != null)
+			props.put(NAME, name);
 		if (type != null)
 			props.put(TYPE, type);
 		if (isHidden)
 			props.put(HIDDEN, "true");
-		props.put(LOGO, logo);
+		if (logo != null)
+			props.put(LOGO, logo);
 	}
 
 	@Override

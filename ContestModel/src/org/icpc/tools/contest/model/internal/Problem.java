@@ -158,8 +158,10 @@ public class Problem extends ContestObject implements IProblem {
 		props.put(NAME, name);
 		if (ordinal != Integer.MIN_VALUE)
 			props.put(ORDINAL, ordinal);
-		props.put(COLOR, color);
-		props.put(RGB, rgb);
+		if (color != null)
+			props.put(COLOR, color);
+		if (rgb != null)
+			props.put(RGB, rgb);
 		if (x != Double.MIN_VALUE)
 			props.put(X, round(x));
 		if (y != Double.MIN_VALUE)

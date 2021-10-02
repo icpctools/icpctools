@@ -198,13 +198,20 @@ public class Organization extends ContestObject implements IOrganization {
 	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
-		props.put(ICPC_ID, icpcId);
-		props.put(NAME, name);
-		props.put(FORMAL_NAME, formalName);
-		props.put(COUNTRY, country);
-		props.put(COUNTRY_FLAG, countryFlag);
-		props.put(URL, url);
-		props.put(HASHTAG, hashtag);
+		if (icpcId != null)
+			props.put(ICPC_ID, icpcId);
+		if (name != null)
+			props.put(NAME, name);
+		if (formalName != null)
+			props.put(FORMAL_NAME, formalName);
+		if (country != null)
+			props.put(COUNTRY, country);
+		if (countryFlag != null)
+			props.put(COUNTRY_FLAG, countryFlag);
+		if (url != null)
+			props.put(URL, url);
+		if (hashtag != null)
+			props.put(HASHTAG, hashtag);
 		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
 			List<String> attrs = new ArrayList<>(2);
 			if (!Double.isNaN(latitude))
