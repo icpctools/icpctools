@@ -158,8 +158,8 @@ public class PresentationServer {
 					return;
 				}
 				case PING: {
-					if (c.handlePing())
-						scheduleNow(c);
+					if (c.handlePing(obj.getLong("time")))
+						scheduleClient(c, 5000);
 					return;
 				}
 				default: {
@@ -399,16 +399,6 @@ public class PresentationServer {
 
 			pendingClients.add(cl);
 			executor.schedule(() -> sendData(cl), delay, TimeUnit.MILLISECONDS);
-		}
-	}
-
-	protected void scheduleNow(Client cl) {
-		synchronized (pendingClients) {
-			if (pendingClients.contains(cl))
-				return;
-
-			pendingClients.add(cl);
-			executor.schedule(() -> sendData(cl), 0, TimeUnit.MILLISECONDS);
 		}
 	}
 

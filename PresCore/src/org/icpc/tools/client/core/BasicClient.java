@@ -58,8 +58,7 @@ public class BasicClient {
 	protected static final String HEIGHT = "height";
 
 	protected enum Type {
-		PING, // ping, used to guage client response time
-		TIME, // time sync sent to clients after several successful pings
+		PING, // ping, used to guage client response time and sync client time
 		INFO, // information about the client sent back to admins
 		PROPERTIES, // properties to set on the client
 		LOG, // request for client to send log + response message
@@ -153,6 +152,7 @@ public class BasicClient {
 	private String auth;
 	private String[] contestIds;
 	private String role;
+	protected long nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
 
 	private List<IPropertyListener> listeners;
 	private List<IConnectionListener> listeners2;
@@ -669,17 +669,18 @@ public class BasicClient {
 		return s;
 	}
 
-	private void sendPing() throws IOException {
+	private void handlePing() throws IOException {
 		StringWriter sw = new StringWriter();
 		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
 		je.open();
 		je.encode(TYPE, Type.PING.name().toLowerCase());
+		je.encode("time", System.currentTimeMillis());
 		je.close();
 		sendIt(sw.toString());
 	}
 
-	protected void handleTime(long time) {
-		Trace.trace(Trace.INFO, "New time: " + time + "ms");
+	protected void handleTime() {
+		// react to time change
 	}
 
 	private static void trace(String message, boolean user) {
@@ -708,12 +709,13 @@ public class BasicClient {
 
 		switch (action) {
 			case PING: {
-				sendPing();
-				break;
-			}
-			case TIME: {
-				handleTime(obj.getLong("time"));
-				sendPing();
+				if (obj.containsKey("time_delta")) {
+					long timeDeltaMs = obj.getLong("time_delta");
+					Trace.trace(Trace.INFO, "New delta time: " + timeDeltaMs + "ms");
+					nanoTimeDelta = (System.currentTimeMillis() + timeDeltaMs) * 1000000L - System.nanoTime();
+					handleTime();
+				}
+				handlePing();
 				break;
 			}
 			case CLIENTS: {

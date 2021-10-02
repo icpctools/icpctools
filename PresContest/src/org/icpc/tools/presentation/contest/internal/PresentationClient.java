@@ -354,10 +354,9 @@ public class PresentationClient extends BasicClient {
 	}
 
 	@Override
-	protected void handleTime(long time) {
-		super.handleTime(time);
+	protected void handleTime() {
 		if (window != null && window instanceof PresentationWindowImpl)
-			((PresentationWindowImpl) window).setZeroTimeMs(time);
+			((PresentationWindowImpl) window).setNanoTimeDelta(nanoTimeDelta);
 	}
 
 	protected void writeSnapshot(final BufferedImage image) {

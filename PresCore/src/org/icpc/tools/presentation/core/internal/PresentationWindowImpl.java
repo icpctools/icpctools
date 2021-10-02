@@ -221,7 +221,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	protected PresentationPlan currentPlan;
 
-	protected long nanoTimeDelta;
+	private long nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
 
 	protected Rectangle displayRect;
 
@@ -254,8 +254,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		setIconImage(iconImage);
 		Taskbar.setTaskbarImage(iconImage);
-
-		nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
 
 		setBounds(r);
 		setBackground(Color.black);
@@ -524,9 +522,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 	 * @param time
 	 */
 	@Override
-	public void setZeroTimeMs(long time) {
+	public void setNanoTimeDelta(long time) {
 		Trace.trace(Trace.INFO, "New pres time: " + time + "ms");
-		nanoTimeDelta = time * 1000000L - System.nanoTime();
+		nanoTimeDelta = time;
 	}
 
 	public void setClientName(String name) {

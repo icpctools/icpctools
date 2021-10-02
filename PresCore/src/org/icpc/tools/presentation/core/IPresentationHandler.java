@@ -38,7 +38,7 @@ public interface IPresentationHandler {
 
 	public int getFullScreenWindow();
 
-	public void setZeroTimeMs(long time);
+	public void setNanoTimeDelta(long time);
 
 	public BufferedImage createImage(float scale);
 

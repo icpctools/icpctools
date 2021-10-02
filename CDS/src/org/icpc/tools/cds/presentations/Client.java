@@ -24,8 +24,6 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Client {
-	private static final int SYNC_TIME = 5 * 60 * 1000; // sync time every 5 minutes
-
 	private static final String VERSION = "version";
 	private static final String CLIENT_TYPE = "client.type";
 	private static final String CONTEST_IDS = "contest.ids";
@@ -37,8 +35,7 @@ public class Client {
 	private static final String PRESENTATION = "presentation";
 
 	protected enum Type {
-		PING, // ping, used to guage client response time
-		TIME, // time sync sent to clients after several successful pings
+		PING, // ping, used to guage client response time and sync client time
 		INFO, // information about the client sent back to admins
 		PROPERTIES, // properties to set on the client
 		LOG, // request for client to send log + response message
@@ -67,6 +64,7 @@ public class Client {
 
 	protected class TimeSync {
 		public long sentAt;
+		public long pingTime = -1;
 		public long delta = -1;
 
 		public TimeSync() {
@@ -97,7 +95,7 @@ public class Client {
 	private String[] contestIds;
 	private String clientType;
 	private String version;
-	private long lastTimeSync = -1;
+	private boolean hasTimeSynced;
 
 	public Client(Session session, String user, int uid, String name, boolean isAdmin) {
 		this.session = session;
@@ -193,7 +191,7 @@ public class Client {
 		}
 
 		while (message != null) {
-			if (message.type == Type.PING || message.type == Type.TIME) {
+			if (message.type == Type.PING) {
 				// log when a ping went out
 				synchronized (timeSync) {
 					timeSync.add(new TimeSync());
@@ -213,79 +211,107 @@ public class Client {
 		return true;
 	}
 
-	private void writeTime(long delta) throws IOException {
-		// if last guess time was recent enough, don't sync time again
-		if (lastTimeSync > 0 && System.currentTimeMillis() < lastTimeSync + SYNC_TIME)
-			return;
-
-		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time with " + delta + "ms delta.");
-
-		createJSON(Type.TIME, je -> {
-			lastTimeSync = System.currentTimeMillis();
-			je.encode("time", lastTimeSync + delta);
-		});
-	}
-
-	/**
-	 * Handle a ping. Returns true if we've decided to sync time and need to send an event
-	 * immediately, false otherwise.
-	 *
-	 * @return
-	 * @throws IOException
-	 */
-	protected boolean handlePing() throws IOException {
-		int count = 0;
-		int total = 0;
-		long min = Long.MAX_VALUE;
-		long max = 0;
+	protected boolean handlePing(long time) {
+		// update ping data
 		StringBuilder sb = new StringBuilder();
 		synchronized (timeSync) {
 			while (timeSync.size() > 5)
 				timeSync.remove(0);
 
+			boolean first = true;
 			for (TimeSync ts : timeSync) {
-				count++;
-				boolean last = false;
-				if (ts.delta == -1) {
-					ts.delta = (System.currentTimeMillis() - ts.sentAt) / 2;
-					last = true;
+				if (!first)
+					sb.append(", ");
+				first = false;
+
+				if (ts.pingTime == -1) {
+					long localTime = System.currentTimeMillis();
+					ts.pingTime = (localTime - ts.sentAt) / 2;
+					ts.delta = localTime - (time + ts.pingTime);
+					sb.append(ts.delta + "/" + ts.pingTime + "ms");
+					break;
 				}
 
-				if (count > 1)
-					sb.append(", ");
-				sb.append(ts.delta + "ms");
-				total += ts.delta;
-				min = Math.min(min, ts.delta);
-				max = Math.max(max, ts.delta);
-
-				if (last)
-					break;
+				sb.append(ts.delta + "/" + ts.pingTime + "ms");
 			}
 		}
 
-		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Recent pings: [" + sb.toString() + "] ");
+		Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Pings: [" + sb.toString() + "]");
 
-		// delta difference is < 20ms for at least 2 pings, we're close enough to sync time
-		if (count > 1 && max < 20) {
-			writeTime(total / count);
+		// if we don't know enough yet, schedule another ping
+		if (getPingTime() == null || !hasTimeSynced) {
+			writePing();
 			return true;
 		}
 
-		if (count < 3) {
-			// not enough response time data yet, ping again
-			writePing();
-			return false;
+		return false;
+	}
+
+	/**
+	 * Returns the most recent delta time.
+	 */
+	protected long getTimeDelta() {
+		TimeSync outlier = null;
+		int count = 0;
+		long totalDelta = 0;
+
+		synchronized (timeSync) {
+			for (TimeSync ts : timeSync) {
+				if (ts.pingTime == -1)
+					break;
+
+				count++;
+				totalDelta = ts.delta;
+				if (outlier == null || outlier.pingTime < ts.pingTime)
+					outlier = ts;
+			}
 		}
 
-		if (count == 3 && max - min > 50) {
-			// very inconsistent response times, ping at least once more
-			writePing();
-			return false;
+		if (outlier != null) {
+			count--;
+			totalDelta -= outlier.delta;
+		}
+		return totalDelta / count;
+	}
+
+	/**
+	 * Returns the ping time. Returns null if the ping time isn't consistent or well enough known
+	 * yet
+	 *
+	 * @return
+	 * @throws IOException
+	 */
+	protected Long getPingTime() {
+		int count = 0;
+		int total = 0;
+		long min = Long.MAX_VALUE;
+		long max = 0;
+		synchronized (timeSync) {
+			for (TimeSync ts : timeSync) {
+				if (ts.pingTime == -1)
+					break;
+
+				count++;
+				total += ts.pingTime;
+				min = Math.min(min, ts.pingTime);
+				max = Math.max(max, ts.pingTime);
+			}
 		}
 
-		// we've had at least 3 pings, get rid of 'worst' time outlier and send average time sync
-		writeTime((total - max) / (count - 1));
-		return true;
+		// delta difference is < 20ms for at least 2 pings, we know enough
+		if (count > 1 && max < 20)
+			return new Long(total / count);
+
+		if (count < 3)
+			// not enough response time data yet
+			return null;
+
+		if (count == 3 && max - min > 50)
+			// inconsistent response times, wait one more ping
+			return null;
+
+		// we've had at least 3 pings, get rid of 'worst' time outlier and use average
+		return new Long((total - max) / (count - 1));
 	}
 
 	protected void writePing() {
@@ -293,6 +319,13 @@ public class Client {
 		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
 		je.open();
 		je.encode("type", Type.PING.name().toLowerCase());
+		Long pingDelta = getPingTime();
+		if (pingDelta != null) {
+			long delta = getTimeDelta();
+			hasTimeSynced = true;
+			Trace.trace(Trace.INFO, Integer.toHexString(uid) + " - Syncing time with " + delta + "ms delta.");
+			je.encode("time_delta", delta);
+		}
 		je.close();
 		queueIt(Type.PING, sw.toString());
 	}
