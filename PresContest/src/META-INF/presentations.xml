@@ -426,6 +426,7 @@
       category="Test"
       description="The current system time on the presentation machine."
       image="images/presentations/testClock.png"
+      properties="localTimeOn,localTimeOff"
       class="org.icpc.tools.presentation.contest.internal.presentations.test.TestClockPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.test.bsod"
