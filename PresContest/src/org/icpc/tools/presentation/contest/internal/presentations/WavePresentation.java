@@ -48,7 +48,7 @@ public class WavePresentation extends AbstractICPCPresentation {
 
 	@Override
 	public long getDelayTimeMs() {
-		return 50;
+		return 5;
 	}
 
 	@Override

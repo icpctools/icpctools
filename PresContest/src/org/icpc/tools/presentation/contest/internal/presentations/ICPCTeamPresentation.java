@@ -26,7 +26,7 @@ public class ICPCTeamPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public long getDelayTimeMs() {
-		return 50;
+		return 5;
 	}
 
 	@Override
