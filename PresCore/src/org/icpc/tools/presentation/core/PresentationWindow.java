@@ -150,7 +150,7 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	public abstract void setPresentations(long time, Presentation[] newPresentations, Transition[] newTransitions);
 
 	@Override
-	public abstract void setZeroTimeMs(long time);
+	public abstract void setNanoTimeDelta(long time);
 
 	@Override
 	public abstract BufferedImage createImage(float scale);
