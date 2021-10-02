@@ -610,8 +610,22 @@ public class PresentationWindowImpl extends PresentationWindow {
 		// To mitigate the difference on Windows when there are multiple displays, automatically
 		// switch full screen exclusive mode to full screen window with no insets.
 		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-		if (dc.device >= gds.length)
-			throw new IllegalArgumentException("Invalid device: " + device);
+		if (dc.device >= gds.length) {
+			StringBuilder message = new StringBuilder("Invalid device: " + device + ". Found a total of " + gds.length + " devices:\n");
+			for (int i = 0; i < gds.length; i++) {
+				Rectangle r = gds[i].getDefaultConfiguration().getBounds();
+				message
+						.append(i)
+						.append(": ")
+						.append(gds[i].getIDstring())
+						.append(" - ")
+						.append(r.width)
+						.append("x")
+						.append(r.height)
+						.append("\n");
+			}
+			throw new IllegalArgumentException(message.toString());
+		}
 
 		// exit full screen window if necessary
 		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX) {
