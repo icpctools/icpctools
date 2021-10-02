@@ -12,6 +12,9 @@ import org.icpc.tools.presentation.core.Presentation;
  * Timing test presentation.
  */
 public class TestSyncPresentation extends Presentation {
+	private long avgMilliDiff;
+	private int avgMilliDiffCount;
+
 	@Override
 	public long getRepeat() {
 		return 8000L;
@@ -24,7 +27,7 @@ public class TestSyncPresentation extends Presentation {
 		paintOval(g);
 	}
 
-	void paintOval(Graphics2D g2) {
+	private void paintOval(Graphics2D g2) {
 		float t = (getRepeatTimeMs() % 2000L) / 500f;
 
 		Graphics2D g = (Graphics2D) g2.create();
@@ -56,19 +59,15 @@ public class TestSyncPresentation extends Presentation {
 		g.dispose();
 	}
 
-	void paintSyncLine(Graphics2D g) {
+	private void paintSyncLine(Graphics2D g) {
 		long ms = getTimeMs();
 		int x = (int) (ms % 1000) * width / 1000;
 
 		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 		g.fillRect(x, 0, 10, height);
-		float t = (getRepeatTimeMs() % 2000L) / 500f;
 	}
 
-	long avgMilliDiff;
-	int avgMilliDiffCount;
-
-	void paintTimeDiff(Graphics2D g) {
+	private void paintTimeDiff(Graphics2D g) {
 		long ms = getTimeMs();
 		long localMs = System.currentTimeMillis();
 		long milliDiff = localMs - ms;

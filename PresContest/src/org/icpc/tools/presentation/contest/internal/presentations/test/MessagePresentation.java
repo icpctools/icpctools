@@ -17,6 +17,9 @@ public class MessagePresentation extends Presentation {
 
 	@Override
 	public void setProperty(String value) {
+		if (value == null || value.startsWith("lightMode:"))
+			return;
+
 		this.text = value;
 	}
 

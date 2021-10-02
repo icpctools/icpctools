@@ -43,15 +43,15 @@ public class TestClockPresentation extends Presentation {
 	@Override
 	public long getDelayTimeMs() {
 		if (showLocalTime) {
-			// Paint ASAP
+			// paint ASAP
 			return 0;
-		} else {
-			// paint 20 times a second
-			return 50;
 		}
+
+		// paint 20 times a second
+		return 50;
 	}
 
-	private String timeString(long ms) {
+	private static String timeString(long ms) {
 		int s = 0;
 		int m = 0;
 		int h = 0;
@@ -95,7 +95,8 @@ public class TestClockPresentation extends Presentation {
 	public void drawClock(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		//g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		// g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+		// RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		long ms = getTimeMs();
 
 		String s = timeString(ms);
@@ -119,8 +120,7 @@ public class TestClockPresentation extends Presentation {
 		int x = 25;
 		int y = 3 * height / 17;
 		int h = 2 * height / 17;
-		DigitalFont.drawString(g, "" + avgMilliDiff, x, y, h,
-				getTextForegroundColor(), getTextBackgroundColor());
+		DigitalFont.drawString(g, "" + avgMilliDiff, x, y, h, getTextForegroundColor(), getTextBackgroundColor());
 		g.setColor(getTextForegroundColor());
 		g.drawString("Server time diff [ms]", x, y + g.getFontMetrics().getHeight());
 
@@ -132,8 +132,8 @@ public class TestClockPresentation extends Presentation {
 		final long nanoDiffThresholdMs = 10;
 		if (Math.abs(nanoDiffMs - firstNanoDiffMs) > nanoDiffThresholdMs) {
 			x = width / 3 + 25;
-			DigitalFont.drawString(g, "" + (nanoDiffMs - firstNanoDiffMs), x, y, h,
-					getTextForegroundColor(), getTextBackgroundColor());
+			DigitalFont.drawString(g, "" + (nanoDiffMs - firstNanoDiffMs), x, y, h, getTextForegroundColor(),
+					getTextBackgroundColor());
 			g.setColor(getTextForegroundColor());
 			g.drawString("nanoTime diff [ms]", x, y + g.getFontMetrics().getHeight());
 		}
@@ -142,8 +142,7 @@ public class TestClockPresentation extends Presentation {
 		String s = timeString(localMs);
 		int w = DigitalFont.stringWidth(s, h);
 		x = width - 25 - w;
-		DigitalFont.drawString(g, s, x, y, h,
-				getTextForegroundColor(), getTextBackgroundColor());
+		DigitalFont.drawString(g, s, x, y, h, getTextForegroundColor(), getTextBackgroundColor());
 		g.setColor(getTextForegroundColor());
 		g.drawString("Local time", x, y + g.getFontMetrics().getHeight());
 	}
