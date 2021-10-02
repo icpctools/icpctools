@@ -129,14 +129,14 @@ public class TeamTileHelper {
 			g.setFont(teamFont);
 			TextHelper text = new TextHelper(g, team.getActualDisplayName());
 
-			img = new BufferedImage(text.getWidth() + 2, text.getHeight() + 2, BufferedImage.TYPE_4BYTE_ABGR);
+			img = new BufferedImage(text.getWidth() + 2, text.getHeight() + 4, BufferedImage.TYPE_4BYTE_ABGR);
 			Graphics2D gg = (Graphics2D) img.getGraphics();
 			gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			gg.setFont(teamFont);
 			gg.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			text.setGraphics(gg);
-			text.draw(1, 1);
+			text.draw(1, 2);
 			gg.dispose();
 
 			nameImages.put(team.getId(), img);
@@ -153,19 +153,19 @@ public class TeamTileHelper {
 			g.setFont(teamFont);
 			TextHelper text = new TextHelper(g, team.getActualDisplayName());
 
-			img = new BufferedImage(text.getWidth() + 2, text.getHeight() + 2, BufferedImage.TYPE_4BYTE_ABGR);
+			img = new BufferedImage(text.getWidth() + 2, text.getHeight() + 4, BufferedImage.TYPE_4BYTE_ABGR);
 			Graphics2D gg = (Graphics2D) img.getGraphics();
 			gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			gg.setFont(teamFont);
 			gg.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			text.setGraphics(gg);
-			text.drawFit(1, 1, maxwid);
+			text.drawFit(1, 2, maxwid);
 			gg.dispose();
 
 			nameImages.put(hash, img);
 		}
-		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 1, null);
+		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 2, null);
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
