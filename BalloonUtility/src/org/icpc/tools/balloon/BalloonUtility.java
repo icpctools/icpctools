@@ -106,7 +106,7 @@ public class BalloonUtility {
 	protected List<String> filter; // null = all, empty = none
 	protected BalloonPrinter balloonPrinter = new BalloonPrinter();
 	protected MenuItem printSummary;
-	protected long msTimeDelta;
+	protected long nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
 
 	protected Table balloonTable;
 	protected int sortColumn;
@@ -753,9 +753,8 @@ public class BalloonUtility {
 			if (restContestSource.isCDS()) {
 				BasicClient client = new BasicClient(restContestSource, "Balloon") {
 					@Override
-					protected void handleTime(long time) {
-						super.handleTime(time);
-						msTimeDelta = time - System.currentTimeMillis();
+					protected void handleTime() {
+						BalloonUtility.this.nanoTimeDelta = super.nanoTimeDelta;
 					}
 				};
 				client.connect();
@@ -1310,7 +1309,7 @@ public class BalloonUtility {
 	}
 
 	protected long getTimeMs() {
-		return System.currentTimeMillis() + msTimeDelta;
+		return (System.nanoTime() + nanoTimeDelta) / 1000000L;
 	}
 
 	/**
