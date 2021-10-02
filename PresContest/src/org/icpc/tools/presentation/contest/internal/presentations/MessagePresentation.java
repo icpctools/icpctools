@@ -107,6 +107,9 @@ public class MessagePresentation extends AbstractICPCPresentation {
 	@Override
 	public void setProperty(String value) {
 		super.setProperty(value);
+		if (value == null || value.startsWith("lightMode:"))
+			return;
+
 		synchronized (this) {
 			message = value;
 			messageList = null;
