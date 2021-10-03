@@ -165,6 +165,7 @@ public class StaffPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
 		if (value == null || value.isEmpty() || staff == null)
 			return;
 
