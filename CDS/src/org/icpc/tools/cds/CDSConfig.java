@@ -137,9 +137,13 @@ public class CDSConfig {
 			Element e = readElement(file);
 			loadContests(e);
 			loadOtherConfig(e);
+
+			String name = getCDSName(file, e);
+			System.setProperty("CDS-name", name);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not read from CDS config! No contests loaded", e);
 		}
+		Trace.trace(Trace.USER, "CDS name: " + System.getProperty("CDS-name"));
 
 		ExecutorListener.getExecutor().scheduleAtFixedRate(new Runnable() {
 			@Override
@@ -159,6 +163,13 @@ public class CDSConfig {
 				}
 			}
 		}, 15, 5, TimeUnit.SECONDS);
+	}
+
+	private static String getCDSName(File file, Element e) {
+		if (e.hasAttribute("name"))
+			return getString(e, "name");
+
+		return file.getParentFile().getParentFile().getName();
 	}
 
 	private static void appendString(StringBuffer sb, Element el) {

@@ -129,7 +129,11 @@ public class RESTContestSource extends DiskContestSource {
 		setup();
 
 		if (eventFeedFile == null) {
-			feedCacheFile = new File(cacheFolder, "events.log");
+			String name = System.getProperty("CDS-name");
+			if (name != null)
+				feedCacheFile = new File(cacheFolder, "events-" + name + ".log");
+			else
+				feedCacheFile = new File(cacheFolder, "events.log");
 
 			// delete if older than 8h
 			if (feedCacheFile.exists() && feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
