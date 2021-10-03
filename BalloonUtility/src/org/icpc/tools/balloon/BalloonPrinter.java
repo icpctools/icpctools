@@ -160,11 +160,13 @@ public class BalloonPrinter {
 
 			printPage(bc2, b2, printer, gc, r, messages == null ? DEFAULT_MESSAGES : messages);
 
-			// print some sample messages so that nobody gets confused among other printouts
-			gc.setFont(hugeFont);
-			printSample(gc, printer, r.x + r.width / 2, r.y + 50);
-			printSample(gc, printer, r.x + r.width / 2, r.y + r.height / 2);
-			printSample(gc, printer, r.x + r.width / 2, r.y + r.height - 50);
+			if (b == null) {
+				// print some sample messages so that nobody gets confused among other printouts
+				gc.setFont(hugeFont);
+				printSample(gc, printer, r.x + r.width / 2, r.y + 50);
+				printSample(gc, printer, r.x + r.width / 2, r.y + r.height / 2);
+				printSample(gc, printer, r.x + r.width / 2, r.y + r.height - 50);
+			}
 		} finally {
 			if (gc != null)
 				gc.dispose();
@@ -633,6 +635,8 @@ public class BalloonPrinter {
 	protected void drawFloorImpl(Device device, GC gc, IContest c, FloorMap floor, Rectangle r, Path path1, Path path2,
 			String teamId) {
 		Rectangle2D.Double bounds = floor.getBounds(false);
+		if (bounds == null)
+			return;
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int x1 = r.x - (int) (bounds.x * scale);
 		int y1 = r.y - (int) (bounds.y * scale);
