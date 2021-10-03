@@ -24,7 +24,7 @@ public class TestAlignmentPresentation extends Presentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		largeFont = ICPCFont.deriveFont(Font.BOLD, height * 0.25f * 72f / 96f);
+		largeFont = ICPCFont.deriveFont(Font.BOLD, height * 0.2f * 72f / 96f);
 	}
 
 	@Override
