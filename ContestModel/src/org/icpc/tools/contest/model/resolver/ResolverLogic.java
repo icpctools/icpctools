@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.model.resolver;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,7 +175,9 @@ public class ResolverLogic {
 		for (IAward award : contestAwards) {
 			String[] teamIds = award.getTeamIds();
 			if (teamIds != null) {
-				if (award.getDisplayMode() != DisplayMode.LIST) {
+				if (award.getDisplayMode() == DisplayMode.IGNORE || teamIds.length == 0) {
+					// requested to ignore, or no/empty award
+				} else if (award.getDisplayMode() != DisplayMode.LIST) {
 					for (String teamId : teamIds) {
 						List<IAward> aw = awards.get(teamId);
 						if (aw == null) {
@@ -190,16 +193,30 @@ public class ResolverLogic {
 					int size = teamIds.length;
 					ITeam[] teams = new ITeam[size];
 					Map<String, SelectType> selections = new HashMap<>();
+					int topTeam = finalContest.getNumTeams();
 					for (int i = 0; i < size; i++) {
 						teams[i] = finalContest.getTeamById(teamIds[i]);
+						topTeam = Math.min(topTeam, finalContest.getOrderOf(teams[i]));
 
 						// TODO figure out selections
 					}
 
-					teamLists.add(new TeamListStep(award.getCitation(), subTitle, teams, selections));
+					TeamListStep step = new TeamListStep(award.getCitation(), subTitle, teams, selections);
+					step.topTeam = topTeam;
+					teamLists.add(step);
 				}
 			}
 		}
+
+		// sort team lists
+		teamLists.sort(new Comparator<TeamListStep>() {
+			@Override
+			public int compare(TeamListStep t1, TeamListStep t2) {
+				if (t1.topTeam < t2.topTeam)
+					return 1;
+				return -1;
+			}
+		});
 
 		// revert to start of the freeze
 		contest = finalContest.clone(new FreezeFilter(finalContest));
@@ -347,7 +364,7 @@ public class ResolverLogic {
 		// boolean singleStep = false;
 
 		Timing timing = null;
-		if (startWithJudgeQueue) {
+		if (startWithJudgeQueue && !teamLists.isEmpty()) {
 			steps.add(new PresentationStep(PresentationStep.Presentations.JUDGE));
 			timing = new JudgeQueueTiming();
 		} else {
@@ -358,7 +375,7 @@ public class ResolverLogic {
 		steps.add(new PauseStep());
 
 		ToJudgeStep judgeStep = new ToJudgeStep(null);
-		if (startWithJudgeQueue) {
+		if (startWithJudgeQueue && !teamLists.isEmpty()) {
 			steps.add(judgeStep);
 			steps.add(new PauseStep());
 		}
@@ -591,6 +608,8 @@ public class ResolverLogic {
 		ITeam team = step.teams[0];
 		int numSolved = contest.getStanding(team).getNumSolved();
 		ITeam[] teams = contest.getOrderedTeams();
+		if (row == 0)
+			return false;
 		ITeam next = teams[row - 1];
 		if (numSolved != contest.getStanding(next).getNumSolved())
 			return true;

@@ -164,8 +164,10 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			int size = members.length;
 			currentCache.members = new String[size];
 			for (int i = 0; i < size; i++) {
-				currentCache.members[i] = members[i].getFirstName() + " " + members[i].getLastName() + " ("
-						+ members[i].getRole() + ")";
+				String s = members[i].getFirstName() + " " + members[i].getLastName();
+				if (!"contestant".equals(members[i].getRole().toLowerCase()))
+					s += " (" + members[i].getRole() + ")";
+				currentCache.members[i] = s;
 			}
 		}
 

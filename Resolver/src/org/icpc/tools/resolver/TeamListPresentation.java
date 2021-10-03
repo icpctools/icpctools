@@ -28,7 +28,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 	private static final int GAP = 8;
 	private static final int ROWS_PER_SCREEN = 15;
 
-	private Animator scroll = new Animator(0, new Movement(0.4, 0.5));
+	private Animator scroll = new Animator(0, new Movement(0.5, 0.75));
 	private boolean scrollPause = false;
 
 	class TeamInfo {
@@ -171,7 +171,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 			text.addSpacer(GAP, rowHeight);
 			text.addString(t.teamName);
 
-			int y = height - headerHeight + rowHeight - scr + (int) (rowHeight * i * SPACING);
+			int y = height - headerHeight + rowHeight / 2 - scr + (int) (rowHeight * i * SPACING);
 			if (y >= height)
 				continue;
 
