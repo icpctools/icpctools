@@ -85,6 +85,11 @@ public class TestAlignmentPresentation extends Presentation {
 		fm = g.getFontMetrics();
 
 		g.drawString(name, (width - fm.stringWidth(name)) / 2, (height - fm.getHeight()) / 2 + fm.getAscent());
+
+		if (isLightMode()) {
+			g.setColor(Color.RED);
+			g.drawRect(0, 0, width - 1, height - 1);
+		}
 	}
 
 	@Override
