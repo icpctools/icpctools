@@ -68,8 +68,8 @@ public class BasicAuthFilter implements Filter {
 			}
 		}
 
-		// try basic auth - but only for API
-		if (!uri.startsWith("/api/") && !uri.startsWith("/presentation/")) {
+		// try basic auth - but not for UI
+		if (!uri.startsWith("/api/") && !uri.startsWith("/presentation/") && !uri.startsWith("/stream/")) {
 			filterChain.doFilter(request, response);
 			return;
 		}
