@@ -34,13 +34,21 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static final long FADE_OUT_TIME = 1000;
 	private static final long TIME_PER_TEAM = FADE_IN_TIME + TEAM_TIME + FADE_OUT_TIME;
 
-	class Position {
+	private double timeFactor = 1;
+
+	static class Position {
 		double x;
 		double y;
 		double z;
 		BufferedImage image;
 		BufferedImage smImage;
 		String label;
+
+		double originalX = Double.NaN;
+		double originalY = Double.NaN;
+
+		// only for debugging
+		double gridX = Double.NaN, gridY = Double.NaN;
 
 		public Position(double x, double y, double z) {
 			this(x, y, z, null);
@@ -54,7 +62,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		}
 	}
 
-	class GroupZoom {
+	static class GroupZoom {
 		long startTime;
 		long endTime;
 		Position pos;
@@ -67,7 +75,6 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 
 	protected Font groupFont;
 	protected Font font;
-	protected int logoSize;
 	protected GroupZoom[] zooms;
 
 	@Override
@@ -86,7 +93,18 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		for (GroupZoom gz : zooms)
 			numTeams += gz.instPos.length;
 
-		return numTeams * TIME_PER_TEAM + (zooms.length + 1) * TIME_PER_GROUP;
+		long repeat = numTeams * TIME_PER_TEAM + (zooms.length + 1) * TIME_PER_GROUP;
+		return (long) (repeat / timeFactor);
+	}
+
+	@Override
+	public void setProperty(String value) {
+		if (value == null || value.isEmpty())
+			return;
+		if (value.startsWith("timeFactor:"))
+			timeFactor = Double.parseDouble(value.replace("timeFactor:", ""));
+		else
+			super.setProperty(value);
 	}
 
 	@Override
@@ -116,7 +134,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		zooms = new GroupZoom[numGroups];
 		long time = 0;
 		for (int i = 0; i < numGroups; i++) {
-			zooms[i] = setTargets(getContest(), groups[i].getId());
+			zooms[i] = setTargets(getContest(), groups[i].getId(), height);
 			zooms[i].name = groups[i].getName();
 			zooms[i].startTime = time;
 			time += TIME_PER_GROUP + zooms[i].instPos.length * TIME_PER_TEAM;
@@ -124,7 +142,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		}
 	}
 
-	protected GroupZoom setTargets(IContest contest, String groupId) {
+	public static GroupZoom setTargets(IContest contest, String groupId, int height) {
 		GroupZoom zoom = new GroupZoom();
 
 		double minLat = 90;
@@ -137,7 +155,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		for (ITeam t : teams) {
 			IOrganization org = contest.getOrganizationById(t.getOrganizationId());
 			String[] groupIds = t.getGroupIds();
-			if (org != null && GroupPresentation.belongsToGroup(groupIds, groupId)) {
+			if (org != null && (groupId == null || GroupPresentation.belongsToGroup(groupIds, groupId))) {
 				double lat = org.getLatitude();
 				if (!Double.isNaN(lat)) {
 					minLat = Math.min(minLat, lat);
@@ -151,7 +169,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 				}
 				String label = t.getId() + " - " + t.getActualDisplayName();
 				Position p = new Position(lon, lat, 1, label);
-				createOrgLogo(p, org);
+				createOrgLogo(p, org, height);
 				pos.add(p);
 			}
 		}
@@ -164,6 +182,13 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			zoom.pos = new Position(0, 0, 1);
 			return zoom;
 		}
+
+		// add some margin to the zoom-out, since logos may push eachother out of the bounding box
+		final int GROUP_ZOOM_MARGIN_DEG = 3;
+		minLon -= GROUP_ZOOM_MARGIN_DEG;
+		maxLon += GROUP_ZOOM_MARGIN_DEG;
+		minLat -= GROUP_ZOOM_MARGIN_DEG;
+		maxLat += GROUP_ZOOM_MARGIN_DEG;
 
 		double dLon = maxLon - minLon;
 		double dLat = maxLat - minLat;
@@ -181,10 +206,11 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void incrementTimeMs(long dt) {
+		dt *= timeFactor;
 		if (zooms == null || zooms.length == 0)
 			return;
 
-		long time = getRepeatTimeMs();
+		long time = (long) (getRepeatTimeMs() * timeFactor);
 		int g = 0;
 		GroupZoom gz = zooms[g];
 		while (gz != null && time > gz.endTime) {
@@ -201,6 +227,14 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			if (gzTime < GROUP_INTRO_TIME || gzTime > GROUP_INTRO_TIME + gz.instPos.length * TIME_PER_TEAM) {
 				Position p = gz.pos;
 				anim.setTarget(p.x, p.y, p.z);
+
+				if (gzTime < GROUP_INTRO_TIME) {
+					// need to restore positions to original positions for teams not drift out
+					// into the sea when placed on the second run
+					BubbleOut.restore(gz.instPos);
+				} else {
+					BubbleOut.bubbleOut(gz.instPos, gz.instPos.length, width, height, 1 / anim.getZValue(), dt);
+				}
 			} else {
 				gzTime -= GROUP_INTRO_TIME;
 				int teamInd = (int) (gzTime / TIME_PER_TEAM);
@@ -208,17 +242,19 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 					Position p = gz.instPos[teamInd];
 					anim.setTarget(p.x, p.y, p.z);
 				}
+
+				BubbleOut.bubbleOut(gz.instPos, teamInd, width, height, 1 / anim.getZValue(), dt);
 			}
 		}
 
 		anim.incrementTimeMs(dt);
 	}
 
-	private void createOrgLogo(Position p, IOrganization org) {
+	private static void createOrgLogo(Position p, IOrganization org, int height) {
 		int logoSize2 = height / 4;
 		p.image = org.getLogoImage(logoSize2, logoSize2, true, true);
 		if (p.image != null) {
-			logoSize = height / 12;
+			int logoSize = height / 12;
 			p.smImage = ImageScaler.scaleImage(p.image, logoSize, logoSize);
 		}
 	}
@@ -229,7 +265,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 
-		long time = getRepeatTimeMs();
+		long time = (long) (getRepeatTimeMs() * timeFactor);
 		int gr = 0;
 
 		double sc = anim.getZValue();
