@@ -1,6 +1,9 @@
 package org.icpc.tools.presentation.contest.internal.standalone;
 
+import java.awt.geom.Point2D;
+
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class TeamUtil {
@@ -46,8 +49,30 @@ public class TeamUtil {
 	}
 
 	/**
-	 * Find a good default for which team member is using the local machine. This is decided by looking for
-	 * team-identifying information in the following order:
+	 * Utility that bumps the location of a team to account for individual team members.
+	 */
+	public static Point2D getLocation(ITeam team) {
+		double x = team.getX();
+		double y = team.getY();
+
+		String member = getTeamMember();
+		if (member == null || (!"a".equals(member) && !"c".equals(member)))
+			return new Point2D.Double(x, y);
+
+		double r = team.getRotation();
+		double rad = 0;
+		if ("a".equals(member))
+			rad = Math.toRadians(r + 90);
+		else
+			rad = Math.toRadians(r + 270);
+		x += Math.cos(rad) * 1.05;
+		y -= Math.sin(rad) * 1.05;
+		return new Point2D.Double(x, y);
+	}
+
+	/**
+	 * Find a good default for which team member is using the local machine. This is decided by
+	 * looking for team-identifying information in the following order:
 	 * <ol>
 	 * <li>The team-member environment variable (e.g. "team-member=a" -> team "a")</li>
 	 * <li>The team-member system property (e.g. "team-member37" -> team "a")</li>
@@ -77,8 +102,7 @@ public class TeamUtil {
 	}
 
 	/**
-	 * Utility method that returns team number from a string, e.g.
-	 * "some36string82a" returns "82".
+	 * Utility method that returns team number from a string, e.g. "some36string82a" returns "82".
 	 *
 	 * @param s
 	 * @return
@@ -103,8 +127,7 @@ public class TeamUtil {
 	}
 
 	/**
-	 * Utility method that returns team member from a string, e.g.
-	 * "some36string82a" returns "a".
+	 * Utility method that returns team member from a string, e.g. "some36string82a" returns "a".
 	 *
 	 * @param s
 	 * @return
