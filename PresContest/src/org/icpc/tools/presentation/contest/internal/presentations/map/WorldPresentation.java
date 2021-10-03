@@ -17,6 +17,19 @@ public class WorldPresentation extends AbstractICPCPresentation {
 		WorldMap.load(getClass());
 	}
 
+	@Override
+	public void setProperty(String value) {
+		if (value == null || value.isEmpty())
+			return;
+		else if ("groupLinesOn".equals(value))
+			drawGroupLines = true;
+		else if ("groupLinesOff".equals(value))
+			drawGroupLines = false;
+		else
+			super.setProperty(value);
+	}
+	private boolean drawGroupLines = false;
+
 	Map<String, String> organizationGroups = new TreeMap<>();
 	Map<String, Color> groupColors = new TreeMap<>();
 	void groupColors() {
@@ -48,6 +61,10 @@ public class WorldPresentation extends AbstractICPCPresentation {
 		System.out.println("" + contest.getOrganizations().length + " orgs");
 	}
 
+	private float hue(Color c) {
+		return Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null)[0];
+	}
+
 	@Override
 	public void paint(Graphics2D g) {
 		WorldMap.drawMap(g, width, height);
@@ -71,6 +88,14 @@ public class WorldPresentation extends AbstractICPCPresentation {
 				int x = (int) (width * (lon + 180.0) / 360.0);
 				int y = (int) (height * (90 - lat) / 180.0);
 				g.fillRect(x - 3, y - 3, 6, 6);
+
+				if (drawGroupLines) {
+					double a = hue(groupColor) * Math.PI * 2;
+					a += (getTimeMs() % 10000) * Math.PI * 2 / 10000.0;
+					double w2 = (width - 1) / 2.0, h2 = (height - 1) / 2.0;
+					double m2 = Math.min(w2, h2);
+					g.drawLine(x, y, (int) (w2 + m2 * Math.cos(a)), (int) (h2 + m2 * Math.sin(a)));
+				}
 			}
 		}
 
