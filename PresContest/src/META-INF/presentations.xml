@@ -173,6 +173,8 @@
       name="World"
       category="Maps"
       description="Map of the world."
+      properties="groupLinesOn - show group lines,
+         groupLinesOff - hide group lines"
       image="images/presentations/world.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.WorldPresentation"/>
    <presentation
