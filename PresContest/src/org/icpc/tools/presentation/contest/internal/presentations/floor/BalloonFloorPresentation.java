@@ -165,8 +165,12 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		IProblem problem = contest.getProblemById(submission.getProblemId());
 		ITeam team = contest.getTeamById(submission.getTeamId());
 		sr.path = floor.getPath(problem, team);
+		if (sr.path == null) {
+			// team not on the floor - likely admin or unknown spare
+			return;
+		}
 		sr.anim = new Animator(0, SUBMISSION_MOVEMENT);
-		sr.anim.setTarget(sr.path.getDistance());
+		sr.anim.setTarget(sr.path.getDistance() * 0.98);
 		sr.problem = contest.getProblemIndex(submission.getProblemId());
 		sr.team = team;
 		sr.org = contest.getOrganizationById(team.getOrganizationId());
@@ -274,6 +278,12 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 			SubmissionRecord sr = srs[i];
 			BufferedImage img = sr.logo;
 			BufferedImage smImg = sr.smLogo;
+			if (sr.action == Action.SOLVED && sr.actionAge > TIME_TO_KEEP_SOLVED - 1000)
+				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_SOLVED - sr.actionAge) / 1000f));
+			else if (sr.action == Action.FAILED && sr.actionAge > TIME_TO_KEEP_FAILED - 1000)
+				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_FAILED - sr.actionAge) / 1000f));
+			else
+				g.setComposite(AlphaComposite.SrcOver);
 			int yy = 4;
 			if (img != null) {
 				if (teamIds.contains(sr.team.getId()))
@@ -315,6 +325,13 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 			double d = sr.anim.getValue();
 			Point2D p = sr.path.getInterimPosition(d);
 			Point2D p2 = floor.getPosition(r, p);
+
+			if (sr.action == Action.SOLVED && sr.actionAge > TIME_TO_KEEP_SOLVED - 1000)
+				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_SOLVED - sr.actionAge) / 1000f));
+			else if (sr.action == Action.FAILED && sr.actionAge > TIME_TO_KEEP_FAILED - 1000)
+				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_FAILED - sr.actionAge) / 1000f));
+			else
+				g.setComposite(AlphaComposite.SrcOver);
 
 			BufferedImage img = balloonImages[sr.problem];
 			g.drawImage(img, (int) (p2.getX() - img.getWidth() / 2.0), (int) (p2.getY() - img.getHeight() / 2.0), null);

@@ -287,11 +287,6 @@ public class FloorMap {
 		public double[] segLength;
 		private double dist;
 
-		public void addPath(Path p2) {
-			list.addAll(p2.list);
-			dist += p2.dist;
-		}
-
 		public double getDistance() {
 			return dist;
 		}
@@ -311,9 +306,13 @@ public class FloorMap {
 				}
 			}
 			int i = 0;
-			double dd = d; // * dist;
+			double dd = d;
 			while (dd >= 0) {
-				if (dd > segLength[i]) {
+				if (i >= segLength.length) {
+					// we're at the end, but over due to floating point precision
+					AisleIntersection ai2 = list.get(list.size() - 1);
+					return new Point2D.Double(ai2.x, ai2.y);
+				} else if (dd > segLength[i]) {
 					dd -= segLength[i];
 				} else {
 					AisleIntersection ai1 = list.get(i);
@@ -411,11 +410,17 @@ public class FloorMap {
 		AisleIntersection start = new AisleIntersection();
 		start.x = t1.getX();
 		start.y = t1.getY();
+		double dx = startIntersection.x - start.x;
+		double dy = startIntersection.y - start.y;
+		best.dist += Math.sqrt(dx * dx + dy * dy);
 		best.list.add(0, start);
 
 		AisleIntersection end = new AisleIntersection();
 		end.x = t2.getX();
 		end.y = t2.getY();
+		dx = endIntersection.x - end.x;
+		dy = endIntersection.y - end.y;
+		best.dist += Math.sqrt(dx * dx + dy * dy);
 		best.list.add(end);
 
 		return best;
