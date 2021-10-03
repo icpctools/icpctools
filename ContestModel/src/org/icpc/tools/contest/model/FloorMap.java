@@ -396,6 +396,9 @@ public class FloorMap {
 		AisleIntersection startIntersection = getClosestAisle(t1.getX(), t1.getY());
 		AisleIntersection endIntersection = getClosestAisle(t2.getX(), t2.getY());
 
+		if (startIntersection == null || endIntersection == null)
+			return null;
+
 		Path path = new Path();
 		path.list.add(startIntersection);
 
