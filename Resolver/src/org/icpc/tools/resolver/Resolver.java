@@ -77,6 +77,7 @@ public class Resolver {
 	private String multiDisplayStr;
 	private boolean show_info;
 	private boolean bill;
+	private boolean bill2;
 	private boolean test;
 	private String displayName;
 	private String[] groupList;
@@ -371,6 +372,9 @@ public class Resolver {
 		} else if ("--bill".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			bill = true;
+		} else if ("--bill2".equalsIgnoreCase(option)) {
+			ArgumentParser.expectNoOptions(option, options);
+			bill2 = true;
 		} else if ("--test".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			test = true;
@@ -571,14 +575,10 @@ public class Resolver {
 			steps.addAll(subSteps);
 			outputStats(steps, time);
 		}
-
-		Trace.trace(Trace.INFO, "Resolution steps:");
-		for (ResolutionStep step : steps)
-			Trace.trace(Trace.INFO, "  " + step);
 	}
 
 	protected void addBillAwards() {
-		if (!bill)
+		if (!bill2)
 			return;
 
 		// find team lists

@@ -181,6 +181,10 @@ public class ImageBuildPresentation extends Presentation {
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
+		if (value.startsWith("lightMode:"))
+			return;
+
 		path = value;
 
 		loadImages();

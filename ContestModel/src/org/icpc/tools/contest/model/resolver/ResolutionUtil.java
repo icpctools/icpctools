@@ -202,6 +202,7 @@ public class ResolutionUtil {
 		public String title;
 		public String subTitle;
 		public ITeam[] teams;
+		public int topTeam;
 		public Map<String, SelectType> selections;
 
 		public TeamListStep(String title, String subTitle, ITeam[] teams, Map<String, SelectType> selections) {
