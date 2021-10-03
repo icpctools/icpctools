@@ -58,7 +58,6 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 		int h = 0;
 		Rectangle r = new Rectangle(0, h, width, height - h);
 		int mx = Math.min(width / 10, height / 10);
-		// r = new Rectangle(width / 2, h, width / 2, height - h);
 		floor.drawFloor(g, r, new FloorMap.ScreenColors() {
 			@Override
 			public BufferedImage getTeamLogo(String teamId) {
@@ -76,15 +75,11 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 
 			@Override
 			public Color getDeskOutlineColor(String teamId) {
-				if (team != null && team.getId().equals(teamId))
-					return Color.WHITE;
 				return Color.BLACK;
 			}
 
 			@Override
 			public Color getDeskFillColor(String teamId) {
-				if (team != null && team.getId().equals(teamId))
-					return Color.BLACK;
 				return Color.GRAY;
 			}
 		}, false);
@@ -94,17 +89,19 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 			g.setColor(Color.WHITE);
 			String s = team.getActualDisplayName();
 			FontMetrics fm = g.getFontMetrics();
-			int x = 0;
+			int hh = fm.getHeight() + 10;
+			TextHelper text = new TextHelper(g);
 			IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 			if (org != null) {
-				BufferedImage img = org.getLogoImage(fm.getHeight() + 10, fm.getHeight() + 10, true, true);
+				BufferedImage img = org.getLogoImage(hh, hh, true, true);
 				if (img != null) {
-					x = img.getWidth();
-					g.drawImage(img, 10, 20 + (fm.getHeight() - img.getHeight()) / 2, null);
+					text.addImage(img);
+					text.addSpacer(10);
 				}
 			}
 
-			TextHelper.drawString(g, s, x + 20, fm.getAscent() + 20);
+			text.addString(s);
+			text.drawFit(20, 20 + (hh - text.getHeight()) / 2, width - 40);
 		}
 	}
 }

@@ -28,7 +28,7 @@ public class CountdownPresentation extends ClockPresentation {
 
 		if ("reset".equals(value)) {
 			targetTime = -1;
-		} else {
+		} else if (!value.startsWith("lightMode:")) {
 			try {
 				targetTime = 1000 * Integer.parseInt(value);
 			} catch (Exception e) {

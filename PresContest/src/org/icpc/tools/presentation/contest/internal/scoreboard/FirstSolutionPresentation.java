@@ -36,7 +36,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 	private static final long TIME_TO_KEEP_SOLVED = 8000;
 
 	static class FirstSolution {
-		int year;
+		String year;
 		String name;
 		int time;
 		BufferedImage logo;
@@ -102,7 +102,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 				if (values != null && values.length != 0 && !values[0].startsWith("#")) {
 					try {
 						FirstSolution fs = new FirstSolution();
-						fs.year = Integer.parseInt(values[0]);
+						fs.year = values[0];
 						fs.name = values[1];
 						fs.time = Integer.parseInt(values[2]);
 						list.add(fs);
