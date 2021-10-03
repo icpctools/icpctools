@@ -82,7 +82,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 			public Color getDeskFillColor(String teamId) {
 				return Color.GRAY;
 			}
-		}, false);
+		});
 
 		if (team != null) {
 			g.setFont(font);

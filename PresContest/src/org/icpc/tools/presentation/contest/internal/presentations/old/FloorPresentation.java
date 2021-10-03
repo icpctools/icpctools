@@ -83,6 +83,6 @@ public class FloorPresentation extends AbstractICPCPresentation {
 				}
 				return Color.BLACK;
 			}
-		}, false);
+		});
 	}
 }

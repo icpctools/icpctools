@@ -249,7 +249,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 			public Color getTextColor() {
 				return Color.GRAY;
 			}
-		}, false);
+		});
 
 		SubmissionRecord[] srs = submissions.toArray(new SubmissionRecord[0]);
 

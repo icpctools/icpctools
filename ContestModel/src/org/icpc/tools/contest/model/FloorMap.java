@@ -694,7 +694,7 @@ public class FloorMap {
 		gg.dispose();
 	}
 
-	public void drawFloor(Graphics2D g, Rectangle r, FloorColors colors, boolean rotateText) {
+	public void drawFloor(Graphics2D g, Rectangle r, FloorColors colors) {
 		Rectangle2D.Double bounds = getBounds(true);
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int ww = (int) (bounds.width * scale);
@@ -722,8 +722,6 @@ public class FloorMap {
 
 			Rectangle2D.Double tr1 = new Rectangle2D.Double(-(teamAreaDepth + 1.0f) * scale / 2f,
 					-teamAreaWidth * scale / 2f, teamAreaDepth * scale, teamAreaWidth * scale);
-			// Shape s = transform.createTransformedShape(tr);
-			// gg.setTransform(transform);
 			draw(gg, tr1, colors.getTeamAreaFillColor(), colors.getTeamAreaOutlineColor());
 
 			// seats
@@ -732,38 +730,37 @@ public class FloorMap {
 			for (int i = 0; i < 3; i++) {
 				RoundRectangle2D.Double tr = new RoundRectangle2D.Double(-tableDepth * scale * 0.75f,
 						-tableWidth * scale / 2f + c * i * 2.5f + c / 2f, tableDepth * scale * 0.25f, c * 2f, rnd, rnd);
-				// Shape s = transform.createTransformedShape(tr);
 				draw(gg, tr, colors.getSeatFillColor(), colors.getSeatOutlineColor());
 			}
 
 			// table
 			Rectangle2D.Double tr = new Rectangle2D.Double(-tableDepth * scale / 2f, -tableWidth * scale / 2f,
 					tableDepth * scale, tableWidth * scale);
-			// Shape s = transform.createTransformedShape(tr);
-			// gg.setTransform(transform);
 			String id = t.getId();
 			draw(gg, tr, colors.getDeskFillColor(id), colors.getDeskOutlineColor(id));
 			BufferedImage img = colors.getTeamLogo(id);
-			// if (img != null)
-			// gg.drawImage(img, -img.getWidth() / 2, -img.getHeight() / 2, null);
 
 			gg.setColor(colors.getTextColor());
 
 			if (id != null && img == null) {
-				if (rotateText) {
-					AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
-					AffineTransform at = gg.getTransform();
-					at.concatenate(transform2);
-					gg.setTransform(at);
-				} else {
-					AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(t.getRotation()));
-					AffineTransform at = gg.getTransform();
-					at.concatenate(transform2);
-					gg.setTransform(at);
-				}
+				AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
+				if (t.getRotation() == 270)
+					transform2 = AffineTransform.getRotateInstance(Math.toRadians(t.getRotation()));
+				AffineTransform at = gg.getTransform();
+				at.concatenate(transform2);
+				gg.setTransform(at);
 				gg.drawString(id, -fm.stringWidth(id) / 2f, (fm.getAscent() - 3.5f) / 2f);
 			}
 			gg.dispose();
+		}
+
+		for (ITeam t : contest.getTeams()) {
+			if (Double.isNaN(t.getX()) || Double.isNaN(t.getY()))
+				continue;
+
+			String id = t.getId();
+			BufferedImage img = colors.getTeamLogo(id);
+
 			if (img != null)
 				g.drawImage(img, (int) (x1 + t.getX() * scale - img.getWidth() / 2),
 						(int) (y1 + t.getY() * scale - img.getHeight() / 2), null);

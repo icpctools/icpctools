@@ -44,7 +44,7 @@ public class FloorNamePresentation extends AbstractICPCPresentation {
 					return Color.BLACK;
 				return Color.WHITE;
 			}
-		}, false);
+		});
 
 		if (team != null) {
 			g.setFont(font);
