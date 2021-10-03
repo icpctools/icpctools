@@ -186,7 +186,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				FontMetrics fm = g.getFontMetrics();
 				String s = getContestTime();
 				if (s != null) {
-					String[] ss = splitString(g, s, margin);
+					String[] ss = splitString(g, s, margin - TILE_H_GAP - 2);
 					for (int i = 0; i < ss.length; i++)
 						g.drawString(ss[i], (margin - TILE_H_GAP - fm.stringWidth(ss[i])) / 2,
 								fm.getHeight() * (i + 1) + TILE_V_GAP);
@@ -194,7 +194,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 
 				s = getRemainingTime();
 				if (s != null) {
-					String[] ss = splitString(g, s, margin);
+					String[] ss = splitString(g, s, margin - TILE_H_GAP - 2);
 					for (int i = 0; i < ss.length; i++)
 						g.drawString(ss[i], (margin - TILE_H_GAP - fm.stringWidth(ss[i])) / 2,
 								h - TILE_V_GAP - (ss.length - i - 1) * fm.getHeight());
