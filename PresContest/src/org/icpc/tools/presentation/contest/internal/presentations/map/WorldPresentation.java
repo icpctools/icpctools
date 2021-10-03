@@ -2,6 +2,9 @@ package org.icpc.tools.presentation.contest.internal.presentations.map;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -21,6 +24,12 @@ public class WorldPresentation extends AbstractICPCPresentation {
 	public void setProperty(String value) {
 		if (value == null || value.isEmpty())
 			return;
+		if ("logosOn".equals(value))
+			drawLogos = true;
+		else if ("logosOff".equals(value))
+			drawLogos = false;
+		else if (value.startsWith("logoSize:"))
+			logoPercentSize = Integer.parseInt(value.replace("logoSize:", ""));
 		else if ("groupLinesOn".equals(value))
 			drawGroupLines = true;
 		else if ("groupLinesOff".equals(value))
@@ -28,6 +37,9 @@ public class WorldPresentation extends AbstractICPCPresentation {
 		else
 			super.setProperty(value);
 	}
+
+	private boolean drawLogos = true;
+	private int logoPercentSize = 33;
 	private boolean drawGroupLines = false;
 
 	Map<String, String> organizationGroups = new TreeMap<>();
@@ -65,6 +77,18 @@ public class WorldPresentation extends AbstractICPCPresentation {
 		return Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null)[0];
 	}
 
+	private TeamIntroPresentation.GroupZoom worldLogos;
+
+	@Override
+	public void incrementTimeMs(long dt) {
+		if (drawLogos) {
+			if (worldLogos == null) {
+				worldLogos = TeamIntroPresentation.setTargets(getContest(), null, logoPercentSize * height / 100);
+			}
+			BubbleOut.bubbleOut(worldLogos.instPos, worldLogos.instPos.length, width, height, 1, dt);
+		}
+	}
+
 	@Override
 	public void paint(Graphics2D g) {
 		WorldMap.drawMap(g, width, height);
@@ -87,7 +111,9 @@ public class WorldPresentation extends AbstractICPCPresentation {
 			if (!Double.isNaN(lat) && !Double.isNaN(lon)) {
 				int x = (int) (width * (lon + 180.0) / 360.0);
 				int y = (int) (height * (90 - lat) / 180.0);
-				g.fillRect(x - 3, y - 3, 6, 6);
+				if (!drawLogos || worldLogos == null) {
+					g.fillRect(x - 3, y - 3, 6, 6);
+				}
 
 				if (drawGroupLines) {
 					double a = hue(groupColor) * Math.PI * 2;
@@ -106,6 +132,26 @@ public class WorldPresentation extends AbstractICPCPresentation {
 			int x = (int) (width * (lon + 180.0) / 360.0);
 			int y = (int) (height * (90 - lat) / 180.0);
 			g.fillRect(x - 3, y - 3, 6, 6);
+		}
+
+		if (drawLogos && worldLogos != null) {
+			g.setRenderingHint(
+					RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+			for (TeamIntroPresentation.Position p : worldLogos.instPos) {
+				int x = (int) (width * (p.x + 180.0) / 360.0);
+				int y = (int) (height * (90 - p.y) / 180.0);
+				if (p.smImage == null) {
+					continue;
+				}
+				BufferedImage im = p.smImage;
+				//g.drawImage(im, x - im.getWidth() / 2, y - im.getHeight() / 2, null);
+
+				AffineTransform at = AffineTransform.getTranslateInstance(
+						(width * (p.x + 180.0) / 360.0),
+						(height * (90 - p.y) / 180.0));
+				g.drawImage(im, at, null);
+			}
 		}
 	}
 }
