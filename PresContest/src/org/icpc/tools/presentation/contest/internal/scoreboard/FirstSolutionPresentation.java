@@ -325,19 +325,14 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 			g.drawImage(img, BORDER + col1 + nx, ny, null);
 		}
 
-		String s = team.getActualDisplayName();
 		g.setColor(Color.white);
 		g.setFont(rowFont);
 
 		fm = g.getFontMetrics();
 		TextHelper.drawString(g, team.getActualDisplayName(), BORDER + col1 + (int) rowHeight, fm.getAscent() + 5,
-				(int) (width - BORDER * 2 - col1 - rowHeight));
+				(int) (width - BORDER * 2 - col1 - rowHeight - fm.stringWidth("99999")));
 
-		g.setFont(rowFont);
-		fm = g.getFontMetrics(); // row font
-
-		s = ContestUtil.getTime(run.submission.getContestTime());
-
+		String s = ContestUtil.getTime(run.submission.getContestTime());
 		ShadedRectangle.drawRoundRect(g, BORDER + col1 + (int) rowHeight, (int) rowHeight / 2 + CUBE_INSET / 2 + 3,
 				(int) (cubeWidth * 1.5), cubeHeight, contest, run.submission, 0, s);
 

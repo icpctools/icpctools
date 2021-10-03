@@ -359,9 +359,9 @@ public class TeamTileHelper {
 		int y = tileDim.height * 7 / 10;
 		int h = tileDim.height * 3 / 10;
 		int maxwid = tileDim.width - tileDim.height - ww - IN_TILE_GAP * 3 - 2 - fm.stringWidth("1999");
-		int w = maxwid / numProblems;
+		float w = (float) maxwid / (float) numProblems;
 		int xx = ww + tileDim.height + IN_TILE_GAP;
-		int arc2 = tileDim.width / 120;
+		int arc = tileDim.width / 120;
 
 		g.setFont(statusFont);
 		fm = g.getFontMetrics();
@@ -369,14 +369,16 @@ public class TeamTileHelper {
 		for (int i = 0; i < numProblems; i++) {
 			IProblemSummary ps = contest.getProblemSummary(i);
 			if (ps.getNumPending() > 0)
-				draw(g, ICPCColors.PENDING[5], xx + w * i, y - h * 5 / 4, w, h, arc2, ps.getNumPending() + "", fm);
+				draw(g, ICPCColors.PENDING[5], xx + (int) (w * i), y - h * 5 / 4, (int) w, h, arc, ps.getNumPending() + "",
+						fm);
 			else
-				draw(g, lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG, xx + w * i, y - h * 5 / 4, w, h, arc2, "", fm);
+				draw(g, lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG, xx + (int) (w * i), y - h * 5 / 4, (int) w, h, arc, "",
+						fm);
 
 			if (ps.getNumSolved() > 0)
-				draw(g, ICPCColors.SOLVED[5], xx + w * i, y, w, h, arc2, ps.getNumSolved() + "", fm);
+				draw(g, ICPCColors.SOLVED[5], xx + (int) (w * i), y, (int) w, h, arc, ps.getNumSolved() + "", fm);
 			else
-				draw(g, lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG, xx + w * i, y, w, h, arc2, "", fm);
+				draw(g, lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG, xx + (int) (w * i), y, (int) w, h, arc, "", fm);
 		}
 	}
 

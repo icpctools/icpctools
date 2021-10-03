@@ -72,36 +72,36 @@ public class FloorGenerator2020 extends FloorGenerator {
 
 			floor.createAisle(x, y - taw, x, y + taw * 6);
 
-			x = createAisleOfTeams(0, x, y);
+			x = createAisleOfTeams(1, x, y);
 
-			x = createAisleOfTeams(12, x, y);
+			x = createAisleOfTeams(13, x, y);
 
-			x = createAisleOfTeams(24, x, y);
+			x = createAisleOfTeams(25, x, y);
 
-			x = createAisleOfTeams(36, x, y);
+			x = createAisleOfTeams(37, x, y);
 
-			x = createAisleOfTeams(48, x, y);
+			x = createAisleOfTeams(49, x, y);
 
-			x = createAisleOfTeams(60, x, y);
+			x = createAisleOfTeams(61, x, y);
 
-			x = createAisleOfTeams(72, x, y);
+			x = createAisleOfTeams(73, x, y);
 
-			x = createAisleOfTeams(84, x, y);
+			x = createAisleOfTeams(85, x, y);
 
-			x = createAisleOfTeams(96, x, y);
+			x = createAisleOfTeams(97, x, y);
 
-			x = createAisleOfTeams(108, x, y);
+			x = createAisleOfTeams(109, x, y);
 
 			floor.createAisle(0, -taw, x, -taw);
 			floor.createAisle(0, taw * 6, x, taw * 6);
 
-			((Team) floor.getTeam(0)).add("id", "-1");
-			((Team) floor.getTeam(119)).add("id", "-1");
+			// ((Team) floor.getTeam(0)).add("id", "-1");
+			((Team) floor.getTeam(120)).add("id", "-1");
 
 			IPrinter p = floor.createPrinter(x - taw, y - taw - 2);
 
-			double bx = 0;
-			for (int i = 0; i < 11; i++)
+			double bx = x - taw * 8;
+			for (int i = 0; i < 13; i++)
 				floor.createBalloon(balloon.charAt(i) + "", bx + 2 * i, y - taw - 2);
 
 			floor.resetOrigin();
