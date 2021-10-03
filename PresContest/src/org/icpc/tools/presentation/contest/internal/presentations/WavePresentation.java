@@ -57,7 +57,7 @@ public class WavePresentation extends AbstractICPCPresentation {
 
 		// account for team members
 		min -= 1.05;
-		min += 1.05;
+		max += 1.05;
 
 		ITeam t = contest.getTeamById(teamId);
 		if (t != null) {
