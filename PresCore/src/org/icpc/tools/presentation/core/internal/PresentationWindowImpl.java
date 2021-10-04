@@ -877,11 +877,13 @@ public class PresentationWindowImpl extends PresentationWindow {
 			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height - 20);
 		}
 		if (showFPS) {
-			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
 			String s = fps + " fps";
 			Dimension d = getSize();
+			g.setColor(lightMode ? Color.WHITE : Color.BLACK);
+			g.drawString(s, d.width - fm.stringWidth(s) - 10 + 1, d.height - fm.getDescent() - 10 + 1);
+			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			g.drawString(s, d.width - fm.stringWidth(s) - 10, d.height - fm.getDescent() - 10);
 		}
 	}
