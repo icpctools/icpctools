@@ -207,7 +207,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 			g.setFont(titleFont);
 			FontMetrics fm = g.getFontMetrics();
 
-			g.setColor(Color.WHITE);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.drawString(title, (width / 2) - fm.stringWidth(title) / 2, fm.getAscent() + GAP);
 
 			int ind = fm.getHeight() + GAP * 3;
@@ -236,7 +236,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 			fm = g.getFontMetrics();
 			ind += (fm.getHeight() + GAP);
 			g.setFont(verticalAxisFont);
-			g.setColor(Color.WHITE);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.drawString(verticalAxisTitle, fm.getHeight(), (height + fm.stringWidth(verticalAxisTitle)) / 2);
 
 			r.width -= (fm.getHeight() + GAP); // right edge
@@ -271,7 +271,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 		}
 
 		// draw left labels
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		for (int i = 0; i < numLines + 1; i++) {
 			// int y = r.y + r.height * i / size;
 			int y = r.y + r.height;
@@ -287,7 +287,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 		rect = r;
 		initXPoints();
 		numLines = xPoints.length;
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		int h = r.y + r.height + fm.getAscent() + 8;
 		for (int i = 0; i < numLines; i++) {
 			String s = horizontalLabels[i];
@@ -523,7 +523,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 			if (a < 255)
 				g.setPaint(new Color(255, 255, 255, a));
 			else
-				g.setPaint(Color.WHITE);
+				g.setPaint(isLightMode() ? Color.BLACK : Color.WHITE);
 			for (int i = 0; i < size; i++) {
 				String s = series.getValueLabel(i);
 				FontMetrics fm = g.getFontMetrics();
@@ -626,7 +626,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 		rect = paintBackgroundRect(g);
 
 		// draw rectangle
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawLine(rect.x, rect.y + rect.height, rect.x + rect.width, rect.y + rect.height);
 
 		Graphics2D g2 = (Graphics2D) g.create();
@@ -687,10 +687,10 @@ public abstract class AbstractChartPresentation extends Presentation {
 			w = Math.max(w, MARGIN * 2 + fh + MARGIN + fm.stringWidth(s[i]));
 
 		g.translate(-w, 0);
-		g.setColor(new Color(0, 0, 0, 192));
+		g.setColor(isLightMode() ? new Color(255, 255, 255, 192) : new Color(0, 0, 0, 192));
 		g.fillRect(0, 0, w, h);
 
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawRect(0, 0, w, h);
 
 		g.translate(MARGIN, MARGIN);
@@ -705,7 +705,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 			g.setStroke(new BasicStroke(2.0f));
 			g.setPaint(series.getOutline(i));
 			g.drawRect(0, y, fh, fh);
-			g.setColor(Color.WHITE);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.drawString(series.getTitle(), MARGIN + fh, y + fm.getAscent() + 1);
 			y += fh + MARGIN;
 		}

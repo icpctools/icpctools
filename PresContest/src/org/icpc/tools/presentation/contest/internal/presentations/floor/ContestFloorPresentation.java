@@ -19,6 +19,10 @@ import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class ContestFloorPresentation extends AbstractICPCPresentation {
 	private static final int MS_PER_TEAM = 2000;
+	private static final Color LIGHTER_GRAY = new Color(240, 240, 240);
+	private static final Color DARKISH_GRAY = new Color(96, 96, 96);
+	private static final Color DARKER_GRAY = new Color(40, 40, 40);
+	private static final Color DARKEST_GRAY = new Color(25, 25, 25);
 
 	protected FloorMap floor;
 
@@ -74,19 +78,44 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 			}
 
 			@Override
+			public Color getTeamAreaFillColor() {
+				return isLightMode() ? Color.WHITE : Color.BLACK;
+			}
+
+			@Override
+			public Color getTeamAreaOutlineColor() {
+				return isLightMode() ? Color.LIGHT_GRAY : Color.GRAY;
+			}
+
+			@Override
+			public Color getSeatFillColor() {
+				return isLightMode() ? Color.LIGHT_GRAY : DARKEST_GRAY;
+			}
+
+			@Override
+			public Color getSeatOutlineColor() {
+				return isLightMode() ? Color.GRAY : DARKISH_GRAY;
+			}
+
+			@Override
+			public Color getTextColor() {
+				return isLightMode() ? Color.BLACK : Color.WHITE;
+			}
+
+			@Override
 			public Color getDeskOutlineColor(String teamId) {
-				return Color.BLACK;
+				return isLightMode() ? Color.DARK_GRAY : Color.GRAY;
 			}
 
 			@Override
 			public Color getDeskFillColor(String teamId) {
-				return Color.GRAY;
+				return isLightMode() ? LIGHTER_GRAY : DARKER_GRAY;
 			}
 		});
 
 		if (team != null) {
 			g.setFont(font);
-			g.setColor(Color.WHITE);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			String s = team.getActualDisplayName();
 			FontMetrics fm = g.getFontMetrics();
 			int hh = fm.getHeight() + 10;

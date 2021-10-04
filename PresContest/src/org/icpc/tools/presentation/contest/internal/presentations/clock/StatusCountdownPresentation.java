@@ -132,7 +132,6 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawOval(x, y, o, o);
 
-		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f));
 	}
@@ -141,7 +140,6 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 	public void paint(Graphics2D g) {
 		super.paint(g);
 
-		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(font);
 		String s = "Status: Go";
 		IContest contest = getContest();
@@ -153,7 +151,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 				s = "Status: Paused";
 		}
 
-		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		FontMetrics fm = g.getFontMetrics();
 		g.drawString(s, (width - fm.stringWidth(s)) / 2, (int) ((height + height / 2.5f) / 2f) + fm.getHeight() * 2);
 

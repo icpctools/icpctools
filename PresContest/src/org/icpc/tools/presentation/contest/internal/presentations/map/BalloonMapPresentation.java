@@ -27,6 +27,8 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 
 public class BalloonMapPresentation extends AbstractICPCPresentation {
+	private static final double DEFAULT_LONGITUDE = 55.75376;
+	private static final double DEFAULT_LATITUDE = 37.61225;
 	private static final long TIME_TO_KEEP_SOLVED = 11000;
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
@@ -173,10 +175,10 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 
 		double o_lon = contest.getLongitude();
 		if (Double.isNaN(o_lon))
-			o_lon = -8.6178885;
+			o_lon = DEFAULT_LONGITUDE;
 		double o_lat = contest.getLatitude();
 		if (Double.isNaN(o_lat))
-			o_lat = 41.1465519;
+			o_lat = DEFAULT_LATITUDE;
 
 		ITeam team = contest.getTeamById(submission.getTeamId());
 

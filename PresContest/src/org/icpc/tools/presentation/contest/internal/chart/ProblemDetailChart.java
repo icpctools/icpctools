@@ -98,6 +98,9 @@ public class ProblemDetailChart extends AbstractChartPresentation {
 	public void setProperty(String value) {
 		if (value == null || value.isEmpty())
 			return;
+		if (value.startsWith("lightMode:"))
+			return;
+
 		try {
 			targetProblem = Integer.parseInt(value);
 		} catch (Exception e) {
