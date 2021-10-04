@@ -41,6 +41,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 	private String touchType2;
 	private static int leftTeam = -1;
 	private static int rightTeam = -1;
+	private boolean debug;
 
 	private Font font;
 	private Font fontTouch;
@@ -207,7 +208,10 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error reading property", e);
 			}
-		}
+		} else if ("debugOn".equals(value))
+			debug = true;
+		else if ("debugOff".equals(value))
+			debug = false;
 	}
 
 	@Override
@@ -274,9 +278,10 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 			}
 		}
 
-		if (teamMember != null) {
-			TextHelper.drawString(g, teamId + teamMember + " - " + NetworkUtil.getHostName() + " - " + NetworkUtil.getLocalAddress(), MARGIN, MARGIN + fm.getAscent());
-		}
+		if (teamMember != null && debug)
+			TextHelper.drawString(g,
+					teamId + teamMember + " - " + NetworkUtil.getHostName() + " - " + NetworkUtil.getLocalAddress(), MARGIN,
+					MARGIN + fm.getAscent());
 
 		Long ms = getClock();
 		if (ms != null) {
