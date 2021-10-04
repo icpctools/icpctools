@@ -315,10 +315,10 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		g.setFont(headerFont);
 		FontMetrics fm2 = g.getFontMetrics();
 
-		g.setColor(Color.black);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillRect(0, 0, width, headerHeight + 2);
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawLine(0, headerHeight - 1, width, headerHeight - 1);
 		int y = headerHeight - 3;
 
@@ -351,7 +351,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 				bg = ICPCColors.BRONZE2;
 			}
 		} else if (oddRow)
-			bg = BG_COLOR;
+			bg = isLightMode() ? Color.LIGHT_GRAY : BG_COLOR;
 
 		if (bg != null) {
 			g.setColor(bg);
@@ -363,7 +363,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	}
 
 	public void drawRowBackground(Graphics2D g, int y) {
-		g.setColor(BG_COLOR);
+		g.setColor(isLightMode() ? Color.LIGHT_GRAY : BG_COLOR);
 		g.fillRect(0, y, width, (int) rowHeight);
 	}
 
@@ -406,7 +406,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 			// check if the selection type indicates there should be a white outline box
 			if (selectType == SelectType.HIGHLIGHT || selectType == SelectType.FTS_HIGHLIGHT) {
-				g.setColor(Color.WHITE);
+				g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 				g.drawRect(-1, 0, width + 2, (int) (rowHeight));
 			}
 		}
@@ -416,7 +416,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 		IStanding standing = getContest().getStanding(team);
 		String s = standing.getRank();
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowItalicsFont);
 		if (s != null)
 			TextImage.drawString(g, s, BORDER + (fm.stringWidth("199") - fm.stringWidth(s)) / 2, 5);
@@ -432,7 +432,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		if (s == null)
 			s = "";
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 
@@ -442,7 +442,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 		int n = standing.getNumSolved();
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowItalicsFont);
 		if (n > 0) {
 			s = n + "";
@@ -452,7 +452,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 		n = standing.getTime();
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		if (n > 0) {
 			s = n + "";
@@ -534,7 +534,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	 * @param g - the Graphics object to use for drawing
 	 */
 	protected void drawStatsRow(Graphics2D g) {
-		g.setColor(Color.GRAY);
+		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.GRAY);
 		g.setFont(rowItalicsFont);
 		FontMetrics fm = g.getFontMetrics();
 

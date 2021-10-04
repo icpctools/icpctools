@@ -334,7 +334,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 		g.setFont(rowFont);
 		FontMetrics fm = g.getFontMetrics();
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowItalicsFont);
 		if (n > 0) {
 			String s = n + "";

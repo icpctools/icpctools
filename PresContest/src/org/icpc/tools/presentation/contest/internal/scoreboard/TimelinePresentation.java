@@ -83,9 +83,9 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 		g.setFont(headerFont);
 		FontMetrics fm2 = g.getFontMetrics();
 
-		g.setColor(Color.black);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillRect(0, 0, width, headerHeight + 2);
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawLine(0, headerHeight - 1, width, headerHeight - 1);
 		int y = headerHeight - 3;
 

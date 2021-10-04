@@ -211,9 +211,9 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		g.setFont(headerFont);
 		FontMetrics fm2 = g.getFontMetrics();
 
-		g.setColor(Color.black);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillRect(0, 0, width, headerHeight + 2);
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawLine(0, headerHeight - 1, width, headerHeight - 1);
 		int y = headerHeight - 3;
 
@@ -325,7 +325,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 			g.drawImage(img, BORDER + col1 + nx, ny, null);
 		}
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 
 		fm = g.getFontMetrics();
@@ -336,7 +336,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		ShadedRectangle.drawRoundRect(g, BORDER + col1 + (int) rowHeight, (int) rowHeight / 2 + CUBE_INSET / 2 + 3,
 				(int) (cubeWidth * 1.5), cubeHeight, contest, run.submission, 0, s);
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 	}
@@ -360,14 +360,14 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		}
 
 		String s = fs.year + "";
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		TextImage.drawString(g, s, BORDER, 5);
 
 		s = fs.name;
 		if (first != null && "?".equals(s))
 			s = "";
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 
@@ -400,7 +400,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		ShadedRectangle.drawRoundRect(g, BORDER + col1 + (int) rowHeight, (int) rowHeight / 2 + CUBE_INSET / 2 + 3,
 				(int) (cubeWidth * 1.5), cubeHeight, contest, result, 0, s);
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 		TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);

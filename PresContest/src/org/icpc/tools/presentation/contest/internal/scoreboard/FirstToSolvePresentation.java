@@ -145,9 +145,9 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 		g.setFont(headerFont);
 		FontMetrics fm2 = g.getFontMetrics();
 
-		g.setColor(Color.black);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillRect(0, 0, width, headerHeight + 2);
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawLine(0, headerHeight - 1, width, headerHeight - 1);
 		int y = headerHeight - 3;
 
@@ -239,7 +239,7 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 
 		IContest contest = getContest();
 		String s = ContestUtil.getTime(run.submission.getContestTime());
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowItalicsFont);
 		TextImage.drawString(g, s, BORDER + (fm.stringWidth("199") - fm.stringWidth(s)) / 2, 5);
 
@@ -257,7 +257,7 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 		}
 
 		s = team.getActualDisplayName();
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		fm = g.getFontMetrics();
 		int x = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
@@ -285,7 +285,7 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 
 		IProblem prob = contest.getProblemById(run.submission.getProblemId());
 		s = prob.getLabel();
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
 		TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 	}
