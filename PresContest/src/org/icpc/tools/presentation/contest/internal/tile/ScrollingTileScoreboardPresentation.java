@@ -285,6 +285,18 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				if ((x - hScroll + tileDim.width > 0 && x - hScroll < width - margin))
 					tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs);
 
+				// pre-render a small section of what is visible next
+				int prerenderX1 = width - margin;
+				int prerenderX2 = prerenderX1 + tileDim.width;
+				int prerenderY = (timeMs % (MS_PER_COLUMN / 3)) * height / (MS_PER_COLUMN / 3);
+				if ((x - hScroll + tileDim.width > prerenderX1 && x - hScroll < prerenderX2)) {
+					if (y + tileDim.height > prerenderY && y < prerenderY) {
+						final boolean debugShowPrerender = false;
+						int dx = debugShowPrerender ? -300 : 0;
+						tileHelper.paintTile(g, x + dx, y, anim.getZoom(), team, timeMs);
+					}
+				}
+
 				// paint tiles that are half off the bottom twice (second time at the top of the next
 				// column)
 				int colHeight = (int) ((tileDim.getHeight() + TILE_V_GAP) * rows);
