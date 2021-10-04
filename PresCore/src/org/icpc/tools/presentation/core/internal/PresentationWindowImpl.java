@@ -37,6 +37,7 @@ import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.DisplayConfig.Mode;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
+import org.icpc.tools.presentation.core.RenderPerfTimer;
 import org.icpc.tools.presentation.core.Transition;
 import org.icpc.tools.presentation.core.Transition.TimeOverlap;
 
@@ -885,6 +886,22 @@ public class PresentationWindowImpl extends PresentationWindow {
 			g.drawString(s, d.width - fm.stringWidth(s) - 10 + 1, d.height - fm.getDescent() - 10 + 1);
 			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			g.drawString(s, d.width - fm.stringWidth(s) - 10, d.height - fm.getDescent() - 10);
+
+			int i = RenderPerfTimer.Category.values().length;
+			for (RenderPerfTimer.Category category : RenderPerfTimer.Category.values()) {
+				RenderPerfTimer.Counter measure = RenderPerfTimer.measure(category);
+				double nps = measure.nanosPerSecond();
+				double percent = 100 * nps / 1e9;
+				if (percent < 0.01) {
+					continue;
+				}
+				s = String.format(Locale.ENGLISH, "%s %.2f%%", category, percent);
+				g.setColor(lightMode ? Color.WHITE : Color.BLACK);
+				g.drawString(s, d.width - fm.stringWidth(s) - 10 + 1, d.height - (fm.getDescent() + 10) * (i + 1) + 1);
+				g.setColor(lightMode ? Color.BLACK : Color.WHITE);
+				g.drawString(s, d.width - fm.stringWidth(s) - 10, d.height - (fm.getDescent() + 10) * (i + 1));
+				i--;
+			}
 		}
 	}
 
