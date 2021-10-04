@@ -26,6 +26,7 @@ import org.icpc.tools.contest.model.internal.Recent;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
+import org.icpc.tools.presentation.core.RenderPerfTimer;
 
 public class TeamTileHelper {
 	private static final int IN_TILE_GAP = 3;
@@ -122,12 +123,15 @@ public class TeamTileHelper {
 
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 		if (org != null) {
+			RenderPerfTimer.Counter logoMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.LOGO);
+			logoMeasure.startMeasure();
 			BufferedImage logoImg = org.getLogoImage(tileDim.height - 10, tileDim.height - 10, true, true);
 			if (logoImg != null) {
 				gg.drawImage(logoImg, ww + (tileDim.height - logoImg.getWidth()) / 2,
 						(tileDim.height - logoImg.getHeight()) / 2, null);
 				logoImg.flush();
 			}
+			logoMeasure.stopMeasure();
 		}
 
 		paintTileForeground(gg, team, timeMs);
@@ -201,6 +205,15 @@ public class TeamTileHelper {
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
+		RenderPerfTimer.Counter rankAndScoreMeasure =
+				RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
+		RenderPerfTimer.Counter nameMeasure =
+				RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
+		RenderPerfTimer.Counter problemMeasure =
+				RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
+		RenderPerfTimer.Counter activeProblemMeasure =
+				RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
+		rankAndScoreMeasure.startMeasure();
 		g.setFont(rankFont);
 		FontMetrics fm = g.getFontMetrics();
 		int ww = fm.stringWidth("199");
@@ -217,10 +230,14 @@ public class TeamTileHelper {
 		IStanding standing = contest.getStanding(team);
 		String s = standing.getRank();
 		g.drawString(s, (ww - fm.stringWidth(s)) / 2, (tileDim.height + fm.getAscent()) / 2);
+		rankAndScoreMeasure.stopMeasure();
 
 		// draw name
+		nameMeasure.startMeasure();
 		paintName(g, team, ww, maxwid - 3);
+		nameMeasure.stopMeasure();
 
+		rankAndScoreMeasure.startMeasure();
 		g.setFont(teamFont);
 		fm = g.getFontMetrics();
 		if (standing.getNumSolved() > 0) {
@@ -237,8 +254,10 @@ public class TeamTileHelper {
 			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - fm.stringWidth(s),
 					tileDim.height * 17 / 20 + fm.getAscent() / 2 - 3);
 		}
+		rankAndScoreMeasure.stopMeasure();
 
 		// draw a rounded-rectangle representation for each problem
+		problemMeasure.startMeasure();
 		IProblem[] problems = contest.getProblems();
 		int numProblems = problems.length;
 		if (numProblems == 0)
@@ -274,8 +293,12 @@ public class TeamTileHelper {
 				}
 				g.drawImage(img, xx + (int) (w * i), y, null);
 			} else if (ContestUtil.isRecent(contest, r)) {
+				problemMeasure.stopMeasure();
+				activeProblemMeasure.startMeasure();
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
 				paintResult(g, k, r, xx + (int) (w * i), y, (int) w, h, arc, fm);
+				activeProblemMeasure.stopMeasure();
+				problemMeasure.startMeasure();
 			} else {
 				String hash = r.getNumSubmissions() + "-" + r.getContestTime() + " " + r.getStatus().name() + " " + w;
 				SoftReference<BufferedImage> ref = resultImages.get(hash);
@@ -294,6 +317,7 @@ public class TeamTileHelper {
 				g.drawImage(img, xx + (int) (w * i), y, null);
 			}
 		}
+		problemMeasure.stopMeasure();
 	}
 
 	private void paintProblem(Graphics2D g, int w, int h, int arc, FontMetrics fm, String label) {
