@@ -160,7 +160,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 			int h = rows * (tileDim.height + TILE_V_GAP) - TILE_V_GAP;
-			g.setColor(Color.DARK_GRAY);
+			g.setColor(isLightMode() ? TeamTileHelper.TILE_BG_LIGHT : TeamTileHelper.TILE_BG);
 			g.fillRect(0, 0, margin - TILE_H_GAP, h);
 			g.setColor(Color.GRAY);
 			g.drawLine(margin - TILE_H_GAP, 0, margin - TILE_H_GAP, h);
@@ -170,7 +170,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				Graphics2D gg = (Graphics2D) g.create();
 				gg.setFont(titleFont);
 				FontMetrics fm = gg.getFontMetrics();
-				gg.setColor(Color.WHITE);
+				gg.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 				gg.translate((margin - TILE_H_GAP + fm.getAscent()) / 2, (h + fm.stringWidth(title)) / 2);
 				gg.rotate(-Math.PI / 2);
 				gg.drawString(title, 0, 0);
@@ -179,9 +179,9 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 
 			if (showClock) {
 				if (getContest().getState().isFrozen())
-					g.setColor(ICPCColors.YELLOW);
+					g.setColor(isLightMode() ? Color.ORANGE.darker() : ICPCColors.YELLOW);
 				else
-					g.setColor(Color.WHITE);
+					g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 				g.setFont(clockFont);
 				FontMetrics fm = g.getFontMetrics();
 				String s = getContestTime();

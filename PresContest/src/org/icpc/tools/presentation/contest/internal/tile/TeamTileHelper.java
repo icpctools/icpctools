@@ -29,7 +29,7 @@ import org.icpc.tools.presentation.contest.internal.TextHelper;
 public class TeamTileHelper {
 	private static final int IN_TILE_GAP = 3;
 	protected static final Color TILE_BG = new Color(50, 50, 50);
-	protected static final Color TILE_BG_LIGHT = new Color(200, 200, 200);
+	protected static final Color TILE_BG_LIGHT = new Color(240, 240, 240);
 	private static final Color PROBLEM_BG = new Color(90, 90, 90);
 	private static final Color PROBLEM_BG_LIGHT = new Color(160, 160, 160);
 

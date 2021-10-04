@@ -92,7 +92,7 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 
 		// draw lines at each change in num solved
 		int arc = tileDim.width / 90;
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(isLightMode() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setStroke(new BasicStroke(2f));
 		for (Integer i : breaks) {
 			int x = ((i / rows) * (tileDim.width + TILE_H_GAP));
