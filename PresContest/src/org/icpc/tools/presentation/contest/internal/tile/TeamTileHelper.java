@@ -51,6 +51,7 @@ public class TeamTileHelper {
 	private Map<String, BufferedImage> nameImages = new HashMap<>();
 	private Map<String, SoftReference<BufferedImage>> resultImages = new HashMap<>();
 	private Map<String, BufferedImage> problemImages = new HashMap<>();
+	private Map<String, BufferedImage> logoImages = new HashMap<>();
 
 	public TeamTileHelper(Dimension tileDim, IContest contest) {
 		this.tileDim = tileDim;
@@ -125,11 +126,17 @@ public class TeamTileHelper {
 		if (org != null) {
 			RenderPerfTimer.Counter logoMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.LOGO);
 			logoMeasure.startMeasure();
-			BufferedImage logoImg = org.getLogoImage(tileDim.height - 10, tileDim.height - 10, true, true);
+			int logoWidth = tileDim.height - 10, logoHeight = logoWidth;
+			String logoHash = team.getOrganizationId() + "@" + logoWidth + "x" + logoHeight;
+			BufferedImage logoImg = logoImages.get(logoHash);
+			if (logoImg == null) {
+				Trace.trace(Trace.INFO, "logo cache miss " + logoHash);
+				logoImg = org.getLogoImage(logoWidth, logoHeight, true, true);
+				logoImages.put(logoHash, logoImg);
+			}
 			if (logoImg != null) {
 				gg.drawImage(logoImg, ww + (tileDim.height - logoImg.getWidth()) / 2,
 						(tileDim.height - logoImg.getHeight()) / 2, null);
-				logoImg.flush();
 			}
 			logoMeasure.stopMeasure();
 		}
