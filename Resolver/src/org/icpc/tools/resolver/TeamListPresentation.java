@@ -136,8 +136,10 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 		// draw title across the top
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		g2.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 		g2.setFont(titleFont);
-		g2.setColor(Color.WHITE);
+		g2.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		FontMetrics fm = g2.getFontMetrics();
 		g2.drawString(step.title, (width - fm.stringWidth(step.title)) / 2, fm.getAscent());
 
@@ -157,7 +159,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 		// draw team list
 		g.setFont(teamFont);
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		fm = g.getFontMetrics();
 		int size = teams.length;
 		for (int i = 0; i < size; i++) {
@@ -172,7 +174,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 			text.addString(t.teamName);
 
 			int y = height - headerHeight + rowHeight / 2 - scr + (int) (rowHeight * i * SPACING);
-			if (y >= height)
+			if (y + fm.getHeight() < headerHeight || y >= height)
 				continue;
 
 			SelectType sel = selections.get(t.id);
@@ -184,12 +186,11 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 				else
 					g.setColor(ICPCColors.SELECTION_COLOR);
 			} else
-				g.setColor(Color.WHITE);
+				g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 
 			AffineTransform old = g.getTransform();
 			if (y > height * 2f / 3f)
 				g.setComposite(AlphaComposite.SrcOver.derive(1f - (y - height * 2f / 3f) / (height / 3f)));
-
 			g.translate(width / 2, y);
 			if (y > height * 3f / 4f) {
 				g.translate(0, (y - height * 3f / 4f) * 1f);
@@ -197,13 +198,13 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 				g.transform(AffineTransform.getScaleInstance(sc, sc));
 			}
 
-			text.drawFit(-text.getWidth() / 2, 0, width);
+			text.drawFit(-Math.min((width - 40) / 2, text.getWidth() / 2), 0, width - 40);
 			g.setTransform(old);
 		}
 
-		g.setComposite(AlphaComposite.SrcOver.derive(1.0f));
+		g.setComposite(AlphaComposite.SrcOver);
 		int y = height - headerHeight - scr + (int) (rowHeight * (size + 2) * SPACING);
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(isLightMode() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.drawLine(0, y, width, y);
 		g.dispose();
 	}
