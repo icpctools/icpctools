@@ -94,21 +94,21 @@ public class TileRankScoreboardPresentation extends ScrollingTileScoreboardPrese
 		int i = 0;
 		while (i < groups.size()) {
 			Group gr = groups.get(i);
-			int arc = tileDim.width / 40;
+			int arc = tileDim.width / 60;
 
-			g.setColor(Color.DARK_GRAY);
+			g.setColor(isLightMode() ? TeamTileHelper.TILE_BG_LIGHT : Color.DARK_GRAY);
 			g.fillRoundRect(0, (int) (gr.y * (tileDim.height + TILE_V_GAP)), margin - TILE_H_GAP,
 					gr.numRows * (tileDim.height + TILE_V_GAP) - TILE_V_GAP, arc, arc);
 
 			String s = gr.numSolved + "";
-			g.setColor(Color.WHITE);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.setFont(numFont);
 			g.drawString(s, (margin - TILE_H_GAP - fm.stringWidth(s)) / 2,
 					fm.getAscent() + (int) (gr.y * (tileDim.height + TILE_V_GAP)) + TILE_V_GAP * 2);
 
 			if (gr.numRows > 1) {
 				s = Messages.numSolved;
-				g.setColor(Color.LIGHT_GRAY);
+				g.setColor(isLightMode() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 				g.setFont(solvedFont);
 				g.drawString(s, (margin - TILE_H_GAP - fm2.stringWidth(s)) / 2,
 						fm.getAscent() + fm2.getAscent() + (int) (gr.y * (tileDim.height + TILE_V_GAP)) + TILE_V_GAP * 4);

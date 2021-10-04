@@ -44,6 +44,7 @@ public class CountdownPresentation extends ClockPresentation {
 		super.aboutToShow();
 		setClockTarget();
 		clock.resetToTarget();
+		clockColor = isLightMode() ? Color.BLACK : Color.WHITE;
 	}
 
 	private void setClockTarget() {
@@ -100,7 +101,7 @@ public class CountdownPresentation extends ClockPresentation {
 
 		if ((startTime - now) < -(switchPoint / timeMultiplier)) {
 			clockColor = EOC_COLOR;
-			return -Math.round((startTime - now) * timeMultiplier + duration);
+			return Math.round((startTime - now) * timeMultiplier + duration);
 		}
 
 		clockColor = isLightMode() ? Color.BLACK : Color.WHITE;

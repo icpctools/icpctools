@@ -655,6 +655,18 @@ public class FloorMap {
 		// r.y - (int) ((bounds.y - p.getY()) * scale));
 	}
 
+	public Point2D getPosition(Rectangle r, ITeam team) {
+		double teamAreaDepth = 0;
+		IMapInfo mapInfo = contest.getMapInfo();
+		if (mapInfo != null)
+			teamAreaDepth = mapInfo.getTeamAreaDepth();
+
+		double rad = Math.toRadians(team.getRotation() + 180);
+		double x = (team.getX() + Math.cos(rad) * teamAreaDepth / 3);
+		double y = (team.getY() - Math.sin(rad) * teamAreaDepth / 3);
+		return getPosition(r, x, y);
+	}
+
 	public Point2D getPosition(Rectangle r, double x, double y) {
 		Rectangle2D.Double bounds = getBounds(true);
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
@@ -764,9 +776,13 @@ public class FloorMap {
 			String id = t.getId();
 			BufferedImage img = colors.getTeamLogo(id);
 
-			if (img != null)
-				g.drawImage(img, (int) (x1 + t.getX() * scale - img.getWidth() / 2),
-						(int) (y1 + t.getY() * scale - img.getHeight() / 2), null);
+			if (img != null) {
+				double rad = Math.toRadians(t.getRotation() + 180);
+				double x = x1 + (t.getX() + Math.cos(rad) * teamAreaDepth / 3) * scale;
+				double y = y1 + (t.getY() - Math.sin(rad) * teamAreaDepth / 3) * scale;
+
+				g.drawImage(img, (int) (x - img.getWidth() / 2), (int) (y - img.getHeight() / 2), null);
+			}
 		}
 	}
 

@@ -31,6 +31,11 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 
 public class BalloonFloorPresentation extends AbstractICPCPresentation {
+	private static final Color LIGHTER_GRAY = new Color(240, 240, 240);
+	private static final Color DARKISH_GRAY = new Color(96, 96, 96);
+	private static final Color DARKER_GRAY = new Color(40, 40, 40);
+	private static final Color DARKEST_GRAY = new Color(25, 25, 25);
+
 	private static final long TIME_TO_KEEP_SOLVED = 11000;
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
@@ -170,7 +175,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 			return;
 		}
 		sr.anim = new Animator(0, SUBMISSION_MOVEMENT);
-		sr.anim.setTarget(sr.path.getDistance() * 0.98);
+		sr.anim.setTarget(sr.path.getDistance() - 2);
 		sr.problem = contest.getProblemIndex(submission.getProblemId());
 		sr.team = team;
 		sr.org = contest.getOrganizationById(team.getOrganizationId());
@@ -241,13 +246,38 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		Rectangle r = new Rectangle(0, 0, width, height);
 		floor.drawFloor(g, r, new FloorMap.ScreenColors() {
 			@Override
-			public Color getDeskFillColor(String teamId) {
-				return Color.BLACK;
+			public Color getTeamAreaFillColor() {
+				return isLightMode() ? Color.WHITE : Color.BLACK;
+			}
+
+			@Override
+			public Color getTeamAreaOutlineColor() {
+				return isLightMode() ? Color.LIGHT_GRAY : Color.GRAY;
+			}
+
+			@Override
+			public Color getSeatFillColor() {
+				return isLightMode() ? Color.LIGHT_GRAY : DARKEST_GRAY;
+			}
+
+			@Override
+			public Color getSeatOutlineColor() {
+				return isLightMode() ? Color.GRAY : DARKISH_GRAY;
 			}
 
 			@Override
 			public Color getTextColor() {
-				return Color.GRAY;
+				return isLightMode() ? Color.BLACK : Color.WHITE;
+			}
+
+			@Override
+			public Color getDeskOutlineColor(String teamId) {
+				return isLightMode() ? Color.DARK_GRAY : Color.GRAY;
+			}
+
+			@Override
+			public Color getDeskFillColor(String teamId) {
+				return isLightMode() ? LIGHTER_GRAY : DARKER_GRAY;
 			}
 		});
 
@@ -256,7 +286,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		// draw paths
 		Stroke stroke = g.getStroke();
 		g.setStroke(new BasicStroke(3));
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 		for (SubmissionRecord sr : srs) {
 			Graphics2D gg = (Graphics2D) g.create();
 			if (sr.fullAge < 1000)
@@ -273,49 +303,7 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		g.setStroke(stroke);
 
 		// draw logos
-		List<String> teamIds = new ArrayList<>();
-		for (int i = srs.length - 1; i >= 0; i--) {
-			SubmissionRecord sr = srs[i];
-			BufferedImage img = sr.logo;
-			BufferedImage smImg = sr.smLogo;
-			if (sr.action == Action.SOLVED && sr.actionAge > TIME_TO_KEEP_SOLVED - 1000)
-				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_SOLVED - sr.actionAge) / 1000f));
-			else if (sr.action == Action.FAILED && sr.actionAge > TIME_TO_KEEP_FAILED - 1000)
-				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_FAILED - sr.actionAge) / 1000f));
-			else
-				g.setComposite(AlphaComposite.SrcOver);
-			int yy = 4;
-			if (img != null) {
-				if (teamIds.contains(sr.team.getId()))
-					continue;
-				teamIds.add(sr.team.getId());
-				ITeam team = contest.getTeamById(sr.submission.getTeamId());
-				if (team != null) {
-					Point2D p2 = floor.getPosition(r, team.getX(), team.getY());
-					if (sr.fullAge < 3000) {
-						g.drawImage(img, (int) (p2.getX() - img.getWidth() / 2.0), (int) (p2.getY() - img.getHeight() / 2.0),
-								null);
-						yy = img.getHeight() / 2 + 4;
-					} else if (sr.fullAge < 4000) {
-						double sc = 1.0 - 0.6 * (sr.fullAge - 3000f) / 1000f;
-						g.drawImage(img, (int) (p2.getX() - img.getWidth() * sc / 2.0),
-								(int) (p2.getY() - img.getHeight() * sc / 2.0), (int) (img.getWidth() * sc),
-								(int) (img.getHeight() * sc), null);
-						yy = (int) (img.getHeight() * sc / 2) + 4;
-					} else {
-						g.drawImage(smImg, (int) (p2.getX() - smImg.getWidth() / 2.0),
-								(int) (p2.getY() - smImg.getHeight() / 2.0), null);
-						yy = smImg.getHeight() / 2 + 4;
-					}
-
-					String s = sr.org.getName();
-					g.setColor(Color.WHITE);
-					g.setFont(font);
-					FontMetrics fm = g.getFontMetrics();
-					g.drawString(s, (int) p2.getX() - fm.stringWidth(s) / 2, (int) p2.getY() + yy + fm.getAscent());
-				}
-			}
-		}
+		drawTeamLogo(g, contest, r, srs, false);
 
 		// draw balloons
 		for (SubmissionRecord sr : srs) {
@@ -324,6 +312,8 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 
 			double d = sr.anim.getValue();
 			Point2D p = sr.path.getInterimPosition(d);
+			if (p == null)
+				continue;
 			Point2D p2 = floor.getPosition(r, p);
 
 			if (sr.action == Action.SOLVED && sr.actionAge > TIME_TO_KEEP_SOLVED - 1000)
@@ -342,6 +332,58 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 			} else if (contest.isJudged(sr.submission)) {
 				g.drawImage(balloonFailedImage, (int) (p2.getX() - img.getWidth() / 2.0),
 						(int) (p2.getY() - img.getHeight() / 2.0), null);
+			}
+		}
+
+		drawTeamLogo(g, contest, r, srs, true);
+	}
+
+	protected void drawTeamLogo(Graphics2D g, IContest contest, Rectangle r, SubmissionRecord[] srs, boolean drawLarge) {
+		List<String> teamIds = new ArrayList<>();
+		for (int i = srs.length - 1; i >= 0; i--) {
+			SubmissionRecord sr = srs[i];
+			if (sr.fullAge < 4000 && !drawLarge)
+				continue;
+			if (sr.fullAge >= 4000 && drawLarge)
+				continue;
+			BufferedImage img = sr.logo;
+			BufferedImage smImg = sr.smLogo;
+			if (sr.action == Action.SOLVED && sr.actionAge > TIME_TO_KEEP_SOLVED - 1000)
+				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_SOLVED - sr.actionAge) / 1000f));
+			else if (sr.action == Action.FAILED && sr.actionAge > TIME_TO_KEEP_FAILED - 1000)
+				g.setComposite(AlphaComposite.SrcOver.derive((TIME_TO_KEEP_FAILED - sr.actionAge) / 1000f));
+			else
+				g.setComposite(AlphaComposite.SrcOver);
+			int yy = 4;
+			if (img != null) {
+				if (teamIds.contains(sr.team.getId()))
+					continue;
+				teamIds.add(sr.team.getId());
+				ITeam team = contest.getTeamById(sr.submission.getTeamId());
+				if (team != null) {
+					Point2D p2 = floor.getPosition(r, team);
+					if (sr.fullAge < 3000) {
+						g.drawImage(img, (int) (p2.getX() - img.getWidth() / 2.0), (int) (p2.getY() - img.getHeight() / 2.0),
+								null);
+						yy = img.getHeight() / 2 + 4;
+					} else if (sr.fullAge < 4000) {
+						double sc = 1.0 - 0.6 * (sr.fullAge - 3000f) / 1000f;
+						g.drawImage(img, (int) (p2.getX() - img.getWidth() * sc / 2.0),
+								(int) (p2.getY() - img.getHeight() * sc / 2.0), (int) (img.getWidth() * sc),
+								(int) (img.getHeight() * sc), null);
+						yy = (int) (img.getHeight() * sc / 2) + 4;
+					} else {
+						g.drawImage(smImg, (int) (p2.getX() - smImg.getWidth() / 2.0),
+								(int) (p2.getY() - smImg.getHeight() / 2.0), null);
+						yy = smImg.getHeight() / 2 + 4;
+					}
+
+					String s = sr.org.getName();
+					g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
+					g.setFont(font);
+					FontMetrics fm = g.getFontMetrics();
+					g.drawString(s, (int) p2.getX() - fm.stringWidth(s) / 2, (int) p2.getY() + yy + fm.getAscent());
+				}
 			}
 		}
 	}
