@@ -68,6 +68,8 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 		double cols = initScroll.getValue();
 		setColumns(cols);
 
+		tileHelper.setApproximateRendering(Math.abs(cols - initScroll.getTarget()) > 1e-3);
+
 		super.paintImpl(g);
 	}
 
