@@ -93,9 +93,9 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 
 		if (showClock) {
 			if (getContest().getState().isFrozen())
-				g.setColor(ICPCColors.YELLOW);
+				g.setColor(isLightMode() ? Color.ORANGE.darker() : ICPCColors.YELLOW);
 			else
-				g.setColor(Color.WHITE);
+				g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.setFont(clockFont);
 			FontMetrics fm = g.getFontMetrics();
 			String s = getContestTime();
@@ -122,10 +122,10 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 	}
 
 	protected void drawHeader(Graphics2D g) {
-		g.setColor(Color.black);
+		g.setColor(isLightMode() ? Color.WHITE : Color.BLACK);
 		g.fillRect(0, 0, width, headerHeight + 2);
 
-		g.setColor(Color.white);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawLine(0, headerHeight - 1, width, headerHeight - 1);
 	}
 
@@ -143,7 +143,7 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 
 		String s = getTitle();
 		if (s != null) {
-			g.setColor(Color.WHITE);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.setFont(titleFont);
 			FontMetrics fm = g.getFontMetrics();
 			g.drawString(s, (width - fm.stringWidth(s)) / 2, fm.getAscent());
@@ -164,6 +164,7 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
 		if (value.startsWith("clockOn"))
 			showClock = true;
 		else if (value.startsWith("clockOff"))
