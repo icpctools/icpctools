@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -306,7 +307,18 @@ public class TeamTileHelper {
 				problemMeasure.stopMeasure();
 				activeProblemMeasure.startMeasure();
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
-				paintResult(g, k, r, xx + (int) (w * i), y, (int) w, h, arc, statusFm);
+				String backHash = r.getStatus().name() + " " + (int) w + " flash " + k;
+				BufferedImage backImg = getCacheOrRender(backHash, problemImages, (int) w, h, (gg) -> {
+					paintResultBackground(gg, k, r, 0, 0, (int) w, h, arc);
+				});
+				g.drawImage(backImg, xx + (int) (w * i), y, null);
+				// TODO: only cache up to the natural string width
+				String resultTextOnlyHash = hash + " TEXT";
+				BufferedImage img = getCacheOrRender(resultTextOnlyHash, problemImages, (int) w, h, (gg) -> {
+					gg.setFont(statusFont);
+					paintResultText(gg, r, 0, 0, (int) w, h, arc, statusFm);
+				});
+				g.drawImage(img, xx + (int) (w * i), y, null);
 				activeProblemMeasure.stopMeasure();
 				problemMeasure.startMeasure();
 			} else {
@@ -330,6 +342,29 @@ public class TeamTileHelper {
 		problemMeasure.stopMeasure();
 	}
 
+	private BufferedImage getCacheOrRender(String hash, Map<String, BufferedImage> cache,
+										   int w, int h, Consumer<Graphics2D> renderer) {
+		BufferedImage img = cache.get(hash);
+		if (img == null) {
+			Trace.trace(Trace.INFO, "cache miss " + hash);
+			img = renderBufferedImage(w, h, renderer);
+			cache.put(hash, img);
+		}
+		return img;
+	}
+
+	private BufferedImage renderBufferedImage(int w, int h, Consumer<Graphics2D> renderer) {
+		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics2D gg = (Graphics2D) img.getGraphics();
+		gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		gg.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		gg.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		renderer.accept(gg);
+		gg.dispose();
+		return img;
+	}
+
 	private void paintProblem(Graphics2D g, int w, int h, int arc, FontMetrics fm, String label) {
 		g.setColor(lightMode ? PROBLEM_BG_LIGHT : PROBLEM_BG);
 		g.fillRoundRect(0, 0, w - 3, h - 1, arc, arc);
@@ -338,7 +373,7 @@ public class TeamTileHelper {
 		g.drawString(label, (w - fm.stringWidth(label)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
 	}
 
-	private void paintResult(Graphics2D g, int kk, IResult r, int x, int y, int w, int h, int arc, FontMetrics fm) {
+	private void paintResultBackground(Graphics2D g, int kk, IResult r, int x, int y, int w, int h, int arc) {
 		Color c = null;
 		if (ContestUtil.isRecent(contest, r)) {
 			int k = kk;
@@ -359,6 +394,9 @@ public class TeamTileHelper {
 
 		g.setColor(c);
 		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
+	}
+
+	private void paintResultText(Graphics2D g, IResult r, int x, int y, int w, int h, int arc, FontMetrics fm) {
 		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		String s = "";
 
@@ -370,6 +408,12 @@ public class TeamTileHelper {
 
 			g.setFont(statusFont);
 			g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
+			// TODO: Use TextHelper.drawFit to fit text that does not fit in the avilable space
+			// note: 9-999 is used to guess the space needed, but number of submissions may be above 9
+			// and not fit.
+			//int sw = fm.stringWidth(s);
+			//TextHelper text = new TextHelper(g, s);
+			//text.drawFit(x + (w - Math.min(sw, w)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1, w - 2);
 
 			if (r.isFirstToSolve()) {
 				g.setColor(ICPCColors.SOLVED_COLOR);
