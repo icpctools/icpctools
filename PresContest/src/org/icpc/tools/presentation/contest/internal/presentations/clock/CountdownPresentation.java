@@ -30,7 +30,7 @@ public class CountdownPresentation extends ClockPresentation {
 			targetTime = -1;
 		} else if (!value.startsWith("lightMode:")) {
 			try {
-				targetTime = 1000 * Integer.parseInt(value);
+				targetTime = 1000L * Long.parseLong(value);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error setting properties", e);
 			}
