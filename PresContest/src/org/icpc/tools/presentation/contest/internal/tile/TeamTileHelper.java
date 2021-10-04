@@ -11,6 +11,7 @@ import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
@@ -43,6 +44,8 @@ public class TeamTileHelper {
 	private IContest contest;
 	private boolean lightMode;
 
+	private boolean approximateRendering;
+
 	private Map<String, BufferedImage> nameImages = new HashMap<>();
 	private Map<String, SoftReference<BufferedImage>> resultImages = new HashMap<>();
 	private Map<String, BufferedImage> problemImages = new HashMap<>();
@@ -60,6 +63,10 @@ public class TeamTileHelper {
 
 	protected void setLightMode(boolean lightMode) {
 		this.lightMode = lightMode;
+	}
+
+	public void setApproximateRendering(boolean approximateRendering) {
+		this.approximateRendering = approximateRendering;
 	}
 
 	protected void setup() {
@@ -142,30 +149,50 @@ public class TeamTileHelper {
 			nameImages.put(team.getId(), img);
 		}
 
-		if (img.getWidth() - 2 < maxwid) {
+		int naturalWidth = img.getWidth() - 2;
+		if (naturalWidth <= maxwid) {
 			g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 1, null);
 			return;
 		}
 
-		String hash = team.getId() + maxwid;
-		img = nameImages.get(hash);
+		int hashWidth = maxwid;
+		if (approximateRendering) {
+			final int APPROX_WIDTH_STEP = 50;
+			// pick approximate width higher or equal to maxwid
+			int approxmaxwid = (maxwid + APPROX_WIDTH_STEP - 1) / APPROX_WIDTH_STEP * APPROX_WIDTH_STEP;
+			// the approximate size can get bigger than the actual natural text length.
+			// in that case, adjust it down to the full natural width.
+			approxmaxwid = Math.min(approxmaxwid, naturalWidth);
+			hashWidth = approxmaxwid;
+		}
+		String hash = team.getId() + hashWidth;
+		// if hashWidth matches the natural width, reuse the
+		// already rendered full width image, but just draw it scaled down.
+		if (hashWidth < naturalWidth) {
+			img = nameImages.get(hash);
+		}
 		if (img == null) {
+			if (approximateRendering) {
+				Trace.trace(Trace.INFO, "" + hashWidth + " approximating " + maxwid +
+						" vs natural width " + naturalWidth + " for " + team.getActualDisplayName());
+			}
 			g.setFont(teamFont);
 			TextHelper text = new TextHelper(g, team.getActualDisplayName());
 
-			img = new BufferedImage(text.getWidth() + 2, text.getHeight() + 4, BufferedImage.TYPE_4BYTE_ABGR);
+			img = new BufferedImage(hashWidth + 2, text.getHeight() + 4, BufferedImage.TYPE_4BYTE_ABGR);
 			Graphics2D gg = (Graphics2D) img.getGraphics();
 			gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			gg.setFont(teamFont);
 			gg.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			text.setGraphics(gg);
-			text.drawFit(1, 2, maxwid);
+			text.drawFit(1, 2, hashWidth);
 			gg.dispose();
 
 			nameImages.put(hash, img);
 		}
-		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 2, null);
+		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 2, maxwid + 2,
+				img.getHeight(), null);
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
