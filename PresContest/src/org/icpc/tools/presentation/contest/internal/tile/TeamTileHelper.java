@@ -222,21 +222,20 @@ public class TeamTileHelper {
 				RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
 		rankAndScoreMeasure.startMeasure();
 		g.setFont(rankFont);
-		FontMetrics fm = g.getFontMetrics();
-		int ww = fm.stringWidth("199");
+		FontMetrics rankFm = g.getFontMetrics();
+		int ww = rankFm.stringWidth("199");
 
 		g.setFont(penaltyFont);
-		fm = g.getFontMetrics();
-		int maxwid = tileDim.width - tileDim.height - ww - IN_TILE_GAP * 3 - 2 - fm.stringWidth("1999");
+		FontMetrics penaltyFm = g.getFontMetrics();
+		int maxwid = tileDim.width - tileDim.height - ww - IN_TILE_GAP * 3 - 2 - penaltyFm.stringWidth("1999");
 
 		// draw rank & score
 		g.setFont(rankFont);
 		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
-		fm = g.getFontMetrics();
 
 		IStanding standing = contest.getStanding(team);
 		String s = standing.getRank();
-		g.drawString(s, (ww - fm.stringWidth(s)) / 2, (tileDim.height + fm.getAscent()) / 2);
+		g.drawString(s, (ww - rankFm.stringWidth(s)) / 2, (tileDim.height + rankFm.getAscent()) / 2);
 		rankAndScoreMeasure.stopMeasure();
 
 		// draw name
@@ -246,20 +245,19 @@ public class TeamTileHelper {
 
 		rankAndScoreMeasure.startMeasure();
 		g.setFont(teamFont);
-		fm = g.getFontMetrics();
+		FontMetrics teamFm = g.getFontMetrics();
 		if (standing.getNumSolved() > 0) {
 			s = standing.getNumSolved() + "";
-			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - fm.stringWidth(s),
-					(tileDim.height * 7 / 10 + fm.getAscent()) / 2 - 2);
+			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - teamFm.stringWidth(s),
+					(tileDim.height * 7 / 10 + teamFm.getAscent()) / 2 - 2);
 		}
 
 		g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setFont(penaltyFont);
-		fm = g.getFontMetrics();
 		if (standing.getTime() > 0) {
 			s = standing.getTime() + "";
-			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - fm.stringWidth(s),
-					tileDim.height * 17 / 20 + fm.getAscent() / 2 - 3);
+			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - penaltyFm.stringWidth(s),
+					tileDim.height * 17 / 20 + penaltyFm.getAscent() / 2 - 3);
 		}
 		rankAndScoreMeasure.stopMeasure();
 
@@ -277,9 +275,9 @@ public class TeamTileHelper {
 		int arc = tileDim.width / 120;
 
 		g.setFont(statusFont);
-		fm = g.getFontMetrics();
+		FontMetrics statusFm = g.getFontMetrics();
 		g.setFont(problemFont);
-		FontMetrics fm2 = g.getFontMetrics();
+		FontMetrics problemFm = g.getFontMetrics();
 
 		for (int i = 0; i < numProblems; i++) {
 			IResult r = contest.getResult(team, i);
@@ -294,7 +292,7 @@ public class TeamTileHelper {
 					Graphics2D gg = (Graphics2D) img.getGraphics();
 					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-					paintProblem(gg, (int) w, h, arc, fm2, label);
+					paintProblem(gg, (int) w, h, arc, problemFm, label);
 					gg.dispose();
 					problemImages.put(label + w, img);
 				}
@@ -303,7 +301,7 @@ public class TeamTileHelper {
 				problemMeasure.stopMeasure();
 				activeProblemMeasure.startMeasure();
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
-				paintResult(g, k, r, xx + (int) (w * i), y, (int) w, h, arc, fm);
+				paintResult(g, k, r, xx + (int) (w * i), y, (int) w, h, arc, statusFm);
 				activeProblemMeasure.stopMeasure();
 				problemMeasure.startMeasure();
 			} else {
@@ -317,7 +315,7 @@ public class TeamTileHelper {
 					Graphics2D gg = (Graphics2D) img.getGraphics();
 					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-					paintResult(gg, r, (int) w, h, arc, fm);
+					paintResult(gg, r, (int) w, h, arc, statusFm);
 					gg.dispose();
 					resultImages.put(hash, new SoftReference<BufferedImage>(img));
 				}
