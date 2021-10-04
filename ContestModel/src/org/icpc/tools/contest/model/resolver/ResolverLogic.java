@@ -1,9 +1,12 @@
 package org.icpc.tools.contest.model.resolver;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
@@ -43,6 +46,8 @@ import org.icpc.tools.contest.model.util.AwardUtil;
  * the resolution will take.
  */
 public class ResolverLogic {
+	private static final Collator collator = Collator.getInstance(Locale.US);
+
 	enum State {
 		SELECT_TEAM, SELECT_PROBLEM, SOLVED_MOVE, SOLVED_STAY, FAILED, DESELECT, SELECT_SUBMISSION
 	}
@@ -200,6 +205,16 @@ public class ResolverLogic {
 
 						// TODO figure out selections
 					}
+
+					// sort team by name
+					Arrays.sort(teams, new Comparator<ITeam>() {
+						@Override
+						public int compare(ITeam t1, ITeam t2) {
+							String n1 = t1.getActualDisplayName();
+							String n2 = t2.getActualDisplayName();
+							return collator.compare(n1, n2);
+						}
+					});
 
 					TeamListStep step = new TeamListStep(award.getCitation(), subTitle, teams, selections);
 					step.topTeam = topTeam;

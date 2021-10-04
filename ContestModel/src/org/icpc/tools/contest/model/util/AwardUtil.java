@@ -63,9 +63,9 @@ public class AwardUtil {
 				} else
 					beforeFreeze = true;
 
-				DisplayMode mode = null;
+				DisplayMode mode = DisplayMode.PAUSE;
 				if ((beforeFreeze && showBeforeFreeze) || (afterFreeze && showAfterFreeze))
-					mode = DisplayMode.DETAIL;
+					mode = null;
 
 				String citation = Messages.getString("awardFTS").replace("{0}", p.getLabel());
 				contest.add(
@@ -154,7 +154,7 @@ public class AwardUtil {
 	private static void assignFirstToSolve(Contest contest, Award a) {
 		String problemId = a.getId().substring(15);
 		a.setTeamIds(new String[0]);
-		boolean showBeforeFreeze = true;
+		boolean showBeforeFreeze = false;
 		boolean showAfterFreeze = true;
 		// assign award to one problem
 		ISubmission[] submissions = contest.getSubmissions();
@@ -369,6 +369,7 @@ public class AwardUtil {
 		((Award) award).setTeamIds(teamIds);
 		if (award.getCitation() == null)
 			((Award) award).setCitation(citation);
+		((Award) award).setParameter(null);
 
 		return firstTeamIndex + numTeams;
 	}
@@ -619,12 +620,12 @@ public class AwardUtil {
 
 				int indi;
 				for (indi = 0; indi < IAward.KNOWN_TYPES.length; indi++)
-					if (IAward.KNOWN_TYPES[indi] == ai.getAwardType())
+					if (IAward.KNOWN_TYPES[indi].equals(ai.getAwardType()))
 						break;
 
 				int indj;
 				for (indj = 0; indj < IAward.KNOWN_TYPES.length; indj++)
-					if (IAward.KNOWN_TYPES[indj] == ai.getAwardType())
+					if (IAward.KNOWN_TYPES[indj].equals(aj.getAwardType()))
 						break;
 
 				if (indi > indj) {

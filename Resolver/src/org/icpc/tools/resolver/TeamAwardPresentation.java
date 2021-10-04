@@ -1,5 +1,6 @@
 package org.icpc.tools.resolver;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -347,10 +348,24 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		}
 
 		if (showInfo && c.members.length > 0) {
-			g.setColor(Color.WHITE);
-			g.setFont(memberFont);
+			g.setComposite(AlphaComposite.SrcOver.derive(0.5f));
+			g.setColor(Color.BLACK);
 			int size = c.members.length;
 			fm = g.getFontMetrics();
+			int wid = 0;
+			for (int i = 0; i < size; i++) {
+				wid = Math.max(wid, fm.stringWidth(c.members[i]));
+			}
+			g.fillRect(0, height - h - BORDER - fm.getHeight() * size - BORDER * 2, wid + BORDER * 2,
+					fm.getHeight() * size + BORDER * 2);
+
+			wid = fm.stringWidth("Solved: 9999") + BORDER * 2;
+			g.fillRect(width - wid, height - h - BORDER * 2 - fm.getHeight() * 3, wid, BORDER * 2 + fm.getHeight() * 3);
+
+			g.setComposite(AlphaComposite.SrcOver);
+			g.setColor(Color.WHITE);
+			g.setFont(memberFont);
+
 			for (int i = 0; i < size; i++) {
 				g.drawString(c.members[i], BORDER, height - h - BORDER - fm.getHeight() * (size - i));
 			}
