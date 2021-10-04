@@ -284,9 +284,14 @@ public class TeamTileHelper {
 			if (!preRendering && !g.getClip().intersects(xx + (int) (w * i), y, w, h)) {
 				continue;
 			}
+			String hash = r.getNumSubmissions() + "-" + ContestUtil.getTime(r.getContestTime()) + " " + r.getStatus().name() + " " + (int) w;
+			if (r.isFirstToSolve()) {
+				hash += " FIRST";
+			}
 			if (r.getNumSubmissions() == 0) {
 				String label = problems[i].getLabel();
-				BufferedImage img = problemImages.get(label + w);
+				String problemOnlyHash = label + (int) w;
+				BufferedImage img = problemImages.get(problemOnlyHash);
 				if (img == null) {
 					img = new BufferedImage((int) w, h, BufferedImage.TYPE_4BYTE_ABGR);
 					Graphics2D gg = (Graphics2D) img.getGraphics();
@@ -294,7 +299,7 @@ public class TeamTileHelper {
 					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 					paintProblem(gg, (int) w, h, arc, problemFm, label);
 					gg.dispose();
-					problemImages.put(label + w, img);
+					problemImages.put(problemOnlyHash, img);
 				}
 				g.drawImage(img, xx + (int) (w * i), y, null);
 			} else if (ContestUtil.isRecent(contest, r)) {
@@ -305,12 +310,12 @@ public class TeamTileHelper {
 				activeProblemMeasure.stopMeasure();
 				problemMeasure.startMeasure();
 			} else {
-				String hash = r.getNumSubmissions() + "-" + r.getContestTime() + " " + r.getStatus().name() + " " + w;
 				SoftReference<BufferedImage> ref = resultImages.get(hash);
 				BufferedImage img = null;
 				if (ref != null)
 					img = ref.get();
 				if (img == null) {
+					Trace.trace(Trace.INFO, "problem cache miss " + hash);
 					img = new BufferedImage((int) w, h, BufferedImage.TYPE_4BYTE_ABGR);
 					Graphics2D gg = (Graphics2D) img.getGraphics();
 					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
