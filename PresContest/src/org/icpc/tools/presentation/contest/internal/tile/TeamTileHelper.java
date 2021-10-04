@@ -45,6 +45,7 @@ public class TeamTileHelper {
 	private boolean lightMode;
 
 	private boolean approximateRendering;
+	private boolean preRendering;
 
 	private Map<String, BufferedImage> nameImages = new HashMap<>();
 	private Map<String, SoftReference<BufferedImage>> resultImages = new HashMap<>();
@@ -67,6 +68,10 @@ public class TeamTileHelper {
 
 	public void setApproximateRendering(boolean approximateRendering) {
 		this.approximateRendering = approximateRendering;
+	}
+
+	public void setPreRendering(boolean preRendering) {
+		this.preRendering = preRendering;
 	}
 
 	protected void setup() {
@@ -252,6 +257,9 @@ public class TeamTileHelper {
 
 		for (int i = 0; i < numProblems; i++) {
 			IResult r = contest.getResult(team, i);
+			if (!preRendering && !g.getClip().intersects(xx + (int) (w * i), y, w, h)) {
+				continue;
+			}
 			if (r.getNumSubmissions() == 0) {
 				String label = problems[i].getLabel();
 				BufferedImage img = problemImages.get(label + w);

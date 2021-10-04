@@ -284,18 +284,24 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				int x = col * (tileDim.width + TILE_H_GAP);
 				int y = (int) ((yy - col * rows) * (tileDim.getHeight() + TILE_V_GAP));
 
-				if ((x - hScroll + tileDim.width > 0 && x - hScroll < width - margin))
+				boolean visible = (x - hScroll + tileDim.width > 0 && x - hScroll < width - margin);
+				long time = getRepeatTimeMs();
+				boolean scrolling = Math.abs(Math.IEEEremainder(scroll.getScroll(time), 1)) > 1e-3;
+				if (visible) {
 					tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs);
-
-				// pre-render a small section of what is visible next
-				int prerenderX1 = width - margin;
-				int prerenderX2 = prerenderX1 + tileDim.width;
-				int prerenderY = (timeMs % (MS_PER_COLUMN / 3)) * height / (MS_PER_COLUMN / 3);
-				if ((x - hScroll + tileDim.width > prerenderX1 && x - hScroll < prerenderX2)) {
-					if (y + tileDim.height > prerenderY && y < prerenderY) {
-						final boolean debugShowPrerender = false;
-						int dx = debugShowPrerender ? -300 : 0;
-						tileHelper.paintTile(g, x + dx, y, anim.getZoom(), team, timeMs);
+				} else if (!scrolling) {
+					// pre-render a small section of what is visible next, when not scrolling columns
+					int prerenderX1 = width - margin;
+					int prerenderX2 = prerenderX1 + tileDim.width;
+					int prerenderY = (timeMs % (MS_PER_COLUMN / 3)) * height / (MS_PER_COLUMN / 3);
+					if ((x - hScroll + tileDim.width > prerenderX1 && x - hScroll < prerenderX2)) {
+						if (y + tileDim.height > prerenderY && y < prerenderY) {
+							final boolean debugShowPrerender = false;
+							int dx = debugShowPrerender ? -300 : 0;
+							tileHelper.setPreRendering(true);
+							tileHelper.paintTile(g, x + dx, y, anim.getZoom(), team, timeMs);
+							tileHelper.setPreRendering(false);
+						}
 					}
 				}
 
