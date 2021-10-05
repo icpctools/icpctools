@@ -13,7 +13,6 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
-import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 
 public class ProblemSummaryPresentation extends AbstractICPCPresentation {
@@ -43,8 +42,6 @@ public class ProblemSummaryPresentation extends AbstractICPCPresentation {
 				return Integer.compare(p1.getOrdinal(), p2.getOrdinal());
 			}
 		});
-
-		((Problem) problems[1]).add("rgb", "#FFFFFF");
 
 		// determine size
 		int GAP = height / 50;
@@ -103,10 +100,12 @@ public class ProblemSummaryPresentation extends AbstractICPCPresentation {
 
 						if (r.isFirstToSolve())
 							stats[3] = r.getContestTime();
-						if (r.getStatus() == Status.SOLVED)
+						if (r.getStatus() == Status.SOLVED) {
 							stats[1]++;
-						else if (r.getStatus() == Status.FAILED)
-							stats[2]++;
+							if (r.getNumJudged() > 1)
+								stats[2] += r.getNumJudged() - 1;
+						} else if (r.getStatus() == Status.FAILED)
+							stats[2] += r.getNumJudged();
 					}
 					probs[i].setStats(stats);
 				}
