@@ -13,6 +13,7 @@ import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class StatusCountdownPresentation extends CountdownPresentation {
 	private static final int YES = 100;
@@ -133,7 +134,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		g.drawOval(x, y, o, o);
 
 		FontMetrics fm = g.getFontMetrics();
-		g.drawString(ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f));
+		TextHelper.drawString(g, ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f));
 	}
 
 	@Override
