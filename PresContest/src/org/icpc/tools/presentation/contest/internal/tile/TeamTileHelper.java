@@ -36,6 +36,8 @@ public class TeamTileHelper {
 	private static final Color PROBLEM_BG = new Color(90, 90, 90);
 	private static final Color PROBLEM_BG_LIGHT = new Color(160, 160, 160);
 
+	private static double PROBLEM_TIME_SQUEEZE = 3;
+
 	private Font rankFont;
 	private Font teamFont;
 	private Font statusFont;
@@ -402,7 +404,7 @@ public class TeamTileHelper {
 		String s = "";
 
 		if (r.getNumSubmissions() > 0) {
-			if (fm.stringWidth("9\u200A-\u200A999") > w - 5)
+			if (fm.stringWidth("9\u200A-\u200A999") > PROBLEM_TIME_SQUEEZE * w - 5)
 				s = r.getNumSubmissions() + "";
 			else
 				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
@@ -423,6 +425,7 @@ public class TeamTileHelper {
 		}
 	}
 
+	// TODO: remove the duplicate implementations
 	private void paintResult(Graphics2D g, IResult r, int w, int h, int arc, FontMetrics fm) {
 		Color c = null;
 		if (r.getStatus() == Status.SOLVED) {
@@ -441,7 +444,7 @@ public class TeamTileHelper {
 		String s = "";
 
 		if (r.getNumSubmissions() > 0) {
-			if (fm.stringWidth("9\u200A-\u200A999") > w - 5)
+			if (fm.stringWidth("9\u200A-\u200A999") > PROBLEM_TIME_SQUEEZE * w - 5)
 				s = r.getNumSubmissions() + "";
 			else
 				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
