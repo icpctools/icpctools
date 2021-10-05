@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class MessagePresentation extends AbstractICPCPresentation {
 	private Font font;
@@ -99,7 +100,7 @@ public class MessagePresentation extends AbstractICPCPresentation {
 
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		for (String s : messageList) {
-			g.drawString(s, (width - fm.stringWidth(s)) / 2, y);
+			TextHelper.drawString(g, s, (width - fm.stringWidth(s)) / 2, y);
 			y += fm.getHeight() + 10;
 		}
 	}
