@@ -174,7 +174,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 			text.addString(t.teamName);
 
 			int y = height - headerHeight + rowHeight / 2 - scr + (int) (rowHeight * i * SPACING);
-			if (y + fm.getHeight() < headerHeight || y >= height)
+			if (y + text.getHeight() < headerHeight || y >= height)
 				continue;
 
 			SelectType sel = selections.get(t.id);
