@@ -332,6 +332,7 @@ public class TeamTileHelper {
 					Graphics2D gg = (Graphics2D) img.getGraphics();
 					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+					gg.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
 					paintResult(gg, r, (int) w, h, arc, statusFm);
 					gg.dispose();
 					resultImages.put(hash, new SoftReference<BufferedImage>(img));
@@ -407,13 +408,13 @@ public class TeamTileHelper {
 				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
 
 			g.setFont(statusFont);
-			g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
+			//g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
 			// TODO: Use TextHelper.drawFit to fit text that does not fit in the avilable space
 			// note: 9-999 is used to guess the space needed, but number of submissions may be above 9
 			// and not fit.
-			//int sw = fm.stringWidth(s);
-			//TextHelper text = new TextHelper(g, s);
-			//text.drawFit(x + (w - Math.min(sw, w)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1, w - 2);
+			TextHelper text = new TextHelper(g, s);
+			int sw = text.getWidth();
+			text.drawFit(x + (w - Math.min(sw, w - 4)) / 2 - 2, y + (h - fm.getAscent()) / 2, w - 4);
 
 			if (r.isFirstToSolve()) {
 				g.setColor(ICPCColors.SOLVED_COLOR);
@@ -446,7 +447,10 @@ public class TeamTileHelper {
 				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
 
 			g.setFont(statusFont);
-			g.drawString(s, (w - fm.stringWidth(s)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
+			//g.drawString(s, (w - fm.stringWidth(s)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
+			TextHelper text = new TextHelper(g, s);
+			int sw = text.getWidth();
+			text.drawFit((w - Math.min(sw, w - 4)) / 2 - 2, (h - fm.getAscent()) / 2, w - 4);
 
 			if (r.isFirstToSolve()) {
 				g.setColor(ICPCColors.SOLVED_COLOR);
