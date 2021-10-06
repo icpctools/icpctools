@@ -122,7 +122,7 @@ public class ReactionVideoRecorder {
 			if (files != null) {
 				for (File f : files) {
 					FileReference ref = new FileReference();
-					String name = f.getName().substring(f.getName().length() - 5);
+					String name = f.getName().substring(0, f.getName().length() - 5);
 					ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
 					ref.mime = "application/m2ts";
 					ref.file = f;
@@ -191,7 +191,7 @@ public class ReactionVideoRecorder {
 			}
 
 			FileReference ref = new FileReference();
-			String name = file.getName().substring(file.getName().length() - 5);
+			String name = file.getName().substring(0, file.getName().length() - 5);
 			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
 			ref.mime = "application/m2ts";
 			ref.file = file;
