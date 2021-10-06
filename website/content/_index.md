@@ -9,6 +9,8 @@ icon: fas fa-home
 
 {{< figure src="/img/logo-full.png" alt="ICPC Tools logo" class="float-right" >}}
 
+{{< button name="Github" icon="fab fa-github" link="https://github.com/icpctools/icpctools" >}}
+{{< button name="Slack" icon="fab fa-slack" link="https://join.slack.com/t/icpctools/shared_invite/zt-wti6k1r6-t25~VYEcyKbVn4Vj_ecBLA" >}}
 
 Welcome to the ICPC Tools web page! This page contains a variety of tools implemented by the International Collegiate Programming Contest (ICPC) Tools Group, most of which were originally developed for use at the ICPC World Finals and have been adapted for use at other programming contests.
 These tools have been used to support a wide variety of programming contests including local contests at Universities world-wide, multiple ICPC Regional Contests around the world, and a number of ICPC World Finals.
@@ -51,6 +53,13 @@ Bug reports, feature requests, and even just knowing what worked or didn't for y
 Pull requests are also welcome, but if you want to implement a big feature it might be best to first create an issue to discuss it.
 
 To become a committer you must have a history of high quality bug reports, PRs, and be approved by the ICPC Tools team.
+
+## Community
+
+A slack workspace exists to discuss anything and everything ICPC Tools related.
+
+It can be found at https://icpctools.slack.com/. To join as a new member, use
+[this link to sign up](https://join.slack.com/t/icpctools/shared_invite/zt-wti6k1r6-t25~VYEcyKbVn4Vj_ecBLA).
 
 ## License
 
