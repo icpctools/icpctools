@@ -83,7 +83,6 @@ public class AwardUI {
 	protected Button groupAwards;
 	protected Button groupHighlightAwards;
 	protected Button ftsAwards;
-	protected Button finalsAwards;
 	protected Button templateAwards;
 	protected Button save;
 	protected Button upload;
@@ -216,15 +215,6 @@ public class AwardUI {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				launchAwardDialog(new FirstToSolveAwardDialog(shell, contest));
-			}
-		});
-
-		finalsAwards = SWTUtil.createButton(awardGroup, "World Finals...");
-		finalsAwards.setEnabled(false);
-		finalsAwards.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent event) {
-				launchAwardDialog(new WorldFinalsAwardDialog(shell, contest));
 			}
 		});
 
@@ -395,7 +385,6 @@ public class AwardUI {
 						groupAwards.setEnabled(true);
 						groupHighlightAwards.setEnabled(true);
 						ftsAwards.setEnabled(true);
-						finalsAwards.setEnabled(true);
 						templateAwards.setEnabled(true);
 
 						save.setEnabled(true);
