@@ -298,9 +298,9 @@ public class StandaloneLauncher {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid display option: " + displayStr + " " + e.getMessage());
 		}
-		window.setPresentations(0, presentation, null);
-		((PresentationWindowImpl) window).showFPS(true);
 		if (lightMode)
 			((PresentationWindowImpl) window).setLightMode(true);
+		window.setPresentations(0, presentation, null);
+		((PresentationWindowImpl) window).showFPS(true);
 	}
 }

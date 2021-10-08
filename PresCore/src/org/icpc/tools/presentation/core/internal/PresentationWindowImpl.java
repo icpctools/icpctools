@@ -451,6 +451,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 		Dimension d = getPresentationSize();
 		for (Presentation p : newPresentations) {
 			Trace.trace(Trace.INFO, "Initializing presentation " + p);
+			if (lightMode)
+				p.setProperty("lightMode:light");
+			else
+				p.setProperty("lightMode:dark");
 			if (!p.getSize().equals(d))
 				p.setSize(d);
 			p.init();
@@ -472,11 +476,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		// trace plan
 		Trace.trace(Trace.INFO, "Next presentation plan: " + nextPlan);
-
-		if (lightMode)
-			setProperty("lightMode", "light");
-		else
-			setProperty("lightMode", "dark");
 
 		notifyPaintThread();
 	}

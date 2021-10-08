@@ -5,8 +5,8 @@ import java.awt.Graphics2D;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.presentation.contest.internal.Animator;
-import org.icpc.tools.presentation.contest.internal.ScrollAnimator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
+import org.icpc.tools.presentation.contest.internal.ScrollAnimator;
 
 public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardPresentation {
 	private static final int MS_PER_PAGE = 12 * 1000; // scroll a page every 12 seconds
@@ -110,6 +110,8 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
+
 		if (value.startsWith("scroll:")) {
 			try {
 				String val = value.substring(7);
@@ -119,7 +121,6 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 			} catch (Exception e) {
 				// ignore
 			}
-		} else
-			super.setProperty(value);
+		}
 	}
 }
