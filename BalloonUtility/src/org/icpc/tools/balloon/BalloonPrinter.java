@@ -98,6 +98,11 @@ public class BalloonPrinter {
 	 * @throws Exception
 	 */
 	public void print(PrinterData printerData, BalloonContest bc, Balloon b, String[] messages) throws Exception {
+		if (b == null)
+			Trace.trace(Trace.INFO, "Printing sample balloon");
+		else
+			Trace.trace(Trace.INFO, "Printing balloon: " + b.getId() + " " + b.getSubmissionId());
+
 		Printer printer = new Printer(printerData);
 
 		String jobName = "Balloon " + (b == null ? "Sample" : b.getSubmissionId());
