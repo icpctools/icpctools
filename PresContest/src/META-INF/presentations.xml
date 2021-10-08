@@ -605,4 +605,40 @@
       name="Slides"
       description="Zoom out to another slide"
       class="org.icpc.tools.presentation.core.transition.SlidesTransition"/>
+   
+    <!-- Resolver -->
+
+   <presentation
+      id="org.icpc.tools.presentation.contest.resolver.judge"
+      name="Judge Queue"
+      category="Resolver"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.JudgeTopPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.resolver.orgs"
+      name="Orgs Remaining"
+      category="Resolver"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.OrgsPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.resolver.splash"
+      name="Splash"
+      category="Resolver"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.SplashPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.resolver.team.award"
+      name="Award Detail"
+      category="Resolver"
+      properties="team-id:# - team id"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamAwardPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.resolver.team.list"
+      name="List Award"
+      category="Resolver"
+      properties="award-id:# - award id"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPresentation"/>
+   <presentation
+      id="org.icpc.tools.presentation.contest.resolver.team.logo"
+      name="Team Logo"
+      category="Resolver"
+      properties="team-id:# - team id"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamLogoPresentation"/>
 </presentations>

@@ -16,17 +16,13 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
-import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
-import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
-import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -76,9 +72,9 @@ public class Resolver {
 	private String displayStr;
 	private String multiDisplayStr;
 	private boolean show_info;
-	private boolean bill;
-	private boolean bill2;
+	private boolean judgeQueue;
 	private boolean test;
+	private boolean lightMode;
 	private String displayName;
 	private String[] groupList;
 	private String[] problemList;
@@ -119,10 +115,12 @@ public class Resolver {
 		System.out.println("         If multiple groups are given, each is resolved separately");
 		System.out.println("     --pause #");
 		System.out.println("         Start at the given pause #. Useful for testing/preview");
-		System.out.println("     --bill");
-		System.out.println("         Temporary option to test features for ICPC 2017/2018");
+		System.out.println("     --judgeQueue");
+		System.out.println("         Start the resolution using a judge queue. Must have at least one list award");
 		System.out.println("     --test");
 		System.out.println("         Test on an unfinished contest. Ignores (removes) all unjudged runs");
+		System.out.println("     --light");
+		System.out.println("         Use light mode");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -369,15 +367,16 @@ public class Resolver {
 				rowOffset = DEFAULT_ROW_OFFSET_WHEN_ENABLED;
 			} else
 				rowOffset = numRows;
-		} else if ("--bill".equalsIgnoreCase(option)) {
+		} else if ("--judgeQueue".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
-			bill = true;
-		} else if ("--bill2".equalsIgnoreCase(option)) {
-			ArgumentParser.expectNoOptions(option, options);
-			bill2 = true;
+			judgeQueue = true;
 		} else if ("--test".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			test = true;
+		} else if ("--light".equals(option)) {
+			lightMode = true;
+			return true;
+
 		} else {
 			// the argument read from the command line was unrecognized...
 			return false;
@@ -539,13 +538,10 @@ public class Resolver {
 			// create the official scoreboard
 			cc.officialResults();
 
-			if (bill)
-				addBillAwards();
-
 			ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, show_info, predeterminedSteps);
 
 			long time = System.currentTimeMillis();
-			List<ResolutionStep> subSteps = logic.resolveFrom(bill);
+			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
 			steps.addAll(subSteps);
 			outputStats(steps, time);
 		} else {
@@ -558,9 +554,6 @@ public class Resolver {
 			// create the official scoreboard
 			finalContest.officialResults();
 
-			if (bill)
-				addBillAwards();
-
 			ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, show_info, predeterminedSteps);
 
 			int showHour = -1;
@@ -571,58 +564,9 @@ public class Resolver {
 			}
 
 			long time = System.currentTimeMillis();
-			List<ResolutionStep> subSteps = logic.resolveFrom(bill);
+			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
 			steps.addAll(subSteps);
 			outputStats(steps, time);
-		}
-	}
-
-	protected void addBillAwards() {
-		if (!bill2)
-			return;
-
-		// find team lists
-		List<ITeam> teamGroup = new ArrayList<>();
-		ITeam[] teams = finalContest.getOrderedTeams();
-		String rank = null;
-		// int solved = 0;
-		for (int i = teams.length - 1; i >= 0; i--) {
-			ITeam team = teams[i];
-			IStanding standing = finalContest.getStanding(team);
-			if (rank != null && !standing.getRank().equals(rank)) {
-				boolean showList = true;
-				/*if (teamGroup.size() == 1) {
-					ITeam team2 = teamGroup.get(0);
-					List<IAward> aw = awards.get(team2.getId());
-					if (aw != null) {
-						for (IAward a : aw) {
-							if (a.getAwardType() == IAward.MEDAL)
-								showList = false;
-						}
-					}
-				}*/
-				if (showList) {
-					String citation = null;
-					if ("H".equals(rank))
-						citation = Messages.getString("teamListHM");
-					else
-						citation = Messages.getString("teamListTitle").replace("{0}", getPlace(rank));
-
-					int size = teamGroup.size();
-					String[] teamIds = new String[size];
-					for (int j = 0; j < size; j++) {
-						teamIds[j] = teamGroup.get(size - j - 1).getId();
-						Trace.trace(Trace.INFO, "Team list award for: " + teamIds[j]);
-					}
-
-					Trace.trace(Trace.INFO, "list award: " + citation + " " + rank);
-					finalContest.add(new Award(IAward.OTHER, i + "", teamIds, citation, DisplayMode.LIST));
-				}
-				teamGroup = new ArrayList<>();
-			}
-			rank = standing.getRank();
-			// solved = standing.getNumSolved();
-			teamGroup.add(team);
 		}
 	}
 
@@ -653,7 +597,7 @@ public class Resolver {
 					public void speedFactor(double d) {
 						sendSpeedFactor(d);
 					}
-				});
+				}, lightMode);
 
 		ui.setSpeedFactor(speedFactor);
 		ui.display();

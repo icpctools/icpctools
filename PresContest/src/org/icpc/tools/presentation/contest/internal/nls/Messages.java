@@ -31,6 +31,16 @@ public class Messages {
 	public static String titleGroupLeaderboardSubs;
 	public static String titleCommentary;
 
+	public static String splashTitle;
+	public static String splashConceptBy;
+	public static String splashConceptAttr1;
+	public static String splashConceptAttr2;
+	public static String splashConceptOrg;
+	public static String splashImplBy;
+	public static String splashImplAttr;
+	public static String splashImplOrg;
+	public static String splashPending;
+
 	static {
 		NLS.initMessages(Messages.class);
 	}

@@ -21,9 +21,9 @@ import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -31,16 +31,23 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep2;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.presentations.MessagePresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.JudgePresentation2;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.OrgsPresentation;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.SplashPresentation;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamAwardPresentation;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPresentation;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
+import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 /**
  * A Resolver contains two types of Presentations: a "ScoreboardPresentation", which is a grid
@@ -93,7 +100,7 @@ public class ResolverUI {
 	private TeamAwardPresentation awardPresentation;
 	private TeamLogoPresentation teamLogoPresentation;
 	private TeamListPresentation teamListPresentation;
-	private TeamListSidePresentation teamListSidePresentation;
+	private MessagePresentation messagePresentation;
 	private JudgePresentation2 judgePresentation;
 	private StaticLogoPresentation logoPresentation;
 	private OrgsPresentation orgPresentation;
@@ -102,9 +109,10 @@ public class ResolverUI {
 	private long lastClickTime = -1;
 	private Thread thread;
 	private int rowOffset;
+	private boolean light;
 
 	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, DisplayConfig displayConfig, boolean isPresenter,
-			int rowOffset, Screen screen, ClickListener listener) {
+			int rowOffset, Screen screen, ClickListener listener, boolean light) {
 		this.steps = steps;
 		this.showInfo = showInfo;
 		this.displayConfig = displayConfig;
@@ -137,6 +145,7 @@ public class ResolverUI {
 				// ignore
 			}
 		});
+		this.light = light;
 	}
 
 	public void moveTo(int pause2) {
@@ -188,6 +197,7 @@ public class ResolverUI {
 			// could not set title or icon
 		}
 		window = PresentationWindow.open("Resolver", iconImage);
+		((PresentationWindowImpl) window).setLightMode(light);
 
 		try {
 			window.setDisplayConfig(displayConfig);
@@ -250,8 +260,8 @@ public class ResolverUI {
 				teamLogoPresentation = new TeamLogoPresentation();
 				teamLogoPresentation.addMouseListener(nullMouse);
 
-				teamListSidePresentation = new TeamListSidePresentation();
-				teamListSidePresentation.addMouseListener(nullMouse);
+				messagePresentation = new MessagePresentation();
+				messagePresentation.addMouseListener(nullMouse);
 			}
 			if (screen == Screen.ORG) {
 				orgPresentation = new OrgsPresentation();
@@ -313,7 +323,6 @@ public class ResolverUI {
 			}
 		};
 		teamListPresentation.setSize(window.getSize());
-		teamListPresentation.loadCache(ResolutionUtil.getTeamListIds(steps));
 		teamListPresentation.addMouseListener(nullMouse);
 		teamListPresentation.setContest(contest);
 
@@ -430,6 +439,7 @@ public class ResolverUI {
 			ContestStateStep state = (ContestStateStep) step;
 			splashPresentation.setContest(state.contest);
 			scoreboardPresentation.setContest(state.contest);
+			teamListPresentation.setContest(state.contest);
 			judgePresentation.setContest(state.contest);
 			awardPresentation.setContest(state.contest);
 			if (teamLogoPresentation != null)
@@ -457,11 +467,11 @@ public class ResolverUI {
 			awardPresentation.setTeam(award.teamId);
 			if (teamLogoPresentation != null)
 				teamLogoPresentation.setTeam(award.teamId);
-		} else if (step instanceof TeamListStep) {
-			TeamListStep teamList = (TeamListStep) step;
-			teamListPresentation.setTeams(teamList);
-			if (teamListSidePresentation != null)
-				teamListSidePresentation.setTeams(teamList);
+		} else if (step instanceof ListAwardStep) {
+			ListAwardStep teamList = (ListAwardStep) step;
+			teamListPresentation.setAward(teamList.award);
+			if (messagePresentation != null)
+				messagePresentation.setProperty(teamList.award.getCitation());
 		} else if (step instanceof ScrollTeamListStep) {
 			ScrollTeamListStep scroll = (ScrollTeamListStep) step;
 			teamListPresentation.scrollIt(scroll.top);
@@ -544,7 +554,7 @@ public class ResolverUI {
 			if (pres == scoreboardPresentation || pres == judgePresentation)
 				pres2 = logoPresentation;
 			if (pres == teamListPresentation)
-				pres2 = teamListSidePresentation;
+				pres2 = messagePresentation;
 			if (pres == awardPresentation)
 				pres2 = teamLogoPresentation;
 		} else if (screen == Screen.ORG) {
