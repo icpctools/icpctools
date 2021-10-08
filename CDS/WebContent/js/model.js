@@ -134,3 +134,7 @@ function isFirstToSolve(contest, submission) {
    }
    return false;
 }
+
+function sortProblems(problems) {
+   return problems.sort((a,b) => (a.ordinal > b.ordinal) ? 1 : ((b.ordinal > a.ordinal) ? -1 : 0));
+}

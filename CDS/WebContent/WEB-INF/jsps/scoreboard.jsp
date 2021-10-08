@@ -67,7 +67,7 @@ $(document).ready(function () {
         var row = $('<tr></tr>');
         row.append(toHtml("header-start"));
    
-        problems = contest.getProblems();
+        problems = sortProblems(contest.getProblems());
         for (var i = 0; i < problems.length; i++) {
         	var p = { label: problems[i].label };
         	p = addColors(p, problems[i].rgb);
@@ -83,7 +83,7 @@ $(document).ready(function () {
         score = contest.getScoreboard();
         teams = contest.getTeams();
         orgs = contest.getOrganizations();
-        problems = contest.getProblems();
+        problems = sortProblems(contest.getProblems());
         for (var i = 0; i < score.rows.length; i++) {
             var scr = score.rows[i];
             var logoSrc = '';
