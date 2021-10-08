@@ -242,22 +242,39 @@ webcam video, and/or audio streams at the specified URL. (See the Appendices for
 In order to support easy testing, the desktop attribute may also point to a local file instead of a URL, e.g. "c:/desktop_sample.m2ts".
 Desktop and webcam files for testing should be roughly 1 min in length as they're streamed every 60s.
 
-* desktopMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the desktop stream. "Lazy" will connect only
-when the first client requests the stream and disconnect when the last client drops. "Lazy close" will only connect when a client requests the
-stream but will stay connected afterward, thus allowing any subsequent clients to connect faster. "Eager" will connect immediately and stay
-connected even when there are no clients - using up lots of resources, but allowing clients to always connect as fast as possible.
+* desktopMode: an optional string that tells the CDS how to treat the desktop stream. See below for details.
 
 * webcam: an optional template for the URL at which the CDS should access team webcam streams. The URL template may include the substitution _{0}_ or _{host}_,
 which will be replaced with the team id by the CDS. See the desktop attribute for further details.
 
-* webcamMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the webcam stream.
-See the desktopMode attribute for further details.
+* webcamMode: an optional string that tells the CDS how to treat the webcam stream. See below for details.
 
 * audio: an optional template for the URL at which the CDS should access team audio streams. The URL template may include the substitution _{0}_ or _{host}_,
 which will be replaced with the team id by the CDS. See the desktop attribute for further details.
 
-* audioMode: an optional string ("lazy", "lazy close", or "eager") that tells the CDS how to access the audio stream.
-See the desktopMode attribute for further details.
+* audioMode: an optional string that tells the CDS how to treat the audio stream. See below for details.
+
+###### Streaming Modes
+
+The CDS video and audio streams support 4 modes which are described below. Aside from the "direct" mode, all other modes will pass the streams through
+the CDS. The CDS is a video/audio aggregator capable of multiplexing to many clients - i.e. regardless of how many clients are connected to the same
+team stream, there is ever only one connection to the team machine. The CDS can also be dual-homed (on two networks), allowing clients that can't
+directly access teams to see their video streams.
+
+Your mileage may vary and should be tested in advance, but CDS streaming tends to be network limited. i.e. an average laptop or desktop machine running
+the CDS can stream up to 300 HD webcams at a time (~3Mb/HD stream), which at 900Mb/s saturates a 1Gb ethernet connection.
+
+Depending on how the team machine is configured to do streaming, there can be an initial connection delay of several seconds. To help with this the CDS
+has the "lazy close" and "eager" modes described below.
+
+These are the supported modes:
+
+| Mode | Description |
+| --- | ---
+| direct | Exposes the stream URL directly to clients in the feed. The CDS will not access the URL unless you enable the recording of reaction videos.
+| lazy | Gives clients a URL to the CDS. The CDS will connect to the source only when the first client requests a particular stream, and will disconnect that stream when the last client drops.
+| lazy_close | Same as lazy, but the CDS will stay connected after the last client drops. This will allow subsequent calls to connect much faster.
+| eager | Cause the CDS to connect to all streams immediately, and stay connected even after all clients disconnect - using up lots of resources, but allowing all clients to connect as fast as possible.
 
 
 ###### test Child Element
