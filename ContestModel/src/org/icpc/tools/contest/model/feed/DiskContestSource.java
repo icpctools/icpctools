@@ -1003,9 +1003,9 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			String s = "Imported team-members";
-			File f = getRegistrationFile(root, "members.json");
+			File f = getRegistrationFile(root, "team-members.json");
 			if (f.exists())
-				loadFile(contest, f, "members");
+				loadFile(contest, f, "team-members");
 			else {
 				f = getConfigFile(root, "members.tsv");
 				if (f.exists())
