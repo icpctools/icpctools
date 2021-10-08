@@ -37,7 +37,7 @@ registerContestObjectTable("problems");
 
 $(document).ready(function () {
     $.when(contest.loadProblems()).done(function () {
-        fillContestObjectTable("problems", contest.getProblems())
+        fillContestObjectTable("problems", sortProblems(contest.getProblems()))
     }).fail(function (result) {
     	console.log("Error loading problems: " + result);
     });
