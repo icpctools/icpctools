@@ -17,7 +17,7 @@ public class VideoAggregator {
 	}
 
 	public static enum ConnectionMode {
-		LAZY, EAGER, LAZY_CLOSE
+		DIRECT, LAZY, EAGER, LAZY_CLOSE
 	}
 
 	private static final int MAX_STREAMS = 850; // 140 * 3 * 2 + 10
@@ -226,6 +226,8 @@ public class VideoAggregator {
 			return ConnectionMode.LAZY;
 		else if ("lazy_close".equalsIgnoreCase(s))
 			return ConnectionMode.LAZY_CLOSE;
+		else if ("direct".equalsIgnoreCase(s))
+			return ConnectionMode.DIRECT;
 		return VideoAggregator.ConnectionMode.LAZY;
 	}
 

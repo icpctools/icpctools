@@ -57,6 +57,10 @@ public class VideoStream {
 		return name;
 	}
 
+	public String getURL() {
+		return url;
+	}
+
 	public Status getStatus() {
 		return status;
 	}

@@ -132,6 +132,14 @@ public class VideoServlet extends HttpServlet {
 			return;
 		}
 
+		// clients don't have this URL for direct connections, but if they try the pattern just
+		// redirect them
+		VideoStream vs = va.getStream(stream);
+		if (ConnectionMode.DIRECT.equals(vs.getMode())) {
+			response.sendRedirect(vs.getURL());
+			return;
+		}
+
 		// block https connections
 		if (request.isSecure() && !Role.isAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Use the Contest API. Incorrect URL, should be http");

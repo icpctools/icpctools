@@ -10,6 +10,8 @@ import org.icpc.tools.cds.ConfiguredContest.Test;
 import org.icpc.tools.cds.ConfiguredContest.View;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
+import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
+import org.icpc.tools.cds.video.VideoStream;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
@@ -220,7 +222,11 @@ public class PlaybackContest extends Contest {
 		FileReferenceList list = new FileReferenceList();
 		for (Integer i : in) {
 			FileReference ref = new FileReference();
-			ref.href = "http://<host>/stream/" + i;
+			VideoStream vs = VideoAggregator.getInstance().getStream(i);
+			if (ConnectionMode.DIRECT.equals(vs.getMode()))
+				ref.href = vs.getURL();
+			else
+				ref.href = "http://<host>/stream/" + i;
 			ref.mime = "application/m2ts";
 			list.add(ref);
 		}
