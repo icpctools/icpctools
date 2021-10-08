@@ -39,7 +39,7 @@ public class StandaloneLauncher {
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
-				if ("--p".equals(option)) {
+				if ("-p".equals(option) || "--presentations".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "presentations:string", "*");
 					for (Object o : options)
 						presList.add((String) o);
@@ -107,7 +107,8 @@ public class StandaloneLauncher {
 		System.out.println("   or: standalone.bat/sh contestPath [options]");
 		System.out.println();
 		System.out.println("  Options:");
-		System.out.println("     --p pres1 pres2 ...");
+		System.out.println("     -p pres1 pres2 ...");
+		System.out.println("     --presentations pres1 pres2 ...");
 		System.out.println("         Loop through showing the specified presentation names, ids, or");
 		System.out.println("         numbers in order");
 		System.out.println("     --display_name template");
