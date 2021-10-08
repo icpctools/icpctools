@@ -532,6 +532,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		setProperty("name", name);
 	}
 
+	@Override
 	public void setLightMode(boolean light) {
 		this.lightMode = light;
 		if (lightMode)

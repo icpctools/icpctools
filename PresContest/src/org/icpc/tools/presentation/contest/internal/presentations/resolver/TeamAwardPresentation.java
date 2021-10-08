@@ -1,4 +1,4 @@
-package org.icpc.tools.resolver;
+package org.icpc.tools.presentation.contest.internal.presentations.resolver;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -452,5 +452,21 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		}
 
 		currentCache.awards = list;
+	}
+
+	@Override
+	public void setProperty(String value) {
+		super.setProperty(value);
+		if (value == null || value.isEmpty())
+			return;
+
+		if (value.startsWith("team-id:")) {
+			try {
+				String teamId = value.substring(8);
+				setTeam(teamId);
+			} catch (Exception e) {
+				Trace.trace(Trace.INFO, "Invalid " + value);
+			}
+		}
 	}
 }

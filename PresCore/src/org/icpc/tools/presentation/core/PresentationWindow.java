@@ -154,4 +154,9 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 
 	@Override
 	public abstract BufferedImage createImage(float scale);
+
+	/**
+	 * Turn light mode on or off.
+	 */
+	public abstract void setLightMode(boolean light);
 }

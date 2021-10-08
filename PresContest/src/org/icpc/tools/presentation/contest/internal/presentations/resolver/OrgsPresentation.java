@@ -1,4 +1,4 @@
-package org.icpc.tools.resolver;
+package org.icpc.tools.presentation.contest.internal.presentations.resolver;
 
 import java.awt.AlphaComposite;
 import java.awt.Dimension;

@@ -198,29 +198,21 @@ public class ResolutionUtil {
 		}
 	}
 
-	public static class TeamListStep implements ResolutionStep {
-		public String title;
-		public String subTitle;
+	public static class ListAwardStep implements ResolutionStep {
+		public IAward award;
 		public ITeam[] teams;
 		public int topTeam;
 		public Map<String, SelectType> selections;
 
-		public TeamListStep(String title, String subTitle, ITeam[] teams, Map<String, SelectType> selections) {
-			this.title = title;
-			this.subTitle = subTitle;
+		public ListAwardStep(IAward award, ITeam[] teams, Map<String, SelectType> selections) {
+			this.award = award;
 			this.teams = teams;
 			this.selections = selections;
 		}
 
 		@Override
 		public String toString() {
-			StringBuilder sb = new StringBuilder("Team List ");
-			if (teams == null)
-				sb.append("(none)");
-			else
-				sb.append(teams.length);
-			sb.append(" " + title + " - " + subTitle);
-			return sb.toString();
+			return "Team List " + award.getId();
 		}
 	}
 
@@ -281,21 +273,6 @@ public class ResolutionUtil {
 			}
 		}
 		return count;
-	}
-
-	public static List<String> getTeamListIds(List<ResolutionStep> steps) {
-		List<String> teamIds = new ArrayList<>();
-		for (ResolutionStep step : steps) {
-			if (step instanceof TeamListStep) {
-				TeamListStep as = (TeamListStep) step;
-				if (as.teams != null) {
-					for (ITeam team : as.teams) {
-						teamIds.add(team.getId());
-					}
-				}
-			}
-		}
-		return teamIds;
 	}
 
 	protected static void numberThePauses(List<ResolutionStep> steps) {

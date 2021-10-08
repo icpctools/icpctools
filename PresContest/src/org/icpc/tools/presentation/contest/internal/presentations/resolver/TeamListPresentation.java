@@ -1,20 +1,26 @@
-package org.icpc.tools.resolver;
+package org.icpc.tools.presentation.contest.internal.presentations.resolver;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.text.Collator;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
 import org.icpc.tools.contest.model.resolver.SelectType;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.Animator;
@@ -24,27 +30,23 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class TeamListPresentation extends AbstractICPCPresentation {
+	private static final Collator collator = Collator.getInstance(Locale.US);
+
 	private static final float SPACING = 1.2f;
 	private static final int GAP = 8;
 	private static final int ROWS_PER_SCREEN = 15;
 
 	private Animator scroll = new Animator(0, new Movement(0.5, 0.75));
 	private boolean scrollPause = false;
+	private IAward award;
 
-	class TeamInfo {
-		private String teamName;
-		private String id;
-	}
-
+	private ITeam[] teams;
 	private Map<String, BufferedImage> logos = new HashMap<>();
 
-	private TeamListStep step;
-	private TeamInfo[] teams;
-	private Map<String, SelectType> selections;
+	private Map<String, SelectType> selections = new HashMap<>();
 
 	private Font teamFont;
 	private Font titleFont;
-	private Font subTitleFont;
 	private int rowHeight;
 	private double bottom = 0;
 
@@ -55,7 +57,6 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		float inch = height * 72f / dpi / 10f;
 		teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * 0.62f);
 		titleFont = ICPCFont.deriveFont(Font.BOLD, inch);
-		subTitleFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.5f);
 	}
 
 	@Override
@@ -64,20 +65,45 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		scroll.resetToTarget();
 	}
 
-	protected void loadCache(final List<String> teamIds) {
+	@Override
+	public void setSize(Dimension d) {
+		super.setSize(d);
+
+		IContest contest = getContest();
+		if (contest == null)
+			return;
+
 		rowHeight = (height - 40) / ROWS_PER_SCREEN;
+
+		// selections = step.selections;
+
+		if (award != null) {
+			bottom = teams.length + height / rowHeight;
+
+			logos.clear();
+			cacheLogos();
+		}
+	}
+
+	protected void cacheLogos() {
+		if (teams == null || height < 100)
+			return;
+
 		// load logos in background
+		ITeam[] teams2 = teams;
 		execute(new Runnable() {
 			@Override
 			public void run() {
-				for (String id : teamIds) {
-					ITeam team = getContest().getTeamById(id);
+				if (teams2 == null)
+					return;
+
+				for (ITeam team : teams2) {
 					if (team != null) {
 						IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
 						if (org != null) {
 							BufferedImage img = org.getLogoImage(rowHeight, rowHeight, true, true);
 							if (img != null)
-								logos.put(id, img);
+								logos.put(team.getId(), img);
 						}
 					}
 				}
@@ -85,26 +111,39 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		});
 	}
 
-	public void setTeams(TeamListStep step) {
-		this.step = step;
+	public void setAward(IAward award) {
+		this.award = award;
+		Trace.trace(Trace.INFO, "Set award: " + award);
 
-		if (step == null) {
-			teams = null;
-			selections = new HashMap<>();
+		if (award == null) {
+			teams = new ITeam[0];
 			return;
 		}
 
-		final int size = step.teams.length;
-		teams = new TeamInfo[size];
+		String[] teamIds = award.getTeamIds();
+		final int size = teamIds.length;
+		teams = new ITeam[size];
 		for (int i = 0; i < size; i++) {
-			teams[i] = new TeamInfo();
-			teams[i].teamName = step.teams[i].getActualDisplayName();
-			teams[i].id = step.teams[i].getId();
+			teams[i] = getContest().getTeamById(teamIds[i]);
 		}
 
-		selections = step.selections;
+		// sort teams alphabetically
+		Arrays.sort(teams, new Comparator<ITeam>() {
+			@Override
+			public int compare(ITeam t1, ITeam t2) {
+				String n1 = t1.getActualDisplayName();
+				String n2 = t2.getActualDisplayName();
+				return collator.compare(n1, n2);
+			}
+		});
 
-		bottom = size + height / rowHeight;
+		cacheLogos();
+
+		// TODO figure out selections
+		// selections = step.selections;
+
+		if (rowHeight > 0)
+			bottom = size + height / rowHeight;
 	}
 
 	/**
@@ -131,7 +170,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void paint(Graphics2D g2) {
-		if (teams == null)
+		if (award == null || teams == null)
 			return;
 
 		// draw title across the top
@@ -141,15 +180,15 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		g2.setFont(titleFont);
 		g2.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		FontMetrics fm = g2.getFontMetrics();
-		g2.drawString(step.title, (width - fm.stringWidth(step.title)) / 2, fm.getAscent());
+		g2.drawString(award.getCitation(), (width - fm.stringWidth(award.getCitation())) / 2, fm.getAscent());
 
 		int headerHeight = fm.getHeight();
-		if (step.subTitle != null) {
+		/*if (step.subTitle != null) {
 			g2.setFont(subTitleFont);
 			fm = g2.getFontMetrics();
 			g2.drawString(step.subTitle, (width - fm.stringWidth(step.subTitle)) / 2, headerHeight + fm.getAscent());
 			headerHeight += fm.getHeight();
-		}
+		}*/
 
 		g2.drawLine(0, headerHeight - 1, width, headerHeight - 1);
 
@@ -163,21 +202,21 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 		fm = g.getFontMetrics();
 		int size = teams.length;
 		for (int i = 0; i < size; i++) {
-			TeamInfo t = teams[i];
+			ITeam t = teams[i];
 
 			TextHelper text = new TextHelper(g);
 			text = new TextHelper(g);
-			BufferedImage img = logos.get(t.id);
+			BufferedImage img = logos.get(t.getId());
 			if (img != null)
 				text.addImage(img);
 			text.addSpacer(GAP, rowHeight);
-			text.addString(t.teamName);
+			text.addString(t.getActualDisplayName());
 
 			int y = height - headerHeight + rowHeight / 2 - scr + (int) (rowHeight * i * SPACING);
 			if (y + text.getHeight() < headerHeight || y >= height)
 				continue;
 
-			SelectType sel = selections.get(t.id);
+			SelectType sel = selections.get(t.getId());
 			if (sel != null) {
 				if (sel == SelectType.FTS)
 					g.setColor(ICPCColors.FIRST_TO_SOLVE_COLOR);
@@ -211,5 +250,26 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 	public void setScrollPause(boolean pause) {
 		scrollPause = pause;
+	}
+
+	@Override
+	public void setProperty(String value) {
+		super.setProperty(value);
+		if (value == null || value.isEmpty())
+			return;
+
+		if ("speed".equals("0"))
+			scrollPause = true;
+		if ("speed".equals("1"))
+			scrollPause = false;
+		if (value.startsWith("award-id:")) {
+			try {
+				String awardId = value.substring(9);
+				setAward(getContest().getAwardById(awardId));
+			} catch (Exception e) {
+				Trace.trace(Trace.INFO, "Invalid " + value);
+			}
+			scrollPause = true;
+		}
 	}
 }

@@ -1,12 +1,9 @@
 package org.icpc.tools.contest.model.resolver;
 
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
@@ -35,7 +32,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep2;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamListStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
@@ -46,8 +43,6 @@ import org.icpc.tools.contest.model.util.AwardUtil;
  * the resolution will take.
  */
 public class ResolverLogic {
-	private static final Collator collator = Collator.getInstance(Locale.US);
-
 	enum State {
 		SELECT_TEAM, SELECT_PROBLEM, SOLVED_MOVE, SOLVED_STAY, FAILED, DESELECT, SELECT_SUBMISSION
 	}
@@ -126,7 +121,7 @@ public class ResolverLogic {
 
 	// map from all the teamIds getting an award to the list of awards they're getting
 	private Map<String, List<IAward>> awards = new HashMap<>();
-	private List<TeamListStep> teamLists = new ArrayList<>();
+	private List<ListAwardStep> teamLists = new ArrayList<>();
 
 	private List<ResolutionStep> steps = new ArrayList<>();
 
@@ -192,9 +187,6 @@ public class ResolverLogic {
 						aw.add(award);
 					}
 				} else {
-					String subTitle = ""; // Messages.getString("teamListSubtitle").replace("{0}",
-													// solved + ""); // TODO
-
 					int size = teamIds.length;
 					ITeam[] teams = new ITeam[size];
 					Map<String, SelectType> selections = new HashMap<>();
@@ -206,17 +198,7 @@ public class ResolverLogic {
 						// TODO figure out selections
 					}
 
-					// sort team by name
-					Arrays.sort(teams, new Comparator<ITeam>() {
-						@Override
-						public int compare(ITeam t1, ITeam t2) {
-							String n1 = t1.getActualDisplayName();
-							String n2 = t2.getActualDisplayName();
-							return collator.compare(n1, n2);
-						}
-					});
-
-					TeamListStep step = new TeamListStep(award.getCitation(), subTitle, teams, selections);
+					ListAwardStep step = new ListAwardStep(award, teams, selections);
 					step.topTeam = topTeam;
 					teamLists.add(step);
 				}
@@ -224,9 +206,9 @@ public class ResolverLogic {
 		}
 
 		// sort team lists
-		teamLists.sort(new Comparator<TeamListStep>() {
+		teamLists.sort(new Comparator<ListAwardStep>() {
 			@Override
-			public int compare(TeamListStep t1, TeamListStep t2) {
+			public int compare(ListAwardStep t1, ListAwardStep t2) {
 				if (t1.topTeam < t2.topTeam)
 					return 1;
 				return -1;
@@ -463,9 +445,8 @@ public class ResolverLogic {
 
 				boolean backToScoreboard = false;
 				if (!teamLists.isEmpty()) {
-					TeamListStep step = teamLists.get(0);
-					if (step != null && allTeamsResolved(step, currentRow)
-							&& differenceInScore(step, teamLists.size() == 1)) {
+					ListAwardStep step = teamLists.get(0);
+					if (step != null && allTeamsResolved(step, currentRow)) {
 						Trace.trace(Trace.INFO, "Team list at row: " + currentRow);
 						teamLists.remove(step);
 
@@ -592,13 +573,15 @@ public class ResolverLogic {
 		steps.add(new PauseStep());
 	}
 
-	protected boolean allTeamsResolved(TeamListStep step, int row) {
+	protected boolean allTeamsResolved(ListAwardStep step, int row) {
 		if (step == null)
 			return false;
 
 		// check if all teams are resolved
 		int numProblems = contest.getNumProblems();
-		for (ITeam team : step.teams) {
+		IAward award = step.award;
+		for (String teamId : award.getTeamIds()) {
+			ITeam team = contest.getTeamById(teamId);
 			if (row > contest.getOrderOf(team))
 				return false;
 			for (int i = 0; i < numProblems; i++) {
@@ -608,35 +591,6 @@ public class ResolverLogic {
 			}
 		}
 		return true;
-	}
-
-	protected boolean differenceInScore(TeamListStep step, boolean lastList) {
-		if (step == null)
-			return false;
-
-		// find the top row of this group
-		int row = contest.getNumTeams() + 10;
-		for (ITeam team : step.teams)
-			row = Math.min(row, contest.getOrderOf(team));
-
-		// check if the team above has solved a different number of problems
-		ITeam team = step.teams[0];
-		int numSolved = contest.getStanding(team).getNumSolved();
-		ITeam[] teams = contest.getOrderedTeams();
-		if (row == 0)
-			return false;
-		ITeam next = teams[row - 1];
-		if (numSolved != contest.getStanding(next).getNumSolved())
-			return true;
-
-		// if it doesn't, there's only an exception if this is the last one...
-		if (!lastList)
-			return false;
-
-		// ... and the final score won't be different
-		teams = finalContest.getOrderedTeams();
-		next = teams[row - 1];
-		return numSolved == finalContest.getStanding(next).getNumSolved();
 	}
 
 	/**
