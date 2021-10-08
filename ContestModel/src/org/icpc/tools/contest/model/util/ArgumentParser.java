@@ -14,7 +14,7 @@ public class ArgumentParser {
 		 * Clients will typically call expectOptions() or expectNoOptions() to validate the number
 		 * and type of the arguments, then read the values.
 		 *
-		 * @param option the command line option, e.g. --option
+		 * @param option the command line option, e.g. --option or -p
 		 * @param args the arguments supplied for the option
 		 * @return true if the option was expected, false if the option wasn't (and this class will
 		 *         provide an appropriate error
@@ -249,7 +249,7 @@ public class ArgumentParser {
 				if (s == null)
 					continue;
 
-				if (s.startsWith("--")) {
+				if (s.startsWith("-")) {
 					if ("--help".equals(s)) {
 						parser.showHelp();
 						System.exit(0);
