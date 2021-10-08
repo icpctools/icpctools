@@ -87,7 +87,7 @@ public class JSONParser {
 				String value = (String) props.get(key);
 				return Double.parseDouble(value);
 			} catch (Exception e) {
-				return -1;
+				return Double.NaN;
 			}
 		}
 
