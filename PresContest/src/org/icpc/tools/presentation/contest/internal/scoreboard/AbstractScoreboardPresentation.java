@@ -631,6 +631,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 	@Override
 	public void setProperty(String value) {
+		super.setProperty(value);
+
 		if (value.startsWith("focusTeam:")) {
 			try {
 				setFocusOnTeam(value.substring(11)); // TODO 2017 look up team by number
@@ -643,7 +645,6 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 			} catch (Exception e) {
 				// ignore
 			}
-		} else
-			super.setProperty(value);
+		}
 	}
 }

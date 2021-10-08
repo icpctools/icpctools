@@ -23,7 +23,7 @@ public class Legend {
 		font = ICPCFont.deriveFont(Font.BOLD, 24);
 	}
 
-	public static void drawLegend(Graphics2D g) {
+	public static void drawLegend(Graphics2D g, boolean light) {
 		if (font == null)
 			init(g);
 
@@ -32,7 +32,7 @@ public class Legend {
 		FontMetrics fm = g.getFontMetrics();
 
 		Color c = new Color(255, 255, 255);
-		g.setColor(new Color(0, 0, 0, 192));
+		g.setColor(light ? new Color(255, 255, 255, 192) : new Color(0, 0, 0, 192));
 
 		int fh = fm.getHeight();
 		int fx = fh * 2;

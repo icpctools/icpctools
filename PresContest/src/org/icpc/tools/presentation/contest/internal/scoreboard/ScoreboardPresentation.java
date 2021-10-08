@@ -125,7 +125,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 	protected void paintLegend(Graphics2D g) {
 		if (showLegend) {
 			g.translate(width - 30, height - 200);
-			Legend.drawLegend(g);
+			Legend.drawLegend(g, isLightMode());
 			g.translate(30 - width, 200 - height);
 		}
 	}

@@ -198,7 +198,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 	@Override
 	protected void paintLegend(Graphics2D g) {
 		g.translate(width - 30, height - 230);
-		Legend.drawLegend(g);
+		Legend.drawLegend(g, isLightMode());
 		g.translate(30 - width, -(height - 230));
 	}
 }
