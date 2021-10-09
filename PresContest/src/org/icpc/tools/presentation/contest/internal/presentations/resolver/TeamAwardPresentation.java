@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.util.Messages;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class TeamAwardPresentation extends AbstractICPCPresentation {
 	private static final int BORDER = 20;
@@ -315,7 +316,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 
 		g.setColor(Color.WHITE);
 		for (int i = 0; i < c.name.length; i++) {
-			g.drawString(c.name[i], x, y + fm.getAscent());
+			TextHelper.drawString(g, c.name[i], x, y + fm.getAscent(), usableWidth);
 			y += fm.getHeight();
 		}
 		y += TEAM_SPACING;
@@ -342,7 +343,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			}
 
 			for (int i = 0; i < citation.length; i++) {
-				g.drawString(citation[i], x, y + fm.getAscent());
+				TextHelper.drawString(g, citation[i], x, y + fm.getAscent(), usableWidth);
 				y += fm.getHeight();
 			}
 		}
