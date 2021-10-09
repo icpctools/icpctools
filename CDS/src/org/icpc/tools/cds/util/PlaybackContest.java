@@ -355,6 +355,20 @@ public class PlaybackContest extends Contest {
 			}
 		}
 
+		if (obj instanceof Group) {
+			Group g = (Group) obj;
+			if (g.isHidden()) {
+				for (ITeam team : getTeams()) {
+					for (String gId : team.getGroupIds()) {
+						if (gId.equals(g.getId()) && !team.isHidden()) {
+							((Team) team).add("hidden", "true");
+							add(team);
+						}
+					}
+				}
+			}
+		}
+
 		if (obj instanceof Submission) {
 			Submission sub = (Submission) obj;
 
