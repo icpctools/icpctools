@@ -115,7 +115,6 @@ public class NLS {
 				if (System.getProperty("ICPC_TOOLS_NLS") != null)
 					val = "#" + val + "#";
 				try {
-					val = MessageFormat.format(val, "test");
 					f.set(c, val);
 				} catch (Exception e) {
 					Trace.trace(Trace.WARNING, "Could not set translation for " + c.getCanonicalName() + "." + f.getName(),
