@@ -103,7 +103,7 @@ public class Awards {
 						break;
 					}
 					case "--rank": {
-						ArgumentParser.expectOptions(option, options, "num:int");
+						ArgumentParser.expectOptions(option, options, "numTeams:int");
 						int num = (int) options.get(0);
 						if (num < 1)
 							throw new IllegalArgumentException("Invalid number of rank awards");
@@ -114,7 +114,7 @@ public class Awards {
 						break;
 					}
 					case "--group": {
-						ArgumentParser.expectOptions(option, options, "num:int");
+						ArgumentParser.expectOptions(option, options, "numTeams:int");
 						int num = (int) options.get(0);
 						if (num < 1 || num > 200)
 							throw new IllegalArgumentException("Invalid number of group awards");
@@ -133,7 +133,7 @@ public class Awards {
 						break;
 					}
 					case "--fts": {
-						ArgumentParser.expectOptions(option, options, "beforeFreeze:boolean", "afterFreeze:boolean");
+						ArgumentParser.expectOptions(option, options, "showBeforeFreeze:boolean", "showAfterFreeze:boolean");
 						boolean showBeforeFreeze = (boolean) options.get(0);
 						boolean showAfterFreeze = (boolean) options.get(1);
 						Trace.trace(Trace.USER, "Assigning first to solve awards.");
@@ -201,16 +201,16 @@ public class Awards {
 		System.out.println("   or: awards.bat/sh contestPath [options]");
 		System.out.println();
 		System.out.println("  Options:");
-		System.out.println("     --medals lastGold lastSilver lastBronze");
+		System.out.println("     --medals <numGold> <numSilver> <numBronze>");
 		System.out.println("         Assigns medal awards, overriding medal results in <finalize> element");
-		System.out.println("     --rank numTeams");
+		System.out.println("     --rank <numTeams>");
 		System.out.println("         Assigns rank awards to the given number of teams, e.g. \"1st place\"");
-		System.out.println("     --firstPlaceCitation text");
+		System.out.println("     --firstPlaceCitation <text>");
 		System.out.println("         Assigns first place award with the given citation, e.g. \"World Champion\"");
-		System.out.println("     --fts beforeFreeze afterFreeze");
+		System.out.println("     --fts <showBeforeFreeze> <showAfterFreeze>");
 		System.out.println("         Assigns first to solve awards, displaying for teams whose award");
 		System.out.println("         is before or after scoreboard freeze");
-		System.out.println("     --group numTeams");
+		System.out.println("     --group <numTeams>");
 		System.out.println("         Assigns group awards to the given number of teams, e.g. \"Toronto site winner\"");
 		System.out.println("     --list");
 		System.out.println("         List current awards");
