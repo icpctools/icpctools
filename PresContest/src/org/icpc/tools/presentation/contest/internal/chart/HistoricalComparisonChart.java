@@ -67,7 +67,8 @@ public class HistoricalComparisonChart extends AbstractChartPresentation {
 				IContest contest2 = loadContest(new FileInputStream(f));
 				if (contest2 != null) {
 					pastContests.add(contest2);
-					maxTime = Math.max(maxTime, contest.getDuration() - contest.getFreezeDuration());
+					if (contest.getFreezeDuration() != null)
+						maxTime = Math.max(maxTime, contest.getDuration() - contest.getFreezeDuration());
 				}
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading past contest", e);

@@ -10,12 +10,13 @@ public class FreezeFilter implements IContestObjectFilter {
 
 	public FreezeFilter(IContest contest) {
 		this.contest = contest;
-		freezeTime = contest.getDuration() - contest.getFreezeDuration();
+		if (contest.getFreezeDuration() != null)
+			freezeTime = contest.getDuration() - contest.getFreezeDuration();
 	}
 
 	@Override
 	public IContestObject filter(IContestObject obj) {
-		if (contest.getFreezeDuration() < 0)
+		if (contest.getFreezeDuration() == null)
 			return obj;
 
 		if (obj instanceof IJudgement) {

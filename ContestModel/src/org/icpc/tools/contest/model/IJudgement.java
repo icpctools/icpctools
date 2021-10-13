@@ -52,4 +52,11 @@ public interface IJudgement extends IContestObject {
 	 * @return the time
 	 */
 	Long getEndTime();
+
+	/**
+	 * Returns the score, for scoring contests.
+	 *
+	 * @return the score
+	 */
+	Double getScore();
 }

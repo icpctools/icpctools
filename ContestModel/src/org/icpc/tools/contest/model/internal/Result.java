@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
+import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.Status;
@@ -11,6 +12,7 @@ public class Result implements IResult {
 	private int time;
 	private int penalty;
 	private int pendingPenalty;
+	private double score;
 	private boolean isFTS;
 
 	public Result() {
@@ -47,7 +49,12 @@ public class Result implements IResult {
 		return status;
 	}
 
-	protected void addSubmission(Contest contest, int submissionTime, IJudgementType jt) {
+	@Override
+	public double getScore() {
+		return score;
+	}
+
+	protected void addSubmission(Contest contest, int submissionTime, IJudgement j, IJudgementType jt) {
 		if (status == Status.SOLVED)
 			return;
 
@@ -59,9 +66,12 @@ public class Result implements IResult {
 				status = Status.SOLVED;
 				numJudged++;
 				penalty = pendingPenalty;
+				score = j.getScore();
 			} else if (jt.isPenalty()) {
 				status = Status.FAILED;
-				pendingPenalty += 20;
+				Integer penaltyTime = contest.getPenaltyTime();
+				if (penaltyTime != null)
+					pendingPenalty += penaltyTime;
 				numJudged++;
 			} // else compile or judgement error that doesn't count as an attempt or penalty
 		}

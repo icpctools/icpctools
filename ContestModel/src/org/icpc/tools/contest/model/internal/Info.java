@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
@@ -29,6 +30,7 @@ public class Info extends ContestObject implements IInfo {
 	private static final String LOCATION = "location";
 	private static final String LATITUDE = "latitude";
 	private static final String LONGITUDE = "longitude";
+	private static final String SCOREBOARD_TYPE = "scoreboard_type";
 
 	private String name;
 	private String formalName;
@@ -36,8 +38,9 @@ public class Info extends ContestObject implements IInfo {
 	private Integer pauseTime;
 	private boolean supportsPauseTime;
 	private int duration;
-	private int freezeDuration;
-	private int penalty;
+	private Integer freezeDuration;
+	private Integer penalty;
+	private ScoreboardType scoreboardType;
 	private double timeMultiplier = Double.NaN;
 	private double latitude = Double.NaN;
 	private double longitude = Double.NaN;
@@ -98,7 +101,7 @@ public class Info extends ContestObject implements IInfo {
 		return duration;
 	}
 
-	public int getFreezeDuration() {
+	public Integer getFreezeDuration() {
 		return freezeDuration;
 	}
 
@@ -127,6 +130,10 @@ public class Info extends ContestObject implements IInfo {
 
 	public double getLongitude() {
 		return longitude;
+	}
+
+	public ScoreboardType getScoreboardType() {
+		return scoreboardType;
 	}
 
 	public void setLogo(FileReferenceList list) {
@@ -198,6 +205,14 @@ public class Info extends ContestObject implements IInfo {
 			latitude = obj.getDouble(LATITUDE);
 			longitude = obj.getDouble(LONGITUDE);
 			return true;
+		} else if (name2.equals(SCOREBOARD_TYPE)) {
+			if ("pass-fail".equals(value))
+				scoreboardType = ScoreboardType.PASS_FAIL;
+			else if ("score".equals(value))
+				scoreboardType = ScoreboardType.SCORE;
+			else
+				return false;
+			return true;
 		} else if (name2.equals(LOGO)) {
 			logo = new FileReferenceList(value);
 			return true;
@@ -223,6 +238,7 @@ public class Info extends ContestObject implements IInfo {
 		i.penalty = penalty;
 		i.latitude = latitude;
 		i.longitude = longitude;
+		i.scoreboardType = scoreboardType;
 		return i;
 	}
 
@@ -249,10 +265,17 @@ public class Info extends ContestObject implements IInfo {
 			props.put(COUNTDOWN_PAUSE_TIME, RelativeTime.format(pauseTime));
 
 		props.put(DURATION, RelativeTime.format(duration));
-		if (freezeDuration > -1)
+		if (freezeDuration != null)
 			props.put(SCOREBOARD_FREEZE_DURATION, RelativeTime.format(freezeDuration));
-		if (penalty >= 0)
+		if (penalty != null)
 			props.put(PENALTY_TIME, penalty);
+
+		if (scoreboardType != null) {
+			if (ScoreboardType.PASS_FAIL.equals(scoreboardType))
+				props.put(SCOREBOARD_TYPE, "pass-fail");
+			else if (ScoreboardType.SCORE.equals(scoreboardType))
+				props.put(SCOREBOARD_TYPE, "score");
+		}
 
 		if (!Double.isNaN(timeMultiplier))
 			props.put(TIME_MULTIPLIER, timeMultiplier);
@@ -285,10 +308,17 @@ public class Info extends ContestObject implements IInfo {
 			je.encode(COUNTDOWN_PAUSE_TIME, RelativeTime.format(pauseTime));
 
 		je.encodeString(DURATION, RelativeTime.format(duration));
-		if (freezeDuration > -1)
+		if (freezeDuration != null)
 			je.encodeString(SCOREBOARD_FREEZE_DURATION, RelativeTime.format(freezeDuration));
-		if (penalty >= 0)
+		if (penalty != null)
 			je.encode(PENALTY_TIME, penalty);
+
+		if (scoreboardType != null) {
+			if (ScoreboardType.PASS_FAIL.equals(scoreboardType))
+				je.encode(SCOREBOARD_TYPE, "pass-fail");
+			else if (ScoreboardType.SCORE.equals(scoreboardType))
+				je.encode(SCOREBOARD_TYPE, "score");
+		}
 
 		if (!Double.isNaN(timeMultiplier))
 			je.encode(TIME_MULTIPLIER, timeMultiplier);

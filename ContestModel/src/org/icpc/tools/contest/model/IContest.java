@@ -8,6 +8,10 @@ import java.util.List;
  * A contest.
  */
 public interface IContest {
+	public enum ScoreboardType {
+		PASS_FAIL, SCORE
+	}
+
 	/**
 	 * Add a listener to the contest.
 	 *
@@ -74,20 +78,20 @@ public interface IContest {
 	int getDuration();
 
 	/**
-	 * Returns the duration of the end of contest freeze, in ms, or -1 if there is no freeze in this
-	 * contest.
+	 * Returns the duration of the end of contest freeze in ms, or null if there is no freeze in
+	 * this contest.
 	 *
 	 * @return the freeze duration
 	 */
-	int getFreezeDuration();
+	Integer getFreezeDuration();
 
 	/**
-	 * Returns the penalty time. -1 means there is no concept of penalty time; 0 indicates there is
-	 * no penalty.
+	 * Returns the penalty time. null means there is no concept of penalty time; 0 indicates there
+	 * is no penalty.
 	 *
 	 * @return the penalty time
 	 */
-	int getPenaltyTime();
+	Integer getPenaltyTime();
 
 	/**
 	 * Returns the time multiplier, if the contest is in test/playback mode. Otherwise, returns 1.
@@ -109,6 +113,13 @@ public interface IContest {
 	 * @return the longitude
 	 */
 	double getLongitude();
+
+	/**
+	 * The scoreboard type, either pass-fail, score, or null (pass-fail).
+	 *
+	 * @return the scoreboard type
+	 */
+	ScoreboardType getScoreboardType();
 
 	/**
 	 * Returns the logo file.

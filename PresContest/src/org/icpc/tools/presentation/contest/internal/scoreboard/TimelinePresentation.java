@@ -122,8 +122,10 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 		g.setStroke(new BasicStroke(2f));
 		g.setColor(FREEZE_COLOR);
 
-		int ct = getX(contest.getDuration() - contest.getFreezeDuration());
-		g.drawLine(ct, 0, ct, (int) (numTeams * rowHeight));
+		if (contest.getFreezeDuration() != null) {
+			int ct = getX(contest.getDuration() - contest.getFreezeDuration());
+			g.drawLine(ct, 0, ct, (int) (numTeams * rowHeight));
+		}
 
 		// draw vertical line for current time
 		g.setColor(ICPCColors.BLUE);
@@ -133,7 +135,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 			currentTime = contest.getDuration();
 		else if (state.getStarted() != null)
 			currentTime = (int) ((getTimeMs() - state.getStarted()) * contest.getTimeMultiplier());
-		ct = getX(currentTime);
+		int ct = getX(currentTime);
 		g.drawLine(ct, 0, ct, (int) (numTeams * rowHeight));
 		g.setStroke(oldStroke);
 

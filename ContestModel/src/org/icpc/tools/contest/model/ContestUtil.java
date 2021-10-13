@@ -123,6 +123,18 @@ public class ContestUtil {
 	 * @param duration a duration, in ms
 	 * @return
 	 */
+	public static String formatDuration(Integer duration) {
+		if (duration == null)
+			return "None";
+		return formatDuration(duration);
+	}
+
+	/**
+	 * Format a contest duration (length) or relative time as a string.
+	 *
+	 * @param duration a duration, in ms
+	 * @return
+	 */
 	public static String formatDuration(int duration2) {
 		int duration = duration2 / 1000;
 		if (duration < 0)

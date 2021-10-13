@@ -186,7 +186,7 @@ public class SummaryPrint {
 		gc.drawString(ContestUtil.formatDuration(contest.getDuration()), col, yy, true);
 		yy += h;
 		gc.drawString("Freeze:", r.x, yy, true);
-		if (contest.getFreezeDuration() < 0)
+		if (contest.getFreezeDuration() != null)
 			gc.drawString("none", col, yy, true);
 		else
 			gc.drawString(ContestUtil.formatDuration(contest.getFreezeDuration()), col, yy, true);
