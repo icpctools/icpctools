@@ -95,8 +95,8 @@ public class CountdownPresentation extends ClockPresentation {
 		int duration = contest.getDuration();
 		long switchPoint = duration * 2 / 3;
 
-		int freezeDuration = contest.getFreezeDuration();
-		if (freezeDuration > 0)
+		Integer freezeDuration = contest.getFreezeDuration();
+		if (freezeDuration != null)
 			switchPoint = duration - freezeDuration;
 
 		if ((startTime - now) < -(switchPoint / timeMultiplier)) {

@@ -523,18 +523,18 @@ public class Contest implements IContest {
 	 * @return the freeze duration
 	 */
 	@Override
-	public int getFreezeDuration() {
+	public Integer getFreezeDuration() {
 		return info.getFreezeDuration();
 	}
 
 	/**
-	 * Returns the penalty time. -1 means there is no concept of penalty time; 0 indicates there is
-	 * no penalty.
+	 * Returns the penalty time. null means there is no concept of penalty time; 0 indicates there
+	 * is no penalty.
 	 *
 	 * @return the penalty time
 	 */
 	@Override
-	public int getPenaltyTime() {
+	public Integer getPenaltyTime() {
 		return info.getPenaltyTime();
 	}
 
@@ -566,6 +566,11 @@ public class Contest implements IContest {
 	@Override
 	public double getLongitude() {
 		return info.getLongitude();
+	}
+
+	@Override
+	public ScoreboardType getScoreboardType() {
+		return info.getScoreboardType();
 	}
 
 	/**
@@ -944,8 +949,9 @@ public class Contest implements IContest {
 					int problemIndex = getProblemIndex(s.getProblemId());
 
 					if (problemIndex >= 0 && teamIndex >= 0) {
+						IJudgement j = getJudgement(s);
 						IJudgementType jt = getJudgementType(s);
-						tempResults[teamIndex][problemIndex].addSubmission(this, s.getContestTime(), jt);
+						tempResults[teamIndex][problemIndex].addSubmission(this, s.getContestTime(), j, jt);
 
 						// calculate FTS
 						if (tempFTS[problemIndex] == null && !isTeamHidden(teams[teamIndex])) {
@@ -965,18 +971,20 @@ public class Contest implements IContest {
 				int numSolved = 0;
 				int penalty = 0;
 				int lastSolution = -1;
+				double score = 0;
 				for (int j = 0; j < numProblems; j++) {
 					penalty += tempResults[i][j].getPenaltyTime();
 					if (tempResults[i][j].getStatus() == Status.SOLVED) {
 						int time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime());
 						penalty += time;
 						numSolved++;
+						score += tempResults[i][j].getScore();
 						if (time > lastSolution)
 							lastSolution = time;
 					}
 				}
 
-				tempStandings[i].init(numSolved, penalty, lastSolution);
+				tempStandings[i].init(numSolved, penalty, score, lastSolution);
 			}
 
 			for (int i = 0; i < numTeams; i++) {
@@ -1392,6 +1400,40 @@ public class Contest implements IContest {
 			return Status.SOLVED;
 
 		return Status.FAILED;
+	}
+
+	public IJudgement getJudgement(ISubmission submission) {
+		if (submission == null)
+			return null;
+
+		int sInd = getSubmissionIndex(submission.getId());
+		IJudgementType[] tempStatus = submissionStatus;
+		if (tempStatus != null && sInd >= 0)
+			return tempStatus[sInd];
+
+		synchronized (data) {
+			sInd = getSubmissionIndex(submission.getId());
+			if (sInd == -1)
+				return null;
+
+			if (submissionStatus != null)
+				return submissionStatus[sInd];
+
+			tempStatus = new IJudgementType[getNumSubmissions() + 100];
+
+			getJudgements();
+			for (IJudgement sj : judgements) {
+				IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
+				if (jt != null) {
+					int sInd2 = getSubmissionIndex(sj.getSubmissionId());
+					if (sInd2 >= 0)
+						tempStatus[sInd2] = jt;
+				}
+			}
+
+			submissionStatus = tempStatus;
+			return submissionStatus[sInd];
+		}
 	}
 
 	@Override

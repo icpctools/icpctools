@@ -12,6 +12,13 @@ public interface IStanding {
 	int getNumSolved();
 
 	/**
+	 * Return the total score for this team.
+	 *
+	 * @return the total score
+	 */
+	double getScore();
+
+	/**
 	 * Return the total time this team has (sum of solution times + penalty), in minutes.
 	 *
 	 * @return the total time of this team

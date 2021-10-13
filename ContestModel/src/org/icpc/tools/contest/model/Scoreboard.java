@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model;
 
 import java.io.PrintWriter;
 
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
@@ -29,6 +30,10 @@ public class Scoreboard {
 				return obj;
 			}
 		});
+	}
+
+	private static double round(double d) {
+		return Math.round(d * 100000.0) / 100000.0;
 	}
 
 	/**
@@ -60,6 +65,10 @@ public class Scoreboard {
 
 		pw.write(",\n");
 
+		ScoreboardType scoreboardType = contest.getScoreboardType();
+		if (scoreboardType == null)
+			scoreboardType = ScoreboardType.PASS_FAIL;
+
 		pw.write("  \"rows\": [\n");
 		boolean firstTeam = true;
 		for (ITeam team : teams) {
@@ -74,8 +83,11 @@ public class Scoreboard {
 			pw.write("{\"rank\":" + s.getRank() + ",");
 			pw.write("\"team_id\":\"" + team.getId() + "\",");
 			pw.write("\"score\":{");
-			pw.write("\"num_solved\":" + s.getNumSolved() + ",");
-			pw.write("\"total_time\":" + s.getTime() + "},\n");
+			if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
+				pw.write("\"num_solved\":" + s.getNumSolved() + ",");
+				pw.write("\"total_time\":" + s.getTime() + "},\n");
+			} else if (ScoreboardType.SCORE.equals(scoreboardType))
+				pw.write("\"score\":" + round(s.getScore()) + "},\n");
 
 			// "problems":[
 			// {"problem_id":"A","num_judged":3,"num_pending":1,"solved":false},
@@ -95,14 +107,17 @@ public class Scoreboard {
 					pw.write("\n   {\"problem_id\":\"" + escape(p.getId()) + "\",");
 					pw.write("\"num_judged\":" + r.getNumJudged() + ",");
 					pw.write("\"num_pending\":" + r.getNumPending() + ",");
-					pw.write("\"solved\":");
-					if (r.getStatus() == Status.SOLVED) {
-						pw.write("true,");
-						pw.write("\"time\":" + ContestUtil.getTime(r.getContestTime()));
-						if (r.isFirstToSolve())
-							pw.write(",\"first_to_solve\":true");
-					} else
-						pw.write("false");
+					if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
+						pw.write("\"solved\":");
+						if (r.getStatus() == Status.SOLVED) {
+							pw.write("true,");
+							pw.write("\"time\":" + ContestUtil.getTime(r.getContestTime()));
+							if (r.isFirstToSolve())
+								pw.write(",\"first_to_solve\":true");
+						} else
+							pw.write("false");
+					} else if (ScoreboardType.SCORE.equals(scoreboardType))
+						pw.write("\"score\":" + round(r.getScore()));
 					pw.write("}");
 				}
 			}

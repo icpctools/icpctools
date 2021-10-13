@@ -612,9 +612,11 @@ public class ConfiguredContest {
 
 				if (obj instanceof ICommentary) {
 					ICommentary c = (ICommentary) obj;
-					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
-					if (c.getContestTime() >= freezeTime)
-						return;
+					if (contest.getFreezeDuration() != null) {
+						int freezeTime = contest.getDuration() - contest.getFreezeDuration();
+						if (c.getContestTime() >= freezeTime)
+							return;
+					}
 					trustedContest.add(obj);
 					return;
 				}
@@ -661,17 +663,19 @@ public class ConfiguredContest {
 					IJudgement j = (IJudgement) obj;
 					ISubmission s = contest.getSubmissionById(j.getSubmissionId());
 
-					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
-					if (s == null || s.getContestTime() > freezeTime) {
-						if (s != null && s.getContestTime() < freezeTime && contest.isSolved(s)
-								&& getNumSolved(balloonContest, s.getTeamId()) < 3)
-							balloonContest.add(obj);
-						if (s != null) {
-							Contest c = teamContests.get(s.getTeamId());
-							if (c != null)
-								c.add(obj);
+					if (contest.getFreezeDuration() != null) {
+						int freezeTime = contest.getDuration() - contest.getFreezeDuration();
+						if (s == null || s.getContestTime() > freezeTime) {
+							if (s != null && s.getContestTime() < freezeTime && contest.isSolved(s)
+									&& getNumSolved(balloonContest, s.getTeamId()) < 3)
+								balloonContest.add(obj);
+							if (s != null) {
+								Contest c = teamContests.get(s.getTeamId());
+								if (c != null)
+									c.add(obj);
+							}
+							return;
 						}
-						return;
 					}
 					trustedContest.add(obj2);
 					publicContest.add(obj2);
@@ -681,9 +685,11 @@ public class ConfiguredContest {
 					}
 				} else if (obj instanceof IRun) {
 					IRun r = (IRun) obj;
-					int freezeTime = contest.getDuration() - contest.getFreezeDuration();
-					if (r.getContestTime() >= freezeTime)
-						return;
+					if (contest.getFreezeDuration() != null) {
+						int freezeTime = contest.getDuration() - contest.getFreezeDuration();
+						if (r.getContestTime() >= freezeTime)
+							return;
+					}
 					trustedContest.add(obj2);
 				} else if (obj instanceof IClarification) {
 					// only admins, trusted, and teams involved see private messages.

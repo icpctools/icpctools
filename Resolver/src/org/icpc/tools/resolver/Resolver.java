@@ -712,8 +712,8 @@ public class Resolver {
 		}
 
 		// check freeze time
-		int freeze = contest.getFreezeDuration();
-		if (freeze < 0 || freeze > contest.getDuration())
+		Integer freeze = contest.getFreezeDuration();
+		if (freeze == null || freeze < 0 || freeze > contest.getDuration())
 			Trace.trace(Trace.WARNING, "Warning: Contest has no freeze time, will assume default");
 	}
 }

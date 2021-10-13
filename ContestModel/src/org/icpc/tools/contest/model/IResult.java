@@ -48,6 +48,13 @@ public interface IResult {
 	int getPenaltyTime();
 
 	/**
+	 * Return the score for this problem.
+	 *
+	 * @return the score
+	 */
+	double getScore();
+
+	/**
 	 * Returns the overall status of the submissions for this problem (i.e. SOLVED if at least one
 	 * submission was a correct solution).
 	 *

@@ -21,6 +21,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	private static final String END_CONTEST_TIME = "end_contest_time";
 	private static final String END_TIME = "end_time";
 	private static final String MAX_RUN_TIME = "max_run_time";
+	private static final String SCORE = "judgement_score";
 
 	private String submissionId;
 	private String judgementTypeId;
@@ -29,6 +30,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	protected Integer endContestTime;
 	protected Long endTime;
 	protected int maxRunTime;
+	protected Double score = Double.NaN;
 
 	public Judgement() {
 		// default constructor
@@ -89,6 +91,11 @@ public class Judgement extends ContestObject implements IJudgement {
 	}
 
 	@Override
+	public Double getScore() {
+		return score;
+	}
+
+	@Override
 	protected boolean addImpl(String name, Object value) throws Exception {
 		if (SUBMISSION_ID.equals(name)) {
 			submissionId = (String) value;
@@ -111,6 +118,9 @@ public class Judgement extends ContestObject implements IJudgement {
 		} else if (END_TIME.equals(name)) {
 			endTime = parseTimestamp(value);
 			return true;
+		} else if (SCORE.equals(name)) {
+			score = Double.parseDouble((String) value);
+			return true;
 		}
 		return super.addImpl(name, value);
 	}
@@ -126,7 +136,12 @@ public class Judgement extends ContestObject implements IJudgement {
 		j.startTime = startTime;
 		j.endContestTime = endContestTime;
 		j.endTime = endTime;
+		j.score = score;
 		return j;
+	}
+
+	private static double round(double d) {
+		return Math.round(d * 100000.0) / 100000.0;
 	}
 
 	@Override
@@ -152,6 +167,8 @@ public class Judgement extends ContestObject implements IJudgement {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
+		if (!Double.isNaN(score))
+			props.put(SCORE, round(score));
 	}
 
 	@Override
@@ -185,6 +202,8 @@ public class Judgement extends ContestObject implements IJudgement {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
+		if (!Double.isNaN(score))
+			je.encode(SCORE, round(score));
 	}
 
 	@Override

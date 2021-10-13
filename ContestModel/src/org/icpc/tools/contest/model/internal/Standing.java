@@ -7,14 +7,16 @@ public class Standing implements IStanding {
 	private int numSolved;
 	private int lastSolution;
 	private String rank;
+	private double score;
 
 	public Standing() {
 		// do nothing
 	}
 
-	public void init(int numSolved2, int penalty2, int lastSolution2) {
+	public void init(int numSolved2, int penalty2, double score2, int lastSolution2) {
 		this.numSolved = numSolved2;
 		this.penalty = penalty2;
+		this.score = score2;
 		this.lastSolution = lastSolution2;
 	}
 
@@ -48,6 +50,11 @@ public class Standing implements IStanding {
 
 	public void setRank(String rank) {
 		this.rank = rank;
+	}
+
+	@Override
+	public double getScore() {
+		return score;
 	}
 
 	@Override
