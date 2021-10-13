@@ -211,6 +211,17 @@ public class JsonToTSVConverter {
 		}
 
 		try {
+			// repad team org ID's - CMS sucks
+			for (Team t : teamList) {
+				if (t.getOrganizationId().length() < 4)
+					t.add("organization_id", pad(t.getOrganizationId()));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
 			// repad orgs - CMS sucks
 			for (Organization o : orgList) {
 				if (o.getId().length() < 4)
