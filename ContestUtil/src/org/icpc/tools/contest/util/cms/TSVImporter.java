@@ -147,12 +147,12 @@ public class TSVImporter {
 					// add(org, COUNTRY, st[4]);
 
 					add(org, URL, st[3]);
-					add(org, HASHTAG, st[5]);
+					add(org, HASHTAG, st[6]);
 					JsonObject obj = new JsonObject();
-					if (st[6] != null && !st[6].trim().isEmpty() && !"null".equals(st[6]))
-						obj.props.put("latitude", st[6]);
 					if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
-						obj.props.put("longitude", st[7]);
+						obj.props.put("latitude", st[7]);
+					if (st[8] != null && !st[8].trim().isEmpty() && !"null".equals(st[8]))
+						obj.props.put("longitude", st[8]);
 					if (obj.containsKey("latitude") && obj.containsKey("longitude"))
 						org.add(LOCATION, obj);
 
