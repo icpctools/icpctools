@@ -73,7 +73,8 @@ public class Contest implements IContest {
 	private ITeam[] orderedTeams;
 	private String[] fts;
 	private Recent[] recentActivity;
-	private IJudgementType[] submissionStatus;
+	private IJudgement[] submissionJudgements;
+	private IJudgementType[] submissionJudgementTypes;
 	private int lastEventTime;
 	private IContestObject lastTimedEvent;
 	private int lastTimedEventIndex;
@@ -198,7 +199,8 @@ public class Contest implements IContest {
 			results = null;
 			resultSummary = null;
 			standings = null;
-			submissionStatus = null;
+			submissionJudgements = null;
+			submissionJudgementTypes = null;
 			recentActivity = null;
 			fts = null;
 		} else if (type == ContestType.CONTEST) {
@@ -213,7 +215,8 @@ public class Contest implements IContest {
 			results = null;
 			resultSummary = null;
 			standings = null;
-			submissionStatus = null;
+			submissionJudgements = null;
+			submissionJudgementTypes = null;
 			recentActivity = null;
 			fts = null;
 		} else if (type == ContestType.LANGUAGE) {
@@ -232,14 +235,18 @@ public class Contest implements IContest {
 			results = null;
 			resultSummary = null;
 			standings = null;
-			if (submissionStatus != null) {
+			if (submissionJudgements != null) {
 				if (delta == Delta.ADD) {
 					ISubmission s = (ISubmission) obj;
 					int sInd = getSubmissionIndex(s.getId());
-					if (sInd >= submissionStatus.length)
-						submissionStatus = null;
-				} else
-					submissionStatus = null;
+					if (sInd >= submissionJudgements.length) {
+						submissionJudgements = null;
+						submissionJudgementTypes = null;
+					}
+				} else {
+					submissionJudgements = null;
+					submissionJudgementTypes = null;
+				}
 			}
 			recentActivity = null;
 			fts = null;
@@ -251,17 +258,21 @@ public class Contest implements IContest {
 			results = null;
 			resultSummary = null;
 			standings = null;
-			if (submissionStatus != null) {
-				if (delta == Delta.ADD) {
+			if (submissionJudgements != null) {
+				if (delta == Delta.ADD || delta == Delta.UPDATE) {
 					IJudgement sj = (IJudgement) obj;
 					IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
 					if (jt != null) {
 						int sInd2 = getSubmissionIndex(sj.getSubmissionId());
-						if (sInd2 >= 0)
-							submissionStatus[sInd2] = jt;
+						if (sInd2 >= 0) {
+							submissionJudgements[sInd2] = sj;
+							submissionJudgementTypes[sInd2] = jt;
+						}
 					}
-				} else
-					submissionStatus = null;
+				} else {
+					submissionJudgements = null;
+					submissionJudgementTypes = null;
+				}
 			}
 			recentActivity = null;
 			fts = null;
@@ -273,7 +284,8 @@ public class Contest implements IContest {
 			results = null;
 			resultSummary = null;
 			standings = null;
-			submissionStatus = null;
+			submissionJudgements = null;
+			submissionJudgementTypes = null;
 			recentActivity = null;
 			fts = null;
 		} else if (type == ContestType.TEAM_MEMBER) {
@@ -1402,12 +1414,36 @@ public class Contest implements IContest {
 		return Status.FAILED;
 	}
 
+	/**
+	 * Update the cached judgements and judgement types for all submissions. Must be called from
+	 * within a synchronized block.
+	 */
+	private void updateSubmissionJudgements() {
+		IJudgement[] tempJudgements = new IJudgement[getNumSubmissions() + 100];
+		IJudgementType[] tempJudgementTypes = new IJudgementType[getNumSubmissions() + 100];
+
+		getJudgements();
+		for (IJudgement sj : judgements) {
+			IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
+			if (jt != null) {
+				int sInd2 = getSubmissionIndex(sj.getSubmissionId());
+				if (sInd2 >= 0) {
+					tempJudgements[sInd2] = sj;
+					tempJudgementTypes[sInd2] = jt;
+				}
+			}
+		}
+
+		submissionJudgements = tempJudgements;
+		submissionJudgementTypes = tempJudgementTypes;
+	}
+
 	public IJudgement getJudgement(ISubmission submission) {
 		if (submission == null)
 			return null;
 
 		int sInd = getSubmissionIndex(submission.getId());
-		IJudgementType[] tempStatus = submissionStatus;
+		IJudgement[] tempStatus = submissionJudgements;
 		if (tempStatus != null && sInd >= 0)
 			return tempStatus[sInd];
 
@@ -1416,23 +1452,11 @@ public class Contest implements IContest {
 			if (sInd == -1)
 				return null;
 
-			if (submissionStatus != null)
-				return submissionStatus[sInd];
+			if (submissionJudgements != null)
+				return submissionJudgements[sInd];
 
-			tempStatus = new IJudgementType[getNumSubmissions() + 100];
-
-			getJudgements();
-			for (IJudgement sj : judgements) {
-				IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
-				if (jt != null) {
-					int sInd2 = getSubmissionIndex(sj.getSubmissionId());
-					if (sInd2 >= 0)
-						tempStatus[sInd2] = jt;
-				}
-			}
-
-			submissionStatus = tempStatus;
-			return submissionStatus[sInd];
+			updateSubmissionJudgements();
+			return submissionJudgements[sInd];
 		}
 	}
 
@@ -1442,7 +1466,7 @@ public class Contest implements IContest {
 			return null;
 
 		int sInd = getSubmissionIndex(submission.getId());
-		IJudgementType[] tempStatus = submissionStatus;
+		IJudgementType[] tempStatus = submissionJudgementTypes;
 		if (tempStatus != null && sInd >= 0)
 			return tempStatus[sInd];
 
@@ -1451,23 +1475,11 @@ public class Contest implements IContest {
 			if (sInd == -1)
 				return null;
 
-			if (submissionStatus != null)
-				return submissionStatus[sInd];
+			if (submissionJudgementTypes != null)
+				return submissionJudgementTypes[sInd];
 
-			tempStatus = new IJudgementType[getNumSubmissions() + 100];
-
-			getJudgements();
-			for (IJudgement sj : judgements) {
-				IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
-				if (jt != null) {
-					int sInd2 = getSubmissionIndex(sj.getSubmissionId());
-					if (sInd2 >= 0)
-						tempStatus[sInd2] = jt;
-				}
-			}
-
-			submissionStatus = tempStatus;
-			return submissionStatus[sInd];
+			updateSubmissionJudgements();
+			return submissionJudgementTypes[sInd];
 		}
 	}
 

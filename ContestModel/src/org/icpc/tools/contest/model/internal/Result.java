@@ -66,7 +66,10 @@ public class Result implements IResult {
 				status = Status.SOLVED;
 				numJudged++;
 				penalty = pendingPenalty;
-				score = j.getScore();
+				if (j.getScore() == null)
+					score = 100;
+				else
+					score = j.getScore();
 			} else if (jt.isPenalty()) {
 				status = Status.FAILED;
 				Integer penaltyTime = contest.getPenaltyTime();
