@@ -123,7 +123,7 @@ public class JsonToTSVConverter {
 
 		// cmsRoot = new File("/Users/deboer/ICPC/cms4/2019");
 		File cmsRoot = new File("/Users/deboer/Downloads/ICPC-WF/CLICS_CS_World-Finals-2020");
-		File contestRoot = new File("/Users/deboer/ICPC/2021/finalsCMSTest");
+		File contestRoot = new File("/Users/deboer/git/wf2020-onsite/finals");
 		// File instFolder = new File("/Users/deboer/ICPC/cms4/institutions");
 
 		try {
@@ -174,7 +174,8 @@ public class JsonToTSVConverter {
 		}
 
 		try {
-			File f = new File("/Users/deboer/Downloads/ICPC-WF/contest");
+			// File f = new File("/Users/deboer/Downloads/ICPC-WF/contest");
+			File f = new File("/Users/deboer/Downloads/ICPC-WF/World-Finals-2020");
 			System.out.println("Reading CMS team members: " + f);
 			TSVImporter.importTeamMembersTab(memberList, teamList, f);
 		} catch (Exception e) {
@@ -205,6 +206,17 @@ public class JsonToTSVConverter {
 
 			if (invGroup != null)
 				groupList.remove(invGroup);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			// repad orgs - CMS sucks
+			for (Organization o : orgList) {
+				if (o.getId().length() < 4)
+					o.add("id", pad(o.getId()));
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -326,7 +338,7 @@ public class JsonToTSVConverter {
 					fw.write(inst.getCountry());
 				if (two) {
 					fw.write("\t");
-					fw.write("INST-" + pad(inst.getId()));
+					fw.write("INST-" + inst.getId());
 
 					// TODO
 					// fw.write("\t");
@@ -358,7 +370,7 @@ public class JsonToTSVConverter {
 		int hashCount = 0;
 		int locCount = 0;
 		for (Organization inst : teams) {
-			fw.write("INST-U-" + pad(inst.getId()));
+			fw.write("INST-U-" + inst.getId());
 			fw.write("\t");
 			if (inst.getFormalName() != null)
 				fw.write(inst.getFormalName());

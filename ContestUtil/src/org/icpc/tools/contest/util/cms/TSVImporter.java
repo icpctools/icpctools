@@ -140,31 +140,21 @@ public class TSVImporter {
 					add(org, ICPC_ID, id);
 					add(org, FORMAL_NAME, st[1]);
 					add(org, NAME, st[2]);
+
+					// TODO temp for Moscow - completely new format
 					// add(inst, GROUP_ID, st[3]);
-					if (st.length > 4)
-						add(org, COUNTRY, st[4]);
+					// if (st.length > 4)
+					// add(org, COUNTRY, st[4]);
 
-					// temp for Moscow - map over two columns
-					if (st.length == 7) {
-						String[] st2 = new String[9];
-						for (int i = 4; i < 9; i++)
-							st2[i] = st[i - 2];
-						st = st2;
-					}
-
-					if (st.length > 5)
-						add(org, URL, st[5]);
-					if (st.length > 6)
-						add(org, HASHTAG, st[6]);
-					if (st.length > 8) {
-						JsonObject obj = new JsonObject();
-						if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
-							obj.props.put("latitude", st[7]);
-						if (st[8] != null && !st[8].trim().isEmpty() && !"null".equals(st[8]))
-							obj.props.put("longitude", st[8]);
-						if (obj.containsKey("latitude") && obj.containsKey("longitude"))
-							org.add(LOCATION, obj);
-					}
+					add(org, URL, st[3]);
+					add(org, HASHTAG, st[5]);
+					JsonObject obj = new JsonObject();
+					if (st[6] != null && !st[6].trim().isEmpty() && !"null".equals(st[6]))
+						obj.props.put("latitude", st[6]);
+					if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
+						obj.props.put("longitude", st[7]);
+					if (obj.containsKey("latitude") && obj.containsKey("longitude"))
+						org.add(LOCATION, obj);
 
 					list.add(org);
 				}
@@ -227,15 +217,19 @@ public class TSVImporter {
 					// add(p, TEAM_ID, st[0]);
 					add(p, FIRST_NAME, st[2]);
 					add(p, LAST_NAME, st[3]);
-					String sex = st[29];
-					if (sex != null)
-						add(p, SEX, sex.toLowerCase());
+					if (st.length > 26) {
+						String sex = st[27];
+						if (sex != null)
+							add(p, SEX, sex.toLowerCase());
+					} else {
+						Trace.trace(Trace.USER, "Sex not known: " + st[0] + " - " + st[2] + " " + st[3]);
+					}
 					temp.add(p);
 				}
 				s = br.readLine();
 			}
 		}
-		System.out.println(temp.size());
+		System.out.println("People: " + temp.size());
 
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "TeamPerson.tab")))) {
 			// read header
@@ -262,7 +256,7 @@ public class TSVImporter {
 								t = tm;
 
 						if (t == null) {
-							// System.err.println("Warning: person in unknown team");
+							System.err.println("Warning: person in unknown team");
 						} else {
 							add(p, TEAM_ID, t.getId());
 							String role = st[3];
