@@ -100,8 +100,9 @@ public class MessagePresentation extends AbstractICPCPresentation {
 
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		for (String s : messageList) {
-			TextHelper.drawString(g, s, (width - fm.stringWidth(s)) / 2, y);
-			y += fm.getHeight() + 10;
+			TextHelper text = new TextHelper(g, s);
+			text.draw((width - text.getWidth()) / 2, y);
+			y += text.getHeight() + 10;
 		}
 	}
 
