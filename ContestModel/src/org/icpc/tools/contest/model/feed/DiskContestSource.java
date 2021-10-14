@@ -67,7 +67,7 @@ public class DiskContestSource extends ContestSource {
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
 
-	private File eventFeedFile;
+	protected File eventFeedFile;
 	private File root;
 	protected File cacheFolder;
 	private String contestId;
@@ -115,7 +115,7 @@ public class DiskContestSource extends ContestSource {
 	 * @param folder - a contest archive folder
 	 */
 	public DiskContestSource(File folder) {
-		this(null, folder, folder.getAbsolutePath());
+		this(folder, null);
 	}
 
 	/**
@@ -124,47 +124,49 @@ public class DiskContestSource extends ContestSource {
 	 * @param eventFeedFile - a JSON or XML event feed file
 	 */
 	public DiskContestSource(String eventFeedFile) {
-		this(new File(eventFeedFile), null, eventFeedFile);
+		this(new File(eventFeedFile), null);
 	}
 
 	/**
 	 * General constructor for a disk contest source. Typically, only one of the event feed file and
-	 * CAF folder are provided. A hash must be provided to seed the temporary caching folder name
-	 * (so that it is consistent across restarts).
+	 * CAF folder are provided. If neither are provided (i.e. this class is just being used for
+	 * local caching), then a hash must be provided to seed the temporary caching folder name (so
+	 * that it is consistent across restarts).
 	 *
 	 * @param eventFeedFile - a JSON or XML event feed file
 	 * @param folder - a contest archive folder
 	 * @param hash - any uid or hash that's consistent across restarts
 	 */
-	protected DiskContestSource(File eventFeedFile, File folder, String hash) {
-		this.eventFeedFile = eventFeedFile;
-		root = folder;
-		if (folder != null)
-			cacheFolder = createTempDir(folder.getName() + "-" + getSafeHash(folder.getAbsolutePath()));
-		else {
+	protected DiskContestSource(File file, String hash) {
+		// if file is null we're just locally caching
+		// if file exists and is a file, it's an event feed
+		// if is doesn't exist, assume a directory
+		if (file != null) {
+			cacheFolder = createTempDir(file.getName() + "-" + getSafeHash(file.getAbsolutePath()));
+			if (file.isFile()) {
+				eventFeedFile = file;
+				root = cacheFolder;
+			} else {
+				root = file;
+				if (!root.exists()) {
+					if (!root.mkdirs()) {
+						throw new IllegalArgumentException(
+								"Contest location (" + root.toString() + ") did not exist and directory creation failed.");
+					}
+				}
+			}
+		} else {
 			cacheFolder = createTempDir(getSafeHash(hash));
 			root = cacheFolder;
 		}
 
 		cleanUpTempDir();
 
-		if (eventFeedFile != null && !eventFeedFile.exists()) {
-			throw new IllegalArgumentException(
-					"Event feed (" + root.toString() + ") must be valid JSON or XML event feed.");
-		}
-
-		if (root != null && !root.exists()) {
-			if (!root.mkdirs()) {
-				throw new IllegalArgumentException(
-						"Contest location (" + root.toString() + ") did not exist and directory creation failed.");
-			}
-		}
-
 		instance = this;
 	}
 
 	public static Contest loadContest(File file, IContestListener listener) throws Exception {
-		DiskContestSource source = new DiskContestSource(file, null, file.getAbsolutePath());
+		DiskContestSource source = new DiskContestSource(file);
 		return source.loadContest(listener);
 	}
 

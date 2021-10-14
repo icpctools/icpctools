@@ -87,12 +87,8 @@ public abstract class ContestSource {
 			return new RESTContestSource(source, user, password);
 
 		File f = new File(source);
-		if (f.exists()) {
-			if (f.isDirectory())
-				return new DiskContestSource(f);
-
+		if (f.exists())
 			return new RESTContestSource(f, user, password);
-		}
 
 		throw new IOException("Could not parse or resolve contest source");
 	}
