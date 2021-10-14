@@ -31,8 +31,7 @@ public class Legend {
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 
-		Color c = new Color(255, 255, 255);
-		g.setColor(light ? new Color(255, 255, 255, 192) : new Color(0, 0, 0, 192));
+		g.setColor(light ? new Color(255, 255, 255, 235) : new Color(0, 0, 0, 192));
 
 		int fh = fm.getHeight();
 		int fx = fh * 2;
@@ -40,11 +39,9 @@ public class Legend {
 		int w = MARGIN * 2 + fx + H_SPACING + fm.stringWidth(TEXT[2]);
 
 		g.translate(-w, 0);
-		// g.setColor(new Color(0, 0, 0, 210));
-		// g.setColor(new Color(0, 0, 0, i));
 		g.fillRect(0, 0, w, h);
 
-		// Color c = Color.WHITE;
+		Color c = light ? Color.BLACK : Color.WHITE;
 		g.setColor(c);
 		g.drawRect(0, 0, w, h);
 

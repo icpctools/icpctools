@@ -55,7 +55,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 			g.translate(-sx + 2, 9);
-			g.setColor(Color.LIGHT_GRAY);
+			g.setColor(isLightMode() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 			g.setStroke(new BasicStroke(2f));
 			IContest contest = getContest();
 			g.drawLine(sx, 0, width - 20, 0);
