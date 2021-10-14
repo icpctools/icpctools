@@ -77,45 +77,35 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws MalformedURLException
 	 */
 	public RESTContestSource(String url, String user, String password) throws MalformedURLException {
-		this(null, null, url, user, password);
+		this(null, url, user, password);
 	}
 
 	/**
-	 * Creates a contest source from a local event feed file, with ability to load absolute
-	 * references, with local temp caching.
+	 * Creates a contest source from a local contest archive or event feed, with ability to load
+	 * absolute references, with local temp caching.
 	 *
-	 * @param eventFeedFile
+	 * @param file
 	 * @param user
 	 * @param password
 	 * @throws MalformedURLException
 	 */
-	public RESTContestSource(File eventFeedFile, String user, String password) throws MalformedURLException {
-		this(eventFeedFile, null, user, password);
+	public RESTContestSource(File file, String user, String password) throws MalformedURLException {
+		this(file, null, user, password);
 	}
 
 	/**
-	 * Creates a REST contest source backed by a local contest archive format folder.
+	 * General purpose constructor for a REST contest source. Creates a REST contest source backed
+	 * by a local contest archive format folder.
 	 *
-	 * @param folder
-	 * @param url
-	 * @param user
-	 * @param password
-	 * @param folder
+	 * Usually only one of the eventFeedFile and folder are used. URL is only optional if you
+	 * already have a local contest cached and only want the ability to load absolute file
+	 * references.
 	 */
-	public RESTContestSource(File folder, String url, String user, String password) throws MalformedURLException {
-		this(null, folder, url, user, password);
-	}
+	public RESTContestSource(File file, String url, String user, String password) throws MalformedURLException {
+		super(file, url);
 
-	/**
-	 * General purpose constructor for a REST contest source. Usually only one of the eventFeedFile
-	 * and folder are used. URL is only optional if you already have a local contest cached and only
-	 * want the ability to load absolute file references.
-	 */
-	private RESTContestSource(File eventFeedFile, File folder, String url, String user, String password)
-			throws MalformedURLException {
-		super(eventFeedFile, folder, url);
-
-		this.url = new URL(url);
+		if (url != null)
+			this.url = new URL(url);
 
 		if (user != null && user.trim().length() > 0)
 			this.user = user;
@@ -125,8 +115,10 @@ public class RESTContestSource extends DiskContestSource {
 
 		instance = this;
 
-		validateURL();
-		setup();
+		if (url != null) {
+			validateURL();
+			setup();
+		}
 
 		if (eventFeedFile == null) {
 			String name = System.getProperty("CDS-name");
@@ -430,7 +422,7 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private String getLastCachedEventId() throws Exception {
-		if (!feedCacheFile.exists())
+		if (feedCacheFile == null || !feedCacheFile.exists())
 			return null;
 
 		InputStream in = null;
@@ -468,7 +460,7 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private void readFromFeedCache() throws Exception {
-		if (!feedCacheFile.exists())
+		if (feedCacheFile == null || !feedCacheFile.exists())
 			return;
 
 		InputStream in = null;
@@ -526,7 +518,7 @@ public class RESTContestSource extends DiskContestSource {
 
 	@Override
 	protected void loadContestImpl() throws Exception {
-		if (feedFile != null)
+		if (url == null || feedFile != null)
 			return;
 
 		InputStream in = null;
