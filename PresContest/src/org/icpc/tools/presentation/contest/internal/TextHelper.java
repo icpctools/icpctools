@@ -210,7 +210,7 @@ public class TextHelper {
 
 		float w = emoji.svg.getWidth();
 		float h = emoji.svg.getHeight();
-		float scale = Math.min(size / w, size / h);
+		float scale = Math.min(size * 1.5f / w, size / h);
 
 		EmojiItem item = new EmojiItem();
 		item.svg = emoji.svg;
@@ -363,7 +363,7 @@ public class TextHelper {
 	 */
 	public static void drawString(Graphics2D g, String s, int x, int y) {
 		TextHelper text = new TextHelper(g, s);
-		new TextHelper(g, s).draw(x, y - text.fm.getAscent());
+		text.draw(x, y - text.fm.getAscent());
 	}
 
 	public static void main(String[] args) {
