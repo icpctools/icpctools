@@ -12,7 +12,7 @@
             <table class="table table-sm table-hover table-striped mb-4">
                 <tbody>
                 <tr>
-                    <td>ICPC Tools</td>
+                    <td>ICPC Tools website</td>
                     <td><a href="http://tools.icpc.global"
                            target="_blank">http://tools.icpc.global</a></td>
                 </tr>
@@ -22,15 +22,9 @@
                            target="_blank">https://ccs-specs.icpc.io</a></td>
                 </tr>
                 <tr>
-                    <td>Github (private)</td>
+                    <td>Github</td>
                     <td>
                         <a href="https://github.com/icpctools/icpctools" target="_blank">https://github.com/icpctools/icpctools</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>All builds</td>
-                    <td>
-                        <a href="https://tools.icpc.global/all-builds/" target="_blank">https://tools.icpc.global/all-builds/</a>
                     </td>
                 </tr>
                 </tbody>

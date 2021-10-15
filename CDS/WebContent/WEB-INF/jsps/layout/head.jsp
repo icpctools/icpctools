@@ -12,6 +12,7 @@
     	webroot = request.getContextPath() + "/contests/" + cc.getId();
     	apiRoot = request.getContextPath() + "/api/contests/" + cc.getId();
     }
+    String cdsName = System.getProperty("CDS-name");
     String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/admin", "/video", "/reports"};
     String[] menuTitles = {"Overview", "Details", "Registration", "Clarifications", "Submissions", "Scoreboard", "Commentary", "Admin", "Video", "Reports"};
     String[] menuIcons = {"fa-globe", "fa-info", "fa-users", "fa-comments", "fa-share", "fa-trophy", "fa-comments", "fa-user-cog", "fa-video", "fa-file-alt"};
@@ -29,7 +30,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta http-equiv="x-ua-compatible" content="ie=edge"/>
 
-  <title>CDS</title>
+  <title><% if ("cds".equals(cdsName)) { %>CDS<% } else { %><%= cdsName %><% } %></title>
 
   <link rel="stylesheet" href="${pageContext.request.contextPath}/fontawesome-free/css/all.min.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/adminlte.min.css"/>
@@ -115,7 +116,9 @@
       <a href="/" class="brand-link">
         <img src="${pageContext.request.contextPath}/cdsIcon.png" alt="CDS Logo"
           class="brand-image img-circle elevation-3"/>
-        <span class="brand-text font-weight-light">Contest Data Server</span>
+        <span class="brand-text font-weight-light">
+          <% if ("cds".equals(cdsName)) { %>Contest Data Server<% } else { %><%= cdsName %><% } %>
+        </span>
       </a>
 
       <!-- Sidebar -->
