@@ -169,6 +169,10 @@ class Contest {
 		return this.loadObject('scoreboard', (result) => { this.scoreboard = result });
 	}
 
+	clearScoreboard() {
+		this.scoreboard = null;
+	}
+
 	loadAwards() {
 		if (this.awards != null)
 			return new $.Deferred().resolve();
