@@ -7,7 +7,9 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Scoreboard</h3>
-                    <div class="card-tools"><a href="<%= apiRoot %>/scoreboard">API</a></div>
+                    <div class="card-tools"><a href="<%= apiRoot %>/scoreboard">API</a>
+                    <button id="score-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <% if (Role.isBlue(request)) { %>
@@ -40,7 +42,7 @@
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/html" id="header-start">
-  <th class="text-right">Rank</th><th></th><th>Team</th><th>Organization</th>
+  <th class="text-right">Rank</th><th></th><th>Team</th>
 </script>
 <script type="text/html" id="header-end">
   <th class="text-right">Solved</th><th class="text-right">Time</th>
@@ -49,7 +51,7 @@
 <th class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></th>
 </script>
 <script type="text/html" id="row-start">
-  <td class="text-right">{{rank}}</td><td class="text-center"><img src="{{logo}}" height=20/></td><td>{{team}}</td><td>{{org}}</td>
+  <td class="text-right">{{rank}}</td><td class="text-center"><img src="{{logo}}" height=20/></td><td>{{team}}</td>
 </script>
 <script type="text/html" id="row-end">
   <td class="text-right">{{numSolved}}</td><td class="text-right">{{totalTime}}</td>
@@ -61,13 +63,66 @@
 contest = new Contest("/api", "<%= cc.getId() %>");
 registerContestObjectTable("score");
 
+function getRow(scr) {
+	var row = $('<tr id="team' + scr.team_id + '"></tr>');
+    var logoSrc = '';
+    var team = '';
+    if (scr.team_id != null) {
+        team = findById(teams, scr.team_id);
+        if (team != null) {
+            var org = findById(orgs, team.organization_id);
+            if (org != null) {
+                var logo = bestSquareLogo(org.logo, 20);
+                if (logo != null)
+                    logoSrc = '/api/' + logo.href;
+            }
+            team = getDisplayStr(team.id);
+        }
+    }
+
+    obj = { rank: scr.rank, logo: logoSrc, team: team }
+    row.append(toHtml("row-start", obj));
+    for (var j = 0; j < problems.length; j++) {
+        obj = new Object();
+    	
+        for (var k = 0; k < scr.problems.length; k++) {
+            var prob = scr.problems[k];
+            if (prob.problem_id == problems[j].id) {
+                if (prob.first_to_solve == true)
+                    obj.scoreClass = 'bg-success';
+                else if (prob.solved == true)
+                    obj.scoreClass = 'table-success';
+                else if (prob.num_pending > 0)
+                    obj.scoreClass = 'table-warning';
+                else
+                    obj.scoreClass = 'table-danger';
+                obj.num = prob.num_judged + prob.num_pending;
+                if (prob.solved) {
+                	obj.solved = true;
+                    obj.time = prob.time;
+            	}
+            }
+        }
+        row.append(toHtml("cell", obj));
+    }
+    obj = { numSolved: scr.score.num_solved, totalTime: scr.score.total_time }
+    row.append(toHtml("row-end", obj));
+    return row;
+}
+
+var columnWidths = new Array();
+
 $(document).ready(function () {
+	var x = $("#score-refresh");
+    if (x != null)
+    	x.attr("onclick", 'updateTable()');
+    
     function createTableHeader() {
         $("#score-table thead").find("tr").remove();
         var row = $('<tr></tr>');
         row.append(toHtml("header-start"));
    
-        problems = sortProblems(contest.getProblems());
+        problems = contest.getProblems();
         for (var i = 0; i < problems.length; i++) {
         	var p = { label: problems[i].label };
         	p = addColors(p, problems[i].rgb);
@@ -79,66 +134,53 @@ $(document).ready(function () {
     }
 
     function fillTable() {
-        $("#score-table tbody").find("tr").remove();
+    	var table = $("#score-table");
+        
+    	$("#score-table tbody").find("tr").remove();
         score = contest.getScoreboard();
         teams = contest.getTeams();
         orgs = contest.getOrganizations();
-        problems = sortProblems(contest.getProblems());
+        problems = contest.getProblems();
         for (var i = 0; i < score.rows.length; i++) {
-            var scr = score.rows[i];
-            var logoSrc = '';
-            var team = '';
-            var orgName = '';
-            if (scr.team_id != null) {
-                team = findById(teams, scr.team_id);
-                if (team != null) {
-                    var org = findById(orgs, team.organization_id);
-                    if (org != null) {
-                        var logo = bestSquareLogo(org.logo, 20);
-                        if (logo != null)
-                            logoSrc = '/api/' + logo.href;
-                        orgName = org.name;
-                    }
-                    team = getDisplayStr(team.id);
-                }
-            }
-
-            obj = { rank: scr.rank, logo: logoSrc, team: team, org: orgName }
-            var col = toHtml("row-start", obj);
-            var row = $('<tr></tr>');
-            row.append(col);
-            for (var j = 0; j < problems.length; j++) {
-                obj = new Object();
-            	
-                for (var k = 0; k < scr.problems.length; k++) {
-                    var prob = scr.problems[k];
-                    if (prob.problem_id == problems[j].id) {
-                        if (prob.first_to_solve == true)
-                            obj.scoreClass = 'bg-success';
-                        else if (prob.solved == true)
-                            obj.scoreClass = 'table-success';
-                        else if (prob.num_pending > 0)
-                            obj.scoreClass = 'table-warning';
-                        else
-                            obj.scoreClass = 'table-danger';
-                        obj.num = prob.num_judged + prob.num_pending;
-                        if (prob.solved) {
-                        	obj.solved = true;
-                            obj.time = prob.time;
-                    	}
-                    }
-                }
-                var prb = toHtml("cell", obj);
-                row.append(prb);
-            }
-            obj = { numSolved: scr.score.num_solved, totalTime: scr.score.total_time }
-            var col2 = toHtml("row-end", obj);
-            row.append(col2);
+        	var row = getRow(score.rows[i]);
             $('#score-table tbody').append(row);
         }
-    }
+        
+     	// set every td's width
+		table.find('tr:first-child th').each(function() {
+			columnWidths.push($(this).outerWidth(true));
+		});
 
-    sortByColumn($('#score-table'));
+		table.find('tr td, tr th').each(function() {
+			$(this).css( {
+				width: columnWidths[$(this).index()]
+			} );
+		});
+		
+		// set every row's height and width
+		table.find('tr').each(function() {
+			$(this).width($(this).outerWidth(true));
+			$(this).height($(this).outerHeight(true));
+		});
+		
+		// set the table height and width
+		table.height(table.outerHeight()).width(table.outerWidth());
+		
+		// set the current vertical position
+		var y = 0;
+		table.find('tr').each(function(index) {
+			$(this).css('top', y);
+			y += $(this).outerHeight();
+		});
+
+		table.css('position', 'relative');
+    	table.css('display', 'inline-block');
+		
+		// make all the tr's absolute
+		table.find('tr').each(function(index,el) {
+			$(this).css('position', 'absolute');
+		});
+    }
 
     $.when(contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadScoreboard()).done(function () {
     	createTableHeader();
@@ -149,5 +191,51 @@ $(document).ready(function () {
     
     updateContestClock(contest, "contest-time");
 })
+
+function updateTable() {
+	contest.clearScoreboard();
+	$.when(contest.loadScoreboard()).done(function () {
+		 updateTableImpl();
+    }).fail(function (result) {
+    	console.log("Error loading scoreboard: " + result);
+    })
+}
+	
+function updateTableImpl() {
+	var table = $("#score-table");
+	var y = table.find('tr:eq(1)').position().top;
+	
+   	score = contest.getScoreboard();
+    for (var i = 0; i < score.rows.length; i++) {
+    	var scr = score.rows[i];
+    	var oldRow = $('#team' + scr.team_id);
+    	var row = getRow(scr);
+        
+        // replace the content and class of each cell (except logo and team name, which shouldn't change)
+        var numTds = row.children('td').length;
+        for (var j = 0; j < numTds; j++) {
+        	if (j > 0 && j < 3)
+        		continue;
+        	var td1 = oldRow.find('td').eq(j);
+        	var td2 = row.find('td').eq(j);
+        	td1.html(td2.html());
+        	td1.attr("class", td2.attr("class"));
+        }
+        
+        var oldY = oldRow.position().top;
+        if (Math.abs(y - oldY) > 0.5) {
+         	if (y > oldY) // slide rows down in 750ms
+        		oldRow.stop().animate({ top: y}, 750, 'swing');
+        	else {
+        		// slide rows going up based on how many rows they have to go
+        		// try 750ms + 500ms per log(numRows)
+        		var diff = (oldY - y) / oldRow.outerHeight();
+        		diff = 750 + Math.log(diff) * 500.0;
+        		oldRow.stop().animate({ top: y}, diff, 'swing');
+        	}
+        }
+    	y += oldRow.outerHeight();
+    }
+}
 </script>
 <%@ include file="layout/footer.jsp" %>
