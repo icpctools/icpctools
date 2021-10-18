@@ -57,9 +57,11 @@ public class JsonToTSVConverter {
 	protected static List<CMSWinner> winnerList = new ArrayList<>();
 	protected static List<String> contestIdList = new ArrayList<>();
 
+	protected static GoogleMapsGeocoder geocoder;
+
 	public static void main(String[] args) {
-		if (args == null || args.length < 1 || args.length > 3) {
-			System.err.println("Usage: command [cmsRoot] [contestRoot] [option]");
+		if (args == null || args.length < 1 || args.length > 4) {
+			System.err.println("Usage: command [cmsRoot] [contestRoot] [googleMapsKey] [option]");
 			System.exit(1);
 		}
 
@@ -71,7 +73,10 @@ public class JsonToTSVConverter {
 			System.exit(1);
 		}
 
-		if (args.length == 3 && "--finals".equals(args[2]))
+		if (args.length >= 3)
+			geocoder = new GoogleMapsGeocoder(args[2]);
+
+		if (args.length == 4 && "--finals".equals(args[3]))
 			FINALS_NAMING = true;
 
 		generateContest(cmsRoot, contestRoot);
@@ -271,6 +276,14 @@ public class JsonToTSVConverter {
 			memberList.sort((m1, m2) -> compare(m1.getTeamId(), m2.getTeamId()));
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+		if (geocoder != null) {
+			for (Organization o : orgList) {
+				if (Double.isNaN(o.getLatitude()) || Double.isNaN(o.getLongitude())) {
+					geocoder.geocode(o);
+				}
+			}
 		}
 
 		try {
