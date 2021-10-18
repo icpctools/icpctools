@@ -23,10 +23,10 @@ public class GoogleMapsGeocoder {
 	}
 
 	public void geocode(Organization org) {
-		String address = URLEncoder.encode(org.getFormalName() + " " + org.getCountry(), StandardCharsets.UTF_8);
-		String fullUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + apiKey;
-
 		try {
+			String address = URLEncoder.encode(org.getFormalName() + " " + org.getCountry(), "UTF-8");
+			String fullUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + apiKey;
+			
 			HttpURLConnection conn = (HttpURLConnection) (new URL(fullUrl)).openConnection();
 			conn.setRequestProperty("Accept", "application/json");
 			conn.setRequestMethod("GET");
