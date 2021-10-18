@@ -146,7 +146,7 @@ public class TSVImporter {
 					// if (st.length > 4)
 					// add(org, COUNTRY, st[4]);
 
-					add(org, URL, st[3]);
+					add(org, URL, st[4]);
 					add(org, HASHTAG, st[6]);
 					JsonObject obj = new JsonObject();
 					if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
