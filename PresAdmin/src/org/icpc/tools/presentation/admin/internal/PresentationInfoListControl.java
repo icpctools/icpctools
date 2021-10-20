@@ -494,7 +494,7 @@ public class PresentationInfoListControl extends Canvas {
 			return;
 
 		GC gc = event.gc;
-		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		gc.fillRectangle(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2);
 
 		Font font = getDisplay().getSystemFont();
@@ -557,7 +557,7 @@ public class PresentationInfoListControl extends Canvas {
 
 					// draw category
 					if (categoryIsClosed)
-						gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+						gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND));
 					else
 						gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
 
@@ -630,7 +630,7 @@ public class PresentationInfoListControl extends Canvas {
 			}
 
 			if (displayStyle == DisplayStyle.CATEGORY) {
-				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
+				gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 				if (lastIsSelection)
 					gc.fillRectangle(x - GAP + 1 + SEL_MARGIN, y, GAP - 1 - SEL_MARGIN, thumbnailSize.height + 1);
 				else
@@ -655,7 +655,7 @@ public class PresentationInfoListControl extends Canvas {
 			if (selection == info)
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
 			else
-				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 
 			String name = getName(info);
 			Point p = gc.textExtent(name);
