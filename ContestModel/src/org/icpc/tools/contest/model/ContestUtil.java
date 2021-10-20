@@ -126,7 +126,7 @@ public class ContestUtil {
 	public static String formatDuration(Integer duration) {
 		if (duration == null)
 			return "None";
-		return formatDuration(duration);
+		return formatDuration((int) duration);
 	}
 
 	/**

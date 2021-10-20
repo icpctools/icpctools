@@ -21,7 +21,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	private static final String END_CONTEST_TIME = "end_contest_time";
 	private static final String END_TIME = "end_time";
 	private static final String MAX_RUN_TIME = "max_run_time";
-	private static final String SCORE = "judgement_score";
+	private static final String SCORE = "score";
 
 	private String submissionId;
 	private String judgementTypeId;
