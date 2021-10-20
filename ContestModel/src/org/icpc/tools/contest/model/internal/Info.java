@@ -352,7 +352,11 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public int deepHash() {
-		int hash = duration + freezeDuration + penalty + (int) timeMultiplier;
+		int hash = duration + (int) timeMultiplier;
+		if (freezeDuration != null)
+			hash += freezeDuration;
+		if (penalty != null)
+			hash += penalty;
 		if (id != null)
 			hash += id.hashCode();
 		if (name != null)
