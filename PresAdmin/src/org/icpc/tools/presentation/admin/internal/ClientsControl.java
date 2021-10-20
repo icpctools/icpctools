@@ -466,7 +466,6 @@ public class ClientsControl extends Canvas {
 		shell.setLayout(layout);
 
 		Text t = new Text(shell, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		t.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		t.setText(log);
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.widthHint = 800;
@@ -680,7 +679,7 @@ public class ClientsControl extends Canvas {
 		// long time = System.currentTimeMillis();
 
 		GC gc = event.gc;
-		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		gc.fillRectangle(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2);
 
 		Font font = getDisplay().getSystemFont();
@@ -762,7 +761,7 @@ public class ClientsControl extends Canvas {
 				if (selection.contains(uid))
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
 				else
-					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 
 				// name & current resolution/fps
 				if (dc != null && dc.id != -1)
