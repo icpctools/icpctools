@@ -6,15 +6,13 @@ ARG CDS_VERSION
 
 # Install dependencies
 RUN apt-get update && \ 
-    apt-get install -y --no-install-recommends unzip ca-certificates curl && \
+    apt-get install -y --no-install-recommends unzip ca-certificates curl zip && \
     rm -rf /var/lib/apt/lists/
 
-# Install java
-RUN mkdir -p /opt/jdk && \
-    curl -L -o /root/openjdk15.tar.gz https://download.java.net/java/GA/jdk15.0.2/0d1cfde4252546c6931946de8db48ee2/7/GPL/openjdk-15.0.2_linux-x64_bin.tar.gz && \
-    tar -zxf /root/openjdk15.tar.gz -C /opt/jdk && \
-    update-alternatives --install /usr/bin/java java /opt/jdk/jdk-15.0.2/bin/java 100 && \
-    update-alternatives --install /usr/bin/javac javac /opt/jdk/jdk-15.0.2/bin/javac 100
+# Install SDKMAN!
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN curl -s "https://get.sdkman.io" | bash
+RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk install java 17.0.1-open
 
 # Install CDS
 RUN mkdir -p /opt && \
