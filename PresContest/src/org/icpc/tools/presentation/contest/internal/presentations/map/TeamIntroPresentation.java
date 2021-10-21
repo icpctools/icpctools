@@ -205,8 +205,8 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void incrementTimeMs(long dt) {
-		dt *= timeFactor;
+	public void incrementTimeMs(long dt2) {
+		long dt = (long) (dt2 * timeFactor);
 		if (zooms == null || zooms.length == 0)
 			return;
 

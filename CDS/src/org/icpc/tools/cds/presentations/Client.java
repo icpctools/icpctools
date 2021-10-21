@@ -300,7 +300,7 @@ public class Client {
 
 		// delta difference is < 20ms for at least 2 pings, we know enough
 		if (count > 1 && max < 20)
-			return new Long(total / count);
+			return Long.valueOf(total / count);
 
 		if (count < 3)
 			// not enough response time data yet
@@ -311,7 +311,7 @@ public class Client {
 			return null;
 
 		// we've had at least 3 pings, get rid of 'worst' time outlier and use average
-		return new Long((total - max) / (count - 1));
+		return Long.valueOf((total - max) / (count - 1));
 	}
 
 	protected void writePing() {

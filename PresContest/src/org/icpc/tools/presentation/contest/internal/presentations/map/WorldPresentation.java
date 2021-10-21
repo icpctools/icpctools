@@ -44,6 +44,7 @@ public class WorldPresentation extends AbstractICPCPresentation {
 
 	Map<String, String> organizationGroups = new TreeMap<>();
 	Map<String, Color> groupColors = new TreeMap<>();
+
 	void groupColors() {
 		IContest contest = getContest();
 
@@ -60,8 +61,8 @@ public class WorldPresentation extends AbstractICPCPresentation {
 				String[] groupIds = t.getGroupIds();
 				if (org != null && GroupPresentation.belongsToGroup(groupIds, groupId)) {
 					if (organizationGroups.containsKey(org.getId())) {
-						System.out.println("" + org.getName() + " belongs to " + org.getName() + " and " +
-								contest.getOrganizationById(organizationGroups.get(org.getId())).getName());
+						System.out.println("" + org.getName() + " belongs to " + org.getName() + " and "
+								+ contest.getOrganizationById(organizationGroups.get(org.getId())).getName());
 					}
 					organizationGroups.put(org.getId(), groupId);
 					memberCount++;
@@ -73,7 +74,7 @@ public class WorldPresentation extends AbstractICPCPresentation {
 		System.out.println("" + contest.getOrganizations().length + " orgs");
 	}
 
-	private float hue(Color c) {
+	private static float hue(Color c) {
 		return Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null)[0];
 	}
 
@@ -135,20 +136,15 @@ public class WorldPresentation extends AbstractICPCPresentation {
 		}
 
 		if (drawLogos && worldLogos != null) {
-			g.setRenderingHint(
-					RenderingHints.KEY_ANTIALIASING,
-					RenderingHints.VALUE_ANTIALIAS_ON);
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			for (TeamIntroPresentation.Position p : worldLogos.instPos) {
-				int x = (int) (width * (p.x + 180.0) / 360.0);
-				int y = (int) (height * (90 - p.y) / 180.0);
-				if (p.smImage == null) {
+				if (p.smImage == null)
 					continue;
-				}
-				BufferedImage im = p.smImage;
-				//g.drawImage(im, x - im.getWidth() / 2, y - im.getHeight() / 2, null);
 
-				AffineTransform at = AffineTransform.getTranslateInstance(
-						(width * (p.x + 180.0) / 360.0),
+				BufferedImage im = p.smImage;
+				// g.drawImage(im, x - im.getWidth() / 2, y - im.getHeight() / 2, null);
+
+				AffineTransform at = AffineTransform.getTranslateInstance((width * (p.x + 180.0) / 360.0),
 						(height * (90 - p.y) / 180.0));
 				g.drawImage(im, at, null);
 			}
