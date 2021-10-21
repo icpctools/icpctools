@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,12 @@ public class Timestamp {
 	public static final DateTimeFormatter TIME_FORMAT;
 	static {
 		TIME_FORMAT = DateTimeFormatter.ofPattern("[yyyy-MM-dd]'T'[HH:mm:ss][HH:mm:s][.SSS][.S][z][XXX][X]");
+	}
+
+	public static final DateTimeFormatter TIME_FORMAT_OUT;
+	static {
+		TIME_FORMAT_OUT = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd'T'HH:mm:ss.SSS").appendOffsetId()
+				.toFormatter();
 	}
 
 	public static long parseOld(String value) {
@@ -49,25 +56,23 @@ public class Timestamp {
 		if (timeMs == null)
 			return "null";
 
-		return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeMs), ZoneId.systemDefault())
-				.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+		return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeMs), ZoneId.systemDefault()).format(TIME_FORMAT_OUT);
 	}
 
 	public static String format(long timeMs) {
-		return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeMs), ZoneId.systemDefault())
-				.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+		return ZonedDateTime.ofInstant(Instant.ofEpochMilli(timeMs), ZoneId.systemDefault()).format(TIME_FORMAT_OUT);
 	}
 
 	public static String now() {
 		return format(System.currentTimeMillis());
 	}
 
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		String[] s = new String[] { "2014-06-25T11:22:05.034Z", "2014-06-25T11:22:05.034-02",
 				"2014-06-25T11:22:05.034+09", "2014-06-25T11:22:05.034-09:00", "2014-06-25T11:22:05.034-09:30",
 				"2014-06-25T11:22:05-09:00", "2014-06-25T11:22:05-09:30", "2014-06-25T11:22:05.034+01:00",
 				"2014-06-25T11:22:05.034+01", "2021-09-02T08:51:37.2-04:00", "2020-02-21T09:57:0.000-0500",
-				"2021-06-12T07:54:58.8-04:00" };
+				"2021-06-12T07:54:58.8-04:00", "2021-10-02T11:25:45.640+03:00" };
 		for (String o : s) {
 			try {
 				long num = parse(o);
@@ -79,5 +84,5 @@ public class Timestamp {
 				e.printStackTrace();
 			}
 		}
-	}*/
+	}
 }
