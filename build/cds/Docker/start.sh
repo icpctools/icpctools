@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
 if [ -n "${ADMIN_PASSWORD}" ]; then
     sed -i "s|__ADMIN_PASSWORD__|${ADMIN_PASSWORD}|" /opt/wlp/usr/servers/cds/users.xml
 fi
