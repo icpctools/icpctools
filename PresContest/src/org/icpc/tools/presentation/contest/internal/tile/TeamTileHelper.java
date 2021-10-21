@@ -192,8 +192,8 @@ public class TeamTileHelper {
 		}
 		if (img == null) {
 			if (approximateRendering) {
-				Trace.trace(Trace.INFO, "" + hashWidth + " approximating " + maxwid +
-						" vs natural width " + naturalWidth + " for " + team.getActualDisplayName());
+				Trace.trace(Trace.INFO, "" + hashWidth + " approximating " + maxwid + " vs natural width " + naturalWidth
+						+ " for " + team.getActualDisplayName());
 			}
 			g.setFont(teamFont);
 			TextHelper text = new TextHelper(g, team.getActualDisplayName());
@@ -210,19 +210,15 @@ public class TeamTileHelper {
 
 			nameImages.put(hash, img);
 		}
-		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 2, maxwid + 2,
-				img.getHeight(), null);
+		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 2, maxwid + 2, img.getHeight(),
+				null);
 	}
 
 	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
-		RenderPerfTimer.Counter rankAndScoreMeasure =
-				RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
-		RenderPerfTimer.Counter nameMeasure =
-				RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
-		RenderPerfTimer.Counter problemMeasure =
-				RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
-		RenderPerfTimer.Counter activeProblemMeasure =
-				RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
+		RenderPerfTimer.Counter rankAndScoreMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
+		RenderPerfTimer.Counter nameMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
+		RenderPerfTimer.Counter problemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
+		RenderPerfTimer.Counter activeProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
 		rankAndScoreMeasure.startMeasure();
 		g.setFont(rankFont);
 		FontMetrics rankFm = g.getFontMetrics();
@@ -287,7 +283,8 @@ public class TeamTileHelper {
 			if (!preRendering && !g.getClip().intersects(xx + (int) (w * i), y, w, h)) {
 				continue;
 			}
-			String hash = r.getNumSubmissions() + "-" + ContestUtil.getTime(r.getContestTime()) + " " + r.getStatus().name() + " " + (int) w;
+			String hash = r.getNumSubmissions() + "-" + ContestUtil.getTime(r.getContestTime()) + " "
+					+ r.getStatus().name() + " " + (int) w;
 			if (r.isFirstToSolve()) {
 				hash += " FIRST";
 			}
@@ -345,8 +342,8 @@ public class TeamTileHelper {
 		problemMeasure.stopMeasure();
 	}
 
-	private BufferedImage getCacheOrRender(String hash, Map<String, BufferedImage> cache,
-										   int w, int h, Consumer<Graphics2D> renderer) {
+	private static BufferedImage getCacheOrRender(String hash, Map<String, BufferedImage> cache, int w, int h,
+			Consumer<Graphics2D> renderer) {
 		BufferedImage img = cache.get(hash);
 		if (img == null) {
 			Trace.trace(Trace.INFO, "cache miss " + hash);
@@ -356,7 +353,7 @@ public class TeamTileHelper {
 		return img;
 	}
 
-	private BufferedImage renderBufferedImage(int w, int h, Consumer<Graphics2D> renderer) {
+	private static BufferedImage renderBufferedImage(int w, int h, Consumer<Graphics2D> renderer) {
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
 		Graphics2D gg = (Graphics2D) img.getGraphics();
 		gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -410,7 +407,7 @@ public class TeamTileHelper {
 				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
 
 			g.setFont(statusFont);
-			//g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
+			// g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
 			// TODO: Use TextHelper.drawFit to fit text that does not fit in the avilable space
 			// note: 9-999 is used to guess the space needed, but number of submissions may be above 9
 			// and not fit.
@@ -450,7 +447,7 @@ public class TeamTileHelper {
 				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
 
 			g.setFont(statusFont);
-			//g.drawString(s, (w - fm.stringWidth(s)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
+			// g.drawString(s, (w - fm.stringWidth(s)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
 			TextHelper text = new TextHelper(g, s);
 			int sw = text.getWidth();
 			text.drawFit((w - Math.min(sw, w - 4)) / 2 - 2, (h - fm.getAscent()) / 2, w - 4);
