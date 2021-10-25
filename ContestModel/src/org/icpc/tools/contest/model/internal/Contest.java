@@ -801,8 +801,8 @@ public class Contest implements IContest {
 		Arrays.sort(tempMembers, (o1, o2) -> {
 			if (o1.getRole() != null && o2.getRole() != null && !o1.getRole().equals(o2.getRole()))
 				return -o1.getRole().compareTo(o2.getRole());
-			if (o1.getLastName() != null && o2.getLastName() != null)
-				return collator.compare(o1.getLastName(), o2.getLastName());
+			if (o1.getName() != null && o2.getName() != null)
+				return collator.compare(o1.getName(), o2.getName());
 			return 0;
 		});
 		return tempMembers;

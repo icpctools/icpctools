@@ -16,6 +16,8 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	private static final String TEAM_ID = "team_id";
 	private static final String FIRST_NAME = "first_name";
 	private static final String LAST_NAME = "last_name";
+	private static final String NAME = "name";
+	private static final String EMAIL = "email";
 	private static final String SEX = "sex";
 	private static final String ROLE = "role";
 	private static final String PHOTO = "photo";
@@ -29,6 +31,8 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	private String icpcId;
 	private String firstName;
 	private String lastName;
+	private String name;
+	private String email;
 	private String sex;
 	private String teamId;
 	private String role;
@@ -50,14 +54,24 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		return icpcId;
 	}
 
-	@Override
 	public String getFirstName() {
 		return firstName;
 	}
 
-	@Override
 	public String getLastName() {
 		return lastName;
+	}
+
+	@Override
+	public String getName() {
+		if (name == null && firstName != null && lastName != null)
+			return firstName + " " + lastName;
+		return name;
+	}
+
+	@Override
+	public String getEmail() {
+		return email;
 	}
 
 	@Override
@@ -111,6 +125,14 @@ public class TeamMember extends ContestObject implements ITeamMember {
 			}
 			case LAST_NAME: {
 				lastName = (String) value;
+				return true;
+			}
+			case NAME: {
+				name = (String) value;
+				return true;
+			}
+			case EMAIL: {
+				email = (String) value;
 				return true;
 			}
 			case SEX: {
@@ -267,6 +289,8 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		t.icpcId = icpcId;
 		t.firstName = firstName;
 		t.lastName = lastName;
+		t.name = name;
+		t.email = email;
 		t.sex = sex;
 		t.teamId = teamId;
 		t.role = role;
@@ -276,9 +300,16 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	@Override
 	protected void getPropertiesImpl(Map<String, Object> props) {
 		super.getPropertiesImpl(props);
-		props.put(ICPC_ID, icpcId);
-		props.put(FIRST_NAME, firstName);
-		props.put(LAST_NAME, lastName);
+		if (icpcId != null)
+			props.put(ICPC_ID, icpcId);
+		if (firstName != null)
+			props.put(FIRST_NAME, firstName);
+		if (lastName != null)
+			props.put(LAST_NAME, lastName);
+		if (name != null)
+			props.put(NAME, name);
+		if (email != null)
+			props.put(EMAIL, email);
 		props.put(SEX, sex);
 		props.put(TEAM_ID, teamId);
 		props.put(ROLE, role);
@@ -296,8 +327,14 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		je.encode(ID, id);
 		if (icpcId != null)
 			je.encode(ICPC_ID, icpcId);
-		je.encode(FIRST_NAME, firstName);
-		je.encode(LAST_NAME, lastName);
+		if (firstName != null)
+			je.encode(FIRST_NAME, firstName);
+		if (lastName != null)
+			je.encode(LAST_NAME, lastName);
+		if (name != null)
+			je.encode(NAME, name);
+		if (email != null)
+			je.encode(EMAIL, email);
 		je.encode(SEX, sex);
 		je.encode(TEAM_ID, teamId);
 		je.encode(ROLE, role);
@@ -317,11 +354,8 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		if (c.getTeamById(teamId) == null)
 			errors.add("Invalid team " + teamId);
 
-		if (firstName == null || firstName.isEmpty())
-			errors.add("First name missing");
-
-		if (lastName == null || lastName.isEmpty())
-			errors.add("Last name missing");
+		if (getName() == null || getName().isEmpty())
+			errors.add("Name missing");
 
 		if (sex == null || sex.isEmpty())
 			errors.add("Sex missing");
