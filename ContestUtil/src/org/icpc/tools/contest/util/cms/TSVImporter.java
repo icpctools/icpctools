@@ -256,7 +256,7 @@ public class TSVImporter {
 								t = tm;
 
 						if (t == null) {
-							System.err.println("Warning: person " + p.getFirstName() + " " + p.getLastName() + " in unknown team " + teamId);
+							System.err.println("Warning: person " + p.getName() + " in unknown team " + teamId);
 						} else {
 							add(p, TEAM_ID, t.getId());
 							String role = st[3];

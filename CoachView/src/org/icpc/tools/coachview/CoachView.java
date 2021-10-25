@@ -399,7 +399,7 @@ public class CoachView extends Panel {
 			String[] names = new String[contestants.size()];
 			for (int i = 0; i < contestants.size(); i++) {
 				ITeamMember tm = contestants.get(i);
-				names[i] = tm.getFirstName() + " " + tm.getLastName();
+				names[i] = tm.getName();
 			}
 			drawLine(g, y, "Contestants", names);
 
@@ -408,7 +408,7 @@ public class CoachView extends Panel {
 			names = new String[staff.size()];
 			for (int i = 0; i < staff.size(); i++) {
 				ITeamMember tm = staff.get(i);
-				names[i] = tm.getFirstName() + " " + tm.getLastName() + " (" + tm.getRole() + ")";
+				names[i] = tm.getName() + " (" + tm.getRole() + ")";
 			}
 			drawLine(g, y, "Staff", names);
 			g.translate(-x, 0);

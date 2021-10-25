@@ -15,18 +15,18 @@ public interface ITeamMember extends IContestObject {
 	String getICPCId();
 
 	/**
-	 * The person's first name.
+	 * The person's name.
 	 *
-	 * @return the first name
+	 * @return the name
 	 */
-	String getFirstName();
+	String getName();
 
 	/**
-	 * The person's last name.
+	 * The person's email.
 	 *
-	 * @return the last name
+	 * @return the email
 	 */
-	String getLastName();
+	String getEmail();
 
 	/**
 	 * The person's sex (male or female).
