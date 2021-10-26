@@ -357,9 +357,6 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		if (getName() == null || getName().isEmpty())
 			errors.add("Name missing");
 
-		if (sex == null || sex.isEmpty())
-			errors.add("Sex missing");
-
 		if (role == null || role.isEmpty())
 			errors.add("Role missing");
 
