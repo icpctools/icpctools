@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -900,51 +899,65 @@ public class DiskContestSource extends ContestSource {
 		return new File(root, "config" + File.separator + file);
 	}
 
-	private static File getRegistrationFile(File root, String file) {
-		if (root == null)
-			return null;
-		return new File(root, "registration" + File.separator + file);
-	}
-
 	protected void loadConfigFiles() {
 		if (root == null) // this is a cache
 			return;
 
 		configValidation = new Validation();
 		try {
-			Trace.trace(Trace.INFO, "Importing contest info");
-			File f = getConfigFile(root, "contest.json");
+			File f = new File(root, "contest.json");
+			String s = "Imported contest info";
 			if (f.exists())
 				loadFileSingle(contest, f, "contests");
 			else {
-				Info info = YamlParser.importContestInfo(root);
-				contest.add(info);
+				f = new File(root, "contest.yaml");
+				if (f.exists())
+					contest.add(YamlParser.importContestInfo(f, false));
+				else {
+					f = getConfigFile(root, "contest.yaml");
+					if (f.exists())
+						contest.add(YamlParser.importContestInfo(f, true));
+					else
+						s = "Contest info not found";
+				}
 			}
-			configValidation.ok("Contest info loaded");
-		} catch (FileNotFoundException e) {
-			configValidation.ok("Contest info not found");
-			Trace.trace(Trace.INFO, e.getMessage());
+			configValidation.ok(s);
+			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing contest info: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing contest info", e);
 		}
 
 		try {
-			List<IProblem> problems = YamlParser.importProblems(root);
-			for (IProblem p : problems)
-				contest.add(p);
-
-			Trace.trace(Trace.INFO, "Imported problem set");
-		} catch (FileNotFoundException e) {
-			Trace.trace(Trace.INFO, e.getMessage());
+			File f = new File(root, "problems.json");
+			String s = "Imported problems";
+			if (f.exists())
+				loadFile(contest, f, "problems");
+			else {
+				f = new File(root, "problems.yaml");
+				if (f.exists()) {
+					List<IProblem> problems = YamlParser.importProblems(f);
+					for (IProblem p : problems)
+						contest.add(p);
+				} else {
+					f = getConfigFile(root, "problemset.yaml");
+					if (f.exists()) {
+						List<IProblem> problems = YamlParser.importProblems(f);
+						for (IProblem p : problems)
+							contest.add(p);
+					} else
+						s = "Problem config file not found";
+				}
+			}
+			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
-			configValidation.err("Error importing problem set: " + e.getMessage());
-			Trace.trace(Trace.ERROR, "Error importing problem set", e);
+			configValidation.err("Error importing problems: " + e.getMessage());
+			Trace.trace(Trace.ERROR, "Error importing problems", e);
 		}
 
 		try {
 			String s = "Imported groups";
-			File f = getRegistrationFile(root, "groups.json");
+			File f = new File(root, "groups.json");
 			if (f.exists())
 				loadFile(contest, f, "groups");
 			else {
@@ -962,7 +975,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			String s = "Imported organizations";
-			File f = getRegistrationFile(root, "organizations.json");
+			File f = new File(root, "organizations.json");
 			if (f.exists())
 				loadFile(contest, f, "organizations");
 			else {
@@ -983,7 +996,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			String s = "Imported teams";
-			File f = getRegistrationFile(root, "teams.json");
+			File f = new File(root, "teams.json");
 			if (f.exists())
 				loadFile(contest, f, "teams");
 			else {
@@ -1005,7 +1018,7 @@ public class DiskContestSource extends ContestSource {
 
 		try {
 			String s = "Imported team-members";
-			File f = getRegistrationFile(root, "team-members.json");
+			File f = new File(root, "team-members.json");
 			if (f.exists())
 				loadFile(contest, f, "team-members");
 			else {

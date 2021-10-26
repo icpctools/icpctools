@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,119 +22,86 @@ import org.yaml.snakeyaml.representer.Representer;
  * Uses SnakeYAML to parse the contest YAML files.
  */
 public class YamlParser {
-	private static File getFile(File root, String file) {
-		return new File(root, "config" + File.separator + file);
-	}
-
-	public static Info importContestInfo(File root) throws IOException {
-		File f = getFile(root, "contest.yaml");
+	public static Info importContestInfo(File f, boolean oldFormat) throws IOException {
 		if (f == null || !f.exists())
-			throw new FileNotFoundException("Contest config file (contest.yaml) not found");
+			throw new FileNotFoundException("Contest config file not found");
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
-		Info info =  parseInfo(br);
+		Yaml yaml = new Yaml(new Constructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
+		Object obj = yaml.load(br);
+
+		// the file should have a top-level map of problems, which contains a list of problems
+		if (!(obj instanceof Map<?, ?>))
+			throw new IOException("Contest config file not imported: invalid format");
+
+		Map<?, ?> map = (Map<?, ?>) obj;
+
+		Info info = new Info();
+		info.add("id", "1");
+		for (Object ob : map.keySet()) {
+			if (ob instanceof String) {
+				String key = (String) ob;
+				Object val = map.get(key);
+				String value = null;
+				if (val != null)
+					value = val.toString();
+
+				try {
+					if ("name".equals(key) && oldFormat)
+						info.add("formal_name", value);
+					else if ("short-name".equals(key))
+						info.add("name", value);
+					else if ("length".equals(key) || "duration".equals(key)) {
+						int length = RelativeTime.parse(value);
+						if (length >= 0)
+							info.add("duration", RelativeTime.format(length));
+					} else if ("scoreboard-freeze".equals(key) || "scoreboard_freeze_duration".equals(key)) {
+						int length = RelativeTime.parse(value);
+						int d = info.getDuration();
+						if (length >= 0 && d > 0)
+							info.add("scoreboard_freeze_duration", RelativeTime.format(d / 1000 - length));
+					} else if ("scoreboard-freeze-length".equals(key)) {
+						int length = RelativeTime.parse(value);
+						if (length >= 0)
+							info.add("scoreboard_freeze_duration", RelativeTime.format(length));
+					} else if ("penalty-time".equals(key)) {
+						info.add("penalty_time", value);
+					} else if ("start-time".equals(key)) {
+						info.add("start_time", value);
+					} else
+						info.add(key, value);
+				} catch (Exception ex) {
+					Trace.trace(Trace.ERROR, "Could not parse " + key + ": " + value);
+				}
+			}
+		}
+
 		br.close();
 		return info;
 	}
 
-	 protected static int parseTime(String value) {
-		  int ind = value.indexOf(":");
-		  int h = Integer.parseInt(value.substring(0, ind));
-		  int ind2 = value.indexOf(":", ind + 1);
-		  int m = Integer.parseInt(value.substring(ind + 1, ind2));
-		  int s = Integer.parseInt(value.substring(ind2 + 1));
-		  int length = s + 60 * m + 60 * 60 * h;
-		  return length;
-	 }
-
-	 public static Info parseInfo(Reader reader) throws IOException {
-		  Yaml yaml = new Yaml(new Constructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
-		  Object obj = yaml.load(reader);
-
-		  // the file should have a top-level map of problems, which contains a list of problems
-		  if (!(obj instanceof Map<?, ?>))
-			 throw new IOException("Contest config file (contest.yaml) not imported: invalid format");
-
-		  Map<?, ?> map = (Map<?, ?>) obj;
-
-		  Info info = new Info();
-		  info.add("id", "1");
-		  boolean defaultPenaltyTime = true;
-		  for (Object ob : map.keySet()) {
-			 if (ob instanceof String) {
-				  String key = (String) ob;
-				  Object val = map.get(key);
-				  String value = null;
-				  if (val != null)
-				  value = val.toString();
-				  if ("name".equals(key))
-				  info.add("formal_name", value);
-				  else if ("short-name".equals(key))
-				  info.add("name", value);
-				  else if ("length".equals(key) || "duration".equals(key)) {
-				  try {
-						int length = parseTime(value);
-						if (length >= 0)
-							 info.add("duration", RelativeTime.format(length * 1000));
-				  } catch (Exception ex) {
-						Trace.trace(Trace.ERROR, "Could not parse duration: " + value);
-				  }
-				  } else if ("scoreboard-freeze".equals(key)) {
-				  try {
-						int length = parseTime(value);
-						int d = info.getDuration();
-						if (length >= 0 && d > 0)
-							 info.add("scoreboard_freeze_duration", RelativeTime.format((d / 1000 - length) * 1000));
-				  } catch (Exception ex) {
-						Trace.trace(Trace.ERROR, "Could not parse freeze: " + value);
-				  }
-				  } else if ("scoreboard-freeze-length".equals(key)) {
-				  try {
-						int length = parseTime(value);
-						if (length >= 0)
-							 info.add("scoreboard_freeze_duration", RelativeTime.format(length * 1000));
-				  } catch (Exception ex) {
-						Trace.trace(Trace.ERROR, "Could not parse freeze length: " + value);
-				  }
-				  } else if ("penalty-time".equals(key)) {
-						info.add("penalty_time", value);
-						defaultPenaltyTime = false;
-				  } else if ("start-time".equals(key)) {
-						try {
-							 info.add("start_time", value);
-						} catch (Exception e) {
-							 Trace.trace(Trace.ERROR, "Couldn't parse start time: " + value);
-						}
-				  }
-			 }
-		}
-
-		  if (defaultPenaltyTime) {
-		  	 info.add("penalty_time", "20");
-		  }
-
-		  return info;
-	 }
-
-	 // .timelimit
-	public static List<IProblem> importProblems(File root) throws IOException {
-		File f = getFile(root, "problemset.yaml");
+	// .timelimit
+	public static List<IProblem> importProblems(File f) throws IOException {
 		if (f == null || !f.exists())
-			throw new FileNotFoundException("Problem config file (problemset.yaml) not found");
+			throw new FileNotFoundException("Problem config file not found");
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
 
 		Yaml yaml = new Yaml();
 		Object obj = yaml.load(br);
 
-		// the file should have a top-level map of problems, which contains a list of problems
-		if (!(obj instanceof Map<?, ?>))
-			throw new IOException("Problem config file (problemset.yaml) not imported: invalid format");
+		// problemset.yaml has a top-level problems element
+		if (obj instanceof Map<?, ?>) {
+			Map<?, ?> map = (Map<?, ?>) obj;
+			Object probs = map.get("problems");
+			if (probs == null)
+				throw new IOException("Problem config file invalid top-level element");
 
-		Map<?, ?> map = (Map<?, ?>) obj;
-		obj = map.get("problems");
-		if (obj == null || !(obj instanceof List<?>))
-			throw new IOException("Problem config file (problemset.yaml) not imported: no problems");
+			obj = probs;
+		}
+
+		if (!(obj instanceof List<?>))
+			throw new IOException("Problem config file not imported: no problems");
 
 		List<?> list = (List<?>) obj;
 
@@ -144,7 +110,7 @@ public class YamlParser {
 
 		for (Object o : list) {
 			if (o instanceof Map<?, ?>) {
-				map = (Map<?, ?>) o;
+				Map<?, ?> map = (Map<?, ?>) o;
 
 				Problem problem = new Problem();
 				problem.add("ordinal", "" + i);
@@ -157,27 +123,29 @@ public class YamlParser {
 						String value = null;
 						if (val != null)
 							value = val.toString();
+
 						if ("letter".equals(key))
 							problem.add("label", value);
-						else if ("color".equals(key))
-							problem.add("color", value);
-						else if ("rgb".equals(key))
-							problem.add("rgb", value);
 						else if ("short-name".equals(key)) {
-							problem.add("id", value);
-							problem.add("name", value);
-						}
+							if (problem.getId() == null)
+								problem.add("id", value);
+							if (problem.getName() == null)
+								problem.add("name", value);
+						} else
+							problem.add(key, value);
 					}
 				}
 
-				File problemFolder = new File(root, "config" + File.separator + problem.getId());
-				if (problemFolder.exists()) {
-					addProblemTestDataCount(problemFolder, problem);
-					addProblemTimeLimit(problemFolder, problem);
-					try {
-						importProblemYaml(problemFolder, problem);
-					} catch (Exception e) {
-						// ignore for now
+				if (problem.getId() != null && (problem.getTestDataCount() <= 0 || problem.getTimeLimit() <= 0)) {
+					File problemFolder = new File(f.getParentFile(), problem.getId());
+					if (problemFolder.exists()) {
+						addProblemTestDataCount(problemFolder, problem);
+						addProblemTimeLimit(problemFolder, problem);
+						try {
+							importProblemYaml(problemFolder, problem);
+						} catch (Exception e) {
+							// ignore for now
+						}
 					}
 				}
 				problems.add(problem);
@@ -193,7 +161,7 @@ public class YamlParser {
 	 * @param folder
 	 * @return
 	 */
-	protected static int countTestCases(File folder) {
+	private static int countTestCases(File folder) {
 		if (folder == null || !folder.exists())
 			return 0;
 
@@ -217,7 +185,7 @@ public class YamlParser {
 		return count;
 	}
 
-	protected static void addProblemTestDataCount(File problemFolder, Problem p) {
+	private static void addProblemTestDataCount(File problemFolder, Problem p) {
 		int count = 0;
 		File sampleFolder = new File(problemFolder, "data" + File.separator + "sample");
 		if (sampleFolder.exists())
@@ -231,7 +199,7 @@ public class YamlParser {
 			p.add("test_data_count", count + "");
 	}
 
-	protected static void addProblemTimeLimit(File problemFolder, Problem p) {
+	private static void addProblemTimeLimit(File problemFolder, Problem p) {
 		File f = new File(problemFolder, ".timelimit");
 		if (!f.exists())
 			return;
@@ -252,7 +220,7 @@ public class YamlParser {
 		}
 	}
 
-	protected static void importProblemYaml(File problemFolder, Problem p) throws IOException {
+	private static void importProblemYaml(File problemFolder, Problem p) throws IOException {
 		File f = new File(problemFolder, "problem.yaml");
 		if (!f.exists())
 			throw new FileNotFoundException("Problem file (problem.yaml) not found: " + f.getAbsolutePath());
