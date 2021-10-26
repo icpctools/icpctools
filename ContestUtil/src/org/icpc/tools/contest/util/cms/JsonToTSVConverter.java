@@ -303,13 +303,10 @@ public class JsonToTSVConverter {
 
 			writeContestJSON(info, configFolder);
 
-			File regFolder = new File(contestRoot, "registration");
-			regFolder.mkdirs();
-
-			writeJSON(new File(regFolder, "groups.json"), groupList);
-			writeJSON(new File(regFolder, "organizations.json"), orgList);
-			writeJSON(new File(regFolder, "teams.json"), teamList);
-			writeJSON(new File(regFolder, "team-members.json"), memberList);
+			writeJSON(new File(contestRoot, "groups.json"), groupList);
+			writeJSON(new File(contestRoot, "organizations.json"), orgList);
+			writeJSON(new File(contestRoot, "teams.json"), teamList);
+			writeJSON(new File(contestRoot, "team-members.json"), memberList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
