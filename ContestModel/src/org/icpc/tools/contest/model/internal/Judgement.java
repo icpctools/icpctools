@@ -30,7 +30,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	protected Integer endContestTime;
 	protected Long endTime;
 	protected int maxRunTime;
-	protected Double score = Double.NaN;
+	protected Double score;
 
 	public Judgement() {
 		// default constructor
@@ -167,7 +167,7 @@ public class Judgement extends ContestObject implements IJudgement {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
-		if (!Double.isNaN(score))
+		if (score != null)
 			props.put(SCORE, round(score));
 	}
 
@@ -202,7 +202,7 @@ public class Judgement extends ContestObject implements IJudgement {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
-		if (!Double.isNaN(score))
+		if (score != null)
 			je.encode(SCORE, round(score));
 	}
 

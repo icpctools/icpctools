@@ -48,13 +48,20 @@ public class Scoreboard {
 		int index = contest.getNumObjects();
 		pw.write(" \"event_id\":\"cds" + index + "\",\n");
 		if (obj == null) {
-			// do nothing
 			pw.write("  \"time\":\"" + Timestamp.format(System.currentTimeMillis()) + "\",\n");
 			pw.write("  \"contest_time\":\"" + RelativeTime.format(0) + "\",\n");
 		} else {
 			pw.write("  \"time\":\"" + Timestamp.format(ContestObject.getTime(obj)) + "\",\n");
 			pw.write("  \"contest_time\":\"" + RelativeTime.format(ContestObject.getContestTime(obj)) + "\",\n");
 		}
+
+		ScoreboardType scoreboardType = contest.getScoreboardType();
+		if (scoreboardType != null)
+			pw.write("  \"scoreboard_type\":\"" + scoreboardType.name().toLowerCase() + "\",\n");
+
+		if (scoreboardType == null)
+			scoreboardType = ScoreboardType.PASS_FAIL;
+
 		pw.write("  \"state\": ");
 
 		JSONEncoder je = new JSONEncoder(pw);
@@ -64,10 +71,6 @@ public class Scoreboard {
 		je.close();
 
 		pw.write(",\n");
-
-		ScoreboardType scoreboardType = contest.getScoreboardType();
-		if (scoreboardType == null)
-			scoreboardType = ScoreboardType.PASS_FAIL;
 
 		pw.write("  \"rows\": [\n");
 		boolean firstTeam = true;
@@ -79,20 +82,19 @@ public class Scoreboard {
 			else
 				firstTeam = false;
 
-			// [{"rank":1,"team_id":"42","score":{"num_solved":3,"total_time":340},
 			pw.write("{\"rank\":" + s.getRank() + ",");
 			pw.write("\"team_id\":\"" + team.getId() + "\",");
 			pw.write("\"score\":{");
 			if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
 				pw.write("\"num_solved\":" + s.getNumSolved() + ",");
 				pw.write("\"total_time\":" + s.getTime() + "},\n");
-			} else if (ScoreboardType.SCORE.equals(scoreboardType))
-				pw.write("\"score\":" + round(s.getScore()) + "},\n");
-
-			// "problems":[
-			// {"problem_id":"A","num_judged":3,"num_pending":1,"solved":false},
-			// {"problem_id":"B","num_judged":1,"num_pending":0,"solved":true,"time":20,"first_to_solve":true}
-			// ]},
+			} else if (ScoreboardType.SCORE.equals(scoreboardType)) {
+				pw.write("\"score\":" + round(s.getScore()));
+				if (s.getLastSolutionTime() >= 0)
+					pw.write(",\"time\":" + s.getLastSolutionTime() + "},\n");
+				else
+					pw.write("},\n");
+			}
 			pw.write("  \"problems\":[");
 			boolean first = true;
 			for (int pn = 0; pn < numProblems; pn++) {
@@ -107,17 +109,16 @@ public class Scoreboard {
 					pw.write("\n   {\"problem_id\":\"" + escape(p.getId()) + "\",");
 					pw.write("\"num_judged\":" + r.getNumJudged() + ",");
 					pw.write("\"num_pending\":" + r.getNumPending() + ",");
-					if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
-						pw.write("\"solved\":");
-						if (r.getStatus() == Status.SOLVED) {
-							pw.write("true,");
-							pw.write("\"time\":" + ContestUtil.getTime(r.getContestTime()));
+					if (r.getStatus() == Status.SOLVED) {
+						pw.write("\"solved\":true,");
+						pw.write("\"time\":" + ContestUtil.getTime(r.getContestTime()));
+						if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
 							if (r.isFirstToSolve())
 								pw.write(",\"first_to_solve\":true");
-						} else
-							pw.write("false");
-					} else if (ScoreboardType.SCORE.equals(scoreboardType))
-						pw.write("\"score\":" + round(r.getScore()));
+						} else if (ScoreboardType.SCORE.equals(scoreboardType))
+							pw.write(",\"score\":" + round(r.getScore()));
+					} else
+						pw.write("\"solved\":false");
 					pw.write("}");
 				}
 			}
