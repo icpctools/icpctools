@@ -790,14 +790,14 @@ public class DiskContestSource extends ContestSource {
 	 * Returns the file pattern for a given contest object type, id, and property.
 	 */
 	protected FilePattern getLocalPattern(IContestObject.ContestType type, String id, String property) {
-		String config = "config";
+		String contest = "contest";
 		String reg = ""; // "registration" + File.separator;
 		String events = ""; // "events" + File.separator;
 		if (type == ContestType.CONTEST) {
 			if (LOGO.equals(property))
-				return new FilePattern(null, id, property, config, LOGO_EXTENSIONS);
+				return new FilePattern(null, id, property, contest, LOGO_EXTENSIONS);
 			if (BANNER.equals(property))
-				return new FilePattern(null, id, property, config, LOGO_EXTENSIONS);
+				return new FilePattern(null, id, property, contest, LOGO_EXTENSIONS);
 		} else if (type == ContestType.TEAM) {
 			if (PHOTO.equals(property))
 				return new FilePattern(type, id, property, reg, PHOTO_EXTENSIONS);
