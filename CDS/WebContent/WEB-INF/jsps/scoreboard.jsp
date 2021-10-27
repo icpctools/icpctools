@@ -47,6 +47,9 @@
 <script type="text/html" id="header-end">
   <th class="text-right">Solved</th><th class="text-right">Time</th>
 </script>
+<script type="text/html" id="header-end-score">
+  <th class="text-right">Score</th><th class="text-right">Time</th>
+</script>
 <script type="text/html" id="problem">
 <th class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></th>
 </script>
@@ -56,14 +59,20 @@
 <script type="text/html" id="row-end">
   <td class="text-right">{{numSolved}}</td><td class="text-right">{{totalTime}}</td>
 </script>
+<script type="text/html" id="row-end-score">
+  <td class="text-right">{{score}}</td><td class="text-right">{{time}}</td>
+</script>
 <script type="text/html" id="cell">
 <td class="text-center {{ scoreClass }}">{{num}}{{#solved}} / {{time}}{{/solved}}</td>
+</script>
+<script type="text/html" id="cell-score">
+<td class="text-center {{ scoreClass }}">{{score}}{{#solved}} / {{time}}{{/solved}}</td>
 </script>
 <script type="text/javascript">
 contest = new Contest("/api", "<%= cc.getId() %>");
 registerContestObjectTable("score");
 
-function getRow(scr) {
+function getRow(scr, type) {
 	var row = $('<tr id="team' + scr.team_id + '"></tr>');
     var logoSrc = '';
     var team = '';
@@ -100,13 +109,28 @@ function getRow(scr) {
                 if (prob.solved) {
                 	obj.solved = true;
                     obj.time = prob.time;
+                    obj.score = prob.score;
             	}
             }
         }
-        row.append(toHtml("cell", obj));
+        if ("score" == type)
+        	row.append(toHtml("cell-score", obj));
+        else
+        	row.append(toHtml("cell", obj));
     }
-    obj = { numSolved: scr.score.num_solved, totalTime: scr.score.total_time }
-    row.append(toHtml("row-end", obj));
+    obj = { };
+    if (scr.score.num_solved > 0)
+    	obj.numSolved = scr.score.num_solved;
+    if (scr.score.total_time > 0)
+    	obj.totalTime = scr.score.total_time;
+    if (scr.score.score != 0)
+    	obj.score = scr.score.score;
+    if (scr.score.time > 0)
+    	obj.time = scr.score.time;
+    if ("score" == type)
+    	row.append(toHtml("row-end-score", obj));
+    else
+    	row.append(toHtml("row-end", obj));
     return row;
 }
 
@@ -129,7 +153,12 @@ $(document).ready(function () {
         	row.append($(toHtml("problem", p)));
         }
 
-        row.append(toHtml("header-end"));
+        score = contest.getScoreboard();
+        if ("score" == score.scoreboard_type)
+        	row.append(toHtml("header-end-score"));
+        else
+       		row.append(toHtml("header-end"));
+        
         $('#score-table thead').append(row);
     }
 
@@ -141,8 +170,9 @@ $(document).ready(function () {
         teams = contest.getTeams();
         orgs = contest.getOrganizations();
         problems = contest.getProblems();
+        var type = score.scoreboard_type;
         for (var i = 0; i < score.rows.length; i++) {
-        	var row = getRow(score.rows[i]);
+        	var row = getRow(score.rows[i], type);
             $('#score-table tbody').append(row);
         }
         
@@ -239,3 +269,4 @@ function updateTableImpl() {
 }
 </script>
 <%@ include file="layout/footer.jsp" %>
+No newline at end of file
