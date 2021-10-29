@@ -87,19 +87,17 @@ public class DiskContestSource extends ContestSource {
 		// the partial url to access the file
 		protected String url;
 
-		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
-				String fileExtension) {
-			this(type, id, property, folder, new String[] { fileExtension });
+		public FilePattern(IContestObject.ContestType type, String id, String property, String fileExtension) {
+			this(type, id, property, new String[] { fileExtension });
 		}
 
-		public FilePattern(IContestObject.ContestType type, String id, String property, String folder,
-				String[] fileExtensions) {
+		public FilePattern(IContestObject.ContestType type, String id, String property, String[] fileExtensions) {
 			if (type == null) {
-				this.folder = folder;
+				this.folder = "contest";
 				this.url = property;
 			} else {
 				String typeName = IContestObject.getTypeName(type);
-				this.folder = folder + File.separator + typeName + File.separator + id;
+				this.folder = typeName + File.separator + id;
 				this.url = typeName + "/" + id + "/" + property;
 			}
 
@@ -790,41 +788,38 @@ public class DiskContestSource extends ContestSource {
 	 * Returns the file pattern for a given contest object type, id, and property.
 	 */
 	protected FilePattern getLocalPattern(IContestObject.ContestType type, String id, String property) {
-		String contest = "contest";
-		String reg = ""; // "registration" + File.separator;
-		String events = ""; // "events" + File.separator;
 		if (type == ContestType.CONTEST) {
 			if (LOGO.equals(property))
-				return new FilePattern(null, id, property, contest, LOGO_EXTENSIONS);
+				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
 			if (BANNER.equals(property))
-				return new FilePattern(null, id, property, contest, LOGO_EXTENSIONS);
+				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
 		} else if (type == ContestType.TEAM) {
 			if (PHOTO.equals(property))
-				return new FilePattern(type, id, property, reg, PHOTO_EXTENSIONS);
+				return new FilePattern(type, id, property, PHOTO_EXTENSIONS);
 			if (VIDEO.equals(property))
-				return new FilePattern(type, id, property, reg, "m2ts");
+				return new FilePattern(type, id, property, "m2ts");
 			if (BACKUP.equals(property))
-				return new FilePattern(type, id, property, reg, "zip");
+				return new FilePattern(type, id, property, "zip");
 			if (KEY_LOG.equals(property))
-				return new FilePattern(type, id, property, reg, "txt");
+				return new FilePattern(type, id, property, "txt");
 			if (TOOL_DATA.equals(property))
-				return new FilePattern(type, id, property, reg, "txt");
+				return new FilePattern(type, id, property, "txt");
 		} else if (type == ContestType.TEAM_MEMBER) {
 			if (PHOTO.equals(property))
-				return new FilePattern(type, id, property, reg, PHOTO_EXTENSIONS);
+				return new FilePattern(type, id, property, PHOTO_EXTENSIONS);
 		} else if (type == ContestType.ORGANIZATION) {
 			if (LOGO.equals(property))
-				return new FilePattern(type, id, property, reg, LOGO_EXTENSIONS);
+				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
 			if (COUNTRY_FLAG.equals(property))
-				return new FilePattern(type, id, property, reg, LOGO_EXTENSIONS);
+				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
 		} else if (type == ContestType.SUBMISSION) {
 			if (FILES.equals(property))
-				return new FilePattern(type, id, property, events, "zip");
+				return new FilePattern(type, id, property, "zip");
 			if (REACTION.equals(property))
-				return new FilePattern(type, id, property, events, "m2ts");
+				return new FilePattern(type, id, property, "m2ts");
 		} else if (type == ContestType.GROUP) {
 			if (LOGO.equals(property))
-				return new FilePattern(type, id, property, reg, LOGO_EXTENSIONS);
+				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
 		}
 		return null;
 	}
@@ -859,7 +854,6 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	private static void loadFile(Contest contest, File f, String typeName) throws IOException {
-		Trace.trace(Trace.INFO, "Loading " + typeName);
 		if (f == null || !f.exists())
 			return;
 
@@ -875,10 +869,11 @@ public class DiskContestSource extends ContestSource {
 				contest.add(co);
 			}
 		}
+
+		Trace.trace(Trace.INFO, "Imported " + f.getName());
 	}
 
 	private static void loadFileSingle(Contest contest, File f, String typeName) throws IOException {
-		Trace.trace(Trace.INFO, "Loading " + typeName);
 		if (f == null || !f.exists())
 			return;
 
@@ -891,6 +886,8 @@ public class DiskContestSource extends ContestSource {
 
 			contest.add(co);
 		}
+
+		Trace.trace(Trace.INFO, "Imported " + f.getName());
 	}
 
 	private static File getConfigFile(File root, String file) {
@@ -903,135 +900,113 @@ public class DiskContestSource extends ContestSource {
 		if (root == null) // this is a cache
 			return;
 
+		// load yamls
 		configValidation = new Validation();
 		try {
-			File f = new File(root, "contest.json");
-			String s = "Imported contest info";
-			if (f.exists())
-				loadFileSingle(contest, f, "contests");
-			else {
-				f = new File(root, "contest.yaml");
-				if (f.exists())
-					contest.add(YamlParser.importContestInfo(f, false));
-				else {
-					f = getConfigFile(root, "contest.yaml");
-					if (f.exists())
-						contest.add(YamlParser.importContestInfo(f, true));
-					else
-						s = "Contest info not found";
+			File f = new File(root, "contest.yaml");
+			if (f.exists()) {
+				contest.add(YamlParser.importContestInfo(f, false));
+				Trace.trace(Trace.INFO, "Imported contest yaml");
+			} else {
+				f = getConfigFile(root, "contest.yaml");
+				if (f.exists()) {
+					contest.add(YamlParser.importContestInfo(f, true));
+					Trace.trace(Trace.INFO, "Imported contest yaml");
 				}
 			}
-			configValidation.ok(s);
-			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing contest info: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing contest info", e);
 		}
 
 		try {
-			File f = new File(root, "problems.json");
-			String s = "Imported problems";
-			if (f.exists())
-				loadFile(contest, f, "problems");
-			else {
-				f = new File(root, "problems.yaml");
-				if (f.exists()) {
-					List<IProblem> problems = YamlParser.importProblems(f);
-					for (IProblem p : problems)
-						contest.add(p);
-				} else {
-					f = getConfigFile(root, "problemset.yaml");
-					if (f.exists()) {
-						List<IProblem> problems = YamlParser.importProblems(f);
-						for (IProblem p : problems)
-							contest.add(p);
-					} else
-						s = "Problem config file not found";
-				}
+			File f = new File(root, "problems.yaml");
+			if (!f.exists())
+				f = getConfigFile(root, "problemset.yaml");
+
+			if (f.exists()) {
+				List<IProblem> problems = YamlParser.importProblems(f);
+				for (IProblem p : problems)
+					contest.add(p);
+
+				Trace.trace(Trace.INFO, "Imported problems yaml");
 			}
-			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing problems: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing problems", e);
 		}
 
+		// load tsvs
 		try {
-			String s = "Imported groups";
-			File f = new File(root, "groups.json");
-			if (f.exists())
-				loadFile(contest, f, "groups");
-			else {
-				f = getConfigFile(root, "groups.tsv");
-				if (f.exists())
-					TSVImporter.importGroups(contest, f);
-				else
-					s = "Group config file (groups.json/groups.tsv) not found";
+			File f = getConfigFile(root, "groups.tsv");
+			if (f.exists()) {
+				TSVImporter.importGroups(contest, f);
+				Trace.trace(Trace.INFO, "Imported groups tsv");
 			}
-			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing groups: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing groups", e);
 		}
 
 		try {
-			String s = "Imported organizations";
-			File f = new File(root, "organizations.json");
-			if (f.exists())
-				loadFile(contest, f, "organizations");
-			else {
-				f = getConfigFile(root, "institutions2.tsv");
-				if (!f.exists())
-					f = getConfigFile(root, "institutions.tsv");
+			File f = getConfigFile(root, "institutions2.tsv");
+			if (!f.exists())
+				f = getConfigFile(root, "institutions.tsv");
 
-				if (f.exists())
-					TSVImporter.importInstitutions(contest, f);
-				else
-					s = "Institutions config file (institutions.json/institutions2.tsv/institutions.tsv) not found";
+			if (f.exists()) {
+				TSVImporter.importInstitutions(contest, f);
+				Trace.trace(Trace.INFO, "Imported institutions tsv");
 			}
-			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing institutions: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing institutions", e);
 		}
 
 		try {
-			String s = "Imported teams";
-			File f = new File(root, "teams.json");
-			if (f.exists())
-				loadFile(contest, f, "teams");
-			else {
-				f = getConfigFile(root, "teams2.tsv");
+			File f = getConfigFile(root, "teams2.tsv");
+			if (!f.exists())
+				f = getConfigFile(root, "teams.tsv");
 
-				if (!f.exists())
-					f = getConfigFile(root, "teams.tsv");
-
-				if (f.exists())
-					TSVImporter.importTeams(contest, f);
-				else
-					s = "Team config file (teams.json/teams2.tsv/teams.tsv) not found";
+			if (f.exists()) {
+				TSVImporter.importTeams(contest, f);
+				Trace.trace(Trace.INFO, "Imported teams tsv");
 			}
-			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing teams: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing teams", e);
 		}
 
 		try {
-			String s = "Imported team-members";
-			File f = new File(root, "team-members.json");
-			if (f.exists())
-				loadFile(contest, f, "team-members");
-			else {
-				f = getConfigFile(root, "members.tsv");
-				if (f.exists())
-					TSVImporter.importTeamMembers(contest, f);
-				else
-					s = "Team member config file (members.json/members.tsv) not found";
+			File f = getConfigFile(root, "members.tsv");
+			if (f.exists()) {
+				TSVImporter.importTeamMembers(contest, f);
+				Trace.trace(Trace.INFO, "Imported team members tsv");
 			}
-			Trace.trace(Trace.INFO, s);
 		} catch (Exception e) {
 			configValidation.err("Error importing team-members: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing team-members", e);
+		}
+
+		// load jsons
+		IContestObject.ContestType[] types = IContestObject.ContestType.values();
+
+		for (int i = 0; i < types.length; i++) {
+			IContestObject.ContestType type = types[i];
+			String name = IContestObject.getTypeName(type);
+			try {
+				File f = new File(root, name + ".json");
+				if ("contests".equals(name))
+					f = new File(root, "contest.json");
+				if (f.exists()) {
+					if (IContestObject.isSingleton(type) || "contests".equals(name))
+						loadFileSingle(contest, f, name);
+					else
+						loadFile(contest, f, name);
+				}
+			} catch (Exception e) {
+				configValidation.err("Error importing " + name + ": " + e.getMessage());
+				Trace.trace(Trace.ERROR, "Error importing " + name, e);
+			}
 		}
 
 		try {
