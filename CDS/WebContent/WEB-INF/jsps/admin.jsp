@@ -365,8 +365,9 @@
     	addStartStatus("Contest Director", 0);
     }
 
-    function addStartStatus(id, status) {
-    	cds.doPut("start-status", id, '{"id":"' + id + '","label":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
+    function addStartStatus(text, status) {
+    	var id = text.replace(/[^a-zA-Z0-9_.-]+/g, '_');
+    	cds.doPut("start-status", id, '{"id":"' + id + '","label":"' + text + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
     }
 
     function updateStartStatus(id, status) {
