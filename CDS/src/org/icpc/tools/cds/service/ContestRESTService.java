@@ -683,6 +683,9 @@ public class ContestRESTService extends HttpServlet {
 		} else if (ei.id == null && !IContestObject.isSingleton(ei.cType)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
 			return;
+		} else if (!ei.id.matches("[a-zA-Z0-9_.-]*")) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
+			return;
 		}
 
 		Contest contest = ei.cc.getContest();
