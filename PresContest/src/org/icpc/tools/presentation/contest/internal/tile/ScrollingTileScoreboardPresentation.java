@@ -16,6 +16,7 @@ import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ScrollAnimator;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 /**
  * Column-based scrolling.
@@ -82,6 +83,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 	}
 
 	protected double currentColumns;
+
 	protected void setColumns(double cols) {
 		currentColumns = cols;
 		if (header == Header.TOP) {
@@ -186,20 +188,19 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 					g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 				g.setFont(clockFont);
 				FontMetrics fm = g.getFontMetrics();
+
 				String s = getContestTime();
 				if (s != null) {
-					String[] ss = splitString(g, s, margin - TILE_H_GAP - 2);
-					for (int i = 0; i < ss.length; i++)
-						g.drawString(ss[i], (margin - TILE_H_GAP - fm.stringWidth(ss[i])) / 2,
-								fm.getHeight() * (i + 1) + TILE_V_GAP);
+					TextHelper text = new TextHelper(g, s);
+					int x = Math.max(1, (margin - TILE_H_GAP - text.getWidth()) / 2);
+					text.drawFit(x, fm.getHeight() + TILE_V_GAP, margin - TILE_H_GAP - 3);
 				}
 
 				s = getRemainingTime();
 				if (s != null) {
-					String[] ss = splitString(g, s, margin - TILE_H_GAP - 2);
-					for (int i = 0; i < ss.length; i++)
-						g.drawString(ss[i], (margin - TILE_H_GAP - fm.stringWidth(ss[i])) / 2,
-								h - TILE_V_GAP - (ss.length - i - 1) * fm.getHeight());
+					TextHelper text = new TextHelper(g, s);
+					int x = Math.max(1, (margin - TILE_H_GAP - text.getWidth()) / 2);
+					text.drawFit(x, h - TILE_V_GAP - fm.getHeight(), margin - TILE_H_GAP - 3);
 				}
 			}
 		}
