@@ -10,15 +10,20 @@ import java.util.List;
 
 public class SWTLauncher {
 	private static final String[] SWT_JARS = new String[] { "swt-gtk-linux-x86_64.jar", "swt-win32-win32-x86_64.jar",
-			"swt-cocoa-macosx-x86_64.jar" };
+			"swt-cocoa-macosx-x86_64.jar", "swt-cocoa-macosx-aarch64.jar" };
 
 	protected static URL findSWTJar() throws IOException {
 		String osName = System.getProperty("os.name").toLowerCase();
+		String osArch = System.getProperty("os.arch").toLowerCase();
 		int x = 0;
 		if (osName.contains("windows"))
 			x = 1;
-		else if (osName.contains("mac"))
-			x = 2;
+		else if (osName.contains("mac")) {
+			if (!osArch.equals("aarch64"))
+				x = 2;
+			else
+				x = 3;
+		}
 
 		return new File("lib" + File.separator + SWT_JARS[x]).toURI().toURL();
 	}
