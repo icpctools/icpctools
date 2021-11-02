@@ -210,6 +210,11 @@ indicate this client is position 2 (top middle) in a 3x2 grid.
 Shows the frame rate on screen.
 
 ```
+--light
+```
+Light mode - use a white background and shift colors to match.
+
+```
 --display_name <template>
 ```
 Allows you to change the way team names are displayed using a template with the following
