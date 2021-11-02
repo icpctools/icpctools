@@ -1,14 +1,38 @@
 function sortByColumn(table) {
-  $('th').click(function() {
-     var table = $(this).parents('table').eq(0);
-     var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
-     this.asc = !this.asc;
-     if (!this.asc)
+  $(table).find("th").each(function(index) {
+    // don't sort empty column headers (likely logos)
+    if ($(this).text() == "")
+      return;
+
+    // add cursor and hidden sort icon
+    $(this).css('cursor', 'pointer');
+    $(this).append('<i class="fa fa-fw fa-sort-up">');
+    $(this).children().css('visibility', 'hidden');
+    $(this).css('white-space', 'nowrap');
+    this.asc = true;
+    
+    $(this).click(function() {
+      var table = $(this).parents('table').eq(0);
+      var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+      this.asc = !this.asc;
+      if (!this.asc)
     	rows = rows.reverse();
      
-     for (var i = 0; i < rows.length; i++)
+      for (var i = 0; i < rows.length; i++)
     	 table.append(rows[i]);
-  })
+ 
+      // rehide all other columns, then make sure the class is correct and visible for current sort
+      $(table).find('th i').css('visibility', 'hidden');
+      if (!this.asc) {
+        $(this).children().removeClass("fa-sort-down");
+        $(this).children().addClass("fa-sort-up");
+      } else {
+        $(this).children().removeClass("fa-sort-up");
+        $(this).children().addClass("fa-sort-down");
+      }
+      $(this).children().css('visibility', 'visible');
+    });
+  });
 
   function comparer(index) {
      return function(a, b) {
