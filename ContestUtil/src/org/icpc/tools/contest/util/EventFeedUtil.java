@@ -37,7 +37,6 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
-import org.icpc.tools.contest.model.feed.XMLFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.contest.model.util.ContestComparator;
@@ -460,24 +459,17 @@ public class EventFeedUtil {
 		Contest contest = loadEventFeed(file);
 
 		try {
-			String fileName = file.getName().substring(0, file.getName().lastIndexOf("."));
-			if (file.getName().endsWith("xml"))
-				fileName += ".json";
-			else
-				fileName += ".xml";
+			// force conversion to json
+			String fileName = file.getName().substring(0, file.getName().lastIndexOf(".")) + ".json";
 			File toFile = new File(file.getParentFile(), fileName);
 			if (toFile.exists())
 				if (!promptToOverwrite(toFile))
 					System.exit(0);
 
 			PrintWriter pw = new PrintWriter(toFile);
-			if (toFile.getName().endsWith("xml")) {
-				XMLFeedWriter writer = new XMLFeedWriter(pw, contest);
-				writer.writeContest();
-			} else {
-				NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
-				writer.writeContest(contest);
-			}
+			NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
+			writer.writeContest(contest);
+
 			Trace.trace(Trace.USER, "Feed saved to " + toFile);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error converting", e);
@@ -544,13 +536,10 @@ public class EventFeedUtil {
 				}
 				Trace.trace(Trace.USER, "Original backed up to: " + backupFile.getName());
 				PrintWriter pw = new PrintWriter(file);
-				if (file.getName().endsWith(".xml")) {
-					XMLFeedWriter writer = new XMLFeedWriter(pw, contest);
-					writer.writeContest();
-				} else {
-					NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
-					writer.writeContest(contest);
-				}
+				NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
+				writer.writeContest(contest);
+				pw.close();
+
 				Trace.trace(Trace.USER, teamIds.size() + " team(s) removed.");
 			}
 		} catch (Exception e) {
