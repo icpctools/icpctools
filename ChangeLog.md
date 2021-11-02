@@ -2,15 +2,40 @@
 
 ## V2.4 - TBD
 -----------------
+* Java 17 support! (this will be the last release supporting Java 8)
+* Apple M1 support!
 * Contest API improvements:
-  * SVG image support throughout.
+  * SVG images.
   * Language entry points.
-  * Support for country flags.
-* Several fixes based on use at regional contests.
+  * Country flags.
+  * Commentary.
+  * Scoring contests (beta).
+* Support for the Contest archive format: https://ccs-specs.icpc.io/draft/contest_archive_format.
+* Several fixes based on use at regional and world finals contests.
 * CDS:
   * UI improvements, new welcome page.
+  * Support for multiple machines (streams, backups, key logs, etc) per team.
+  * Host support for identifying team machines.
+  * Direct video mode, just expose existing URLs.
+  * More than one CDS? You can name them to tell the web pages apart.
+  * Improved time syncing for clients.
 * Presentation client:
+  * Emojis! Woo hoo! Supported for team names, messages, and a few more. Please let us know if you need it anywhere else.
+  * Light mode support for most presentations.
+  * Updated problem summary presentation.
   * Initial Commentary presentation.
+  * Performance and UI improvements (e.g. text fitting) to many presentations, especially 'tile' scoreboards.
+* Presentation admin:
+  * Dark mode (when supported by JDK and system default).
+* Coach view:
+  * Support for multiple streams per team.
+  * Dark mode (when supported by JDK and system default).
+* Resolver:
+  * Support for display modes for every award: a detailed screen, pause and move on, display a list, or ignore any award.
+  * Honors and Top award templates.
+* Award UI:
+  * Better support for award templates.
+  * Dark mode (when supported by JDK and system default).
 
 ## V2.3 - March 2021
 -----------------

@@ -290,7 +290,12 @@ automatically discarded before resolving.
 ```
 Starts the resolver at the specified "pause" (i.e. click). Useful for testing or jumping
 to review the medalists without restarting from the beginning.
-		
+
+```
+--light
+```
+Light mode - use a white background and shift colors to match.
+
 ```
 --help
 ```
