@@ -14,7 +14,6 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
-import org.icpc.tools.contest.model.feed.XMLFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
@@ -229,13 +228,9 @@ public class Awards {
 
 	protected static void save(File file, Contest contest) throws IOException {
 		PrintWriter pw = new PrintWriter(file);
-		if (file.getName().endsWith(".xml")) {
-			XMLFeedWriter writer = new XMLFeedWriter(pw, contest);
-			writer.writeContest();
-		} else {
-			NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
-			writer.writeContest(contest);
-		}
+		NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
+		writer.writeContest(contest);
+		pw.close();
 	}
 
 	protected static void generateScoreboard(String file, Contest contest) {
