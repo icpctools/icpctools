@@ -56,9 +56,6 @@ public class Scoreboard {
 		}
 
 		ScoreboardType scoreboardType = contest.getScoreboardType();
-		if (scoreboardType != null)
-			pw.write("  \"scoreboard_type\":\"" + scoreboardType.name().toLowerCase() + "\",\n");
-
 		if (scoreboardType == null)
 			scoreboardType = ScoreboardType.PASS_FAIL;
 
@@ -110,13 +107,13 @@ public class Scoreboard {
 					pw.write("\"num_judged\":" + r.getNumJudged() + ",");
 					pw.write("\"num_pending\":" + r.getNumPending() + ",");
 					if (r.getStatus() == Status.SOLVED) {
-						pw.write("\"solved\":true,");
-						pw.write("\"time\":" + ContestUtil.getTime(r.getContestTime()));
 						if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
+							pw.write("\"solved\":true");
 							if (r.isFirstToSolve())
 								pw.write(",\"first_to_solve\":true");
 						} else if (ScoreboardType.SCORE.equals(scoreboardType))
-							pw.write(",\"score\":" + round(r.getScore()));
+							pw.write("\"score\":" + round(r.getScore()));
+						pw.write(",\"time\":" + ContestUtil.getTime(r.getContestTime()));
 					} else
 						pw.write("\"solved\":false");
 					pw.write("}");

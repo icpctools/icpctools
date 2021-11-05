@@ -66,9 +66,7 @@ public class Result implements IResult {
 				status = Status.SOLVED;
 				numJudged++;
 				penalty = pendingPenalty;
-				if (j.getScore() == null)
-					score = 100;
-				else
+				if (j.getScore() != null)
 					score = j.getScore();
 			} else if (jt.isPenalty()) {
 				status = Status.FAILED;

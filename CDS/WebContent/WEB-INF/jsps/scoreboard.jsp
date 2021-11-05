@@ -8,7 +8,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Scoreboard</h3>
                     <div class="card-tools"><a href="<%= apiRoot %>/scoreboard">API</a>
-                    <button id="score-refresh" type="button" class="btn btn-tool" ><i class="fas fa-sync-alt"></i></button>
+                    <button id="score-refresh" type="button" class="btn btn-tool"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -66,7 +66,7 @@
 <td class="text-center {{ scoreClass }}">{{num}}{{#solved}} / {{time}}{{/solved}}</td>
 </script>
 <script type="text/html" id="cell-score">
-<td class="text-center {{ scoreClass }}">{{score}}{{#solved}} / {{time}}{{/solved}}</td>
+<td class="text-center {{ scoreClass }}">{{score}}{{#score}} / {{time}}{{/score}}</td>
 </script>
 <script type="text/javascript">
 contest = new Contest("/api", "<%= cc.getId() %>");
@@ -99,18 +99,16 @@ function getRow(scr, type) {
             if (prob.problem_id == problems[j].id) {
                 if (prob.first_to_solve == true)
                     obj.scoreClass = 'bg-success';
-                else if (prob.solved == true)
+                else if (prob.solved == true || prob.score > 0)
                     obj.scoreClass = 'table-success';
                 else if (prob.num_pending > 0)
                     obj.scoreClass = 'table-warning';
                 else
                     obj.scoreClass = 'table-danger';
                 obj.num = prob.num_judged + prob.num_pending;
-                if (prob.solved) {
-                	obj.solved = true;
-                    obj.time = prob.time;
-                    obj.score = prob.score;
-            	}
+                obj.solved = prob.solved;
+                obj.time = prob.time;
+                obj.score = prob.score;
             }
         }
         if ("score" == type)
@@ -154,7 +152,7 @@ $(document).ready(function () {
         }
 
         score = contest.getScoreboard();
-        if ("score" == score.scoreboard_type)
+        if ("score" == contest.getInfo().scoreboard_type)
         	row.append(toHtml("header-end-score"));
         else
        		row.append(toHtml("header-end"));
@@ -170,7 +168,7 @@ $(document).ready(function () {
         teams = contest.getTeams();
         orgs = contest.getOrganizations();
         problems = contest.getProblems();
-        var type = score.scoreboard_type;
+        var type = contest.getInfo().scoreboard_type;
         for (var i = 0; i < score.rows.length; i++) {
         	var row = getRow(score.rows[i], type);
             $('#score-table tbody').append(row);
@@ -212,7 +210,7 @@ $(document).ready(function () {
 		});
     }
 
-    $.when(contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadScoreboard()).done(function () {
+    $.when(contest.loadInfo(),contest.loadOrganizations(), contest.loadTeams(), contest.loadProblems(), contest.loadScoreboard()).done(function () {
     	createTableHeader();
         fillTable();
     }).fail(function (result) {
