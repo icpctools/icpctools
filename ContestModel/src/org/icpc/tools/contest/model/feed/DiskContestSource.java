@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -22,7 +23,6 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
@@ -853,7 +853,7 @@ public class DiskContestSource extends ContestSource {
 		}
 	}
 
-	private static void loadFile(Contest contest, File f, String typeName) throws IOException {
+	private static void loadFile(Contest contest, File f, IContestObject.ContestType type) throws IOException {
 		if (f == null || !f.exists())
 			return;
 
@@ -862,7 +862,10 @@ public class DiskContestSource extends ContestSource {
 			Object[] arr = parser.readArray();
 			for (Object obj : arr) {
 				JsonObject data = (JsonObject) obj;
-				ContestObject co = (ContestObject) IContestObject.createByName(typeName);
+				String id = data.getString("id");
+				ContestObject co = (ContestObject) contest.getObjectByTypeAndId(type, id);
+				if (co == null)
+					co = (ContestObject) IContestObject.createByType(type);
 				for (String key : data.props.keySet())
 					co.add(key, data.props.get(key));
 
@@ -873,14 +876,17 @@ public class DiskContestSource extends ContestSource {
 		Trace.trace(Trace.INFO, "Imported " + f.getName());
 	}
 
-	private static void loadFileSingle(Contest contest, File f, String typeName) throws IOException {
+	private static void loadFileSingle(Contest contest, File f, IContestObject.ContestType type) throws IOException {
 		if (f == null || !f.exists())
 			return;
 
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			JSONParser parser = new JSONParser(new FileInputStream(f));
 			JsonObject data = parser.readObject();
-			ContestObject co = (ContestObject) IContestObject.createByName(typeName);
+			String id = data.getString("id");
+			ContestObject co = (ContestObject) contest.getObjectByTypeAndId(type, id);
+			if (co == null)
+				co = (ContestObject) IContestObject.createByType(type);
 			for (String key : data.props.keySet())
 				co.add(key, data.props.get(key));
 
@@ -988,37 +994,45 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		// load jsons
+		loadJSONs(root);
+
+		File[] override = root.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				if (!f.isDirectory())
+					return false;
+				return f.getName().startsWith("extend-");
+			}
+		});
+
+		if (override != null && override.length > 0) {
+			for (File folder : override) {
+				Trace.trace(Trace.USER, "Loading extended jsons from " + folder.getName());
+				loadJSONs(folder);
+			}
+		}
+	}
+
+	private void loadJSONs(File folder) {
 		IContestObject.ContestType[] types = IContestObject.ContestType.values();
 
 		for (int i = 0; i < types.length; i++) {
 			IContestObject.ContestType type = types[i];
 			String name = IContestObject.getTypeName(type);
 			try {
-				File f = new File(root, name + ".json");
+				File f = new File(folder, name + ".json");
 				if ("contests".equals(name))
-					f = new File(root, "contest.json");
+					f = new File(folder, "contest.json");
 				if (f.exists()) {
 					if (IContestObject.isSingleton(type) || "contests".equals(name))
-						loadFileSingle(contest, f, name);
+						loadFileSingle(contest, f, type);
 					else
-						loadFile(contest, f, name);
+						loadFile(contest, f, type);
 				}
 			} catch (Exception e) {
 				configValidation.err("Error importing " + name + ": " + e.getMessage());
 				Trace.trace(Trace.ERROR, "Error importing " + name, e);
 			}
-		}
-
-		try {
-			File f = getConfigFile(root, "floor-map.tsv");
-			if (f.exists()) {
-				FloorMap map = new FloorMap(contest);
-				map.load(new FileInputStream(f));
-				Trace.trace(Trace.INFO, "Imported contest floor map");
-			}
-		} catch (Exception e) {
-			configValidation.err("Error importing floor map: " + e.getMessage());
-			Trace.trace(Trace.ERROR, "Error importing floor map", e);
 		}
 	}
 

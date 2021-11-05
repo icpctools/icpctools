@@ -205,7 +205,7 @@ public class MapInfo extends ContestObject implements IMapInfo {
 		printer = p;
 	}
 
-	public void addSpareTeam(Team t) {
+	public void addSpareTeam(ITeam t) {
 		spareTeams.add(t);
 	}
 

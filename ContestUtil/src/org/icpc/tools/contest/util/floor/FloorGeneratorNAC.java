@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.util.floor;
 
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,19 +12,13 @@ import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.ITeam;
 
 public class FloorGeneratorNAC extends FloorGenerator {
-	// table width (in meters). ICPC standard is 1.8
-	private static final float tw = 1.8f;
-
-	// table depth (in meters). ICPC standard is 0.8
-	private static final float td = 0.8f;
-
 	// team area width (in meters). ICPC standard is 3.0
 	private static final float taw = 2.2f;
 
 	// team area depth (in meters). ICPC standard is 2.2
 	private static final float tad = 2.0f;
 
-	private static FloorMap floor = new FloorMap(taw, tad, tw, td);
+	private static FloorMap floor = new FloorMap(taw, tad, 1.8, 0.8);
 
 	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -136,11 +131,8 @@ public class FloorGeneratorNAC extends FloorGenerator {
 
 			floor.rotate(-90);
 
-			floor.resetOrigin();
-
-			floor.writeTSV(System.out);
-
-			Trace.trace(Trace.USER, "------------------");
+			if (args != null && args.length > 0)
+				floor.write(new File(args[0]));
 
 			long time = System.currentTimeMillis();
 			ITeam t1 = floor.getTeam(10);
