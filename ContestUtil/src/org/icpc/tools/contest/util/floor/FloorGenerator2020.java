@@ -1,19 +1,14 @@
 package org.icpc.tools.contest.util.floor;
 
+import java.io.File;
+
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.IPrinter;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.internal.Team;
 
 public class FloorGenerator2020 extends FloorGenerator {
-	// table width (in meters). ICPC standard is 1.8
-	private static final float tw = 3.3f;
-
-	// table depth (in meters). ICPC standard is 0.85
-	private static final float td = 0.95f;
-
 	// team area width (in meters). ICPC standard is 3.0
 	private static final float taw = 3.3f;
 
@@ -22,40 +17,16 @@ public class FloorGenerator2020 extends FloorGenerator {
 
 	private static final float aisle = 2f + tad * 3 / 2;
 
-	private static FloorMap floor = new FloorMap(taw, tad, tw, td);
+	private static FloorMap floor = new FloorMap(taw, tad, 3.3, 0.95);
 
 	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-	protected static void createTeamRow(int num, int startingId, double x, double y, double dx, double dy,
-			double rotation) {
-		for (int i = 0; i < num; i++) {
-			floor.createTeam(startingId + i, x + dx * i, y + dy * i, rotation);
-		}
-	}
-
-	protected static void createTeamRowRev(int num, int startingId, double x, double y, double dx, double dy,
-			double rotation) {
-		for (int i = 0; i < num; i++) {
-			floor.createTeam(startingId - i, x + dx * i, y + dy * i, rotation);
-		}
-	}
-
-	protected static void createAdjacentTeam(int teamNumber, int newId, double dx, double dy, int rot) {
-		ITeam t = floor.getTeam(teamNumber);
-		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, rot);
-	}
-
-	protected static void createAdjacentTeam(int teamNumber, int newId, double dx, double dy) {
-		ITeam t = floor.getTeam(teamNumber);
-		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
-	}
 
 	protected static float createAisleOfTeams(int teamNumber, float xx, float y) {
 		float x = xx;
 		x += aisle / 2;
-		createTeamRow(6, teamNumber, x, y, 0, taw, FloorMap.E);
+		floor.createTeamRow(6, teamNumber, x, y, FloorMap.E, true, true);
 		x += tad / 2;
-		createTeamRowRev(6, teamNumber + 11, x, y, 0, taw, FloorMap.W);
+		floor.createTeamRow(6, teamNumber + 11, x, y, FloorMap.W, false, false);
 		x += aisle / 2;
 
 		floor.createAisle(x, y - taw, x, y + taw * 6);
@@ -95,8 +66,7 @@ public class FloorGenerator2020 extends FloorGenerator {
 			floor.createAisle(0, -taw, x, -taw);
 			floor.createAisle(0, taw * 6, x, taw * 6);
 
-			// ((Team) floor.getTeam(0)).add("id", "-1");
-			((Team) floor.getTeam(120)).add("id", "-1");
+			floor.makeSpare(120);
 
 			IPrinter p = floor.createPrinter(x - taw, y - taw - 2);
 
@@ -104,11 +74,8 @@ public class FloorGenerator2020 extends FloorGenerator {
 			for (int i = 0; i < 13; i++)
 				floor.createBalloon(balloon.charAt(i) + "", bx + 2 * i, y - taw - 2);
 
-			floor.resetOrigin();
-
-			floor.writeTSV(System.out);
-
-			Trace.trace(Trace.USER, "------------------");
+			if (args != null && args.length > 0)
+				floor.write(new File(args[0]));
 
 			long time = System.currentTimeMillis();
 			ITeam t1 = floor.getTeam(57);
@@ -118,7 +85,7 @@ public class FloorGenerator2020 extends FloorGenerator {
 
 			/*System.out.println("left: " + floor.getTeamToLeftOf(floor.getTeam(49)).getId());
 			System.out.println("right: " + floor.getTeamToRightOf(floor.getTeam(49)).getId());
-			
+
 			System.out.println("left: " + floor.getTeamToLeftOf(floor.getTeam(32)).getId());
 			System.out.println("right: " + floor.getTeamToRightOf(floor.getTeam(32)).getId());*/
 

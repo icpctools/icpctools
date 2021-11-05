@@ -14,19 +14,18 @@ import java.awt.event.WindowEvent;
 
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.FloorMap.Path;
+import org.icpc.tools.contest.model.ITeam;
 
 public class FloorGenerator {
-	// ICPC standard table width, 1.8 meters
-	protected static final float ICPC_TABLE_WIDTH = 1.8f;
+	protected static void createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy, int rot) {
+		ITeam t = floor.getTeam(teamNumber);
+		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, rot);
+	}
 
-	// ICPC standard table dpeth, 0.8 meters
-	protected static final float ICPC_TABLE_DEPTH = 0.8f;
-
-	// ICPC standard team area width, 3.0 meters
-	protected static final float ICPC_TEAM_WIDTH = 3.0f;
-
-	// ICPC standard team area depth, 2.2 meters
-	protected static final float ICPC_TEAM_DEPTH = 2.2f;
+	protected void createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy) {
+		ITeam t = floor.getTeam(teamNumber);
+		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
+	}
 
 	protected static void show(final FloorMap floor, final int teamNumber, final boolean showAisles,
 			final Path... paths) {
@@ -46,11 +45,6 @@ public class FloorGenerator {
 				g.setColor(Color.BLACK);
 				Rectangle r = new Rectangle(0, 0, d.width, d.height);
 				floor.drawFloor((Graphics2D) g, r, teamNumber + "", showAisles, paths);
-
-				/*g.setColor(Color.RED);
-				Point2D p = paths[0].getInterimPosition(0.75);
-				Point2D pp = floor.getPosition(r, p);
-				g.fillRect((int) pp.getX() - 2, (int) pp.getY() - 2, 4, 4);*/
 			}
 		};
 		frame.addComponentListener(new ComponentAdapter() {
