@@ -20,6 +20,7 @@ public class Problem extends ContestObject implements IProblem {
 	private static final String X = "x";
 	private static final String Y = "y";
 	private static final String TIME_LIMIT = "time_limit";
+	private static final String MAX_SCORE = "max_score";
 
 	private int ordinal = Integer.MIN_VALUE;
 	private String label;
@@ -27,10 +28,11 @@ public class Problem extends ContestObject implements IProblem {
 	private String color;
 	private String rgb;
 	private Color colorVal;
-	private int testDataCount = -1;
+	private int testDataCount;
 	private double x = Double.MIN_VALUE;
 	private double y = Double.MIN_VALUE;
 	private int timeLimit;
+	private Double maxScore;
 
 	@Override
 	public ContestType getType() {
@@ -118,6 +120,11 @@ public class Problem extends ContestObject implements IProblem {
 	}
 
 	@Override
+	public Double getMaxScore() {
+		return maxScore;
+	}
+
+	@Override
 	protected boolean addImpl(String name2, Object value) throws Exception {
 		if (ORDINAL.equals(name2)) {
 			ordinal = parseInt(value);
@@ -140,6 +147,9 @@ public class Problem extends ContestObject implements IProblem {
 			return true;
 		} else if (TIME_LIMIT.equals(name2)) {
 			timeLimit = Decimal.parse((String) value);
+			return true;
+		} else if (MAX_SCORE.equals(name2)) {
+			maxScore = parseDouble(value);
 			return true;
 		} else if (X.equals(name2)) {
 			x = parseDouble(value);
@@ -166,10 +176,11 @@ public class Problem extends ContestObject implements IProblem {
 			props.put(X, round(x));
 		if (y != Double.MIN_VALUE)
 			props.put(Y, round(y));
-		if (testDataCount != -1)
-			props.put(TEST_DATA_COUNT, testDataCount);
+		props.put(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
 			props.put(TIME_LIMIT, Decimal.format(timeLimit));
+		if (maxScore != null)
+			props.put(MAX_SCORE, round(maxScore));
 	}
 
 	@Override
@@ -189,10 +200,11 @@ public class Problem extends ContestObject implements IProblem {
 			je.encode(X, round(x));
 		if (y != Double.MIN_VALUE)
 			je.encode(Y, round(y));
-		if (testDataCount != -1)
-			je.encode(TEST_DATA_COUNT, testDataCount);
+		je.encode(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
 			je.encodePrimitive(TIME_LIMIT, Decimal.format(timeLimit));
+		if (maxScore != null)
+			je.encode(MAX_SCORE, Math.round(maxScore * 10000.0) / 10000.0); // round to 4 decimals
 	}
 
 	private static double round(double d) {
@@ -209,7 +221,7 @@ public class Problem extends ContestObject implements IProblem {
 		if (label == null || label.isEmpty())
 			errors.add("Label missing");
 
-		if (testDataCount == -1)
+		if (testDataCount == 0)
 			errors.add("Test data count missing");
 
 		if (errors.isEmpty())

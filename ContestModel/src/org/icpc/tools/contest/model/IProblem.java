@@ -61,4 +61,11 @@ public interface IProblem extends IContestObject, IPosition {
 	 * @return the time limit
 	 */
 	int getTimeLimit();
+
+	/**
+	 * Returns the maximum expected score for scoring contests.
+	 *
+	 * @return the max score
+	 */
+	Double getMaxScore();
 }
