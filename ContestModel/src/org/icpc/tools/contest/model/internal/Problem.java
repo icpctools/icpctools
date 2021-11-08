@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.feed.Decimal;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Problem extends ContestObject implements IProblem {
 	private static final String ORDINAL = "ordinal";
@@ -17,6 +20,7 @@ public class Problem extends ContestObject implements IProblem {
 	private static final String COLOR = "color";
 	private static final String RGB = "rgb";
 	private static final String TEST_DATA_COUNT = "test_data_count";
+	private static final String LOCATION = "location";
 	private static final String X = "x";
 	private static final String Y = "y";
 	private static final String TIME_LIMIT = "time_limit";
@@ -28,9 +32,9 @@ public class Problem extends ContestObject implements IProblem {
 	private String color;
 	private String rgb;
 	private Color colorVal;
-	private int testDataCount;
-	private double x = Double.MIN_VALUE;
-	private double y = Double.MIN_VALUE;
+	private int testDataCount = Integer.MIN_VALUE;
+	private double x = Double.NaN;
+	private double y = Double.NaN;
 	private int timeLimit;
 	private Double maxScore;
 
@@ -109,6 +113,11 @@ public class Problem extends ContestObject implements IProblem {
 		return y;
 	}
 
+	public void setLocation(double x, double y) {
+		this.x = x;
+		this.y = y;
+	}
+
 	@Override
 	public int getTestDataCount() {
 		return testDataCount;
@@ -126,39 +135,49 @@ public class Problem extends ContestObject implements IProblem {
 
 	@Override
 	protected boolean addImpl(String name2, Object value) throws Exception {
-		if (ORDINAL.equals(name2)) {
-			ordinal = parseInt(value);
-			return true;
-		} else if (LABEL.equals(name2)) {
-			label = (String) value;
-			return true;
-		} else if (NAME.equals(name2)) {
-			this.name = (String) value;
-			return true;
-		} else if (COLOR.equals(name2)) {
-			this.color = (String) value;
-			return true;
-		} else if (RGB.equals(name2)) {
-			this.rgb = (String) value;
-			colorVal = null;
-			return true;
-		} else if (TEST_DATA_COUNT.equals(name2)) {
-			testDataCount = parseInt(value);
-			return true;
-		} else if (TIME_LIMIT.equals(name2)) {
-			timeLimit = Decimal.parse((String) value);
-			return true;
-		} else if (MAX_SCORE.equals(name2)) {
-			maxScore = parseDouble(value);
-			return true;
-		} else if (X.equals(name2)) {
-			x = parseDouble(value);
-			return true;
-		} else if (Y.equals(name2)) {
-			y = parseDouble(value);
-			return true;
+		switch (name2) {
+			case ORDINAL: {
+				ordinal = parseInt(value);
+				return true;
+			}
+			case LABEL: {
+				label = (String) value;
+				return true;
+			}
+			case NAME: {
+				this.name = (String) value;
+				return true;
+			}
+			case COLOR: {
+				this.color = (String) value;
+				return true;
+			}
+			case RGB: {
+				this.rgb = (String) value;
+				colorVal = null;
+				return true;
+			}
+			case TEST_DATA_COUNT: {
+				testDataCount = parseInt(value);
+				return true;
+			}
+			case TIME_LIMIT: {
+				timeLimit = Decimal.parse((String) value);
+				return true;
+			}
+			case MAX_SCORE: {
+				maxScore = parseDouble(value);
+				return true;
+			}
+			case LOCATION: {
+				JsonObject obj = JSONParser.getOrReadObject(value);
+				x = obj.getDouble(X);
+				y = obj.getDouble(Y);
+				return true;
+			}
+			default:
+				return false;
 		}
-		return false;
 	}
 
 	@Override
@@ -172,15 +191,21 @@ public class Problem extends ContestObject implements IProblem {
 			props.put(COLOR, color);
 		if (rgb != null)
 			props.put(RGB, rgb);
-		if (x != Double.MIN_VALUE)
-			props.put(X, round(x));
-		if (y != Double.MIN_VALUE)
-			props.put(Y, round(y));
-		props.put(TEST_DATA_COUNT, testDataCount);
+		if (testDataCount != Integer.MIN_VALUE)
+			props.put(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
 			props.put(TIME_LIMIT, Decimal.format(timeLimit));
 		if (maxScore != null)
 			props.put(MAX_SCORE, round(maxScore));
+
+		if (!Double.isNaN(x) || !Double.isNaN(y)) {
+			List<String> attrs = new ArrayList<>(3);
+			if (!Double.isNaN(x))
+				attrs.add("\"" + X + "\":" + round(x));
+			if (!Double.isNaN(y))
+				attrs.add("\"" + Y + "\":" + round(y));
+			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 	}
 
 	@Override
@@ -196,15 +221,21 @@ public class Problem extends ContestObject implements IProblem {
 			je.encode(COLOR, color);
 		if (rgb != null)
 			je.encode(RGB, rgb);
-		if (x != Double.MIN_VALUE)
-			je.encode(X, round(x));
-		if (y != Double.MIN_VALUE)
-			je.encode(Y, round(y));
-		je.encode(TEST_DATA_COUNT, testDataCount);
+		if (testDataCount != Integer.MIN_VALUE)
+			je.encode(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
 			je.encodePrimitive(TIME_LIMIT, Decimal.format(timeLimit));
 		if (maxScore != null)
 			je.encode(MAX_SCORE, Math.round(maxScore * 10000.0) / 10000.0); // round to 4 decimals
+
+		if (!Double.isNaN(x) || !Double.isNaN(y)) {
+			List<String> attrs = new ArrayList<>(3);
+			if (!Double.isNaN(x))
+				attrs.add("\"" + X + "\":" + round(x));
+			if (!Double.isNaN(y))
+				attrs.add("\"" + Y + "\":" + round(y));
+			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
+		}
 	}
 
 	private static double round(double d) {
@@ -221,7 +252,7 @@ public class Problem extends ContestObject implements IProblem {
 		if (label == null || label.isEmpty())
 			errors.add("Label missing");
 
-		if (testDataCount == 0)
+		if (testDataCount == Integer.MIN_VALUE)
 			errors.add("Test data count missing");
 
 		if (errors.isEmpty())

@@ -8,8 +8,11 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.FloorMap.Path;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IPrinter;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 
 public class FloorGeneratorNAC extends FloorGenerator {
 	// team area width (in meters). ICPC standard is 3.0
@@ -19,8 +22,6 @@ public class FloorGeneratorNAC extends FloorGenerator {
 	private static final float tad = 2.0f;
 
 	private static FloorMap floor = new FloorMap(taw, tad, 1.8, 0.8);
-
-	private static final String balloon = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	protected static void createTeamPod(int num, int startingId, float x, float y, int skipTable) {
 		int teamId = startingId;
@@ -117,10 +118,6 @@ public class FloorGeneratorNAC extends FloorGenerator {
 
 			// floor.createAisle(rightAisle, y, leftAisle, y);
 
-			double bx = 0;
-			for (int i = 0; i < 10; i++)
-				floor.createBalloon(balloon.charAt(i) + "", bx + i * 2, -8);
-
 			IPrinter p = floor.createPrinter(25, 5);
 
 			// fix teams
@@ -129,10 +126,21 @@ public class FloorGeneratorNAC extends FloorGenerator {
 			// ((Team) floor.getTeam(62)).add("id", "<-1>");
 			// ((Team) floor.getTeam(63)).add("id", "<-1>");
 
-			floor.rotate(-90);
+			if (args != null && args.length > 0) {
+				File f = new File(args[0]);
+				DiskContestSource source = new DiskContestSource(f);
+				IContest contest2 = source.getContest();
+				source.waitForContest(10000);
+				IProblem[] problems = contest2.getProblems();
 
-			if (args != null && args.length > 0)
-				floor.write(new File(args[0]));
+				double bx = 0;
+				for (int i = 0; i < problems.length; i++)
+					floor.createBalloon(problems[i].getId(), bx + i * 2, -8);
+
+				floor.rotate(-90);
+
+				floor.write(f);
+			}
 
 			long time = System.currentTimeMillis();
 			ITeam t1 = floor.getTeam(10);
