@@ -102,6 +102,12 @@ public class Team extends ContestObject implements ITeam {
 		return y;
 	}
 
+	public void setLocation(double x, double y, double rotation) {
+		this.x = x;
+		this.y = y;
+		this.rotation = rotation;
+	}
+
 	@Override
 	public double getRotation() {
 		return rotation;
@@ -298,10 +304,6 @@ public class Team extends ContestObject implements ITeam {
 				}
 				return true;
 			}
-			case "group_id": { /// deprecated - temporary support for Nov 2017 feeds
-				groupIds = new String[] { (String) value };
-				return true;
-			}
 			case ORGANIZATION_ID: {
 				organizationId = (String) value;
 				return true;
@@ -316,18 +318,6 @@ public class Team extends ContestObject implements ITeam {
 			}
 			case DISPLAY_NAME: {
 				displayName = (String) value;
-				return true;
-			}
-			case X: { // deprecated - use child location object
-				x = parseDouble(value);
-				return true;
-			}
-			case Y: { // deprecated - use child location object
-				y = parseDouble(value);
-				return true;
-			}
-			case ROTATION: { // deprecated - use child location object
-				rotation = parseDouble(value);
 				return true;
 			}
 			case LOCATION: {
@@ -373,9 +363,9 @@ public class Team extends ContestObject implements ITeam {
 				isHidden = parseBoolean(value);
 				return true;
 			}
+			default:
+				return false;
 		}
-
-		return false;
 	}
 
 	@Override

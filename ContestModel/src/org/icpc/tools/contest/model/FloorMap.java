@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.model.feed.ContestWriter;
-import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.MapInfo;
 import org.icpc.tools.contest.model.internal.MapInfo.Aisle;
 import org.icpc.tools.contest.model.internal.MapInfo.Printer;
@@ -604,7 +602,10 @@ public class FloorMap {
 			g.drawOval(x - (int) (d / 2f), y - (int) (d / 2f), (int) d, (int) d);
 			FontMetrics fm = g.getFontMetrics();
 			g.setColor(Color.BLACK);
-			g.drawString(p.getId(), x - fm.stringWidth(p.getId()) / 2f, y + (fm.getAscent() / 2.5f));
+			String s = p.getLabel();
+			if (s == null)
+				s = p.getId();
+			g.drawString(s, x - fm.stringWidth(s) / 2f, y + (fm.getAscent() / 2.5f));
 		}
 	}
 
@@ -829,11 +830,7 @@ public class FloorMap {
 	public ITeam createTeam(String id, double x, double y, double rotation) {
 		Team t = new Team();
 		t.add("id", id);
-		JsonObject obj = new JsonObject();
-		obj.props.put("x", x + "");
-		obj.props.put("y", y + "");
-		obj.props.put("rotation", rotation + "");
-		t.add("location", obj);
+		t.setLocation(x, y, rotation);
 		((Contest) contest).add(t);
 		return t;
 	}
@@ -883,10 +880,7 @@ public class FloorMap {
 	public IProblem createBalloon(String id, double x, double y) {
 		Problem p = new Problem();
 		p.add("id", id);
-		p.add("label", id);
-		p.add("x", x + "");
-		p.add("y", y + "");
-
+		p.setLocation(x, y);
 		((Contest) contest).add(p);
 		return p;
 	}
@@ -896,17 +890,15 @@ public class FloorMap {
 			return null;
 
 		Printer p = new Printer();
-		p.set(x, y);
+		p.setLocation(x, y);
 		((MapInfo) contest.getMapInfo()).setPrinter(p);
 		return p;
 	}
 
-	private static void rotate(IPosition p, double rad) {
-		ContestObject co = (ContestObject) p;
-		double dx = Math.cos(rad) * p.getX() - Math.sin(rad) * p.getY();
-		double dy = Math.sin(rad) * p.getX() + Math.cos(rad) * p.getY();
-		co.add("x", dx + "");
-		co.add("y", dy + "");
+	private static Point2D.Double rotate(IPosition p, double rad) {
+		double x = Math.cos(rad) * p.getX() - Math.sin(rad) * p.getY();
+		double y = Math.sin(rad) * p.getX() + Math.cos(rad) * p.getY();
+		return new Point2D.Double(x, y);
 	}
 
 	/**
@@ -917,14 +909,16 @@ public class FloorMap {
 	 */
 	public void rotate(int angle) {
 		double rad = Math.toRadians(angle);
-		for (ITeam tt : contest.getTeams()) {
-			rotate(tt, rad);
-			double r = tt.getRotation() - angle + 720;
-			((Team) tt).add("rotation", (r % 360) + "");
+		for (ITeam t : contest.getTeams()) {
+			Point2D.Double n = rotate(t, rad);
+			double r = t.getRotation() - angle + 720;
+			((Team) t).setLocation(n.x, n.y, r % 360);
 		}
 
-		for (IProblem problem : contest.getProblems())
-			rotate(problem, rad);
+		for (IProblem p : contest.getProblems()) {
+			Point2D.Double n = rotate(p, rad);
+			((Problem) p).setLocation(n.x, n.y);
+		}
 
 		IMapInfo mapInfo = contest.getMapInfo();
 		if (mapInfo != null) {
@@ -936,8 +930,11 @@ public class FloorMap {
 				((Aisle) a).set(dx1, dy1, dx2, dy2);
 			}
 
-			if (mapInfo.getPrinter() != null)
-				rotate(mapInfo.getPrinter(), rad);
+			IPrinter p = mapInfo.getPrinter();
+			if (p != null) {
+				Point2D.Double n = rotate(p, rad);
+				((Printer) p).setLocation(n.x, n.y);
+			}
 		}
 
 		computeAisleIntersections();
@@ -973,21 +970,16 @@ public class FloorMap {
 		}
 
 		for (ITeam t : contest.getTeams()) {
-			JsonObject obj = new JsonObject();
-			obj.props.put("x", t.getX() - ox + "");
-			obj.props.put("y", t.getY() - oy + "");
-			obj.props.put("rotation", t.getRotation() + "");
-			((Team) t).add("location", obj);
+			((Team) t).setLocation(t.getX() - ox, t.getY() - oy, t.getRotation());
 		}
 
 		for (IProblem p : contest.getProblems()) {
-			((Problem) p).add("x", p.getX() - ox);
-			((Problem) p).add("y", p.getY() - oy);
+			((Problem) p).setLocation(p.getX() - ox, p.getY() - oy);
 		}
 
 		if (mapInfo != null && mapInfo.getPrinter() != null) {
 			IPosition printer = mapInfo.getPrinter();
-			((Printer) printer).set(printer.getX() - ox, printer.getY() - oy);
+			((Printer) printer).setLocation(printer.getX() - ox, printer.getY() - oy);
 		}
 
 		computeAisleIntersections();

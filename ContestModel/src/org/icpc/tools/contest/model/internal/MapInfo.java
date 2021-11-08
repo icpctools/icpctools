@@ -123,7 +123,7 @@ public class MapInfo extends ContestObject implements IMapInfo {
 			return false;
 		}
 
-		public void set(double x, double y) {
+		public void setLocation(double x, double y) {
 			this.x = x;
 			this.y = y;
 		}
@@ -240,7 +240,7 @@ public class MapInfo extends ContestObject implements IMapInfo {
 		} else if (PRINTER.equals(name)) {
 			JsonObject obj = JSONParser.getOrReadObject(value);
 			Printer p = new Printer();
-			p.set(obj.getDouble("x"), obj.getDouble("y"));
+			p.setLocation(obj.getDouble("x"), obj.getDouble("y"));
 			printer = p;
 			return true;
 		} else if (SPARE_TEAMS.equals(name)) {
@@ -249,9 +249,7 @@ public class MapInfo extends ContestObject implements IMapInfo {
 			for (Object ob : arr) {
 				JsonObject obj = (JsonObject) ob;
 				Team t = new Team();
-				t.add("x", obj.getDouble("x") + "");
-				t.add("y", obj.getDouble("y") + "");
-				t.add("rotation", obj.getDouble("rotation") + "");
+				t.setLocation(obj.getDouble("x"), obj.getDouble("y"), obj.getDouble("rotation"));
 				spareTeams.add(t);
 			}
 			return true;
