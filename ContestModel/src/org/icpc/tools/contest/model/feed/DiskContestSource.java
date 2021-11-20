@@ -128,7 +128,8 @@ public class DiskContestSource extends ContestSource {
 	 * General constructor for a disk contest source. Typically, only one of the event feed file and
 	 * CAF folder are provided. If neither are provided (i.e. this class is just being used for
 	 * local caching), then a hash must be provided to seed the temporary caching folder name (so
-	 * that it is consistent across restarts).
+	 * that it is consistent across restarts). A hash can also be provided to distinguish between two
+	 * feeds that use the same CAF but have a different hash, for example a different CCS URL
 	 *
 	 * @param eventFeedFile - a JSON or XML event feed file
 	 * @param folder - a contest archive folder
@@ -139,7 +140,11 @@ public class DiskContestSource extends ContestSource {
 		// if file exists and is a file, it's an event feed
 		// if is doesn't exist, assume a directory
 		if (file != null) {
-			cacheFolder = createTempDir(file.getName() + "-" + getSafeHash(file.getAbsolutePath()));
+			if (hash != null) {
+				cacheFolder = createTempDir(getSafeHash(hash) + "-" + getSafeHash(file.getAbsolutePath()));
+			} else {
+				cacheFolder = createTempDir(file.getName() + "-" + getSafeHash(file.getAbsolutePath()));
+			}
 			if (file.isFile()) {
 				eventFeedFile = file;
 				root = cacheFolder;
