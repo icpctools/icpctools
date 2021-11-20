@@ -302,6 +302,6 @@ public class StandaloneLauncher {
 		if (lightMode)
 			((PresentationWindowImpl) window).setLightMode(true);
 		window.setPresentations(0, presentation, null);
-		((PresentationWindowImpl) window).showFPS(true);
+		((PresentationWindowImpl) window).showFPS(showFPS);
 	}
 }
