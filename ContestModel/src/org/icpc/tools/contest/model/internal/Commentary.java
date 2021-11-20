@@ -32,16 +32,24 @@ public class Commentary extends TimedEvent implements ICommentary {
 			message = (String) value;
 			return true;
 		} else if (TEAM_IDS.equals(name)) {
-			Object[] ob = JSONParser.getOrReadArray(value);
-			teamIds = new String[ob.length];
-			for (int i = 0; i < ob.length; i++)
-				teamIds[i] = (String) ob[i];
+			if (value != null) {
+				Object[] ob = JSONParser.getOrReadArray(value);
+				teamIds = new String[ob.length];
+				for (int i = 0; i < ob.length; i++)
+					teamIds[i] = (String) ob[i];
+			} else {
+				teamIds = null;
+			}
 			return true;
 		} else if (PROBLEM_IDS.equals(name)) {
-			Object[] ob = JSONParser.getOrReadArray(value);
-			problemIds = new String[ob.length];
-			for (int i = 0; i < ob.length; i++)
-				problemIds[i] = (String) ob[i];
+			if (value != null) {
+				Object[] ob = JSONParser.getOrReadArray(value);
+				problemIds = new String[ob.length];
+				for (int i = 0; i < ob.length; i++)
+					problemIds[i] = (String) ob[i];
+			} else {
+				problemIds = null;
+			}
 			return true;
 		}
 
@@ -107,14 +115,14 @@ public class Commentary extends TimedEvent implements ICommentary {
 		if (message == null || message.isEmpty())
 			errors.add("Missing message");
 
-		if (teamIds != null || teamIds.length > 0) {
+		if (teamIds != null && teamIds.length > 0) {
 			for (String tId : teamIds) {
 				if (c.getTeamById(tId) == null)
 					errors.add("Invalid team " + tId);
 			}
 		}
 
-		if (problemIds != null || problemIds.length > 0) {
+		if (problemIds != null && problemIds.length > 0) {
 			for (String pId : problemIds) {
 				if (c.getProblemById(pId) == null)
 					errors.add("Invalid problem " + pId);
