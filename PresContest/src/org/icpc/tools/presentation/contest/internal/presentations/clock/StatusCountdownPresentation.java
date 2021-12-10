@@ -107,14 +107,12 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 	}
 
 	protected void drawStatus(Graphics2D g, int px, int py, IStartStatus ss) {
-		// int o = 7;
-		int o = height / 42;
+		int o = width / 75;
 		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.GRAY);
 		int x = px - o / 2;
 		int y = py - o / 2;
 		g.drawOval(x, y, o, o);
 		g.drawOval(x + o * 3, y, o, o);
-		// g.drawLine(px + o / 2, py, px + 50 - o / 2, py);
 
 		double val = 50;
 		Animator an = animMap.get(ss.getLabel());
@@ -133,8 +131,9 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.drawOval(x, y, o, o);
 
+		int w = width * 3 / 10 - width * 6 / 75;
 		FontMetrics fm = g.getFontMetrics();
-		TextHelper.drawString(g, ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f));
+		TextHelper.drawString(g, ss.getLabel(), px + o * 5, py + (int) (fm.getAscent() / 2.2f), w);
 	}
 
 	@Override
@@ -169,7 +168,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		int n = 0;
 		g.setFont(font);
 		for (IStartStatus ss : startStatus) {
-			int x = width / 20 + (n % 3) * width * 4 / 14;
+			int x = width / 20 + (n % 3) * width * 3 / 10;
 			int y = 40 + (n / 3) * (int) (height / 18f);
 			drawStatus(g, x, y, ss);
 			n++;
