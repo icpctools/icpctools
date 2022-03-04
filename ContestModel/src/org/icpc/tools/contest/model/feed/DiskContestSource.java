@@ -104,6 +104,11 @@ public class DiskContestSource extends ContestSource {
 			this.name = property;
 			this.extensions = fileExtensions;
 		}
+
+		@Override
+		public String toString() {
+			return folder + " " + name + " " + String.join(",", extensions) + " " + url;
+		}
 	}
 
 	/**
@@ -829,32 +834,64 @@ public class DiskContestSource extends ContestSource {
 		return null;
 	}
 
+	/**
+	 * Merge two file reference lists, typically the current list on an object property and locally
+	 * found resources.
+	 *
+	 * @param curList
+	 * @param localList
+	 * @return
+	 */
+	private static FileReferenceList mergeRefs(FileReferenceList curList, FileReferenceList localList) {
+		if (localList == null || localList.isEmpty())
+			return curList;
+
+		FileReferenceList list = localList;
+		for (FileReference ref : curList) {
+			if (ref.height <= 0 || ref.width <= 0)
+				continue;
+
+			boolean found = false;
+			for (FileReference ref2 : localList) {
+				if (ref.height == ref2.height && ref.width == ref2.width
+						&& (ref.mime == null || ref.mime.equals(ref2.mime))) {
+					found = true;
+					continue;
+				}
+			}
+			if (!found)
+				list.add(ref);
+		}
+
+		return list;
+	}
+
 	public void attachLocalResources(IContestObject obj) {
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
-			info.setLogo(getFilesWithPattern(obj, LOGO));
-			info.setBanner(getFilesWithPattern(obj, BANNER));
+			info.setLogo(mergeRefs(info.getLogo(), getFilesWithPattern(obj, LOGO)));
+			info.setBanner(mergeRefs(info.getBanner(), getFilesWithPattern(obj, BANNER)));
 		} else if (obj instanceof Organization) {
 			Organization org = (Organization) obj;
-			org.setLogo(getFilesWithPattern(obj, LOGO));
-			org.setCountryFlag(getFilesWithPattern(obj, COUNTRY_FLAG));
+			org.setLogo(mergeRefs(org.getLogo(), getFilesWithPattern(obj, LOGO)));
+			org.setCountryFlag(mergeRefs(org.getCountryFlag(), getFilesWithPattern(obj, COUNTRY_FLAG)));
 		} else if (obj instanceof Team) {
 			Team team = (Team) obj;
-			team.setPhoto(getFilesWithPattern(obj, PHOTO));
-			team.setVideo(getFilesWithPattern(obj, VIDEO));
-			team.setBackup(getFilesWithPattern(obj, BACKUP));
-			team.setKeyLog(getFilesWithPattern(obj, KEY_LOG));
-			team.setToolData(getFilesWithPattern(obj, TOOL_DATA));
+			team.setPhoto(mergeRefs(team.getPhoto(), getFilesWithPattern(obj, PHOTO)));
+			team.setVideo(mergeRefs(team.getVideo(), getFilesWithPattern(obj, VIDEO)));
+			team.setBackup(mergeRefs(team.getBackup(), getFilesWithPattern(obj, BACKUP)));
+			team.setKeyLog(mergeRefs(team.getKeyLog(), getFilesWithPattern(obj, KEY_LOG)));
+			team.setToolData(mergeRefs(team.getToolData(), getFilesWithPattern(obj, TOOL_DATA)));
 		} else if (obj instanceof TeamMember) {
 			TeamMember member = (TeamMember) obj;
-			member.setPhoto(getFilesWithPattern(obj, PHOTO));
+			member.setPhoto(mergeRefs(member.getPhoto(), getFilesWithPattern(obj, PHOTO)));
 		} else if (obj instanceof Submission) {
 			Submission submission = (Submission) obj;
-			submission.setFiles(getFilesWithPattern(obj, FILES));
-			submission.setReaction(getFilesWithPattern(obj, REACTION));
+			submission.setFiles(mergeRefs(submission.getFiles(), getFilesWithPattern(obj, FILES)));
+			submission.setReaction(mergeRefs(submission.getReaction(), getFilesWithPattern(obj, REACTION)));
 		} else if (obj instanceof Group) {
 			Group group = (Group) obj;
-			group.setLogo(getFilesWithPattern(obj, LOGO));
+			group.setLogo(mergeRefs(group.getLogo(), getFilesWithPattern(obj, LOGO)));
 		}
 	}
 
