@@ -15,7 +15,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.representer.Representer;
 
 /**
@@ -27,7 +27,7 @@ public class YamlParser {
 			throw new FileNotFoundException("Contest config file not found");
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
-		Yaml yaml = new Yaml(new Constructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
+		Yaml yaml = new Yaml(new SafeConstructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
 		Object obj = yaml.load(br);
 
 		// the file should have a top-level map of problems, which contains a list of problems
@@ -87,7 +87,7 @@ public class YamlParser {
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
 
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(new SafeConstructor());
 		Object obj = yaml.load(br);
 
 		// problemset.yaml has a top-level problems element
@@ -227,7 +227,7 @@ public class YamlParser {
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
 
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(new SafeConstructor());
 		Object obj = yaml.load(br);
 
 		// the file should have a top-level map of problems, which contains a list of problems
