@@ -68,7 +68,7 @@ public class TSVImporter {
 		}
 	}
 
-	public static void importTeams(List<Team> list, File f) throws IOException {
+	public static void importTeams(List<Team> list, File f, boolean autoAssignTeamIds) throws IOException {
 		File file = new File(f, "teams2.tsv");
 		if (!file.exists())
 			file = new File(f, "teams.tsv");
@@ -76,16 +76,29 @@ public class TSVImporter {
 			// read header
 			br.readLine();
 
+			int autoTeamId = 1;
+
 			String s = br.readLine();
 			while (s != null) {
 				String[] st = s.split("\\t");
 				if (st != null && st.length > 0) {
 					Team t = new Team();
 					try {
-						if ("null".equals(st[0]))
-							add(t, ContestObject.ID, "0");
-						else
-							add(t, ContestObject.ID, st[0]);
+						if ("null".equals(st[0])) {
+							if (autoAssignTeamIds) {
+								add(t, ContestObject.ID, autoTeamId + "");
+								autoTeamId++;
+							} else {
+								add(t, ContestObject.ID, "0");
+							}
+						} else {
+							if (autoAssignTeamIds && "0".equals(st[0])) {
+								add(t, ContestObject.ID, autoTeamId + "");
+								autoTeamId++;
+							} else {
+								add(t, ContestObject.ID, st[0]);
+							}
+						}
 						if (st.length < 7)
 							Trace.trace(Trace.WARNING, "Team missing columns: " + s);
 						else {
@@ -132,21 +145,22 @@ public class TSVImporter {
 
 			String s = br.readLine();
 			while (s != null) {
-				String[] st = s.split("\\t");
+				String[] st = s.split("\\t", -1);
 				if (st != null && st.length > 0) {
 					Organization org = new Organization();
 					String id = realOrgId(st[0]);
+
+					// Note: the CMS seems to change formats quite often, having extra or less columns for institutions
+					// Verify the numbers below, especially the ones from URL and up
+
 					add(org, ID, id);
 					add(org, ICPC_ID, id);
 					add(org, FORMAL_NAME, st[1]);
 					add(org, NAME, st[2]);
 
-					// TODO temp for Moscow - completely new format
-					// add(inst, GROUP_ID, st[3]);
-					// if (st.length > 4)
-					// add(org, COUNTRY, st[4]);
+					add(org, COUNTRY, st[4]);
 
-					add(org, URL, st[4]);
+					add(org, URL, st[5]);
 					add(org, HASHTAG, st[6]);
 					JsonObject obj = new JsonObject();
 					if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))

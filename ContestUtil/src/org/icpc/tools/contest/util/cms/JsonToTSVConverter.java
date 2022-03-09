@@ -35,6 +35,7 @@ import org.icpc.tools.contest.util.cms.CMSDownloadHelper.ContestInfo;
  */
 public class JsonToTSVConverter {
 	private static boolean FINALS_NAMING = false;
+	private static boolean AUTO_ASSIGN_TEAM_IDS = false;
 	private static final boolean OUTPUT_MISSING_NAMES = true;
 
 	public static class CMSWinner {
@@ -60,26 +61,41 @@ public class JsonToTSVConverter {
 	protected static GoogleMapsGeocoder geocoder;
 
 	public static void main(String[] args) {
-		if (args == null || args.length < 1 || args.length > 4) {
-			System.err.println("Usage: command [cmsRoot] [contestRoot] [googleMapsKey] [option]");
+		if (args == null || args.length < 1 || args.length > 6) {
+			System.err.println("Usage: command [cmsClicsRoot] [cmsContestRoot] [contestRoot] [googleMapsKey] [option]");
 			System.exit(1);
 		}
 
-		File cmsRoot = new File(args[0]);
-		File contestRoot = new File(args[1]);
+		File cmsClicsRoot = new File(args[0]);
+		File cmsContestRoot = new File(args[1]);
+		File contestRoot = new File(args[2]);
 
-		if (!cmsRoot.exists()) {
-			System.err.println("CMS root folder does not exist");
+		if (!cmsClicsRoot.exists()) {
+			System.err.println("CMS CLICS root folder does not exist");
 			System.exit(1);
 		}
 
-		if (args.length >= 3)
-			geocoder = new GoogleMapsGeocoder(args[2]);
+		if (!cmsContestRoot.exists()) {
+			System.err.println("CMS contest root folder does not exist");
+			System.exit(1);
+		}
 
-		if (args.length == 4 && "--finals".equals(args[3]))
+		if (args.length >= 4)
+			geocoder = new GoogleMapsGeocoder(args[3]);
+
+		if (args.length >= 5 && "--finals".equals(args[4]))
 			FINALS_NAMING = true;
 
-		generateContest(cmsRoot, contestRoot);
+		if (args.length >= 6 && "--finals".equals(args[5]))
+			FINALS_NAMING = true;
+
+		if (args.length >= 5 && "--auto-assign-team-ids".equals(args[4]))
+			AUTO_ASSIGN_TEAM_IDS = true;
+
+		if (args.length >= 6 && "--auto-assign-team-ids".equals(args[5]))
+			AUTO_ASSIGN_TEAM_IDS = true;
+
+		generateContest(cmsClicsRoot, cmsContestRoot, contestRoot);
 	}
 
 	protected static int compare(String s1, String s2) {
@@ -119,17 +135,12 @@ public class JsonToTSVConverter {
 		}
 	}
 
-	protected static void generateContest(File cmsRoot2, File contestRoot2) {
+	protected static void generateContest(File cmsClicsRoot, File cmsContestRoot, File contestRoot) {
 		groupList = new ArrayList<>();
 		orgList = new ArrayList<>();
 		teamList = new ArrayList<>();
 		memberList = new ArrayList<>();
 		staffMemberList = new ArrayList<>();
-
-		// cmsRoot = new File("/Users/deboer/ICPC/cms4/2019");
-		File cmsRoot = new File("/Users/deboer/Downloads/ICPC-WF/CLICS_CS_World-Finals-2020");
-		File contestRoot = new File("/Users/deboer/git/wf2020-onsite/finals");
-		// File instFolder = new File("/Users/deboer/ICPC/cms4/institutions");
 
 		try {
 			// load all institutions
@@ -156,33 +167,30 @@ public class JsonToTSVConverter {
 
 		Info info = null;
 		try {
-			System.out.println("Reading CMS data from tsvs: " + cmsRoot);
-			File f = new File("/Users/deboer/Downloads/ICPC-WF/CLICS_CS_World-Finals-2020");
-			TSVImporter.importGroups(groupList, f);
-			TSVImporter.importInstitutions(orgList, f);
-			TSVImporter.importTeams(teamList, f);
-			TSVImporter.importTeamMembers(memberList, f);
+			System.out.println("Reading CMS data from tsvs: " + cmsClicsRoot);
+			TSVImporter.importGroups(groupList, cmsClicsRoot);
+			TSVImporter.importInstitutions(orgList, cmsClicsRoot);
+			TSVImporter.importTeams(teamList, cmsClicsRoot, AUTO_ASSIGN_TEAM_IDS);
+			TSVImporter.importTeamMembers(memberList, cmsClicsRoot);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try {
-			System.out.println("Reading CMS data from: " + cmsRoot);
+			System.out.println("Reading CMS data from: " + cmsClicsRoot);
 			// File f = new File("/Users/deboer/ICPC/2020/finals/contestRoot/cms");
-			// readInstitutions(f);
-			/*readInstitutions(cmsRoot);
-			readTeams(cmsRoot);
-			info = readContest(cmsRoot);
-			readStaff(cmsRoot);*/
+			// readInstitutions();
+			/*readInstitutions(cmsClicsRoot);
+			readTeams(cmsClicsRoot);
+			info = readContest(cmsClicsRoot);
+			readStaff(cmsClicsRoot);*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try {
-			// File f = new File("/Users/deboer/Downloads/ICPC-WF/contest");
-			File f = new File("/Users/deboer/Downloads/ICPC-WF/World-Finals-2020");
-			System.out.println("Reading CMS team members: " + f);
-			TSVImporter.importTeamMembersTab(memberList, teamList, f);
+			System.out.println("Reading CMS team members: " + cmsContestRoot);
+			TSVImporter.importTeamMembersTab(memberList, teamList, cmsContestRoot);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
