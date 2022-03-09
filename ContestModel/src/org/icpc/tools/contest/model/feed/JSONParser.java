@@ -165,15 +165,45 @@ public class JSONParser {
 	}
 
 	private String readValueBody() {
-		int st = ind;
-		char c = s.charAt(st);
-		while (c != '"' || s.charAt(ind - 1) == '\\') {
-			ind++;
+		StringBuilder sb = new StringBuilder(s.length() - ind);
+
+		while (true) {
+			char c = s.charAt(ind++);
+			if (c == '"')
+				return sb.toString();
+
+			if (c == '\\') {
+				if (ind >= s.length())
+					throw new IllegalArgumentException("Unexpected value");
+
+				c = s.charAt(ind++);
+				if (c == 'u') {
+					if (ind + 4 >= s.length())
+						throw new IllegalArgumentException("Unexpected value");
+
+					// read the xxxx
+					String sx = s.substring(ind, ind + 4);
+					sb.append((char) Integer.parseUnsignedInt(sx, 16));
+					ind += 4;
+				} else {
+					if (c == 't')
+						c = '\t';
+					else if (c == 'r')
+						c = '\r';
+					else if (c == 'b')
+						c = '\b';
+					else if (c == 'n')
+						c = '\n';
+					else if (c == 'f')
+						c = '\f';
+					sb.append(c);
+				}
+			} else
+				sb.append(c);
+
 			if (ind >= s.length())
 				throw new IllegalArgumentException("Unexpected value");
-			c = s.charAt(ind);
 		}
-		return unescape(s.substring(st, ind++));
 	}
 
 	private Object readUntilNextToken() {
@@ -348,18 +378,17 @@ public class JSONParser {
 		if (val == null || !val.contains("\\"))
 			return val;
 
-		char[] in = val.toCharArray();
-		StringBuilder sb = new StringBuilder(in.length);
+		StringBuilder sb = new StringBuilder(val.length());
 
 		int i = 0;
-		while (i < in.length) {
-			char c = in[i++];
+		while (i < val.length()) {
+			char c = val.charAt(i++);
 			if (c == '\\') {
-				c = in[i++];
+				c = val.charAt(i++);
 				if (c == 'u') {
 					// read the xxxx
-					String s = new String(in, i, 4);
-					sb.append((char) Integer.parseUnsignedInt(s, 16));
+					String sx = val.substring(i, 4);
+					sb.append((char) Integer.parseUnsignedInt(sx, 16));
 					i += 4;
 				} else {
 					if (c == 't')
