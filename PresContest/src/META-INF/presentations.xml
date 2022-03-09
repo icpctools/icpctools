@@ -175,7 +175,7 @@
       description="Map of the world."
       properties="logosOn - show logos,
          logosOn - hide logos,
-         logoSize: - logo percent size,
+         logoSize - logo percent size,
          groupLinesOn - show group lines,
          groupLinesOff - hide group lines"
       image="images/presentations/world.png"
@@ -192,7 +192,9 @@
       name="Team Intro"
       category="Maps"
       description="Steps through all teams on a map."
-      properties="timeFactor: - time scaling factor"
+      properties="timeFactor - time scaling factor,
+        showOrganizations - show organizations instead of teams,
+        showTeams - show teams"
       image="images/presentations/world.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.map.TeamIntroPresentation"/>
    <presentation
