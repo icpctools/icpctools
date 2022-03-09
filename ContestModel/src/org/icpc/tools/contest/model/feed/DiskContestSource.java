@@ -846,7 +846,11 @@ public class DiskContestSource extends ContestSource {
 		if (localList == null || localList.isEmpty())
 			return curList;
 
+		if (curList == null || curList.isEmpty())
+			return localList;
+
 		FileReferenceList list = localList;
+
 		for (FileReference ref : curList) {
 			if (ref.height <= 0 || ref.width <= 0)
 				continue;
