@@ -10,6 +10,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
@@ -35,6 +36,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static final long TIME_PER_TEAM = FADE_IN_TIME + TEAM_TIME + FADE_OUT_TIME;
 
 	private double timeFactor = 1;
+	private boolean showOrganizations = false;
 
 	static class Position {
 		double x;
@@ -103,7 +105,15 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			return;
 		if (value.startsWith("timeFactor:"))
 			timeFactor = Double.parseDouble(value.replace("timeFactor:", ""));
-		else
+		else if ("showOrganizations".equals(value)) {
+			showOrganizations = true;
+			zooms = null;
+			setup();
+		} else if ("showTeams".equals(value)) {
+			showOrganizations = false;
+			zooms = null;
+			setup();
+		} else
 			super.setProperty(value);
 	}
 
@@ -134,7 +144,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		zooms = new GroupZoom[numGroups];
 		long time = 0;
 		for (int i = 0; i < numGroups; i++) {
-			zooms[i] = setTargets(getContest(), groups[i].getId(), height);
+			zooms[i] = setTargets(getContest(), groups[i].getId(), height, showOrganizations);
 			zooms[i].name = groups[i].getName();
 			zooms[i].startTime = time;
 			time += TIME_PER_GROUP + zooms[i].instPos.length * TIME_PER_TEAM;
@@ -143,6 +153,10 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 	}
 
 	public static GroupZoom setTargets(IContest contest, String groupId, int height) {
+		return setTargets(contest, groupId, height, false);
+	}
+
+	public static GroupZoom setTargets(IContest contest, String groupId, int height, boolean showOrganizations) {
 		GroupZoom zoom = new GroupZoom();
 
 		double minLat = 90;
@@ -152,10 +166,16 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 
 		ITeam[] teams = contest.getTeams();
 		List<Position> pos = new ArrayList<>();
+		HashSet<String> orgs = new HashSet<>();
 		for (ITeam t : teams) {
 			IOrganization org = contest.getOrganizationById(t.getOrganizationId());
 			String[] groupIds = t.getGroupIds();
 			if (org != null && (groupId == null || GroupPresentation.belongsToGroup(groupIds, groupId))) {
+				if (showOrganizations && orgs.contains(org.getId()))
+					continue;;
+
+					orgs.add(org.getId());
+
 				double lat = org.getLatitude();
 				if (!Double.isNaN(lat)) {
 					minLat = Math.min(minLat, lat);
@@ -168,6 +188,9 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 					maxLon = Math.max(maxLon, lon);
 				}
 				String label = t.getId() + " - " + t.getActualDisplayName();
+				if (showOrganizations) {
+					label = org.getFormalName();
+				}
 				Position p = new Position(lon, lat, 1, label);
 				createOrgLogo(p, org, height);
 				pos.add(p);
