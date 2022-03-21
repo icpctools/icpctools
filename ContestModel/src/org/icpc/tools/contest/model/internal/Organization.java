@@ -2,7 +2,6 @@ package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,8 +9,6 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
-import org.icpc.tools.contest.model.feed.JSONParser;
-import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Organization extends ContestObject implements IOrganization {
 	private static final String ICPC_ID = "icpc_id";
@@ -21,8 +18,6 @@ public class Organization extends ContestObject implements IOrganization {
 	private static final String URL = "url";
 	private static final String HASHTAG = "twitter_hashtag";
 	private static final String LOCATION = "location";
-	private static final String LATITUDE = "latitude";
-	private static final String LONGITUDE = "longitude";
 	private static final String LOGO = "logo";
 	private static final String COUNTRY_FLAG = "country_flag";
 
@@ -32,8 +27,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private String country;
 	private String url;
 	private String hashtag;
-	private double latitude = Double.NaN;
-	private double longitude = Double.NaN;
+	private Location location;
 	private FileReferenceList logo;
 	private FileReferenceList countryFlag;
 
@@ -81,12 +75,16 @@ public class Organization extends ContestObject implements IOrganization {
 
 	@Override
 	public double getLatitude() {
-		return latitude;
+		if (location == null)
+			return Double.NaN;
+		return location.latitude;
 	}
 
 	@Override
 	public double getLongitude() {
-		return longitude;
+		if (location == null)
+			return Double.NaN;
+		return location.longitude;
 	}
 
 	@Override
@@ -160,9 +158,7 @@ public class Organization extends ContestObject implements IOrganization {
 				return true;
 			}
 			case LOCATION: {
-				JsonObject obj = JSONParser.getOrReadObject(value);
-				latitude = obj.getDouble(LATITUDE);
-				longitude = obj.getDouble(LONGITUDE);
+				location = new Location(value);
 				return true;
 			}
 			case LOGO: {
@@ -190,8 +186,7 @@ public class Organization extends ContestObject implements IOrganization {
 		o.countryFlag = countryFlag;
 		o.url = url;
 		o.hashtag = hashtag;
-		o.latitude = latitude;
-		o.longitude = longitude;
+		o.location = location;
 		return o;
 	}
 
@@ -212,14 +207,8 @@ public class Organization extends ContestObject implements IOrganization {
 			props.put(URL, url);
 		if (hashtag != null)
 			props.put(HASHTAG, hashtag);
-		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
-			List<String> attrs = new ArrayList<>(2);
-			if (!Double.isNaN(latitude))
-				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (!Double.isNaN(longitude))
-				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
-			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
-		}
+		if (location != null)
+			props.put(LOCATION, location.getJSON());
 		props.put(LOGO, logo);
 	}
 
@@ -236,20 +225,10 @@ public class Organization extends ContestObject implements IOrganization {
 			je.encode(URL, url);
 		if (hashtag != null)
 			je.encode(HASHTAG, hashtag);
-		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
-			List<String> attrs = new ArrayList<>(2);
-			if (!Double.isNaN(latitude))
-				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (!Double.isNaN(longitude))
-				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
-			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
-		}
+		if (location != null)
+			je.encodePrimitive(LOCATION, location.getJSON());
 
 		je.encode(LOGO, logo, false);
-	}
-
-	private static double round(double d) {
-		return Math.round(d * 10000.0) / 10000.0;
 	}
 
 	@Override

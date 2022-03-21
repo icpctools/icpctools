@@ -36,6 +36,20 @@ public interface IGroup extends IContestObject {
 	boolean isHidden();
 
 	/**
+	 * The latitude of the group.
+	 *
+	 * @return the latitude
+	 */
+	double getLatitude();
+
+	/**
+	 * The longitude of the group.
+	 *
+	 * @return the longitude
+	 */
+	double getLongitude();
+
+	/**
 	 * The logo of the organization.
 	 *
 	 * @return the logo

@@ -15,12 +15,14 @@ public class Group extends ContestObject implements IGroup {
 	private static final String NAME = "name";
 	private static final String TYPE = "type";
 	private static final String HIDDEN = "hidden";
+	private static final String LOCATION = "location";
 	private static final String LOGO = "logo";
 
 	private String icpcId;
 	private String name;
 	private String type;
 	private boolean isHidden;
+	private Location location;
 	private FileReferenceList logo;
 
 	@Override
@@ -49,6 +51,20 @@ public class Group extends ContestObject implements IGroup {
 	}
 
 	@Override
+	public double getLatitude() {
+		if (location == null)
+			return Double.NaN;
+		return location.latitude;
+	}
+
+	@Override
+	public double getLongitude() {
+		if (location == null)
+			return Double.NaN;
+		return location.longitude;
+	}
+
+	@Override
 	public File getLogo(int width, int height, boolean force) {
 		return getFile(getBestFileReference(logo, new ImageSizeFit(width, height)), LOGO, force);
 	}
@@ -73,21 +89,31 @@ public class Group extends ContestObject implements IGroup {
 
 	@Override
 	protected boolean addImpl(String name2, Object value) throws Exception {
-		if (ICPC_ID.equals(name2)) {
-			icpcId = (String) value;
-			return true;
-		} else if (NAME.equals(name2)) {
-			name = (String) value;
-			return true;
-		} else if (TYPE.equals(name2)) {
-			type = (String) value;
-			return true;
-		} else if (HIDDEN.equals(name2)) {
-			isHidden = parseBoolean(value);
-			return true;
-		} else if (LOGO.equals(name2)) {
-			logo = new FileReferenceList(value);
-			return true;
+		switch (name2) {
+			case ICPC_ID: {
+				icpcId = (String) value;
+				return true;
+			}
+			case NAME: {
+				name = (String) value;
+				return true;
+			}
+			case TYPE: {
+				type = (String) value;
+				return true;
+			}
+			case HIDDEN: {
+				isHidden = parseBoolean(value);
+				return true;
+			}
+			case LOCATION: {
+				location = new Location(value);
+				return true;
+			}
+			case LOGO: {
+				logo = new FileReferenceList(value);
+				return true;
+			}
 		}
 
 		return false;
@@ -97,11 +123,12 @@ public class Group extends ContestObject implements IGroup {
 	public IContestObject clone() {
 		Group g = new Group();
 		g.id = id;
-		g.logo = logo;
 		g.icpcId = icpcId;
 		g.name = name;
 		g.type = type;
 		g.isHidden = isHidden;
+		g.location = location;
+		g.logo = logo;
 		return g;
 	}
 
@@ -116,6 +143,8 @@ public class Group extends ContestObject implements IGroup {
 			props.put(TYPE, type);
 		if (isHidden)
 			props.put(HIDDEN, "true");
+		if (location != null)
+			props.put(LOCATION, location.getJSON());
 		if (logo != null)
 			props.put(LOGO, logo);
 	}
@@ -129,6 +158,8 @@ public class Group extends ContestObject implements IGroup {
 			je.encode(TYPE, type);
 		if (isHidden)
 			je.encode(HIDDEN, true);
+		if (location != null)
+			je.encodePrimitive(LOCATION, location.getJSON());
 		je.encode(LOGO, logo, false);
 	}
 
