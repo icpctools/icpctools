@@ -66,7 +66,11 @@ public class ContestRESTService extends HttpServlet {
 		response.setHeader("X-Frame-Options", "sameorigin");
 
 		String path = request.getPathInfo();
-		if (path == null || !path.startsWith("/contests")) {
+		if (path == null || path.equals("") || path.equals("/")) {
+			sendAPIInfo(response);
+			return;
+		}
+		if (!path.startsWith("/contests")) {
 			request.getRequestDispatcher("/WEB-INF/jsps/contestAPI.jsp").forward(request, response);
 			return;
 		}
@@ -241,6 +245,15 @@ public class ContestRESTService extends HttpServlet {
 		cc.incrementRest();
 
 		doREST(isArray, type2, filter, writer, contest);
+	}
+
+	private static void sendAPIInfo(HttpServletResponse response) throws IOException {
+		response.setContentType("application/json");
+		JSONEncoder je = new JSONEncoder(response.getWriter());
+		je.open();
+		je.encode("version", "2021-11");
+		je.encode("version_url", "https://ccs-specs.icpc.io/2021-11/contest_api");
+		je.close();
 	}
 
 	protected static int getSinceIdIndex(HttpServletRequest request, IContest contest) {
