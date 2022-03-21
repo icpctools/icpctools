@@ -2,7 +2,6 @@ package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +10,6 @@ import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
-import org.icpc.tools.contest.model.feed.JSONParser;
-import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
@@ -28,8 +25,6 @@ public class Info extends ContestObject implements IInfo {
 	private static final String TIME_MULTIPLIER = "time_multiplier";
 	private static final String COUNTDOWN_PAUSE_TIME = "countdown_pause_time";
 	private static final String LOCATION = "location";
-	private static final String LATITUDE = "latitude";
-	private static final String LONGITUDE = "longitude";
 	private static final String SCOREBOARD_TYPE = "scoreboard_type";
 
 	private String name;
@@ -42,8 +37,7 @@ public class Info extends ContestObject implements IInfo {
 	private Integer penalty;
 	private ScoreboardType scoreboardType;
 	private double timeMultiplier = Double.NaN;
-	private double latitude = Double.NaN;
-	private double longitude = Double.NaN;
+	private Location location;
 	private FileReferenceList banner;
 	private FileReferenceList logo;
 
@@ -125,11 +119,15 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public double getLatitude() {
-		return latitude;
+		if (location == null)
+			return Double.NaN;
+		return location.latitude;
 	}
 
 	public double getLongitude() {
-		return longitude;
+		if (location == null)
+			return Double.NaN;
+		return location.longitude;
 	}
 
 	public ScoreboardType getScoreboardType() {
@@ -201,9 +199,7 @@ public class Info extends ContestObject implements IInfo {
 			timeMultiplier = parseDouble(value);
 			return true;
 		} else if (name2.equals(LOCATION)) {
-			JsonObject obj = JSONParser.getOrReadObject(value);
-			latitude = obj.getDouble(LATITUDE);
-			longitude = obj.getDouble(LONGITUDE);
+			location = new Location(value);
 			return true;
 		} else if (name2.equals(SCOREBOARD_TYPE)) {
 			if ("pass-fail".equals(value))
@@ -236,8 +232,7 @@ public class Info extends ContestObject implements IInfo {
 		i.duration = duration;
 		i.freezeDuration = freezeDuration;
 		i.penalty = penalty;
-		i.latitude = latitude;
-		i.longitude = longitude;
+		i.location = location;
 		i.scoreboardType = scoreboardType;
 		return i;
 	}
@@ -246,10 +241,6 @@ public class Info extends ContestObject implements IInfo {
 		if (n < 10)
 			return "0" + n;
 		return n + "";
-	}
-
-	private static double round(double d) {
-		return Math.round(d * 10000.0) / 10000.0;
 	}
 
 	@Override
@@ -280,14 +271,8 @@ public class Info extends ContestObject implements IInfo {
 		if (!Double.isNaN(timeMultiplier))
 			props.put(TIME_MULTIPLIER, timeMultiplier);
 
-		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
-			List<String> attrs = new ArrayList<>(2);
-			if (!Double.isNaN(latitude))
-				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (!Double.isNaN(longitude))
-				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
-			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
-		}
+		if (location != null)
+			props.put(LOCATION, location.getJSON());
 
 		props.put(LOGO, logo);
 		props.put(BANNER, banner);
@@ -323,14 +308,8 @@ public class Info extends ContestObject implements IInfo {
 		if (!Double.isNaN(timeMultiplier))
 			je.encode(TIME_MULTIPLIER, timeMultiplier);
 
-		if (!Double.isNaN(latitude) || !Double.isNaN(longitude)) {
-			List<String> attrs = new ArrayList<>(2);
-			if (!Double.isNaN(latitude))
-				attrs.add("\"" + LATITUDE + "\":" + round(latitude));
-			if (!Double.isNaN(longitude))
-				attrs.add("\"" + LONGITUDE + "\":" + round(longitude));
-			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
-		}
+		if (location != null)
+			je.encodePrimitive(LOCATION, location.getJSON());
 
 		je.encode(LOGO, logo, false);
 		je.encode(BANNER, banner, false);
