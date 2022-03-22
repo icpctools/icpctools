@@ -133,8 +133,8 @@ public class DiskContestSource extends ContestSource {
 	 * General constructor for a disk contest source. Typically, only one of the event feed file and
 	 * CAF folder are provided. If neither are provided (i.e. this class is just being used for
 	 * local caching), then a hash must be provided to seed the temporary caching folder name (so
-	 * that it is consistent across restarts). A hash can also be provided to distinguish between two
-	 * feeds that use the same CAF but have a different hash, for example a different CCS URL
+	 * that it is consistent across restarts). A hash can also be provided to distinguish between
+	 * two feeds that use the same CAF but have a different hash, for example a different CCS URL
 	 *
 	 * @param eventFeedFile - a JSON or XML event feed file
 	 * @param folder - a contest archive folder
@@ -312,14 +312,14 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		// otherwise, assume the default file name or try a new one if that is taken
-		return getNewFile(obj.getType(), obj.getId(), property, ref.mime);
+		return getNewFile(obj.getType(), obj.getId(), property, ref);
 	}
 
 	/**
 	 * Return a new local file name that is suitable for saving the given property of a contest
 	 * object of a specific type and id to.
 	 */
-	public File getNewFile(IContestObject.ContestType type, String id, String property, String mimeType) {
+	public File getNewFile(IContestObject.ContestType type, String id, String property, FileReference fileRef) {
 		FilePattern pattern = getLocalPattern(type, id, property);
 		if (pattern == null)
 			return null;
@@ -328,15 +328,34 @@ public class DiskContestSource extends ContestSource {
 		if (pattern.folder != null)
 			folder = new File(root, pattern.folder);
 
-		String ext = getExtension(mimeType);
-		if (ext == null) // couldn't recognize mime type, so assume the default file extension
+		String name = null;
+		String ext = null;
+		if (fileRef != null) {
+			if (fileRef.filename != null) {
+				int ind = fileRef.filename.lastIndexOf(".");
+				if (ind > 0) {
+					name = fileRef.filename.substring(0, ind);
+					if (ind < fileRef.filename.length() - 2)
+						ext = fileRef.filename.substring(ind + 1);
+				} else
+					name = fileRef.filename;
+			}
+			if (ext == null && fileRef.mime != null)
+				ext = getExtension(fileRef.mime);
+		}
+
+		// fallback to default filename and extension as necessary
+		if (name == null || !name.startsWith(pattern.name))
+			name = pattern.name;
+		if (ext == null)
 			ext = pattern.extensions[0];
+
 		ext = "." + ext;
 
-		File file = new File(folder, pattern.name + ext);
+		File file = new File(folder, name + ext);
 		int n = 2;
 		while (file.exists()) {
-			file = new File(folder, pattern.name + n + ext);
+			file = new File(folder, name + n + ext);
 			n++;
 		}
 		return file;
@@ -413,6 +432,7 @@ public class DiskContestSource extends ContestSource {
 
 			// not found, new file
 			FileReference ref = new FileReference();
+			ref.filename = file.getName();
 			ref.etag = etag;
 			ref.href = href;
 			ref.file = file;
@@ -482,6 +502,7 @@ public class DiskContestSource extends ContestSource {
 				String[] st = s.split("\\t");
 				FileReference ref = new FileReference();
 				String name = st[0];
+				ref.filename = name;
 				if (name != null && name.length() > 0)
 					ref.file = new File(folder, name);
 				if (st[1] != null && !st[1].isEmpty())
@@ -649,6 +670,7 @@ public class DiskContestSource extends ContestSource {
 
 	protected static FileReference readMetadata(File file) {
 		FileReference ref = new FileReference();
+		ref.filename = file.getName();
 		ref.mime = getMimeType(file.getName());
 		ref.file = file;
 		ref.lastModified = file.lastModified();
