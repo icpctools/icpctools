@@ -50,14 +50,14 @@ public interface IGroup extends IContestObject {
 	double getLongitude();
 
 	/**
-	 * The logo of the organization.
+	 * The logo of the group.
 	 *
 	 * @return the logo
 	 */
 	File getLogo(int width, int height, boolean force);
 
 	/**
-	 * The logo of the organization.
+	 * The logo of the group.
 	 *
 	 * @return the logo
 	 */

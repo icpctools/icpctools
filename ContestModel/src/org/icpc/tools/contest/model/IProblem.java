@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.model;
 
 import java.awt.Color;
+import java.io.File;
 
 /**
  * A problem.
@@ -68,4 +69,18 @@ public interface IProblem extends IContestObject, IPosition {
 	 * @return the max score
 	 */
 	Double getMaxScore();
+
+	/**
+	 * The problem package.
+	 *
+	 * @return the package
+	 */
+	File getPackage(boolean force);
+
+	/**
+	 * The problem statement.
+	 *
+	 * @return the statement
+	 */
+	File getStatement(boolean force);
 }
