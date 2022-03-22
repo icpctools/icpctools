@@ -1,12 +1,14 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.feed.Decimal;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
@@ -25,6 +27,8 @@ public class Problem extends ContestObject implements IProblem {
 	private static final String Y = "y";
 	private static final String TIME_LIMIT = "time_limit";
 	private static final String MAX_SCORE = "max_score";
+	private static final String PACKAGE = "package";
+	private static final String STATEMENT = "statement";
 
 	private int ordinal = Integer.MIN_VALUE;
 	private String label;
@@ -37,6 +41,8 @@ public class Problem extends ContestObject implements IProblem {
 	private double y = Double.NaN;
 	private int timeLimit;
 	private Double maxScore;
+	private FileReferenceList package_;
+	private FileReferenceList statement;
 
 	@Override
 	public ContestType getType() {
@@ -133,6 +139,24 @@ public class Problem extends ContestObject implements IProblem {
 		return maxScore;
 	}
 
+	public FileReferenceList getPackage() {
+		return package_;
+	}
+
+	@Override
+	public File getPackage(boolean force) {
+		return getFile(package_.first(), PACKAGE, force);
+	}
+
+	public FileReferenceList getStatement() {
+		return statement;
+	}
+
+	@Override
+	public File getStatement(boolean force) {
+		return getFile(statement.first(), STATEMENT, force);
+	}
+
 	@Override
 	protected boolean addImpl(String name2, Object value) throws Exception {
 		switch (name2) {
@@ -175,9 +199,38 @@ public class Problem extends ContestObject implements IProblem {
 				y = obj.getDouble(Y);
 				return true;
 			}
+			case PACKAGE: {
+				package_ = new FileReferenceList(value);
+				return true;
+			}
+			case STATEMENT: {
+				statement = new FileReferenceList(value);
+				return true;
+			}
 			default:
 				return false;
 		}
+	}
+
+	@Override
+	public IContestObject clone() {
+		Problem p = new Problem();
+		p.id = id;
+		p.ordinal = ordinal;
+		p.name = name;
+		p.label = label;
+		p.color = color;
+
+		p.rgb = rgb;
+		p.testDataCount = testDataCount;
+		p.x = x;
+		p.y = y;
+		p.timeLimit = timeLimit;
+		p.maxScore = maxScore;
+
+		p.package_ = package_;
+		p.statement = statement;
+		return p;
 	}
 
 	@Override
@@ -206,6 +259,11 @@ public class Problem extends ContestObject implements IProblem {
 				attrs.add("\"" + Y + "\":" + round(y));
 			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
+
+		if (package_ != null)
+			props.put(PACKAGE, package_);
+		if (statement != null)
+			props.put(STATEMENT, statement);
 	}
 
 	@Override
@@ -236,6 +294,9 @@ public class Problem extends ContestObject implements IProblem {
 				attrs.add("\"" + Y + "\":" + round(y));
 			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
+
+		je.encode(PACKAGE, package_, false);
+		je.encode(STATEMENT, statement, false);
 	}
 
 	private static double round(double d) {

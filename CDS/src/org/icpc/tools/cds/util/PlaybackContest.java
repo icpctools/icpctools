@@ -47,6 +47,8 @@ public class PlaybackContest extends Contest {
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
 	private static final String COUNTRY_FLAG = "country_flag";
+	private static final String PACKAGE = "package";
+	private static final String STATEMENT = "statement";
 
 	protected ConfiguredContest cc;
 	protected String contestId;
@@ -147,6 +149,15 @@ public class PlaybackContest extends Contest {
 			downloadMissingFiles(src, obj, LOGO, i.getLogo());
 			downloadMissingFiles(src, obj, BANNER, i.getBanner());
 			src.attachLocalResources(i);
+		} else if (obj instanceof Problem) {
+			Problem p = (Problem) obj;
+			downloadMissingFiles(src, obj, PACKAGE, p.getPackage());
+			downloadMissingFiles(src, obj, STATEMENT, p.getStatement());
+			src.attachLocalResources(p);
+		} else if (obj instanceof Group) {
+			Group g = (Group) obj;
+			downloadMissingFiles(src, obj, LOGO, g.getLogo());
+			src.attachLocalResources(g);
 		} else if (obj instanceof Team) {
 			Team t = (Team) obj;
 			downloadMissingFiles(src, obj, PHOTO, t.getPhoto());
