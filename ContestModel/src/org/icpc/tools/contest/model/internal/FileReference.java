@@ -8,6 +8,7 @@ public class FileReference {
 	public String mime;
 	public String href = null;
 	public File file;
+	public String filename;
 	public long lastModified;
 	public String etag;
 	public int width = -1;
@@ -23,6 +24,7 @@ public class FileReference {
 		mime = obj.getString("mime");
 		height = obj.getInt("height");
 		width = obj.getInt("width");
+		filename = obj.getString("filename");
 	}
 
 	public String getURL() {
@@ -41,6 +43,8 @@ public class FileReference {
 		// if (file == null)
 		// return "{\"href\":\"" + href + "\"}";
 		StringBuilder sb = new StringBuilder("{\"href\":\"" + href + "\"");
+		if (filename != null)
+			sb.append(",\"filename\":\"" + filename + "\"");
 		if (mime != null)
 			sb.append(",\"mime\":\"" + mime + "\"");
 		if (width > 0)
@@ -69,6 +73,8 @@ public class FileReference {
 
 		FileReference ref = (FileReference) o;
 		if ((file == null && ref.file != null) || (file != null && !file.equals(ref.file)))
+			return false;
+		if ((filename == null && ref.filename != null) || (filename != null && !filename.equals(ref.filename)))
 			return false;
 		if ((mime == null && ref.mime != null) || (mime != null && !mime.equals(ref.mime)))
 			return false;

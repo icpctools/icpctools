@@ -252,7 +252,7 @@ public class RESTContestSource extends DiskContestSource {
 		if (obj == null)
 			return null;
 
-		File file = super.getNewFile(obj.getType(), obj.getId(), property, ref.mime);
+		File file = super.getNewFile(obj.getType(), obj.getId(), property, ref);
 		if (file == null)
 			return null;
 

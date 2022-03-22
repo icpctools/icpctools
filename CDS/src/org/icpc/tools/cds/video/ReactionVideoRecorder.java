@@ -122,6 +122,7 @@ public class ReactionVideoRecorder {
 			if (files != null) {
 				for (File f : files) {
 					FileReference ref = new FileReference();
+					ref.filename = f.getName();
 					String name = f.getName().substring(0, f.getName().length() - 5);
 					ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
 					ref.mime = "application/m2ts";
