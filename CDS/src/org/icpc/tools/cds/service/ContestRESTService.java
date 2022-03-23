@@ -129,6 +129,7 @@ public class ContestRESTService extends HttpServlet {
 
 				PrintWriter pw = response.getWriter();
 				response.setContentType("application/json");
+				response.setHeader("X-Accel-Buffering", "no");
 				cc.incrementFeed();
 				int ind = getSinceIdIndex(request, contest);
 				if (ind == -2) {
