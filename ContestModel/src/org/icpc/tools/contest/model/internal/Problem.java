@@ -19,6 +19,7 @@ public class Problem extends ContestObject implements IProblem {
 	private static final String ORDINAL = "ordinal";
 	private static final String LABEL = "label";
 	private static final String NAME = "name";
+	private static final String UUID = "uuid";
 	private static final String COLOR = "color";
 	private static final String RGB = "rgb";
 	private static final String TEST_DATA_COUNT = "test_data_count";
@@ -33,6 +34,7 @@ public class Problem extends ContestObject implements IProblem {
 	private int ordinal = Integer.MIN_VALUE;
 	private String label;
 	private String name;
+	private String uuid;
 	private String color;
 	private String rgb;
 	private Color colorVal;
@@ -62,6 +64,11 @@ public class Problem extends ContestObject implements IProblem {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public String getUUID() {
+		return uuid;
 	}
 
 	@Override
@@ -172,6 +179,10 @@ public class Problem extends ContestObject implements IProblem {
 				this.name = (String) value;
 				return true;
 			}
+			case UUID: {
+				this.uuid = (String) value;
+				return true;
+			}
 			case COLOR: {
 				this.color = (String) value;
 				return true;
@@ -218,6 +229,7 @@ public class Problem extends ContestObject implements IProblem {
 		p.id = id;
 		p.ordinal = ordinal;
 		p.name = name;
+		p.uuid = uuid;
 		p.label = label;
 		p.color = color;
 
@@ -238,6 +250,8 @@ public class Problem extends ContestObject implements IProblem {
 		super.getPropertiesImpl(props);
 		props.put(LABEL, label);
 		props.put(NAME, name);
+		if (uuid != null)
+			props.put(UUID, uuid);
 		if (ordinal != Integer.MIN_VALUE)
 			props.put(ORDINAL, ordinal);
 		if (color != null)
@@ -273,6 +287,8 @@ public class Problem extends ContestObject implements IProblem {
 			je.encode(LABEL, label);
 		if (name != null)
 			je.encode(NAME, name);
+		if (uuid != null)
+			je.encode(UUID, uuid);
 		if (ordinal != Integer.MIN_VALUE)
 			je.encode(ORDINAL, ordinal);
 		if (color != null)

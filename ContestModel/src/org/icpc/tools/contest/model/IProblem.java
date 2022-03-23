@@ -29,6 +29,13 @@ public interface IProblem extends IContestObject, IPosition {
 	String getName();
 
 	/**
+	 * The uuid.
+	 *
+	 * @return the uuid
+	 */
+	String getUUID();
+
+	/**
 	 * The name of the problem color, e.g. blue.
 	 *
 	 * @return the color name
