@@ -183,6 +183,7 @@ public class VideoServlet extends HttpServlet {
 		response.setHeader("Cache-Control", "no-cache");
 		response.setContentType("application/octet");
 		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("X-Accel-Buffering", "no");
 
 		OutputStream out = response.getOutputStream();
 		va.handler.writeHeader(out, stream);
