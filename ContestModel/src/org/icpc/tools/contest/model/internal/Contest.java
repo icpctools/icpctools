@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.ICommentary;
@@ -62,6 +63,7 @@ public class Contest implements IContest {
 	private ICommentary[] commentary;
 	private IRun[] runs;
 	private IStartStatus[] startStatus;
+	private IAccount[] accounts;
 	private IAward[] awards;
 	private IPause[] pauses;
 	private IMapInfo mapInfo;
@@ -193,6 +195,7 @@ public class Contest implements IContest {
 			runs = null;
 			clars = null;
 			commentary = null;
+			accounts = null;
 
 			order = null;
 			orderedTeams = null;
@@ -292,6 +295,8 @@ public class Contest implements IContest {
 			members = null;
 		} else if (type == ContestType.START_STATUS) {
 			startStatus = null;
+		} else if (type == ContestType.ACCOUNT) {
+			accounts = null;
 		} else if (type == ContestType.AWARD) {
 			awards = null;
 		} else if (type == ContestType.PAUSE) {
@@ -847,6 +852,26 @@ public class Contest implements IContest {
 
 			organizations = data.getByType(IOrganization.class, ContestType.ORGANIZATION);
 			return organizations;
+		}
+	}
+
+	@Override
+	public IAccount getAccountById(String id) {
+		return (IAccount) data.getById(id, ContestType.ACCOUNT);
+	}
+
+	@Override
+	public IAccount[] getAccounts() {
+		IAccount[] temp = accounts;
+		if (temp != null)
+			return temp;
+
+		synchronized (data) {
+			if (accounts != null)
+				return accounts;
+
+			accounts = data.getByType(IAccount.class, ContestType.ACCOUNT);
+			return accounts;
 		}
 	}
 
