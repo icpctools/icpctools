@@ -9,8 +9,8 @@
 
             <p/>
 
-            For information on using the Contest API, please go
-            <a href="https://clics.ecs.baylor.edu/index.php/Contest_API" target="_blank">here</a>.
+            For information on the Contest API, please go
+            <a href="https://ccs-specs.icpc.io/master/contest_api" target="_blank">here</a>.
 
         </div>
     </div>
