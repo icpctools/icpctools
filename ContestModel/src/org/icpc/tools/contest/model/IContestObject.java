@@ -3,6 +3,7 @@ package org.icpc.tools.contest.model;
 import java.util.List;
 import java.util.Map;
 
+import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Clarification;
 import org.icpc.tools.contest.model.internal.Commentary;
@@ -24,12 +25,12 @@ import org.icpc.tools.contest.model.internal.TeamMember;
 
 public interface IContestObject {
 	enum ContestType {
-		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, MAP_INFO, START_STATUS, COMMENTARY
+		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, MAP_INFO, START_STATUS, COMMENTARY, ACCOUNT
 	}
 
 	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations", "teams", "state",
 			"runs", "submissions", "judgements", "clarifications", "awards", "judgement-types", "testdata", "problems",
-			"pause", "team-members", "map-info", "start-status", "commentary" };
+			"pause", "team-members", "map-info", "start-status", "commentary", "accounts" };
 
 	static String getTypeName(ContestType type) {
 		return ContestTypeNames[type.ordinal()];
@@ -91,6 +92,8 @@ public interface IContestObject {
 			return new MapInfo();
 		else if (ContestType.COMMENTARY.equals(type))
 			return new Commentary();
+		else if (ContestType.ACCOUNT.equals(type))
+			return new Account();
 
 		// don't import unrecognized elements
 		return null;

@@ -573,6 +573,21 @@ public interface IContest {
 	boolean isBeforeFreeze(ISubmission s);
 
 	/**
+	 * Return the accounts in this contest.
+	 *
+	 * @return the accounts
+	 */
+	IAccount[] getAccounts();
+
+	/**
+	 * Returns the account with the given id.
+	 *
+	 * @param id an identifier
+	 * @return an account, or <code>null</code> if the id was invalid
+	 */
+	IAccount getAccountById(String id);
+
+	/**
 	 * Return the awards given in this contest.
 	 *
 	 * @return the awards
