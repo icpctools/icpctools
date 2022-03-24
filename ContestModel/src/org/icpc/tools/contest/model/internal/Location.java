@@ -47,7 +47,6 @@ public class Location {
 
 	protected String getJSON() {
 		return "{\"" + LATITUDE + "\":" + round(latitude) + ",\"" + LONGITUDE + "\":" + round(longitude) + "}";
-
 	}
 
 	private static double round(double d) {

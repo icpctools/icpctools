@@ -1,5 +1,7 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -7,17 +9,59 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class Language extends ContestObject implements ILanguage {
 	private static final String NAME = "name";
 	private static final String ENTRY_POINT_REQUIRED = "entry_point_required";
 	private static final String ENTRY_POINT_NAME = "entry_point_name";
 	private static final String EXTENSIONS = "extensions";
+	private static final String COMPILER = "compiler";
+	private static final String RUNNER = "runner";
+	private static final String COMMAND = "command";
+	private static final String ARGS = "args";
+	private static final String VERSION = "version";
+	private static final String VERSION_COMMAND = "version-command";
 
 	private String name;
 	private boolean entryPointRequired;
 	private String entryPointName;
 	private String[] extensions;
+	private Command compiler;
+	private Command runner;
+
+	private static class Command {
+		String command;
+		String args;
+		String version;
+		String versionCommand;
+
+		public Command(Object value) {
+			JsonObject obj = JSONParser.getOrReadObject(value);
+			command = obj.getString(COMMAND);
+			args = obj.getString(ARGS);
+			version = obj.getString(VERSION);
+			versionCommand = obj.getString(VERSION_COMMAND);
+		}
+
+		public String getJSON() {
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			PrintWriter pw = new PrintWriter(bout);
+			JSONEncoder je = new JSONEncoder(pw);
+			je.open();
+			if (command != null)
+				je.encode(COMMAND, command);
+			if (args != null)
+				je.encode(ARGS, args);
+			if (version != null)
+				je.encode(VERSION, version);
+			if (versionCommand != null)
+				je.encode(VERSION_COMMAND, versionCommand);
+			je.close();
+			pw.flush();
+			return bout.toString();
+		}
+	}
 
 	@Override
 	public ContestType getType() {
@@ -62,6 +106,12 @@ public class Language extends ContestObject implements ILanguage {
 				for (int i = 0; i < ob.length; i++)
 					extensions[i] = (String) ob[i];
 				return true;
+			case COMPILER:
+				compiler = new Command(value);
+				return true;
+			case RUNNER:
+				runner = new Command(value);
+				return true;
 		}
 
 		return false;
@@ -72,15 +122,19 @@ public class Language extends ContestObject implements ILanguage {
 		super.getPropertiesImpl(props);
 		props.put(NAME, name);
 		props.put(ENTRY_POINT_REQUIRED, entryPointRequired);
-		if (entryPointName != null) {
+		if (entryPointName != null)
 			props.put(ENTRY_POINT_NAME, entryPointName);
-		}
+
 		if (extensions != null) {
 			if (extensions.length == 0)
 				props.put(EXTENSIONS, "[]");
 			else
 				props.put(EXTENSIONS, "[\"" + String.join("\",\"", extensions) + "\"]");
 		}
+		if (compiler != null)
+			props.put(COMPILER, compiler.getJSON());
+		if (runner != null)
+			props.put(RUNNER, runner.getJSON());
 	}
 
 	@Override
@@ -88,13 +142,18 @@ public class Language extends ContestObject implements ILanguage {
 		je.encode(ID, id);
 		je.encode(NAME, name);
 		je.encode(ENTRY_POINT_REQUIRED, entryPointRequired);
-		je.encode(ENTRY_POINT_NAME, entryPointName);
+		if (entryPointName != null)
+			je.encode(ENTRY_POINT_NAME, entryPointName);
 		if (extensions != null) {
 			if (extensions.length == 0)
 				je.encodePrimitive(EXTENSIONS, "[]");
 			else
 				je.encodePrimitive(EXTENSIONS, "[\"" + String.join("\",\"", extensions) + "\"]");
 		}
+		if (compiler != null)
+			je.encodePrimitive(COMPILER, compiler.getJSON());
+		if (runner != null)
+			je.encodePrimitive(RUNNER, runner.getJSON());
 	}
 
 	@Override
