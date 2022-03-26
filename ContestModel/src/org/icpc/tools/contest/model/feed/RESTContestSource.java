@@ -116,8 +116,8 @@ public class RESTContestSource extends DiskContestSource {
 		instance = this;
 
 		if (url != null) {
-			validateURL();
 			setup();
+			validateURL();
 		}
 
 		if (eventFeedFile == null) {
@@ -135,15 +135,23 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private void setup() {
-		String path = url.getPath();
-		contestId = path.substring(path.lastIndexOf("/") + 1);
+		Trace.trace(Trace.INFO, "Contest API URL: " + url);
+		Pattern pattern = Pattern.compile("contests/(.*)");
+		Matcher matcher = pattern.matcher(url.getPath());
+		if (matcher.find())
+			contestId = matcher.group(1);
+		else
+			contestId = null;
 
-		Pattern pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
-		Matcher matcher = pattern.matcher(url.toExternalForm());
+		pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
+		matcher = pattern.matcher(url.toExternalForm());
 		if (matcher.find())
 			baseUrl = matcher.group(1);
 		else
 			baseUrl = url.toExternalForm();
+
+		Trace.trace(Trace.INFO, "  Contest Id: " + contestId);
+		Trace.trace(Trace.INFO, "  Base URL: " + baseUrl);
 	}
 
 	public static RESTContestSource ensureContestAPI(ContestSource source) {
@@ -1035,25 +1043,74 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
+	private static String listContest(String url, Info info) {
+		return url + " - " + info.getName() + " starting at " + ContestUtil.formatStartTime(info.getStartTime());
+	}
+
 	private void validateURL() {
 		if (feedFile != null)
 			return;
 
 		try {
-			this.url = validateURL(url);
-			return;
+			String content = validateURL(url, 0);
+			String name = isContestURL(content);
+			if (name != null) {
+				Trace.trace(Trace.USER, "Connecting to " + name + " at " + url);
+				return;
+			}
+
+			URL theURL = url;
+			if (isBaseURL(content)) {
+				theURL = new URL(theURL, "contests");
+				content = validateURL(theURL, 0);
+			}
+
+			Info[] infos = null;
+			try {
+				infos = validateContests(content, theURL);
+			} catch (Exception e) {
+				// could not parse
+			}
+			if (infos != null) {
+				String u = theURL.toExternalForm();
+				if (!u.endsWith("/"))
+					u += "/";
+
+				// only one option
+				if (infos.length == 1) {
+					URL newURL = new URL(u + infos[0].getId());
+					Trace.trace(Trace.USER,
+							"Only 1 contest found, connecting to " + listContest(newURL.toExternalForm(), infos[0]));
+					this.url = newURL;
+					setup();
+					return;
+				}
+
+				// otherwise try to find the best fit
+				Info bestContest = pickBestContest(infos);
+				if (bestContest != null) {
+					URL newURL = new URL(u + bestContest.getId());
+					Trace.trace(Trace.USER, infos.length + " contests found, auto-connecting to "
+							+ listContest(newURL.toExternalForm(), bestContest));
+					this.url = newURL;
+					setup();
+					return;
+				}
+
+				Trace.trace(Trace.USER, "Contest API found, but couldn't pick a contest. Try one of the following URLs:");
+				for (Info info : infos)
+					Trace.trace(Trace.USER, "  " + listContest(u + info.getId(), info));
+
+				throw new IllegalArgumentException("Could not pick contest at " + url);
+			}
+		} catch (IllegalArgumentException e) {
+			Trace.trace(Trace.INFO, "Invalid contest URL: " + e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			Trace.trace(Trace.INFO, "Invalid contest URL: " + e.getMessage());
 		}
 
-		try {
-			this.url = tryAlternateURLs();
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not find valid Contest API at " + url);
-		}
-	}
-
-	private URL tryAlternateURLs() {
+		// try alternate URLs on the same host
 		String[] paths = new String[] { "api/contests", "contests", "/api/contests", "/contests",
 				"/domjudge/api/contests", "/clics-api/contests" };
 		for (String path : paths) {
@@ -1063,106 +1120,100 @@ public class RESTContestSource extends DiskContestSource {
 					testURL = new URL(url.getProtocol() + "://" + url.getAuthority() + path);
 				else
 					testURL = getChildURL(path);
-				return validateURL(testURL);
+				String content = validateURL(testURL, 0);
+				Info[] infos = validateContests(content, testURL);
+
+				String u = testURL.toExternalForm();
+				if (!u.endsWith("/"))
+					u += "/";
+
+				Trace.trace(Trace.USER, "No contest found at the given URL, but I found these instead:");
+				for (Info info : infos)
+					Trace.trace(Trace.USER, "  " + listContest(u + info.getId(), info));
+
+				break;
 			} catch (Exception e) {
 				Trace.trace(Trace.INFO, "Check for " + path + " URL failed: " + e.getMessage());
 			}
 		}
 
-		throw new IllegalArgumentException("Could not detect valid contest API");
+		throw new IllegalArgumentException("Could not detect Contest API at " + url);
 	}
 
-	private URL validateURL(URL aURL) throws Exception {
+	private String validateURL(URL aURL, int redirects) throws Exception {
 		HttpURLConnection conn = createConnection(aURL);
 		int response = conn.getResponseCode();
 
 		if (response == HttpURLConnection.HTTP_UNAUTHORIZED)
 			throw new IllegalArgumentException("Invalid user or password (401)");
 		else if (hasMoved(response)) {
+			if (redirects > 3)
+				throw new IllegalArgumentException("Too many URL redirects");
 			URL newURL = new URL(conn.getHeaderField("Location"));
-			return validateURL(newURL);
+			return validateURL(newURL, redirects + 1);
 		} else if (response == HttpURLConnection.HTTP_NOT_FOUND) {
 			throw new IllegalArgumentException("Invalid, URL not found (404)");
 		} else if (response == HttpURLConnection.HTTP_OK) {
 			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
 				isCDS = true;
-			return validateContent(conn, aURL);
+
+			InputStream in = conn.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			StringBuilder sb = new StringBuilder();
+			String s = br.readLine();
+			while (s != null) {
+				sb.append(s);
+				s = br.readLine();
+			}
+
+			return sb.toString();
 		}
 
 		throw new IllegalArgumentException("Invalid response code (" + response + ")");
 	}
 
-	private static URL validateContent(HttpURLConnection conn, URL theURL) throws Exception {
-		InputStream in = conn.getInputStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-		StringBuilder sb = new StringBuilder();
-		String s = br.readLine();
-		while (s != null) {
-			sb.append(s);
-			s = br.readLine();
-		}
-
-		s = sb.toString();
-
-		try {
-			// try as array
-			JSONParser parser2 = new JSONParser(s);
-			Object[] arr = parser2.readArray();
-
-			if (arr.length == 0)
-				throw new IllegalArgumentException("Possible Contest API at " + theURL + ", but no contests found");
-
-			Info[] infos = new Info[arr.length];
-			for (int i = 0; i < arr.length; i++) {
-				JsonObject obj = (JsonObject) arr[i];
-				Info info = new Info();
-				infos[i] = info;
-				for (String key : obj.props.keySet())
-					info.add(key, obj.props.get(key));
-			}
-			String u = theURL.toExternalForm();
-			if (!u.endsWith("/"))
-				u += "/";
-			Info bestContest = pickBestContest(infos);
-			if (bestContest != null) {
-				URL newURL = new URL(u + bestContest.getId());
-				if (infos.length == 1)
-					Trace.trace(Trace.USER, "The URL did not point to a specific contest, but one contest was found.");
-				else
-					Trace.trace(Trace.USER,
-							"The URL did not point to a specific contest, but " + infos.length + " contests were found.");
-				Trace.trace(Trace.USER, "Auto-connecting to: " + newURL);
-				return newURL;
-			}
-
-			StringBuilder sb2 = new StringBuilder(
-					"Contest API found, but couldn't pick a contest. Try one of the following URLs:\n");
-			for (int i = 0; i < arr.length; i++) {
-				Info info = infos[i];
-				if (info.getId() == null || info.getName() == null || info.getDuration() <= 0)
-					throw new IllegalArgumentException("Unrecognized REST endpoint");
-
-				sb2.append(u + info.getId() + " (" + info.getName() + " starting at "
-						+ ContestUtil.formatStartTime(info.getStartTime()) + ")");
-			}
-
-			throw new IllegalArgumentException(sb2.toString());
-		} catch (Exception e) {
-			// ignore, not an array
-		}
-
+	private static String isContestURL(String s) {
 		try {
 			JSONParser parser2 = new JSONParser(s);
 			JsonObject obj = parser2.readObject();
 			if (obj.getString("id") != null && obj.getString("name") != null && obj.getString("duration") != null)
-				return theURL; // confirmed good contest endpoint
-
-			throw new IllegalArgumentException("Unrecognized REST endpoint");
+				return obj.getString("name"); // confirmed good contest, return name
 		} catch (Exception e) {
 			// ignore, not an object
 		}
 
-		throw new Exception("Unrecognized endpoint");
+		return null;
+	}
+
+	private static boolean isBaseURL(String s) {
+		try {
+			JSONParser parser2 = new JSONParser(s);
+			JsonObject obj = parser2.readObject();
+			if (obj.getString("version") != null && obj.getString("version_url") != null)
+				return true; // confirmed good / Contest API endpoint
+		} catch (Exception e) {
+			// ignore, not an object
+		}
+
+		return false;
+	}
+
+	private static Info[] validateContests(String s, URL theURL) throws Exception {
+		JSONParser parser2 = new JSONParser(s);
+		Object[] arr = parser2.readArray();
+
+		if (arr.length == 0)
+			throw new IllegalArgumentException("Possible Contest API at " + theURL + " but no contests found");
+
+		Info[] infos = new Info[arr.length];
+		for (int i = 0; i < arr.length; i++) {
+			JsonObject obj = (JsonObject) arr[i];
+			Info info = new Info();
+			infos[i] = info;
+			for (String key : obj.props.keySet())
+				info.add(key, obj.props.get(key));
+		}
+		return infos;
 	}
 
 	private static Info pickBestContest(Info[] infos) {
