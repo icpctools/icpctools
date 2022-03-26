@@ -207,7 +207,7 @@ public class ArgumentParser {
 				cs[i] = ContestSource.parseSource(source.src[i], source.user, source.password);
 
 			return cs;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Invalid contest source: " + e.getMessage());
 			System.exit(1);
 		}
