@@ -15,14 +15,14 @@ public class Account extends ContestObject implements IAccount {
 	private static final String TYPE = "type";
 	private static final String IP = "ip";
 	private static final String TEAM_ID = "team_id";
-	private static final String PEOPLE_ID = "people_id";
+	private static final String PERSON_ID = "person_id";
 
 	private String username;
 	private String password;
 	private String type;
 	private String ip;
 	private String teamId;
-	private String peopleId;
+	private String personId;
 
 	@Override
 	public ContestType getType() {
@@ -55,8 +55,8 @@ public class Account extends ContestObject implements IAccount {
 	}
 
 	@Override
-	public String getPeopleId() {
-		return peopleId;
+	public String getPersonId() {
+		return personId;
 	}
 
 	@Override
@@ -82,8 +82,8 @@ public class Account extends ContestObject implements IAccount {
 				teamId = (String) value;
 				return true;
 			}
-			case PEOPLE_ID: {
-				peopleId = (String) value;
+			case PERSON_ID: {
+				personId = (String) value;
 				return true;
 			}
 		}
@@ -100,7 +100,7 @@ public class Account extends ContestObject implements IAccount {
 		a.type = type;
 		a.ip = ip;
 		a.teamId = teamId;
-		a.peopleId = peopleId;
+		a.personId = personId;
 		return a;
 	}
 
@@ -117,8 +117,8 @@ public class Account extends ContestObject implements IAccount {
 			props.put(IP, ip);
 		if (teamId != null)
 			props.put(TEAM_ID, teamId);
-		if (peopleId != null)
-			props.put(PEOPLE_ID, peopleId);
+		if (personId != null)
+			props.put(PERSON_ID, personId);
 	}
 
 	@Override
@@ -134,8 +134,8 @@ public class Account extends ContestObject implements IAccount {
 			je.encode(IP, ip);
 		if (teamId != null)
 			je.encode(TEAM_ID, teamId);
-		if (peopleId != null)
-			je.encode(PEOPLE_ID, peopleId);
+		if (personId != null)
+			je.encode(PERSON_ID, personId);
 	}
 
 	@Override
@@ -148,8 +148,8 @@ public class Account extends ContestObject implements IAccount {
 		if (teamId != null && c.getTeamById(teamId) == null)
 			errors.add("Invalid team " + teamId);
 
-		if (peopleId != null && c.getTeamMemberById(peopleId) == null)
-			errors.add("Invalid team member " + peopleId);
+		if (personId != null && c.getTeamMemberById(personId) == null)
+			errors.add("Invalid team member " + personId);
 
 		if (errors.isEmpty())
 			return null;
