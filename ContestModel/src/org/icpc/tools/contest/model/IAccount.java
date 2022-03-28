@@ -44,5 +44,5 @@ public interface IAccount extends IContestObject {
 	 *
 	 * @return the id
 	 */
-	String getPeopleId();
+	String getPersonId();
 }
