@@ -48,7 +48,7 @@ import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Deletion;
 
-@WebServlet(urlPatterns = { "/api/", "/api/*" }, asyncSupported = true)
+@WebServlet(urlPatterns = { "/api", "/api/", "/api/*" }, asyncSupported = true)
 public class ContestRESTService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -182,6 +182,10 @@ public class ContestRESTService extends HttpServlet {
 			ReportGenerator.report(response.getWriter(), contest, segments[2]);
 			return;
 		}
+
+		// TODO: temporarily alias /persons to /team-members
+		if (segments.length >= 2 && "persons".equals(segments[1]))
+			segments[1] = "team-members";
 
 		String typeName = "contests";
 		String id = cc.getId();

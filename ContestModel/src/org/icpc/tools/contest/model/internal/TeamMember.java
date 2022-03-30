@@ -17,6 +17,7 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	private static final String FIRST_NAME = "first_name";
 	private static final String LAST_NAME = "last_name";
 	private static final String NAME = "name";
+	private static final String TITLE = "title";
 	private static final String EMAIL = "email";
 	private static final String SEX = "sex";
 	private static final String ROLE = "role";
@@ -32,6 +33,7 @@ public class TeamMember extends ContestObject implements ITeamMember {
 	private String firstName;
 	private String lastName;
 	private String name;
+	private String title;
 	private String email;
 	private String sex;
 	private String teamId;
@@ -67,6 +69,11 @@ public class TeamMember extends ContestObject implements ITeamMember {
 		if (name == null && firstName != null && lastName != null)
 			return firstName + " " + lastName;
 		return name;
+	}
+
+	@Override
+	public String getTitle() {
+		return title;
 	}
 
 	@Override
@@ -129,6 +136,10 @@ public class TeamMember extends ContestObject implements ITeamMember {
 			}
 			case NAME: {
 				name = (String) value;
+				return true;
+			}
+			case TITLE: {
+				title = (String) value;
 				return true;
 			}
 			case EMAIL: {
@@ -308,6 +319,8 @@ public class TeamMember extends ContestObject implements ITeamMember {
 			props.put(LAST_NAME, lastName);
 		if (name != null)
 			props.put(NAME, name);
+		if (title != null)
+			props.put(TITLE, title);
 		if (email != null)
 			props.put(EMAIL, email);
 		props.put(SEX, sex);
@@ -333,6 +346,8 @@ public class TeamMember extends ContestObject implements ITeamMember {
 			je.encode(LAST_NAME, lastName);
 		if (name != null)
 			je.encode(NAME, name);
+		if (title != null)
+			je.encode(TITLE, title);
 		if (email != null)
 			je.encode(EMAIL, email);
 		je.encode(SEX, sex);

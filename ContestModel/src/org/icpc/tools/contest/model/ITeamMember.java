@@ -22,6 +22,13 @@ public interface ITeamMember extends IContestObject {
 	String getName();
 
 	/**
+	 * The person's title.
+	 *
+	 * @return the title
+	 */
+	String getTitle();
+
+	/**
 	 * The person's email.
 	 *
 	 * @return the email
