@@ -23,6 +23,8 @@ import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
+import org.icpc.tools.contest.model.internal.Account;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -85,49 +87,13 @@ public class CDSConfig {
 		}
 	}
 
-	public static class TeamUser {
-		private String name = null;
-		private String teamId = null;
-		private String password = null;
-
-		protected TeamUser(Element e) {
-			name = getString(e, "name");
-			teamId = getString(e, "teamId");
-			password = getString(e, "password");
-		}
-
-		@Override
-		public String toString() {
-			return "Team user [" + name + "]";
-		}
-	}
-
-	public static class Host {
-		private String teamId = null;
-		private String host = null;
-
-		protected Host(Element e) {
-			teamId = getString(e, "teamId");
-			host = getString(e, "host");
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder sb = new StringBuilder("Host [");
-			if (teamId != null)
-				sb.append(teamId + " / ");
-			sb.append(host + "]");
-			return sb.toString();
-		}
-	}
-
 	private ConfiguredContest[] contests;
 	private long[] contestHashes;
 	private Domain[] domains;
-	private TeamUser[] teamUsers;
-	private Host[] hosts;
+	private String[] hosts;
 	private File file;
 	private long lastModified;
+	private boolean loadedPasswords;
 
 	private CDSConfig(File file) {
 		this.file = file;
@@ -161,6 +127,7 @@ public class CDSConfig {
 				} catch (Exception e) {
 					Trace.trace(Trace.USER, "Error reading CDS config, changes will be ignored until the file is fixed");
 				}
+				Trace.trace(Trace.USER, "----- CDS config change done -----");
 			}
 		}, 15, 5, TimeUnit.SECONDS);
 	}
@@ -284,45 +251,14 @@ public class CDSConfig {
 			domains = temp;
 		}
 
-		Element teamElement = getChild(e, "teamUsers");
-		if (teamElement != null) {
-			children = CDSConfig.getChildren(teamElement, "user");
-			int num = children.length;
-
-			TeamUser[] temp = new TeamUser[num];
-			for (int i = 0; i < num; i++) {
-				temp[i] = new TeamUser(children[i]);
-			}
-			teamUsers = temp;
-
-			String users = teamElement.getAttribute("users");
-			if (users == null || users.isEmpty())
-				users = "../users.xml";
-			FileInputStream in = null;
-			try {
-				in = new FileInputStream(new File(file.getParentFile(), users));
-				parseBasicRegistry(in);
-			} catch (Exception ex) {
-				Trace.trace(Trace.ERROR, "Could not load team password info", ex);
-			} finally {
-				if (in != null)
-					try {
-						in.close();
-					} catch (Exception ex) {
-						// ignore
-					}
-			}
-		}
-
-		Element hostElement = getChild(e, "hosts");
+		Element[] hostElement = getChildren(e, "host");
 		if (hostElement != null) {
-			children = CDSConfig.getChildren(hostElement, "host");
-			int num = children.length;
+			int num = hostElement.length;
 
-			Host[] temp = new Host[num];
-			for (int i = 0; i < num; i++) {
-				temp[i] = new Host(children[i]);
-			}
+			String[] temp = new String[num];
+			for (int i = 0; i < num; i++)
+				temp[i] = getString(hostElement[i], "host");
+
 			hosts = temp;
 		}
 	}
@@ -344,9 +280,12 @@ public class CDSConfig {
 					} else if (level == 2) {
 						if ("user".equals(qName)) {
 							String name = attributes.getValue("name");
-							for (TeamUser user : teamUsers) {
-								if (name.equals(user.name))
-									user.password = attributes.getValue("password");
+							for (ConfiguredContest cc : contests) {
+								IAccount[] accounts = cc.getContest().getAccounts();
+								for (IAccount account : accounts) {
+									if (name.equals(account.getUsername()))
+										((Account) account).add("password", attributes.getValue("password"));
+								}
 							}
 						}
 					}
@@ -368,40 +307,42 @@ public class CDSConfig {
 		return domains;
 	}
 
-	public TeamUser[] getTeamLogins() {
-		return teamUsers;
-	}
-
 	/**
-	 * Returns true if there are any user logins for the given team id, and false otherwise.
+	 * Returns true if there are any user accounts for the given team id, and false otherwise.
 	 *
 	 * @param team id
 	 * @return true if there is a login, and false otherwise
 	 */
 	public boolean hasLoginForId(String teamId) {
-		if (teamUsers == null || teamId == null)
+		if (teamId == null || teamId.isEmpty())
 			return false;
 
-		for (TeamUser user : teamUsers) {
-			if (teamId.equals(user.teamId))
-				return true;
+		for (ConfiguredContest cc : contests) {
+			IAccount[] accounts = cc.getContest().getAccounts();
+			for (IAccount account : accounts) {
+				if (teamId.equals(account.getTeamId()))
+					return true;
+			}
 		}
 		return false;
 	}
 
 	/**
-	 * Converts from team user name to team id, e.g. "team57" to "57".
+	 * Tries to find a team id for a given user, e.g. "team57" to "57".
 	 *
-	 * @param userName
+	 * @param username
 	 * @return the team's id, or null if not found
 	 */
-	public String getTeamIdFromUser(String userName) {
-		if (teamUsers == null || userName == null)
+	protected String getUserFromTeamId(String teamId) {
+		if (teamId == null || teamId.isEmpty())
 			return null;
 
-		for (TeamUser user : teamUsers) {
-			if (userName.equals(user.name))
-				return user.teamId;
+		for (ConfiguredContest cc : contests) {
+			IAccount[] accounts = cc.getContest().getAccounts();
+			for (IAccount account : accounts) {
+				if (teamId.equals(account.getTeamId()) && account.getUsername() != null)
+					return account.getUsername();
+			}
 		}
 		return null;
 	}
@@ -413,74 +354,97 @@ public class CDSConfig {
 	 * @return a list of hosts, or null if not found
 	 */
 	public List<String> getHostsForTeamId(String teamId) {
-		if (hosts == null || teamId == null)
+		if (teamId == null || teamId.isEmpty())
 			return null;
 
 		List<String> list = new ArrayList<String>();
-		for (Host host : hosts) {
-			if (host.teamId != null && !host.teamId.equals(teamId))
-				continue;
-			list.add(host.host.replace("{0}", teamId));
+		if (hosts != null) {
+			for (String host : hosts) {
+				list.add(host.replace("{0}", teamId));
+			}
 		}
+
+		for (ConfiguredContest cc : contests) {
+			IAccount[] accounts = cc.getContest().getAccounts();
+			for (IAccount account : accounts) {
+				if (teamId.equals(account.getTeamId()) && account.getIp() != null)
+					list.add(account.getIp());
+			}
+		}
+
 		return list;
 	}
 
 	/**
-	 * Converts from team host name or IP to team id, e.g. "10.0.0.43" to "43".
+	 * Try to find a username based on their host name or IP, e.g. from "10.0.0.43" to "team43".
+	 * Uses both the CDS configured hosts and contest account information.
 	 *
-	 * @param host
-	 * @return the team's id, or null if not found
+	 * @param hostname
+	 * @return the username, or null if not found
 	 */
-	public String getTeamIdFromHost(String teamHost) {
-		if (hosts == null || teamHost == null)
+	public String getUserFromHost(String hostname) {
+		if (hostname == null || hostname.isEmpty())
 			return null;
 
-		for (Host host : hosts) {
-			// simple case is direct mapping with no substitution
-			if (host.teamId != null && host.host.equals(teamHost))
-				return host.teamId;
+		if (hosts != null) {
+			for (String host : hosts) {
+				// match to find the substitution
+				Pattern p = Pattern.compile(host.replace(".", "\\.").replace("{0}", ".*"));
+				Matcher m = p.matcher(hostname);
+				if (!m.matches())
+					continue;
 
-			// harder case, match to find the substitution
-			Pattern p = Pattern.compile(host.host.replace(".", "\\.").replace("{0}", ".*"));
-			Matcher m = p.matcher(teamHost);
-			if (!m.matches())
-				continue;
+				return getUserFromTeamId(m.group(1));
+			}
+		}
 
-			return m.group(1);
+		for (ConfiguredContest cc : contests) {
+			IAccount[] accounts = cc.getContest().getAccounts();
+			for (IAccount account : accounts) {
+				if (account.getIp() != null && account.getIp().equals(hostname))
+					return account.getUsername();
+			}
 		}
 		return null;
 	}
 
 	/**
-	 * Converts from team id to team user name, e.g. "57" to "team57".
+	 * Look up an account password.
 	 *
-	 * @param team id
-	 * @return the team's user name, or null if not found
+	 * @param username
+	 * @return the password, or null if not found
 	 */
-	public String getTeamUserName(String id) {
-		if (teamUsers == null || id == null)
+	public String getUserPassword(String username) {
+		if (username == null || username.isEmpty())
 			return null;
 
-		for (TeamUser user : teamUsers) {
-			if (id.equals(user.teamId))
-				return user.name;
+		if (!loadedPasswords) {
+			String users = "../users.xml";
+			// if (users == null || users.isEmpty())
+			// users = "../users.xml";
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(new File(file.getParentFile(), users));
+				parseBasicRegistry(in);
+			} catch (Exception ex) {
+				Trace.trace(Trace.ERROR, "Could not load team password info", ex);
+			} finally {
+				if (in != null)
+					try {
+						in.close();
+					} catch (Exception ex) {
+						// ignore
+					}
+			}
+			loadedPasswords = true;
 		}
-		return null;
-	}
 
-	/**
-	 * Converts from team id to team password, e.g. "57" to "vej78e!".
-	 *
-	 * @param team id
-	 * @return the team's password, or null if not found
-	 */
-	public String getTeamPassword(String id) {
-		if (teamUsers == null || id == null)
-			return null;
-
-		for (TeamUser user : teamUsers) {
-			if (id.equals(user.teamId))
-				return user.password;
+		for (ConfiguredContest cc : contests) {
+			IAccount[] accounts = cc.getContest().getAccounts();
+			for (IAccount account : accounts) {
+				if (username.equals(account.getUsername()))
+					return account.getPassword();
+			}
 		}
 		return null;
 	}

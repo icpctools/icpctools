@@ -24,6 +24,7 @@ import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
@@ -180,6 +181,42 @@ public class ContestRESTService extends HttpServlet {
 		if (segments.length == 3 && "report".equals(segments[1])) {
 			response.setContentType("application/json");
 			ReportGenerator.report(response.getWriter(), contest, segments[2]);
+			return;
+		}
+
+		if (segments.length == 2 && "account".equals(segments[1])) {
+			IAccount[] accounts = contest.getAccounts();
+			if (accounts.length == 0) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "No accounts configured");
+				return;
+			}
+
+			String user = request.getRemoteUser();
+			if (user == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not logged in");
+				return;
+			}
+
+			// find matching account
+			IAccount acc = null;
+			for (IAccount account : accounts) {
+				if (user.equals(account.getUsername())) {
+					acc = account;
+				}
+			}
+
+			if (acc == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "No matching account found");
+				return;
+			}
+
+			PrintWriter pw = response.getWriter();
+			JSONArrayWriter writer = new JSONArrayWriter(pw);
+			response.setContentType(writer.getContentType());
+			response.setHeader("Access-Control-Allow-Origin", "*");
+			cc.incrementRest();
+
+			writer.write(acc);
 			return;
 		}
 
@@ -781,7 +818,7 @@ public class ContestRESTService extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
 				return null;
 			}
-			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			String teamId2 = contest.getTeamIdFromUser(request.getRemoteUser());
 			if (teamId2 == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not determine request user's team");
 				return null;
@@ -882,7 +919,7 @@ public class ContestRESTService extends HttpServlet {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot send to another team");
 				return null;
 			}
-			String teamId2 = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			String teamId2 = contest.getTeamIdFromUser(request.getRemoteUser());
 			if (teamId2 == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not determine request user's team");
 				return null;
