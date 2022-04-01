@@ -126,6 +126,14 @@ function teamsTd(team) {
     return { id: team.id, name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames, hidden: hidden };
 }
 
+function personsTd(person) {
+    return { id: person.id, icpc_id: person.icpc_id, name: person.name, title: person.title, email: person.email, sex: person.sex, role: person.role };
+}
+
+function accountsTd(account) {
+    return { id: account.id, username: account.username, type: account.type, ip: account.ip, team_id: account.team_id, person_id: account.person_id };
+}
+
 function queueTd(submission) {
 	rowObj = submissionsTd(submission);
 	rowObj.api = contest.getURL('submissions', id);
