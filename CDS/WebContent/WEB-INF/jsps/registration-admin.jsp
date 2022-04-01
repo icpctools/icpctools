@@ -7,6 +7,69 @@
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <div class="container-fluid">
     <div class="row">
+        <div class="col-7">
+            <div id="accordion">
+			<div class="card">
+			    <div class="card-header">
+			        <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapsePersons">Persons</a></h4>
+			        <div class="card-tools">
+			            <span id="persons-count" title="?" class="badge bg-primary">?</span>
+			            <button id="persons-api" type="button" class="btn btn-tool">API</button>
+			        </div>
+			    </div>
+			    <div id="collapsePersons" class="panel-collapse collapse in">
+			    <div class="card-body p-0">
+			        <table id="persons-table" class="table table-sm table-hover table-striped table-head-fixed">
+			            <thead>
+			                <tr>
+			                    <th class="text-center">Id</th>
+			                    <th>ICPC Id</th>
+			                    <th>Name</th>
+			                    <th>Title</th>
+			                    <th>Email</th>
+			                    <th>Sex</th>
+			                    <th>Role</th>
+			                </tr>
+			            </thead>
+			            <tbody></tbody>
+			        </table>
+			    </div>
+			    </div>
+			</div>
+			</div>
+		</div>
+        <div class="col-5">
+			<div id="accordion">
+			<div class="card">
+			    <div class="card-header">
+			        <h4 class="card-title"><a data-toggle="collapse" data-parent="#accordion" href="#collapseAccounts">Accounts</a></h4>
+			        <div class="card-tools">
+			            <span id="accounts-count" title="?" class="badge bg-primary">?</span>
+			            <button id="accounts-api" type="button" class="btn btn-tool">API</button>
+			        </div>
+			    </div>
+			    <div id="collapseAccounts" class="panel-collapse collapse in">
+			    <div class="card-body p-0">
+			        <table id="accounts-table" class="table table-sm table-hover table-striped table-head-fixed">
+			            <thead>
+			                <tr>
+			                    <th class="text-center">Id</th>
+			                    <th>Username</th>
+			                    <th>Type</th>
+			                    <th>IP</th>
+			                    <th>Team</th>
+			                    <th>Person</th>
+			                </tr>
+			            </thead>
+			            <tbody></tbody>
+			        </table>
+			    </div>
+			    </div>
+			</div>
+			</div>
+		</div>
+    </div>
+    <div class="row">
         <div class="col-5">
         	<div id="accordion">
 			<div class="card">
@@ -121,20 +184,41 @@
   <td class="text-center">{{#hidden}}<span class="badge badge-info"><i class="fas fa-eye-slash"></i></a>{{/hidden}}</td>
   <td><a href="<%= webroot  %>/teamSummary/{{id}}">summary</a></td>
 </script>
+<script type="text/html" id="persons-template">
+  <td><a href="{{api}}">{{id}}</td>
+  <td>{{icpc_id}}</td>
+  <td>{{name}}</td>
+  <td>{{title}}</td>
+  <td>{{email}}</td>
+  <td>{{sex}}</td>
+  <td>{{role}}</td>
+</script>
+<script type="text/html" id="accounts-template">
+  <td><a href="{{api}}">{{id}}</td>
+  <td>{{username}}</td>
+  <td>{{type}}</td>
+  <td>{{ip}}</td>
+  <td>{{team_id}}</td>
+  <td>{{person_id}}</td>
+</script>
 <script type="text/javascript">
 contest = new Contest("/api", "<%= cc.getId() %>");
 
 registerContestObjectTable("groups");
 registerContestObjectTable("organizations");
 registerContestObjectTable("teams");
+registerContestObjectTable("persons");
+registerContestObjectTable("accounts");
 
 $(document).ready(function () {
-    $.when(contest.loadTeams(), contest.loadOrganizations(), contest.loadGroups()).done(function () {
+    $.when(contest.loadTeams(), contest.loadOrganizations(), contest.loadGroups(), contest.loadPersons(), contest.loadAccounts()).done(function () {
         fillContestObjectTable("teams", contest.getTeams());
         fillContestObjectTable("groups", contest.getGroups());
         fillContestObjectTable("organizations", contest.getOrganizations());
+        fillContestObjectTable("persons", contest.getPersons());
+        fillContestObjectTable("accounts", contest.getAccounts());
     }).fail(function (result) {
-    	console.log("Error loading teams: " + result);
+    	console.log("Error loading registration: " + result);
     })
 })
 
