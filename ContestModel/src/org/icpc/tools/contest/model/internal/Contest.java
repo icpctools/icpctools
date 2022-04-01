@@ -875,6 +875,24 @@ public class Contest implements IContest {
 		}
 	}
 
+	/**
+	 * Tries to find a team id for a given user, e.g. "team57" to "57".
+	 *
+	 * @param username
+	 * @return the team's id, or null if not found
+	 */
+	public String getTeamIdFromUser(String username) {
+		if (username == null || username.isEmpty())
+			return null;
+
+		IAccount[] temp = getAccounts();
+		for (IAccount account : temp) {
+			if (username.equals(account.getUsername()) && account.getTeamId() != null)
+				return account.getTeamId();
+		}
+		return null;
+	}
+
 	@Override
 	public IAward getAwardById(String id) {
 		return (IAward) data.getById(id, ContestType.AWARD);
