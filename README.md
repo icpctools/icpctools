@@ -8,8 +8,8 @@ Welcome to the ICPC Tools!
 The ICPC Tools are a set of tools to support running programming contests. For the latest downloads, please go to the [ICPC Tools website](https://tools.icpc.global).
 
 Each of the ICPC tools can be used individually, or together in any combination. They are all designed to support
-the REST-based [Contest API](https://ccs-specs.icpc.io/contest_api) as defined by the Competitive Learning Initiative (CLI).
-Some features require extensions to the specification, and those are described [here](spec-extensions.md).
+the REST-based [Contest API](https://ccs-specs.icpc.io/2021-11/contest_api) as defined by the Competitive Learning Initiative (CLI).
+Some features require extensions to the specification, and those are described [here](doc/spec-extensions.md).
 
 These tools were built to support the
 [International Collegiate Programming Contest (ICPC)](https://icpc.global) World Finals and have been used there for many years, but
@@ -30,7 +30,7 @@ Contest Utilities | A variety of useful contest-related utilities: event feed va
 
 ## Contest Control System Compatibility
 
-The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://ccs-specs.icpc.io/contest_api).
+The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://ccs-specs.icpc.io/2021-11/contest_api).
 
 To be more specific, the only part of the Contest API that is strictly required is the event feed and any file
 references that the feed refers to. If your CCS correctly supports the event feed, then all of the ICPC Tools will

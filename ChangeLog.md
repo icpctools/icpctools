@@ -1,15 +1,17 @@
 # ICPC Tools Changelog
 
-## V2.4 - TBD
+## V2.4 - April 2022
 -----------------
 * Java 17 support! (this will be the last release supporting Java 8)
 * Apple M1 support!
 * Contest API improvements:
+  * Full support for 2021_11 spec.
   * SVG images.
   * Language entry points.
   * Country flags.
   * Commentary.
   * Scoring contests (beta).
+  * Most non-breaking changes from next spec release (beta of /, /accounts, /persons, etc).
 * Support for the Contest archive format: https://ccs-specs.icpc.io/draft/contest_archive_format.
 * Several fixes based on use at regional and world finals contests.
 * CDS:
@@ -19,6 +21,7 @@
   * Direct video mode, just expose existing URLs.
   * More than one CDS? You can name them to tell the web pages apart.
   * Improved time syncing for clients.
+  * Nginx proxying
 * Presentation client:
   * Emojis! Woo hoo! Supported for team names, messages, and a few more. Please let us know if you need it anywhere else.
   * Light mode support for most presentations.
