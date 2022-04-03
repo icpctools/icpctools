@@ -1,5 +1,10 @@
 # ICPC Tools Changelog
 
+## V2.5 - TBD
+-----------------
+* Contest API improvements:
+  * Will be first release to support breaking changes in next spec release.
+
 ## V2.4 - April 2022
 -----------------
 * Java 17 support! (this will be the last release supporting Java 8)
