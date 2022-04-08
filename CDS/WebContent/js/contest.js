@@ -4,6 +4,8 @@ class Contest {
 	organizations;
 	groups;
 	teams;
+	persons;
+	accounts;
 	languages;
 	judgementTypes;
 	problems;
@@ -127,6 +129,20 @@ class Contest {
 		});
 	}
 
+	loadPersons() {
+		if (this.persons != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('persons', (result) => { this.persons = result });
+	}
+
+	loadAccounts() {
+		if (this.accounts != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('accounts', (result) => { this.accounts = result });
+	}
+
 	loadSubmissions() {
 		if (this.submissions != null)
 			return new $.Deferred().resolve();
@@ -190,6 +206,8 @@ class Contest {
 	getGroups() { return this.groups }
 	getTeams() { return this.teams }
 	getOrganizations() { return this.organizations }
+	getPersons() { return this.persons }
+	getAccounts() { return this.accounts }
 	getSubmissions() { return this.submissions }
 	getJudgements() { return this.judgements }
 	getRuns() { return this.runs }

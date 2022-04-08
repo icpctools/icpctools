@@ -51,16 +51,16 @@ public class BasicAuthFilter implements Filter {
 
 		// check for team host-based auto-login
 		CDSConfig config = CDSConfig.getInstance();
-		String teamId = config.getTeamIdFromHost(request.getRemoteHost());
-		if (teamId == null)
-			teamId = config.getTeamIdFromHost(request.getRemoteAddr());
+		String username = config.getUserFromHost(request.getRemoteHost());
+		if (username == null)
+			username = config.getUserFromHost(request.getRemoteAddr());
 
-		if (teamId != null) {
+		if (username != null) {
 			try {
-				String user = config.getTeamUserName(teamId);
-				String password = config.getTeamPassword(teamId);
-				Trace.trace(Trace.INFO, "Auto-login user: " + user + " / " + password);
-				request.login(user, password);
+				String password = config.getUserPassword(username);
+				Trace.trace(Trace.INFO, "Auto-login user: " + username + " / " + password);
+				if (password != null)
+					request.login(username, password);
 				filterChain.doFilter(request, response);
 				return;
 			} catch (Exception e) {

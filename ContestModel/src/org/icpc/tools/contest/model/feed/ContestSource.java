@@ -83,8 +83,10 @@ public abstract class ContestSource {
 		if (source == null)
 			throw new IOException("No contest source");
 
-		if (source.startsWith("http"))
-			return new RESTContestSource(source, user, password);
+		if (source.startsWith("http")) {
+			String source2 = ContestAPIHelper.validateContestURL(source, user, password);
+			return new RESTContestSource(source2, user, password);
+		}
 
 		File f = new File(source);
 		if (f.exists())

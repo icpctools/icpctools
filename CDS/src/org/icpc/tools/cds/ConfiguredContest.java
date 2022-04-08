@@ -21,6 +21,7 @@ import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.ICommentary;
@@ -39,6 +40,7 @@ import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
+import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Info;
@@ -501,7 +503,7 @@ public class ConfiguredContest {
 		if (Role.isBalloon(request))
 			return balloonContest;
 		if (Role.isTeam(request)) {
-			String teamId = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
+			String teamId = contest.getTeamIdFromUser(request.getRemoteUser());
 			if (teamId != null && teamContests.containsKey(teamId))
 				return teamContests.get(teamId);
 		}
@@ -609,6 +611,24 @@ public class ConfiguredContest {
 				// filter awards from a role below blue
 				if (obj instanceof IAward)
 					return;
+
+				if (obj instanceof IAccount) {
+					IAccount account = (IAccount) obj;
+					IAccount acc = account;
+					if (account.getPassword() != null) {
+						acc = (IAccount) ((Account) account).clone();
+						((Account) acc).add("password", null);
+					}
+					trustedContest.add(acc);
+
+					String teamId = account.getTeamId();
+					if (teamId != null) {
+						Contest c = teamContests.get(teamId);
+						if (c != null)
+							c.add(acc);
+					}
+					return;
+				}
 
 				if (obj instanceof ICommentary) {
 					ICommentary c = (ICommentary) obj;
@@ -756,19 +776,6 @@ public class ConfiguredContest {
 						currentState.setEndOfUpdates(state2.getEndOfUpdates());
 					}
 				}
-				/*if (obj instanceof ISubmission) {
-					ISubmission s = (ISubmission) obj;
-					File f = new File(getLocation(), "submissions");
-					f = new File(f, s.getId() + ".zip");
-					if (f.exists())
-						try {
-							FileReference ref = contestSource.getMetadata("submissions/" + s.getId() + "/files", f);
-							if (ref != null)
-								((Submission) s).setFiles(new FileReferenceList(ref));
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-				}*/
 			});
 
 			// wait up to 2s to connect
@@ -953,10 +960,6 @@ public class ConfiguredContest {
 		else if (Role.isBalloon(request))
 			return "balloon";
 		else if (Role.isTeam(request)) {
-			String teamId = CDSConfig.getInstance().getTeamIdFromUser(request.getRemoteUser());
-			if (teamId != null)
-				return "team " + teamId;
-
 			return "team";
 		}
 		return "public";

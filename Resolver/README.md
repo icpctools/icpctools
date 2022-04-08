@@ -373,7 +373,7 @@ at the same speed as the presenter and displaying only the Resolver data
 (no special info).
 
 ```
-resolver.bat c:\events.json --singleStep 
+resolver.bat c:\events.json --singleStep 999
 ```
 The above command runs the Resolver in "stand-alone" mode, taking its input from the specified local
 file.  It runs in single-step mode for the entire resolving process (meaning the user must click to

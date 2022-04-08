@@ -85,7 +85,7 @@
 </div>
 </script>
 <script type="text/javascript">
-contests = new Contests("/api");
+contests = new Contests("${pageContext.request.contextPath}/api");
 
 function loadDetails(contest, i) {
 	$.when(contest.loadProblems(), contest.loadTeams(), contest.loadSubmissions()).done(function () {

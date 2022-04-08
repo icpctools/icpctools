@@ -353,47 +353,17 @@ The attribute associated with the *user* element is as follows:
 
 * name: the name of a user, which must match one of the existing users.
 
-###### teamUser Element
+###### host Element
 
 ```
-<teamUser>
-  <user name="team1" teamId="1"/>
-  <user name="steven" teamId="2"/>
-  <user name="mark" teamId="2"/>
-</teamUser>
+<host host="10.0.0.{0}"/>
 ```
 
-The global *teamUser* element allows you to map a team user login (account) to their identity (team id) within a contest. By providing
-this mapping the team will be able to see all of their own judgements and clarifications in the contest. In the example above,
-there is one login for the team with id 1, and two logins for team 2.
-
-If your users are on a locked-down network with known host names or IP addresses, you can also use the hosts attribute to enable
-auto-login. When this is specified any user from the given host will be automatically logged into the CDS. In order for this
-feature to work, you must be using basic authentication with the users.xml in the default location (in order for the CDS to
-look up passwords).
-
-The attributes associated with the *user* element is as follows:
-
-* name: the name of a user, which must match one of the existing users.
-* teamId: the team's id within a contest.
-
-###### hosts Element
-
-```
-<hosts>
-  <host teamId="team1" host="myhost.com"/>
-  <host host="10.0.0.{0}"/>
-</hosts>
-```
-
-The global *hosts* element allows you to map hostnames to teams, either for ease of configuring streaming video urls or auto-login.
-Each element can either specify a single team id and host to map that specific team to one machine, or omit the teamId attribute
-and use the substitution variable {0} to map all teams to a host. When using this second option, {0} will be substituted with every
-team id.
+The global *host* element allows you to map hostnames to teams, either for ease of configuring streaming video urls or auto-login.
+Each element uses a substitution variable {0} (the team id) to map every team to the given host.
 
 The attributes associated with the *host* element is as follows:
 
-* teamId: the team's id within a contest. Do not include when using the {0} substitution variable to map all teams.
 * host: an IP address or host name.
 
 ### Starting the CDS

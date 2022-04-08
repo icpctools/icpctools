@@ -29,7 +29,6 @@ import java.util.zip.ZipOutputStream;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContestListener.Delta;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
@@ -38,7 +37,6 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
-import org.icpc.tools.contest.model.internal.Info;
 
 /**
  * A REST contest source for loading a contest over HTTP. The contest may be backed by data in a
@@ -115,10 +113,8 @@ public class RESTContestSource extends DiskContestSource {
 
 		instance = this;
 
-		if (url != null) {
-			validateURL();
+		if (url != null)
 			setup();
-		}
 
 		if (eventFeedFile == null) {
 			String name = System.getProperty("CDS-name");
@@ -135,15 +131,23 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private void setup() {
-		String path = url.getPath();
-		contestId = path.substring(path.lastIndexOf("/") + 1);
+		Trace.trace(Trace.INFO, "Contest API URL: " + url);
+		Pattern pattern = Pattern.compile("contests/(.*)");
+		Matcher matcher = pattern.matcher(url.getPath());
+		if (matcher.find())
+			contestId = matcher.group(1);
+		else
+			contestId = null;
 
-		Pattern pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
-		Matcher matcher = pattern.matcher(url.toExternalForm());
+		pattern = Pattern.compile("^(.*/)contests/[a-zA-Z0-9_-]+");
+		matcher = pattern.matcher(url.toExternalForm());
 		if (matcher.find())
 			baseUrl = matcher.group(1);
 		else
 			baseUrl = url.toExternalForm();
+
+		Trace.trace(Trace.INFO, "  Contest Id: " + contestId);
+		Trace.trace(Trace.INFO, "  Base URL: " + baseUrl);
 	}
 
 	public static RESTContestSource ensureContestAPI(ContestSource source) {
@@ -301,7 +305,7 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
-	private static boolean hasMoved(int status) {
+	protected static boolean hasMoved(int status) {
 		return (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
 				|| status == HttpURLConnection.HTTP_SEE_OTHER || status == 307 || status == 308);
 	}
@@ -1033,254 +1037,6 @@ public class RESTContestSource extends DiskContestSource {
 		} catch (Exception ex) {
 			throw new AssertionError(ex);
 		}
-	}
-
-	private void validateURL() {
-		if (feedFile != null)
-			return;
-
-		try {
-			this.url = validateURL(url);
-			return;
-		} catch (Exception e) {
-			Trace.trace(Trace.INFO, "Invalid contest URL: " + e.getMessage());
-		}
-
-		try {
-			this.url = tryAlternateURLs();
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not find valid Contest API at " + url);
-		}
-	}
-
-	private URL tryAlternateURLs() {
-		String[] paths = new String[] { "api/contests", "contests", "/api/contests", "/contests",
-				"/domjudge/api/contests", "/clics-api/contests" };
-		for (String path : paths) {
-			try {
-				URL testURL = null;
-				if (path.startsWith("/"))
-					testURL = new URL(url.getProtocol() + "://" + url.getAuthority() + path);
-				else
-					testURL = getChildURL(path);
-				return validateURL(testURL);
-			} catch (Exception e) {
-				Trace.trace(Trace.INFO, "Check for " + path + " URL failed: " + e.getMessage());
-			}
-		}
-
-		throw new IllegalArgumentException("Could not detect valid contest API");
-	}
-
-	private URL validateURL(URL aURL) throws Exception {
-		HttpURLConnection conn = createConnection(aURL);
-		int response = conn.getResponseCode();
-
-		if (response == HttpURLConnection.HTTP_UNAUTHORIZED)
-			throw new IllegalArgumentException("Invalid user or password (401)");
-		else if (hasMoved(response)) {
-			URL newURL = new URL(conn.getHeaderField("Location"));
-			return validateURL(newURL);
-		} else if (response == HttpURLConnection.HTTP_NOT_FOUND) {
-			throw new IllegalArgumentException("Invalid, URL not found (404)");
-		} else if (response == HttpURLConnection.HTTP_OK) {
-			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
-				isCDS = true;
-			return validateContent(conn, aURL);
-		}
-
-		throw new IllegalArgumentException("Invalid response code (" + response + ")");
-	}
-
-	private static URL validateContent(HttpURLConnection conn, URL theURL) throws Exception {
-		InputStream in = conn.getInputStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-		StringBuilder sb = new StringBuilder();
-		String s = br.readLine();
-		while (s != null) {
-			sb.append(s);
-			s = br.readLine();
-		}
-
-		s = sb.toString();
-
-		try {
-			// try as array
-			JSONParser parser2 = new JSONParser(s);
-			Object[] arr = parser2.readArray();
-
-			if (arr.length == 0)
-				throw new IllegalArgumentException("Possible Contest API at " + theURL + ", but no contests found");
-
-			Info[] infos = new Info[arr.length];
-			for (int i = 0; i < arr.length; i++) {
-				JsonObject obj = (JsonObject) arr[i];
-				Info info = new Info();
-				infos[i] = info;
-				for (String key : obj.props.keySet())
-					info.add(key, obj.props.get(key));
-			}
-			String u = theURL.toExternalForm();
-			if (!u.endsWith("/"))
-				u += "/";
-			Info bestContest = pickBestContest(infos);
-			if (bestContest != null) {
-				URL newURL = new URL(u + bestContest.getId());
-				if (infos.length == 1)
-					Trace.trace(Trace.USER, "The URL did not point to a specific contest, but one contest was found.");
-				else
-					Trace.trace(Trace.USER,
-							"The URL did not point to a specific contest, but " + infos.length + " contests were found.");
-				Trace.trace(Trace.USER, "Auto-connecting to: " + newURL);
-				return newURL;
-			}
-
-			StringBuilder sb2 = new StringBuilder(
-					"Contest API found, but couldn't pick a contest. Try one of the following URLs:\n");
-			for (int i = 0; i < arr.length; i++) {
-				Info info = infos[i];
-				if (info.getId() == null || info.getName() == null || info.getDuration() <= 0)
-					throw new IllegalArgumentException("Unrecognized REST endpoint");
-
-				sb2.append(u + info.getId() + " (" + info.getName() + " starting at "
-						+ ContestUtil.formatStartTime(info.getStartTime()) + ")");
-			}
-
-			throw new IllegalArgumentException(sb2.toString());
-		} catch (Exception e) {
-			// ignore, not an array
-		}
-
-		try {
-			JSONParser parser2 = new JSONParser(s);
-			JsonObject obj = parser2.readObject();
-			if (obj.getString("id") != null && obj.getString("name") != null && obj.getString("duration") != null)
-				return theURL; // confirmed good contest endpoint
-
-			throw new IllegalArgumentException("Unrecognized REST endpoint");
-		} catch (Exception e) {
-			// ignore, not an object
-		}
-
-		throw new Exception("Unrecognized endpoint");
-	}
-
-	private static Info pickBestContest(Info[] infos) {
-		if (infos == null || infos.length == 0)
-			return null;
-
-		// if there's only one contest, pick it
-		int numContests = infos.length;
-		if (numContests == 1)
-			return infos[0];
-
-		// TODO: pick any paused contest. since we can't tell yet which contests
-		// are paused, in the meantime pick any contest with no start time, as that's likely paused
-		/*
-		for (int i = 0; i < infos.length; i++) {
-			// if paused, pick this one
-		}*/
-		Info paused = null;
-		for (int i = 0; i < numContests; i++) {
-			if (infos[i].getStartTime() == null) {
-				if (paused != null) {
-					Trace.trace(Trace.INFO, "Multiple contests don't have a start time, could not pick one");
-					return null;
-				}
-				paused = infos[i];
-			}
-		}
-		if (paused != null)
-			return paused;
-
-		// ok, so there are multiple contests, and none of them are paused.
-		// let's start by figuring out the best contest(s) that are before, during, or
-		// after the current time
-		Info next = null;
-		long timeUntilNext = Long.MAX_VALUE;
-		boolean nextIsDup = false;
-		Info during = null;
-		Info previous = null;
-		long timeSincePrevious = Long.MAX_VALUE;
-		boolean previousIsDup = false;
-
-		long now = System.currentTimeMillis();
-		for (int i = 0; i < numContests; i++) {
-			Info info = infos[i];
-
-			if (now < info.getStartTime()) {
-				// before the contest
-				long timeUntilStart = info.getStartTime() - now;
-				Trace.trace(Trace.INFO, "Next contest: " + timeUntilStart + " " + info.getId());
-				if (timeUntilStart == timeUntilNext)
-					nextIsDup = true;
-				else if (timeUntilStart < timeUntilNext) {
-					next = info;
-					timeUntilNext = timeUntilStart;
-					nextIsDup = false;
-				}
-			} else if (now < info.getStartTime() + info.getDuration()) {
-				// during
-				Trace.trace(Trace.INFO, "During contest: " + info.getId());
-				if (during != null) {
-					Trace.trace(Trace.ERROR, "Multiple contests are running, can't pick between them");
-					return null;
-				}
-				during = info;
-			} else {
-				// after the contest
-				long timeSince = now - (info.getStartTime() + info.getDuration());
-				Trace.trace(Trace.INFO, "Previous contest: " + timeSince + " " + info.getId());
-				if (timeSince == timeSincePrevious)
-					previousIsDup = true;
-				else if (timeSince < timeSincePrevious) {
-					previous = info;
-					timeSincePrevious = timeSince;
-					previousIsDup = false;
-				}
-			}
-		}
-
-		// if we're during the one and only running contest, pick it
-		if (during != null)
-			return during;
-
-		// if we're before all contests, pick the first one
-		if (next != null && previous == null) {
-			if (nextIsDup) { // unless the first two start at the same time
-				Trace.trace(Trace.INFO, "The next two contests start at the same time, can't pick between them");
-				return null;
-			}
-			return next;
-		}
-
-		// if we're after all contests, pick the last one
-		if (previous != null && next == null) {
-			if (previousIsDup) { // unless the previous two ended at the same time
-				Trace.trace(Trace.INFO, "The previous two contests ended at the same time, can't pick between them");
-				return null;
-			}
-			return previous;
-		}
-
-		// ok, so we're between two (or more) contests. if the previous contest ended more than 2h
-		// ago or we're closer (weighted x 2) to the next one, switch to the next contest.
-		// if the direction we chose to go has more than one contest, give up
-		if (timeSincePrevious > 120 * 1000 || timeUntilNext < timeSincePrevious * 2) {
-			// pick the next contest
-			if (nextIsDup) { // unless the next two start at the same time
-				Trace.trace(Trace.INFO, "The next two contests start at the same time, can't pick between them");
-				return null;
-			}
-			return next;
-		}
-
-		// not close to the next contest, stick with the previous one
-		if (previousIsDup) { // unless the previous two ended at the same time
-			Trace.trace(Trace.INFO, "The previous two contests ended at the same time, can't pick between them");
-			return null;
-		}
-		return previous;
 	}
 
 	public boolean isCDS() {
