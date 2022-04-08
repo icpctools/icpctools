@@ -56,47 +56,49 @@ public interface IContestObject {
 		if (type == null)
 			return null;
 
-		if (ContestType.CONTEST.equals(type))
-			return new Info();
-		else if (ContestType.STATE.equals(type))
-			return new State();
-		else if (ContestType.TEAM.equals(type))
-			return new Team();
-		else if (ContestType.TEAM_MEMBER.equals(type))
-			return new TeamMember();
-		else if (ContestType.PROBLEM.equals(type))
-			return new Problem();
-		else if (ContestType.GROUP.equals(type))
-			return new Group();
-		else if (ContestType.ORGANIZATION.equals(type))
-			return new Organization();
-		else if (ContestType.JUDGEMENT_TYPE.equals(type))
-			return new JudgementType();
-		else if (ContestType.SUBMISSION.equals(type))
-			return new Submission();
-		else if (ContestType.JUDGEMENT.equals(type))
-			return new Judgement();
-		else if (ContestType.RUN.equals(type))
-			return new Run();
-		else if (ContestType.LANGUAGE.equals(type))
-			return new Language();
-		else if (ContestType.AWARD.equals(type))
-			return new Award();
-		else if (ContestType.CLARIFICATION.equals(type))
-			return new Clarification();
-		else if (ContestType.START_STATUS.equals(type))
-			return new StartStatus();
-		else if (ContestType.PAUSE.equals(type))
-			return new Pause();
-		else if (ContestType.MAP_INFO.equals(type))
-			return new MapInfo();
-		else if (ContestType.COMMENTARY.equals(type))
-			return new Commentary();
-		else if (ContestType.ACCOUNT.equals(type))
-			return new Account();
-
-		// don't import unrecognized elements
-		return null;
+		switch (type) {
+			case CONTEST:
+				return new Info();
+			case STATE:
+				return new State();
+			case GROUP:
+				return new Group();
+			case ORGANIZATION:
+				return new Organization();
+			case TEAM:
+				return new Team();
+			case TEAM_MEMBER:
+				return new TeamMember();
+			case ACCOUNT:
+				return new Account();
+			case JUDGEMENT_TYPE:
+				return new JudgementType();
+			case LANGUAGE:
+				return new Language();
+			case PROBLEM:
+				return new Problem();
+			case SUBMISSION:
+				return new Submission();
+			case JUDGEMENT:
+				return new Judgement();
+			case RUN:
+				return new Run();
+			case CLARIFICATION:
+				return new Clarification();
+			case COMMENTARY:
+				return new Commentary();
+			case AWARD:
+				return new Award();
+			case START_STATUS:
+				return new StartStatus();
+			case PAUSE:
+				return new Pause();
+			case MAP_INFO:
+				return new MapInfo();
+			default:
+				// don't create unrecognized elements
+				return null;
+		}
 	}
 
 	ContestType getType();

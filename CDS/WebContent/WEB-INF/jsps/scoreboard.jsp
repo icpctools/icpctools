@@ -1,4 +1,3 @@
-<%@ page import="org.icpc.tools.cds.util.Role" %>
 <% request.setAttribute("title", "Scoreboard"); %>
 <%@ include file="layout/head.jsp" %>
 <div class="container-fluid">
@@ -12,7 +11,7 @@
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <% if (Role.isBlue(request)) { %>
+                    <% if (CDSAuth.isStaff(request)) {%>
                     <p class="indent">
                         Compare to:
                         <% ConfiguredContest[] ccs = CDSConfig.getContests();

@@ -18,10 +18,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.AccessService;
+import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.util.HttpHelper;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAccount;
@@ -87,7 +88,7 @@ public class ContestRESTService extends HttpServlet {
 			ConfiguredContest[] ccs = CDSConfig.getContests();
 			boolean first = true;
 			for (ConfiguredContest cc2 : ccs) {
-				if (!cc2.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
+				if (!cc2.isHidden() || CDSAuth.isAdmin(request) || CDSAuth.isStaff(request)) {
 					try {
 						IInfo info = cc2.getContestByRole(request).getInfo();
 						if (!first)
@@ -152,6 +153,10 @@ public class ContestRESTService extends HttpServlet {
 				response.setContentType("application/json");
 				Scoreboard.writeScoreboard(response.getWriter(), contest);
 				return;
+			} else if ("access".equals(segments[1])) {
+				response.setContentType("application/json");
+				AccessService.write(request, response, cc);
+				return;
 			} else if ("projectedScoreboard".equals(segments[1])) {
 				int ind = getAfterEventIndex(request, contest);
 				if (ind == -2) {
@@ -185,28 +190,9 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		if (segments.length == 2 && "account".equals(segments[1])) {
-			IAccount[] accounts = contest.getAccounts();
-			if (accounts.length == 0) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND, "No accounts configured");
-				return;
-			}
-
-			String user = request.getRemoteUser();
-			if (user == null) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not logged in");
-				return;
-			}
-
-			// find matching account
-			IAccount acc = null;
-			for (IAccount account : accounts) {
-				if (user.equals(account.getUsername())) {
-					acc = account;
-				}
-			}
-
-			if (acc == null) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND, "No matching account found");
+			IAccount account = cc.getAccount(request.getRemoteUser());
+			if (account == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "No account");
 				return;
 			}
 
@@ -216,7 +202,7 @@ public class ContestRESTService extends HttpServlet {
 			response.setHeader("Access-Control-Allow-Origin", "*");
 			cc.incrementRest();
 
-			writer.write(acc);
+			writer.write(account);
 			return;
 		}
 
@@ -423,17 +409,17 @@ public class ContestRESTService extends HttpServlet {
 		if (ext instanceof File) {
 			if (obj instanceof ISubmission) {
 				ISubmission s = (ISubmission) obj;
-				if (!Role.isTrusted(request) && "files".equals(url)) {
+				if (!cc.isAnalyst(request) && "files".equals(url)) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
-				} else if (!Role.isTrusted(request) && url.startsWith("reactions") && !contest.isBeforeFreeze(s)) {
+				} else if (!cc.isAnalyst(request) && url.startsWith("reactions") && !contest.isBeforeFreeze(s)) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
 				}
 			}
 
 			if (obj instanceof ITeam) {
-				if (!Role.isTrusted(request) && (url.startsWith("key_log") || url.startsWith("tool_data"))) {
+				if (!cc.isAnalyst(request) && (url.startsWith("key_log") || url.startsWith("tool_data"))) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
 				}
@@ -477,19 +463,11 @@ public class ContestRESTService extends HttpServlet {
 	// {"id":"dress","start_time":"2017-04-08T14:41:43.000-04"}
 	// {"id":"finals","start_time":null,"countdown_pause_time":"0:12:15.000"}
 	protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!Role.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-
 		EndpointInfo ei = getEndpointInfo(request, response);
 		if (ei == null)
 			return;
 
-		String path = request.getPathInfo();
-		String[] segments = path.substring(10).split("/");
-
-		if (segments.length == 1) {
+		if (ei.type == null) {
 			// attempting to change the start time
 			JsonObject obj = null;
 			try {
@@ -647,12 +625,11 @@ public class ContestRESTService extends HttpServlet {
 	 */
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!Role.isAdmin(request) && !Role.isTeam(request)) {
+		EndpointInfo ei = getEndpointInfo(request, response);
+		if (!CDSAuth.isAdmin(request) && !ei.cc.isTeam(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-
-		EndpointInfo ei = getEndpointInfo(request, response);
 		if (ei == null)
 			return;
 
@@ -664,7 +641,7 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		if (Role.isTeam(request) && (ei.cType != ContestType.SUBMISSION && ei.cType != ContestType.CLARIFICATION)) {
+		if (ei.cc.isTeam(request) && (ei.cType != ContestType.SUBMISSION && ei.cType != ContestType.CLARIFICATION)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Teams can only post submissions and clarifications");
 			return;
 		}
@@ -723,7 +700,7 @@ public class ContestRESTService extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!Role.isAdmin(request)) {
+		if (!CDSAuth.isAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -813,7 +790,7 @@ public class ContestRESTService extends HttpServlet {
 			return null;
 		}
 
-		if (Role.isTeam(request)) {
+		if (cc.isTeam(request)) {
 			if (id != null || time != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
 				return null;
@@ -832,7 +809,7 @@ public class ContestRESTService extends HttpServlet {
 				obj.props.put("team_id", teamId2);
 		}
 
-		if (Role.isAdmin(request) && teamId == null) {
+		if (cc.isAdmin(request) && teamId == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
 			return null;
 		}
@@ -910,7 +887,7 @@ public class ContestRESTService extends HttpServlet {
 			return null;
 		}
 
-		if (Role.isTeam(request)) {
+		if (cc.isTeam(request)) {
 			if (id != null || time != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
 				return null;
@@ -933,7 +910,7 @@ public class ContestRESTService extends HttpServlet {
 				obj.props.put("from_team_id", teamId2);
 		}
 
-		if (Role.isAdmin(request) && fromTeamId == null) {
+		if (cc.isAdmin(request) && fromTeamId == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
 			return null;
 		}
@@ -965,7 +942,7 @@ public class ContestRESTService extends HttpServlet {
 
 	protected JsonObject postAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
 			JsonObject obj) throws IOException {
-		if (!Role.isAdmin(request))
+		if (!cc.isAdmin(request))
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
 
 		String id = obj.getString("id");
@@ -1012,7 +989,7 @@ public class ContestRESTService extends HttpServlet {
 
 	protected void patchAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
 			JsonObject obj) throws IOException {
-		if (!Role.isAdmin(request))
+		if (!cc.isAdmin(request))
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
 
 		String id = obj.getString("id");
@@ -1053,7 +1030,7 @@ public class ContestRESTService extends HttpServlet {
 
 	protected void deleteAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc, String id)
 			throws IOException {
-		if (!Role.isAdmin(request))
+		if (!cc.isAdmin(request))
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
 
 		Contest contest = cc.getContestByRole(request);
@@ -1085,7 +1062,7 @@ public class ContestRESTService extends HttpServlet {
 
 	@Override
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (!Role.isAdmin(request)) {
+		if (!CDSAuth.isAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}

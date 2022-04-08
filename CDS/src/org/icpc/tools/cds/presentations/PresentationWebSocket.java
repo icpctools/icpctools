@@ -11,7 +11,6 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.Trace;
 
 @ServerEndpoint(value = "/presentation/ws", configurator = WebSocketConfig.class)
@@ -105,7 +104,7 @@ public class PresentationWebSocket {
 			}
 		} else if (!"any".equals(role)) {
 			boolean isBlue = info.isBlue;
-			if (((Role.PRES_ADMIN.equals(role)) && !isAdmin) || (Role.BLUE.equals(role) && !(isAdmin || isBlue))) {
+			if ((("presAdmin".equals(role)) && !isAdmin) || ("staff".equals(role) && !(isAdmin || isBlue))) {
 				try {
 					Trace.trace(Trace.INFO, "Disconnecting user " + user + " with insufficient role: " + role);
 					session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,

@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
@@ -264,7 +263,7 @@ public class ReactionVideoRecorder {
 
 		// security - reject after freeze
 		final IContest contest = cc.getContest();
-		if (!Role.isBlue(request) && !contest.isBeforeFreeze(submission)) {
+		if (!cc.isStaff(request) && !contest.isBeforeFreeze(submission)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}

@@ -35,15 +35,6 @@
        Documentation at /docs/jndi-resources-howto.html
   -->
   <GlobalNamingResources>
-    <!-- Editable user database that can also be used by
-         UserDatabaseRealm to authenticate users
-    -->
-    <Resource name="UserDatabase" auth="Container"
-              type="org.apache.catalina.UserDatabase"
-              description="User database that can be updated and saved"
-              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
-              pathname="conf/tomcat-users.xml" />
-
     <Environment name="icpc.cds.config" type="java.lang.String" value="../config"/>
   </GlobalNamingResources>
 

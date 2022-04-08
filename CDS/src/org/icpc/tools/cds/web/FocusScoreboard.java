@@ -3,19 +3,15 @@ package org.icpc.tools.cds.web;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.presentations.PresentationServer;
-import org.icpc.tools.cds.util.Role;
+import org.icpc.tools.contest.Trace;
 
 @WebServlet(urlPatterns = { "/focus", "/focus/*" })
-@ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.BLUE, Role.TRUSTED, Role.BALLOON, Role.PUBLIC }))
 public class FocusScoreboard extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -40,7 +36,7 @@ public class FocusScoreboard extends HttpServlet {
 			return;
 		}
 
-		System.out.println("Changing focus scoreboard to: " + teamId);
+		Trace.trace(Trace.USER, "Changing focus scoreboard to: " + teamId);
 		PresentationServer ps = PresentationServer.getInstance();
 		ps.setProperty(null, "org.icpc.tools.cds.presentation.contest.internal.presentations.ScoreboardPresentation",
 				"focusTeam" + teamId);

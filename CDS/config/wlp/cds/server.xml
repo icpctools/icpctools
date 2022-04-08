@@ -1,10 +1,11 @@
 <server description="ICPC contest data server">
     <featureManager>
        <feature>jsp-2.3</feature>
-       <feature>servlet-4.0</feature>
        <feature>jndi-1.0</feature>
        <feature>websocket-1.1</feature>
        <feature>appSecurity-3.0</feature>
+       <feature>servlet-4.0</feature>
+       <feature>cdi-2.0</feature>
     </featureManager>
 
     <!-- If you have root access, change port numbers to httpPort="80" httpsPort="443" -->
@@ -13,39 +14,11 @@
        <httpOptions ThrowIOEForInboundConnections="true"/>
     </httpEndpoint>
 
-    <webApplication id="CDS" location="CDS.war" name="CDS" contextRoot="/">
-       <application-bnd>
-         <security-role name="admin">
-         	<user name="admin"/>
-         </security-role>
-         <security-role name="presAdmin">
-            <user name="presAdmin"/>
-         </security-role>
-         <security-role name="blue">
-         	<user name="blue"/>
-         </security-role>
-         <security-role name="balloon">
-         	<user name="balloon"/>
-         </security-role>
-         <security-role name="trusted">
-         	<user name="myicpc"/>
-            <user name="live"/>
-         </security-role>
-         <security-role name="public">
-            <user name="presentation"/>
-            <user name="public"/>
-         </security-role>
-         <security-role name="team">
-         	<user name="team1"/>
-         </security-role>
-       </application-bnd>
-    </webApplication>
-
     <httpSession invalidationTimeout="8h"/>
 
     <keyStore id="defaultKeyStore" password="{xor}FhwPHAswMDMs" />
 
-    <include location="users.xml"/>
-
     <jndiEntry jndiName="icpc.cds.config" value="${server.config.dir}/config"/>
+
+    <webApplication id="CDS" location="CDS.war" name="CDS" contextRoot="/"/>
 </server>

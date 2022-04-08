@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.service.AppAsyncListener;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
@@ -47,7 +47,7 @@ public class VideoServlet extends HttpServlet {
 
 		boolean channel = false;
 		if (path == null || path.equals("/") || path.isEmpty()) {
-			if (!Role.isAdmin(request)) {
+			if (!CDSAuth.isAdmin(request)) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
@@ -99,7 +99,7 @@ public class VideoServlet extends HttpServlet {
 		String videoId = null;
 		String filename = "stream";
 		int stream = -1;
-		boolean trusted = Role.isTrusted(request);
+		boolean trusted = CDSAuth.isAnalyst(request);
 		try {
 			videoId = path.substring(1);
 			stream = Integer.parseInt(videoId);
@@ -124,7 +124,7 @@ public class VideoServlet extends HttpServlet {
 
 		String reset = request.getParameter(RESET);
 		if (reset != null) {
-			if (!Role.isAdmin(request)) {
+			if (!CDSAuth.isAdmin(request)) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			}
@@ -141,7 +141,7 @@ public class VideoServlet extends HttpServlet {
 		}
 
 		// block https connections
-		if (request.isSecure() && !Role.isAdmin(request)) {
+		if (request.isSecure() && !CDSAuth.isAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Use the Contest API. Incorrect URL, should be http");
 			return;
 		}
@@ -171,8 +171,8 @@ public class VideoServlet extends HttpServlet {
 			}
 		}
 
-		Trace.trace(Trace.INFO, "Video request: " + ConfiguredContest.getUser(request) + " requesting video " + videoId
-				+ " -> " + va.getStreamName(stream) + " (channel: " + channel + ")");
+		Trace.trace(Trace.INFO, "Video request: " + request.getRemoteUser() + " requesting video " + videoId + " -> "
+				+ va.getStreamName(stream) + " (channel: " + channel + ")");
 
 		doVideo(request, response, filename, stream, channel, trusted);
 	}

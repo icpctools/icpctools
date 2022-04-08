@@ -4,7 +4,8 @@ import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
 
-import org.icpc.tools.cds.util.Role;
+import org.icpc.tools.cds.CDSConfig;
+import org.icpc.tools.contest.model.IAccount;
 
 public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 	public static class UserInfo {
@@ -20,9 +21,13 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 			return;
 
 		WebSocketConfig.UserInfo info = new WebSocketConfig.UserInfo();
-		info.isAdmin = request.isUserInRole(Role.PRES_ADMIN) | request.isUserInRole(Role.ADMIN);
-		info.isBlue = request.isUserInRole(Role.BLUE);
-		info.isBalloon = request.isUserInRole(Role.BALLOON);
+		IAccount account = CDSConfig.getInstance().getAccount(user);
+		if (account != null) {
+			String type = account.getAccountType();
+			info.isAdmin = "admin".equals(type) || "presAdmin".equals(type);
+			info.isBlue = "staff".equals(type);
+			info.isBalloon = "balloon".equals(type);
+		}
 		config.getUserProperties().put(user, info);
 	}
 }

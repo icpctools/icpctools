@@ -27,7 +27,6 @@ import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.RSSWriter;
 import org.icpc.tools.cds.presentations.PresentationFilesServlet;
 import org.icpc.tools.cds.util.HttpHelper;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoStream;
@@ -132,7 +131,7 @@ public class ContestWebService extends HttpServlet {
 			request.setAttribute("cc", cc);
 			cc.incrementWeb();
 			if (segments[1].equals("admin")) {
-				if (!Role.isAdmin(request)) {
+				if (!cc.isAdmin(request)) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				}
@@ -175,7 +174,7 @@ public class ContestWebService extends HttpServlet {
 		request.setAttribute("cc", cc);
 		cc.incrementWeb();
 		if (segments.length >= 2) {
-			boolean isAdmin = Role.isAdmin(request);
+			boolean isAdmin = cc.isAdmin(request);
 			if (segments[1].equals("details")) {
 				if (isAdmin)
 					request.getRequestDispatcher("/WEB-INF/jsps/details-admin.jsp").forward(request, response);
@@ -251,7 +250,7 @@ public class ContestWebService extends HttpServlet {
 				}
 				return;
 			} else if (segments[1].equals("scoreboardCompare")) {
-				if (!Role.isBlue(request)) {
+				if (!cc.isStaff(request)) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return;
 				}

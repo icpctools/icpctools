@@ -33,7 +33,7 @@ public class ErrorService extends HttpServlet {
 		}
 
 		// if client accepts json or it's an API call, return json
-		if ((accept != null && accept.contains("json")) || request.getAttribute("CDS-api") != null) {
+		if ((accept != null && accept.contains("json")) || request.getRequestURI().startsWith("/api")) {
 			response.setContentType("application/json");
 
 			JsonObject obj = new JsonObject();

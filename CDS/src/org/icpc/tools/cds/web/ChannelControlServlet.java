@@ -3,19 +3,15 @@ package org.icpc.tools.cds.web;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.icpc.tools.cds.util.Role;
+import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.video.VideoAggregator;
 
 @WebServlet(urlPatterns = { "/video/control", "/video/control/*" })
-@ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.BLUE, Role.TRUSTED }))
 public class ChannelControlServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -48,7 +44,7 @@ public class ChannelControlServlet extends HttpServlet {
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String path = request.getPathInfo();
-		if (path == null || !path.startsWith("/")) {
+		if (!CDSAuth.isAnalyst(request) || path == null || !path.startsWith("/")) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}

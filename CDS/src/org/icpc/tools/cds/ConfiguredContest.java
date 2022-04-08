@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.servlet.AsyncContext;
@@ -15,21 +16,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 
 import org.icpc.tools.cds.util.PlaybackContest;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAccount;
-import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
-import org.icpc.tools.contest.model.ICommentary;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
-import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
@@ -42,9 +39,14 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.State;
+import org.icpc.tools.contest.model.internal.account.AnalystContest;
+import org.icpc.tools.contest.model.internal.account.BalloonContest;
+import org.icpc.tools.contest.model.internal.account.PublicContest;
+import org.icpc.tools.contest.model.internal.account.SpectatorContest;
+import org.icpc.tools.contest.model.internal.account.StaffContest;
+import org.icpc.tools.contest.model.internal.account.TeamContest;
 import org.w3c.dom.Element;
 
 public class ConfiguredContest {
@@ -64,11 +66,11 @@ public class ConfiguredContest {
 
 	private DiskContestSource contestSource;
 
+	private IAccount PUBLIC_ACCOUNT = new Account();
+
 	private Contest contest;
-	private Contest trustedContest;
-	private Contest publicContest;
-	private Contest balloonContest;
-	private Map<String, Contest> teamContests = new HashMap<>();
+
+	private Map<String, Contest> accountContests = new HashMap<>();
 
 	private Map<Object, String> clients = new HashMap<>();
 	private long[] metrics = new long[11]; // REST, feed, ws, web, download, scoreboard, XML,
@@ -490,34 +492,74 @@ public class ConfiguredContest {
 		return contest;
 	}
 
+	private static Contest createAccountContest(IAccount account) {
+		if ("staff".equals(account.getAccountType()))
+			return new StaffContest();
+		if ("analyst".equals(account.getAccountType()))
+			return new AnalystContest(account);
+		if ("team".equals(account.getAccountType()))
+			return new TeamContest(account);
+		if ("balloon".equals(account.getAccountType()))
+			return new BalloonContest(account);
+		if ("spectator".equals(account.getAccountType()))
+			return new SpectatorContest(account);
+		return new PublicContest();
+	}
+
+	private static String getKey(IAccount account) {
+		if ("team".equals(account.getAccountType()))
+			return "team" + account.getTeamId();
+
+		return account.getAccountType();
+	}
+
 	public Contest getContestByRole(HttpServletRequest request) {
 		if (contest == null)
 			loadContest();
 
-		if (Role.isBlue(request))
-			return contest;
-		if (hidden)
-			return null;
-		if (Role.isTrusted(request))
-			return trustedContest;
-		if (Role.isBalloon(request))
-			return balloonContest;
-		if (Role.isTeam(request)) {
-			String teamId = contest.getTeamIdFromUser(request.getRemoteUser());
-			if (teamId != null && teamContests.containsKey(teamId))
-				return teamContests.get(teamId);
+		IAccount account = PUBLIC_ACCOUNT;
+		String user = request.getRemoteUser();
+		if (user != null) {
+			List<IAccount> accounts = CDSConfig.getInstance().getAccounts();
+			for (IAccount acc : accounts) {
+				if (user.equals(acc.getUsername())) {
+					account = acc;
+				}
+			}
 		}
-		return publicContest;
+
+		// return the full contest for administrators
+		if ("admin".equals(account.getAccountType()))
+			return contest;
+
+		// find the associated contest for every other account
+		String key = getKey(account);
+		Contest ac = accountContests.get(key);
+		if (ac != null)
+			return ac;
+
+		// first login - create a new contest for the account type, populate the existing contest
+		// data, and cache it
+		ac = createAccountContest(account);
+		ac.setHashCode(contest.hashCode());
+
+		IContestObject[] objs = contest.getObjects();
+		for (IContestObject co : objs)
+			ac.add(co);
+
+		accountContests.put(key, ac);
+
+		return ac;
 	}
 
-	public Contest getContestByRole(boolean isBlue) {
+	public Contest getContestByRole(boolean isAdmin) {
 		if (contest == null)
 			loadContest();
 
-		if (isBlue)
+		if (isAdmin)
 			return contest;
 
-		return publicContest;
+		return accountContests.get(getKey(PUBLIC_ACCOUNT));// TODO could be null
 	}
 
 	public String getError() {
@@ -596,185 +638,36 @@ public class ConfiguredContest {
 			if (isTesting())
 				contest.setHashCode(contest.hashCode() + (int) (Math.random() * 500.0));
 
-			publicContest = new Contest();
-			publicContest.setHashCode(contest.hashCode());
-			balloonContest = new Contest();
-			balloonContest.setHashCode(contest.hashCode());
-			trustedContest = new Contest();
-			trustedContest.setHashCode(contest.hashCode());
-			State currentState = new State();
+			State[] currentState = new State[1];
+			currentState[0] = new State();
 			contest.addListenerFromStart((contest2, obj, d) -> {
-				// don't show problems until contest starts
-				if (obj instanceof IProblem && currentState.getStarted() == null)
-					return;
-
-				// filter awards from a role below blue
-				if (obj instanceof IAward)
-					return;
-
-				if (obj instanceof IAccount) {
-					IAccount account = (IAccount) obj;
-					IAccount acc = account;
-					if (account.getPassword() != null) {
-						acc = (IAccount) ((Account) account).clone();
-						((Account) acc).add("password", null);
-					}
-					trustedContest.add(acc);
-
-					String teamId = account.getTeamId();
-					if (teamId != null) {
-						Contest c = teamContests.get(teamId);
-						if (c != null)
-							c.add(acc);
-					}
-					return;
+				// TODO sychronization
+				for (Contest ac : accountContests.values()) {
+					ac.add(obj);
 				}
-
-				if (obj instanceof ICommentary) {
-					ICommentary c = (ICommentary) obj;
-					if (contest.getFreezeDuration() != null) {
-						int freezeTime = contest.getDuration() - contest.getFreezeDuration();
-						if (c.getContestTime() >= freezeTime)
-							return;
-					}
-					trustedContest.add(obj);
-					return;
-				}
-
-				// filter out hidden groups and dependencies
-				IContestObject obj2 = filterHidden(obj);
-				if (obj2 == null)
-					return;
-
-				long time = ContestObject.getContestTime(obj);
 
 				if (obj instanceof ITeam) {
 					ITeam team = (ITeam) obj;
-					String teamId = team.getId();
-					if (CDSConfig.getInstance().hasLoginForId(teamId) && teamContests.get(teamId) == null) {
-						Contest c = new Contest();
-						c.setHashCode(contest.hashCode());
-						IContestObject[] objs = publicContest.getObjects();
-						for (IContestObject co : objs)
-							c.add(co);
-						teamContests.put(teamId, c);
-					}
-
 					if (videos != null && !videos.isEmpty() && isTeamOrSpare(contest, team)) {
 						setupTeamStreams(team.getId());
 					}
 				}
 
-				// all - don't show any submissions or judgements from outside the contest
-				// public - show judgments until the freeze, only public clars, no runs
-				// balloon - show judgments until the freeze and then any after if the
-				// team has less than 3, only public clars, no runs
-				// trusted - show runs & judgments until the freeze, show all clars
-				// team - show judgements until the freeze, only your own judgements after
-				if (obj instanceof ISubmission) {
-					if (time >= 0 && time < contest.getDuration()) {
-						trustedContest.add(obj2);
-						balloonContest.add(obj2);
-						publicContest.add(obj2);
-						for (Contest c : teamContests.values())
-							c.add(obj2);
-					}
-				} else if (obj instanceof IJudgement) {
-					IJudgement j = (IJudgement) obj;
-					ISubmission s = contest.getSubmissionById(j.getSubmissionId());
-
-					if (contest.getFreezeDuration() != null) {
-						int freezeTime = contest.getDuration() - contest.getFreezeDuration();
-						if (s == null || s.getContestTime() > freezeTime) {
-							if (s != null && s.getContestTime() < freezeTime && contest.isSolved(s)
-									&& getNumSolved(balloonContest, s.getTeamId()) < 3)
-								balloonContest.add(obj);
-							if (s != null) {
-								Contest c = teamContests.get(s.getTeamId());
-								if (c != null)
-									c.add(obj);
-							}
-							return;
-						}
-					}
-					trustedContest.add(obj2);
-					publicContest.add(obj2);
-					balloonContest.add(obj2);
-					for (Contest c : teamContests.values()) {
-						c.add(obj2);
-					}
-				} else if (obj instanceof IRun) {
-					IRun r = (IRun) obj;
-					if (contest.getFreezeDuration() != null) {
-						int freezeTime = contest.getDuration() - contest.getFreezeDuration();
-						if (r.getContestTime() >= freezeTime)
-							return;
-					}
-					trustedContest.add(obj2);
-				} else if (obj instanceof IClarification) {
-					// only admins, trusted, and teams involved see private messages.
-					// everyone sees broadcasts
-					trustedContest.add(obj2);
-					IClarification clar = (IClarification) obj;
-					if (clar.getFromTeamId() != null) {
-						Contest c = teamContests.get(clar.getFromTeamId());
-						if (c != null)
-							c.add(obj);
-					}
-					if (clar.getToTeamId() != null && !clar.getToTeamId().equals(clar.getFromTeamId())) {
-						Contest c = teamContests.get(clar.getToTeamId());
-						if (c != null)
-							c.add(obj);
-					}
-					if (clar.getFromTeamId() == null && clar.getToTeamId() == null) {
-						publicContest.add(obj2);
-						balloonContest.add(obj2);
-						for (Contest c : teamContests.values())
-							c.add(obj2);
-					}
-				} else {
-					trustedContest.add(obj2);
-					balloonContest.add(obj2);
-					publicContest.add(obj2);
-					for (Contest c : teamContests.values())
-						c.add(obj2);
-				}
-
 				if (obj instanceof State) {
 					State state2 = (State) obj;
-					if (currentState.getStarted() == null && state2.getStarted() != null) {
-						// send problems at start
-						IProblem[] probs = contest.getProblems();
-						for (IProblem p : probs) {
-							trustedContest.add(p);
-							publicContest.add(p);
-							balloonContest.add(p);
-							for (Contest c : teamContests.values())
-								c.add(p);
-						}
-					}
-					if (currentState.isRunning() != state2.isRunning()) {
-						if (state2.isRunning())
-							Trace.trace(Trace.USER, "Contest started: " + id);
-						else if (state2.isRunning())
-							Trace.trace(Trace.USER, "Contest over: " + id);
-						currentState.setStarted(state2.getStarted());
-					}
-					if (currentState.isFrozen() != state2.isFrozen()) {
-						if (state2.isFrozen())
-							Trace.trace(Trace.USER, "Contest frozen: " + id);
-						else
-							Trace.trace(Trace.USER, "Contest unfrozen: " + id);
-						currentState.setFrozen(state2.getFrozen());
-					}
-					if (currentState.isFinal() != state2.isFinal()) {
+					if (!Objects.equals(currentState[0].getStarted(), state2.getStarted()))
+						Trace.trace(Trace.USER, "Contest started: " + id);
+					if (!Objects.equals(currentState[0].getFrozen(), state2.getFrozen()))
+						Trace.trace(Trace.USER, "Contest frozen: " + id);
+					if (!Objects.equals(currentState[0].getThawed(), state2.getThawed()))
+						Trace.trace(Trace.USER, "Contest thawed: " + id);
+					if (!Objects.equals(currentState[0].getEnded(), state2.getEnded()))
+						Trace.trace(Trace.USER, "Contest ended: " + id);
+					if (!Objects.equals(currentState[0].getFinalized(), state2.getFinalized()))
 						Trace.trace(Trace.USER, "Contest finalized: " + id);
-						currentState.setFinalized(state2.getFinalized());
-					}
-					if (currentState.getEndOfUpdates() != state2.getEndOfUpdates()) {
+					if (!Objects.equals(currentState[0].getEndOfUpdates(), state2.getEndOfUpdates()))
 						Trace.trace(Trace.USER, "Contest end of updates: " + id);
-						currentState.setEndOfUpdates(state2.getEndOfUpdates());
-					}
+					currentState[0] = state2;
 				}
 			});
 
@@ -837,22 +730,6 @@ public class ConfiguredContest {
 		}
 
 		return obj;
-	}
-
-	private static int getNumSolved(IContest contest2, String teamId) {
-		if (teamId == null)
-			return 0;
-
-		List<String> solved = new ArrayList<>();
-		ISubmission[] submissions = contest2.getSubmissions();
-		for (ISubmission s : submissions) {
-			if (teamId.equals(s.getTeamId()) && contest2.isSolved(s)) {
-				if (!solved.contains(s.getProblemId()))
-					solved.add(s.getProblemId());
-			}
-		}
-
-		return solved.size();
 	}
 
 	public void incrementRest() {
@@ -948,29 +825,61 @@ public class ConfiguredContest {
 		}
 	}
 
-	public static String getRole(HttpServletRequest request) {
-		if (Role.isAdmin(request))
-			return "admin";
-		else if (Role.isPresAdmin(request))
-			return "pres-admin";
-		else if (Role.isBlue(request))
-			return "blue";
-		else if (Role.isTrusted(request))
-			return "trusted";
-		else if (Role.isBalloon(request))
-			return "balloon";
-		else if (Role.isTeam(request)) {
-			return "team";
+	public IAccount getAccount(String username) {
+		if (username == null)
+			return null;
+
+		IAccount[] accounts = contest.getAccounts();
+		if (accounts.length == 0)
+			return null;
+
+		// find matching account
+		for (IAccount account : accounts) {
+			if (username.equals(account.getUsername())) {
+				return account;
+			}
 		}
-		return "public";
+
+		return null;
 	}
 
-	public static String getUser(HttpServletRequest request) {
-		String role = getRole(request);
-		String user = request.getRemoteUser();
-		if (user == null)
-			return role;
-		return request.getRemoteUser() + " / " + role;
+	public boolean isAdmin(HttpServletRequest request) {
+		IAccount account = getAccount(request.getRemoteUser());
+		if (account == null)
+			return false;
+		String type = account.getAccountType();
+		return "admin".equals(type);
+	}
+
+	public boolean isStaff(HttpServletRequest request) {
+		IAccount account = getAccount(request.getRemoteUser());
+		if (account == null)
+			return false;
+		String type = account.getAccountType();
+		return "admin".equals(type) || "staff".equals(type);
+	}
+
+	public boolean isAnalyst(HttpServletRequest request) {
+		IAccount account = getAccount(request.getRemoteUser());
+		if (account == null)
+			return false;
+		String type = account.getAccountType();
+		return "admin".equals(type) || "staff".equals(type) || "analyst".equals(type);
+	}
+
+	public boolean isBalloon(HttpServletRequest request) {
+		IAccount account = getAccount(request.getRemoteUser());
+		if (account == null)
+			return false;
+		String type = account.getAccountType();
+		return "balloon".equals(type);
+	}
+
+	public boolean isTeam(HttpServletRequest request) {
+		IAccount account = getAccount(request.getRemoteUser());
+		if (account == null)
+			return false;
+		return "team".equals(account.getAccountType());
 	}
 
 	public void add(Session session) {
@@ -988,8 +897,7 @@ public class ConfiguredContest {
 		synchronized (clients) {
 			try {
 				HttpServletRequest request = (HttpServletRequest) asyncCtx.getRequest();
-				String user = ConfiguredContest.getUser(request) + " @ " + request.getRemoteHost() + " / "
-						+ request.getRemoteAddr();
+				String user = request.getRemoteUser() + " @ " + request.getRemoteHost() + " / " + request.getRemoteAddr();
 				clients.put(asyncCtx, user);
 			} catch (Exception e) {
 				// ignore
@@ -1037,12 +945,9 @@ public class ConfiguredContest {
 	 * @param co
 	 */
 	public void exposeContestObject(IContestObject co) {
-		trustedContest.add(co);
-		balloonContest.add(co);
-		publicContest.add(co);
-
-		for (Contest c : teamContests.values())
-			c.add(co);
+		// TODO sychronization
+		for (Contest ac : accountContests.values())
+			ac.add(co);
 	}
 
 	@Override
