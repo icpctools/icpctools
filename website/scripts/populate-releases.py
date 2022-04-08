@@ -4,17 +4,18 @@ import os
 import re
 import json
 import datetime
+import sys
 
 destination = "website/data/releases/"
 
-def all_releases():
+def all_releases(token):
     result = []
 
     url = 'https://api.github.com/repos/icpctools/icpctools/releases'
 
     linkPattern = re.compile(r'<(?P<url>.*)>; rel="(?P<type>.*)"')
 
-    r = request_from_github(url)
+    r = request_from_github(url, token)
     result += r.json()
     while "Link" in r.headers:
         links = r.headers["Link"].split(", ")
@@ -22,7 +23,7 @@ def all_releases():
         for link in links:
             match = linkPattern.search(link)
             if match.group("type") == "next":
-                r = request_from_github(match.group("url"))
+                r = request_from_github(match.group("url"), token)
                 result += r.json()
                 nextFound = True
         if not nextFound:
@@ -30,8 +31,9 @@ def all_releases():
 
     return sorted(result, key=lambda release: release["created_at"], reverse=True)
 
-def request_from_github(url):
-    token = os.environ["GITHUB_TOKEN"]
+def request_from_github(url, token):
+    if token == None:
+        token = os.environ["GITHUB_TOKEN"]
     headers = {
         'Accept': 'application/vnd.github.v3+json',
         'Authorization': 'token {}'.format(token)
@@ -73,7 +75,10 @@ def release_info(release):
 if not os.path.isdir(destination): 
     os.mkdir(destination, 0o755)
 
-releases = all_releases()
+token = None
+if len(sys.argv) > 1:
+    token = sys.argv[1]
+releases = all_releases(token)
 
 latest_stable = list(filter(lambda release: not release["prerelease"], releases))[0]
 latest_prerelease = list(filter(lambda release: release["prerelease"], releases))[0]

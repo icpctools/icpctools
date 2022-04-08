@@ -1,0 +1,113 @@
+name: Deploy
+on:
+  workflow_run:
+    workflows: [Build]
+    types:
+      - completed
+    branches: [main]
+jobs:
+  push-release:
+    runs-on: ubuntu-latest
+    container: icpctools/website
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+         fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: dist
+      - name: Create GitHub release
+        run: |
+          export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
+          VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count)
+          RELEASE_COMMIT=$(git rev-parse HEAD)
+          http --ignore-stdin POST \
+            https://api.github.com/repos/icpctools/icpctools/releases \
+            "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            "Accept: application/vnd.github.v3+json" \
+            tag_name=v$VERSION \
+            target_commitish=$RELEASE_COMMIT \
+            name=v$VERSION \
+            prerelease:=true | tee ~/new-release.txt
+          RELEASE_ID=$(cat ~/new-release.txt | jq .id)
+          RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/icpctools/icpctools/releases/${RELEASE_ID}/assets
+          cd dist
+          echo "Uploading release $VERSION"
+          for zip in *.zip
+          do
+            echo $zip...
+            cat $zip | http --timeout 300 POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
+              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              'Accept: application/vnd.github.v3+json' \
+              'Content-Type: application/zip' | jq .state
+            echo $zip.sha256...
+            cat $zip.sha256 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
+              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              'Accept: application/vnd.github.v3+json' \
+              'Content-Type: text/plain' | jq .state
+            echo $zip.sha512...
+            cat $zip.sha512 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
+              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              'Accept: application/vnd.github.v3+json' \
+              'Content-Type: text/plain' | jq .state
+          done
+  update-website:
+    runs-on: ubuntu-latest
+    container: icpctools/website
+    needs: push-release
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: dist
+      - name: Push release to website
+        run: |
+          eval $(ssh-agent -s)
+          echo "${{ secrets.SSH_PRIVATE_KEY_WEBSITE }}" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          export GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no'
+          git config --global user.email "bot@icpctools.org"
+          git config --global user.name "ICPC Tools bot"
+          website/scripts/populate-releases.py ${{ secrets.RELEASE_TOKEN }}
+          website/scripts/copy-readmes.py dist
+          cp ChangeLog.md website/
+          sed -i 's/^# .*//' website/ChangeLog.md
+          sed -r 's/^## (.*)/#### \1/' -i website/ChangeLog.md
+          mkdir ~/website
+          git clone git@github.com:icpctools/icpctools.github.io.git ~/website
+          ln -s ~/website website/public
+          cd website
+          hugo
+          cd ~/website
+          git add .
+          git commit --allow-empty -m "Update website for icpctools commit $GITHUB_SHA"
+          git push
+  push-docker:
+    runs-on: ubuntu-latest
+    needs: push-release
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+         fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Build and push Docker image
+        run: |
+          export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
+          VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count)
+          cd build/cds/Docker
+          docker build -t icpctools/cds:${VERSION} --build-arg CDS_VERSION=${VERSION} .
+          docker push icpctools/cds:${VERSION}
