@@ -1,7 +1,7 @@
 <%@page import="org.icpc.tools.contest.model.IContest" %>
 <%@page import="org.icpc.tools.cds.CDSConfig" %>
+<%@page import="org.icpc.tools.cds.CDSAuth" %>
 <%@page import="org.icpc.tools.cds.ConfiguredContest" %>
-<%@page import="org.icpc.tools.cds.util.Role" %>
 <%@page import="org.icpc.tools.cds.util.HttpHelper" %>
 <% ConfiguredContest cc = (ConfiguredContest) request.getAttribute("cc");
     IContest contest = null;
@@ -24,6 +24,13 @@
 <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/adminlte.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/theme.js"></script>
+<script>
+function logout() {
+	console.log("logging out");
+    var out = window.location.href.replace(/:\/\//, '://log:out@');
+    $("a logout").attr("href",out);
+}
+</script>
 
 <head>
   <meta charset="utf-8"/>
@@ -38,7 +45,7 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/source-sans-pro.css"/>
 </head>
 
-<body class="hold-transition sidebar-mini">
+<body class="hold-transition sidebar-mini" onload="logout()">
   <div class="wrapper">
 
     <!-- Navbar -->
@@ -88,7 +95,7 @@
         <% if (request.getRemoteUser() == null) { %>
           <li class="nav-item dropdown">
             <a class="nav-link" href="${pageContext.request.contextPath}/login">
-              <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Login
+              <i class="fas fa-sign-in-alt"></i>&nbsp;&nbsp;Sign in
             </a>
           </li>
         <% } else { %>
@@ -98,10 +105,10 @@
               <%= request.getRemoteUser() %>
             </a>
             <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-              <span class="dropdown-item dropdown-header">Role: <%= ConfiguredContest.getRole(request) %></span>
+              <span class="dropdown-item dropdown-header">Account: <%= CDSAuth.getAccountType(request) %></span>
               <div class="dropdown-divider"></div>
-              <a href="${pageContext.request.contextPath}/logout" class="dropdown-item dropdown-footer">
-                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Logout
+              <a id="logout" href="${pageContext.request.contextPath}/logout" class="dropdown-item dropdown-footer">
+                <i class="fas fa-sign-out-alt"></i>&nbsp;&nbsp;Sign out
               </a>
             </div>
           </li>
@@ -131,7 +138,7 @@
 
             <% ConfiguredContest[] ccs3 = CDSConfig.getContests();
              for (ConfiguredContest cc3 : ccs3) {
-             if (!cc3.isHidden() || Role.isAdmin(request) || Role.isBlue(request)) {
+             if (!cc3.isHidden() || CDSAuth.isStaff(request)) {
                 IContest contest3 = cc3.getContest();
                 if (contest3 == null) {
                   continue;
@@ -149,7 +156,7 @@
 
               <ul class="nav nav-treeview">
                 <% for (int i = 0; i < menuPages.length; i++) 
-                   if ((i > 0 && i < 6) || Role.isAdmin(request)) { %>
+                   if ((i > 0 && i < 6) || CDSAuth.isAdmin(request)) { %>
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
@@ -163,7 +170,7 @@
             </li>
             <% } } %>
             
-            <% if (Role.isPresAdmin(request)) { %>
+            <% if (CDSAuth.isPresAdmin(request)) { %>
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/presentation/admin/web"
                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("presentation/admin/web")) { %> active<% } %>">
@@ -173,7 +180,7 @@
             </li>
             <% } %>
 
-            <% if (Role.isAdmin(request)) { %>
+            <% if (CDSAuth.isAdmin(request)) { %>
             <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
               <a href="#" class="nav-link <% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>active<% } %>">
                 <i class="nav-icon fas fa-video"></i>

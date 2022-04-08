@@ -1,8 +1,10 @@
 package org.icpc.tools.cds;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,8 +17,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -24,17 +24,17 @@ import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAccount;
-import org.icpc.tools.contest.model.internal.Account;
+import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+import org.icpc.tools.contest.model.internal.ContestObject;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.helpers.DefaultHandler;
 
 public class CDSConfig {
 	private static final Object INIT_LOCK = new Object();
@@ -93,10 +93,17 @@ public class CDSConfig {
 	private String[] hosts;
 	private File file;
 	private long lastModified;
-	private boolean loadedPasswords;
+	// private boolean loadedPasswords;
+	private List<IAccount> userAccounts;
 
 	private CDSConfig(File file) {
 		this.file = file;
+
+		try {
+			userAccounts = loadAccounts(file.getParentFile());
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not load accounts", e);
+		}
 
 		lastModified = file.lastModified();
 		try {
@@ -263,44 +270,47 @@ public class CDSConfig {
 		}
 	}
 
-	private void parseBasicRegistry(InputStream in) throws Exception {
-		if (in == null)
-			return;
+	private static List<IAccount> loadAccounts(File folder) throws IOException {
+		File f = new File(folder, "accounts.json");
 
-		SAXParser sp = SAXParserFactory.newInstance().newSAXParser();
-		try {
-			sp.parse(in, new DefaultHandler() {
-				protected int level;
+		List<IAccount> list = new ArrayList<>();
+		if (!f.exists())
+			return list;
 
-				@Override
-				public void startElement(String uri, String localName, String qName, Attributes attributes) {
-					if (level == 0) {
-						if (!qName.equals("server"))
-							Trace.trace(Trace.ERROR, "Invalid format for basic registry");
-					} else if (level == 2) {
-						if ("user".equals(qName)) {
-							String name = attributes.getValue("name");
-							for (ConfiguredContest cc : contests) {
-								IAccount[] accounts = cc.getContest().getAccounts();
-								for (IAccount account : accounts) {
-									if (name.equals(account.getUsername()))
-										((Account) account).add("password", attributes.getValue("password"));
-								}
-							}
-						}
-					}
-					level++;
-				}
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+			JSONParser parser = new JSONParser(new FileInputStream(f));
+			Object[] arr = parser.readArray();
+			for (Object obj : arr) {
+				JsonObject data = (JsonObject) obj;
+				// String id = data.getString("id");
+				ContestObject co = (ContestObject) IContestObject.createByType(IContestObject.ContestType.ACCOUNT);
+				for (String key : data.props.keySet())
+					co.add(key, data.props.get(key));
 
-				@Override
-				public void endElement(String uri, String localName, String qName) {
-					level--;
-				}
-			});
-		} catch (SAXParseException e) {
-			Trace.trace(Trace.ERROR, "Could not read basic registry:" + e.getLineNumber(), e);
-			throw new IOException("Could not read basic registry");
+				list.add((IAccount) co);
+			}
 		}
+
+		Trace.trace(Trace.INFO, "Imported " + f.getName());
+		return list;
+	}
+
+	public List<IAccount> getAccounts() {
+		return userAccounts;
+	}
+
+	public IAccount getAccount(String username) {
+		if (username == null || userAccounts == null)
+			return null;
+
+		// find matching account
+		for (IAccount account : userAccounts) {
+			if (username.equals(account.getUsername())) {
+				return account;
+			}
+		}
+
+		return null;
 	}
 
 	public Domain[] getDomains() {
@@ -337,13 +347,18 @@ public class CDSConfig {
 		if (teamId == null || teamId.isEmpty())
 			return null;
 
-		for (ConfiguredContest cc : contests) {
+		for (IAccount account : userAccounts) {
+			if (teamId.equals(account.getTeamId()) && account.getUsername() != null)
+				return account.getUsername();
+		}
+
+		/*for (ConfiguredContest cc : contests) {
 			IAccount[] accounts = cc.getContest().getAccounts();
 			for (IAccount account : accounts) {
 				if (teamId.equals(account.getTeamId()) && account.getUsername() != null)
 					return account.getUsername();
 			}
-		}
+		}*/
 		return null;
 	}
 
@@ -364,13 +379,17 @@ public class CDSConfig {
 			}
 		}
 
-		for (ConfiguredContest cc : contests) {
+		for (IAccount account : userAccounts) {
+			if (teamId.equals(account.getTeamId()) && account.getIp() != null)
+				list.add(account.getIp());
+		}
+		/*for (ConfiguredContest cc : contests) {
 			IAccount[] accounts = cc.getContest().getAccounts();
 			for (IAccount account : accounts) {
 				if (teamId.equals(account.getTeamId()) && account.getIp() != null)
 					list.add(account.getIp());
 			}
-		}
+		}*/
 
 		return list;
 	}
@@ -398,13 +417,18 @@ public class CDSConfig {
 			}
 		}
 
-		for (ConfiguredContest cc : contests) {
+		for (IAccount account : userAccounts) {
+			if (account.getIp() != null && account.getIp().equals(hostname))
+				return account.getUsername();
+		}
+
+		/*for (ConfiguredContest cc : contests) {
 			IAccount[] accounts = cc.getContest().getAccounts();
 			for (IAccount account : accounts) {
 				if (account.getIp() != null && account.getIp().equals(hostname))
 					return account.getUsername();
 			}
-		}
+		}*/
 		return null;
 	}
 
@@ -418,34 +442,18 @@ public class CDSConfig {
 		if (username == null || username.isEmpty())
 			return null;
 
-		if (!loadedPasswords) {
-			String users = "../users.xml";
-			// if (users == null || users.isEmpty())
-			// users = "../users.xml";
-			FileInputStream in = null;
-			try {
-				in = new FileInputStream(new File(file.getParentFile(), users));
-				parseBasicRegistry(in);
-			} catch (Exception ex) {
-				Trace.trace(Trace.ERROR, "Could not load team password info", ex);
-			} finally {
-				if (in != null)
-					try {
-						in.close();
-					} catch (Exception ex) {
-						// ignore
-					}
-			}
-			loadedPasswords = true;
+		for (IAccount account : userAccounts) {
+			if (username.equals(account.getUsername()))
+				return account.getPassword();
 		}
 
-		for (ConfiguredContest cc : contests) {
+		/*for (ConfiguredContest cc : contests) {
 			IAccount[] accounts = cc.getContest().getAccounts();
 			for (IAccount account : accounts) {
 				if (username.equals(account.getUsername()))
 					return account.getPassword();
 			}
-		}
+		}*/
 		return null;
 	}
 

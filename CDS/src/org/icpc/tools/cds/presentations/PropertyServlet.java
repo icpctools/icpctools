@@ -10,26 +10,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.presentations.Client.ClientInfo;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 @WebServlet(urlPatterns = "/presentation/admin/*")
-@ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.PRES_ADMIN }))
 public class PropertyServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if (!CDSAuth.isPresAdmin(request) && !CDSAuth.isAdmin(request)) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
+
 		String path = request.getPathInfo();
 
 		response.setCharacterEncoding("UTF-8");
@@ -110,6 +111,10 @@ public class PropertyServlet extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		if (!CDSAuth.isPresAdmin(request) && !CDSAuth.isAdmin(request)) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 		String path = request.getPathInfo();
 		if (path == null || path.length() < 2) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);

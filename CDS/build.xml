@@ -22,6 +22,8 @@
     <pathelement location="javax.servlet-api-4.0.1.jar"/>
     <pathelement location="javax.servlet.jsp-api-2.3.3.jar"/>
   	<pathelement location="javax.websocket-api-1.1.jar"/>
+  	<pathelement location="cdi-api-2.0.jar"/>
+  	<pathelement location="javaee-web-api-8.0.jar"/>
     <pathelement location="${contest.model}/bin"/>
   	<pathelement location="${contest.model}/lib/snakeyaml-1.27.jar"/>
   </path>

@@ -3,15 +3,13 @@ package org.icpc.tools.cds.service.test;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.HttpConstraint;
-import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.CDSConfig;
-import org.icpc.tools.cds.util.Role;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
@@ -19,14 +17,12 @@ import org.icpc.tools.contest.model.TimeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
 
 @WebServlet(urlPatterns = "/test/scoring")
-@ServletSecurity(@HttpConstraint(transportGuarantee = ServletSecurity.TransportGuarantee.CONFIDENTIAL, rolesAllowed = {
-		Role.ADMIN, Role.BLUE }))
 public class ScoringTestService extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!Role.isBlue(request))
+		if (!CDSAuth.isStaff(request))
 			return;
 
 		long time = System.currentTimeMillis();
