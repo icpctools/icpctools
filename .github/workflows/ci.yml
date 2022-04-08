@@ -1,15 +1,30 @@
-name: Deploy
+name: CI
 on:
-  workflow_run:
-    workflows: [Build]
-    types:
-      - completed
-    branches: [main]
+  push:
+    branches:
+      - main
+  pull_request:
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: icpctools/builder
+    steps:
+      - uses: actions/checkout@v2
+        with:
+         fetch-depth: 0
+      - name: Build
+        run: ant build
+      - name: Add run ID
+        run: echo $GITHUB_RUN_ID > dist/github_run_id.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: dist/*
   push-release:
     runs-on: ubuntu-latest
     container: icpctools/website
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: build
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -57,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     container: icpctools/website
     needs: push-release
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
@@ -90,7 +105,7 @@ jobs:
   push-docker:
     runs-on: ubuntu-latest
     needs: push-release
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
         with:
