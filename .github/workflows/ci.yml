@@ -1,0 +1,67 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: icpctools/builder
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: ant build
+      - name: Add run ID
+        run: echo $GITHUB_RUN_ID > dist/github_run_id.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: dist/*
+  push-release:
+    runs-on: ubuntu-latest
+    container: icpctools/website
+    needs: build
+    # if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+         fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: dist
+      - name: Create GitHub release
+        run: |
+          echo ${{ secrets.RELEASE_TOKEN }};
+          echo $GITHUB_SHA;
+          git rev-list $GITHUB_SHA --count;
+          export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties);
+          VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count);
+          RELEASE_COMMIT=$(git rev-parse HEAD);
+          http --ignore-stdin POST \
+            https://api.github.com/repos/icpctools/icpctools/releases \
+            "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            "Accept: application/vnd.github.v3+json" \
+            tag_name=v$VERSION \
+            target_commitish=$RELEASE_COMMIT \
+            name=v$VERSION \
+            prerelease:=true | tee ~/new-release.txt;
+          RELEASE_ID=$(cat ~/new-release.txt | jq .id);
+          RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/icpctools/icpctools/releases/${RELEASE_ID}/assets;
+          cd dist;
+          echo "Uploading release $VERSION";
+          for zip in *.zip
+          do
+            echo $zip...
+            cat $zip | http --timeout 300 POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
+              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              'Accept: application/vnd.github.v3+json' \
+              'Content-Type: application/zip' | jq .state
+            echo $zip.sha256...
+            cat $zip.sha256 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
+              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              'Accept: application/vnd.github.v3+json' \
+              'Content-Type: text/plain' | jq .state
+            echo $zip.sha512...
+            cat $zip.sha512 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
+              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              'Accept: application/vnd.github.v3+json' \
+              'Content-Type: text/plain' | jq .state
+          done
