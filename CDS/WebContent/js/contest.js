@@ -1,11 +1,13 @@
 class Contest {
 	info;
+	access;
 	state;
 	organizations;
 	groups;
 	teams;
 	persons;
 	accounts;
+	account;
 	languages;
 	judgementTypes;
 	problems;
@@ -62,6 +64,13 @@ class Contest {
 			return new $.Deferred().resolve();
 
 		return this.loadObject('', (result) => { this.info = result });
+	}
+
+	loadAccess() {
+		if (this.access != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('access', (result) => { this.access = result });
 	}
 
 	loadState() {
@@ -143,6 +152,13 @@ class Contest {
 		return this.loadObject('accounts', (result) => { this.accounts = result });
 	}
 
+	loadAccount() {
+		if (this.accounts != null)
+			return new $.Deferred().resolve();
+
+		return this.loadObject('account', (result) => { this.account = result });
+	}
+
 	loadSubmissions() {
 		if (this.submissions != null)
 			return new $.Deferred().resolve();
@@ -198,6 +214,7 @@ class Contest {
 
 	getContestURL() { return this.contestURL }
 	getInfo() { return this.info }
+	getAccess() { return this.access }
 	getState() { return this.state }
 	getStartStatus() { return this.startStatus }
 	getLanguages() { return this.languages }
@@ -208,6 +225,7 @@ class Contest {
 	getOrganizations() { return this.organizations }
 	getPersons() { return this.persons }
 	getAccounts() { return this.accounts }
+	getAccount() { return this.account }
 	getSubmissions() { return this.submissions }
 	getJudgements() { return this.judgements }
 	getRuns() { return this.runs }
