@@ -338,7 +338,7 @@ public class CDSConfig {
 	}
 
 	/**
-	 * Tries to find a team id for a given user, e.g. "team57" to "57".
+	 * Tries to find a username from a given team id, e.g. "team57" to "57".
 	 *
 	 * @param username
 	 * @return the team's id, or null if not found
@@ -352,13 +352,6 @@ public class CDSConfig {
 				return account.getUsername();
 		}
 
-		/*for (ConfiguredContest cc : contests) {
-			IAccount[] accounts = cc.getContest().getAccounts();
-			for (IAccount account : accounts) {
-				if (teamId.equals(account.getTeamId()) && account.getUsername() != null)
-					return account.getUsername();
-			}
-		}*/
 		return null;
 	}
 
@@ -383,13 +376,6 @@ public class CDSConfig {
 			if (teamId.equals(account.getTeamId()) && account.getIp() != null)
 				list.add(account.getIp());
 		}
-		/*for (ConfiguredContest cc : contests) {
-			IAccount[] accounts = cc.getContest().getAccounts();
-			for (IAccount account : accounts) {
-				if (teamId.equals(account.getTeamId()) && account.getIp() != null)
-					list.add(account.getIp());
-			}
-		}*/
 
 		return list;
 	}
@@ -422,13 +408,6 @@ public class CDSConfig {
 				return account.getUsername();
 		}
 
-		/*for (ConfiguredContest cc : contests) {
-			IAccount[] accounts = cc.getContest().getAccounts();
-			for (IAccount account : accounts) {
-				if (account.getIp() != null && account.getIp().equals(hostname))
-					return account.getUsername();
-			}
-		}*/
 		return null;
 	}
 
@@ -447,13 +426,6 @@ public class CDSConfig {
 				return account.getPassword();
 		}
 
-		/*for (ConfiguredContest cc : contests) {
-			IAccount[] accounts = cc.getContest().getAccounts();
-			for (IAccount account : accounts) {
-				if (username.equals(account.getUsername()))
-					return account.getPassword();
-			}
-		}*/
 		return null;
 	}
 
