@@ -33,7 +33,7 @@
 			</div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" id="submit-clar-ui" style="display: none">
         <div class="col-12">
 			<div class="card">
 			    <div class="card-header">
@@ -82,6 +82,12 @@ function clarificationsRefresh() {
         for (var i = 0; i < problems.length; i++) {
         	$('#problem-id').append('<option id="' + problems[i].id + '">' + problems[i].label + ': ' + problems[i].name + '</option>');
 		}
+
+        $.when(contest.loadAccess()).done(function () {
+            var access = contest.getAccess();
+            if (access.capabilities.some(e => e === 'team_clar'))
+    	        $("#submit-clar-ui").show();
+        })
     }).fail(function (result) {
     	console.log("Error loading clarifications: " + result);
     })
