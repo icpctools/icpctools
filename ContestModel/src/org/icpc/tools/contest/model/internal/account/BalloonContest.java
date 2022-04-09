@@ -1,14 +1,18 @@
 package org.icpc.tools.contest.model.internal.account;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.ITeam;
 
+/**
+ * This contest matches what spectators see except that if a team has less than 3 solved problems
+ * and they solve another one during the freeze, that judgement is shown. This visibility level is
+ * used at the World Finals to control the balloon printer, thus allowing 3 balloons to be sent to
+ * teams.
+ */
 public class BalloonContest extends PublicContest {
 	public BalloonContest(IAccount account) {
 		super();
@@ -56,18 +60,10 @@ public class BalloonContest extends PublicContest {
 	}
 
 	protected int getNumSolved(String teamId) {
-		if (teamId == null)
+		ITeam team = getTeamById(teamId);
+		if (team == null)
 			return 0;
 
-		List<String> solved = new ArrayList<>();
-		ISubmission[] submissions = getSubmissions();
-		for (ISubmission s : submissions) {
-			if (teamId.equals(s.getTeamId()) && isSolved(s)) {
-				if (!solved.contains(s.getProblemId()))
-					solved.add(s.getProblemId());
-			}
-		}
-
-		return solved.size();
+		return getStanding(team).getNumSolved();
 	}
 }
