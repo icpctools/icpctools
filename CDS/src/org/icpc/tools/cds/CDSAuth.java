@@ -120,27 +120,27 @@ public class CDSAuth implements HttpAuthenticationMechanism {
 		IAccount account = getAccount(request);
 		if (account == null)
 			return false;
-		return "admin".equals(account.getAccountType());
+		return IAccount.ADMIN.equals(account.getAccountType());
 	}
 
 	public static boolean isPresAdmin(HttpServletRequest request) {
 		IAccount account = getAccount(request);
 		if (account == null)
 			return false;
-		return "presAdmin".equals(account.getAccountType());
+		return IAccount.PRES_ADMIN.equals(account.getAccountType());
 	}
 
 	public static boolean isStaff(HttpServletRequest request) {
 		IAccount account = getAccount(request);
 		if (account == null)
 			return false;
-		return "staff".equals(account.getAccountType()) || "admin".equals(account.getAccountType());
+		return IAccount.STAFF.equals(account.getAccountType()) || IAccount.ADMIN.equals(account.getAccountType());
 	}
 
 	public static boolean isAnalyst(HttpServletRequest request) {
 		IAccount account = getAccount(request);
 		if (account == null)
 			return false;
-		return "analyst".equals(account.getAccountType());
+		return IAccount.ANALYST.equals(account.getAccountType());
 	}
 }

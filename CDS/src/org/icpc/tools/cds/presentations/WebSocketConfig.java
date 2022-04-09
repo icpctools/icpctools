@@ -24,9 +24,9 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 		IAccount account = CDSConfig.getInstance().getAccount(user);
 		if (account != null) {
 			String type = account.getAccountType();
-			info.isAdmin = "admin".equals(type) || "presAdmin".equals(type);
-			info.isBlue = "staff".equals(type);
-			info.isBalloon = "balloon".equals(type);
+			info.isAdmin = IAccount.ADMIN.equals(type) || IAccount.PRES_ADMIN.equals(type);
+			info.isBlue = IAccount.STAFF.equals(type);
+			info.isBalloon = IAccount.BALLOON.equals(type);
 		}
 		config.getUserProperties().put(user, info);
 	}
