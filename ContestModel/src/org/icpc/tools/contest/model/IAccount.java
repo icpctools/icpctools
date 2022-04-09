@@ -4,6 +4,14 @@ package org.icpc.tools.contest.model;
  * An account.
  */
 public interface IAccount extends IContestObject {
+	public String ADMIN = "admin";
+	public String STAFF = "staff";
+	public String JUDGE = "judge";
+	public String ANALYST = "analyst";
+	public String TEAM = "team";
+	public String BALLOON = "balloon";
+	public String PRES_ADMIN = "presAdmin";
+
 	/**
 	 * The username
 	 *
