@@ -55,14 +55,14 @@ Module dependencies might be added automatically when importing all the modules 
   * Module `ContestModel`
   * Module `PresCore`
   * The SWT JAR for your platform
-  * The file 'svgSalamander-1.1.2.4.jar' from the 'ContestModel/lib' directory.
+  * The file `svgSalamander-1.1.2.4.jar` from the `ContestModel/lib` directory.
 * For `CoachView` add:
   * Module `ContestModel`
   * Module `PresCore`
   * The `lib` directory in the `CoachView` directory
 * For `CDS` add:
   * Module `ContestModel`
-  * The files `javax.servlet-api-4.0.1.jar`, `javax.servlet.jsp-api-2.3.3.jar` and `javax.websocket-api-1.1.jar`
+  * The files `cdi-api-2.0.jar`, `javaee-web-api-8.0.jar`, `javax.servlet-api-4.0.1.jar`, `javax.servlet.jsp-api-2.3.3.jar` and `javax.websocket-api-1.1.jar`
     from the `CDS` directory.
 * For `ContestModel` add:
   * The `lib` directory in the project root
@@ -81,7 +81,7 @@ Module dependencies might be added automatically when importing all the modules 
   * Module `ContestModel`
   * Module `PresCore`
   * The `lib` directory in the `PresContest` directory
-  * The file 'svgSalamander-1.1.2.4.jar' from the 'ContestModel/lib' directory.
+  * The file `svgSalamander-1.1.2.4.jar` from the `ContestModel/lib` directory.
 * For `ProblemSet` add:
   * The `lib` directory in the `ProblemSet` directory
   * The SWT JAR for your platform
