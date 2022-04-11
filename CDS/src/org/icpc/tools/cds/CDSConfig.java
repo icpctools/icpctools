@@ -318,44 +318,6 @@ public class CDSConfig {
 	}
 
 	/**
-	 * Returns true if there are any user accounts for the given team id, and false otherwise.
-	 *
-	 * @param team id
-	 * @return true if there is a login, and false otherwise
-	 */
-	public boolean hasLoginForId(String teamId) {
-		if (teamId == null || teamId.isEmpty())
-			return false;
-
-		for (ConfiguredContest cc : contests) {
-			IAccount[] accounts = cc.getContest().getAccounts();
-			for (IAccount account : accounts) {
-				if (teamId.equals(account.getTeamId()))
-					return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Tries to find a username from a given team id, e.g. "team57" to "57".
-	 *
-	 * @param username
-	 * @return the team's id, or null if not found
-	 */
-	protected String getUserFromTeamId(String teamId) {
-		if (teamId == null || teamId.isEmpty())
-			return null;
-
-		for (IAccount account : userAccounts) {
-			if (teamId.equals(account.getTeamId()) && account.getUsername() != null)
-				return account.getUsername();
-		}
-
-		return null;
-	}
-
-	/**
 	 * Converts from team id to host name or IP, e.g. "43" to "10.0.0.43".
 	 *
 	 * @param team id
@@ -387,10 +349,11 @@ public class CDSConfig {
 	 * @param hostname
 	 * @return the username, or null if not found
 	 */
-	public String getUserFromHost(String hostname) {
+	public IAccount getAccountFromHost(String hostname) {
 		if (hostname == null || hostname.isEmpty())
 			return null;
 
+		String teamId = null;
 		if (hosts != null) {
 			for (String host : hosts) {
 				// match to find the substitution
@@ -399,31 +362,16 @@ public class CDSConfig {
 				if (!m.matches())
 					continue;
 
-				return getUserFromTeamId(m.group(1));
+				teamId = m.group(1);
+				break;
 			}
 		}
 
 		for (IAccount account : userAccounts) {
 			if (account.getIp() != null && account.getIp().equals(hostname))
-				return account.getUsername();
-		}
-
-		return null;
-	}
-
-	/**
-	 * Look up an account password.
-	 *
-	 * @param username
-	 * @return the password, or null if not found
-	 */
-	public String getUserPassword(String username) {
-		if (username == null || username.isEmpty())
-			return null;
-
-		for (IAccount account : userAccounts) {
-			if (username.equals(account.getUsername()))
-				return account.getPassword();
+				return account;
+			if (teamId != null && teamId.equals(account.getTeamId()))
+				return account;
 		}
 
 		return null;

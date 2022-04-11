@@ -1,18 +1,16 @@
 package org.icpc.tools.cds;
 
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
 import javax.security.enterprise.AuthenticationException;
 import javax.security.enterprise.AuthenticationStatus;
 import javax.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import javax.security.enterprise.authentication.mechanism.http.HttpMessageContext;
-import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
-import javax.security.enterprise.identitystore.CredentialValidationResult.Status;
-import javax.security.enterprise.identitystore.IdentityStoreHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,18 +25,18 @@ public class CDSAuth implements HttpAuthenticationMechanism {
 	private static final String RESULT = "result";
 	private static final String ACCOUNT = "account";
 
-	@Inject
-	private IdentityStoreHandler identityStoreHandler;
+	private List<IAccount> accounts;
 
 	@Override
 	public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response,
 			HttpMessageContext context) throws AuthenticationException {
 		// check if the user is trying to login via form
+		HttpSession session = request.getSession();
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 
 		if (username != null && password != null)
-			return validate(username, password, request, context);
+			return validate(username, password, session, context);
 
 		// check if user is trying basic auth (but not for UI)
 		String uri = request.getRequestURI();
@@ -54,23 +52,7 @@ public class CDSAuth implements HttpAuthenticationMechanism {
 				password = userAndPassword.substring(userAndPassword.indexOf(':') + 1);
 
 				if (username != null && password != null)
-					return validate(username, password, request, context);
-			}
-		}
-
-		// check for host-based auto-login
-		if (request.getRemoteUser() == null) {
-			CDSConfig config = CDSConfig.getInstance();
-			username = config.getUserFromHost(request.getRemoteHost());
-			if (username == null)
-				username = config.getUserFromHost(request.getRemoteAddr());
-
-			if (username != null) {
-				password = config.getUserPassword(username);
-				if (password != null) {
-					Trace.trace(Trace.INFO, "Auto-login user: " + username + " / " + password);
-					return validate(username, password, request, context);
-				}
+					return validate(username, password, session, context);
 			}
 		}
 
@@ -79,28 +61,45 @@ public class CDSAuth implements HttpAuthenticationMechanism {
 		if (obj != null && obj instanceof CredentialValidationResult)
 			return context.notifyContainerAboutLogin((CredentialValidationResult) obj);
 
-		return context.doNothing();
-	}
+		// check for host-based auto-login
+		if (request.getRemoteUser() == null) {
+			CDSConfig config = CDSConfig.getInstance();
+			IAccount account = config.getAccountFromHost(request.getRemoteHost());
+			if (account == null)
+				account = config.getAccountFromHost(request.getRemoteAddr());
 
-	private AuthenticationStatus validate(String username, String password, HttpServletRequest request,
-			HttpMessageContext context) {
-		CredentialValidationResult result = identityStoreHandler
-				.validate(new UsernamePasswordCredential(username, password));
-
-		HttpSession session = request.getSession();
-		session.setAttribute(RESULT, result);
-
-		// find matching account
-		session.setAttribute(ACCOUNT, null);
-		List<IAccount> accounts = CDSConfig.getInstance().getAccounts();
-		for (IAccount account : accounts) {
-			if (username.equals(account.getUsername())) {
+			if (account != null) {
+				Trace.trace(Trace.INFO, "Auto-login " + account.getUsername());
+				CredentialValidationResult result = new CredentialValidationResult(account.getUsername(),
+						new HashSet<>(Arrays.asList(account.getAccountType())));
 				session.setAttribute(ACCOUNT, account);
+				session.setAttribute(RESULT, result);
+				return context.notifyContainerAboutLogin(result);
 			}
 		}
 
-		if (result.getStatus() == Status.VALID)
-			return context.notifyContainerAboutLogin(result);
+		return context.doNothing();
+	}
+
+	private AuthenticationStatus validate(String username, String password, HttpSession session,
+			HttpMessageContext context) {
+		if (username != null && password != null) {
+			if (accounts == null)
+				accounts = CDSConfig.getInstance().getAccounts();
+
+			for (IAccount account : accounts) {
+				if (username.equals(account.getUsername()) && password.equals(account.getPassword())) {
+					CredentialValidationResult result = new CredentialValidationResult(account.getUsername(),
+							new HashSet<>(Arrays.asList(account.getAccountType())));
+					session.setAttribute(ACCOUNT, account);
+					session.setAttribute(RESULT, result);
+					return context.notifyContainerAboutLogin(result);
+				}
+			}
+		}
+
+		session.setAttribute(ACCOUNT, null);
+		session.setAttribute(RESULT, null);
 
 		return context.responseUnauthorized();
 	}
