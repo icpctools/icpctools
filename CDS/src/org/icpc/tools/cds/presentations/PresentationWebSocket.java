@@ -97,7 +97,7 @@ public class PresentationWebSocket {
 				try {
 					Trace.trace(Trace.INFO, "Disconnecting user " + user + " with incorrect admin role");
 					session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
-							"CDS: User cannot be an admin - try blue, trusted, or public user"));
+							"CDS: User cannot be an admin - try staff, analyst, or public user"));
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error disconnecting websocket with invalid role");
 				}

@@ -97,25 +97,14 @@ which contains the file _cdsConfig.xml_ (see below).
 * a list of _features_ used by the JavaEE server (not normally changed by CDS users).
 
 
-#### Configuring CDS User Roles
+#### Configuring CDS Accounts
 
-The _server.xml_ file by default defines four _security roles_ and several _user names_ occupying those roles, as follows:
+Access to the CDS is configured via an _accounts.json_ file in the same folder as cdsConfig.xml. This account file follows the
+Contest API and Contest Archive Format specifications and allows you to configure any number of users to access the CDS.
+In addition to the spec-defined account types of admin, staff, analyst, team, the CDS supports three additional roles:
+spectator (receives additional non-public data like commentary), balloon (typically used for printing balloons at the World Finals)
+and presAdmin (users who can control presentations).
 
-| Role | Purpose | Default User Names 
-| --- | --- | ---
-| admin | Super user | admin
-| blue |  Read-only access to all data | blue
-| balloon | World Finals specific | balloon
-| trusted | Data accessible to trusted tools | myicpc, live
-| public | Data accessible to anyone | public, presentation
-
-The user names can be changed to anything you wish and can be added or removed, but must remain be in an appropriate "CDS role".
-The CDS verifies that authenticated users have the appropriate role before granting access to a specific CDS service.
-(The "blue" role name comes from the ICPC World Finals network configuration, where core components occupy a network 
-segment called the "Blue Network"; the names "live", "myicpc", and "presentation" refer to groups or functions at the World Finals.) 
-
-The Contest Administrator can add, delete, or change the roles and/or the user names defined in the _server.xml_ file -- but as noted above, 
-be aware that some ICPCTools rely on a user being part of a specific role.
 
 #### Configuring CDS Services
 

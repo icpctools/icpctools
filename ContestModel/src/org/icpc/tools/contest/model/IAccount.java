@@ -9,6 +9,7 @@ public interface IAccount extends IContestObject {
 	public String JUDGE = "judge";
 	public String ANALYST = "analyst";
 	public String TEAM = "team";
+	public String SPECTATOR = "spectator";
 	public String BALLOON = "balloon";
 	public String PRES_ADMIN = "presAdmin";
 

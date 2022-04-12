@@ -41,7 +41,7 @@ public class LoginServlet extends HttpServlet {
 
 		if (request.getRemoteUser() == null)
 			request.getRequestDispatcher("/WEB-INF/jsps/loginError.jsp").forward(request, response);
-
-		request.getRequestDispatcher("/WEB-INF/jsps/welcome.jsp").forward(request, response);
+		else
+			request.getRequestDispatcher("/WEB-INF/jsps/welcome.jsp").forward(request, response);
 	}
 }
