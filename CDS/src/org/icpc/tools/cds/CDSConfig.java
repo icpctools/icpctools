@@ -93,14 +93,13 @@ public class CDSConfig {
 	private String[] hosts;
 	private File file;
 	private long lastModified;
-	// private boolean loadedPasswords;
-	private List<IAccount> userAccounts;
+	private List<IAccount> userAccounts = new ArrayList<IAccount>();
 
 	private CDSConfig(File file) {
 		this.file = file;
 
 		try {
-			userAccounts = loadAccounts(file.getParentFile());
+			loadAccounts(file.getParentFile());
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not load accounts", e);
 		}
@@ -270,12 +269,11 @@ public class CDSConfig {
 		}
 	}
 
-	private static List<IAccount> loadAccounts(File folder) throws IOException {
+	private void loadAccounts(File folder) throws IOException {
 		File f = new File(folder, "accounts.json");
 
-		List<IAccount> list = new ArrayList<>();
 		if (!f.exists())
-			return list;
+			return;
 
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			JSONParser parser = new JSONParser(new FileInputStream(f));
@@ -287,12 +285,11 @@ public class CDSConfig {
 				for (String key : data.props.keySet())
 					co.add(key, data.props.get(key));
 
-				list.add((IAccount) co);
+				userAccounts.add((IAccount) co);
 			}
 		}
 
 		Trace.trace(Trace.INFO, "Imported " + f.getName());
-		return list;
 	}
 
 	public List<IAccount> getAccounts() {

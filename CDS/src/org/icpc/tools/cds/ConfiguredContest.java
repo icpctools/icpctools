@@ -50,6 +50,15 @@ import org.icpc.tools.contest.model.internal.account.TeamContest;
 import org.w3c.dom.Element;
 
 public class ConfiguredContest {
+	private static final IAccount PUBLIC_ACCOUNT = new Account();
+
+	static {
+		Account ac = (Account) PUBLIC_ACCOUNT;
+		ac.add("id", "public");
+		ac.add("username", "public");
+		ac.add("type", "public");
+	}
+
 	public enum Mode {
 		ARCHIVE, PLAYBACK, LIVE
 	}
@@ -65,8 +74,6 @@ public class ConfiguredContest {
 	private View view;
 
 	private DiskContestSource contestSource;
-
-	private IAccount PUBLIC_ACCOUNT = new Account();
 
 	private Contest contest;
 
@@ -493,6 +500,9 @@ public class ConfiguredContest {
 	}
 
 	private static Contest createAccountContest(IAccount account) {
+		if (account.getAccountType() == null)
+			return new PublicContest();
+
 		switch (account.getAccountType()) {
 			case IAccount.STAFF:
 				return new StaffContest();
@@ -536,7 +546,7 @@ public class ConfiguredContest {
 
 	private Contest getContestForAccount(IAccount account) {
 		// return the full contest for administrators
-		if ("admin".equals(account.getAccountType()))
+		if (IAccount.ADMIN.equals(account.getAccountType()))
 			return contest;
 
 		// find the associated contest for every other account
@@ -872,7 +882,7 @@ public class ConfiguredContest {
 		if (account == null)
 			return false;
 		String type = account.getAccountType();
-		return "admin".equals(type);
+		return IAccount.ADMIN.equals(type);
 	}
 
 	public boolean isStaff(HttpServletRequest request) {
@@ -880,7 +890,7 @@ public class ConfiguredContest {
 		if (account == null)
 			return false;
 		String type = account.getAccountType();
-		return "admin".equals(type) || "staff".equals(type);
+		return IAccount.ADMIN.equals(type) || IAccount.STAFF.equals(type);
 	}
 
 	public boolean isAnalyst(HttpServletRequest request) {
@@ -888,7 +898,7 @@ public class ConfiguredContest {
 		if (account == null)
 			return false;
 		String type = account.getAccountType();
-		return "admin".equals(type) || "staff".equals(type) || "analyst".equals(type);
+		return IAccount.ADMIN.equals(type) || IAccount.STAFF.equals(type) || IAccount.ANALYST.equals(type);
 	}
 
 	public boolean isBalloon(HttpServletRequest request) {
@@ -896,14 +906,14 @@ public class ConfiguredContest {
 		if (account == null)
 			return false;
 		String type = account.getAccountType();
-		return "balloon".equals(type);
+		return IAccount.BALLOON.equals(type);
 	}
 
 	public boolean isTeam(HttpServletRequest request) {
 		IAccount account = getAccount(request.getRemoteUser());
 		if (account == null)
 			return false;
-		return "team".equals(account.getAccountType());
+		return IAccount.TEAM.equals(account.getAccountType());
 	}
 
 	public void add(Session session) {
