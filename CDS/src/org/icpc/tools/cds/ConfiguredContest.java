@@ -493,22 +493,25 @@ public class ConfiguredContest {
 	}
 
 	private static Contest createAccountContest(IAccount account) {
-		if ("staff".equals(account.getAccountType()))
-			return new StaffContest();
-		if ("analyst".equals(account.getAccountType()))
-			return new AnalystContest(account);
-		if ("team".equals(account.getAccountType()))
-			return new TeamContest(account);
-		if ("balloon".equals(account.getAccountType()))
-			return new BalloonContest(account);
-		if ("spectator".equals(account.getAccountType()))
-			return new SpectatorContest(account);
-		return new PublicContest();
+		switch (account.getAccountType()) {
+			case IAccount.STAFF:
+				return new StaffContest();
+			case IAccount.ANALYST:
+				return new AnalystContest(account);
+			case IAccount.TEAM:
+				return new TeamContest(account);
+			case IAccount.BALLOON:
+				return new BalloonContest(account);
+			case IAccount.SPECTATOR:
+				return new SpectatorContest(account);
+			default:
+				return new PublicContest();
+		}
 	}
 
 	private static String getKey(IAccount account) {
-		if ("team".equals(account.getAccountType()))
-			return "team" + account.getTeamId();
+		if (IAccount.TEAM.equals(account.getAccountType()))
+			return IAccount.TEAM + account.getTeamId();
 
 		return account.getAccountType();
 	}
@@ -528,6 +531,10 @@ public class ConfiguredContest {
 			}
 		}
 
+		return getContestForAccount(account);
+	}
+
+	private Contest getContestForAccount(IAccount account) {
 		// return the full contest for administrators
 		if ("admin".equals(account.getAccountType()))
 			return contest;
@@ -540,15 +547,20 @@ public class ConfiguredContest {
 
 		// first login - create a new contest for the account type, populate the existing contest
 		// data, and cache it
-		ac = createAccountContest(account);
-		ac.setHashCode(contest.hashCode());
+		synchronized (accountContests) {
+			ac = accountContests.get(key);
+			if (ac != null)
+				return ac;
 
-		IContestObject[] objs = contest.getObjects();
-		for (IContestObject co : objs)
-			ac.add(co);
+			ac = createAccountContest(account);
+			ac.setHashCode(contest.hashCode());
 
-		accountContests.put(key, ac);
+			IContestObject[] objs = contest.getObjects();
+			for (IContestObject co : objs)
+				ac.add(co);
 
+			accountContests.put(key, ac);
+		}
 		return ac;
 	}
 
@@ -559,7 +571,7 @@ public class ConfiguredContest {
 		if (isAdmin)
 			return contest;
 
-		return accountContests.get(getKey(PUBLIC_ACCOUNT));// TODO could be null
+		return getContestForAccount(PUBLIC_ACCOUNT);
 	}
 
 	public String getError() {
@@ -638,12 +650,24 @@ public class ConfiguredContest {
 			if (isTesting())
 				contest.setHashCode(contest.hashCode() + (int) (Math.random() * 500.0));
 
+			// if you're an admin, staff, analyst, spectator, or balloon on the CDS, give equivalent
+			// access on all contests
+			List<IAccount> userAccounts = CDSConfig.getInstance().getAccounts();
+			for (IAccount account : userAccounts) {
+				if (IAccount.ADMIN.equals(account.getAccountType()) || IAccount.STAFF.equals(account.getAccountType())
+						|| IAccount.ANALYST.equals(account.getAccountType())
+						|| IAccount.SPECTATOR.equals(account.getAccountType())
+						|| IAccount.BALLOON.equals(account.getAccountType()))
+					contest.add(account);
+			}
+
 			State[] currentState = new State[1];
 			currentState[0] = new State();
 			contest.addListenerFromStart((contest2, obj, d) -> {
-				// TODO sychronization
-				for (Contest ac : accountContests.values()) {
-					ac.add(obj);
+				synchronized (accountContests) {
+					for (Contest ac : accountContests.values()) {
+						ac.add(obj);
+					}
 				}
 
 				if (obj instanceof ITeam) {
@@ -940,14 +964,15 @@ public class ConfiguredContest {
 
 	/**
 	 * Expose a contest object from during the freeze (typically judgements) to the publicly visible
-	 * contests (trusted, balloon, and public roles).
+	 * contests (staff, balloon, and public roles).
 	 *
 	 * @param co
 	 */
 	public void exposeContestObject(IContestObject co) {
-		// TODO sychronization
-		for (Contest ac : accountContests.values())
-			ac.add(co);
+		synchronized (accountContests) {
+			for (Contest ac : accountContests.values())
+				ac.add(co);
+		}
 	}
 
 	@Override
