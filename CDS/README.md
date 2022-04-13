@@ -99,9 +99,9 @@ which contains the file _cdsConfig.xml_ (see below).
 
 #### Configuring CDS Accounts
 
-Access to the CDS is configured via an _accounts.json_ file in the same folder as cdsConfig.xml. This account file follows the
-Contest API and Contest Archive Format specifications and allows you to configure any number of users to access the CDS.
-In addition to the spec-defined account types of admin, staff, analyst, team, the CDS supports three additional roles:
+Access to the CDS is configured via an _accounts.yaml_ (or _accounts.json_) file in the same folder as cdsConfig.xml. This account file
+follows the Contest API and Contest Archive Format specifications and allows you to configure any number of users to access the CDS.
+In addition to the spec-defined account types of admin, staff, analyst, team, the CDS supports three additional account types:
 spectator (receives additional non-public data like commentary), balloon (typically used for printing balloons at the World Finals)
 and presAdmin (users who can control presentations).
 

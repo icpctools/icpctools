@@ -1,9 +1,0 @@
-[{"id":"admin","username":"admin","password":"adm1n","type":"admin"},
-{"id":"presAdmin","username":"presAdmin","password":"padm1n","type":"admin"},
-{"id":"blue","username":"blue","password":"bl3e","type":"staff"},
-{"id":"balloon","username":"balloon","password":"balloonPr1nter","type":"balloon"},
-{"id":"public","username":"public","password":"publ1c","type":"public"},
-{"id":"presentation","username":"presentation","password":"presentat1on","type":"public"},
-{"id":"myicpc","username":"myicpc","password":"my1cpc","type":"spectator"},
-{"id":"live","username":"live","password":"l1ve","type":"analyst"},
-{"id":"team1","username":"team1","password":"t3am","type":"team","team_id":"1"}]

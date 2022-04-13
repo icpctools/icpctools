@@ -28,6 +28,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.ContestObject;
+import org.icpc.tools.contest.model.internal.YamlParser;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -99,7 +100,13 @@ public class CDSConfig {
 		this.file = file;
 
 		try {
-			loadAccounts(file.getParentFile());
+			File f = new File(file.getParentFile(), "accounts.yaml");
+			if (f.exists())
+				userAccounts = YamlParser.importAccounts(f);
+
+			f = new File(file.getParentFile(), "accounts.json");
+			if (f.exists())
+				loadAccounts(f);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not load accounts", e);
 		}
@@ -269,9 +276,7 @@ public class CDSConfig {
 		}
 	}
 
-	private void loadAccounts(File folder) throws IOException {
-		File f = new File(folder, "accounts.json");
-
+	private void loadAccounts(File f) throws IOException {
 		if (!f.exists())
 			return;
 
