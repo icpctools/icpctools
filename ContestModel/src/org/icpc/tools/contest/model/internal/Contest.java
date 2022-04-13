@@ -28,6 +28,7 @@ import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.IMapInfo;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPause;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IProblemSummary;
 import org.icpc.tools.contest.model.IResult;
@@ -37,7 +38,6 @@ import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -56,7 +56,7 @@ public class Contest implements IContest {
 	private IGroup[] groups;
 	private IOrganization[] organizations;
 	private ITeam[] teams;
-	private ITeamMember[] members;
+	private IPerson[] persons;
 	private ISubmission[] submissions;
 	private IJudgement[] judgements;
 	private IClarification[] clars;
@@ -191,7 +191,7 @@ public class Contest implements IContest {
 			awards = null;
 			pauses = null;
 			startStatus = null;
-			members = null;
+			persons = null;
 			runs = null;
 			clars = null;
 			commentary = null;
@@ -291,8 +291,8 @@ public class Contest implements IContest {
 			submissionJudgementTypes = null;
 			recentActivity = null;
 			fts = null;
-		} else if (type == ContestType.TEAM_MEMBER) {
-			members = null;
+		} else if (type == ContestType.PERSON) {
+			persons = null;
 		} else if (type == ContestType.START_STATUS) {
 			startStatus = null;
 		} else if (type == ContestType.ACCOUNT) {
@@ -792,42 +792,42 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public ITeamMember[] getTeamMembers() {
-		ITeamMember[] temp = members;
+	public IPerson[] getPersons() {
+		IPerson[] temp = persons;
 		if (temp != null)
 			return temp;
 
 		synchronized (data) {
-			if (members != null)
-				return members;
+			if (persons != null)
+				return persons;
 
-			members = data.getByType(ITeamMember.class, ContestType.TEAM_MEMBER);
-			return members;
+			persons = data.getByType(IPerson.class, ContestType.PERSON);
+			return persons;
 		}
 	}
 
 	@Override
-	public ITeamMember[] getTeamMembersByTeamId(String id) {
-		ITeamMember[] temp = getTeamMembers();
-		List<ITeamMember> list = new ArrayList<>();
-		for (ITeamMember m : temp) {
+	public IPerson[] getPersonsByTeamId(String id) {
+		IPerson[] temp = getPersons();
+		List<IPerson> list = new ArrayList<>();
+		for (IPerson m : temp) {
 			if (id.equals(m.getTeamId()))
 				list.add(m);
 		}
 		if (list.isEmpty())
 			return null;
 
-		ITeamMember[] tempMembers = list.toArray(new ITeamMember[0]);
+		IPerson[] tempPersons = list.toArray(new IPerson[0]);
 
 		// default sort: by last name with coaches to bottom
-		Arrays.sort(tempMembers, (o1, o2) -> {
+		Arrays.sort(tempPersons, (o1, o2) -> {
 			if (o1.getRole() != null && o2.getRole() != null && !o1.getRole().equals(o2.getRole()))
 				return -o1.getRole().compareTo(o2.getRole());
 			if (o1.getName() != null && o2.getName() != null)
 				return collator.compare(o1.getName(), o2.getName());
 			return 0;
 		});
-		return tempMembers;
+		return tempPersons;
 	}
 
 	@Override
@@ -1349,13 +1349,13 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public int getNumTeamMembers() {
+	public int getNumPersons() {
 		return getTeams().length;
 	}
 
 	@Override
-	public ITeamMember getTeamMemberById(String id) {
-		return (ITeamMember) data.getById(id, ContestType.TEAM_MEMBER);
+	public IPerson getPersonById(String id) {
+		return (IPerson) data.getById(id, ContestType.PERSON);
 	}
 
 	@Override

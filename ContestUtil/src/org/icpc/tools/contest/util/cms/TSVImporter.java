@@ -13,7 +13,7 @@ import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.model.internal.TeamMember;
+import org.icpc.tools.contest.model.internal.Person;
 
 public class TSVImporter {
 	private static final String ID = "id";
@@ -177,7 +177,7 @@ public class TSVImporter {
 		}
 	}
 
-	public static void importTeamMembers(List<TeamMember> list, File f) throws IOException {
+	public static void importTeamMembers(List<Person> list, File f) throws IOException {
 		int id = 1;
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "members.tsv")))) {
 			// read header
@@ -187,7 +187,7 @@ public class TSVImporter {
 			while (s != null) {
 				String[] st = s.split("\\t");
 				if (st != null && st.length > 0) {
-					TeamMember p = new TeamMember();
+					Person p = new Person();
 					add(p, ID, id + "");
 					id++;
 					add(p, TEAM_ID, st[0]);
@@ -215,8 +215,8 @@ public class TSVImporter {
 		}
 	}
 
-	public static void importTeamMembersTab(List<TeamMember> list, List<Team> teams, File f) throws IOException {
-		List<TeamMember> temp = new ArrayList<>();
+	public static void importPersonsTab(List<Person> list, List<Team> teams, File f) throws IOException {
+		List<Person> temp = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "Person.tab")))) {
 			// read header
 			br.readLine();
@@ -225,7 +225,7 @@ public class TSVImporter {
 			while (s != null) {
 				String[] st = s.split("\\t");
 				if (st != null && st.length > 0) {
-					TeamMember p = new TeamMember();
+					Person p = new Person();
 					add(p, ID, st[0]);
 					add(p, ICPC_ID, st[0]);
 					// add(p, TEAM_ID, st[0]);
@@ -255,8 +255,8 @@ public class TSVImporter {
 				if (st != null && st.length > 0) {
 					String id = st[0];
 
-					TeamMember p = null;
-					for (TeamMember tm : temp)
+					Person p = null;
+					for (Person tm : temp)
 						if (id.equals(tm.getICPCId()))
 							p = tm;
 

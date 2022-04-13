@@ -18,8 +18,8 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
+import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.model.internal.TeamMember;
 import org.icpc.tools.contest.util.cms.CMSDownloadHelper.ContestInfo;
 
 /**
@@ -53,7 +53,7 @@ public class JsonToTSVConverter {
 	protected static List<Group> groupList = new ArrayList<>();
 	protected static List<Organization> orgList = new ArrayList<>();
 	protected static List<Team> teamList = new ArrayList<>();
-	protected static List<TeamMember> memberList = new ArrayList<>();
+	protected static List<Person> personList = new ArrayList<>();
 	protected static List<CMSStaffMember> staffMemberList = new ArrayList<>();
 	protected static List<CMSWinner> winnerList = new ArrayList<>();
 	protected static List<String> contestIdList = new ArrayList<>();
@@ -114,7 +114,7 @@ public class JsonToTSVConverter {
 		groupList = new ArrayList<>();
 		orgList = new ArrayList<>();
 		teamList = new ArrayList<>();
-		memberList = new ArrayList<>();
+		personList = new ArrayList<>();
 		winnerList = new ArrayList<>();
 		contestIdList = new ArrayList<>();
 
@@ -139,7 +139,7 @@ public class JsonToTSVConverter {
 		groupList = new ArrayList<>();
 		orgList = new ArrayList<>();
 		teamList = new ArrayList<>();
-		memberList = new ArrayList<>();
+		personList = new ArrayList<>();
 		staffMemberList = new ArrayList<>();
 
 		try {
@@ -156,7 +156,7 @@ public class JsonToTSVConverter {
 					return false;
 				}
 			});
-			
+
 			System.out.println("Loading " + files.length + " institutions");
 			for (File f : files) {
 				readInstitution(f);
@@ -171,7 +171,7 @@ public class JsonToTSVConverter {
 			TSVImporter.importGroups(groupList, cmsClicsRoot);
 			TSVImporter.importInstitutions(orgList, cmsClicsRoot);
 			TSVImporter.importTeams(teamList, cmsClicsRoot, AUTO_ASSIGN_TEAM_IDS);
-			TSVImporter.importTeamMembers(memberList, cmsClicsRoot);
+			TSVImporter.importTeamMembers(personList, cmsClicsRoot);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -190,7 +190,7 @@ public class JsonToTSVConverter {
 
 		try {
 			System.out.println("Reading CMS team members: " + cmsContestRoot);
-			TSVImporter.importTeamMembersTab(memberList, teamList, cmsContestRoot);
+			TSVImporter.importPersonsTab(personList, teamList, cmsContestRoot);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -248,7 +248,7 @@ public class JsonToTSVConverter {
 		try {
 			System.out.println("Cleaning and sorting");
 			teamList.removeIf(t -> t.getId() == null);
-			memberList.removeIf(m -> m.getTeamId() == null);
+			personList.removeIf(m -> m.getTeamId() == null);
 
 			if (FINALS_NAMING) {
 				for (Team t : teamList) {
@@ -281,7 +281,7 @@ public class JsonToTSVConverter {
 			groupList.sort((g1, g2) -> compare(g1.getId(), g2.getId()));
 			teamList.sort((t1, t2) -> compare(t1.getId(), t2.getId()));
 			orgList.sort((i1, i2) -> compare(i1.getId(), i2.getId()));
-			memberList.sort((m1, m2) -> compare(m1.getTeamId(), m2.getTeamId()));
+			personList.sort((m1, m2) -> compare(m1.getTeamId(), m2.getTeamId()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -306,7 +306,7 @@ public class JsonToTSVConverter {
 			writeTeamsTSV(teamList, configFolder, true);
 			writeInstitutionsTSV(orgList, configFolder, false);
 			writeInstitutionsTSV(orgList, configFolder, true);
-			writeMembersTSV(memberList, configFolder);
+			writeMembersTSV(personList, configFolder);
 			writeStaffMembersTSV(staffMemberList, configFolder);
 
 			writeContestJSON(info, configFolder);
@@ -314,7 +314,7 @@ public class JsonToTSVConverter {
 			writeJSON(new File(contestRoot, "groups.json"), groupList);
 			writeJSON(new File(contestRoot, "organizations.json"), orgList);
 			writeJSON(new File(contestRoot, "teams.json"), teamList);
-			writeJSON(new File(contestRoot, "team-members.json"), memberList);
+			writeJSON(new File(contestRoot, "persons.json"), personList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -500,11 +500,11 @@ public class JsonToTSVConverter {
 		fw.write("\"" + name + "\":" + "" + value + "");
 	}
 
-	protected static void writeMembersTSV(List<TeamMember> members, File folder) throws Exception {
+	protected static void writeMembersTSV(List<Person> members, File folder) throws Exception {
 		File f = new File(folder, "members.tsv");
 		FileWriter fw = new FileWriter(f);
 		fw.write("File_Version\t1\n");
-		for (TeamMember member : members) {
+		for (Person member : members) {
 			fw.write(member.getTeamId());
 			fw.write("\t");
 			fw.write(member.getRole().substring(0, 1).toUpperCase());
@@ -561,7 +561,7 @@ public class JsonToTSVConverter {
 				for (Object personObj : persons) {
 					JsonObject person = (JsonObject) personObj;
 					String pId = person.getInt("personId") + "";
-					TeamMember m = getMemberByICPCId(pId);
+					Person m = getMemberByICPCId(pId);
 					m.add("team_id", team.getInt("workstationId") + "");
 					m.add("first_name", person.getString("firstname"));
 					m.add("last_name", person.getString("lastname"));
@@ -604,13 +604,13 @@ public class JsonToTSVConverter {
 		for (JsonObject result : arr.getValuesAs(JsonObject.class)) {
 			// String name = team.getString("name");
 			// String cId = result.getInt("externalContestId") + "";
-		
+
 			// String rank = result.getInt("rank") + "";
 			// String problemssolved = result.getInt("problemssolved") + "";
 			// String totaltime = result.getInt("totaltime") + "";
 			// String lastproblemtime = result.getInt("lastproblemtime") + "";
 			// CMSTeam t = getTeam(tId);
-		
+
 			// System.out.println(id + " " + cId + " " + rank + " " + contestIdList.contains(cId));
 		}*/
 	}
@@ -755,7 +755,7 @@ public class JsonToTSVConverter {
 				for (JsonObject member : teamMembers.getValuesAs(JsonObject.class)) {
 					String firstName = member.getString("firstName");
 					String lastName = member.getString("lastName");
-				
+
 					CMSMember m = getMember(firstName, lastName);
 					m.role = member.getString("teamRole");
 					m.team = t;
@@ -836,16 +836,16 @@ public class JsonToTSVConverter {
 		return m;
 	}
 
-	private static TeamMember getMemberByICPCId(String id) {
-		for (TeamMember m : memberList) {
+	private static Person getMemberByICPCId(String id) {
+		for (Person m : personList) {
 			if (m.getICPCId().equals(id))
 				return m;
 		}
 
-		TeamMember m = new TeamMember();
+		Person m = new Person();
 		m.add("id", id);
 		m.add("icpc_id", id);
-		memberList.add(m);
+		personList.add(m);
 		return m;
 	}
 }

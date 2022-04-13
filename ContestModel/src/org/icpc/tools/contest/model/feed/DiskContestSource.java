@@ -38,9 +38,9 @@ import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.IContestModifier;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
+import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.model.internal.TeamMember;
 import org.icpc.tools.contest.model.internal.YamlParser;
 
 /**
@@ -837,7 +837,7 @@ public class DiskContestSource extends ContestSource {
 				return new FilePattern(type, id, property, "txt");
 			if (TOOL_DATA.equals(property))
 				return new FilePattern(type, id, property, "txt");
-		} else if (type == ContestType.TEAM_MEMBER) {
+		} else if (type == ContestType.PERSON) {
 			if (PHOTO.equals(property))
 				return new FilePattern(type, id, property, PHOTO_EXTENSIONS);
 		} else if (type == ContestType.ORGANIZATION) {
@@ -909,9 +909,9 @@ public class DiskContestSource extends ContestSource {
 			team.setBackup(mergeRefs(team.getBackup(), getFilesWithPattern(obj, BACKUP)));
 			team.setKeyLog(mergeRefs(team.getKeyLog(), getFilesWithPattern(obj, KEY_LOG)));
 			team.setToolData(mergeRefs(team.getToolData(), getFilesWithPattern(obj, TOOL_DATA)));
-		} else if (obj instanceof TeamMember) {
-			TeamMember member = (TeamMember) obj;
-			member.setPhoto(mergeRefs(member.getPhoto(), getFilesWithPattern(obj, PHOTO)));
+		} else if (obj instanceof Person) {
+			Person person = (Person) obj;
+			person.setPhoto(mergeRefs(person.getPhoto(), getFilesWithPattern(obj, PHOTO)));
 		} else if (obj instanceof Submission) {
 			Submission submission = (Submission) obj;
 			submission.setFiles(mergeRefs(submission.getFiles(), getFilesWithPattern(obj, FILES)));
@@ -1069,11 +1069,11 @@ public class DiskContestSource extends ContestSource {
 			File f = getConfigFile(root, "members.tsv");
 			if (f.exists()) {
 				TSVImporter.importTeamMembers(contest, f);
-				Trace.trace(Trace.INFO, "Imported team members tsv");
+				Trace.trace(Trace.INFO, "Imported persons tsv");
 			}
 		} catch (Exception e) {
-			configValidation.err("Error importing team-members: " + e.getMessage());
-			Trace.trace(Trace.ERROR, "Error importing team-members", e);
+			configValidation.err("Error importing persons: " + e.getMessage());
+			Trace.trace(Trace.ERROR, "Error importing persons", e);
 		}
 
 		// load jsons

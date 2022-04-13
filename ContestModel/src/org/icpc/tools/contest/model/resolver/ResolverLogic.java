@@ -761,7 +761,7 @@ public class ResolverLogic {
 		types.add(ContestType.CONTEST);
 		types.add(ContestType.STATE);
 		types.add(ContestType.TEAM);
-		types.add(ContestType.TEAM_MEMBER);
+		types.add(ContestType.PERSON);
 		types.add(ContestType.ORGANIZATION);
 		types.add(ContestType.GROUP);
 		types.add(ContestType.PROBLEM);

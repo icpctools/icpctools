@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.ITeamMember;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
-public class TeamMember extends ContestObject implements ITeamMember {
+public class Person extends ContestObject implements IPerson {
 	private static final String ICPC_ID = "icpc_id";
 	private static final String TEAM_ID = "team_id";
 	private static final String FIRST_NAME = "first_name";
@@ -48,7 +48,7 @@ public class TeamMember extends ContestObject implements ITeamMember {
 
 	@Override
 	public ContestType getType() {
-		return ContestType.TEAM_MEMBER;
+		return ContestType.PERSON;
 	}
 
 	@Override
@@ -294,18 +294,18 @@ public class TeamMember extends ContestObject implements ITeamMember {
 
 	@Override
 	public IContestObject clone() {
-		TeamMember t = new TeamMember();
-		t.id = id;
-		t.photo = photo;
-		t.icpcId = icpcId;
-		t.firstName = firstName;
-		t.lastName = lastName;
-		t.name = name;
-		t.email = email;
-		t.sex = sex;
-		t.teamId = teamId;
-		t.role = role;
-		return t;
+		Person p = new Person();
+		p.id = id;
+		p.photo = photo;
+		p.icpcId = icpcId;
+		p.firstName = firstName;
+		p.lastName = lastName;
+		p.name = name;
+		p.email = email;
+		p.sex = sex;
+		p.teamId = teamId;
+		p.role = role;
+		return p;
 	}
 
 	@Override

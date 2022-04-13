@@ -48,12 +48,12 @@ import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
@@ -385,20 +385,20 @@ public class CoachView extends Panel {
 			y = drawLine(g, y, "Hashtag", org.getHashtag());
 		}
 
-		ITeamMember[] members = contest.getTeamMembersByTeamId(team.getId());
-		if (members != null && members.length > 0) {
-			List<ITeamMember> contestants = new ArrayList<>();
-			List<ITeamMember> staff = new ArrayList<>();
-			for (int i = 0; i < members.length; i++) {
-				if (members[i].getRole().equalsIgnoreCase("contestant"))
-					contestants.add(members[i]);
+		IPerson[] persons = contest.getPersonsByTeamId(team.getId());
+		if (persons != null && persons.length > 0) {
+			List<IPerson> contestants = new ArrayList<>();
+			List<IPerson> staff = new ArrayList<>();
+			for (int i = 0; i < persons.length; i++) {
+				if (persons[i].getRole().equalsIgnoreCase("contestant"))
+					contestants.add(persons[i]);
 				else
-					staff.add(members[i]);
+					staff.add(persons[i]);
 			}
 
 			String[] names = new String[contestants.size()];
 			for (int i = 0; i < contestants.size(); i++) {
-				ITeamMember tm = contestants.get(i);
+				IPerson tm = contestants.get(i);
 				names[i] = tm.getName();
 			}
 			drawLine(g, y, "Contestants", names);
@@ -407,7 +407,7 @@ public class CoachView extends Panel {
 			g.translate(x, 0);
 			names = new String[staff.size()];
 			for (int i = 0; i < staff.size(); i++) {
-				ITeamMember tm = staff.get(i);
+				IPerson tm = staff.get(i);
 				names[i] = tm.getName() + " (" + tm.getRole() + ")";
 			}
 			drawLine(g, y, "Staff", names);

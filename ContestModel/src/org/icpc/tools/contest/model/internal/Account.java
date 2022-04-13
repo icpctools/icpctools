@@ -148,8 +148,8 @@ public class Account extends ContestObject implements IAccount {
 		if (teamId != null && c.getTeamById(teamId) == null)
 			errors.add("Invalid team " + teamId);
 
-		if (personId != null && c.getTeamMemberById(personId) == null)
-			errors.add("Invalid team member " + personId);
+		if (personId != null && c.getPersonById(personId) == null)
+			errors.add("Invalid person " + personId);
 
 		if (errors.isEmpty())
 			return null;

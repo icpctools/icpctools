@@ -42,6 +42,6 @@ public class MergingContest extends Contest {
 		ContestType type = obj.getType();
 		return (type == ContestType.CONTEST || type == ContestType.PROBLEM || type == ContestType.GROUP
 				|| type == ContestType.LANGUAGE || type == ContestType.JUDGEMENT_TYPE || type == ContestType.TEAM
-				|| type == ContestType.TEAM_MEMBER || type == ContestType.ORGANIZATION);
+				|| type == ContestType.PERSON || type == ContestType.ORGANIZATION);
 	}
 }
