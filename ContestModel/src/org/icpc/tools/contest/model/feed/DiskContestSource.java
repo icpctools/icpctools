@@ -23,6 +23,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
@@ -991,6 +992,20 @@ public class DiskContestSource extends ContestSource {
 		} catch (Exception e) {
 			configValidation.err("Error importing contest info: " + e.getMessage());
 			Trace.trace(Trace.ERROR, "Error importing contest info", e);
+		}
+
+		try {
+			File f = new File(root, "accounts.yaml");
+			if (f.exists()) {
+				List<IAccount> accounts = YamlParser.importAccounts(f);
+				for (IAccount a : accounts)
+					contest.add(a);
+
+				Trace.trace(Trace.INFO, "Imported accounts yaml");
+			}
+		} catch (Exception e) {
+			configValidation.err("Error importing accounts: " + e.getMessage());
+			Trace.trace(Trace.ERROR, "Error importing accounts", e);
 		}
 
 		try {

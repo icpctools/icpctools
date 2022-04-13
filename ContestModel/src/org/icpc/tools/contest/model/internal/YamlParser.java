@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -55,7 +57,7 @@ public class YamlParser {
 						int length = RelativeTime.parse(value);
 						if (length >= 0)
 							info.add("duration", RelativeTime.format(length));
-					} else if ("scoreboard-freeze".equals(key) || "scoreboard_freeze_duration".equals(key)) {
+					} else if ("scoreboard-freeze".equals(key)) {
 						int length = RelativeTime.parse(value);
 						int d = info.getDuration();
 						if (length >= 0 && d > 0)
@@ -68,6 +70,10 @@ public class YamlParser {
 						info.add("penalty_time", value);
 					} else if ("start-time".equals(key)) {
 						info.add("start_time", value);
+					} else if ("banner".equals(key)) {
+						info.setBanner(parseFileReferenceList((List<?>) val));
+					} else if ("logo".equals(key)) {
+						info.setLogo(parseFileReferenceList((List<?>) val));
 					} else
 						info.add(key, value);
 				} catch (Exception ex) {
@@ -78,6 +84,35 @@ public class YamlParser {
 
 		br.close();
 		return info;
+	}
+
+	private static FileReferenceList parseFileReferenceList(List<?> list) {
+		FileReferenceList refList = new FileReferenceList();
+
+		for (Object obj : list) {
+			Map<?, ?> map = (Map<?, ?>) obj;
+
+			JsonObject jo = new JsonObject();
+			for (Object ob : map.keySet()) {
+				if (ob instanceof String) {
+					String key = (String) ob;
+					Object val = map.get(key);
+					String value = null;
+					if (val != null)
+						value = val.toString();
+
+					try {
+						jo.put(key, val);
+					} catch (Exception ex) {
+						Trace.trace(Trace.ERROR, "Could not parse " + key + ": " + value);
+					}
+				}
+			}
+
+			FileReference ref = new FileReference(jo);
+			refList.add(ref);
+		}
+		return refList;
 	}
 
 	// .timelimit
@@ -142,7 +177,7 @@ public class YamlParser {
 						addProblemTestDataCount(problemFolder, problem);
 						addProblemTimeLimit(problemFolder, problem);
 						try {
-							importProblemYaml(problemFolder, problem);
+							importProblem(problemFolder, problem);
 						} catch (Exception e) {
 							// ignore for now
 						}
@@ -220,7 +255,7 @@ public class YamlParser {
 		}
 	}
 
-	private static void importProblemYaml(File problemFolder, Problem p) throws IOException {
+	private static void importProblem(File problemFolder, Problem p) throws IOException {
 		File f = new File(problemFolder, "problem.yaml");
 		if (!f.exists())
 			throw new FileNotFoundException("Problem file (problem.yaml) not found: " + f.getAbsolutePath());
@@ -246,5 +281,50 @@ public class YamlParser {
 		}
 
 		br.close();
+	}
+
+	public static List<IAccount> importAccounts(File f) throws IOException {
+		if (f == null || !f.exists())
+			throw new FileNotFoundException("Accounts config file not found");
+
+		BufferedReader br = new BufferedReader(new FileReader(f));
+
+		Yaml yaml = new Yaml(new SafeConstructor());
+		Object obj = yaml.load(br);
+
+		// the file should have a top-level list of accounts
+		if (!(obj instanceof List<?>))
+			throw new IOException("Accounts file (accounts.yaml) not imported: invalid format");
+
+		List<IAccount> accounts = new ArrayList<>();
+
+		List<?> list = (List<?>) obj;
+		for (Object o : list) {
+			if (o instanceof Map<?, ?>) {
+				Map<?, ?> map = (Map<?, ?>) o;
+
+				Account account = new Account();
+				for (Object ob : map.keySet()) {
+					if (ob instanceof String) {
+						String key = (String) ob;
+						Object val = map.get(key);
+						String value = null;
+						if (val != null)
+							value = val.toString();
+
+						if ("letter".equals(key))
+							account.add("label", value);
+						else if ("short-name".equals(key)) {
+							account.add("id", value);
+						} else
+							account.add(key, value);
+					}
+				}
+				accounts.add(account);
+			}
+		}
+
+		br.close();
+		return accounts;
 	}
 }
