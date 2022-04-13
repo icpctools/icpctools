@@ -32,12 +32,12 @@ import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.Organization;
+import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Run;
 import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.model.internal.TeamMember;
 
 public class PlaybackContest extends Contest {
 	private static final String LOGO = "logo";
@@ -164,8 +164,8 @@ public class PlaybackContest extends Contest {
 			downloadMissingFiles(src, obj, VIDEO, t.getVideo());
 			// later: backup, key_log or tool data
 			src.attachLocalResources(t);
-		} else if (obj instanceof TeamMember) {
-			TeamMember tm = (TeamMember) obj;
+		} else if (obj instanceof Person) {
+			Person tm = (Person) obj;
 			downloadMissingFiles(src, obj, PHOTO, tm.getPhoto());
 			src.attachLocalResources(tm);
 		} else if (obj instanceof Organization) {
@@ -293,9 +293,9 @@ public class PlaybackContest extends Contest {
 				if (getJudgementById(run.getJudgementTypeId()) == null)
 					return;
 			}
-			if (obj instanceof TeamMember) {
-				TeamMember member = (TeamMember) obj;
-				ITeam team = getTeamById(member.getTeamId());
+			if (obj instanceof Person) {
+				Person person = (Person) obj;
+				ITeam team = getTeamById(person.getTeamId());
 				if (team == null)
 					return;
 			}
@@ -402,7 +402,7 @@ public class PlaybackContest extends Contest {
 		ContestType type = obj.getType();
 		boolean configType = true;
 		if (type == ContestType.PROBLEM || type == ContestType.GROUP || type == ContestType.LANGUAGE
-				|| type == ContestType.JUDGEMENT_TYPE || type == ContestType.TEAM || type == ContestType.TEAM_MEMBER
+				|| type == ContestType.JUDGEMENT_TYPE || type == ContestType.TEAM || type == ContestType.PERSON
 				|| type == ContestType.ORGANIZATION) {
 			applyDefaults(obj);
 			configType = true;

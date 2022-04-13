@@ -206,9 +206,9 @@ public class ContestRESTService extends HttpServlet {
 			return;
 		}
 
-		// TODO: temporarily alias /persons to /team-members
-		if (segments.length >= 2 && "persons".equals(segments[1]))
-			segments[1] = "team-members";
+		// TODO: temporarily alias /team-members to /persons
+		if (segments.length >= 2 && "team-members".equals(segments[1]))
+			segments[1] = "persons";
 
 		String typeName = "contests";
 		String id = cc.getId();

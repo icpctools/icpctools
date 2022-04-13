@@ -27,10 +27,10 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
 import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
@@ -734,9 +734,9 @@ public class ConfiguredContest {
 			ITeam team = (ITeam) obj;
 			if (contest.isTeamHidden(team))
 				return null;
-		} else if (obj instanceof ITeamMember) {
-			ITeamMember member = (ITeamMember) obj;
-			ITeam team = contest.getTeamById(member.getTeamId());
+		} else if (obj instanceof IPerson) {
+			IPerson person = (IPerson) obj;
+			ITeam team = contest.getTeamById(person.getTeamId());
 			if (contest.isTeamHidden(team))
 				return null;
 		} else if (obj instanceof ISubmission) {

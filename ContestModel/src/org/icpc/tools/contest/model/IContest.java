@@ -384,33 +384,33 @@ public interface IContest {
 	int getOrderOf(ITeam team);
 
 	/**
-	 * Returns the total number of team members.
+	 * Returns the total number of persons.
 	 *
-	 * @return the total number of team members
+	 * @return the total number of persons
 	 */
-	int getNumTeamMembers();
+	int getNumPersons();
 
 	/**
-	 * Returns a list of all team members competing in the contest.
+	 * Returns a list of all persons competing in the contest.
 	 *
-	 * @return a list of all team members
+	 * @return a list of all persons
 	 */
-	ITeamMember[] getTeamMembers();
+	IPerson[] getPersons();
 
 	/**
-	 * Returns the team member with the given id.
+	 * Returns the person with the given id.
 	 *
 	 * @param id an identifier
-	 * @return a team member, or <code>null</code> if the id was invalid
+	 * @return a person, or <code>null</code> if the id was invalid
 	 */
-	ITeamMember getTeamMemberById(String teamId);
+	IPerson getPersonById(String teamId);
 
 	/**
-	 * Returns a list of all team members in the given team id.
+	 * Returns a list of all persons with the given team id.
 	 *
-	 * @return a list of all team members in the given team id
+	 * @return a list of all persons with the given team id
 	 */
-	ITeamMember[] getTeamMembersByTeamId(String teamId);
+	IPerson[] getPersonsByTeamId(String teamId);
 
 	/**
 	 * Returns the total number of submissions.

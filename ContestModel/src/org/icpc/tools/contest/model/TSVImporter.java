@@ -7,12 +7,13 @@ import java.io.IOException;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.model.internal.TeamMember;
+import org.icpc.tools.contest.model.internal.Person;
 
 public class TSVImporter {
 	private static final String ID = "id";
@@ -30,6 +31,9 @@ public class TSVImporter {
 	private static final String LAST_NAME = "last_name";
 	private static final String SEX = "sex";
 	private static final String ROLE = "role";
+	private static final String TYPE = "type";
+	private static final String USERNAME = "username";
+	private static final String PASSWORD = "password";
 
 	private static void add(ContestObject co, String name, Object value) {
 		if (value == null)
@@ -163,7 +167,7 @@ public class TSVImporter {
 			while (s != null) {
 				String[] st = s.split("\\t");
 				if (st != null && st.length > 0) {
-					TeamMember p = new TeamMember();
+					Person p = new Person();
 					add(p, ID, id + "");
 					id++;
 					add(p, TEAM_ID, st[0]);
@@ -184,6 +188,36 @@ public class TSVImporter {
 						if (st.length >= 6)
 							add(p, ICPC_ID, st[5]);
 						contest.add(p);
+					}
+				}
+				s = br.readLine();
+			}
+		}
+	}
+
+	public static void importAccounts(Contest contest, File f) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+			// read header
+			br.readLine();
+
+			String s = br.readLine();
+			while (s != null) {
+				String[] st = s.split("\\t");
+				if (st != null && st.length > 0) {
+					Account a = new Account();
+					try {
+						add(a, ContestObject.ID, st[1]);
+						if (st.length < 4)
+							Trace.trace(Trace.WARNING, "Account missing columns: " + s);
+						else {
+							add(a, TYPE, st[0]);
+							// add(a, NAME, st[1]);
+							add(a, USERNAME, st[2]);
+							add(a, PASSWORD, st[3]);
+							contest.add(a);
+						}
+					} catch (Exception e) {
+						Trace.trace(Trace.ERROR, "Error parsing accounts.tsv, account " + a.getId(), e);
 					}
 				}
 				s = br.readLine();

@@ -24,10 +24,10 @@ import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -50,7 +50,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		private boolean mergedAwards;
 
 		private String[] name;
-		private String[] members;
+		private String[] persons;
 	}
 
 	private Cache[] cache;
@@ -58,7 +58,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 	private Cache currentCache;
 	private Font teamFont;
 	private Font groupFont;
-	private Font memberFont;
+	private Font personFont;
 	private BufferedImage logo;
 	private boolean showInfo;
 
@@ -70,7 +70,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		float inch = height * 72f / dpi / 10f;
 		teamFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.9f);
 		groupFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.7f);
-		memberFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.3f);
+		personFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.3f);
 	}
 
 	@Override
@@ -147,11 +147,11 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 
 		mergeAwards();
 
-		ITeamMember[] members = getContest().getTeamMembersByTeamId(currentCache.teamId);
-		if (members != null) {
-			Arrays.sort(members, new Comparator<ITeamMember>() {
+		IPerson[] persons = getContest().getPersonsByTeamId(currentCache.teamId);
+		if (persons != null) {
+			Arrays.sort(persons, new Comparator<IPerson>() {
 				@Override
-				public int compare(ITeamMember m1, ITeamMember m2) {
+				public int compare(IPerson m1, IPerson m2) {
 					String r1 = m1.getRole();
 					String r2 = m2.getRole();
 					if (r1 == null || r2 == null)
@@ -160,16 +160,16 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 				}
 			});
 		}
-		if (members == null)
-			currentCache.members = new String[0];
+		if (persons == null)
+			currentCache.persons = new String[0];
 		else {
-			int size = members.length;
-			currentCache.members = new String[size];
+			int size = persons.length;
+			currentCache.persons = new String[size];
 			for (int i = 0; i < size; i++) {
-				String s = members[i].getName();
-				if (!"contestant".equals(members[i].getRole().toLowerCase()))
-					s += " (" + members[i].getRole() + ")";
-				currentCache.members[i] = s;
+				String s = persons[i].getName();
+				if (!"contestant".equals(persons[i].getRole().toLowerCase()))
+					s += " (" + persons[i].getRole() + ")";
+				currentCache.persons[i] = s;
 			}
 		}
 
@@ -348,14 +348,14 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			}
 		}
 
-		if (showInfo && c.members.length > 0) {
+		if (showInfo && c.persons.length > 0) {
 			g.setComposite(AlphaComposite.SrcOver.derive(0.5f));
 			g.setColor(Color.BLACK);
-			int size = c.members.length;
+			int size = c.persons.length;
 			fm = g.getFontMetrics();
 			int wid = 0;
 			for (int i = 0; i < size; i++) {
-				wid = Math.max(wid, fm.stringWidth(c.members[i]));
+				wid = Math.max(wid, fm.stringWidth(c.persons[i]));
 			}
 			g.fillRect(0, height - h - BORDER - fm.getHeight() * size - BORDER * 2, wid + BORDER * 2,
 					fm.getHeight() * size + BORDER * 2);
@@ -365,10 +365,10 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 
 			g.setComposite(AlphaComposite.SrcOver);
 			g.setColor(Color.WHITE);
-			g.setFont(memberFont);
+			g.setFont(personFont);
 
 			for (int i = 0; i < size; i++) {
-				g.drawString(c.members[i], BORDER, height - h - BORDER - fm.getHeight() * (size - i));
+				g.drawString(c.persons[i], BORDER, height - h - BORDER - fm.getHeight() * (size - i));
 			}
 
 			IStanding st = contest.getStanding(team);

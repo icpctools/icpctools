@@ -4,9 +4,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 /**
- * A team member.
+ * A person.
  */
-public interface ITeamMember extends IContestObject {
+public interface IPerson extends IContestObject {
 	/**
 	 * The ICPC id of the person.
 	 *

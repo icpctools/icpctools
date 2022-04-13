@@ -15,22 +15,22 @@ import org.icpc.tools.contest.model.internal.Language;
 import org.icpc.tools.contest.model.internal.MapInfo;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Pause;
+import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Run;
 import org.icpc.tools.contest.model.internal.StartStatus;
 import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.model.internal.TeamMember;
 
 public interface IContestObject {
 	enum ContestType {
-		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, TEAM_MEMBER, MAP_INFO, START_STATUS, COMMENTARY, ACCOUNT
+		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PAUSE, PERSON, MAP_INFO, START_STATUS, COMMENTARY, ACCOUNT
 	}
 
 	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations", "teams", "state",
 			"runs", "submissions", "judgements", "clarifications", "awards", "judgement-types", "testdata", "problems",
-			"pause", "team-members", "map-info", "start-status", "commentary", "accounts" };
+			"pause", "persons", "map-info", "start-status", "commentary", "accounts" };
 
 	static String getTypeName(ContestType type) {
 		return ContestTypeNames[type.ordinal()];
@@ -67,8 +67,8 @@ public interface IContestObject {
 				return new Organization();
 			case TEAM:
 				return new Team();
-			case TEAM_MEMBER:
-				return new TeamMember();
+			case PERSON:
+				return new Person();
 			case ACCOUNT:
 				return new Account();
 			case JUDGEMENT_TYPE:

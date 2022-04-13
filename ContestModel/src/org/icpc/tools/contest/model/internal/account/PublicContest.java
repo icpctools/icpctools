@@ -8,11 +8,11 @@ import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.ITeamMember;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 
@@ -97,11 +97,11 @@ public class PublicContest extends Contest {
 				super.add(account);
 				return;
 			}
-			case TEAM_MEMBER: {
-				ITeamMember member = (ITeamMember) obj;
-				ITeam team = getTeamById(member.getTeamId());
+			case PERSON: {
+				IPerson person = (IPerson) obj;
+				ITeam team = getTeamById(person.getTeamId());
 				if (!isTeamHidden(team))
-					super.add(member);
+					super.add(person);
 				return;
 			}
 			case SUBMISSION: {
