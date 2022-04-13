@@ -308,16 +308,8 @@ public class YamlParser {
 					if (ob instanceof String) {
 						String key = (String) ob;
 						Object val = map.get(key);
-						String value = null;
 						if (val != null)
-							value = val.toString();
-
-						if ("letter".equals(key))
-							account.add("label", value);
-						else if ("short-name".equals(key)) {
-							account.add("id", value);
-						} else
-							account.add(key, value);
+							account.add(key, val.toString());
 					}
 				}
 				accounts.add(account);
