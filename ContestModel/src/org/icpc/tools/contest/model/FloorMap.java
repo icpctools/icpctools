@@ -472,6 +472,10 @@ public class FloorMap {
 		return contest.getTeamById(teamNum + "");
 	}
 
+	public IProblem getBalloon(String problem) {
+		return contest.getProblemById(problem);
+	}
+
 	public void drawFloor(Graphics2D g, Rectangle r, String teamId, boolean showAisles, Path... paths) {
 		Rectangle2D.Double bounds = getBounds(false);
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
@@ -706,7 +710,7 @@ public class FloorMap {
 	}
 
 	public void drawFloor(Graphics2D g, Rectangle r, FloorColors colors) {
-		Rectangle2D.Double bounds = getBounds(true);
+		Rectangle2D.Double bounds = getBounds(false);
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int ww = (int) (bounds.width * scale);
 		int hh = (int) (bounds.height * scale);
