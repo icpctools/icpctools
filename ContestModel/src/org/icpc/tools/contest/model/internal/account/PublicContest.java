@@ -52,6 +52,7 @@ public class PublicContest extends Contest {
 			case MAP_INFO:
 			case START_STATUS:
 			case AWARD:
+			case ORGANIZATION:
 				super.add(obj);
 				return;
 			case PROBLEM: {
