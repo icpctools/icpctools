@@ -90,7 +90,7 @@ jobs:
           git config --global user.name "ICPC Tools bot"
           website/scripts/populate-releases.py ${{ secrets.RELEASE_TOKEN }}
           website/scripts/copy-readmes.py dist
-          cp ChangeLog.md website/
+          cp doc/ChangeLog.md website/
           sed -i 's/^# .*//' website/ChangeLog.md
           sed -r 's/^## (.*)/#### \1/' -i website/ChangeLog.md
           mkdir ~/website
