@@ -4,6 +4,8 @@
 -----------------
 * Contest API improvements:
   * Will be first release to support breaking changes in next spec release.
+* CDS:
+  * User accounts are now defined via accounts.yaml or .json.
 
 ## V2.4 - April 2022
 -----------------

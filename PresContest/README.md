@@ -232,6 +232,14 @@ Examples:
  - -—display_name "{org.formal_name}"
  - -—display_name "{org.formal_name} ({team.name})"
 
+```
+--account <type>
+```
+Filter contest data based on what should be visible to an account of the given type. This is useful when
+the Contest Control System only has a single event feed or account that includes internal information
+(e.g. judgements during the freeze) and you want to show presentations in an area where it will be visible
+to teams (`--account team`) or spectators (`--account spectator`).
+
 
 ## Examples
 

@@ -41,12 +41,7 @@ import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.State;
-import org.icpc.tools.contest.model.internal.account.AnalystContest;
-import org.icpc.tools.contest.model.internal.account.BalloonContest;
-import org.icpc.tools.contest.model.internal.account.PublicContest;
-import org.icpc.tools.contest.model.internal.account.SpectatorContest;
-import org.icpc.tools.contest.model.internal.account.StaffContest;
-import org.icpc.tools.contest.model.internal.account.TeamContest;
+import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.w3c.dom.Element;
 
 public class ConfiguredContest {
@@ -499,26 +494,6 @@ public class ConfiguredContest {
 		return contest;
 	}
 
-	private static Contest createAccountContest(IAccount account) {
-		if (account.getAccountType() == null)
-			return new PublicContest();
-
-		switch (account.getAccountType()) {
-			case IAccount.STAFF:
-				return new StaffContest();
-			case IAccount.ANALYST:
-				return new AnalystContest(account);
-			case IAccount.TEAM:
-				return new TeamContest(account);
-			case IAccount.BALLOON:
-				return new BalloonContest(account);
-			case IAccount.SPECTATOR:
-				return new SpectatorContest(account);
-			default:
-				return new PublicContest();
-		}
-	}
-
 	private static String getKey(IAccount account) {
 		if (IAccount.TEAM.equals(account.getAccountType()))
 			return IAccount.TEAM + account.getTeamId();
@@ -562,7 +537,7 @@ public class ConfiguredContest {
 			if (ac != null)
 				return ac;
 
-			ac = createAccountContest(account);
+			ac = AccountHelper.createAccountContest(account);
 			ac.setHashCode(contest.hashCode());
 
 			IContestObject[] objs = contest.getObjects();
