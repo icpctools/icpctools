@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
+import org.icpc.tools.contest.model.internal.Account;
+import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.TeamDisplay;
@@ -34,6 +37,7 @@ public class StandaloneLauncher {
 		List<String> presList = new ArrayList<String>();
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
+		String[] accountType = new String[1];
 		boolean[] showFPS = new boolean[1];
 		boolean[] lightMode = new boolean[1];
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
@@ -58,6 +62,10 @@ public class StandaloneLauncher {
 				} else if ("--light".equals(option)) {
 					lightMode[0] = true;
 					return true;
+				} else if ("--account".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "type:string");
+					accountType[0] = (String) options.get(0);
+					return true;
 				} else if ("--display_name".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "display_name:string");
 					displayName[0] = (String) options.get(0);
@@ -75,6 +83,13 @@ public class StandaloneLauncher {
 		if (source == null) {
 			showHelp(presentations);
 			return;
+		}
+
+		if (accountType[0] != null) {
+			Account account = new Account();
+			account.add("type", accountType[0]);
+			Contest c = AccountHelper.createAccountContest(account);
+			source.setInitialContest(c);
 		}
 
 		if (displayName[0] != null)
@@ -97,7 +112,7 @@ public class StandaloneLauncher {
 
 		PresentationInfo[] pres = list.toArray(new PresentationInfo[0]);
 
-		ContestSource.getInstance().outputValidation();
+		source.outputValidation();
 
 		launch(pres, displayStr, showFPS[0], lightMode[0]);
 	}
@@ -124,6 +139,9 @@ public class StandaloneLauncher {
 		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
+		System.out.println("     --account <type>");
+		System.out.println("         Filter contest data based on what should be visible to an account");
+		System.out.println("         of the given type.");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
 		System.out.println();

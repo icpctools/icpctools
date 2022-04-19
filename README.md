@@ -65,7 +65,7 @@ We will add information on how to run and debug later.
 
 ### Using IntelliJ IDEA
 
-See [the IntelliJ IDEA specific documentation](intellij-idea.md).
+See [the IntelliJ IDEA specific documentation](doc/intellij-idea.md).
 
 ## License
 
