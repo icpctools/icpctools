@@ -1,6 +1,5 @@
 package org.icpc.tools.cds.service;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebServlet;
@@ -31,10 +29,10 @@ import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoStream;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
+import org.icpc.tools.cds.web.BalloonPDFService;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestSource;
@@ -44,7 +42,6 @@ import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
-import org.icpc.tools.contest.model.util.Balloon;
 import org.icpc.tools.contest.model.util.ContestComparator;
 import org.icpc.tools.contest.model.util.ScoreboardData;
 import org.icpc.tools.contest.model.util.ScoreboardUtil;
@@ -435,31 +432,8 @@ public class ContestWebService extends HttpServlet {
 				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "staff-members.tsv");
 				PresentationFilesServlet.sendFile(f, request, response);
 				return;
-			} else if (segments[1].equals("balloon")) {
-				if (segments.length == 3) {
-					String label = segments[2];
-					if (label == null || !label.endsWith(".png")) {
-						response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-						return;
-					}
-					label = label.substring(0, label.length() - 4);
-
-					IProblem pr = null;
-					for (IProblem p : cc.getContestByRole(request).getProblems()) {
-						if (p.getLabel().equals(label))
-							pr = p;
-					}
-					if (pr == null) {
-						response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-						return;
-					}
-					Balloon.load(cc.getClass());
-					BufferedImage img = Balloon.getBalloonImage(pr.getColorVal());
-					response.setContentType("image/png");
-					ImageIO.write(img, "png", response.getOutputStream());
-					return;
-				}
-				request.getRequestDispatcher("/WEB-INF/jsps/balloon.jsp").forward(request, response);
+			} else if (segments[1].startsWith("balloon")) {
+				BalloonPDFService.generate(request, response, cc);
 				return;
 			} else if (segments[1].equals("resolver")) {
 				ResolverService.doGet(response, cc);
