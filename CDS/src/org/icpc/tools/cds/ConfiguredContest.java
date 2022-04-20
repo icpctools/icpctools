@@ -375,6 +375,9 @@ public class ConfiguredContest {
 		if (streamMap.containsKey(teamId))
 			return;
 
+		if ((video.getId() != null) && (!video.getId().equals(teamId)))
+			return;
+
 		List<String> hosts = CDSConfig.getInstance().getHostsForTeamId(teamId);
 
 		Map<StreamType, List<Integer>> map = new HashMap<StreamType, List<Integer>>();
