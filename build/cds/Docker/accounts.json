@@ -1,0 +1,9 @@
+[{"id":"admin","username":"admin","password":"__ADMIN_PASSWORD__","type":"admin"},
+{"id":"presAdmin","username":"presAdmin","password":"__PRESADMIN_PASSWORD__","type":"admin"},
+{"id":"blue","username":"blue","password":"__BLUE_PASSWORD__","type":"staff"},
+{"id":"balloon","username":"balloon","password":"__BALLOON_PASSWORD__","type":"balloon"},
+{"id":"public","username":"public","password":"__PUBLIC_PASSWORD__","type":"public"},
+{"id":"presentation","username":"presentation","password":"__PRESENTATION_PASSWORD__","type":"public"},
+{"id":"myicpc","username":"myicpc","password":"__MYICPC_PASSWORD__","type":"spectator"},
+{"id":"live","username":"live","password":"__LIVE_PASSWORD__","type":"analyst"},
+{"id":"team1","username":"team1","password":"__TEAM_PASSWORD__","type":"team","team_id":"1"}]
