@@ -364,38 +364,34 @@ public class ConfiguredContest {
 	}
 
 	private void setupTeamStreams(String teamId) {
-		for (Video v : videos)
-			setupTeamStreams(teamId, v);
-	}
-
-	private static void setupTeamStreams(String teamId, Video video) {
-		if (teamId == null)
+		if (teamId == null || streamMap.containsKey(teamId))
 			return;
-
-		if (streamMap.containsKey(teamId))
-			return;
-
-		List<String> hosts = CDSConfig.getInstance().getHostsForTeamId(teamId);
 
 		Map<StreamType, List<Integer>> map = new HashMap<StreamType, List<Integer>>();
 		streamMap.put(teamId, map);
 
-		String urlPattern = video.getDesktop();
-		if (urlPattern != null) {
-			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getDesktopMode());
-			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.DESKTOP);
-		}
+		List<String> hosts = CDSConfig.getInstance().getHostsForTeamId(teamId);
 
-		urlPattern = video.getWebcam();
-		if (urlPattern != null) {
-			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getWebcamMode());
-			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.WEBCAM);
-		}
+		for (Video video : videos) {
+			if (video.getId() == null || video.getId().equals(teamId)) {
+				String urlPattern = video.getDesktop();
+				if (urlPattern != null) {
+					ConnectionMode mode = VideoAggregator.getConnectionMode(video.getDesktopMode());
+					mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.DESKTOP);
+				}
 
-		urlPattern = video.getAudio();
-		if (urlPattern != null) {
-			ConnectionMode mode = VideoAggregator.getConnectionMode(video.getAudioMode());
-			mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.AUDIO);
+				urlPattern = video.getWebcam();
+				if (urlPattern != null) {
+					ConnectionMode mode = VideoAggregator.getConnectionMode(video.getWebcamMode());
+					mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.WEBCAM);
+				}
+
+				urlPattern = video.getAudio();
+				if (urlPattern != null) {
+					ConnectionMode mode = VideoAggregator.getConnectionMode(video.getAudioMode());
+					mapStreams(teamId, urlPattern, mode, hosts, map, StreamType.AUDIO);
+				}
+			}
 		}
 	}
 
@@ -657,7 +653,7 @@ public class ConfiguredContest {
 
 				if (obj instanceof ITeam) {
 					ITeam team = (ITeam) obj;
-					if (videos != null && !videos.isEmpty() && isTeamOrSpare(contest, team)) {
+					if (videos != null && streamMap.get(team.getId()) == null && isTeamOrSpare(contest, team)) {
 						setupTeamStreams(team.getId());
 					}
 				}
