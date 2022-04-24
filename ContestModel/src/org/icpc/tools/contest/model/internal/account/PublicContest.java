@@ -48,6 +48,7 @@ public class PublicContest extends Contest {
 		switch (cType) {
 			// all of these are fully public
 			case CONTEST:
+			case LANGUAGE:
 			case JUDGEMENT_TYPE:
 			case MAP_INFO:
 			case START_STATUS:
