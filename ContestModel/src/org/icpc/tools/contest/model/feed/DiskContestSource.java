@@ -718,7 +718,9 @@ public class DiskContestSource extends ContestSource {
 		// load event feed
 		File feedFile = eventFeedFile;
 		if (feedFile == null && root != null) {
-			feedFile = new File(root, "event-feed.json");
+			feedFile = new File(root, "event-feed.ndjson");
+			if (!feedFile.exists())
+				feedFile = new File(root, "event-feed.json");
 			if (!feedFile.exists())
 				feedFile = new File(root, "events.xml");
 		}
