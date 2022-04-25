@@ -76,6 +76,7 @@ public class BalloonUtility {
 	private static final String PREF_PRINTER = "printer";
 	private static final String PREF_MESSAGES = "messages";
 	private static final String PREF_MESSAGES_SEPARATOR = "###";
+	private static final String PREF_PROBLEM_UUID = "problem-uuid";
 
 	private static final SimpleDateFormat SDF = new SimpleDateFormat();
 	private static final NumberFormat nf = NumberFormat.getInstance();
@@ -483,13 +484,17 @@ public class BalloonUtility {
 		}
 	}
 
-	protected void updateOnSolvedJudgement(IContest contest, final IJudgement sj) {
-		bc.setContest(contest);
+	protected void updateOnJudgement(IContest contest, final IJudgement sj) {
+		// ignore when UI is exiting
+		if (balloonTable.isDisposed())
+			return;
 
+		// ignore any judgements that aren't solved
 		IJudgementType jt = contest.getJudgementTypeById(sj.getJudgementTypeId());
 		if (jt == null || !jt.isSolved())
 			return;
 
+		// ignore hidden teams (this won't happen unless running as an admin)
 		String sId = sj.getSubmissionId();
 		ISubmission submission = contest.getSubmissionById(sId);
 		if (submission != null) {
@@ -498,10 +503,46 @@ public class BalloonUtility {
 				return;
 		}
 
-		if (balloonTable.isDisposed())
-			return;
+		// ignore if the problem has already been solved
+		Balloon[] balloons = bc.getBalloons();
+		for (Balloon b : balloons) {
+			ISubmission s2 = contest.getSubmissionById(b.getSubmissionId());
+			if (s2.getTeamId().equals(submission.getTeamId()) && s2.getProblemId().equals(submission.getProblemId())) {
+				Trace.trace(Trace.INFO, "Submission for problem already solved: " + b.getSubmissionId() + ", " + sId);
+				return;
+			}
+		}
 
-		// check if balloon has already been awarded for this team/problem
+		// ignore if a balloon has already been given for a problem with the same UUID
+		if (submission != null && !getPreferences().getBoolean(PREF_PROBLEM_UUID, false)) {
+			IProblem[] problems = contest.getProblems();
+			String pId = submission.getProblemId();
+			String pUUID = null;
+
+			// find problem uuid
+			for (IProblem p : problems) {
+				if (p.getId().equals(pId))
+					pUUID = p.getUUID();
+			}
+			if (pUUID != null) {
+				// a UUID exists - check if there is another problem with the same UUID
+				for (IProblem p : problems) {
+					if (!p.getId().equals(pId) && pUUID.equals(p.getUUID())) {
+						// check if the team already has a correct submission to this problem
+						ISubmission[] subs = contest.getSubmissions();
+						for (ISubmission s : subs) {
+							if (s.getTeamId().equals(submission.getTeamId()) && s.getProblemId().equals(p.getId())
+									&& contest.isSolved(s)) {
+								Trace.trace(Trace.INFO, "Duplicate UUID ignored: " + sId);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		bc.setContest(contest);
 		final boolean exists = bc.getBalloon(sId) != null;
 		if (!exists) {
 			Balloon b = new Balloon(sId);
@@ -612,7 +653,6 @@ public class BalloonUtility {
 
 	private void createContestInfoUI(final Composite parent) {
 		Group contestGroup = new Group(parent, SWT.NONE);
-		contestGroup.setText("Contest Information");
 		GridData data = new GridData(SWT.FILL, SWT.BEGINNING, true, false);
 		data.horizontalSpan = 2;
 		contestGroup.setLayoutData(data);
@@ -696,7 +736,7 @@ public class BalloonUtility {
 					Trace.trace(Trace.WARNING,
 							"Submission judgement " + sj.getId() + " is not valid. Run \"eventFeed --validate\" for details");
 
-				updateOnSolvedJudgement(contest, sj);
+				updateOnJudgement(contest, sj);
 			} else if (e instanceof IInfo) {
 				if (!promptedForLoad[0] && BalloonFileUtil.saveFileExists(contest)) {
 					promptedForLoad[0] = true;
@@ -1186,6 +1226,7 @@ public class BalloonUtility {
 			}
 		});
 
+		Preferences prefs = getPreferences();
 		configurePrint.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
@@ -1198,7 +1239,6 @@ public class BalloonUtility {
 					printSample.setEnabled(true);
 
 					try {
-						Preferences prefs = getPreferences();
 						prefs.put(PREF_PRINTER, printerData.name);
 						prefs.sync();
 					} catch (Exception e) {
@@ -1277,7 +1317,6 @@ public class BalloonUtility {
 					if (dialog.open() == 0) {
 						messages = dialog.getMessages();
 						try {
-							Preferences prefs = getPreferences();
 							prefs.put(PREF_MESSAGES, messages[0] + PREF_MESSAGES_SEPARATOR + messages[1]
 									+ PREF_MESSAGES_SEPARATOR + messages[2] + PREF_MESSAGES_SEPARATOR + messages[3]);
 							prefs.sync();
@@ -1287,6 +1326,22 @@ public class BalloonUtility {
 					}
 				} catch (Exception e) {
 					ErrorHandler.error("Error opening delivery instruction dialog", e);
+				}
+			}
+		});
+
+		final MenuItem problemUUIDMenu = new MenuItem(submenu, SWT.CHECK);
+		problemUUIDMenu.setText("Print balloons for problems with matching UUIDs");
+		problemUUIDMenu.setSelection(prefs.getBoolean(PREF_PROBLEM_UUID, false));
+		problemUUIDMenu.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				try {
+					boolean b = problemUUIDMenu.getSelection();
+					prefs.putBoolean(PREF_PROBLEM_UUID, b);
+					prefs.sync();
+				} catch (Exception e) {
+					ErrorHandler.error("Error saving preferences", e);
 				}
 			}
 		});

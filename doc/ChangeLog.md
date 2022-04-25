@@ -6,6 +6,8 @@
   * Will be first release to support breaking changes in next spec release.
 * CDS:
   * User accounts are now defined via accounts.yaml or .json.
+* Balloon utility:
+  * Don't print balloons by default when problem UUID matches another solved problem.
 
 ## V2.4 - April 2022
 -----------------
