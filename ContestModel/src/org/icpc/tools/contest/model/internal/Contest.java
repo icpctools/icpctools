@@ -1078,7 +1078,7 @@ public class Contest implements IContest {
 	@Override
 	public boolean isTeamHidden(ITeam team) {
 		if (team == null)
-			return false;
+			return true;
 
 		if (team.isHidden())
 			return true;
