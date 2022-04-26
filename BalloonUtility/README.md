@@ -150,4 +150,12 @@ at contests taking place simultaneously at multiple sites to avoid having to dea
 for teams which are not at their site.
 
 Note that the definition of the groups in a contest comes from data in the event feed read by the BU; 
-groups cannot be directly defined within the Balloon Utility itself.
+groups cannot be defined within the Balloon Utility.
+
+#### Notes
+
+Test or rehearsal contests often have multiple copies of the same problem, e.g. there are 6 problems A-F,
+but each pair of A and D, B and E, and C and F are identical. If these problems are marked as duplicates 
+by the Contest Control System (by having the same problem UUID) then by default the balloon utility will
+only print a balloon for first solution (either A or D) from each pair. To disable this behaviour, enable the
+"Print balloons for problems with matching UUIDs" preference (and restart if there are existing submissions).
