@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.cds.AccessService;
 import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.CDSConfig;
+import org.icpc.tools.cds.CDSConfig.Auth;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
@@ -464,6 +465,37 @@ public class ContestRESTService extends HttpServlet {
 	// {"id":"finals","start_time":null,"countdown_pause_time":"0:12:15.000"}
 	protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		EndpointInfo ei = getEndpointInfo(request, response);
+
+		if (!CDSAuth.isAdmin(request)) {
+			boolean authorized = false;
+			String user = request.getRemoteUser();
+			Auth[] auths = CDSConfig.getInstance().getAuths();
+			for (Auth a : auths) {
+				if (a.getUsername().equals(user)) {
+					// check for endpoint match
+					boolean match = true;
+					if (a.getContestId() != null && !a.getContestId().equals(ei.cc.getId()))
+						match = false;
+
+					if (a.getType() != null && !a.getType().equals(ei.type))
+						match = false;
+
+					if (a.getId() != null && !a.getId().equals(ei.id))
+						match = false;
+
+					if (match) {
+						authorized = true;
+						break;
+					}
+				}
+			}
+
+			if (!authorized) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return;
+			}
+		}
+
 		if (ei == null)
 			return;
 

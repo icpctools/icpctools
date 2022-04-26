@@ -1,0 +1,69 @@
+
+<div class="card">
+   <div class="card-header">
+     <h4 class="card-title">Start Status</h4>
+        <div class="card-tools">
+            <span id="start-status-count" title="?" class="badge bg-primary">?</span>
+        </div>
+   </div>
+<div class="card-body p-0">
+   <table id="start-status-table" class="table table-sm table-hover table-striped table-head-fixed">
+     <thead>
+       <tr>
+         <th>Label</th>
+         <th class="text-center">Status</th>
+       </tr>
+     </thead>
+     <tbody>
+     </tbody>
+   </table>
+</div>
+</div>
+<script type="text/html" id="start-status-template">
+<td>{{{label}}}</td>
+<td class="text-center">
+  {{^edit}}
+    {{#a}}<span class="badge badge-danger"><i class="fas fa-times"></i></span>{{/a}}
+    {{#b}}<span class="badge badge-warning"><i class="fas fa-question"></i></span>{{/b}}
+    {{#c}}<span class="badge badge-success"><i class="fas fa-check"></i></span>{{/c}}
+  {{/edit}}{{#edit}}
+    <div class="btn-group">
+      <button type="button" class="btn btn-sm btn-flat btn-{{#a}}danger{{/a}}{{^a}}default{{/a}}" onclick="updateStartStatus('{{{id}}}',0)" {{^edit}}disabled{{/edit}}>No</button>
+      <button type="button" class="btn btn-sm btn-flat btn-{{#b}}warning{{/b}}{{^b}}default{{/b}}" onclick="updateStartStatus('{{{id}}}',1)" {{^edit}}disabled{{/edit}}>Unknown</button>
+      <button type="button" class="btn btn-sm btn-flat btn-{{#c}}success{{/c}}{{^c}}default{{/c}}" onclick="updateStartStatus('{{{id}}}',2)" {{^edit}}disabled{{/edit}}>Yes</button>
+    </div>
+  {{/edit}}
+</td>
+</script>
+<script>
+registerContestObjectTable("start-status");
+cds.setContestId("<%= cc.getId() %>");
+
+$(document).ready(function () {
+    updateStartStatusTable(); 
+    setInterval(updateStartStatusTable, 10000);
+});
+
+function updateStartStatus(id, status) {
+	cds.doPatch("start-status", id, '{"id":"' + id + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
+}
+
+function updateStartStatusTable() {
+	contest.clear();
+	$.when(contest.loadStartStatus(),contest.loadAccess()).done(function () {
+		// modify object if the user has access to change it
+		var access = contest.getAccess();
+		contest.getStartStatus().forEach(ss => {
+			access.capabilities.forEach(cap => {
+ 	            if (cap.startsWith("start-status/" + ss.id)) {
+ 				    ss.edit = true;
+ 	            }
+ 			});
+		});
+
+        fillContestObjectTable("start-status", contest.getStartStatus());
+    }).fail(function (result) {
+        console.log("Error loading start-status: " + result);
+    });
+}
+</script>

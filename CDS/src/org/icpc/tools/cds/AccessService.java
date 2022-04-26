@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.CDSConfig.Auth;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
@@ -25,16 +26,25 @@ public class AccessService {
 		IAccount account = cc.getAccount(request.getRemoteUser());
 
 		if (account != null) {
-			if ("team".equals(account.getAccountType())) {
+			String type = account.getAccountType();
+			if ("team".equals(type)) {
 				caps.add("team_submit");
 				caps.add("team_clar");
 			}
-			if ("admin".equals(account.getAccountType())) {
+			if ("admin".equals(type)) {
 				caps.add("contest_start");
 				caps.add("admin_submit");
 				caps.add("admin_clar");
 			}
 		}
+		String user = request.getRemoteUser();
+		if (user != null)
+			for (Auth a : CDSConfig.getInstance().getAuths()) {
+				if (user.equals(a.getUsername())) {
+					if (a.getContestId() == null || cc.getContest().getId().equals(a.getContestId()))
+						caps.add(a.getType() + "/" + a.getId());
+				}
+			}
 
 		if (caps.isEmpty())
 			je.encodePrimitive("capabilities", "[]");

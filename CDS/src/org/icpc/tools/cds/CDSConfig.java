@@ -88,10 +88,40 @@ public class CDSConfig {
 		}
 	}
 
+	public static class Auth {
+		private Element auth;
+
+		protected Auth(Element e) {
+			auth = e;
+		}
+
+		public String getUsername() {
+			return getString(auth, "username");
+		}
+
+		public String getContestId() {
+			return getString(auth, "contestId");
+		}
+
+		public String getType() {
+			return getString(auth, "type");
+		}
+
+		public String getId() {
+			return getString(auth, "id");
+		}
+
+		@Override
+		public String toString() {
+			return "Auth [" + getUsername() + ":" + getContestId() + "," + getType() + "," + getId() + "]";
+		}
+	}
+
 	private ConfiguredContest[] contests;
 	private long[] contestHashes;
 	private Domain[] domains;
 	private String[] hosts;
+	private Auth[] auths = new Auth[0];
 	private File file;
 	private long lastModified;
 	private List<IAccount> userAccounts = new ArrayList<IAccount>();
@@ -274,6 +304,15 @@ public class CDSConfig {
 
 			hosts = temp;
 		}
+
+		children = getChildren(e, "auth");
+		if (children != null) {
+			auths = new Auth[children.length];
+			for (int i = 0; i < children.length; i++) {
+				auths[i] = new Auth(children[i]);
+			}
+		} else
+			auths = new Auth[0];
 	}
 
 	private void loadAccounts(File f) throws IOException {
@@ -317,6 +356,10 @@ public class CDSConfig {
 
 	public Domain[] getDomains() {
 		return domains;
+	}
+
+	public Auth[] getAuths() {
+		return auths;
 	}
 
 	/**
