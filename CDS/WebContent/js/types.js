@@ -259,14 +259,12 @@ function awardsTd(award) {
 }
 
 function startstatusTd(startStatus) {
-	var a = 'default';
-	var b = 'default';
-	var c = 'default';
+	var s = { label: startStatus.label, id: startStatus.id, edit: startStatus.edit };
 	if (startStatus.status == 0)
-		a = 'danger';
+		s.a = 'danger';
 	else if (startStatus.status == 1)
-		b = 'warning';
+		s.b = 'warning';
 	else if (startStatus.status == 2)
-		c = 'success';
-	return { label: startStatus.label, id: startStatus.id, a: a, b: b, c: c };
+		s.c = 'success';
+	return s;
 }

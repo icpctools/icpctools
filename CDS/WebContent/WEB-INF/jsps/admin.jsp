@@ -234,9 +234,9 @@
 <script type="text/html" id="start-status-template">
   <td>{{{label}}}</td>
   <td><div class="btn-group">
-    <button type="button" class="btn btn-sm btn-flat btn-{{a}}" onclick="updateStartStatus('{{{id}}}',0)">No</button>
-    <button type="button" class="btn btn-sm btn-{{b}}" onclick="updateStartStatus('{{{id}}}',1)">Unknown</button>
-    <button type="button" class="btn btn-sm btn-{{c}}" onclick="updateStartStatus('{{{id}}}',2)">Yes</button>
+    <button type="button" class="btn btn-sm btn-{{#a}}danger{{/a}}{{^a}}default{{/a}}" onclick="updateStartStatus('{{{id}}}',0)">No</button>
+    <button type="button" class="btn btn-sm btn-{{#b}}warning{{/b}}{{^b}}default{{/b}}" onclick="updateStartStatus('{{{id}}}',1)">Unknown</button>
+    <button type="button" class="btn btn-sm btn-{{#c}}success{{/c}}{{^c}}default{{/c}}" onclick="updateStartStatus('{{{id}}}',2)">Yes</button>
   </div>&nbsp; &nbsp;<button type="button" class="btn btn-sm btn-danger" onclick="removeStartStatus('{{{id}}}')">Remove</button></td>
 </script>
 <script>

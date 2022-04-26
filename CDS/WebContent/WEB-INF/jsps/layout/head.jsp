@@ -77,7 +77,7 @@ function logout() {
       <ul class="navbar-nav ml-auto">
         <li class="nav-item dropdown theme-menu">
           <a class="nav-link" data-toggle="dropdown" href="#">
-            <i class="fas fa-user"></i>&nbsp;&nbsp;
+            <i class="fas fa-adjust"></i>&nbsp;&nbsp;
             Theme
           </a>
           <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
@@ -166,7 +166,6 @@ function logout() {
                 </li>
                 <% } %>
               </ul>
-
             </li>
             <% } } %>
             
