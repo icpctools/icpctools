@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.LockSupport;
 
-import javax.imageio.ImageIO;
-
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.util.Taskbar;
 import org.icpc.tools.presentation.core.DisplayConfig;
@@ -97,7 +95,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 			if (transitions == null)
 				transitions = new Transition[0];
 
-			Trace.trace(Trace.INFO, "Building presentation plan");
 			build();
 		}
 
@@ -229,7 +226,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 	protected Thread thread;
 	protected static Object lock = new Object();
 	protected boolean hidden = false;
-	protected BufferedImage logo;
 
 	protected int fps;
 	protected boolean showFPS;
@@ -265,6 +261,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 		setCursor(getCustomCursor());
 
 		logDevices();
+
+		setPresentation(new NoPresentation());
 	}
 
 	protected static boolean isGlobalKey(String key) {
@@ -366,21 +364,16 @@ public class PresentationWindowImpl extends PresentationWindow {
 						}
 
 						long delayNs = 0;
-						if (currentPlan == null || currentPlan.segments.length == 0)
-							// if there are no presentations, delay for 10s
-							delayNs = 10000000000L;
-						else {
-							// if there are presentations, ask the current presentation when to repaint
-							// but don't extend past where the plan changes
-							if (timeUntilPlanChange == 0)
-								delayNs = 0;
-							else if (currentPresentation != null)
-								delayNs = Math.min(timeUntilPlanChange * 1000000L,
-										currentPresentation.getDelayTimeMs() * 1000000L);
+						// ask the current presentation when to repaint
+						// but don't extend past where the plan changes
+						if (timeUntilPlanChange == 0)
+							delayNs = 0;
+						else if (currentPresentation != null)
+							delayNs = Math.min(timeUntilPlanChange * 1000000L,
+									currentPresentation.getDelayTimeMs() * 1000000L);
 
-							// cap speed at our max frame rate
-							delayNs = Math.max(delayNs, MAX_FPS - (System.nanoTime() - now));
-						}
+						// cap speed at our max frame rate
+						delayNs = Math.max(delayNs, MAX_FPS - (System.nanoTime() - now));
 
 						if (delayNs <= 0) {
 							// no need to delay here - do nothing
@@ -610,18 +603,12 @@ public class PresentationWindowImpl extends PresentationWindow {
 		// switch full screen exclusive mode to full screen window with no insets.
 		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		if (dc.device >= gds.length) {
-			StringBuilder message = new StringBuilder("Invalid device: " + device + ". Found a total of " + gds.length + " devices:\n");
+			StringBuilder message = new StringBuilder(
+					"Invalid device: " + device + ". Found a total of " + gds.length + " devices:\n");
 			for (int i = 0; i < gds.length; i++) {
 				Rectangle r = gds[i].getDefaultConfiguration().getBounds();
-				message
-						.append(i)
-						.append(": ")
-						.append(gds[i].getIDstring())
-						.append(" - ")
-						.append(r.width)
-						.append("x")
-						.append(r.height)
-						.append("\n");
+				message.append(i).append(": ").append(gds[i].getIDstring()).append(" - ").append(r.width).append("x")
+						.append(r.height).append("\n");
 			}
 			throw new IllegalArgumentException(message.toString());
 		}
@@ -748,6 +735,14 @@ public class PresentationWindowImpl extends PresentationWindow {
 		// ignore, next frame update will get it
 	}
 
+	private Presentation doFinalSetup(Presentation p) {
+		Dimension d = getSize();
+		if (!p.getSize().equals(d))
+			p.setSize(d);
+		p.aboutToShow();
+		return p;
+	}
+
 	protected void paintPresentations(Graphics2D g, long time, boolean hidden2) {
 		if (currentPlan == null)
 			return;
@@ -778,10 +773,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 			long lastRepeatTime = segment.p1.getRepeatTimeMs();
 			segment.p1.setRepeatTimeMs(repeatTime - segment.p1time);
 
-			if (currentPresentation != segment.p1 || lastRepeatTime > repeatTime - segment.p1time) {
-				segment.p1.aboutToShow();
-				currentPresentation = segment.p1;
-			}
+			if (currentPresentation != segment.p1 || lastRepeatTime > repeatTime - segment.p1time)
+				currentPresentation = doFinalSetup(segment.p1);
 
 			if (!hidden2)
 				segment.p1.paint(g);
@@ -819,10 +812,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 			segment.p2.setRepeatTimeMs(repeatTime);
 		}
 
-		if (currentPresentation != segment.p2) {
-			segment.p2.aboutToShow();
-			currentPresentation = segment.p2;
-		}
+		if (currentPresentation != segment.p2)
+			currentPresentation = doFinalSetup(segment.p2);
 
 		if (!hidden2)
 			segment.trans.paint(g, x, segment.p1, segment.p2);
@@ -849,34 +840,11 @@ public class PresentationWindowImpl extends PresentationWindow {
 				oldPlan.dispose();
 		}
 
-		if (currentPlan != null) {
-			long start = currentPlan.startTime;
-			if (time > start && time < start + PLAN_FADE_TIME)
-				g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
-			paintPresentations(g, time, hidden2);
-		} else {
-			if (logo == null) {
-				try {
-					logo = ImageIO.read(getClass().getClassLoader().getResource("images/logo.png"));
-				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Error loading logo image " + e.getMessage());
-				}
-			}
-			int hh = 0;
-			Dimension d = getSize();
-			if (logo != null) {
-				hh = d.height / 2;
-				g.drawImage(logo, (d.width - hh) / 2, (d.height - hh) / 2 - 15, hh, hh, null);
-			}
-			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
-			FontMetrics fm = g.getFontMetrics();
-			String s = "No presentation assigned";
-			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, (d.height) * 7 / 8);
+		long start = currentPlan.startTime;
+		if (time > start && time < start + PLAN_FADE_TIME)
+			g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
+		paintPresentations(g, time, hidden2);
 
-			g.setColor(lightMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
-			s = Trace.getVersion();
-			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height - 20);
-		}
 		if (showFPS) {
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();

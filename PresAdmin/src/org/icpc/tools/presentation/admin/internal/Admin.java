@@ -95,7 +95,7 @@ public class Admin {
 		shell.addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent event) {
-				int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO;
+				int style = SWT.APPLICATION_MODAL | SWT.ICON_WARNING | SWT.YES | SWT.NO;
 				MessageBox messageBox = new MessageBox(shell, style);
 				messageBox.setText(shell.getText());
 				messageBox.setMessage("Are you sure you want to quit?");

@@ -1,4 +1,4 @@
-package org.icpc.tools.presentation.contest.internal.presentations;
+package org.icpc.tools.presentation.core.internal;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class ICPCToolsPresentation extends Presentation {
@@ -47,16 +46,21 @@ public class ICPCToolsPresentation extends Presentation {
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error loading images", e);
 		}
-
-		font = ICPCFont.deriveFont(Font.PLAIN, height * 3f / 96f);
-
-		scale = Math.min(width * 0.8 / FULL_DIM.width, (height * 0.8 - 50) / FULL_DIM.height);
-		origin = new Point((int) (width - FULL_DIM.width * scale) / 2, (int) (height - FULL_DIM.height * scale) / 2 - 20);
 	}
 
 	@Override
 	public long getRepeat() {
-		return 10000L;
+		return 18000L;
+	}
+
+	@Override
+	public void setSize(Dimension d) {
+		super.setSize(d);
+
+		font = null;
+
+		scale = Math.min(width * 0.8 / FULL_DIM.width, (height * 0.8 - 50) / FULL_DIM.height);
+		origin = new Point((int) (width - FULL_DIM.width * scale) / 2, (int) (height - FULL_DIM.height * scale) / 2 - 20);
 	}
 
 	private void drawImage(Graphics2D g, BufferedImage img, int x, int y) {
@@ -66,6 +70,8 @@ public class ICPCToolsPresentation extends Presentation {
 	@Override
 	public void paint(Graphics2D g) {
 		long ms = getRepeatTimeMs();
+		if (ms > 9000)
+			ms = 18000 - ms;
 
 		// gear - fade in during first 3s
 		if (ms >= 3000)
@@ -126,6 +132,9 @@ public class ICPCToolsPresentation extends Presentation {
 			return;
 		if (ms < 7000)
 			g.setComposite(AlphaComposite.SrcOver.derive((ms - 6000) / 1000f));
+
+		if (font == null)
+			font = g.getFont().deriveFont(Font.PLAIN, height * 3f / 96f);
 
 		g.setFont(font);
 		g.setColor(Color.LIGHT_GRAY);
