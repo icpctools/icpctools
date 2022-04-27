@@ -242,41 +242,7 @@
 <script>
     contest = new Contest("/api", "<%= cc.getId() %>");
 	cds.setContestId("<%= cc.getId() %>");
-    var targetTime = 50.0;
-
-    function toString(seconds_left) {
-        var days = parseInt(seconds_left / 86400);
-        seconds_left = seconds_left % 86400;
-
-        var hours = parseInt(seconds_left / 3600);
-        seconds_left = seconds_left % 3600;
-
-        var minutes = parseInt(seconds_left / 60);
-        var seconds = parseInt(seconds_left % 60);
-
-        var text = "";
-        if (days > 0)
-            text = days + "d ";
-
-        if (hours < 10)
-            text += "0" + hours;
-        else
-            text += hours;
-
-        text += ":";
-        if (minutes < 10)
-            text += "0" + minutes;
-        else
-            text += minutes;
-
-        text += ":";
-        if (seconds < 10)
-            text += "0" + seconds;
-        else
-            text += seconds;
-
-        return text;
-    }
+    var targetTime = 0.0;
 
     // update the tag with id "countdown" every 300ms
     setInterval(function () {
@@ -285,18 +251,17 @@
             countdown.innerHTML = "undefined";
             return;
         } else if (targetTime < 0) {
-            countdown.innerHTML = toString(-targetTime) + " (paused)";
+            countdown.innerHTML = formatContestTime(targetTime, true) + " (paused)";
             return;
         }
         // find the amount of "seconds" between now and target
-        var current_date = new Date().getTime() / 1000.0;
-        var seconds_left = (targetTime - current_date);
+        var now = new Date().getTime();
+        var seconds_left = now - targetTime;
 
-        if (seconds_left < 0) {
+        if (seconds_left > 0)
             countdown.innerHTML = "Contest is started";
-        } else {
-            countdown.innerHTML = toString(seconds_left);
-        }
+        else
+            countdown.innerHTML = formatContestTime(seconds_left, true);
     }, 300);
 
     function sendCommand(id, command) {
@@ -314,7 +279,7 @@
                     if (resp == null || resp.trim().length == 0)
                         targetTime = null;
                     else
-                        targetTime = parseInt(resp) / 1000.0;
+                        targetTime = parseInt(resp);
                     document.getElementById("status").innerHTML = "Request successful";
                 } else
                     document.getElementById("status").innerHTML = resp;
@@ -339,7 +304,7 @@
                     if (resp == null || resp.trim().length == 0)
                         targetTime = null;
                     else
-                        targetTime = parseInt(resp) / 1000.0;
+                        targetTime = parseInt(resp);
                     document.getElementById("bg-status").innerHTML = "";
                 } else
                     document.getElementById("bg-status").innerHTML = "Error updating: " + resp;

@@ -285,14 +285,14 @@ class Contest {
 			if (this.info.countdown_pause_time == null)
 				return "Contest not scheduled";
 			else
-				return "Countdown paused: " + formatContestTime(parseTime(this.info.countdown_pause_time) * m);
+				return "Countdown paused: " + formatContestTime(-parseTime(this.info.countdown_pause_time) * m, true);
 		}
 
 		var d = new Date(this.info.start_time);
 
 		var time = (Date.now() - d.getTime()) * m - this.getTimeDelta();
 		if (time < 0)
-			return "Countdown: " + formatContestTime(-time);
+			return "Countdown: " + formatContestTime(time);
 		if (time > parseTime(this.info.duration))
 			return "Contest is over";
 		
