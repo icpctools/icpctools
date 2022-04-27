@@ -203,44 +203,40 @@ function formatTime(time2) {
 	return sb.join("");
 }
 
-function formatContestTime(time) {
-	if (time == null)
-		return "";
-
-	if (time >= 0 && time < 1000)
-		return "0";
-
+function formatContestTime(time, floor) {
 	var sb = [];
-	if (time < 0) {
+	if (time < 0)
 		sb.push("-");
-		time = -time;
-	}
-	time2 = Math.floor(time / 1000);
+	
+	if (floor)
+		ss = Math.abs(Math.floor(time / 1000.0));
+	else
+		ss = Math.abs(Math.ceil(time / 1000.0));
 
-	days = Math.floor(time2 / 86400.0);
-	if (days > 0)
-		sb.push(days + "d ");
+    var days = Math.floor(ss / 86400.0);
 
-	sb.push(Math.floor(time2 / 3600.0) % 24);
+    if (days > 0)
+        sb.push(days + "d ");
 
-	sb.push(':');
-	mins = Math.floor(time2 / 60.0) % 60;
-	if (mins < 10)
-		sb.push('0');
-	sb.push(mins);
+    var hours = Math.floor(ss / 3600.0) % 24;
+    sb.push(hours + ":");
 
-	sb.push(':');
-	secs = time2 % 60;
-	if (secs < 10)
-		sb.push('0');
-	sb.push(secs);
-	return sb.join("");
+    var minutes = Math.floor(ss / 60) % 60;
+    if (minutes < 10)
+        sb.push("0");
+    sb.push(minutes + ":");
+
+    var seconds = ss % 60;
+    if (seconds < 10)
+        sb.push("0");
+    sb.push(seconds);
+    return sb.join("");
 }
 
-function formatTimestamp(time2) {
-	if (time2 == null)
+function formatTimestamp(time) {
+	if (time == null)
 		return "";
-	var d = luxon.DateTime.fromISO(time2);
+	var d = luxon.DateTime.fromISO(time);
 	var now = luxon.DateTime.now();
 	if (d.hasSame(now, 'year') && d.hasSame(now, 'month') && d.hasSame(now, 'day'))
 		return d.toLocaleString(luxon.DateTime.TIME_WITH_SECONDS);
