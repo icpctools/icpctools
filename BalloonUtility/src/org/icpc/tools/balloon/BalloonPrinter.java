@@ -337,7 +337,19 @@ public class BalloonPrinter {
 		s = team.getId() + "";
 		gc.setFont(hugeFont);
 		q = gc.stringExtent(s);
-		gc.drawString(s, r.x + (p.x - q.x) / 2, y, true);
+		if (q.x > p.x - 10) {
+			Transform oldTrans = new Transform(device);
+			gc.getTransform(oldTrans);
+			Transform trans = new Transform(device);
+			gc.getTransform(trans);
+			float scaleX = ((float) (p.x - 10) / (float) q.x);
+			trans.scale(scaleX, 1f);
+			gc.setTransform(trans);
+			gc.drawString(s, (int) ((r.x + p.x / 2.0) / scaleX - q.x / 2.0), y, true);
+			gc.setTransform(oldTrans);
+			trans.dispose();
+		} else
+			gc.drawString(s, r.x + (p.x - q.x) / 2, y, true);
 		y += q.y;
 
 		// solved problem
