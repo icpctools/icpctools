@@ -65,7 +65,7 @@
       category="Logos and Messages"
       description="The ICPC Tools logo"
       image="images/presentations/icpcTools.png"
-      class="org.icpc.tools.presentation.contest.internal.presentations.ICPCToolsPresentation"/>
+      class="org.icpc.tools.presentation.core.internal.ICPCToolsPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.single.photo"
       name="Photo and caption"
@@ -174,7 +174,7 @@
       category="Maps"
       description="Map of the world."
       properties="logosOn - show logos,
-         logosOn - hide logos,
+         logosOff - hide logos,
          logoSize - logo percent size,
          groupLinesOn - show group lines,
          groupLinesOff - hide group lines"
