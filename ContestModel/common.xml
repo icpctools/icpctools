@@ -9,8 +9,8 @@
    <property name="timestamp.english" value="${date.english} ${time.english}"/>
    <property environment="env"/>
    <property name="debuglevel" value="source,lines,vars"/>
-   <property name="target" value="1.8"/>
-   <property name="source" value="1.8"/>
+   <property name="target" value="1.9"/>
+   <property name="source" value="1.9"/>
    <property file="../version.properties"/>
    <target name="clean">
       <delete dir="bin"/>
