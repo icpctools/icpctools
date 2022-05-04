@@ -287,6 +287,9 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private void downloadIfNecessary(String href, File localFile) throws IOException {
+		if (!href.startsWith("http"))
+			return;
+
 		try {
 			downloadIfNecessaryImpl(href, localFile);
 		} catch (Exception e) {

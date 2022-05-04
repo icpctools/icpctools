@@ -172,9 +172,9 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			String[] groupIds = t.getGroupIds();
 			if (org != null && (groupId == null || GroupPresentation.belongsToGroup(groupIds, groupId))) {
 				if (showOrganizations && orgs.contains(org.getId()))
-					continue;;
+					continue;
 
-					orgs.add(org.getId());
+				orgs.add(org.getId());
 
 				double lat = org.getLatitude();
 				if (!Double.isNaN(lat)) {

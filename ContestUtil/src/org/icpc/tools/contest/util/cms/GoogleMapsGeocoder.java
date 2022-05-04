@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Organization;
@@ -26,15 +27,15 @@ public class GoogleMapsGeocoder {
 			String address = org.getFormalName() + " " + org.getCountry();
 			Object[] results = geocodeResultsFor(address);
 			if (results.length > 1) {
-				System.err.println(
-						"Geocode for '" + address + "' returned " + results.length + " results, using first one");
+				System.err
+						.println("Geocode for '" + address + "' returned " + results.length + " results, using first one");
 			} else if (results.length == 0) {
 				System.err.println("Geocode for '" + address + "' returned no results, retrying without country");
 				address = org.getFormalName();
 				results = geocodeResultsFor(address);
 				if (results.length > 1) {
-					System.err.println(
-							"Geocode for '" + address + "' returned " + results.length + " results, using first one");
+					System.err
+							.println("Geocode for '" + address + "' returned " + results.length + " results, using first one");
 				} else if (results.length == 0) {
 					System.err.println("Geocode for '" + address + "' returned no results");
 					return;
@@ -50,14 +51,13 @@ public class GoogleMapsGeocoder {
 			obj.props.put("longitude", lon);
 			org.add("location", obj);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Geocoder error", e);
 		}
 	}
 
-	protected Object[] geocodeResultsFor(String address)
-	{
+	protected Object[] geocodeResultsFor(String address2) {
 		try {
-			address = URLEncoder.encode(address, "UTF-8");
+			String address = URLEncoder.encode(address2, "UTF-8");
 			String fullUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + apiKey;
 
 			HttpURLConnection conn = (HttpURLConnection) (new URL(fullUrl)).openConnection();
@@ -78,13 +78,12 @@ public class GoogleMapsGeocoder {
 
 			JsonObject json = (new JSONParser(content.toString())).readObject();
 
-			if (!json.containsKey("results")) {
+			if (!json.containsKey("results"))
 				return null;
-			}
 
 			return json.getArray("results");
 		} catch (IOException | IllegalArgumentException e) {
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Geocoder error", e);
 			return null;
 		}
 	}

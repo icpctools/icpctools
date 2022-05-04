@@ -162,6 +162,8 @@ public class BasicClient {
 	public BasicClient(String url, String user, String password, String contestIds, String name, int uid, String role,
 			String type) {
 		this.url = url.replace("https", "wss").replace("http", "wss");
+		if (this.url.endsWith("/"))
+			this.url = this.url.substring(0, this.url.length() - 1);
 		try {
 			this.auth = getAuth(user, password);
 		} catch (Exception e) {

@@ -107,7 +107,7 @@ public class NLS {
 			String val = p.getProperty(f.getName());
 			if (val == null)
 				Trace.trace(Trace.WARNING, "No translation available for " + c.getCanonicalName() + "." + f.getName());
-			else if (f.isAccessible())
+			else if (!f.canAccess(null))
 				Trace.trace(Trace.WARNING,
 						"Field not accessible for translation: " + c.getCanonicalName() + "." + f.getName());
 			else {

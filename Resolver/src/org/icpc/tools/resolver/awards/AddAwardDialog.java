@@ -123,7 +123,7 @@ public class AddAwardDialog extends Dialog {
 		citation.setLayoutData(data);
 
 		// show
-		Combo mode = new Combo(comp, SWT.NONE);
+		Combo mode = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY);
 		mode.setItems(new String[] { "Stop to show details", "Pause and move on", "Show as list" });
 		mode.setText("Show team picture and citation (after pausing in the resolver)");
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
