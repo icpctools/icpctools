@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:17
 LABEL maintainer="Tim deBoer"
 
 RUN apt-get update \
