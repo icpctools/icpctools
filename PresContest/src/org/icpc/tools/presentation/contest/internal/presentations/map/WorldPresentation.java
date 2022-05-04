@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IOrganization;
@@ -15,6 +16,14 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 
 public class WorldPresentation extends AbstractICPCPresentation {
+	private boolean drawLogos = true;
+	private int logoPercentSize = 33;
+	private boolean drawGroupLines = false;
+
+	private Map<String, String> organizationGroups = new TreeMap<>();
+	private Map<String, Color> groupColors = new TreeMap<>();
+	private TeamIntroPresentation.GroupZoom worldLogos;
+
 	@Override
 	public void init() {
 		WorldMap.load(getClass());
@@ -38,14 +47,7 @@ public class WorldPresentation extends AbstractICPCPresentation {
 			super.setProperty(value);
 	}
 
-	private boolean drawLogos = true;
-	private int logoPercentSize = 33;
-	private boolean drawGroupLines = false;
-
-	Map<String, String> organizationGroups = new TreeMap<>();
-	Map<String, Color> groupColors = new TreeMap<>();
-
-	void groupColors() {
+	protected void groupColors() {
 		IContest contest = getContest();
 
 		ITeam[] teams = contest.getTeams();
@@ -61,31 +63,29 @@ public class WorldPresentation extends AbstractICPCPresentation {
 				String[] groupIds = t.getGroupIds();
 				if (org != null && GroupPresentation.belongsToGroup(groupIds, groupId)) {
 					if (organizationGroups.containsKey(org.getId())) {
-						System.out.println("" + org.getName() + " belongs to " + org.getName() + " and "
+						Trace.trace(Trace.INFO, org.getName() + " belongs to " + org.getName() + " and "
 								+ contest.getOrganizationById(organizationGroups.get(org.getId())).getName());
 					}
 					organizationGroups.put(org.getId(), groupId);
 					memberCount++;
 				}
 			}
-			System.out.println(group.getName() + " " + groupColors.get(groupId) + " " + memberCount + " orgs");
+			Trace.trace(Trace.INFO, group.getName() + " " + groupColors.get(groupId) + " " + memberCount + " orgs");
 		}
-		System.out.println("" + teams.length + " teams");
-		System.out.println("" + contest.getOrganizations().length + " orgs");
+		Trace.trace(Trace.INFO, teams.length + " teams");
+		Trace.trace(Trace.INFO, contest.getOrganizations().length + " orgs");
 	}
 
 	private static float hue(Color c) {
 		return Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null)[0];
 	}
 
-	private TeamIntroPresentation.GroupZoom worldLogos;
-
 	@Override
 	public void incrementTimeMs(long dt) {
 		if (drawLogos) {
-			if (worldLogos == null) {
+			if (worldLogos == null)
 				worldLogos = TeamIntroPresentation.setTargets(getContest(), null, logoPercentSize * height / 100);
-			}
+
 			BubbleOut.bubbleOut(worldLogos.instPos, worldLogos.instPos.length, width, height, 1, dt);
 		}
 	}
@@ -94,9 +94,8 @@ public class WorldPresentation extends AbstractICPCPresentation {
 	public void paint(Graphics2D g) {
 		WorldMap.drawMap(g, width, height);
 
-		if (organizationGroups.isEmpty()) {
+		if (organizationGroups.isEmpty())
 			groupColors();
-		}
 
 		IContest contest = getContest();
 		if (contest == null)
@@ -142,8 +141,6 @@ public class WorldPresentation extends AbstractICPCPresentation {
 					continue;
 
 				BufferedImage im = p.smImage;
-				// g.drawImage(im, x - im.getWidth() / 2, y - im.getHeight() / 2, null);
-
 				AffineTransform at = AffineTransform.getTranslateInstance((width * (p.x + 180.0) / 360.0),
 						(height * (90 - p.y) / 180.0));
 				g.drawImage(im, at, null);
