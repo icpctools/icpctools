@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM openjdk:17-bullseye
 LABEL maintainer="Tim deBoer"
 
 RUN apt-get update \
