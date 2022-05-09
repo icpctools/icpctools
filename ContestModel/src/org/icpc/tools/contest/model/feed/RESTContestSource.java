@@ -428,14 +428,14 @@ public class RESTContestSource extends DiskContestSource {
 		return null;
 	}
 
-	private String getLastCachedEventId() throws Exception {
+	private String[] getCachedFeedContent() throws Exception {
 		if (feedCacheFile == null || !feedCacheFile.exists())
 			return null;
 
 		InputStream in = null;
 		NDJSONFeedLogParser tempParser = new NDJSONFeedLogParser();
 		try {
-			Trace.trace(Trace.INFO, "Checking feed cache: " + feedCacheFile.getAbsolutePath());
+			Trace.trace(Trace.INFO, "Checking cached feed: " + feedCacheFile.getAbsolutePath());
 			in = new FileInputStream(feedCacheFile);
 			tempParser.parse(in);
 			String comment = tempParser.getFirstComment();
@@ -443,17 +443,18 @@ public class RESTContestSource extends DiskContestSource {
 			if (comment != null && comment.length() > 2) {
 				int hash = Integer.parseInt(comment.substring(2));
 				if (hash != getContest().hashCode()) {
-					Trace.trace(Trace.INFO, "Contest change, ignoring cache");
+					Trace.trace(Trace.INFO, "Contest changed, ignoring cache");
 					in.close();
 					in = null;
 					feedCacheFile.delete();
 					return null;
 				}
 			}
-			Trace.trace(Trace.INFO, "Found feed cache up to event id: " + tempParser.getLastEventId());
-			return tempParser.getLastEventId();
+			Trace.trace(Trace.INFO,
+					"Found cached feed [token " + tempParser.getLastToken() + ", id " + tempParser.getLastEventId() + "]");
+			return new String[] { tempParser.getLastToken(), tempParser.getLastEventId() };
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error checking feed cache", e);
+			Trace.trace(Trace.ERROR, "Error checking cached feed", e);
 			feedCacheFile.delete();
 			throw e;
 		} finally {
@@ -531,10 +532,13 @@ public class RESTContestSource extends DiskContestSource {
 		InputStream in = null;
 
 		try {
+			String lastToken = parser.getLastToken();
 			String lastId = parser.getLastEventId();
 			if (firstConnection) {
 				contestSizeBeforeFeed = contest.getNumObjects();
-				lastId = getLastCachedEventId();
+				String[] s = getCachedFeedContent();
+				lastToken = s[0];
+				lastId = s[1];
 				try {
 					feedCacheOut = new FileOutputStream(feedCacheFile, true);
 					if (lastId == null) {
@@ -547,10 +551,13 @@ public class RESTContestSource extends DiskContestSource {
 			}
 
 			String path = "event-feed";
-			if (lastId != null) {
-				path += "?since_id=" + lastId;
+			if (lastToken != null || lastId != null) {
+				if (lastToken != null)
+					path += "?since_token=" + lastToken;
+				else
+					path += "?since_id=" + lastId;
 				try {
-					String msg = "\n!Connecting at event " + lastId + "\n";
+					String msg = "\n!Connecting to " + path + "\n";
 					feedCacheOut.write(msg.getBytes());
 				} catch (Exception ex) {
 					Trace.trace(Trace.WARNING, "Could not write message to feed cache", ex);
