@@ -2,13 +2,11 @@ package org.icpc.tools.contest.model.internal;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Submission extends TimedEvent implements ISubmission {
 	private static final String PROBLEM_ID = "problem_id";
@@ -153,31 +151,18 @@ public class Submission extends TimedEvent implements ISubmission {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(PROBLEM_ID, problemId);
-		props.put(TEAM_ID, teamId);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addLiteralString(PROBLEM_ID, problemId);
+		props.addLiteralString(TEAM_ID, teamId);
 		if (personId != null)
-			props.put(PERSON_ID, personId);
-		props.put(LANGUAGE_ID, languageId);
-		props.put(ENTRY_POINT, entryPoint);
-		props.put(FILES, files);
-		props.put(REACTION, reaction);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(PROBLEM_ID, problemId);
-		je.encode(TEAM_ID, teamId);
-		if (personId != null)
-			je.encode(PERSON_ID, personId);
-		je.encode(LANGUAGE_ID, languageId);
+			props.addLiteralString(PERSON_ID, personId);
+		props.addLiteralString(LANGUAGE_ID, languageId);
 		if (entryPoint != null)
-			je.encode(ENTRY_POINT, entryPoint);
-		je.encode(FILES, files, true);
-		je.encode(REACTION, reaction, false);
-		encodeTimeProperties(je);
+			props.addLiteralString(ENTRY_POINT, entryPoint);
+		props.addFileRef(FILES, files);
+		props.addFileRef(REACTION, reaction);
+		super.getProperties(props);
 	}
 
 	@Override

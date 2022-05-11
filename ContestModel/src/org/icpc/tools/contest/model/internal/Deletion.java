@@ -31,11 +31,6 @@ public class Deletion implements IDelete {
 	}
 
 	@Override
-	public String getProperty(String s) {
-		return null;
-	}
-
-	@Override
 	public Map<String, Object> getProperties() {
 		return null;
 	}

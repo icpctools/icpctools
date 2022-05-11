@@ -48,11 +48,6 @@ public class ScoreboardData {
 		}
 
 		@Override
-		public Object getProperty(String s) {
-			return null;
-		}
-
-		@Override
 		public Map<String, Object> getProperties() {
 			return null;
 		}

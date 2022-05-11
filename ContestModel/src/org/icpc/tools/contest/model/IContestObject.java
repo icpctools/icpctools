@@ -103,8 +103,6 @@ public interface IContestObject {
 
 	ContestType getType();
 
-	Object getProperty(String s);
-
 	Map<String, Object> getProperties();
 
 	/**

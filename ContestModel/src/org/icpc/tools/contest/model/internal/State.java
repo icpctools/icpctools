@@ -1,11 +1,9 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
 public class State extends ContestObject implements IState {
@@ -115,23 +113,23 @@ public class State extends ContestObject implements IState {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
+		// super.getPropertiesImpl(props);
 		if (started != null)
-			props.put(STARTED, Timestamp.format(started));
+			props.addLiteralString(STARTED, Timestamp.format(started));
 		if (ended != null)
-			props.put(ENDED, Timestamp.format(ended));
+			props.addLiteralString(ENDED, Timestamp.format(ended));
 		if (frozen != null)
-			props.put(FROZEN, Timestamp.format(frozen));
+			props.addLiteralString(FROZEN, Timestamp.format(frozen));
 		if (thawed != null)
-			props.put(THAWED, Timestamp.format(thawed));
+			props.addLiteralString(THAWED, Timestamp.format(thawed));
 		if (finalized != null)
-			props.put(FINALIZED, Timestamp.format(finalized));
+			props.addLiteralString(FINALIZED, Timestamp.format(finalized));
 		if (endOfUpdates != null)
-			props.put(END_OF_UPDATES, Timestamp.format(endOfUpdates));
+			props.addLiteralString(END_OF_UPDATES, Timestamp.format(endOfUpdates));
 	}
 
-	@Override
+	/*@Override
 	public void writeBody(JSONEncoder je) {
 		if (started != null)
 			je.encodeString(STARTED, Timestamp.format(started));
@@ -153,7 +151,7 @@ public class State extends ContestObject implements IState {
 			je.encodeString(END_OF_UPDATES, Timestamp.format(endOfUpdates));
 		else
 			je.encode(END_OF_UPDATES);
-	}
+	}*/
 
 	@Override
 	public boolean isRunning() {

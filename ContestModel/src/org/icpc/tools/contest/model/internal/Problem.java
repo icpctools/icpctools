@@ -4,14 +4,12 @@ import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.feed.Decimal;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
@@ -176,19 +174,19 @@ public class Problem extends ContestObject implements IProblem {
 				return true;
 			}
 			case NAME: {
-				this.name = (String) value;
+				name = (String) value;
 				return true;
 			}
 			case UUID: {
-				this.uuid = (String) value;
+				uuid = (String) value;
 				return true;
 			}
 			case COLOR: {
-				this.color = (String) value;
+				color = (String) value;
 				return true;
 			}
 			case RGB: {
-				this.rgb = (String) value;
+				rgb = (String) value;
 				colorVal = null;
 				return true;
 			}
@@ -246,24 +244,26 @@ public class Problem extends ContestObject implements IProblem {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(LABEL, label);
-		props.put(NAME, name);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		if (label != null)
+			props.addString(LABEL, label);
+		if (name != null)
+			props.addString(NAME, name);
 		if (uuid != null)
-			props.put(UUID, uuid);
+			props.addString(UUID, uuid);
 		if (ordinal != Integer.MIN_VALUE)
-			props.put(ORDINAL, ordinal);
+			props.addInt(ORDINAL, ordinal);
 		if (color != null)
-			props.put(COLOR, color);
+			props.addString(COLOR, color);
 		if (rgb != null)
-			props.put(RGB, rgb);
+			props.addLiteralString(RGB, rgb);
 		if (testDataCount != Integer.MIN_VALUE)
-			props.put(TEST_DATA_COUNT, testDataCount);
+			props.addInt(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
-			props.put(TIME_LIMIT, Decimal.format(timeLimit));
+			props.add(TIME_LIMIT, Decimal.format(timeLimit));
 		if (maxScore != null)
-			props.put(MAX_SCORE, round(maxScore));
+			props.addDouble(MAX_SCORE, round(maxScore));
 
 		if (!Double.isNaN(x) || !Double.isNaN(y)) {
 			List<String> attrs = new ArrayList<>(3);
@@ -271,48 +271,13 @@ public class Problem extends ContestObject implements IProblem {
 				attrs.add("\"" + X + "\":" + round(x));
 			if (!Double.isNaN(y))
 				attrs.add("\"" + Y + "\":" + round(y));
-			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
+			props.add(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
 
 		if (package_ != null)
-			props.put(PACKAGE, package_);
+			props.addFileRef(PACKAGE, package_);
 		if (statement != null)
-			props.put(STATEMENT, statement);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		if (label != null)
-			je.encode(LABEL, label);
-		if (name != null)
-			je.encode(NAME, name);
-		if (uuid != null)
-			je.encode(UUID, uuid);
-		if (ordinal != Integer.MIN_VALUE)
-			je.encode(ORDINAL, ordinal);
-		if (color != null)
-			je.encode(COLOR, color);
-		if (rgb != null)
-			je.encode(RGB, rgb);
-		if (testDataCount != Integer.MIN_VALUE)
-			je.encode(TEST_DATA_COUNT, testDataCount);
-		if (timeLimit > 0)
-			je.encodePrimitive(TIME_LIMIT, Decimal.format(timeLimit));
-		if (maxScore != null)
-			je.encode(MAX_SCORE, Math.round(maxScore * 10000.0) / 10000.0); // round to 4 decimals
-
-		if (!Double.isNaN(x) || !Double.isNaN(y)) {
-			List<String> attrs = new ArrayList<>(3);
-			if (!Double.isNaN(x))
-				attrs.add("\"" + X + "\":" + round(x));
-			if (!Double.isNaN(y))
-				attrs.add("\"" + Y + "\":" + round(y));
-			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
-		}
-
-		je.encode(PACKAGE, package_, false);
-		je.encode(STATEMENT, statement, false);
+			props.addFileRef(STATEMENT, statement);
 	}
 
 	private static double round(double d) {

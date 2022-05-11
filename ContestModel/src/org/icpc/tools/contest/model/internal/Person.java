@@ -4,12 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IPerson;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Person extends ContestObject implements IPerson {
 	private static final String ICPC_ID = "icpc_id";
@@ -309,57 +307,30 @@ public class Person extends ContestObject implements IPerson {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
 		if (icpcId != null)
-			props.put(ICPC_ID, icpcId);
+			props.addLiteralString(ICPC_ID, icpcId);
 		if (firstName != null)
-			props.put(FIRST_NAME, firstName);
+			props.addString(FIRST_NAME, firstName);
 		if (lastName != null)
-			props.put(LAST_NAME, lastName);
+			props.addString(LAST_NAME, lastName);
 		if (name != null)
-			props.put(NAME, name);
+			props.addString(NAME, name);
 		if (title != null)
-			props.put(TITLE, title);
+			props.addLiteralString(TITLE, title);
 		if (email != null)
-			props.put(EMAIL, email);
-		props.put(SEX, sex);
-		props.put(TEAM_ID, teamId);
-		props.put(ROLE, role);
-		props.put(PHOTO, photo);
-		props.put(DESKTOP, desktop);
-		props.put(WEBCAM, webcam);
-		props.put(AUDIO, audio);
-		props.put(BACKUP, backup);
-		props.put(KEY_LOG, keylog);
-		props.put(TOOL_DATA, tooldata);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		if (icpcId != null)
-			je.encode(ICPC_ID, icpcId);
-		if (firstName != null)
-			je.encode(FIRST_NAME, firstName);
-		if (lastName != null)
-			je.encode(LAST_NAME, lastName);
-		if (name != null)
-			je.encode(NAME, name);
-		if (title != null)
-			je.encode(TITLE, title);
-		if (email != null)
-			je.encode(EMAIL, email);
-		je.encode(SEX, sex);
-		je.encode(TEAM_ID, teamId);
-		je.encode(ROLE, role);
-		je.encode(PHOTO, photo, false);
-		je.encodeSubs(DESKTOP, desktop, false);
-		je.encodeSubs(WEBCAM, webcam, false);
-		je.encodeSubs(AUDIO, audio, false);
-		je.encode(BACKUP, backup, false);
-		je.encode(KEY_LOG, keylog, false);
-		je.encode(TOOL_DATA, tooldata, false);
+			props.addString(EMAIL, email);
+		props.addLiteralString(SEX, sex);
+		props.addLiteralString(TEAM_ID, teamId);
+		props.addLiteralString(ROLE, role);
+		props.addFileRef(PHOTO, photo);
+		props.addFileRefSubs(DESKTOP, desktop);
+		props.addFileRefSubs(WEBCAM, webcam);
+		props.addFileRefSubs(AUDIO, audio);
+		props.addFileRef(BACKUP, backup);
+		props.addFileRef(KEY_LOG, keylog);
+		props.addFileRef(TOOL_DATA, tooldata);
 	}
 
 	@Override

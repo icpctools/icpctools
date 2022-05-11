@@ -2,7 +2,6 @@ package org.icpc.tools.contest.model.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IAisle;
 import org.icpc.tools.contest.model.IMapInfo;
@@ -258,30 +257,16 @@ public class MapInfo extends ContestObject implements IMapInfo {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
 		if (!Double.isNaN(tableWidth))
-			props.put(TABLE_WIDTH, round(tableWidth));
+			props.add(TABLE_WIDTH, round(tableWidth));
 		if (!Double.isNaN(tableDepth))
-			props.put(TABLE_DEPTH, round(tableDepth));
+			props.add(TABLE_DEPTH, round(tableDepth));
 
 		if (!Double.isNaN(teamAreaWidth))
-			props.put(TEAM_AREA_WIDTH, round(teamAreaWidth));
+			props.add(TEAM_AREA_WIDTH, round(teamAreaWidth));
 		if (!Double.isNaN(teamAreaDepth))
-			props.put(TEAM_AREA_DEPTH, round(teamAreaDepth));
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		if (!Double.isNaN(tableWidth))
-			je.encode(TABLE_WIDTH, round(tableWidth));
-		if (!Double.isNaN(tableDepth))
-			je.encode(TABLE_DEPTH, round(tableDepth));
-
-		if (!Double.isNaN(teamAreaWidth))
-			je.encode(TEAM_AREA_WIDTH, round(teamAreaWidth));
-		if (!Double.isNaN(teamAreaDepth))
-			je.encode(TEAM_AREA_DEPTH, round(teamAreaDepth));
+			props.add(TEAM_AREA_DEPTH, round(teamAreaDepth));
 
 		if (!aisles.isEmpty()) {
 			List<String> list = new ArrayList<String>();
@@ -293,13 +278,13 @@ public class MapInfo extends ContestObject implements IMapInfo {
 				sb.append(",\"y2\":" + round(a.getY2()) + "}");
 				list.add(sb.toString());
 			}
-			je.encodePrimitive(AISLES, "[" + String.join(",", list) + "]");
+			props.add(AISLES, "[" + String.join(",", list) + "]");
 		}
 		if (printer != null) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("{\"x\":" + round(printer.getX()));
 			sb.append(",\"y\":" + round(printer.getY()) + "}");
-			je.encodePrimitive(PRINTER, sb.toString());
+			props.add(PRINTER, sb.toString());
 		}
 		if (!spareTeams.isEmpty()) {
 			List<String> list = new ArrayList<String>();
@@ -310,7 +295,7 @@ public class MapInfo extends ContestObject implements IMapInfo {
 				sb.append(",\"rotation\":" + round(t.getRotation()) + "}");
 				list.add(sb.toString());
 			}
-			je.encodePrimitive(SPARE_TEAMS, "[" + String.join(",", list) + "]");
+			props.add(SPARE_TEAMS, "[" + String.join(",", list) + "]");
 		}
 	}
 

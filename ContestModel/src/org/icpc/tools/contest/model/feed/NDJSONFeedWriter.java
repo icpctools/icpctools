@@ -7,21 +7,16 @@ import org.icpc.tools.contest.model.IContestListener.Delta;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
+import org.icpc.tools.contest.model.internal.Deletion;
 
 public class NDJSONFeedWriter {
 	protected PrintWriter pw;
 	protected JSONEncoder je;
-	protected String prefix = "icpc";
+	protected boolean isOldFeed = "true".equals(System.getProperty("ICPC_OLD_FEED"));
 
 	public NDJSONFeedWriter(PrintWriter pw) {
 		this.pw = pw;
 		je = new JSONEncoder(pw);
-	}
-
-	public NDJSONFeedWriter(PrintWriter pw, IContest contest) {
-		this.pw = pw;
-		je = new JSONEncoder(pw);
-		prefix = getContestPrefix(contest);
 	}
 
 	public static String getContestPrefix(IContest contest) {
@@ -35,35 +30,45 @@ public class NDJSONFeedWriter {
 		return sb.toString();
 	}
 
-	public String getContentType() {
-		return IContentType.JSON;
-	}
-
-	public void writeEvent(IContestObject obj, int index, Delta d) {
-		writeEvent(obj, prefix + index, d);
-	}
-
-	public void writeEvent(IContestObject obj, String id, Delta d) {
+	public void writeEvent(IContestObject obj, String token, Delta d) {
 		je.open();
 
 		String type = IContestObject.getTypeName(obj.getType());
 		je.encode("type", type);
-		je.encode("id", id);
 
-		if (d == Delta.DELETE) {
-			je.encode("op", "delete");
-			je.openChild("data");
-			je.encode("id", obj.getId());
-			je.close();
+		if (isOldFeed) {
+			if (token != null)
+				je.encode("id", token);
+
+			if (d == Delta.DELETE) {
+				je.encode("op", "delete");
+				je.openChild("data");
+				je.encode("id", obj.getId());
+				je.close();
+			} else {
+				if (d == Delta.UPDATE)
+					je.encode("op", "update");
+				else
+					je.encode("op", "create");
+
+				je.openChild("data");
+				((ContestObject) obj).writeBody(je);
+				je.close();
+			}
 		} else {
-			if (d == Delta.UPDATE)
-				je.encode("op", "update");
-			else
-				je.encode("op", "create");
+			if (!IContestObject.isSingleton(obj.getType()))
+				je.encode("id", obj.getId());
 
-			je.openChild("data");
-			((ContestObject) obj).writeBody(je);
-			je.close();
+			if (obj instanceof Deletion)
+				je.encode("data", (String) null);
+			else {
+				je.openChild("data");
+				((ContestObject) obj).writeBody(je);
+				je.close();
+			}
+
+			if (token != null)
+				je.encode("token", token);
 		}
 
 		je.close();
@@ -72,9 +77,10 @@ public class NDJSONFeedWriter {
 	}
 
 	public void writeContest(Contest contest) {
-		final int[] index = new int[] { 1 };
+		String prefix = getContestPrefix(contest);
+		final int[] index = new int[] { 0 };
 		contest.addListenerFromStart((contest2, obj, d) -> {
-			writeEvent(obj, index[0]++, d);
+			writeEvent(obj, prefix + index[0]++, d);
 		});
 
 		pw.close();

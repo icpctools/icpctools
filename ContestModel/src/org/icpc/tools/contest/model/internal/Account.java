@@ -2,12 +2,10 @@ package org.icpc.tools.contest.model.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Account extends ContestObject implements IAccount {
 	private static final String USERNAME = "username";
@@ -60,8 +58,8 @@ public class Account extends ContestObject implements IAccount {
 	}
 
 	@Override
-	protected boolean addImpl(String name2, Object value) throws Exception {
-		switch (name2) {
+	protected boolean addImpl(String name, Object value) throws Exception {
+		switch (name) {
 			case USERNAME: {
 				username = (String) value;
 				return true;
@@ -105,37 +103,20 @@ public class Account extends ContestObject implements IAccount {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
 		if (username != null)
-			props.put(USERNAME, username);
+			props.addString(USERNAME, username);
 		if (password != null)
-			props.put(PASSWORD, password);
+			props.addString(PASSWORD, password);
 		if (type != null)
-			props.put(TYPE, type);
+			props.addLiteralString(TYPE, type);
 		if (ip != null)
-			props.put(IP, ip);
+			props.addLiteralString(IP, ip);
 		if (teamId != null)
-			props.put(TEAM_ID, teamId);
+			props.addLiteralString(TEAM_ID, teamId);
 		if (personId != null)
-			props.put(PERSON_ID, personId);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		if (username != null)
-			je.encode(USERNAME, username);
-		if (password != null)
-			je.encode(PASSWORD, password);
-		if (type != null)
-			je.encode(TYPE, type);
-		if (ip != null)
-			je.encode(IP, ip);
-		if (teamId != null)
-			je.encode(TEAM_ID, teamId);
-		if (personId != null)
-			je.encode(PERSON_ID, personId);
+			props.addLiteralString(PERSON_ID, personId);
 	}
 
 	@Override

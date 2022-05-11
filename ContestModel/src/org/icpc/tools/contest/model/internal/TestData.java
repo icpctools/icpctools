@@ -1,11 +1,9 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITestData;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class TestData extends ContestObject implements ITestData {
 	private static final String PROBLEM_ID = "problem_id";
@@ -53,21 +51,12 @@ public class TestData extends ContestObject implements ITestData {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(PROBLEM_ID, problemId);
-		props.put(ORDINAL, ordinal);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addLiteralString(PROBLEM_ID, problemId);
+		props.addInt(ORDINAL, ordinal);
 		if (isSample != null)
-			props.put(SAMPLE, isSample.booleanValue());
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(PROBLEM_ID, problemId);
-		je.encode(ORDINAL, ordinal);
-		if (isSample != null)
-			je.encode(SAMPLE, isSample.booleanValue());
+			props.add(SAMPLE, isSample.booleanValue());
 	}
 
 	@Override

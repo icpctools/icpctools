@@ -1,12 +1,10 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 
 public class Award extends ContestObject implements IAward {
@@ -150,36 +148,19 @@ public class Award extends ContestObject implements IAward {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(CITATION, citation);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
 		if (teamIds != null) {
 			if (teamIds.length == 0)
-				props.put(TEAM_IDS, "[]");
+				props.add(TEAM_IDS, "[]");
 			else
-				props.put(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
+				props.add(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		}
+		props.addString(CITATION, citation);
 		if (mode != null && mode != DisplayMode.DETAIL)
-			props.put(DISPLAY_MODE, mode.name().toLowerCase());
+			props.addLiteralString(DISPLAY_MODE, mode.name().toLowerCase());
 		if (parameter != null)
-			props.put(PARAMETER, parameter);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		if (citation != null)
-			je.encode(CITATION, citation);
-		if (teamIds != null) {
-			if (teamIds.length == 0)
-				je.encodePrimitive(TEAM_IDS, "[]");
-			else
-				je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
-		}
-		if (mode != null && mode != DisplayMode.DETAIL)
-			je.encode(DISPLAY_MODE, mode.name().toLowerCase());
-		if (parameter != null)
-			je.encode(PARAMETER, parameter);
+			props.addLiteralString(PARAMETER, parameter);
 	}
 
 	@Override

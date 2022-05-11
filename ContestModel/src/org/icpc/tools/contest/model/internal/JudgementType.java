@@ -1,11 +1,9 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IJudgementType;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class JudgementType extends ContestObject implements IJudgementType {
 	private static final String NAME = "name";
@@ -53,19 +51,11 @@ public class JudgementType extends ContestObject implements IJudgementType {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(NAME, name);
-		props.put(PENALTY, penalty);
-		props.put(SOLVED, solved);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(NAME, name);
-		je.encode(PENALTY, penalty);
-		je.encode(SOLVED, solved);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addString(NAME, name);
+		props.add(PENALTY, penalty);
+		props.add(SOLVED, solved);
 	}
 
 	@Override

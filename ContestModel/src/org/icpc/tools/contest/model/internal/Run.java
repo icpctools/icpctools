@@ -1,13 +1,11 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.feed.Decimal;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Run extends TimedEvent implements IRun {
 	private static final String JUDGEMENT_ID = "judgement_id";
@@ -78,25 +76,18 @@ public class Run extends TimedEvent implements IRun {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(JUDGEMENT_ID, judgementId);
-		props.put(JUDGEMENT_TYPE_ID, judgementTypeId);
-		props.put(ORDINAL, ordinal);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addLiteralString(JUDGEMENT_ID, judgementId);
+		props.addLiteralString(JUDGEMENT_TYPE_ID, judgementTypeId);
+		props.addInt(ORDINAL, ordinal);
 		if (runTime > 0)
-			props.put(RUN_TIME, Decimal.format(runTime));
+			// props.put(RUN_TIME, new Decimal(runTime));
+			props.add(RUN_TIME, Decimal.format(runTime));
+		super.getProperties(props);
 	}
 
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(JUDGEMENT_ID, judgementId);
-		je.encode(JUDGEMENT_TYPE_ID, judgementTypeId);
-		je.encode(ORDINAL, ordinal);
-		if (runTime > 0)
-			je.encodePrimitive(RUN_TIME, Decimal.format(runTime));
-		encodeTimeProperties(je);
-	}
+	// target : 4450x ms
 
 	@Override
 	public List<String> validate(IContest c) {

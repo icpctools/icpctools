@@ -3,7 +3,6 @@ package org.icpc.tools.contest.model.internal;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ILanguage;
@@ -118,42 +117,23 @@ public class Language extends ContestObject implements ILanguage {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(NAME, name);
-		props.put(ENTRY_POINT_REQUIRED, entryPointRequired);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addString(NAME, name);
+		props.add(ENTRY_POINT_REQUIRED, entryPointRequired);
 		if (entryPointName != null)
-			props.put(ENTRY_POINT_NAME, entryPointName);
+			props.addString(ENTRY_POINT_NAME, entryPointName);
 
 		if (extensions != null) {
 			if (extensions.length == 0)
-				props.put(EXTENSIONS, "[]");
+				props.add(EXTENSIONS, "[]");
 			else
-				props.put(EXTENSIONS, "[\"" + String.join("\",\"", extensions) + "\"]");
+				props.add(EXTENSIONS, "[\"" + String.join("\",\"", extensions) + "\"]");
 		}
 		if (compiler != null)
-			props.put(COMPILER, compiler.getJSON());
+			props.add(COMPILER, compiler.getJSON());
 		if (runner != null)
-			props.put(RUNNER, runner.getJSON());
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(NAME, name);
-		je.encode(ENTRY_POINT_REQUIRED, entryPointRequired);
-		if (entryPointName != null)
-			je.encode(ENTRY_POINT_NAME, entryPointName);
-		if (extensions != null) {
-			if (extensions.length == 0)
-				je.encodePrimitive(EXTENSIONS, "[]");
-			else
-				je.encodePrimitive(EXTENSIONS, "[\"" + String.join("\",\"", extensions) + "\"]");
-		}
-		if (compiler != null)
-			je.encodePrimitive(COMPILER, compiler.getJSON());
-		if (runner != null)
-			je.encodePrimitive(RUNNER, runner.getJSON());
+			props.add(RUNNER, runner.getJSON());
 	}
 
 	@Override

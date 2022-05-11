@@ -1,7 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
@@ -9,7 +8,6 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.feed.Decimal;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
@@ -145,65 +143,30 @@ public class Judgement extends ContestObject implements IJudgement {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(SUBMISSION_ID, submissionId);
-		props.put(JUDGEMENT_TYPE_ID, judgementTypeId);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addLiteralString(SUBMISSION_ID, submissionId);
+		props.addLiteralString(JUDGEMENT_TYPE_ID, judgementTypeId);
 		if (maxRunTime > 0)
-			props.put(MAX_RUN_TIME, Decimal.format(maxRunTime));
+			props.add(MAX_RUN_TIME, Decimal.format(maxRunTime));
 		try {
 			if (startContestTime != Integer.MIN_VALUE)
-				props.put(START_CONTEST_TIME, RelativeTime.format(startContestTime));
+				props.addLiteralString(START_CONTEST_TIME, RelativeTime.format(startContestTime));
 			if (startTime != Long.MIN_VALUE)
-				props.put(START_TIME, Timestamp.format(startTime));
+				props.addLiteralString(START_TIME, Timestamp.format(startTime));
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + startContestTime + " / " + startTime, e);
 		}
 		try {
 			if (endContestTime != null)
-				props.put(END_CONTEST_TIME, RelativeTime.format(endContestTime));
+				props.addLiteralString(END_CONTEST_TIME, RelativeTime.format(endContestTime));
 			if (endTime != null)
-				props.put(END_TIME, Timestamp.format(endTime));
+				props.addLiteralString(END_TIME, Timestamp.format(endTime));
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
 		if (score != null)
-			props.put(SCORE, round(score));
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(SUBMISSION_ID, submissionId);
-		je.encode(JUDGEMENT_TYPE_ID, judgementTypeId);
-		if (maxRunTime > 0)
-			je.encodePrimitive(MAX_RUN_TIME, Decimal.format(maxRunTime));
-		try {
-			if (startContestTime == Integer.MIN_VALUE)
-				je.encode(START_CONTEST_TIME);
-			else
-				je.encodeString(START_CONTEST_TIME, RelativeTime.format(startContestTime));
-			if (startTime == Long.MIN_VALUE)
-				je.encode(START_TIME);
-			else
-				je.encodeString(START_TIME, Timestamp.format(startTime));
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Invalid time: " + startContestTime + " / " + startTime, e);
-		}
-		try {
-			if (endContestTime == null)
-				je.encode(END_CONTEST_TIME);
-			else
-				je.encodeString(END_CONTEST_TIME, RelativeTime.format(endContestTime));
-			if (endTime == null)
-				je.encode(END_TIME);
-			else
-				je.encodeString(END_TIME, Timestamp.format(endTime));
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
-		}
-		if (score != null)
-			je.encode(SCORE, round(score));
+			props.add(SCORE, round(score)); // TODO
 	}
 
 	@Override
