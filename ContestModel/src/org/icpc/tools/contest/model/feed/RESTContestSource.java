@@ -989,7 +989,7 @@ public class RESTContestSource extends DiskContestSource {
 			Trace.trace(Trace.INFO, "Adding client-side event to feed cache");
 			PrintWriter pw = new PrintWriter(feedCacheOut);
 			pw.println("\n!Client-side event");
-			NDJSONFeedWriter writer = new NDJSONFeedWriter(pw, contest);
+			NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
 			// use same id as last event so if it crashes here we'll pick up at the same spot
 			writer.writeEvent(obj, parser.getLastEventId(), d);
 			pw.flush();

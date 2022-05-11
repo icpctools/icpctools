@@ -1,11 +1,8 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
-import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
@@ -45,23 +42,11 @@ public abstract class TimedEvent extends ContestObject {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
 		if (contestTime != Integer.MIN_VALUE)
-			props.put(CONTEST_TIME, RelativeTime.format(contestTime));
+			props.addLiteralString(CONTEST_TIME, RelativeTime.format(contestTime));
 		if (time != Long.MIN_VALUE)
-			props.put(TIME, Timestamp.format(time));
-	}
-
-	protected void encodeTimeProperties(JSONEncoder je) {
-		try {
-			if (contestTime != Integer.MIN_VALUE)
-				je.encodeString(CONTEST_TIME, RelativeTime.format(contestTime));
-			if (time != Long.MIN_VALUE)
-				je.encodeString(TIME, Timestamp.format(time));
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Invalid time: " + contestTime + " / " + time, e);
-		}
+			props.addLiteralString(TIME, Timestamp.format(time));
 	}
 
 	@Override

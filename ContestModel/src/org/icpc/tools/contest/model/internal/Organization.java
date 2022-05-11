@@ -3,12 +3,10 @@ package org.icpc.tools.contest.model.internal;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IOrganization;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Organization extends ContestObject implements IOrganization {
 	private static final String ICPC_ID = "icpc_id";
@@ -191,44 +189,25 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
 		if (icpcId != null)
-			props.put(ICPC_ID, icpcId);
+			props.addLiteralString(ICPC_ID, icpcId);
 		if (name != null)
-			props.put(NAME, name);
+			props.addString(NAME, name);
 		if (formalName != null)
-			props.put(FORMAL_NAME, formalName);
+			props.addString(FORMAL_NAME, formalName);
 		if (country != null)
-			props.put(COUNTRY, country);
+			props.addString(COUNTRY, country);
 		if (countryFlag != null)
-			props.put(COUNTRY_FLAG, countryFlag);
+			props.addFileRef(COUNTRY_FLAG, countryFlag);
 		if (url != null)
-			props.put(URL, url);
+			props.addString(URL, url);
 		if (hashtag != null)
-			props.put(HASHTAG, hashtag);
+			props.addString(HASHTAG, hashtag);
 		if (location != null)
-			props.put(LOCATION, location.getJSON());
-		props.put(LOGO, logo);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(ICPC_ID, icpcId);
-		je.encode(NAME, name);
-		je.encode(FORMAL_NAME, formalName);
-		if (country != null)
-			je.encode(COUNTRY, country);
-		je.encode(COUNTRY_FLAG, countryFlag, false);
-		if (url != null)
-			je.encode(URL, url);
-		if (hashtag != null)
-			je.encode(HASHTAG, hashtag);
-		if (location != null)
-			je.encodePrimitive(LOCATION, location.getJSON());
-
-		je.encode(LOGO, logo, false);
+			props.add(LOCATION, location.getJSON());
+		props.addFileRef(LOGO, logo);
 	}
 
 	@Override

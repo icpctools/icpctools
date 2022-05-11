@@ -33,11 +33,12 @@ import org.icpc.tools.contest.model.internal.Contest;
 public class ContestFeedService {
 	protected static void doStream(HttpServletRequest request, IContestObjectFilter filter, PrintWriter writer2,
 			Contest contest, int ind, ConfiguredContest cc) {
-		NDJSONFeedWriter writer = new NDJSONFeedWriter(writer2, contest);
+		NDJSONFeedWriter writer = new NDJSONFeedWriter(writer2);
 
 		final ContestObjectQueue queue = new ContestObjectQueue(ind);
 		IContestListener listener = (contest2, obj, d) -> queue.add(obj, d);
 		contest.addListenerFromStart(listener);
+		final String prefix = NDJSONFeedWriter.getContestPrefix(contest);
 
 		final AsyncContext asyncCtx = request.startAsync();
 		asyncCtx.setTimeout(0); // no timeout
@@ -57,7 +58,7 @@ public class ContestFeedService {
 					while (co != null) {
 						IContestObject obj = filter.filter(co.obj);
 						if (obj != null) {
-							writer.writeEvent(obj, ind3++, co.d);
+							writer.writeEvent(obj, prefix + ind3++, co.d);
 							count = 0;
 						}
 						co = queue.poll();

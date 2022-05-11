@@ -4,12 +4,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
@@ -393,70 +391,34 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(NAME, name);
-		if (displayName != null)
-			props.put(DISPLAY_NAME, displayName);
-		if (icpcId != null)
-			props.put(ICPC_ID, icpcId);
-		if (groupIds != null)
-			props.put(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
-		if (organizationId != null)
-			props.put(ORGANIZATION_ID, organizationId);
-		if (photo != null)
-			props.put(PHOTO, photo);
-		if (video != null)
-			props.put(VIDEO, video);
-		if (backup != null)
-			props.put(BACKUP, backup);
-		if (keylog != null)
-			props.put(KEY_LOG, keylog);
-		if (tooldata != null)
-			props.put(TOOL_DATA, tooldata);
-		if (desktop != null)
-			props.put(DESKTOP, desktop);
-		if (webcam != null)
-			props.put(WEBCAM, webcam);
-		if (audio != null)
-			props.put(AUDIO, audio);
-		if (!Double.isNaN(x) || !Double.isNaN(y) || !Double.isNaN(rotation)) {
-			List<String> attrs = new ArrayList<>(3);
-			if (!Double.isNaN(x))
-				attrs.add("\"" + X + "\":" + round(x));
-			if (!Double.isNaN(y))
-				attrs.add("\"" + Y + "\":" + round(y));
-			if (!Double.isNaN(rotation))
-				attrs.add("\"" + ROTATION + "\":" + round(rotation));
-			props.put(LOCATION, "{" + String.join(",", attrs) + "}");
-		}
-		if (isHidden)
-			props.put(HIDDEN, "true");
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
 		if (name != null)
-			je.encode(NAME, name);
+			props.addString(NAME, name);
 		if (displayName != null)
-			je.encode(DISPLAY_NAME, displayName);
+			props.addString(DISPLAY_NAME, displayName);
 		if (icpcId != null)
-			je.encode(ICPC_ID, icpcId);
+			props.addLiteralString(ICPC_ID, icpcId);
 		if (groupIds != null)
-			je.encodePrimitive(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
+			props.add(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
 		if (organizationId != null)
-			je.encode(ORGANIZATION_ID, organizationId);
-		je.encode(PHOTO, photo, false);
-		je.encode(VIDEO, video, false);
-		je.encode(BACKUP, backup, false);
-		je.encode(KEY_LOG, keylog, false);
-		je.encode(TOOL_DATA, tooldata, false);
-		je.encodeSubs(DESKTOP, desktop, false);
-		je.encodeSubs(WEBCAM, webcam, false);
-		je.encodeSubs(AUDIO, audio, false);
-
+			props.addLiteralString(ORGANIZATION_ID, organizationId);
+		if (photo != null)
+			props.addFileRef(PHOTO, photo);
+		if (video != null)
+			props.addFileRef(VIDEO, video);
+		if (backup != null)
+			props.addFileRef(BACKUP, backup);
+		if (keylog != null)
+			props.addFileRef(KEY_LOG, keylog);
+		if (tooldata != null)
+			props.addFileRef(TOOL_DATA, tooldata);
+		if (desktop != null)
+			props.addFileRefSubs(DESKTOP, desktop);
+		if (webcam != null)
+			props.addFileRefSubs(WEBCAM, webcam);
+		if (audio != null)
+			props.addFileRefSubs(AUDIO, audio);
 		if (!Double.isNaN(x) || !Double.isNaN(y) || !Double.isNaN(rotation)) {
 			List<String> attrs = new ArrayList<>(3);
 			if (!Double.isNaN(x))
@@ -465,10 +427,10 @@ public class Team extends ContestObject implements ITeam {
 				attrs.add("\"" + Y + "\":" + round(y));
 			if (!Double.isNaN(rotation))
 				attrs.add("\"" + ROTATION + "\":" + round(rotation));
-			je.encodePrimitive(LOCATION, "{" + String.join(",", attrs) + "}");
+			props.add(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
 		if (isHidden)
-			je.encode(HIDDEN, true);
+			props.add(HIDDEN, true);
 	}
 
 	private static double round(double d) {

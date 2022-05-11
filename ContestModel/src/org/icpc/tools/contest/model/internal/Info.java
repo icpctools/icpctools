@@ -3,13 +3,11 @@ package org.icpc.tools.contest.model.internal;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IInfo;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
@@ -244,75 +242,38 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(NAME, name);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addString(NAME, name);
 		if (formalName != null)
-			props.put(FORMAL_NAME, formalName);
+			props.addString(FORMAL_NAME, formalName);
 
 		if (startTime != null)
-			props.put(START_TIME, Timestamp.format(startTime.longValue()));
+			props.addLiteralString(START_TIME, Timestamp.format(startTime.longValue()));
 		if (pauseTime != null)
-			props.put(COUNTDOWN_PAUSE_TIME, RelativeTime.format(pauseTime));
+			props.addLiteralString(COUNTDOWN_PAUSE_TIME, RelativeTime.format(pauseTime));
 
-		props.put(DURATION, RelativeTime.format(duration));
+		props.addLiteralString(DURATION, RelativeTime.format(duration));
 		if (freezeDuration != null)
-			props.put(SCOREBOARD_FREEZE_DURATION, RelativeTime.format(freezeDuration));
+			props.addLiteralString(SCOREBOARD_FREEZE_DURATION, RelativeTime.format(freezeDuration));
 		if (penalty != null)
-			props.put(PENALTY_TIME, penalty);
+			props.addInt(PENALTY_TIME, penalty);
 
 		if (scoreboardType != null) {
 			if (ScoreboardType.PASS_FAIL.equals(scoreboardType))
-				props.put(SCOREBOARD_TYPE, "pass-fail");
+				props.addLiteralString(SCOREBOARD_TYPE, "pass-fail");
 			else if (ScoreboardType.SCORE.equals(scoreboardType))
-				props.put(SCOREBOARD_TYPE, "score");
+				props.addLiteralString(SCOREBOARD_TYPE, "score");
 		}
 
 		if (!Double.isNaN(timeMultiplier))
-			props.put(TIME_MULTIPLIER, timeMultiplier);
+			props.addDouble(TIME_MULTIPLIER, timeMultiplier);
 
 		if (location != null)
-			props.put(LOCATION, location.getJSON());
+			props.addLiteralString(LOCATION, location.getJSON());
 
-		props.put(LOGO, logo);
-		props.put(BANNER, banner);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(NAME, name);
-		je.encode(FORMAL_NAME, formalName);
-
-		if (startTime == null)
-			je.encode(START_TIME);
-		else
-			je.encodeString(START_TIME, Timestamp.format(startTime.longValue()));
-
-		if (pauseTime != null)
-			je.encode(COUNTDOWN_PAUSE_TIME, RelativeTime.format(pauseTime));
-
-		je.encodeString(DURATION, RelativeTime.format(duration));
-		if (freezeDuration != null)
-			je.encodeString(SCOREBOARD_FREEZE_DURATION, RelativeTime.format(freezeDuration));
-		if (penalty != null)
-			je.encode(PENALTY_TIME, penalty);
-
-		if (scoreboardType != null) {
-			if (ScoreboardType.PASS_FAIL.equals(scoreboardType))
-				je.encode(SCOREBOARD_TYPE, "pass-fail");
-			else if (ScoreboardType.SCORE.equals(scoreboardType))
-				je.encode(SCOREBOARD_TYPE, "score");
-		}
-
-		if (!Double.isNaN(timeMultiplier))
-			je.encode(TIME_MULTIPLIER, timeMultiplier);
-
-		if (location != null)
-			je.encodePrimitive(LOCATION, location.getJSON());
-
-		je.encode(LOGO, logo, false);
-		je.encode(BANNER, banner, false);
+		props.addFileRef(LOGO, logo);
+		props.addFileRef(BANNER, banner);
 	}
 
 	@Override

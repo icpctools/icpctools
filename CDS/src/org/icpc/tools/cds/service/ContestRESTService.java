@@ -131,16 +131,18 @@ public class ContestRESTService extends HttpServlet {
 				ContestFeedService.addFeedEventFilter(request, filter);
 
 				PrintWriter pw = response.getWriter();
-				response.setContentType("application/json");
 				response.setHeader("X-Accel-Buffering", "no");
 				cc.incrementFeed();
-				int ind = getSinceIdIndex(request, contest);
+				int ind = getEventIndexFromParameter(request, contest, "since_token");
+				if (ind == -1)
+					ind = getEventIndexFromParameter(request, contest, "since_id");
 				if (ind == -2) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event id");
 					return;
 				}
 				if (ind == -1)
 					ind = 0;
+				response.setContentType("application/x-ndjson");
 				ContestFeedService.doStream(request, filter, pw, contest, ind, cc);
 				return;
 			} else if ("scoreboard".equals(segments[1])) {
@@ -283,10 +285,6 @@ public class ContestRESTService extends HttpServlet {
 		je.encode("version", "2021-11");
 		je.encode("version_url", "https://ccs-specs.icpc.io/2021-11/contest_api");
 		je.close();
-	}
-
-	protected static int getSinceIdIndex(HttpServletRequest request, IContest contest) {
-		return getEventIndexFromParameter(request, contest, "since_id");
 	}
 
 	protected static int getAfterEventIndex(HttpServletRequest request, IContest contest) {

@@ -1,9 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
-import java.util.Map;
-
 import org.icpc.tools.contest.model.IStartStatus;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class StartStatus extends ContestObject implements IStartStatus {
 	private static final String LABEL = "label";
@@ -60,16 +57,9 @@ public class StartStatus extends ContestObject implements IStartStatus {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(LABEL, label);
-		props.put(STATUS, status);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(LABEL, label);
-		je.encode(STATUS, status);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addString(LABEL, label);
+		props.addInt(STATUS, status);
 	}
 }

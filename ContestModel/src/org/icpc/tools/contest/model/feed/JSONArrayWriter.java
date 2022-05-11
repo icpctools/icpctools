@@ -15,7 +15,7 @@ public class JSONArrayWriter {
 	}
 
 	public String getContentType() {
-		return IContentType.JSON;
+		return "application/json";
 	}
 
 	public void writePrelude() {

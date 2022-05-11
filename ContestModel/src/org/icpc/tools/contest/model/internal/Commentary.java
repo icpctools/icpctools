@@ -1,11 +1,9 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.ICommentary;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 
 // {"type": "commentary", "data": {"id": "191", "time": "2020-02-20T16:26:51.028-05", "message":
@@ -72,40 +70,22 @@ public class Commentary extends TimedEvent implements ICommentary {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(MESSAGE, message);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addString(MESSAGE, message);
 		if (teamIds != null) {
 			if (teamIds.length == 0)
-				props.put(TEAM_IDS, "[]");
+				props.add(TEAM_IDS, "[]");
 			else
-				props.put(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
+				props.add(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
 		}
 		if (problemIds != null) {
 			if (problemIds.length == 0)
-				props.put(PROBLEM_IDS, "[]");
+				props.add(PROBLEM_IDS, "[]");
 			else
-				props.put(PROBLEM_IDS, "[\"" + String.join("\",\"", problemIds) + "\"]");
+				props.add(PROBLEM_IDS, "[\"" + String.join("\",\"", problemIds) + "\"]");
 		}
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(MESSAGE, message);
-		if (teamIds != null) {
-			if (teamIds.length == 0)
-				je.encodePrimitive(TEAM_IDS, "[]");
-			else
-				je.encodePrimitive(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
-		}
-		if (problemIds != null) {
-			if (problemIds.length == 0)
-				je.encodePrimitive(PROBLEM_IDS, "[]");
-			else
-				je.encodePrimitive(PROBLEM_IDS, "[\"" + String.join("\",\"", problemIds) + "\"]");
-		}
-		encodeTimeProperties(je);
+		super.getProperties(props);
 	}
 
 	@Override

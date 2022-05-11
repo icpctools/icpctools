@@ -1,11 +1,9 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Clarification extends TimedEvent implements IClarification {
 	private static final String REPLY_TO_ID = "reply_to_id";
@@ -73,24 +71,14 @@ public class Clarification extends TimedEvent implements IClarification {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
-		props.put(REPLY_TO_ID, replyToId);
-		props.put(FROM_TEAM_ID, fromTeamId);
-		props.put(TO_TEAM_ID, toTeamId);
-		props.put(PROBLEM_ID, problemId);
-		props.put(TEXT, text);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(REPLY_TO_ID, replyToId);
-		je.encode(FROM_TEAM_ID, fromTeamId);
-		je.encode(TO_TEAM_ID, toTeamId);
-		je.encode(PROBLEM_ID, problemId);
-		je.encode(TEXT, text);
-		encodeTimeProperties(je);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
+		props.addLiteralString(REPLY_TO_ID, replyToId);
+		props.addLiteralString(FROM_TEAM_ID, fromTeamId);
+		props.addLiteralString(TO_TEAM_ID, toTeamId);
+		props.addLiteralString(PROBLEM_ID, problemId);
+		props.addString(TEXT, text);
+		super.getProperties(props);
 	}
 
 	@Override

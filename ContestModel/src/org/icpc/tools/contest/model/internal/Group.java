@@ -3,12 +3,10 @@ package org.icpc.tools.contest.model.internal;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
-import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 public class Group extends ContestObject implements IGroup {
 	private static final String ICPC_ID = "icpc_id";
@@ -133,34 +131,20 @@ public class Group extends ContestObject implements IGroup {
 	}
 
 	@Override
-	protected void getPropertiesImpl(Map<String, Object> props) {
-		super.getPropertiesImpl(props);
+	protected void getProperties(Properties props) {
+		props.addLiteralString(ID, id);
 		if (icpcId != null)
-			props.put(ICPC_ID, icpcId);
+			props.addLiteralString(ICPC_ID, icpcId);
 		if (name != null)
-			props.put(NAME, name);
+			props.addString(NAME, name);
 		if (type != null)
-			props.put(TYPE, type);
+			props.addLiteralString(TYPE, type);
 		if (isHidden)
-			props.put(HIDDEN, "true");
+			props.add(HIDDEN, "true");
 		if (location != null)
-			props.put(LOCATION, location.getJSON());
+			props.add(LOCATION, location.getJSON());
 		if (logo != null)
-			props.put(LOGO, logo);
-	}
-
-	@Override
-	public void writeBody(JSONEncoder je) {
-		je.encode(ID, id);
-		je.encode(ICPC_ID, icpcId);
-		je.encode(NAME, name);
-		if (type != null)
-			je.encode(TYPE, type);
-		if (isHidden)
-			je.encode(HIDDEN, true);
-		if (location != null)
-			je.encodePrimitive(LOCATION, location.getJSON());
-		je.encode(LOGO, logo, false);
+			props.addFileRef(LOGO, logo);
 	}
 
 	@Override
