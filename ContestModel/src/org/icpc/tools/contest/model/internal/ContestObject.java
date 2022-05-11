@@ -34,8 +34,6 @@ public abstract class ContestObject implements IContestObject {
 	protected static List<String> ignoredProps = new ArrayList<>();
 
 	interface Properties {
-		public void setEncoder(JSONEncoder je);
-
 		public void addString(String key, String value);
 
 		public void addLiteralString(String key, String value);
@@ -207,11 +205,6 @@ public abstract class ContestObject implements IContestObject {
 		Map<String, Object> props = new SimpleMap();
 		getProperties(new Properties() {
 			@Override
-			public void setEncoder(JSONEncoder je) {
-				// ignore
-			}
-
-			@Override
 			public void addString(String key, String value) {
 				props.put(key, value);
 			}
@@ -249,54 +242,43 @@ public abstract class ContestObject implements IContestObject {
 		return props;
 	}
 
-	private static final Properties propertyEncoder = new Properties() {
-		public JSONEncoder je;
+	public final void writeBody(final JSONEncoder je) {
+		getProperties(new Properties() {
+			@Override
+			public void addString(String key, String o) {
+				je.encode(key, o);
+			}
 
-		@Override
-		public void setEncoder(JSONEncoder je) {
-			this.je = je;
-		}
+			@Override
+			public void addLiteralString(String key, String o) {
+				je.encodeString(key, o);
+			}
 
-		@Override
-		public void addString(String key, String o) {
-			je.encode(key, o);
-		}
+			@Override
+			public void addInt(String key, int i) {
+				je.encode(key, i);
+			}
 
-		@Override
-		public void addLiteralString(String key, String o) {
-			je.encodeString(key, o);
-		}
+			@Override
+			public void addDouble(String key, double d) {
+				je.encode(key, d);
+			}
 
-		@Override
-		public void addInt(String key, int i) {
-			je.encode(key, i);
-		}
+			@Override
+			public void addFileRef(String key, FileReferenceList o) {
+				je.encode(key, o, false);
+			}
 
-		@Override
-		public void addDouble(String key, double d) {
-			je.encode(key, d);
-		}
+			@Override
+			public void addFileRefSubs(String key, FileReferenceList o) {
+				je.encodeSubs(key, o, false);
+			}
 
-		@Override
-		public void addFileRef(String key, FileReferenceList o) {
-			je.encode(key, o, false);
-		}
-
-		@Override
-		public void addFileRefSubs(String key, FileReferenceList o) {
-			je.encodeSubs(key, o, false);
-		}
-
-		@Override
-		public void add(String key, Object o) {
-			je.encodePrimitive(key, o.toString());
-		}
-	};
-
-	public final void writeBody(JSONEncoder je) {
-		propertyEncoder.setEncoder(je);
-
-		getProperties(propertyEncoder);
+			@Override
+			public void add(String key, Object o) {
+				je.encodePrimitive(key, o.toString());
+			}
+		});
 	}
 
 	@Override
