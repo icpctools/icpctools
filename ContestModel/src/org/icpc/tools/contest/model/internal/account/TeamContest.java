@@ -3,6 +3,7 @@ package org.icpc.tools.contest.model.internal.account;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.ISubmission;
 
@@ -26,6 +27,11 @@ public class TeamContest extends PublicContest {
 
 	@Override
 	public void add(IContestObject obj) {
+		if (obj instanceof IDelete) {
+			addIt(obj);
+			return;
+		}
+
 		IContestObject.ContestType cType = obj.getType();
 
 		switch (cType) {

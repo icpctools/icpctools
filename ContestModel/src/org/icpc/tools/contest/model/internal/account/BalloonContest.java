@@ -3,6 +3,7 @@ package org.icpc.tools.contest.model.internal.account;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
+import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
@@ -21,6 +22,11 @@ public class BalloonContest extends PublicContest {
 
 	@Override
 	public void add(IContestObject obj) {
+		if (obj instanceof IDelete) {
+			addIt(obj);
+			return;
+		}
+
 		IContestObject.ContestType cType = obj.getType();
 		if (cType == ContestType.JUDGEMENT) {
 			IJudgement j = (IJudgement) obj;

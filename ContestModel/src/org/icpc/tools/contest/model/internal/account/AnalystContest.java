@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal.account;
 
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IRun;
 
@@ -20,8 +21,12 @@ public class AnalystContest extends PublicContest {
 
 	@Override
 	public void add(IContestObject obj) {
-		IContestObject.ContestType cType = obj.getType();
+		if (obj instanceof IDelete) {
+			addIt(obj);
+			return;
+		}
 
+		IContestObject.ContestType cType = obj.getType();
 		switch (cType) {
 			case RUN: {
 				IRun run = (IRun) obj;
