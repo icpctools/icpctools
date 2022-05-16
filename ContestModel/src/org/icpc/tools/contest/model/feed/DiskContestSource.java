@@ -332,6 +332,7 @@ public class DiskContestSource extends ContestSource {
 		String name = null;
 		String ext = null;
 		if (fileRef != null) {
+			// use existing filename if there is one
 			if (fileRef.filename != null) {
 				int ind = fileRef.filename.lastIndexOf(".");
 				if (ind > 0) {
@@ -340,6 +341,13 @@ public class DiskContestSource extends ContestSource {
 						ext = fileRef.filename.substring(ind + 1);
 				} else
 					name = fileRef.filename;
+			} else {
+				// otherwise, add size if is exists
+				if (fileRef.width > 0) {
+					name = pattern.name + fileRef.width;
+					if (fileRef.height > 0)
+						name += "x" + fileRef.height;
+				}
 			}
 			if (ext == null && fileRef.mime != null)
 				ext = getExtension(fileRef.mime);
