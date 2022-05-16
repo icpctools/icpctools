@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal.account;
 
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 
@@ -15,6 +16,11 @@ public class StaffContest extends Contest {
 
 	@Override
 	public void add(IContestObject obj) {
+		if (obj instanceof IDelete) {
+			super.add(obj);
+			return;
+		}
+
 		IContestObject.ContestType cType = obj.getType();
 
 		if (cType == IContestObject.ContestType.ACCOUNT) {

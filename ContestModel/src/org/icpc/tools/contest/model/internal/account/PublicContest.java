@@ -6,6 +6,7 @@ import java.util.List;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IPerson;
@@ -44,6 +45,20 @@ public class PublicContest extends Contest {
 	@Override
 	public void add(IContestObject obj) {
 		IContestObject.ContestType cType = obj.getType();
+		if (obj instanceof IDelete) {
+			if (cType.equals(IContestObject.ContestType.PROBLEM) && !problems.isEmpty()) {
+				IProblem remove = null;
+				for (IProblem p : problems) {
+					if (p.getId().equals(obj.getId()))
+						remove = p;
+				}
+				if (remove != null)
+					problems.remove(remove);
+				return;
+			}
+			super.add(obj);
+			return;
+		}
 
 		switch (cType) {
 			// all of these are fully public
@@ -71,6 +86,7 @@ public class PublicContest extends Contest {
 					for (IProblem p : problems) {
 						super.add(p);
 					}
+					problems.clear();
 				}
 				return;
 			}
