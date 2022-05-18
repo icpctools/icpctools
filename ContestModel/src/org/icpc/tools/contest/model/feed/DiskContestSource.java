@@ -364,7 +364,7 @@ public class DiskContestSource extends ContestSource {
 		File file = new File(folder, name + ext);
 		int n = 2;
 		while (file.exists()) {
-			file = new File(folder, name + n + ext);
+			file = new File(folder, name + "-" + n + ext);
 			n++;
 		}
 		return file;
@@ -421,18 +421,7 @@ public class DiskContestSource extends ContestSource {
 					ref.etag = etag;
 					ref.href = href;
 					ref.lastModified = file.lastModified();
-					try {
-						FileImageInputStream fin = new FileImageInputStream(file);
-						Iterator<ImageReader> iter = ImageIO.getImageReaders(fin);
-						while (iter.hasNext()) {
-							ImageReader ir = iter.next();
-							ir.setInput(fin);
-							ref.width = ir.getWidth(0);
-							ref.height = ir.getHeight(0);
-						}
-					} catch (Exception e) {
-						// ignore
-					}
+					readImageSize(ref);
 
 					writeCache(folder, list);
 					return;
@@ -447,18 +436,8 @@ public class DiskContestSource extends ContestSource {
 			ref.file = file;
 			ref.mime = getMimeType(file.getName());
 			ref.lastModified = file.lastModified();
-			try {
-				FileImageInputStream fin = new FileImageInputStream(file);
-				Iterator<ImageReader> iter = ImageIO.getImageReaders(fin);
-				while (iter.hasNext()) {
-					ImageReader ir = iter.next();
-					ir.setInput(fin);
-					ref.width = ir.getWidth(0);
-					ref.height = ir.getHeight(0);
-				}
-			} catch (Exception e) {
-				// ignore
-			}
+			readImageSize(ref);
+
 			list.add(ref);
 			writeCache(folder, list);
 		}
@@ -677,14 +656,10 @@ public class DiskContestSource extends ContestSource {
 		return null;
 	}
 
-	protected static FileReference readMetadata(File file) {
-		FileReference ref = new FileReference();
-		ref.filename = file.getName();
-		ref.mime = getMimeType(file.getName());
-		ref.file = file;
-		ref.lastModified = file.lastModified();
+	protected static void readImageSize(FileReference ref) {
+		File file = ref.file;
+		String name = file.getName().toLowerCase();
 		try {
-			String name = file.getName().toLowerCase();
 			if (name.endsWith(".png") || name.endsWith(".jpg")) {
 				FileImageInputStream fin = new FileImageInputStream(file);
 				Iterator<ImageReader> iter = ImageIO.getImageReaders(fin);
@@ -704,6 +679,15 @@ public class DiskContestSource extends ContestSource {
 		} catch (Exception e) {
 			// ignore
 		}
+	}
+
+	protected static FileReference readMetadata(File file) {
+		FileReference ref = new FileReference();
+		ref.filename = file.getName();
+		ref.mime = getMimeType(file.getName());
+		ref.file = file;
+		ref.lastModified = file.lastModified();
+		readImageSize(ref);
 		return ref;
 	}
 
