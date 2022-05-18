@@ -93,16 +93,13 @@ public class FileReferenceList implements Iterable<FileReference> {
 		return hrefs;
 	}
 
-	public String getJSON() {
-		StringBuilder sb = new StringBuilder();
-		for (FileReference ref : refs) {
-			if (ref != null) {
-				if (sb.length() != 0)
-					sb.append(",");
-				sb.append(ref.getJSON());
-			}
+	public String[] getRefs() {
+		int size = refs.size();
+		String[] s = new String[size];
+		for (int i = 0; i < size; i++) {
+			s[i] = refs.get(i).getJSON();
 		}
-		return "[" + sb.toString() + "]";
+		return s;
 	}
 
 	public static Object resolve(String url, FileReferenceList... lists) {
@@ -118,6 +115,6 @@ public class FileReferenceList implements Iterable<FileReference> {
 
 	@Override
 	public String toString() {
-		return getJSON();
+		return "File Reference List [" + refs.size() + "]";
 	}
 }

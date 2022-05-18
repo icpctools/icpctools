@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import org.icpc.tools.contest.model.internal.FileReferenceList;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class JSONEncoder {
@@ -211,42 +210,15 @@ public class JSONEncoder {
 		pw.write("\"" + name + "\":" + value);
 	}
 
-	public void encode(String name, FileReferenceList refList, boolean force) {
-		if (!force && (refList == null || refList.isEmpty()))
-			return;
-
-		if (!first)
-			pw.write(",");
-		else
-			first = false;
-		if (refList == null)
-			pw.write("\"" + name + "\":[]");
-		else
-			pw.write("\"" + name + "\":" + refList.getJSON());
-	}
-
 	public static void setThreadHost(String host) {
 		local.set(host);
 	}
 
-	public void encodeSubs(String name, FileReferenceList refList, boolean force) {
-		if (!force && (refList == null || refList.isEmpty()))
-			return;
-
-		if (!first)
-			pw.write(",");
-		else
-			first = false;
-		if (refList == null)
-			pw.write("\"" + name + "\":[]");
-		else {
-			String s = refList.getJSON();
-			String host = local.get();
-			if (host == null)
-				host = DEFAULT_HOST;
-			s = s.replace("<host>", host);
-			pw.write("\"" + name + "\":" + s);
-		}
+	public String replace(String s) {
+		String host = local.get();
+		if (host == null)
+			host = DEFAULT_HOST;
+		return s.replace("<host>", host);
 	}
 
 	public void encodeValue(int value) {

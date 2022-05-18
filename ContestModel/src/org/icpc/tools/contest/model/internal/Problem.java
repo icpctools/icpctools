@@ -246,18 +246,13 @@ public class Problem extends ContestObject implements IProblem {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (label != null)
-			props.addString(LABEL, label);
-		if (name != null)
-			props.addString(NAME, name);
-		if (uuid != null)
-			props.addString(UUID, uuid);
+		props.addString(LABEL, label);
+		props.addString(NAME, name);
+		props.addString(UUID, uuid);
 		if (ordinal != Integer.MIN_VALUE)
 			props.addInt(ORDINAL, ordinal);
-		if (color != null)
-			props.addString(COLOR, color);
-		if (rgb != null)
-			props.addLiteralString(RGB, rgb);
+		props.addString(COLOR, color);
+		props.addLiteralString(RGB, rgb);
 		if (testDataCount != Integer.MIN_VALUE)
 			props.addInt(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
@@ -274,10 +269,8 @@ public class Problem extends ContestObject implements IProblem {
 			props.add(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
 
-		if (package_ != null)
-			props.addFileRef(PACKAGE, package_);
-		if (statement != null)
-			props.addFileRef(STATEMENT, statement);
+		props.addFileRef(PACKAGE, package_);
+		props.addFileRef(STATEMENT, statement);
 	}
 
 	private static double round(double d) {

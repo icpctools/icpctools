@@ -73,18 +73,8 @@ public class Commentary extends TimedEvent implements ICommentary {
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
 		props.addString(MESSAGE, message);
-		if (teamIds != null) {
-			if (teamIds.length == 0)
-				props.add(TEAM_IDS, "[]");
-			else
-				props.add(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
-		}
-		if (problemIds != null) {
-			if (problemIds.length == 0)
-				props.add(PROBLEM_IDS, "[]");
-			else
-				props.add(PROBLEM_IDS, "[\"" + String.join("\",\"", problemIds) + "\"]");
-		}
+		props.addArray(TEAM_IDS, teamIds);
+		props.addArray(PROBLEM_IDS, problemIds);
 		super.getProperties(props);
 	}
 

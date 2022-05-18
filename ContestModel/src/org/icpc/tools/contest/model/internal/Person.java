@@ -309,18 +309,12 @@ public class Person extends ContestObject implements IPerson {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (icpcId != null)
-			props.addLiteralString(ICPC_ID, icpcId);
-		if (firstName != null)
-			props.addString(FIRST_NAME, firstName);
-		if (lastName != null)
-			props.addString(LAST_NAME, lastName);
-		if (name != null)
-			props.addString(NAME, name);
-		if (title != null)
-			props.addLiteralString(TITLE, title);
-		if (email != null)
-			props.addString(EMAIL, email);
+		props.addLiteralString(ICPC_ID, icpcId);
+		props.addString(FIRST_NAME, firstName);
+		props.addString(LAST_NAME, lastName);
+		props.addString(NAME, name);
+		props.addLiteralString(TITLE, title);
+		props.addString(EMAIL, email);
 		props.addLiteralString(SEX, sex);
 		props.addLiteralString(TEAM_ID, teamId);
 		props.addLiteralString(ROLE, role);

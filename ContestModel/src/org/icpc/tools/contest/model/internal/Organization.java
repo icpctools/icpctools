@@ -191,20 +191,13 @@ public class Organization extends ContestObject implements IOrganization {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (icpcId != null)
-			props.addLiteralString(ICPC_ID, icpcId);
-		if (name != null)
-			props.addString(NAME, name);
-		if (formalName != null)
-			props.addString(FORMAL_NAME, formalName);
-		if (country != null)
-			props.addString(COUNTRY, country);
-		if (countryFlag != null)
-			props.addFileRef(COUNTRY_FLAG, countryFlag);
-		if (url != null)
-			props.addString(URL, url);
-		if (hashtag != null)
-			props.addString(HASHTAG, hashtag);
+		props.addLiteralString(ICPC_ID, icpcId);
+		props.addString(NAME, name);
+		props.addString(FORMAL_NAME, formalName);
+		props.addString(COUNTRY, country);
+		props.addFileRef(COUNTRY_FLAG, countryFlag);
+		props.addString(URL, url);
+		props.addString(HASHTAG, hashtag);
 		if (location != null)
 			props.add(LOCATION, location.getJSON());
 		props.addFileRef(LOGO, logo);

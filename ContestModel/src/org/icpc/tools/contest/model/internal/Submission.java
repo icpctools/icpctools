@@ -155,11 +155,9 @@ public class Submission extends TimedEvent implements ISubmission {
 		props.addLiteralString(ID, id);
 		props.addLiteralString(PROBLEM_ID, problemId);
 		props.addLiteralString(TEAM_ID, teamId);
-		if (personId != null)
-			props.addLiteralString(PERSON_ID, personId);
+		props.addLiteralString(PERSON_ID, personId);
 		props.addLiteralString(LANGUAGE_ID, languageId);
-		if (entryPoint != null)
-			props.addLiteralString(ENTRY_POINT, entryPoint);
+		props.addLiteralString(ENTRY_POINT, entryPoint);
 		props.addFileRef(FILES, files);
 		props.addFileRef(REACTION, reaction);
 		super.getProperties(props);

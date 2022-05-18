@@ -105,18 +105,12 @@ public class Account extends ContestObject implements IAccount {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (username != null)
-			props.addString(USERNAME, username);
-		if (password != null)
-			props.addString(PASSWORD, password);
-		if (type != null)
-			props.addLiteralString(TYPE, type);
-		if (ip != null)
-			props.addLiteralString(IP, ip);
-		if (teamId != null)
-			props.addLiteralString(TEAM_ID, teamId);
-		if (personId != null)
-			props.addLiteralString(PERSON_ID, personId);
+		props.addString(USERNAME, username);
+		props.addString(PASSWORD, password);
+		props.addLiteralString(TYPE, type);
+		props.addLiteralString(IP, ip);
+		props.addLiteralString(TEAM_ID, teamId);
+		props.addLiteralString(PERSON_ID, personId);
 	}
 
 	@Override
