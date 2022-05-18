@@ -393,32 +393,19 @@ public class Team extends ContestObject implements ITeam {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (name != null)
-			props.addString(NAME, name);
-		if (displayName != null)
-			props.addString(DISPLAY_NAME, displayName);
-		if (icpcId != null)
-			props.addLiteralString(ICPC_ID, icpcId);
-		if (groupIds != null)
-			props.add(GROUP_IDS, "[\"" + String.join("\",\"", groupIds) + "\"]");
-		if (organizationId != null)
-			props.addLiteralString(ORGANIZATION_ID, organizationId);
-		if (photo != null)
-			props.addFileRef(PHOTO, photo);
-		if (video != null)
-			props.addFileRef(VIDEO, video);
-		if (backup != null)
-			props.addFileRef(BACKUP, backup);
-		if (keylog != null)
-			props.addFileRef(KEY_LOG, keylog);
-		if (tooldata != null)
-			props.addFileRef(TOOL_DATA, tooldata);
-		if (desktop != null)
-			props.addFileRefSubs(DESKTOP, desktop);
-		if (webcam != null)
-			props.addFileRefSubs(WEBCAM, webcam);
-		if (audio != null)
-			props.addFileRefSubs(AUDIO, audio);
+		props.addString(NAME, name);
+		props.addString(DISPLAY_NAME, displayName);
+		props.addLiteralString(ICPC_ID, icpcId);
+		props.addArray(GROUP_IDS, groupIds);
+		props.addLiteralString(ORGANIZATION_ID, organizationId);
+		props.addFileRef(PHOTO, photo);
+		props.addFileRef(VIDEO, video);
+		props.addFileRef(BACKUP, backup);
+		props.addFileRef(KEY_LOG, keylog);
+		props.addFileRef(TOOL_DATA, tooldata);
+		props.addFileRefSubs(DESKTOP, desktop);
+		props.addFileRefSubs(WEBCAM, webcam);
+		props.addFileRefSubs(AUDIO, audio);
 		if (!Double.isNaN(x) || !Double.isNaN(y) || !Double.isNaN(rotation)) {
 			List<String> attrs = new ArrayList<>(3);
 			if (!Double.isNaN(x))
@@ -430,7 +417,7 @@ public class Team extends ContestObject implements ITeam {
 			props.add(LOCATION, "{" + String.join(",", attrs) + "}");
 		}
 		if (isHidden)
-			props.add(HIDDEN, true);
+			props.add(HIDDEN, "true");
 	}
 
 	private static double round(double d) {

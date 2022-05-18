@@ -47,6 +47,8 @@ public abstract class ContestObject implements IContestObject {
 		public void addFileRef(String key, FileReferenceList value);
 
 		public void addFileRefSubs(String key, FileReferenceList value);
+
+		public void addArray(String key, String[] value);
 	}
 
 	public ContestObject() {
@@ -177,11 +179,8 @@ public abstract class ContestObject implements IContestObject {
 				id = (String) value;
 				return;
 			}
-			Object value2 = value;
-			if (value instanceof FileReferenceList)
-				value2 = ((FileReferenceList) value).getJSON();
 
-			if (addImpl(name, value2))
+			if (addImpl(name, value))
 				return;
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR,
@@ -238,6 +237,11 @@ public abstract class ContestObject implements IContestObject {
 			public void addFileRefSubs(String key, FileReferenceList value) {
 				props.put(key, value);
 			}
+
+			@Override
+			public void addArray(String key, String[] value) {
+				props.put(key, value);
+			}
 		});
 		return props;
 	}
@@ -246,12 +250,14 @@ public abstract class ContestObject implements IContestObject {
 		getProperties(new Properties() {
 			@Override
 			public void addString(String key, String o) {
-				je.encode(key, o);
+				if (o != null)
+					je.encode(key, o);
 			}
 
 			@Override
 			public void addLiteralString(String key, String o) {
-				je.encodeString(key, o);
+				if (o != null)
+					je.encodeString(key, o);
 			}
 
 			@Override
@@ -265,18 +271,46 @@ public abstract class ContestObject implements IContestObject {
 			}
 
 			@Override
-			public void addFileRef(String key, FileReferenceList o) {
-				je.encode(key, o, false);
+			public void addFileRef(String key, FileReferenceList refList) {
+				if (refList == null)
+					return;
+
+				if (refList.isEmpty())
+					je.encodePrimitive(key, "[]");
+				else
+					je.encodePrimitive(key, "[" + String.join(",", refList.getRefs()) + "]");
 			}
 
 			@Override
-			public void addFileRefSubs(String key, FileReferenceList o) {
-				je.encodeSubs(key, o, false);
+			public void addFileRefSubs(String key, FileReferenceList refList) {
+				if (refList == null)
+					return;
+
+				if (refList.isEmpty())
+					je.encodePrimitive(key, "[]");
+				else {
+					String[] s = refList.getRefs();
+					for (int i = 0; i < s.length; i++)
+						s[i] = je.replace(s[i]);
+					je.encodePrimitive(key, "[" + String.join(",", s) + "]");
+				}
 			}
 
 			@Override
 			public void add(String key, Object o) {
-				je.encodePrimitive(key, o.toString());
+				if (o != null)
+					je.encodePrimitive(key, o.toString());
+			}
+
+			@Override
+			public void addArray(String key, String[] value) {
+				if (value == null)
+					return;
+
+				if (value.length == 0)
+					je.encodePrimitive(key, "[]");
+				else
+					je.encodePrimitive(key, "[\"" + String.join("\",\"", value) + "\"]");
 			}
 		});
 	}

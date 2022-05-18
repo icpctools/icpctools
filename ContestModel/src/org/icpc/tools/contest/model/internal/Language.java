@@ -121,15 +121,9 @@ public class Language extends ContestObject implements ILanguage {
 		props.addLiteralString(ID, id);
 		props.addString(NAME, name);
 		props.add(ENTRY_POINT_REQUIRED, entryPointRequired);
-		if (entryPointName != null)
-			props.addString(ENTRY_POINT_NAME, entryPointName);
+		props.addString(ENTRY_POINT_NAME, entryPointName);
+		props.addArray(EXTENSIONS, extensions);
 
-		if (extensions != null) {
-			if (extensions.length == 0)
-				props.add(EXTENSIONS, "[]");
-			else
-				props.add(EXTENSIONS, "[\"" + String.join("\",\"", extensions) + "\"]");
-		}
 		if (compiler != null)
 			props.add(COMPILER, compiler.getJSON());
 		if (runner != null)

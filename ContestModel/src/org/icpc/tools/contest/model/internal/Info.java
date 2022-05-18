@@ -245,8 +245,7 @@ public class Info extends ContestObject implements IInfo {
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
 		props.addString(NAME, name);
-		if (formalName != null)
-			props.addString(FORMAL_NAME, formalName);
+		props.addString(FORMAL_NAME, formalName);
 
 		if (startTime != null)
 			props.addLiteralString(START_TIME, Timestamp.format(startTime.longValue()));
