@@ -133,12 +133,9 @@ public class Group extends ContestObject implements IGroup {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (icpcId != null)
-			props.addLiteralString(ICPC_ID, icpcId);
-		if (name != null)
-			props.addString(NAME, name);
-		if (type != null)
-			props.addLiteralString(TYPE, type);
+		props.addLiteralString(ICPC_ID, icpcId);
+		props.addString(NAME, name);
+		props.addLiteralString(TYPE, type);
 		if (isHidden)
 			props.add(HIDDEN, "true");
 		if (location != null)

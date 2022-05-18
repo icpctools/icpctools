@@ -150,17 +150,11 @@ public class Award extends ContestObject implements IAward {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		if (teamIds != null) {
-			if (teamIds.length == 0)
-				props.add(TEAM_IDS, "[]");
-			else
-				props.add(TEAM_IDS, "[\"" + String.join("\",\"", teamIds) + "\"]");
-		}
+		props.addArray(TEAM_IDS, teamIds);
 		props.addString(CITATION, citation);
 		if (mode != null && mode != DisplayMode.DETAIL)
 			props.addLiteralString(DISPLAY_MODE, mode.name().toLowerCase());
-		if (parameter != null)
-			props.addLiteralString(PARAMETER, parameter);
+		props.addLiteralString(PARAMETER, parameter);
 	}
 
 	@Override

@@ -114,7 +114,6 @@ public class State extends ContestObject implements IState {
 
 	@Override
 	protected void getProperties(Properties props) {
-		// super.getPropertiesImpl(props);
 		if (started != null)
 			props.addLiteralString(STARTED, Timestamp.format(started));
 		if (ended != null)
@@ -128,30 +127,6 @@ public class State extends ContestObject implements IState {
 		if (endOfUpdates != null)
 			props.addLiteralString(END_OF_UPDATES, Timestamp.format(endOfUpdates));
 	}
-
-	/*@Override
-	public void writeBody(JSONEncoder je) {
-		if (started != null)
-			je.encodeString(STARTED, Timestamp.format(started));
-		else
-			je.encode(STARTED);
-		if (ended != null)
-			je.encodeString(ENDED, Timestamp.format(ended));
-		else
-			je.encode(ENDED);
-		if (frozen != null)
-			je.encodeString(FROZEN, Timestamp.format(frozen));
-		if (thawed != null)
-			je.encodeString(THAWED, Timestamp.format(thawed));
-		if (finalized != null)
-			je.encodeString(FINALIZED, Timestamp.format(finalized));
-		else
-			je.encode(FINALIZED);
-		if (endOfUpdates != null)
-			je.encodeString(END_OF_UPDATES, Timestamp.format(endOfUpdates));
-		else
-			je.encode(END_OF_UPDATES);
-	}*/
 
 	@Override
 	public boolean isRunning() {
