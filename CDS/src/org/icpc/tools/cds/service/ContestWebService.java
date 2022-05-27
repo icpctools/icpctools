@@ -171,33 +171,35 @@ public class ContestWebService extends HttpServlet {
 			ConfiguredContest cc) throws ServletException, IOException {
 		request.setAttribute("cc", cc);
 		cc.incrementWeb();
+		boolean isAdmin = cc.isAdmin(request);
+		boolean isStaff = cc.isStaff(request);
+
 		if (segments.length >= 2) {
-			boolean isAdmin = cc.isAdmin(request);
 			if (segments[1].equals("details")) {
-				if (isAdmin)
+				if (isStaff)
 					request.getRequestDispatcher("/WEB-INF/jsps/details-admin.jsp").forward(request, response);
 				else
 					request.getRequestDispatcher("/WEB-INF/jsps/details.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("registration")) {
-				if (isAdmin)
+				if (isStaff)
 					request.getRequestDispatcher("/WEB-INF/jsps/registration-admin.jsp").forward(request, response);
 				else
 					request.getRequestDispatcher("/WEB-INF/jsps/registration.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("clarifications")) {
-				if (isAdmin)
+				if (isStaff)
 					request.getRequestDispatcher("/WEB-INF/jsps/clarifications-admin.jsp").forward(request, response);
 				else
 					request.getRequestDispatcher("/WEB-INF/jsps/clarifications.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("submissions")) {
-				if (isAdmin)
+				if (isStaff)
 					request.getRequestDispatcher("/WEB-INF/jsps/submissions-admin.jsp").forward(request, response);
 				else
 					request.getRequestDispatcher("/WEB-INF/jsps/submissions.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("teamSummary") && segments.length == 3) {
+			} else if (segments[1].equals("teamSummary") && segments.length == 3 && isStaff) {
 				request.setAttribute("teamId", segments[2]);
 				request.getRequestDispatcher("/WEB-INF/jsps/teamSummary.jsp").forward(request, response);
 				return;
@@ -207,7 +209,7 @@ public class ContestWebService extends HttpServlet {
 			} else if (segments[1].equals("commentary")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/commentary.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("contestCompare")) {
+			} else if (segments[1].equals("contestCompare") && isStaff) {
 				try {
 					Contest contestA = cc.getContestByRole(request);
 					request.setAttribute("a", cc.getId());
@@ -247,11 +249,7 @@ public class ContestWebService extends HttpServlet {
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				}
 				return;
-			} else if (segments[1].equals("scoreboardCompare")) {
-				if (!cc.isStaff(request)) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-					return;
-				}
+			} else if (segments[1].equals("scoreboardCompare") && isStaff) {
 				String src = segments[2];
 				String st = request.getRequestURL().toString();
 				String oldPath = "/contests/" + cc.getId() + "/scoreboardCompare/" + src;
@@ -294,22 +292,16 @@ public class ContestWebService extends HttpServlet {
 				request.setAttribute("compare", ScoreboardUtil.compareHTML(sd1, sd2));
 				request.getRequestDispatcher("/WEB-INF/jsps/scoreboardCompare.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("validation")) {
+			} else if (segments[1].equals("validation") && isStaff) {
 				request.getRequestDispatcher("/WEB-INF/jsps/validation.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("validate")) {
+			} else if (segments[1].equals("validate") && isStaff) {
 				validate(segments[1].substring(8), response, cc);
 				return;
-			} else if (segments[1].equals("time")) {
-				request.getRequestDispatcher("/WEB-INF/jsps/time.jsp").forward(request, response);
+			} else if (segments[1].equals("admin") && isAdmin) {
+				request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("admin")) {
-				if (isAdmin)
-					request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
-				else
-					request.getRequestDispatcher("/WEB-INF/jsps/non-admin.jsp").forward(request, response);
-				return;
-			} else if (segments[1].equals("freeze")) {
+			} else if (segments[1].equals("freeze") && isStaff) {
 				request.getRequestDispatcher("/WEB-INF/jsps/freeze.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("rss")) {
@@ -327,11 +319,7 @@ public class ContestWebService extends HttpServlet {
 
 				writer.writePostlude();
 				return;
-			} else if (segments[1].equals("video")) {
-				if (!isAdmin) {
-					response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access only");
-					return;
-				}
+			} else if (segments[1].equals("video") && isStaff) {
 				if (segments.length == 3 && segments[2].equals("status")) {
 					response.setContentType("application/json");
 					JSONEncoder je = new JSONEncoder(response.getWriter());
@@ -420,20 +408,16 @@ public class ContestWebService extends HttpServlet {
 
 				request.getRequestDispatcher("/WEB-INF/jsps/video.jsp").forward(request, response);
 				return;
-			} else if (segments[1].equals("reports")) {
+			} else if (segments[1].equals("reports") && isStaff) {
 				request.getRequestDispatcher("/WEB-INF/jsps/reports.jsp").forward(request, response);
 				return;
-			} else if (segments[1].startsWith("balloon")) {
+			} else if (segments[1].startsWith("balloon") && isStaff) {
 				BalloonPDFService.generate(request, response, cc);
 				return;
-			} else if (segments[1].equals("resolver")) {
+			} else if (segments[1].equals("resolver") && isAdmin) {
 				ResolverService.doGet(response, cc);
 				return;
-			} else if ("log".equals(segments[1])) {
-				if (!isAdmin) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Admin only");
-					return;
-				}
+			} else if ("log".equals(segments[1]) && isStaff) {
 				DiskContestSource cs = cc.getContestSource();
 				File f = null;
 				if (cs instanceof RESTContestSource) {
@@ -457,7 +441,7 @@ public class ContestWebService extends HttpServlet {
 				return;
 			}
 		}
-		if (segments.length > 1) {
+		if (segments.length > 1 || !isStaff) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}

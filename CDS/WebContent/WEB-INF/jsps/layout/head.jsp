@@ -13,9 +13,9 @@
     	apiRoot = request.getContextPath() + "/api/contests/" + cc.getId();
     }
     String cdsName = System.getProperty("CDS-name");
-    String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/admin", "/video", "/reports"};
-    String[] menuTitles = {"Overview", "Details", "Registration", "Clarifications", "Submissions", "Scoreboard", "Commentary", "Admin", "Video", "Reports"};
-    String[] menuIcons = {"fa-globe", "fa-info", "fa-users", "fa-comments", "fa-share", "fa-trophy", "fa-comments", "fa-user-cog", "fa-video", "fa-file-alt"};
+    String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/reports", "/video", "/admin"};
+    String[] menuTitles = {"Overview", "Details", "Registration", "Clarifications", "Submissions", "Scoreboard", "Commentary", "Reports", "Video", "Admin"};
+    String[] menuIcons = {"fa-globe", "fa-info", "fa-users", "fa-comments", "fa-share", "fa-trophy", "fa-comments", "fa-file-alt", "fa-video", "fa-user-cog"};
 %>
 <!DOCTYPE html>
 
@@ -156,7 +156,7 @@ function logout() {
 
               <ul class="nav nav-treeview">
                 <% for (int i = 0; i < menuPages.length; i++) 
-                   if ((i > 0 && i < 6) || CDSAuth.isAdmin(request)) { %>
+                   if ((i > 0 && i < 6) || (CDSAuth.isStaff(request) && i < 8) || CDSAuth.isAdmin(request)) { %>
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
                     class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
@@ -184,7 +184,7 @@ function logout() {
               <a href="#" class="nav-link <% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>active<% } %>">
                 <i class="nav-icon fas fa-video"></i>
                 <p>
-                  Video
+                  Video Channels
                   <i class="right fas fa-angle-left"></i>
                 </p>
               </a>
