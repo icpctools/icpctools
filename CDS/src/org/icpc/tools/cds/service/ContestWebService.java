@@ -3,6 +3,7 @@ package org.icpc.tools.cds.service;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.RSSWriter;
+import org.icpc.tools.cds.presentations.PresentationFilesServlet;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
@@ -35,6 +37,7 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.Validation;
+import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
@@ -432,15 +435,33 @@ public class ContestWebService extends HttpServlet {
 			} else if (segments[1].equals("resolver")) {
 				ResolverService.doGet(response, cc);
 				return;
-			} /* else if (segments.length == 4 && segments[1].equals("video") && segments[2].equals("map")) {
-				VideoMapper va = null;
-				if (segments[3].equals("webcam"))
-					va = WebcamAggregator.getInstance();
-				else if (segments[3].equals("desktop"))
-					va = DesktopAggregator.getInstance();
-				VideoStatusServlet.writeStatusImage(cc, va, response.getOutputStream());
+			} else if ("log".equals(segments[1])) {
+				if (!isAdmin) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Admin only");
+					return;
+				}
+				DiskContestSource cs = cc.getContestSource();
+				File f = null;
+				if (cs instanceof RESTContestSource) {
+					f = ((RESTContestSource) cs).getFeedCache();
+				} else {
+					File ff = new File(cs.getRootFolder(), "event-feed.ndjson");
+					if (ff.exists())
+						f = ff;
+					else {
+						ff = new File(cs.getRootFolder(), "event-feed.json");
+						if (ff.exists())
+							f = ff;
+					}
+				}
+
+				if (f == null)
+					response.sendError(HttpServletResponse.SC_NOT_FOUND, "No event feed available");
+				else
+					PresentationFilesServlet.sendFile(f, request, response);
+
 				return;
-				}*/
+			}
 		}
 		if (segments.length > 1) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);

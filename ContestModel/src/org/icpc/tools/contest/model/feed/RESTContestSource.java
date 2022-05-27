@@ -150,6 +150,10 @@ public class RESTContestSource extends DiskContestSource {
 		Trace.trace(Trace.INFO, "  Base URL: " + baseUrl);
 	}
 
+	public File getFeedCache() {
+		return feedCacheFile;
+	}
+
 	public static RESTContestSource ensureContestAPI(ContestSource source) {
 		if (source == null || !(source instanceof RESTContestSource)) {
 			Trace.trace(Trace.ERROR, "Source argument must be a Contest API");
