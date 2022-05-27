@@ -43,6 +43,7 @@ public class NetworkUtil {
 					String address = addresses.nextElement().getHostAddress();
 					// Do not consider localhost or IPv6 addresses
 					if (!address.startsWith("127.") && !address.contains(":")) {
+						localAddress = address;
 						return address;
 					}
 				}

@@ -790,6 +790,9 @@ public class DiskContestSource extends ContestSource {
 	 * @return
 	 */
 	private FileReferenceList getFilesWithPattern(FilePattern pattern) {
+		if (pattern == null)
+			return null;
+
 		File folder = root;
 		if (pattern.folder != null)
 			folder = new File(root, pattern.folder);

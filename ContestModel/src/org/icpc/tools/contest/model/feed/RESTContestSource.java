@@ -537,8 +537,10 @@ public class RESTContestSource extends DiskContestSource {
 			if (firstConnection) {
 				contestSizeBeforeFeed = contest.getNumObjects();
 				String[] s = getCachedFeedContent();
-				lastToken = s[0];
-				lastId = s[1];
+				if (s != null) {
+					lastToken = s[0];
+					lastId = s[1];
+				}
 				try {
 					feedCacheOut = new FileOutputStream(feedCacheFile, true);
 					if (lastId == null) {
@@ -1060,6 +1062,6 @@ public class RESTContestSource extends DiskContestSource {
 
 	@Override
 	public String toString() {
-		return "RESTContestSource[" + user + "|" + password + "@" + url + "]";
+		return "RESTContestSource[" + user + "@" + url + "]";
 	}
 }
