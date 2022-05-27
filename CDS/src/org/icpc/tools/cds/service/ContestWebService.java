@@ -3,7 +3,6 @@ package org.icpc.tools.cds.service;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -23,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.RSSWriter;
-import org.icpc.tools.cds.presentations.PresentationFilesServlet;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
@@ -427,10 +425,6 @@ public class ContestWebService extends HttpServlet {
 				return;
 			} else if (segments[1].equals("reports")) {
 				request.getRequestDispatcher("/WEB-INF/jsps/reports.jsp").forward(request, response);
-				return;
-			} else if (segments[1].equals("staff-members.tsv")) {
-				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "staff-members.tsv");
-				PresentationFilesServlet.sendFile(f, request, response);
 				return;
 			} else if (segments[1].startsWith("balloon")) {
 				BalloonPDFService.generate(request, response, cc);

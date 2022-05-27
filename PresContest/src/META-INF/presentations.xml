@@ -89,13 +89,13 @@
       image="images/presentations/problemColors.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.ProblemColorsPresentation"/>
    <presentation
-      id="org.icpc.tools.presentation.contest.staff"
-      name="Staff"
+      id="org.icpc.tools.presentation.contest.person"
+      name="Person"
       category="ICPC"
-      description="ICPC staff titles"
-      properties="Enter partial last name or first + last name"
-      image="images/presentations/staff.png"
-      class="org.icpc.tools.presentation.contest.internal.presentations.StaffPresentation"/>
+      description="Highlight a person"
+      properties="Enter partial name"
+      image="images/presentations/person.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.PersonPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.balloon.path"
       name="Balloon Path"
