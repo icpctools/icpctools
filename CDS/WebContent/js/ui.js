@@ -171,6 +171,44 @@ function sanitizeHTML(str) {
 	return str.replace(/[&<>\n\r]/g, replaceTag);
 }
 
+function getContestTime(contest, short) {
+	var info = contest.getInfo();
+	if (info == null) {
+		// contest info wasn't loaded yet - so let's do that in the background in case we're called again
+		contest.loadInfo();
+		return null;
+	}
+
+	var m = info.time_multiplier;
+	if (m == null)
+		m = 1;
+
+	if (info.start_time == null) {
+		if (info.countdown_pause_time == null)
+			return "Contest not scheduled";
+		else {
+			if (short)
+				return formatContestTime(-parseTime(info.countdown_pause_time) * m, false) + " (paused)";
+			else
+				return "Countdown paused: " + formatContestTime(-parseTime(info.countdown_pause_time) * m, false);
+		}
+	}
+
+	var d = new Date(info.start_time);
+
+	var time = (Date.now() - d.getTime()) * m - contest.getTimeDelta();
+	if (time < 0) {
+		if (short)
+			return formatContestTime(time, true);
+		else
+			return "Countdown: " + formatContestTime(time, true);
+	}
+	if (time > parseTime(info.duration))
+		return "Contest is over";
+	
+	return formatContestTime(time, true);
+}
+
 function formatTime(time2) {
 	if (time2 >= 0 && time2 < 1000)
 		return "0s";
@@ -268,6 +306,6 @@ function getDisplayStr(teamId) {
 	return teamId + ': (not found)';
 }
 
-function updateContestClock(contest, id) {
-    setInterval(() => { $("#" + id).html(contest.getContestTime()) }, 300);
+function updateContestClock(contest, id, short) {
+    setInterval(() => { $("#" + id).html(getContestTime(contest, short)) }, 150);
 }

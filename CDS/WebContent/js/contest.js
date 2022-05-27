@@ -60,9 +60,6 @@ class Contest {
 	}
 
 	loadInfo() {
-		if (this.info != null)
-			return new $.Deferred().resolve();
-
 		return this.loadObject('', (result) => { this.info = result });
 	}
 
@@ -268,35 +265,6 @@ class Contest {
 		var d = new Date(this.info.start_time);
 
 		return (Date.now() - d.getTime()) * m - this.getTimeDelta();
-	}
-
-	getContestTime() {
-		if (this.info == null) {
-			// contest info wasn't loaded yet - so let's do that in the background in case we're called again
-			this.loadInfo();
-			return null;
-		}
-
-		var m = this.info.time_multiplier;
-		if (m == null)
-			m = 1;
-
-		if (this.info.start_time == null) {
-			if (this.info.countdown_pause_time == null)
-				return "Contest not scheduled";
-			else
-				return "Countdown paused: " + formatContestTime(-parseTime(this.info.countdown_pause_time) * m, true);
-		}
-
-		var d = new Date(this.info.start_time);
-
-		var time = (Date.now() - d.getTime()) * m - this.getTimeDelta();
-		if (time < 0)
-			return "Countdown: " + formatContestTime(time);
-		if (time > parseTime(this.info.duration))
-			return "Contest is over";
-		
-		return formatContestTime(time);
 	}
 
 	clear() {

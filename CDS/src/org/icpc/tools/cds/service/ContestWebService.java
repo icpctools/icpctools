@@ -304,12 +304,6 @@ public class ContestWebService extends HttpServlet {
 				request.getRequestDispatcher("/WEB-INF/jsps/time.jsp").forward(request, response);
 				return;
 			} else if (segments[1].equals("admin")) {
-				if (segments.length == 3) {
-					if (segments[2].equals("time")) {
-						StartTimeService.doGet(response, cc);
-						return;
-					}
-				}
 				if (isAdmin)
 					request.getRequestDispatcher("/WEB-INF/jsps/admin.jsp").forward(request, response);
 				else
