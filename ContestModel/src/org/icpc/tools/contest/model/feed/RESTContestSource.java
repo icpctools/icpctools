@@ -166,7 +166,7 @@ public class RESTContestSource extends DiskContestSource {
 		RESTContestSource restSource = (RESTContestSource) source;
 
 		try {
-			HttpURLConnection conn = restSource.createConnection("", false);
+			HttpURLConnection conn = restSource.createConnection("");
 			int response = conn.getResponseCode();
 			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
 				restSource.isCDS = true;
@@ -218,10 +218,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @return
 	 * @throws IOException
 	 */
-	private HttpURLConnection createConnection(String partialURL, boolean baseURL) throws IOException {
-		if (baseURL)
-			return createConnection(new URL(getResolvedURL(partialURL)));
-
+	private HttpURLConnection createConnection(String partialURL) throws IOException {
 		return createConnection(getChildURL(partialURL));
 	}
 
@@ -263,19 +260,22 @@ public class RESTContestSource extends DiskContestSource {
 		return downloadIfNecessary(ref, file);
 	}
 
-	private String getResolvedURL(String href) {
+	private URL getResolvedURL(String href) throws MalformedURLException {
 		if (href.startsWith("http"))
-			return href;
+			return new URL(href);
 
 		if (feedFile != null)
 			return null;
 
 		// if href starts with / it means from the root
 		if (href.startsWith("/"))
-			return url.getProtocol() + "://" + url.getAuthority() + href;
+			return new URL(url.getProtocol() + "://" + url.getAuthority() + href);
 
 		// otherwise, it's relative to the API, so determine that
-		return baseUrl + href;
+		if (baseUrl == null)
+			return null;
+
+		return new URL(baseUrl + href);
 	}
 
 	private File downloadIfNecessary(FileReference ref, File localFile) throws IOException {
@@ -287,9 +287,6 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private void downloadIfNecessary(String href, File localFile) throws IOException {
-		if (!href.startsWith("http"))
-			return;
-
 		try {
 			downloadIfNecessaryImpl(href, localFile);
 		} catch (Exception e) {
@@ -314,9 +311,13 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	private void downloadIfNecessaryImpl(String href, File localFile) throws IOException {
+		URL url2 = getResolvedURL(href);
+		if (url2 == null)
+			return;
+
 		StringBuilder sb = new StringBuilder("Download " + href + " to " + localFile);
 		long time = System.currentTimeMillis();
-		HttpURLConnection conn = createConnection(href, true);
+		HttpURLConnection conn = createConnection(url2);
 		conn.setReadTimeout(10000);
 
 		long localTime = -1;
@@ -387,7 +388,7 @@ public class RESTContestSource extends DiskContestSource {
 
 	private InputStream connect(String path) throws IOException {
 		try {
-			HttpURLConnection conn = createConnection(path, false);
+			HttpURLConnection conn = createConnection(path);
 			conn.setReadTimeout(130000);
 
 			int status = conn.getResponseCode();
@@ -781,7 +782,7 @@ public class RESTContestSource extends DiskContestSource {
 		try {
 			Trace.trace(Trace.INFO, method + "ing to " + partialURL + " at " + url);
 
-			HttpURLConnection conn = createConnection(partialURL, false);
+			HttpURLConnection conn = createConnection(partialURL);
 			conn.setRequestMethod(method);
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("Accept", "application/json");
@@ -822,7 +823,7 @@ public class RESTContestSource extends DiskContestSource {
 				partialURL += partialURL2;
 			Trace.trace(Trace.INFO, method + "ing to " + partialURL + " at " + url);
 
-			HttpURLConnection conn = createConnection(partialURL, false);
+			HttpURLConnection conn = createConnection(partialURL);
 			conn.setRequestMethod(method);
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("Accept", "application/json");
@@ -1011,7 +1012,7 @@ public class RESTContestSource extends DiskContestSource {
 	private IContestObject parseContestObject(String partialURL, ContestType type) throws IOException {
 		try {
 			Trace.trace(Trace.INFO, "Getting contest object: " + type.name());
-			HttpURLConnection conn = createConnection(partialURL, false);
+			HttpURLConnection conn = createConnection(partialURL);
 			conn.setRequestProperty("Content-Type", "application/json");
 
 			if (conn.getResponseCode() != 200)
