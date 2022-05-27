@@ -18,14 +18,6 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
 
 public class StartTimeService {
-	protected static void doGet(HttpServletResponse response, ConfiguredContest cc) throws IOException {
-		Long time = cc.getContest().getStartStatus();
-		if (time == null)
-			response.getWriter().println("");
-		else
-			response.getWriter().println(time);
-	}
-
 	private static boolean errorIfContestNotCountingDown(Long time, HttpServletResponse response) throws IOException {
 		long now = System.currentTimeMillis();
 		if (time == null || time < 0 || time < now) {
@@ -45,13 +37,12 @@ public class StartTimeService {
 
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {
 		// valid commands:
-		// absolute:2019-04-03T12:30:24.911+01 - the the contest start to the given time
 		// pause - pause the countdown
 		// resume - resume the countdown
+		// clear - clear start time completely
 		// set:0:00:00 - set the countdown to the given time
 		// add:0:00:00 - add the given time to the countdown
 		// remove:0:00:00 - remove the given time from the countdown
-		// clear - clear start time completely
 
 		IContest contest = cc.getContest();
 		Long startStatus = contest.getStartStatus();
@@ -63,9 +54,7 @@ public class StartTimeService {
 
 		Trace.trace(Trace.USER, "Start time command: " + command);
 		try {
-			if (command.startsWith("absolute:")) {
-				setStartTime(cc, Timestamp.parse(command.substring(8).trim()));
-			} else if (command.startsWith("set:")) {
+			if (command.startsWith("set:")) {
 				setStartTime(cc, (long) -RelativeTime.parse(command.substring(4).trim()));
 			} else if (command.startsWith("add:")) {
 				if (errorIfContestNotPaused(currentStart, response))
@@ -113,13 +102,6 @@ public class StartTimeService {
 			Trace.trace(Trace.ERROR, "Error setting start time", e);
 			return;
 		}
-
-		Long startTime = contest.getStartStatus();
-		if (startTime == null)
-			response.getWriter().println(0);
-		else {
-			response.getWriter().println(startTime.longValue());
-		}
 	}
 
 	/**
@@ -135,8 +117,10 @@ public class StartTimeService {
 		}
 
 		Long time = newTime;
-		if (time > 0) // floor to closest second
+		if (time > 0) // resume at the closest second
 			time = (time / 1000) * 1000;
+		else // pause with the full current second
+			time = (long) (Math.floor(time / 1000.0)) * 1000;
 
 		setStartTime(cc, time);
 	}
@@ -167,7 +151,7 @@ public class StartTimeService {
 		if (currentStartTime != null && currentStartTime > 0 && currentStartTime < now)
 			throw new IllegalArgumentException("Contest has already started");
 
-		if (currentStartTime == null && time == null)
+		if (currentStartTime != null && currentStartTime < 0 && time != null && time < 0)
 			throw new IllegalArgumentException("Contest already paused");
 
 		if (time != null && time > 0 && time < now)

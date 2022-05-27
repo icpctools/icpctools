@@ -3,6 +3,7 @@
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
 <script src="${pageContext.request.contextPath}/js/cds.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
+<script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <div class="container-fluid">
@@ -20,7 +21,7 @@
              </div>
            </div>
         <div class="card-body" id="lock-group">
-          <b><font size="+7"><span id="countdown">unknown</span></font></b><span id="bg-status">&nbsp;</span>
+          <b><font size="+7"><span id="countdown">&nbsp;</span></font></b>
         
            <p>You cannot change time in the final 30s before a contest starts.</p>
                 <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause</button>
@@ -237,32 +238,11 @@
     <button type="button" class="btn btn-sm btn-{{#a}}danger{{/a}}{{^a}}default{{/a}}" onclick="updateStartStatus('{{{id}}}',0)">No</button>
     <button type="button" class="btn btn-sm btn-{{#b}}warning{{/b}}{{^b}}default{{/b}}" onclick="updateStartStatus('{{{id}}}',1)">Unknown</button>
     <button type="button" class="btn btn-sm btn-{{#c}}success{{/c}}{{^c}}default{{/c}}" onclick="updateStartStatus('{{{id}}}',2)">Yes</button>
-  </div>&nbsp; &nbsp;<button type="button" class="btn btn-sm btn-danger" onclick="removeStartStatus('{{{id}}}')">Remove</button></td>
+    </div>&nbsp; &nbsp;<button type="button" class="btn btn-sm btn-danger" onclick="removeStartStatus('{{{id}}}')">Remove</button></td>
 </script>
 <script>
     contest = new Contest("/api", "<%= cc.getId() %>");
 	cds.setContestId("<%= cc.getId() %>");
-    var targetTime = 0.0;
-
-    // update the tag with id "countdown" every 300ms
-    setInterval(function () {
-        var countdown = document.getElementById("countdown");
-        if (targetTime == null || targetTime == "") {
-            countdown.innerHTML = "undefined";
-            return;
-        } else if (targetTime < 0) {
-            countdown.innerHTML = formatContestTime(targetTime, true) + " (paused)";
-            return;
-        }
-        // find the amount of "seconds" between now and target
-        var now = new Date().getTime();
-        var seconds_left = now - targetTime;
-
-        if (seconds_left > 0)
-            countdown.innerHTML = "Contest is started";
-        else
-            countdown.innerHTML = formatContestTime(seconds_left, true);
-    }, 300);
 
     function sendCommand(id, command) {
     	if ($("#locker").hasClass('btn-danger'))
@@ -274,16 +254,12 @@
         xmlhttp.onreadystatechange = function () {
             document.getElementById("status").innerHTML = "Sending request...";
             if (xmlhttp.readyState == 4) {
-                var resp = xmlhttp.responseText;
-                if (xmlhttp.status == 200) {
-                    if (resp == null || resp.trim().length == 0)
-                        targetTime = null;
-                    else
-                        targetTime = parseInt(resp);
+                if (xmlhttp.status == 200)
                     document.getElementById("status").innerHTML = "Request successful";
-                } else
-                    document.getElementById("status").innerHTML = resp;
+                else
+                    document.getElementById("status").innerHTML = xmlhttp.responseText;
                 document.getElementById(id).disabled = false;
+                updateInfoStartStatus();
             }
         }
         xmlhttp.timeout = 10000;
@@ -292,29 +268,6 @@
             document.getElementById(id).disabled = false;
         }
         xmlhttp.open("PUT", "<%= webroot %>/admin/time/" + command, true);
-        xmlhttp.send();
-    }
-
-    function updateCountdown() {
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            if (xmlhttp.readyState == 4) {
-                var resp = xmlhttp.responseText;
-                if (xmlhttp.status == 200) {
-                    if (resp == null || resp.trim().length == 0)
-                        targetTime = null;
-                    else
-                        targetTime = parseInt(resp);
-                    document.getElementById("bg-status").innerHTML = "";
-                } else
-                    document.getElementById("bg-status").innerHTML = "Error updating: " + resp;
-            }
-        }
-        xmlhttp.timeout = 10000;
-        xmlhttp.ontimeout = function () {
-            document.getElementById("bg-status").innerHTML = "Timed trying to update, may be offline";
-        }
-        xmlhttp.open("GET", "<%= webroot %>/admin/time", true);
         xmlhttp.send();
     }
 
@@ -330,6 +283,13 @@
     	addStartStatus("Contest Director", 0);
     }
 
+    function patchContestStart(id, start_time, pause_time) {
+    	var s = '{"id":"' + id + '","start_time":"' + start_time + '"';
+    	if (pause_time != null)
+    		s += ',"countdown_pause_time":"' + pause_time + '"';
+    	cds.doPatch("contest", id, s + '}', function() { updateCountdown(); });
+    }
+
     function addStartStatus(text, status) {
     	var id = text.replace(/[^a-zA-Z0-9_.-]+/g, '_');
     	cds.doPut("start-status", id, '{"id":"' + id + '","label":"' + text + '","status":"' + status + '"}', function() { updateStartStatusTable(); });
@@ -343,11 +303,12 @@
     	cds.doDelete("start-status", id, function() { updateStartStatusTable(); });
     }
 
-    function updateStartStatusTable() {
+    function updateInfoStartStatus() {
     	contest.clear();
-    	$.when(contest.loadStartStatus()).done(function () {
+    	$.when(contest.loadInfo(),contest.loadStartStatus()).done(function () {
+    		// start status
             fillContestObjectTable("start-status", contest.getStartStatus());
-            
+
             if (contest.getStartStatus().length == 0) {
               col = $('<td colspan="2"><button type="button" class="btn btn-sm btn-default" onclick="addStartStatusDefaults()">Add default statuses</button></td>');
               row = $('<tr></tr>');
@@ -355,7 +316,7 @@
               $("#start-status-table tbody").append(row);
             }
         }).fail(function (result) {
-            console.log("Error loading start-status: " + result);
+            console.log("Error updating contest info: " + result);
         });
     }
 
@@ -393,10 +354,6 @@
             if (xmlhttp.readyState == 4) {
                 var resp = xmlhttp.responseText;
                 if (xmlhttp.status == 200) {
-                    if (resp == null || resp.trim().length == 0)
-                        targetTime = null;
-                    else
-                        targetTime = parseInt(resp) / 1000.0;
                     document.getElementById("reset-status").innerHTML = "Event feed successfully reset";
                 } else
                     document.getElementById("reset-status").innerHTML = resp;
@@ -481,14 +438,12 @@
     }
 
     function updateInBackground() {
-        document.getElementById("bg-status").innerHTML = "Updating status...";
-        updateCountdown();
-        updateStartStatusTable();
+    	updateContestClock(contest, "countdown", true);
+        updateInfoStartStatus();
         updateResolver();
 
-        setInterval(updateCountdown, 5000);
-        setInterval(updateStartStatusTable, 5000);
-        
+        setInterval(updateInfoStartStatus, 5000);
+
         $('#lock').change(function() {
         	  if (!$(this).prop('checked')) {
             	  $("#locker").removeClass('btn-secondary').addClass('btn-danger');

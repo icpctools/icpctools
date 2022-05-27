@@ -31,21 +31,22 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		if (contest == null)
 			return null;
 
-		double timeMultiplier = contest.getTimeMultiplier();
-		Long startTime = contest.getStartStatus();
-		if (startTime == null)
-			return "";
-
-		if (startTime < 0)
-			return NLS.bind(Messages.pausedAt, getTime(startTime * timeMultiplier, true));
-
 		IState state = contest.getState();
 		if (state.getEnded() != null)
 			return Messages.contestOver;
-		else if (state.getStarted() == null)
+
+		double timeMultiplier = contest.getTimeMultiplier();
+		if (state.getStarted() != null)
+			return getTime((getTimeMs() - state.getStarted()) * timeMultiplier, true);
+
+		Integer pauseTime = contest.getCountdownPauseTime();
+		if (pauseTime != null)
+			return NLS.bind(Messages.pausedAt, getTime(-pauseTime * timeMultiplier, false));
+
+		if (contest.getStartTime() != null)
 			return getTime((getTimeMs() - contest.getStartTime()) * timeMultiplier, true);
 
-		return getTime((getTimeMs() - state.getStarted()) * timeMultiplier, true);
+		return "";
 	}
 
 	/**
@@ -58,21 +59,22 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		if (contest == null)
 			return null;
 
-		Long startTime = contest.getStartStatus();
-		if (startTime == null)
-			return "";
-
-		double timeMultiplier = contest.getTimeMultiplier();
-		if (startTime < 0)
-			return NLS.bind(Messages.pausedAt, getTime(startTime * timeMultiplier, true));
-
 		IState state = contest.getState();
 		if (state.getEnded() != null)
 			return Messages.contestOver;
-		else if (state.getStarted() == null)
+
+		double timeMultiplier = contest.getTimeMultiplier();
+		if (state.getStarted() != null)
+			return getTime((state.getStarted() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
+
+		Integer pauseTime = contest.getCountdownPauseTime();
+		if (pauseTime != null)
+			return NLS.bind(Messages.pausedAt, getTime(-pauseTime * timeMultiplier, false));
+
+		if (contest.getStartTime() != null)
 			return getTime((contest.getStartTime() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
 
-		return getTime((state.getStarted() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
+		return "";
 	}
 
 	/**
