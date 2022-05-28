@@ -516,7 +516,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 	 */
 	@Override
 	public void setNanoTimeDelta(long time) {
-		Trace.trace(Trace.INFO, "New pres time: " + time + "ms");
 		nanoTimeDelta = time;
 	}
 

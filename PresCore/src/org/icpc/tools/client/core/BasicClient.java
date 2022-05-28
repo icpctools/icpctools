@@ -45,8 +45,12 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class BasicClient {
+	// debug full json payloads
 	private static final boolean DEBUG_JSON_PAYLOADS = false;
 	private static final int TRACE_CHARS = 120;
+
+	// debug all output (defaults to omit pings and info)
+	private static final boolean DEBUG_BASIC = false;
 
 	protected static final String TYPE = "type";
 	protected static final String VERSION = "version";
@@ -447,7 +451,7 @@ public class BasicClient {
 		if (attr != null)
 			attr.add(je);
 		je.close();
-		sendIt(sw.toString());
+		sendIt(type, sw.toString());
 	}
 
 	protected void sendLog(int toUID) throws IOException {
@@ -518,11 +522,12 @@ public class BasicClient {
 		});
 	}
 
-	protected boolean sendIt(String message) throws IOException {
+	protected boolean sendIt(Type type, String message) throws IOException {
 		if (clientEndpoint == null)
 			return false;
 
-		trace("> " + message, DEBUG_JSON_PAYLOADS);
+		if (DEBUG_BASIC || (type != Type.PING && type != Type.INFO))
+			trace("> " + message, DEBUG_JSON_PAYLOADS);
 		clientEndpoint.send(message);
 		return true;
 	}
@@ -678,7 +683,7 @@ public class BasicClient {
 		je.encode(TYPE, Type.PING.name().toLowerCase());
 		je.encode("time", System.currentTimeMillis());
 		je.close();
-		sendIt(sw.toString());
+		sendIt(Type.PING, sw.toString());
 	}
 
 	protected void handleTime() {
@@ -713,7 +718,6 @@ public class BasicClient {
 			case PING: {
 				if (obj.containsKey("time_delta")) {
 					long timeDeltaMs = obj.getLong("time_delta");
-					Trace.trace(Trace.INFO, "New delta time: " + timeDeltaMs + "ms");
 					nanoTimeDelta = (System.currentTimeMillis() + timeDeltaMs) * 1000000L - System.nanoTime();
 					handleTime();
 				}
