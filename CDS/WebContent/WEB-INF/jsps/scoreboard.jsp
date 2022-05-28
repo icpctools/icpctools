@@ -143,7 +143,7 @@ $(document).ready(function () {
         var row = $('<tr></tr>');
         row.append(toHtml("header-start"));
    
-        problems = contest.getProblems();
+        problems = sortProblems(contest.getProblems());
         for (var i = 0; i < problems.length; i++) {
         	var p = { label: problems[i].label };
         	p = addColors(p, problems[i].rgb);
@@ -163,10 +163,8 @@ $(document).ready(function () {
     	var table = $("#score-table");
         
     	$("#score-table tbody").find("tr").remove();
-        score = contest.getScoreboard();
         teams = contest.getTeams();
         orgs = contest.getOrganizations();
-        problems = contest.getProblems();
         var type = contest.getInfo().scoreboard_type;
         for (var i = 0; i < score.rows.length; i++) {
         	var row = getRow(score.rows[i], type);
@@ -266,4 +264,3 @@ function updateTableImpl() {
 }
 </script>
 <%@ include file="layout/footer.jsp" %>
-No newline at end of file
