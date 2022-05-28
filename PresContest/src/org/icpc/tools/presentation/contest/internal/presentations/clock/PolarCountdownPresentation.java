@@ -19,7 +19,6 @@ public class PolarCountdownPresentation extends CountdownPresentation {
 	@Override
 	public void setSize(Dimension d) {
 		super.setSize(d);
-		verticalOffset = d.height / 15;
 
 		int diam = Math.min(d.width, d.height) - verticalOffset - 5;
 
