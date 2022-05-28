@@ -50,6 +50,8 @@ public class ClockPresentation extends AbstractICPCPresentation {
 			return;
 
 		image = contest.getBannerImage((int) (width * 0.7), (int) (height * 0.2), true, true);
+		if (image != null)
+			verticalOffset = image.getHeight() / 2;
 	}
 
 	protected void paintBanner(Graphics2D g) {
