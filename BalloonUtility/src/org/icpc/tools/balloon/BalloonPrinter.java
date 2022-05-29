@@ -338,15 +338,12 @@ public class BalloonPrinter {
 		gc.setFont(hugeFont);
 		q = gc.stringExtent(s);
 		if (q.x > p.x - 10) {
-			Transform oldTrans = new Transform(device);
-			gc.getTransform(oldTrans);
 			Transform trans = new Transform(device);
 			gc.getTransform(trans);
 			float scaleX = ((float) (p.x - 10) / (float) q.x);
 			trans.scale(scaleX, 1f);
 			gc.setTransform(trans);
 			gc.drawString(s, (int) ((r.x + p.x / 2.0) / scaleX - q.x / 2.0), y, true);
-			gc.setTransform(oldTrans);
 			trans.dispose();
 		} else
 			gc.drawString(s, r.x + (p.x - q.x) / 2, y, true);
@@ -401,15 +398,12 @@ public class BalloonPrinter {
 		gc.setForeground(device.getSystemColor(SWT.COLOR_BLACK));
 		Point ip = gc.stringExtent(name);
 		if (r.x + p.x + ip.x + gap + indent > r.width) {
-			Transform oldTrans = new Transform(device);
-			gc.getTransform(oldTrans);
 			Transform trans = new Transform(device);
 			gc.getTransform(trans);
 			float scaleX = ((float) (r.width - r.x - p.x - gap - indent) / (float) ip.x);
 			trans.scale(scaleX, 1f);
 			gc.setTransform(trans);
 			gc.drawString(name, (int) ((r.x + p.x + gap + indent) / scaleX), r.y, true);
-			gc.setTransform(oldTrans);
 			trans.dispose();
 		} else
 			gc.drawString(name, r.x + p.x + gap + indent, r.y, true);
@@ -706,8 +700,6 @@ public class BalloonPrinter {
 			if (Double.isNaN(team.getX()) || Double.isNaN(team.getY()))
 				continue;
 
-			Transform oldTrans = new Transform(device);
-			gc.getTransform(oldTrans);
 			Transform transform = new Transform(device);
 			gc.getTransform(transform);
 
@@ -760,7 +752,6 @@ public class BalloonPrinter {
 				gc.drawString(id, (int) (-se.x / 2f - dx * scale / 20f), (int) (-se.y / 2f), true);
 			}
 
-			gc.setTransform(oldTrans);
 			transform.dispose();
 		}
 
