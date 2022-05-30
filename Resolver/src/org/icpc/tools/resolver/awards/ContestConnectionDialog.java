@@ -255,7 +255,7 @@ public class ContestConnectionDialog extends Dialog {
 				validate();
 			}
 		});
-		fileText.setText(prefs.get(PREF_FILE, "event-feed.json"));
+		fileText.setText(prefs.get(PREF_FILE, "event-feed.ndjson"));
 
 		Button fileBrowse = new Button(composite, SWT.PUSH);
 		fileBrowse.setText("&Browse...");
@@ -268,7 +268,7 @@ public class ContestConnectionDialog extends Dialog {
 				FileDialog dialog = new FileDialog(fileBrowse.getShell(), SWT.OPEN);
 				dialog.setFileName(fileText.getText());
 				dialog.setText("Select JSON or XML event feed");
-				dialog.setFilterExtensions(new String[] { "*.json;*.xml", "*.*" });
+				dialog.setFilterExtensions(new String[] { "*.ndjson;*.json;*.xml", "*.*" });
 				String f = dialog.open();
 				if (f != null) {
 					fileText.setText(f);
