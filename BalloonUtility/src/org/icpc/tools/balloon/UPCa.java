@@ -1,8 +1,9 @@
 package org.icpc.tools.balloon;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Rectangle;
+import java.awt.Color;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 public class UPCa {
 	private final long upc;
@@ -26,7 +27,7 @@ public class UPCa {
 		this.upc = upc;
 	}
 
-	public void draw(GC g, Rectangle r) {
+	public void draw(Graphics2D g, Rectangle r) {
 		byte[] b = new byte[12];
 		long u = upc;
 		int c = 10;
@@ -54,10 +55,10 @@ public class UPCa {
 		int bh = r.height - dx * 5;
 
 		// draw S
-		g.setBackground(g.getDevice().getSystemColor(SWT.COLOR_BLACK));
-		g.fillRectangle(sx, r.y, dx + 1, r.height + 1);
+		g.setColor(Color.BLACK);
+		g.fillRect(sx, r.y, dx + 1, r.height + 1);
 		sx += dx * 2;
-		g.fillRectangle(sx, r.y, dx + 1, r.height + 1);
+		g.fillRect(sx, r.y, dx + 1, r.height + 1);
 		sx += dx;
 
 		// draw left side
@@ -65,87 +66,59 @@ public class UPCa {
 			sx += dx;
 			for (int j = 0; j < 5; j++) {
 				if (DATA[b[i]][j] == 1)
-					g.fillRectangle(sx, r.y, dx + 1, bh);
+					g.fillRect(sx, r.y, dx + 1, bh);
 				sx += dx;
 			}
-			g.fillRectangle(sx, r.y, dx + 1, bh);
+			g.fillRect(sx, r.y, dx + 1, bh);
 			sx += dx;
 		}
 
 		// draw M
 		sx += dx;
-		g.fillRectangle(sx, r.y, dx + 1, r.height + 1);
+		g.fillRect(sx, r.y, dx + 1, r.height + 1);
 		sx += dx * 2;
-		g.fillRectangle(sx, r.y, dx + 1, r.height + 1);
+		g.fillRect(sx, r.y, dx + 1, r.height + 1);
 		sx += dx * 2;
 
 		// draw right side
 		for (int i = 6; i < 12; i++) {
-			g.fillRectangle(sx, r.y, dx + 1, bh);
+			g.fillRect(sx, r.y, dx + 1, bh);
 			sx += dx;
 			for (int j = 0; j < 5; j++) {
 				if (DATA[b[i]][j] == 0) // <---- exception
-					g.fillRectangle(sx, r.y, dx + 1, bh);
+					g.fillRect(sx, r.y, dx + 1, bh);
 				sx += dx;
 			}
 			sx += dx;
 		}
 
 		// draw E
-		g.fillRectangle(sx, r.y, dx + 1, r.height + 1);
+		g.fillRect(sx, r.y, dx + 1, r.height + 1);
 		sx += dx * 2;
-		g.fillRectangle(sx, r.y, dx + 1, r.height + 1);
+		g.fillRect(sx, r.y, dx + 1, r.height + 1);
 
-		// draw digits
-		/*Font sysFont = g.getDevice().getSystemFont();
-
-		FontData[] fontData = sysFont.getFontData();
-		for (int i = 0; i < fontData.length; i++)
-			fontData[i].setHeight(dx * 5);
-		Font f = new Font(g.getDevice(), fontData);
-		g.setFont(f);*/
-
-		// if (f == null) { // GTIN
 		sx = r.x + (r.width - dx * 102) / 2 + dx * 9;
+		FontMetrics fm = g.getFontMetrics();
+		int yy = r.y + bh + fm.getAscent();
 		String s = b[0] + "";
-		g.drawString(s, sx - g.stringExtent(s).x - dx, r.y + bh, true);
+		g.drawString(s, sx - fm.stringWidth(s) - dx, yy);
 		sx += dx * 3;
 
 		for (int i = 1; i < 6; i++) {
 			s = b[i] + "";
-			g.drawString(s, sx + (int) (dx * (i - 1f) * (35f / 4f)) + (dx * 7 - g.stringExtent(s).x) / 2, r.y + bh, true);
-			// sx += dx * 7;
+			g.drawString(s, sx + (int) (dx * (i - 1f) * (35f / 4f)) + (dx * 7 - fm.stringWidth(s)) / 2, yy);
 		}
 		sx += dx * 42;
 		sx += dx * 5;
 
 		for (int i = 6; i < 11; i++) {
 			s = b[i] + "";
-			// g.drawString(s, sx + (dx * 7 - g.stringExtent(s).x) / 2, r.y + bh, true);
-			g.drawString(s, sx + (int) (dx * (i - 6f) * (35f / 4f)) + (dx * 7 - g.stringExtent(s).x) / 2, r.y + bh, true);
-			// sx += dx * 7;
+			g.drawString(s, sx + (int) (dx * (i - 6f) * (35f / 4f)) + (dx * 7 - fm.stringWidth(s)) / 2, yy);
 		}
 		sx += dx * 42;
 
 		sx += dx * 3;
 		s = b[11] + "";
-		g.drawString(s, sx + dx, r.y + bh, true);
-		/*} else {
-			sx = r.x + (r.width - dx * 102) / 2 + (int) (dx * 15.5f);
-			for (int i = 0; i < 6; i++) {
-				String s = b[i] + "";
-				g.drawString(s, sx - g.stringExtent(s).x / 2, r.y + bh, true);
-				sx += dx * 7;
-			}
-			sx += dx * 5;
-
-			for (int i = 6; i < 12; i++) {
-				String s = b[i] + "";
-				g.drawString(s, sx - g.stringExtent(s).x / 2, r.y + bh, true);
-				sx += dx * 7;
-			}
-		}
-
-		f.dispose();*/
+		g.drawString(s, sx + dx, yy);
 	}
 }
