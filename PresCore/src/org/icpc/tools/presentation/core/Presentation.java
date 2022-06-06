@@ -6,31 +6,13 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The abstract presentation (renderer) class. All presentations displayed on-screen subclass this
  * class.
  */
 public abstract class Presentation {
-	protected static final byte MOUSE_ENTERED = 1;
-	protected static final byte MOUSE_EXITED = 2;
-	protected static final byte MOUSE_CLICKED = 3;
-	protected static final byte MOUSE_PRESSED = 4;
-	protected static final byte MOUSE_RELEASED = 5;
-
-	protected static final byte MOUSE_MOTION_MOVED = 1;
-	protected static final byte MOUSE_MOTION_DRAGGED = 2;
-
-	protected static final byte KEY_PRESSED = 1;
-	protected static final byte KEY_RELEASED = 2;
-	protected static final byte KEY_TYPED = 3;
-
 	protected int width;
 	protected int height;
 
@@ -39,10 +21,6 @@ public abstract class Presentation {
 
 	private String previousPresentationId;
 	private String nextPresentationId;
-
-	private List<KeyListener> keyListeners;
-	private List<MouseListener> mouseListeners;
-	private List<MouseMotionListener> mouseMotionListeners;
 
 	private boolean lightMode;
 
@@ -205,104 +183,12 @@ public abstract class Presentation {
 		// do nothing, subclasses will override
 	}
 
-	public void addKeyListener(KeyListener listener) {
-		if (keyListeners == null)
-			keyListeners = new ArrayList<>();
-		if (!keyListeners.contains(listener))
-			keyListeners.add(listener);
+	protected void keyEvent(KeyEvent e, int type) {
+		// do nothing by default
 	}
 
-	public void addMouseListener(MouseListener listener) {
-		if (mouseListeners == null)
-			mouseListeners = new ArrayList<>();
-		if (!mouseListeners.contains(listener))
-			mouseListeners.add(listener);
-	}
-
-	public void addMouseMotionListener(MouseMotionListener listener) {
-		if (mouseMotionListeners == null)
-			mouseMotionListeners = new ArrayList<>();
-		if (!mouseMotionListeners.contains(listener))
-			mouseMotionListeners.add(listener);
-	}
-
-	public void removeKeyListener(KeyListener listener) {
-		if (keyListeners == null)
-			return;
-		keyListeners.remove(listener);
-	}
-
-	public void removeMouseListener(MouseListener listener) {
-		if (mouseListeners == null)
-			return;
-		mouseListeners.remove(listener);
-	}
-
-	public void removeMouseMotionListener(MouseMotionListener listener) {
-		if (mouseMotionListeners == null)
-			return;
-		mouseMotionListeners.remove(listener);
-	}
-
-	protected final void fireMouseEvent(MouseEvent e, byte type) {
-		if (mouseListeners == null)
-			return;
-
-		MouseListener[] list;
-		synchronized (mouseListeners) {
-			list = new MouseListener[mouseListeners.size()];
-			mouseListeners.toArray(list);
-		}
-
-		int size = list.length;
-		for (int i = 0; i < size; i++) {
-			if (type == MOUSE_CLICKED)
-				list[i].mouseClicked(e);
-			else if (type == MOUSE_ENTERED)
-				list[i].mouseEntered(e);
-			else if (type == MOUSE_EXITED)
-				list[i].mouseExited(e);
-		}
-	}
-
-	protected final void fireMouseMotionEvent(MouseEvent e, byte type) {
-		if (mouseMotionListeners == null)
-			return;
-
-		MouseMotionListener[] list;
-		synchronized (mouseMotionListeners) {
-			list = new MouseMotionListener[mouseMotionListeners.size()];
-			mouseMotionListeners.toArray(list);
-		}
-
-		int size = list.length;
-		for (int i = 0; i < size; i++) {
-			if (type == MOUSE_MOTION_MOVED)
-				list[i].mouseMoved(e);
-			else if (type == MOUSE_MOTION_DRAGGED)
-				list[i].mouseDragged(e);
-		}
-	}
-
-	protected final void fireKeyEvent(KeyEvent e, byte type) {
-		if (keyListeners == null)
-			return;
-
-		KeyListener[] list;
-		synchronized (keyListeners) {
-			list = new KeyListener[keyListeners.size()];
-			keyListeners.toArray(list);
-		}
-
-		int size = list.length;
-		for (int i = 0; i < size; i++) {
-			if (type == KEY_PRESSED)
-				list[i].keyPressed(e);
-			else if (type == KEY_RELEASED)
-				list[i].keyReleased(e);
-			else if (type == KEY_TYPED)
-				list[i].keyTyped(e);
-		}
+	protected void mouseEvent(MouseEvent e, int type) {
+		// do nothing by default
 	}
 
 	public interface Job {
