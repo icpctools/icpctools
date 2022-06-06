@@ -196,6 +196,9 @@ public class FloorMap {
 		if (!onlyTeams) {
 			int bd = 2;
 			for (IProblem b : contest.getProblems()) {
+				if (Double.isNaN(b.getX()) || Double.isNaN(b.getY()))
+					continue;
+
 				x1 = Math.min(x1, b.getX() - bd);
 				y1 = Math.min(y1, b.getY() - bd);
 				x2 = Math.max(x2, b.getX() + bd);
@@ -392,6 +395,12 @@ public class FloorMap {
 
 	public Path getPath(IPosition t1, IPosition t2) {
 		if (t1 == null || t2 == null)
+			return null;
+
+		if (Double.isNaN(t1.getX()) || Double.isNaN(t1.getY()))
+			return null;
+
+		if (Double.isNaN(t2.getX()) || Double.isNaN(t2.getY()))
 			return null;
 
 		AisleIntersection startIntersection = getClosestAisle(t1.getX(), t1.getY());

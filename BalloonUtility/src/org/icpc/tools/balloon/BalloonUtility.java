@@ -21,8 +21,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -309,7 +307,9 @@ public class BalloonUtility {
 
 				for (TableItem ti : tis) {
 					Balloon b = (Balloon) ti.getData();
-					print(b);
+					javax.swing.SwingUtilities.invokeLater(() -> {
+						print(b);
+					});
 				}
 			}
 		});
@@ -419,7 +419,13 @@ public class BalloonUtility {
 			return;
 
 		try {
-			balloonPrinter.print(printerData, bc, b, messages);
+			javax.swing.SwingUtilities.invokeLater(() -> {
+				try {
+					balloonPrinter.print(bc, b, messages);
+				} catch (Exception e) {
+					ErrorHandler.error("Error printing balloon", e);
+				}
+			});
 			if (!b.isPrinted()) {
 				b.setPrinted(true);
 				bc.save();
@@ -471,14 +477,19 @@ public class BalloonUtility {
 
 			// print & update flags
 			if (autoPrint && b.getFlags() >= 0)
-				print(b);
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					print(b);
+				});
 
 			bc.updateFlags(new BalloonContest.FlagListener() {
 				@Override
 				public void updatedFlags(Balloon bb) {
 					updateBalloon(bb);
-					if (autoPrint && isRunFromGroup(bb))
-						print(bb);
+					if (autoPrint && isRunFromGroup(bb)) {
+						javax.swing.SwingUtilities.invokeLater(() -> {
+							print(bb);
+						});
+					}
 				}
 			});
 		}
@@ -1254,22 +1265,13 @@ public class BalloonUtility {
 				if (printerData == null)
 					return;
 
-				Printer printer = new Printer(printerData);
-				if (!printer.startJob("Printer Test"))
-					return;
-				if (!printer.startPage())
-					return;
-
-				GC gc = new GC(printer);
-				Rectangle r = printer.getClientArea();
-
-				FontMetrics fm = gc.getFontMetrics();
-				gc.drawText("Test print @ " + new Date().toString(), r.x, r.y + fm.getAscent());
-
-				gc.dispose();
-				printer.endPage();
-				printer.endJob();
-				printer.dispose();
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					try {
+						BalloonPrinter.printTest(printerData);
+					} catch (Exception e) {
+						ErrorHandler.error("Error printing test", e);
+					}
+				});
 			}
 		});
 
@@ -1279,11 +1281,13 @@ public class BalloonUtility {
 				if (printerData == null)
 					return;
 
-				try {
-					balloonPrinter.print(printerData, null, null, messages);
-				} catch (Exception e) {
-					ErrorHandler.error("Error printing sample", e);
-				}
+				javax.swing.SwingUtilities.invokeLater(() -> {
+					try {
+						balloonPrinter.print(null, null, messages);
+					} catch (Exception e) {
+						ErrorHandler.error("Error printing sample", e);
+					}
+				});
 			}
 		});
 
