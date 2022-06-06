@@ -9,6 +9,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -31,44 +33,51 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseEvent(e, Presentation.MOUSE_CLICKED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_CLICKED);
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseEvent(e, Presentation.MOUSE_ENTERED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_ENTERED);
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseEvent(e, Presentation.MOUSE_EXITED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_EXITED);
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseEvent(e, Presentation.MOUSE_PRESSED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_PRESSED);
 			}
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseEvent(e, Presentation.MOUSE_RELEASED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_RELEASED);
 			}
 		});
 		addMouseMotionListener(new MouseMotionListener() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseMotionEvent(e, Presentation.MOUSE_MOTION_DRAGGED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_DRAGGED);
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireMouseMotionEvent(e, Presentation.MOUSE_MOTION_MOVED);
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_MOVED);
+			}
+		});
+		addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (currentPresentation != null)
+					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_WHEEL);
 			}
 		});
 		addKeyListener(new KeyListener() {
@@ -82,19 +91,19 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 					toggleDebug();
 
 				if (currentPresentation != null)
-					currentPresentation.fireKeyEvent(e, Presentation.KEY_PRESSED);
+					currentPresentation.keyEvent(e, KeyEvent.KEY_PRESSED);
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireKeyEvent(e, Presentation.KEY_RELEASED);
+					currentPresentation.keyEvent(e, KeyEvent.KEY_RELEASED);
 			}
 
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if (currentPresentation != null)
-					currentPresentation.fireKeyEvent(e, Presentation.KEY_TYPED);
+					currentPresentation.keyEvent(e, KeyEvent.KEY_TYPED);
 			}
 		});
 	}
