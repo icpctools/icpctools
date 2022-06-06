@@ -243,35 +243,24 @@ public class ResolverUI {
 				processAction(Action.FORWARD);
 			}
 		});
-
-		MouseAdapter nullMouse = new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// ignore
-			}
-		};
+		window.setControlable(false);
 
 		if (screen == Screen.TEAM || screen == Screen.SIDE || screen == Screen.ORG) {
 			logoPresentation = new StaticLogoPresentation();
-			logoPresentation.addMouseListener(nullMouse);
 			splashPresentation = logoPresentation;
 
 			if (screen == Screen.SIDE) {
 				teamLogoPresentation = new TeamLogoPresentation();
-				teamLogoPresentation.addMouseListener(nullMouse);
 
 				messagePresentation = new MessagePresentation();
-				messagePresentation.addMouseListener(nullMouse);
 			}
 			if (screen == Screen.ORG) {
 				orgPresentation = new OrgsPresentation();
 				orgPresentation.setContest(contest);
-				orgPresentation.addMouseListener(nullMouse);
 			}
 		} else {
 			splashPresentation = new SplashPresentation();
 			splashPresentation.setContest(contest);
-			splashPresentation.addMouseListener(nullMouse);
 		}
 
 		scoreboardPresentation = new ScoreboardPresentation() {
@@ -292,7 +281,6 @@ public class ResolverUI {
 			scoreboardPresentation.setShowSubmissionInfo(true);
 		scoreboardPresentation.setProperty("clockOff");
 		scoreboardPresentation.setContest(contest);
-		scoreboardPresentation.addMouseListener(nullMouse);
 
 		judgePresentation = new JudgePresentation2() {
 			@Override
@@ -301,7 +289,6 @@ public class ResolverUI {
 				paintHook(g);
 			}
 		};
-		judgePresentation.addMouseListener(nullMouse);
 
 		awardPresentation = new TeamAwardPresentation() {
 			@Override
@@ -312,7 +299,6 @@ public class ResolverUI {
 		};
 		awardPresentation.setSize(window.getSize());
 		awardPresentation.cacheAwards(steps);
-		awardPresentation.addMouseListener(nullMouse);
 		awardPresentation.setShowInfo(showInfo);
 
 		teamListPresentation = new TeamListPresentation() {
@@ -323,7 +309,6 @@ public class ResolverUI {
 			}
 		};
 		teamListPresentation.setSize(window.getSize());
-		teamListPresentation.addMouseListener(nullMouse);
 		teamListPresentation.setContest(contest);
 
 		final float dpi = 96;
