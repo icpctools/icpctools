@@ -37,8 +37,6 @@ public class ClientLauncher {
 		System.out.println("     --multi-display p@wxh");
 		System.out.println("         Stretch the presentation across multiple clients. Use \"2@3x2\"");
 		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
-		System.out.println("     --fps");
-		System.out.println("         Show the frame rate on screen");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
 		System.out.println("     --help");
@@ -54,7 +52,6 @@ public class ClientLauncher {
 		String[] nameStr = new String[1];
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
-		boolean[] showFPS = new boolean[1];
 		boolean[] lightMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -70,9 +67,6 @@ public class ClientLauncher {
 				} else if ("--multi-display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "p@wxh:string");
 					displayStr[1] = (String) options.get(0);
-					return true;
-				} else if ("--fps".equals(option)) {
-					showFPS[0] = true;
 					return true;
 				} else if ("--light".equals(option)) {
 					lightMode[0] = true;
@@ -117,7 +111,7 @@ public class ClientLauncher {
 		instance = client;
 
 		// open window
-		createWindow(client, true, showFPS[0]);
+		createWindow(client, true);
 		Trace.trace(Trace.INFO, client + " connecting to " + cdsSource);
 		final PresentationClient client2 = client;
 
@@ -142,7 +136,7 @@ public class ClientLauncher {
 		client.connect(false);
 	}
 
-	protected static void createWindow(final PresentationClient client, final boolean sendthumbnails, boolean showFPS) {
+	protected static void createWindow(final PresentationClient client, final boolean sendthumbnails) {
 		if (client.window != null)
 			return;
 
@@ -155,6 +149,5 @@ public class ClientLauncher {
 					client.writeInfoUpdate(image);
 				}
 			});
-		windowImpl.showFPS(showFPS);
 	}
 }

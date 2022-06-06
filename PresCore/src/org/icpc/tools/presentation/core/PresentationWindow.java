@@ -78,6 +78,9 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 						&& (e.isControlDown() || e.isShiftDown()))
 					System.exit(0);
 
+				if (KeyEvent.VK_D == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					toggleDebug();
+
 				if (currentPresentation != null)
 					currentPresentation.fireKeyEvent(e, Presentation.KEY_PRESSED);
 			}
@@ -159,4 +162,6 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	 * Turn light mode on or off.
 	 */
 	public abstract void setLightMode(boolean light);
+
+	public abstract void toggleDebug();
 }
