@@ -107,7 +107,8 @@ The final parameter must be a "--p" option followed by a set of presentation nam
 separated by spaces; for example, "2 4 clock" (which requests a presentation sequence
 consisting of presentation number 2, then number 4, then the presentation named "clock").
  
-To terminate a running presentation, press Ctrl-Q.
+To terminate a running presentation, press Ctrl-Q. To see debug information including the
+the current presentation and frame rate, use Ctrl-D.
 
 #### Admin-Control Mode
 
@@ -203,11 +204,6 @@ displays. The format of the parameter is "position @ width x height", where widt
 height are the number of displays horizontally and vertically, and position starts at
 1 in the top left and is incremented horizontally. For example, use \"2@3x2\" to
 indicate this client is position 2 (top middle) in a 3x2 grid.
-
-```
---fps
-```
-Shows the frame rate on screen.
 
 ```
 --light

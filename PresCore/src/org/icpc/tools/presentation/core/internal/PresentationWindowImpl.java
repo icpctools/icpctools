@@ -207,6 +207,18 @@ public class PresentationWindowImpl extends PresentationWindow {
 			updateEndTimes();
 		}
 
+		public String summary() {
+			StringBuilder sb = new StringBuilder();
+			boolean first = true;
+			for (PresentationSegment pp : segments) {
+				if (!first)
+					sb.append(", ");
+				sb.append(pp.p1.getClass().getSimpleName());
+				first = false;
+			}
+			return sb.toString();
+		}
+
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder("Presentation plan ");
@@ -228,7 +240,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	protected boolean hidden = false;
 
 	protected int fps;
-	protected boolean showFPS;
+	protected boolean showDebug;
 
 	private long thumbnailDelay = DEFAULT_THUMBNAIL_DELAY;
 	private int thumbnailHeight = DEFAULT_THUMBNAIL_HEIGHT;
@@ -844,25 +856,31 @@ public class PresentationWindowImpl extends PresentationWindow {
 			g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
 		paintPresentations(g, time, hidden2);
 
-		if (showFPS) {
+		if (showDebug) {
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
-			String s = fps + " fps";
 			Dimension d = getSize();
-			g.setColor(lightMode ? Color.WHITE : Color.BLACK);
-			g.drawString(s, d.width - fm.stringWidth(s) - 10 + 1, d.height - fm.getDescent() - 10 + 1);
+			String[] ss = new String[] { fps + " fps", d.width + " x " + d.height, "No presentation" };
+			if (currentPlan != null)
+				ss[2] = currentPlan.summary();
+
+			g.setColor(lightMode ? new Color(255, 255, 255, 196) : new Color(0, 0, 0, 196));
+			g.fillRect(d.width - fm.stringWidth(ss[2]) - 15, d.height - fm.getHeight() * 3 - 15,
+					fm.stringWidth(ss[2]) + 10, fm.getHeight() * 3 + 10);
 			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
-			g.drawString(s, d.width - fm.stringWidth(s) - 10, d.height - fm.getDescent() - 10);
+			for (int i = 0; i < 3; i++)
+				g.drawString(ss[i], d.width - fm.stringWidth(ss[i]) - 10,
+						d.height - fm.getDescent() - fm.getHeight() * 2 + fm.getHeight() * i - 10);
 
 			int i = RenderPerfTimer.Category.values().length;
 			for (RenderPerfTimer.Category category : RenderPerfTimer.Category.values()) {
 				RenderPerfTimer.Counter measure = RenderPerfTimer.measure(category);
 				double nps = measure.nanosPerSecond();
 				double percent = 100 * nps / 1e9;
-				if (percent < 0.01) {
+				if (percent < 0.01)
 					continue;
-				}
-				s = String.format(Locale.ENGLISH, "%s %.2f%%", category, percent);
+
+				String s = String.format(Locale.ENGLISH, "%s %.2f%%", category, percent);
 				g.setColor(lightMode ? Color.WHITE : Color.BLACK);
 				g.drawString(s, d.width - fm.stringWidth(s) - 10 + 1, d.height - (fm.getDescent() + 10) * (i + 1) + 1);
 				g.setColor(lightMode ? Color.BLACK : Color.WHITE);
@@ -877,8 +895,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 		return fps;
 	}
 
-	public void showFPS(boolean show) {
-		showFPS = show;
+	@Override
+	public void toggleDebug() {
+		showDebug = !showDebug;
 	}
 
 	public boolean paintImmediately() {
