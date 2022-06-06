@@ -50,7 +50,8 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 			else
 				page--;
 			setScrollToRow(page * teamsPerScreen);
-		}
+		} else if ('r' == c)
+			setScrollToRow(null);
 	}
 
 	@Override

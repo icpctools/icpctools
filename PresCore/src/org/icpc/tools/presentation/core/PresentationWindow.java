@@ -25,61 +25,62 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	private static final long serialVersionUID = 1L;
 
 	protected Presentation currentPresentation = null;
+	protected boolean control = true;
 
 	protected PresentationWindow(String title) {
+		this(title, true);
+	}
+
+	protected PresentationWindow(String title, boolean control) {
 		super(title);
 
-		addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_CLICKED);
-			}
+		if (control)
+			addMouseListener(new MouseListener() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_CLICKED);
+				}
 
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_ENTERED);
-			}
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_ENTERED);
+				}
 
-			@Override
-			public void mouseExited(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_EXITED);
-			}
+				@Override
+				public void mouseExited(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_EXITED);
+				}
 
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_PRESSED);
-			}
+				@Override
+				public void mousePressed(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_PRESSED);
+				}
 
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_RELEASED);
-			}
-		});
-		addMouseMotionListener(new MouseMotionListener() {
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_DRAGGED);
-			}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_RELEASED);
+				}
+			});
+		if (control)
+			addMouseMotionListener(new MouseMotionListener() {
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_DRAGGED);
+				}
 
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_MOVED);
-			}
-		});
-		addMouseWheelListener(new MouseWheelListener() {
-			@Override
-			public void mouseWheelMoved(MouseWheelEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.mouseEvent(e, MouseEvent.MOUSE_WHEEL);
-			}
-		});
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					mouseEvent(e, MouseEvent.MOUSE_MOVED);
+				}
+			});
+		if (control)
+			addMouseWheelListener(new MouseWheelListener() {
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) {
+					if (currentPresentation != null)
+						currentPresentation.mouseEvent(e, MouseEvent.MOUSE_WHEEL);
+				}
+			});
 		addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -90,22 +91,33 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 				if (KeyEvent.VK_D == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
 					toggleDebug();
 
-				if (currentPresentation != null)
-					currentPresentation.keyEvent(e, KeyEvent.KEY_PRESSED);
+				keyEvent(e, KeyEvent.KEY_PRESSED);
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.keyEvent(e, KeyEvent.KEY_RELEASED);
+				keyEvent(e, KeyEvent.KEY_RELEASED);
 			}
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				if (currentPresentation != null)
-					currentPresentation.keyEvent(e, KeyEvent.KEY_TYPED);
+				keyEvent(e, KeyEvent.KEY_TYPED);
 			}
 		});
+	}
+
+	public void setControlable(boolean b) {
+		control = b;
+	}
+
+	protected void keyEvent(KeyEvent e, int type) {
+		if (currentPresentation != null && control)
+			currentPresentation.keyEvent(e, type);
+	}
+
+	protected void mouseEvent(MouseEvent e, int type) {
+		if (currentPresentation != null && control)
+			currentPresentation.mouseEvent(e, type);
 	}
 
 	public static PresentationWindow create(String title, Image iconImage) {
