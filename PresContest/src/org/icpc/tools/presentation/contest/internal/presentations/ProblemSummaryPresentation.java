@@ -52,14 +52,14 @@ public class ProblemSummaryPresentation extends AbstractICPCPresentation {
 		}
 
 		int rows = 1;
-		if (numProblems > 14)
+		if (numProblems > 12)
 			rows = 4;
 		else if (numProblems > 9)
 			rows = 3;
 		else if (numProblems > 4)
 			rows = 2;
 
-		int numPerRow = (numProblems + 1) / rows;
+		int numPerRow = (int) Math.ceil((double) numProblems / rows);
 		int wid = (width - MARGIN * 2 - GAP * (numPerRow - 1)) / numPerRow;
 		int hei = (height - MARGIN * 2 - GAP * (rows - 1)) / rows;
 
