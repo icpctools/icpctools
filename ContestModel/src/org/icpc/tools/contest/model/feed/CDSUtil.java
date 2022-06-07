@@ -280,6 +280,8 @@ public class CDSUtil {
 				for (String f : files) {
 					if (f.startsWith(prefix) && f.endsWith(".zip")) {
 						String version = f.substring(prefix.length(), f.length() - 4);
+						if (version.startsWith("v"))
+							version = version.substring(1);
 						presVersions.add(new Version(version));
 					}
 				}
