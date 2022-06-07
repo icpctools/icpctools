@@ -55,7 +55,7 @@ public class Ranking {
 						else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
 							String tin = teams[order[i]].getActualDisplayName();
 							String tjn = teams[order[j]].getActualDisplayName();
-							if (collator.compare(tin, tjn) > 0)
+							if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
 								swap = true;
 						}
 					}

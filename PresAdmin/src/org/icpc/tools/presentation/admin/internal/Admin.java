@@ -21,6 +21,17 @@ import org.icpc.tools.contest.model.util.ArgumentParser.Source;
 import org.icpc.tools.contest.model.util.Taskbar;
 
 public class Admin {
+	protected static void showHelp() {
+		System.out.println();
+		System.out.println("Usage: presAdmin.bat/sh cdsURL user password [options]");
+		System.out.println();
+		System.out.println("  Options:");
+		System.out.println("     --help");
+		System.out.println("         Shows this message");
+		System.out.println("     --version");
+		System.out.println("         Displays version information");
+	}
+
 	public static void main(String[] args) {
 		Trace.init("ICPC Presentation Admin", "presAdmin", args);
 
@@ -32,16 +43,14 @@ public class Admin {
 
 			@Override
 			public void showHelp() {
-				System.out.println();
-				System.out.println("Usage: presAdmin.bat/sh cdsURL user password [options]");
-				System.out.println();
-				System.out.println("  Options:");
-				System.out.println("     --help");
-				System.out.println("         Shows this message");
-				System.out.println("     --version");
-				System.out.println("         Displays version information");
+				Admin.showHelp();
 			}
 		});
+
+		if (source == null) {
+			showHelp();
+			return;
+		}
 
 		String url = source.src[0];
 
