@@ -8,11 +8,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -64,25 +61,14 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 		}
 	}
 
-	public TeamDisplayPresentation() {
-		addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				touched("mouse");
-			}
-		});
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				touched("keyboard");
-			}
-		});
-		addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				touched("mouse");
-			}
-		});
+	@Override
+	protected void mouseEvent(MouseEvent e, int type) {
+		touched("mouse");
+	}
+
+	@Override
+	protected void keyEvent(KeyEvent e, int type) {
+		touched("keyboard");
 	}
 
 	@Override

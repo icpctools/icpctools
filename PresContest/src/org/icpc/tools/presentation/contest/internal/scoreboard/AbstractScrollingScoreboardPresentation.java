@@ -2,6 +2,7 @@ package org.icpc.tools.presentation.contest.internal.scoreboard;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.presentation.contest.internal.Animator;
@@ -34,6 +35,23 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 			return 0;
 
 		return MS_PER_PAGE * getNumPages() + INITIAL_DELAY_MS + FADE_OUT_MS;
+	}
+
+	@Override
+	public void keyEvent(KeyEvent e, int type) {
+		if (type != KeyEvent.KEY_TYPED)
+			return;
+
+		char c = e.getKeyChar();
+		if (Character.isDigit(c)) {
+			int page = Integer.parseInt(c + "");
+			if (page == 0)
+				page = 9;
+			else
+				page--;
+			setScrollToRow(page * teamsPerScreen);
+		} else if ('r' == c)
+			setScrollToRow(null);
 	}
 
 	@Override
