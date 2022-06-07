@@ -106,9 +106,13 @@ public class ContestAPIHelper {
 				String content = getContent(testURL, user, password, 0);
 				Info[] infos = readContests(content, testURL);
 
-				Trace.trace(Trace.USER, "No contest found at the given URL, but I found these instead:");
-				for (Info info : infos)
-					Trace.trace(Trace.USER, "  " + listContest(getChildURL(testURL, info.getId()), info));
+				Trace.trace(Trace.USER, "URL invalid, but Contest API found at: " + testURL);
+				if (infos == null || infos.length == 0)
+					Trace.trace(Trace.USER, "  No contests");
+				else {
+					for (Info info : infos)
+						Trace.trace(Trace.USER, "  " + listContest(getChildURL(testURL, info.getId()), info));
+				}
 
 				break;
 			} catch (Exception e) {
