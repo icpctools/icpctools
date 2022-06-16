@@ -1,5 +1,7 @@
 package org.icpc.tools.cds.presentations;
 
+import java.security.Principal;
+
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
@@ -16,7 +18,11 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 
 	@Override
 	public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
-		String user = request.getUserPrincipal().getName();
+		Principal principal = request.getUserPrincipal();
+		if (principal == null)
+			return;
+
+		String user = principal.getName();
 		if (config.getUserProperties().containsKey(user))
 			return;
 
