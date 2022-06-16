@@ -1,26 +1,22 @@
 package org.icpc.tools.presentation.contest.internal.presentations;
 
 import java.awt.AlphaComposite;
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.icpc.tools.contest.model.ICPCColors;
 import org.icpc.tools.contest.model.ICommentary;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestListener;
-import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
-import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
@@ -31,8 +27,6 @@ public class CommentaryPresentation extends TitledPresentation {
 	private static final long TIME_TO_FADE_RECENT = 2500;
 	private static final long LINES_PER_SCREEN = 16;
 
-	private static final int GAP = 5;
-
 	private static final Movement COMMENTARY_MOVEMENT = new Movement(5, 9);
 
 	enum Action {
@@ -42,7 +36,6 @@ public class CommentaryPresentation extends TitledPresentation {
 	protected class RecentCommentary {
 		public ICommentary commentary;
 		protected BufferedImage img;
-		protected int rows = 1;
 		protected Animator anim;
 		protected long fullAge;
 		protected long actionAge;
@@ -77,8 +70,8 @@ public class CommentaryPresentation extends TitledPresentation {
 
 		float tempRowHeight = height / (float) LINES_PER_SCREEN;
 		size = tempRowHeight * 36f * 0.95f / dpi;
-		textFont = ICPCFont.deriveFont(Font.PLAIN, size * 1.5f);
-		textFont2 = ICPCFont.deriveFont(Font.ITALIC, size * 1.5f);
+		textFont = ICPCFont.deriveFont(Font.PLAIN, size * 1.7f);
+		textFont2 = ICPCFont.deriveFont(Font.ITALIC, size * 1.7f);
 	}
 
 	@Override
@@ -134,112 +127,31 @@ public class CommentaryPresentation extends TitledPresentation {
 	}
 
 	private void createImage(Graphics2D gg, RecentCommentary comm) {
-		int h = (int) (height / LINES_PER_SCREEN);
-		int bh = h;
-
-		// estimate width to see if we need to wrap
-		gg.setFont(textFont);
-		FontMetrics fm = gg.getFontMetrics();
-		gg.setFont(textFont2);
-		FontMetrics fm2 = gg.getFontMetrics();
-		int fh = fm.getAscent();
-		int baseLine = (h + fh) / 2;
-		int gh = h - GAP * 3;
+		TextHelper text = new TextHelper(gg, false);
 
 		List<Object> list = parseCommentary(comm.commentary.getMessage());
-		int x = 0;
-		Object wrap = null;
 		for (Object o : list) {
-			if (o instanceof String) {
-				String s = (String) o;
-				x += fm.getStringBounds(s, gg).getWidth();
-			} else if (o instanceof ITeam) {
-				ITeam team = (ITeam) o;
-
-				IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
-				if (org != null) {
-					BufferedImage img = org.getLogoImage(gh, gh, true, true);
-					if (img != null) {
-						x += img.getWidth() + GAP * 2;
-					} // else - add logo gap for testing
-						// x += gh + GAP * 2;
-				}
-
-				String s = team.getActualDisplayName();
-				x += fm2.getStringBounds(s, gg).getWidth();
-			} else if (o instanceof IProblem) {
-				IProblem p = (IProblem) o;
-				x += fh * 3 + GAP * 2;
-
-				String s = p.getName();
-				x += fm2.getStringBounds(s, gg).getWidth();
-			}
-			if (x > width - GAP) {
-				bh += h - GAP;
-				wrap = o;
-				comm.rows++;
-			}
+			if (o instanceof String)
+				text.addPlainText((String) o);
+			else if (o instanceof ITeam)
+				text.addTeam(getContest(), (ITeam) o);
+			else if (o instanceof IProblem)
+				text.addProblem((IProblem) o);
 		}
+		TextHelper.Layout layout = new TextHelper.Layout();
+		layout.wrapWidth = width;
+		layout.indent = width / 20;
+		text.layout(layout);
 
-		comm.img = new BufferedImage(width, bh, BufferedImage.TYPE_INT_ARGB);
+		comm.img = new BufferedImage(width, text.getHeight() + 12, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = comm.img.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-		x = 0;
-		int y = 0;
-		for (Object o : list) {
-			if (o == wrap) {
-				x = 100;
-				y += h;
-			}
-			if (o instanceof String) {
-				String s = (String) o;
-				g.setColor(Color.LIGHT_GRAY);
-				g.setFont(textFont);
-				g.drawString(s, x, y + baseLine);
-				x += fm.getStringBounds(s, g).getWidth();
-			} else if (o instanceof ITeam) {
-				ITeam team = (ITeam) o;
-
-				IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
-				if (org != null) {
-					BufferedImage img = org.getLogoImage(gh, gh, true, true);
-					if (img != null) {
-						g.drawImage(img, x + GAP, y + (h - img.getWidth()) / 2, null);
-						x += img.getWidth() + GAP * 2;
-					} /*else { // for testing logo spacing
-						g.setColor(Color.GREEN);
-						g.drawRect(x + GAP, y + (h - gh) / 2, gh, gh);
-						x += gh + GAP * 2;
-						}*/
-				}
-
-				String s = team.getActualDisplayName();
-				g.setColor(Color.WHITE);
-				g.setFont(textFont2);
-				g.drawString(s, x, y + baseLine);
-				x += fm2.getStringBounds(s, g).getWidth();
-			} else if (o instanceof IProblem) {
-				IProblem p = (IProblem) o;
-
-				Color c = p.getColorVal();
-				Color cc = ICPCColors.getContrastColor(c);
-				ShadedRectangle.drawRoundRect(g, x + GAP, (h - gh) / 2, fh * 3, gh, c, cc, "");
-
-				g.setColor(cc);
-				g.setFont(textFont);
-				g.drawString(p.getLabel(), x + GAP + fh * 3 / 2 - fm.stringWidth(p.getLabel()) / 2, y + baseLine);
-				x += fh * 3 + GAP * 2;
-
-				String s = p.getName();
-				g.setColor(Color.WHITE);
-				g.setFont(textFont2);
-				g.drawString(s, x, y + baseLine);
-				x += fm2.getStringBounds(s, g).getWidth();
-			}
-		}
+		g.setFont(gg.getFont());
+		text.setGraphics(g);
+		text.draw(0, 6);
 
 		g.dispose();
 	}
@@ -258,6 +170,10 @@ public class CommentaryPresentation extends TitledPresentation {
 
 	@Override
 	protected void paintImpl(Graphics2D g) {
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
 		RecentCommentary[] submissions2 = null;
 		synchronized (comments) {
 			submissions2 = comments.toArray(new RecentCommentary[0]);
@@ -273,16 +189,14 @@ public class CommentaryPresentation extends TitledPresentation {
 					float tr = (float) (1.0 - comm.actionAge / (double) TIME_TO_FADE_RECENT);
 					g2.setComposite(AlphaComposite.SrcOver.derive(tr));
 				}
-				paintCommentary(g2, comm);
+
+				if (comm.img == null)
+					createImage(g2, comm);
+				g2.drawImage(comm.img, 0, -6, null);
+
 				g2.dispose();
 			}
 		}
-	}
-
-	protected void paintCommentary(Graphics2D g, RecentCommentary comm) {
-		if (comm.img == null)
-			createImage(g, comm);
-		g.drawImage(comm.img, 0, 0, null);
 	}
 
 	private static int firstTag(String s) {
@@ -352,15 +266,19 @@ public class CommentaryPresentation extends TitledPresentation {
 		if (comments == null)
 			return;
 
-		int count = 0;
+		int GAP = height / 35;
+		double yy = GAP / 2;
 		synchronized (comments) {
 			for (RecentCommentary comment : comments) {
-				double target = 0;
-				target = count;
+				double target = yy * LINES_PER_SCREEN / height;
 				if (comment.action == Action.MOVE_OUT && comment.actionAge > TIME_TO_FADE_RECENT / 3) {
 					// don't move count
-				} else if (count < LINES_PER_SCREEN * 2)
-					count += comment.rows;
+				} else if (target < height * 2) {
+					if (comment.img != null)
+						yy += comment.img.getHeight() + GAP;
+					else
+						yy += height * 1.3 / LINES_PER_SCREEN;
+				}
 
 				if (force)
 					comment.anim.reset(target);
