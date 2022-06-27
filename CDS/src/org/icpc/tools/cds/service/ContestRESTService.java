@@ -282,6 +282,9 @@ public class ContestRESTService extends HttpServlet {
 		response.setContentType("application/json");
 		JSONEncoder je = new JSONEncoder(response.getWriter());
 		je.open();
+		je.encode("name", "Contest Data Server");
+		je.encodePrimitive("logo", "[{\"href\":\"/cdsIcon.png\",\"filename\":\"logo.png\","
+				+ "\"mime\":\"image/png\",\"width\":512,\"height\":512}]");
 		je.encode("version", "2021-11");
 		je.encode("version_url", "https://ccs-specs.icpc.io/2021-11/contest_api");
 		je.close();
