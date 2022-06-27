@@ -205,12 +205,14 @@ public abstract class ContestObject implements IContestObject {
 		getProperties(new Properties() {
 			@Override
 			public void addString(String key, String value) {
-				props.put(key, value);
+				if (value != null)
+					props.put(key, value);
 			}
 
 			@Override
 			public void addLiteralString(String key, String value) {
-				props.put(key, value);
+				if (value != null)
+					props.put(key, value);
 			}
 
 			@Override
@@ -225,22 +227,26 @@ public abstract class ContestObject implements IContestObject {
 
 			@Override
 			public void add(String key, Object value) {
-				props.put(key, value);
+				if (value != null)
+					props.put(key, value);
 			}
 
 			@Override
 			public void addFileRef(String key, FileReferenceList value) {
-				props.put(key, value);
+				if (value != null)
+					props.put(key, value);
 			}
 
 			@Override
 			public void addFileRefSubs(String key, FileReferenceList value) {
-				props.put(key, value);
+				if (value != null)
+					props.put(key, value);
 			}
 
 			@Override
 			public void addArray(String key, String[] value) {
-				props.put(key, value);
+				if (value != null)
+					props.put(key, value);
 			}
 		});
 		return props;

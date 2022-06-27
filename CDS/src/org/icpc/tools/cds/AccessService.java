@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.CDSConfig.Auth;
 import org.icpc.tools.contest.model.IAccount;
+import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 
 /**
@@ -25,6 +26,7 @@ public class AccessService {
 
 		IAccount account = cc.getAccount(request.getRemoteUser());
 
+		// write capabilities
 		if (account != null) {
 			String type = account.getAccountType();
 			if ("team".equals(type)) {
@@ -51,15 +53,23 @@ public class AccessService {
 		else
 			je.encodePrimitive("capabilities", "[\"" + String.join("\",\"", caps) + "\"]");
 
-		/*je.encodePrimitive("endpoints", "x" + contest.getId());
-		
-		{
-			je.open();
-			IContestObject.ContestType ct = null;
-			je.encode("type", IContestObject.getTypeName(ct));
-			je.encodePrimitive("properties", "x");
-			je.close();
-		}*/
+		// write endpoints
+		je.writeSeparator();
+		je.openChildArray("endpoints");
+		List<String>[] allKnownProperties = cc.getContestByRole(request).getKnownProperties();
+		for (IContestObject.ContestType ct : IContestObject.ContestType.values()) {
+			List<String> properties = allKnownProperties[ct.ordinal()];
+			if (properties != null) {
+				je.writeSeparator();
+				je.open();
+				je.encode("type", IContestObject.getTypeName(ct));
+
+				String s = String.join("\",\"", properties);
+				je.encodePrimitive("properties", "[\"" + s + "\"]");
+				je.close();
+			}
+		}
+		je.closeArray();
 
 		je.close();
 	}

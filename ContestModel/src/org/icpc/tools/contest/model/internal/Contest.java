@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -81,6 +82,10 @@ public class Contest implements IContest {
 	private IContestObject lastTimedEvent;
 	private int lastTimedEventIndex;
 
+	// map of known properties for each contest type
+	@SuppressWarnings("unchecked")
+	protected List<String>[] allKnownProperties = new List[ContestType.values().length];
+
 	public Contest() {
 		this(true);
 	}
@@ -146,6 +151,19 @@ public class Contest implements IContest {
 			lastTimedEvent = obj;
 			lastTimedEventIndex = data.size();
 		}
+
+		// update known properties
+		int ord = obj.getType().ordinal();
+		List<String> knownProps = allKnownProperties[ord];
+		if (knownProps == null) {
+			knownProps = new ArrayList<String>();
+			allKnownProperties[ord] = knownProps;
+		}
+
+		Map<String, Object> props = obj.getProperties();
+		for (String name : props.keySet())
+			if (!knownProps.contains(name))
+				knownProps.add(name);
 	}
 
 	private void updateTime(int time) {
@@ -457,6 +475,10 @@ public class Contest implements IContest {
 			data.iterate(this, listener);
 			addListener(listener);
 		}
+	}
+
+	public List<String>[] getKnownProperties() {
+		return allKnownProperties;
 	}
 
 	@Override
