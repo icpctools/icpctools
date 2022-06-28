@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -84,7 +85,7 @@ public class Contest implements IContest {
 
 	// map of known properties for each contest type
 	@SuppressWarnings("unchecked")
-	protected List<String>[] allKnownProperties = new List[ContestType.values().length];
+	protected Set<String>[] allKnownProperties = new Set[ContestType.values().length];
 
 	public Contest() {
 		this(true);
@@ -154,9 +155,9 @@ public class Contest implements IContest {
 
 		// update known properties
 		int ord = obj.getType().ordinal();
-		List<String> knownProps = allKnownProperties[ord];
+		Set<String> knownProps = allKnownProperties[ord];
 		if (knownProps == null) {
-			knownProps = new ArrayList<String>();
+			knownProps = new SimpleSet();
 			allKnownProperties[ord] = knownProps;
 		}
 
@@ -477,7 +478,7 @@ public class Contest implements IContest {
 		}
 	}
 
-	public List<String>[] getKnownProperties() {
+	public Set<String>[] getKnownProperties() {
 		return allKnownProperties;
 	}
 

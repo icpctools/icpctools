@@ -3,6 +3,7 @@ package org.icpc.tools.cds;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,9 +57,9 @@ public class AccessService {
 		// write endpoints
 		je.writeSeparator();
 		je.openChildArray("endpoints");
-		List<String>[] allKnownProperties = cc.getContestByRole(request).getKnownProperties();
+		Set<String>[] allKnownProperties = cc.getContestByRole(request).getKnownProperties();
 		for (IContestObject.ContestType ct : IContestObject.ContestType.values()) {
-			List<String> properties = allKnownProperties[ct.ordinal()];
+			Set<String> properties = allKnownProperties[ct.ordinal()];
 			if (properties != null) {
 				je.writeSeparator();
 				je.open();
