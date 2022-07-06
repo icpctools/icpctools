@@ -234,7 +234,7 @@ public class JSONEncoder {
 			pw.write(",");
 		else
 			first = false;
-		pw.write(value);
+		pw.write("\"" + escape(value) + "\"");
 	}
 
 	public void encodeNull() {
