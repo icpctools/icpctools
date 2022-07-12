@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -23,6 +22,13 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.apache.batik.util.XMLResourceDescriptor;
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ICPCColors;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
@@ -31,9 +37,8 @@ import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
-
-import com.kitfox.svg.SVGDiagram;
-import com.kitfox.svg.SVGUniverse;
+import org.w3c.dom.Document;
+import org.w3c.dom.svg.SVGDocument;
 
 /**
  * A helper class that can layout and draw a set of text and images. It handles some special cases
@@ -62,34 +67,6 @@ public class TextHelper {
 		@Override
 		public String toString() {
 			return "[image]";
-		}
-	}
-
-	// same as ImageItem, but aligns with text
-	class EmojiItem extends Item {
-		protected SVGDiagram svg;
-
-		@Override
-		protected void draw() {
-			float w = svg.getWidth();
-			float h = svg.getHeight();
-			float scale = Math.min(d.width / w, d.height / h);
-
-			Graphics2D gg = (Graphics2D) g.create();
-			gg.translate(x - d.width / 2, y - d.height / 2);
-			gg.scale(scale, scale);
-
-			try {
-				svg.render(gg);
-			} catch (Exception e) {
-				// ignore
-			}
-			gg.dispose();
-		}
-
-		@Override
-		public String toString() {
-			return "*";
 		}
 	}
 
@@ -624,16 +601,34 @@ public class TextHelper {
 	private void addEmoji(EmojiEntry emoji) {
 		if (emoji.svg == null)
 			emoji.svg = loadEmojiFromFile(emoji.hex);
+
+		if (emoji.svg == null)
+			return;
+
 		int size = fm.getHeight() - 2;
 
-		float w = emoji.svg.getWidth();
-		float h = emoji.svg.getHeight();
-		float scale = Math.min(size * 1.5f / w, size / h);
+		try {
+			String viewBox = emoji.svg.getDocumentElement().getAttribute("viewBox");
+			String[] viewBoxValues = viewBox.split(" ");
+			if (viewBoxValues.length < 4)
+				return;
 
-		EmojiItem item = new EmojiItem();
-		item.svg = emoji.svg;
-		item.d = new Dimension((int) (w * scale), (int) (h * scale));
-		add(item);
+			float w = Float.parseFloat(viewBoxValues[2]);
+			float h = Float.parseFloat(viewBoxValues[3]);
+			float scale = Math.min(size * 1.5f / w, size / h);
+
+			BufferedImageTranscoder imageTranscoder = new BufferedImageTranscoder();
+			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, w * scale);
+			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, h * scale);
+
+			TranscoderInput input = new TranscoderInput(emoji.svg);
+			imageTranscoder.transcode(input, null);
+
+			BufferedImage img = imageTranscoder.getBufferedImage();
+			addImage(img);
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Invalid emoji", e);
+		}
 	}
 
 	public void addImage(BufferedImage img) {
@@ -710,7 +705,7 @@ public class TextHelper {
 	private static final class EmojiEntry {
 		protected final String hex;
 		protected final String raw;
-		protected SVGDiagram svg;
+		protected Document svg;
 
 		public EmojiEntry(String hex, String raw) {
 			this.hex = hex;
@@ -760,15 +755,34 @@ public class TextHelper {
 		}
 	}
 
-	private static SVGDiagram loadEmojiFromFile(String hex) {
+	class BufferedImageTranscoder extends ImageTranscoder {
+		private BufferedImage img = null;
+
+		@Override
+		public BufferedImage createImage(int w, int h) {
+			return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		}
+
+		@Override
+		public void writeImage(BufferedImage img2, TranscoderOutput output) {
+			this.img = img2;
+		}
+
+		public BufferedImage getBufferedImage() {
+			return img;
+		}
+	}
+
+	private static SVGDocument loadEmojiFromFile(String hex) {
 		String filename = "font/twemoji/" + hex + ".svg";
+
+		SAXSVGDocumentFactory factory = null;
+		String parser = XMLResourceDescriptor.getXMLParserClassName();
+		factory = new SAXSVGDocumentFactory(parser);
+
 		try (InputStream in = ICPCFont.class.getClassLoader().getResourceAsStream(filename)) {
-			SVGUniverse sRenderer = new SVGUniverse();
-			URI uri = sRenderer.loadSVG(in, hex);
-			SVGDiagram diagram = sRenderer.getDiagram(uri);
-			diagram.setIgnoringClipHeuristic(true);
-			return diagram;
-		} catch (Exception e) {
+			return factory.createSVGDocument(filename, in);
+		} catch (Exception ex) {
 			return null;
 		}
 	}
