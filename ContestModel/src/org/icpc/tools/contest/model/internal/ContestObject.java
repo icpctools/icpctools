@@ -1,10 +1,7 @@
 package org.icpc.tools.contest.model.internal;
 
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.net.URI;
 import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -13,6 +10,12 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.transcoder.SVGAbstractTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
@@ -21,9 +24,7 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
-
-import com.kitfox.svg.SVGDiagram;
-import com.kitfox.svg.SVGUniverse;
+import org.w3c.dom.svg.SVGDocument;
 
 public abstract class ContestObject implements IContestObject {
 	public static final String ID = "id";
@@ -49,6 +50,24 @@ public abstract class ContestObject implements IContestObject {
 		public void addFileRefSubs(String key, FileReferenceList value);
 
 		public void addArray(String key, String[] value);
+	}
+
+	private static class BufferedImageTranscoder extends ImageTranscoder {
+		private BufferedImage img = null;
+
+		@Override
+		public BufferedImage createImage(int w, int h) {
+			return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		}
+
+		@Override
+		public void writeImage(BufferedImage img2, TranscoderOutput output) {
+			this.img = img2;
+		}
+
+		public BufferedImage getBufferedImage() {
+			return img;
+		}
 	}
 
 	public ContestObject() {
@@ -445,13 +464,13 @@ public abstract class ContestObject implements IContestObject {
 		if (resizeToFit) {
 			if (data instanceof BufferedImage)
 				return ImageScaler.scaleImage((BufferedImage) data, width, height);
-			// else if (data instanceof SVGDiagram)
-			return resizeSVG((SVGDiagram) data, width, height);
+			// else if (data instanceof SVGDocument)
+			return resizeSVG((SVGDocument) data, width, height);
 		}
 		if (data instanceof BufferedImage)
 			return (BufferedImage) data;
-		// else if (data instanceof SVGDiagram)
-		return resizeSVG((SVGDiagram) data, width, height);
+		// else if (data instanceof SVGDocument)
+		return resizeSVG((SVGDocument) data, width, height);
 	}
 
 	private static Object loadImage(File f) {
@@ -467,37 +486,35 @@ public abstract class ContestObject implements IContestObject {
 		}
 	}
 
-	private static SVGDiagram loadSVG(File svgFile) throws Exception {
-		SVGUniverse sRenderer = new SVGUniverse();
-		URI uri = sRenderer.loadSVG(svgFile.toURI().toURL());
-		SVGDiagram diagram = sRenderer.getDiagram(uri);
-		diagram.setIgnoringClipHeuristic(true);
-		return diagram;
+	private static SVGDocument loadSVG(File svgFile) throws Exception {
+		String parser = XMLResourceDescriptor.getXMLParserClassName();
+		SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
+		return factory.createSVGDocument(svgFile.getAbsolutePath());
 	}
 
-	private static BufferedImage resizeSVG(SVGDiagram diagram, int width, int height) {
-		float w = diagram.getWidth();
-		float h = diagram.getHeight();
-		float scale = Math.min(width / w, height / h);
-
-		int nw = Math.round(w * scale);
-		int nh = Math.round(h * scale);
-
-		BufferedImage image = new BufferedImage(nw, nh, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = (Graphics2D) image.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-		g.scale(scale, scale);
-
+	private static BufferedImage resizeSVG(SVGDocument svg, int width, int height) {
 		try {
-			diagram.render(g);
+			String viewBox = svg.getDocumentElement().getAttribute("viewBox");
+			String[] viewBoxValues = viewBox.split(" ");
+			if (viewBoxValues.length < 4)
+				return null;
+
+			float w = Float.parseFloat(viewBoxValues[2]);
+			float h = Float.parseFloat(viewBoxValues[3]);
+			float scale = Math.min(width / w, height / h);
+
+			BufferedImageTranscoder imageTranscoder = new BufferedImageTranscoder();
+			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, w * scale);
+			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, h * scale);
+
+			TranscoderInput input = new TranscoderInput(svg);
+			imageTranscoder.transcode(input, null);
+
+			return imageTranscoder.getBufferedImage();
 		} catch (Exception e) {
-			// ignore
+			Trace.trace(Trace.ERROR, "Invalid SVG", e);
+			return null;
 		}
-		g.dispose();
-		return image;
 	}
 
 	@Override

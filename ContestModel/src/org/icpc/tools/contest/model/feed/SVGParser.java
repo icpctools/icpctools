@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.StringTokenizer;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -36,17 +35,17 @@ public class SVGParser {
 					String name = element.getName().getLocalPart();
 					if ("svg".equals(name)) {
 						String viewBox = element.getAttributeByName(new QName("viewBox")).getValue();
-						StringTokenizer st = new StringTokenizer(viewBox);
-						st.nextToken(); // x
-						st.nextToken(); // y
-						Double w = Double.parseDouble(st.nextToken());
-						Double h = Double.parseDouble(st.nextToken());
-						return new Dimension(w.intValue(), h.intValue());
+						String[] viewBoxValues = viewBox.split(" ");
+						if (viewBoxValues.length > 3) {
+							double w = (int) Double.parseDouble(viewBoxValues[2]);
+							double h = (int) Double.parseDouble(viewBoxValues[3]);
+							return new Dimension((int) w, (int) h);
+						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			throw new IOException("Error reading xml", e);
+			throw new IOException("Error reading svg", e);
 		} finally {
 			if (in != null)
 				try {
