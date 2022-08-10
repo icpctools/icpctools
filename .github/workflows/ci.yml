@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - replace-httpie-by-curl
   pull_request:
 jobs:
   build:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     container: icpctools/website
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/replace-httpie-by-curl'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -38,41 +38,45 @@ jobs:
           export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
           VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count)
           RELEASE_COMMIT=$(git rev-parse HEAD)
-          http --ignore-stdin POST \
-            https://api.github.com/repos/icpctools/icpctools/releases \
-            "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            "Accept: application/vnd.github.v3+json" \
-            tag_name=v$VERSION \
-            target_commitish=$RELEASE_COMMIT \
-            name=v$VERSION \
-            prerelease:=true | tee ~/new-release.txt
+          curl --silent --show-error --retry 6 --max-time 300 -X POST \
+            -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases \
+            -d '{"tag_name":"'"v$VERSION1"'", "name":"'"v$VERSION"'", "target_commitish":"'"$RELEASE_COMMIT"'","prerelease":true }' | \
+            tee ~/new-release.txt
           RELEASE_ID=$(cat ~/new-release.txt | jq .id)
-          RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/icpctools/icpctools/releases/${RELEASE_ID}/assets
+          RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}/assets
           cd dist
           echo "Uploading release $VERSION"
           for zip in *.zip
           do
             echo $zip...
-            cat $zip | http --timeout 300 POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
-              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-              'Accept: application/vnd.github.v3+json' \
-              'Content-Type: application/zip' | jq .state
+            curl --silent --show-error --retry 6 --max-time 300 --data-binary "@$zip" -X POST \
+              -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H 'Content-Type: application/zip' \
+              ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
+              | jq .state
             echo $zip.sha256...
-            cat $zip.sha256 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
-              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-              'Accept: application/vnd.github.v3+json' \
-              'Content-Type: text/plain' | jq .state
+            curl --silent --show-error --retry 6 --max-time 300 --data-binary "@$zip.sha256" -X POST \
+              -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H 'Content-Type: text/plain' \
+              ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
+              | jq .state
             echo $zip.sha512...
-            cat $zip.sha512 | http POST ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
-              "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-              'Accept: application/vnd.github.v3+json' \
-              'Content-Type: text/plain' | jq .state
+            curl --silent --show-error --retry 6 --max-time 300 --data-binary "@$zip.sha512" -X POST \
+              -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H 'Content-Type: text/plain' \
+              ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha512 \
+              | jq .state
           done
   update-website:
     runs-on: ubuntu-latest
     container: icpctools/website
     needs: push-release
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/replace-httpie-by-curl'
     steps:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
@@ -105,7 +109,7 @@ jobs:
   push-docker:
     runs-on: ubuntu-latest
     needs: push-release
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/replace-httpie-by-curl'
     steps:
       - uses: actions/checkout@v2
         with:
