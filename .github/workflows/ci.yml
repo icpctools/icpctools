@@ -38,7 +38,7 @@ jobs:
           export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
           VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count)
           RELEASE_COMMIT=$(git rev-parse HEAD)
-          curl --silent --show-error --retry 6 --max-time 300 -X POST \
+          curl --silent --show-error --retry 6 --retry-all-errors --max-time 300 -X POST \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases \
@@ -51,21 +51,21 @@ jobs:
           for zip in *.zip
           do
             echo $zip...
-            curl --silent --show-error --retry 6 --max-time 300 --data-binary "@$zip" -X POST \
+            curl --silent --show-error --retry 6 --retry-all-errors --max-time 300 --data-binary "@$zip" -X POST \
               -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
               -H 'Accept: application/vnd.github.v3+json' \
               -H 'Content-Type: application/zip' \
               ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip \
               | jq .state
             echo $zip.sha256...
-            curl --silent --show-error --retry 6 --max-time 300 --data-binary "@$zip.sha256" -X POST \
+            curl --silent --show-error --retry 6 --retry-all-errors --max-time 300 --data-binary "@$zip.sha256" -X POST \
               -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
               -H 'Accept: application/vnd.github.v3+json' \
               -H 'Content-Type: text/plain' \
               ${RELEASE_ASSET_UPLOAD_URL}\?name=$zip.sha256 \
               | jq .state
             echo $zip.sha512...
-            curl --silent --show-error --retry 6 --max-time 300 --data-binary "@$zip.sha512" -X POST \
+            curl --silent --show-error --retry 6 --retry-all-errors --max-time 300 --data-binary "@$zip.sha512" -X POST \
               -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
               -H 'Accept: application/vnd.github.v3+json' \
               -H 'Content-Type: text/plain' \
