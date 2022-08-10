@@ -35,6 +35,7 @@ jobs:
           path: dist
       - name: Create GitHub release
         run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
           export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
           VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count)
           RELEASE_COMMIT=$(git rev-parse HEAD)
