@@ -42,7 +42,7 @@ jobs:
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/releases \
-            -d '{"tag_name":"'"v$VERSION1"'", "name":"'"v$VERSION"'", "target_commitish":"'"$RELEASE_COMMIT"'","prerelease":true }' | \
+            -d '{"tag_name":"'"v$VERSION"'", "name":"'"v$VERSION"'", "target_commitish":"'"$RELEASE_COMMIT"'","prerelease":true }' | \
             tee ~/new-release.txt
           RELEASE_ID=$(cat ~/new-release.txt | jq .id)
           RELEASE_ASSET_UPLOAD_URL=https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}/assets
