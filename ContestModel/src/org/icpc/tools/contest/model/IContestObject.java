@@ -37,6 +37,10 @@ public interface IContestObject {
 	}
 
 	static ContestType getTypeByName(String typeName) {
+		// new event feed format uses contest instead of contests
+		if (typeName.equals("contest")) {
+			typeName = "contests";
+		}
 		for (int i = 0; i < ContestTypeNames.length; i++) {
 			if (ContestTypeNames[i].equals(typeName))
 				return ContestType.values()[i];
