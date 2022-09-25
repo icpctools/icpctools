@@ -16,7 +16,7 @@
                    <pre><%= HttpHelper.sanitize(pageContext.getErrorData().getThrowable().getMessage()) %></pre>
 
                    <p>Please visit <a href="https://tools.icpc.global" target="_blank">tools.icpc.global</a> for help or go to
-                   <a href="https://ccs-specs.icpc.io" target="_blank">clics.ecs.baylor.edu</a> for more info on the Contest API.</p>
+                   <a href="https://ccs-specs.icpc.io" target="_blank">CLICS spec</a> for more info on the Contest API.</p>
                 </div>
             </div>
         </div>
