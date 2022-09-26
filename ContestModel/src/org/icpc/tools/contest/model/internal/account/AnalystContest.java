@@ -5,6 +5,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IRun;
+import org.icpc.tools.contest.model.ISubmission;
 
 /**
  * Filter that adds things analysts can see compared to public:
@@ -32,13 +33,25 @@ public class AnalystContest extends PublicContest {
 				IRun run = (IRun) obj;
 
 				IJudgement j = getJudgementById(run.getJudgementId());
+				if (j == null)
+					return;
+
 				if (isJudgementHidden(j))
 					return;
 
-				// hide runs after freeze
+				ISubmission s = getSubmissionById(j.getSubmissionId());
+				if (s == null)
+					return;
+
+				// hide runs for submissions outside the contest time
+				int time = s.getContestTime();
+				if (time < 0 || time >= getDuration())
+					return;
+
+				// hide runs for submissions after freeze
 				if (getFreezeDuration() != null) {
 					int freezeTime = getDuration() - getFreezeDuration();
-					if (run.getContestTime() >= freezeTime)
+					if (s.getContestTime() >= freezeTime)
 						return;
 				}
 
