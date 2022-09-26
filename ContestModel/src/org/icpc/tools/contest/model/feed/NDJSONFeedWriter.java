@@ -34,6 +34,10 @@ public class NDJSONFeedWriter {
 		je.open();
 
 		String type = IContestObject.getTypeName(obj.getType());
+		// New feed format uses single contest type
+		if (!isOldFeed && type.equals("contests")) {
+			type = "contest";
+		}
 		je.encode("type", type);
 
 		if (isOldFeed) {
