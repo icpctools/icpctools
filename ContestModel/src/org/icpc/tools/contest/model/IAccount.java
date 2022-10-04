@@ -14,6 +14,13 @@ public interface IAccount extends IContestObject {
 	public String PRES_ADMIN = "presAdmin";
 
 	/**
+	 * The name
+	 *
+	 * @return the name
+	 */
+	String getName();
+
+	/**
 	 * The username
 	 *
 	 * @return the username
