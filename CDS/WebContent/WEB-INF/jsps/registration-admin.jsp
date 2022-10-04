@@ -29,6 +29,7 @@
 			                    <th>Email</th>
 			                    <th>Sex</th>
 			                    <th>Role</th>
+			                    <th>Team Id</th>
 			                </tr>
 			            </thead>
 			            <tbody></tbody>
@@ -55,6 +56,7 @@
 			                <tr>
 			                    <th class="text-center">Id</th>
 			                    <th>Username</th>
+			                    <th>Name</th>
 			                    <th>Type</th>
 			                    <th>IP</th>
 			                    <th>Team</th>
@@ -192,10 +194,12 @@
   <td>{{email}}</td>
   <td>{{sex}}</td>
   <td>{{role}}</td>
+  <td>{{team_id}}</td>
 </script>
 <script type="text/html" id="accounts-template">
   <td><a href="{{api}}">{{id}}</td>
   <td>{{username}}</td>
+  <td>{{name}}</td>
   <td>{{type}}</td>
   <td>{{ip}}</td>
   <td>{{team_id}}</td>
