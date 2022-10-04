@@ -378,6 +378,22 @@ public class ContestComparator {
 		return compareTypes(IContestObject.ContestType.RUN, c);
 	}
 
+	public static TypeComparison comparePersons(Contest... c) {
+		return compareTypes(IContestObject.ContestType.PERSON, c);
+	}
+
+	public static TypeComparison compareAccounts(Contest... c) {
+		return compareTypes(IContestObject.ContestType.ACCOUNT, c);
+	}
+
+	public static TypeComparison compareClarifications(Contest... c) {
+		return compareTypes(IContestObject.ContestType.CLARIFICATION, c);
+	}
+
+	public static TypeComparison compareCommentary(Contest... c) {
+		return compareTypes(IContestObject.ContestType.COMMENTARY, c);
+	}
+
 	public static TypeComparison compareAwards(Contest... c) {
 		return compareTypes(IContestObject.ContestType.AWARD, c);
 	}

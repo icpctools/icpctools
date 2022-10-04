@@ -80,6 +80,30 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>Persons</td>
+                    <td>
+                        <%= (String) request.getAttribute("persons") %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Accounts</td>
+                    <td>
+                        <%= (String) request.getAttribute("accounts") %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Clarifications</td>
+                    <td>
+                        <%= (String) request.getAttribute("clarifications") %>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Commentary</td>
+                    <td>
+                        <%= (String) request.getAttribute("commentary") %>
+                    </td>
+                </tr>
+                <tr>
                     <td>Awards</td>
                     <td>
                         <%= (String) request.getAttribute("awards") %>

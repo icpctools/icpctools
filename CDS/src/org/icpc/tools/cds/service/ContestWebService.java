@@ -243,6 +243,13 @@ public class ContestWebService extends HttpServlet {
 							ContestComparator.compareSubmissions(contestA, contestB).printHTMLSummary());
 					request.setAttribute("judgements",
 							ContestComparator.compareJudgements(contestA, contestB).printHTMLSummary());
+					request.setAttribute("persons", ContestComparator.comparePersons(contestA, contestB).printHTMLSummary());
+					request.setAttribute("accounts",
+							ContestComparator.compareAccounts(contestA, contestB).printHTMLSummary());
+					request.setAttribute("clarifications",
+							ContestComparator.compareClarifications(contestA, contestB).printHTMLSummary());
+					request.setAttribute("commentary",
+							ContestComparator.compareCommentary(contestA, contestB).printHTMLSummary());
 					request.setAttribute("awards", ContestComparator.compareAwards(contestA, contestB).printHTMLSummary());
 					request.getRequestDispatcher("/WEB-INF/jsps/contestCompare.jsp").forward(request, response);
 				} catch (Exception e) {
