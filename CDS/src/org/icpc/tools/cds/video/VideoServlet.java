@@ -181,15 +181,15 @@ public class VideoServlet extends HttpServlet {
 			final int stream, boolean channel, boolean trusted) throws IOException {
 
 		response.setHeader("Cache-Control", "no-cache");
-		response.setContentType("application/octet");
+		response.setContentType(VideoAggregator.handler.getMimeType());
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("X-Accel-Buffering", "no");
 
 		OutputStream out = response.getOutputStream();
-		va.handler.writeHeader(out, stream);
 		final VideoStreamListener listener = new VideoStreamListener(out, trusted);
+		va.writeHeader(stream, listener);
 
-		String format = va.handler.getFormat();
+		String format = VideoAggregator.handler.getFileExtension();
 		response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "." + format + "\"");
 		if (!channel)
 			va.addStreamListener(stream, listener);
