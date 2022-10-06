@@ -14,8 +14,26 @@ public class MPEGTSHandler extends VideoHandler {
 	private static final int PACKET_LEN = 188;
 
 	@Override
-	protected String getFormat() {
+	protected String getFileExtension() {
 		return "m2ts";
+	}
+
+	@Override
+	protected String getMimeType() {
+		return "video/m2ts";
+	}
+
+	@Override
+	protected boolean validate(InputStream in) throws IOException {
+		// read the first byte
+		int b = in.read();
+		if (b == -1)
+			throw new IOException("Invalid stream");
+
+		// confirm mpegg-ts packet 71 = G
+		if (b != 71)
+			return false;
+		return true;
 	}
 
 	@Override

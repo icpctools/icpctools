@@ -1,5 +1,6 @@
 package org.icpc.tools.cds.video;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.cds.video.containers.MPEGTSHandler;
+import org.icpc.tools.cds.video.containers.OggHandler;
 import org.icpc.tools.contest.Trace;
 
 public class VideoAggregator {
@@ -73,7 +75,14 @@ public class VideoAggregator {
 
 	protected static Stats stats = new Stats();
 
-	protected VideoHandler handler = new MPEGTSHandler();
+	protected static VideoHandler handler;
+
+	static {
+		if ("true".equals(System.getProperty("ICPC_OGG")))
+			handler = new OggHandler();
+		else
+			handler = new MPEGTSHandler();
+	}
 
 	protected static VideoAggregator instance = new VideoAggregator();
 
@@ -116,6 +125,10 @@ public class VideoAggregator {
 
 	public List<VideoStream> getVideoInfo() {
 		return videoStreams;
+	}
+
+	public static String getMimeType() {
+		return handler.getMimeType();
 	}
 
 	public int addReservation(String name, String url, StreamType type, ConnectionMode mode) {
@@ -168,9 +181,8 @@ public class VideoAggregator {
 		}
 
 		VideoStream info = videoStreams.get(stream);
-		for (VideoStreamListener vsl : c.listeners) {
+		for (VideoStreamListener vsl : c.listeners)
 			info.addListener(vsl);
-		}
 
 		c.stream = stream;
 		return true;
@@ -184,10 +196,8 @@ public class VideoAggregator {
 		c.listeners.add(listener);
 		int stream = c.stream;
 		Trace.trace(Trace.INFO, "Adding channel listener: " + channel + " Stream: " + stream);
-		if (stream >= 0) {
-			VideoStream info = videoStreams.get(stream);
-			info.addListener(listener);
-		}
+		if (stream >= 0)
+			videoStreams.get(stream).addListener(listener);
 	}
 
 	public VideoStream getStream(int stream) {
@@ -211,12 +221,18 @@ public class VideoAggregator {
 		return videoStreams.get(stream).getType();
 	}
 
+	public void writeHeader(int stream, VideoStreamListener listener) throws IOException {
+		if (stream < 0 || stream >= videoStreams.size())
+			return;
+
+		videoStreams.get(stream).writeHeader(listener);
+	}
+
 	public void addStreamListener(int stream, VideoStreamListener listener) {
 		if (stream < 0 || stream >= videoStreams.size() || listener == null)
 			return;
 
-		VideoStream info = videoStreams.get(stream);
-		info.addListener(listener);
+		videoStreams.get(stream).addListener(listener);
 	}
 
 	public static ConnectionMode getConnectionMode(String s) {
@@ -262,8 +278,7 @@ public class VideoAggregator {
 		if (stream < 0 || stream >= videoStreams.size() || listener == null)
 			return false;
 
-		VideoStream info = videoStreams.get(stream);
-		return info.removeListener(listener);
+		return videoStreams.get(stream).removeListener(listener);
 	}
 
 	/**
