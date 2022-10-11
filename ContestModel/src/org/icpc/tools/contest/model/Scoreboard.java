@@ -6,32 +6,10 @@ import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
-import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.State;
 
 public class Scoreboard {
-	/**
-	 * Get the contest immediately after the given event id.
-	 */
-	public static Contest getScoreboard(Contest contest, int eventIndex) {
-		// if the index wasn't specified or is past the current event, output the current scoreboard
-		if (eventIndex <= 0 || eventIndex >= contest.getNumObjects())
-			return contest;
-
-		return contest.clone(true, new IContestObjectFilter() {
-			private int count = 1;
-
-			@Override
-			public IContestObject filter(IContestObject obj) {
-				if (count >= eventIndex)
-					return null;
-				count++;
-				return obj;
-			}
-		});
-	}
-
 	private static double round(double d) {
 		return Math.round(d * 100000.0) / 100000.0;
 	}
