@@ -8,10 +8,12 @@ import java.util.List;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IPerson;
+import org.icpc.tools.contest.model.feed.JSONParser;
 
 public class Person extends ContestObject implements IPerson {
 	private static final String ICPC_ID = "icpc_id";
 	private static final String TEAM_ID = "team_id";
+	private static final String TEAM_IDS = "team_ids";
 	private static final String FIRST_NAME = "first_name";
 	private static final String LAST_NAME = "last_name";
 	private static final String NAME = "name";
@@ -35,6 +37,7 @@ public class Person extends ContestObject implements IPerson {
 	private String email;
 	private String sex;
 	private String teamId;
+	private String[] teamIds;
 	private String role;
 	private FileReferenceList photo;
 	private FileReferenceList desktop;
@@ -87,6 +90,11 @@ public class Person extends ContestObject implements IPerson {
 	@Override
 	public String getTeamId() {
 		return teamId;
+	}
+
+	@Override
+	public String[] getTeamIds() {
+		return teamIds;
 	}
 
 	@Override
@@ -150,6 +158,17 @@ public class Person extends ContestObject implements IPerson {
 			}
 			case TEAM_ID: {
 				teamId = (String) value;
+				return true;
+			}
+			case TEAM_IDS: {
+				if (value != null) {
+					Object[] ob = JSONParser.getOrReadArray(value);
+					teamIds = new String[ob.length];
+					for (int i = 0; i < ob.length; i++)
+						teamIds[i] = (String) ob[i];
+				} else {
+					teamIds = null;
+				}
 				return true;
 			}
 			case ROLE: {
