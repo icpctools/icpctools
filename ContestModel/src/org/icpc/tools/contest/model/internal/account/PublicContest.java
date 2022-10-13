@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.icpc.tools.contest.model.IAccount;
+import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IDelete;
@@ -28,6 +29,7 @@ import org.icpc.tools.contest.model.internal.Contest;
  * <li>Hidden groups & teams (and all associated data)</li>
  * <li>Clarifications (except broadcasts)</li>
  * <li>Judgemewnts and commentary after the freeze</li>
+ * <li>Awards, except for first to solve awards before the freeze</li>
  * <li>Test_data</li>
  * <li>Runs</li>
  * <li>Commentary</li>
@@ -67,7 +69,6 @@ public class PublicContest extends Contest {
 			case JUDGEMENT_TYPE:
 			case MAP_INFO:
 			case START_STATUS:
-			case AWARD:
 			case ORGANIZATION:
 				super.add(obj);
 				return;
@@ -171,6 +172,18 @@ public class PublicContest extends Contest {
 				if (clar.getFromTeamId() == null && clar.getToTeamId() == null)
 					super.add(clar);
 
+				return;
+			}
+			case AWARD: {
+				IAward award = (IAward) obj;
+				if (award.getAwardType() != IAward.FIRST_TO_SOLVE)
+					return;
+
+				IState state = getState();
+				if (state.isFrozen())
+					return;
+
+				super.add(obj);
 				return;
 			}
 
