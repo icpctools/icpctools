@@ -16,8 +16,20 @@
   </welcome-file-list>
   <security-constraint>
     <web-resource-collection>
-        <web-resource-name>Everything</web-resource-name>
-        <url-pattern>/*</url-pattern>
+        <web-resource-name>Everything but streams</web-resource-name>
+        <url-pattern>/</url-pattern>
+        <url-pattern>/api/*</url-pattern>
+        <url-pattern>/web/*</url-pattern>
+        <url-pattern>/presentation/*</url-pattern>
+        <url-pattern>/contests/*</url-pattern>
+        <url-pattern>/about</url-pattern>
+        <url-pattern>/error</url-pattern>
+        <url-pattern>/login</url-pattern>
+        <url-pattern>/logout</url-pattern>
+        <url-pattern>/search/*</url-pattern>
+        <url-pattern>/focus/*</url-pattern>
+        <url-pattern>/video/*</url-pattern>
+        <url-pattern>/welcome</url-pattern>
     </web-resource-collection>
     <user-data-constraint>
         <transport-guarantee>CONFIDENTIAL</transport-guarantee>

@@ -117,6 +117,7 @@ public class NDJSONFeedParser implements Closeable {
 		String type = obj.getString("type");
 		String id = obj.getString("id");
 		Object data = obj.get("data");
+
 		IContestObject.ContestType cType = IContestObject.getTypeByName(type);
 		if (cType == null) {
 			Trace.trace(Trace.WARNING, "Unrecognized (ignored) type in event feed: " + type);

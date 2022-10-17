@@ -1,33 +1,25 @@
-- id: admin
-  username: admin
+- username: admin
   password: __ADMIN_PASSWORD__
   type: admin
-- id: presAdmin
-  username: admpresAdminin
+- username: presAdmin
   password: __PRESADMIN_PASSWORD__
   type: presAdmin
-- id: blue
-  username: blue
+- username: blue
   password: __BLUE_PASSWORD__
   type: staff
-- id: balloon
-  username: balloon
+- username: balloon
   password: __BALLOON_PASSWORD__
-  type: balloon
-- id: presentation
-  username: presentation
+  type: __BALLOON_PASSWORD__
+- username: presentation
   password: __PRESENTATION_PASSWORD__
   type: public
-- id: myicpc
-  username: myicpc
+- username: myicpc
   password: __MYICPC_PASSWORD__
   type: analyst
-- id: live
-  username: live
+- username: live
   password: __LIVE_PASSWORD__
   type: analyst
-- id: team1
-  username: team1
+- username: team1
   password: __TEAM_PASSWORD__
   type: team
   team_id: '1'

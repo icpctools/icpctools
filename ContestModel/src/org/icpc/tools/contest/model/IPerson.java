@@ -50,6 +50,13 @@ public interface IPerson extends IContestObject {
 	String getTeamId();
 
 	/**
+	 * The ids of the teams they belong to.
+	 *
+	 * @return the ids
+	 */
+	String[] getTeamIds();
+
+	/**
 	 * The role of the person on the team.
 	 *
 	 * @return the role

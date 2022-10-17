@@ -14,10 +14,12 @@ public class Commentary extends TimedEvent implements ICommentary {
 	private static final String MESSAGE = "message";
 	private static final String TEAM_IDS = "team_ids";
 	private static final String PROBLEM_IDS = "problem_ids";
+	private static final String SUBMISSION_IDS = "submission_ids";
 
 	private String message;
 	private String[] teamIds;
 	private String[] problemIds;
+	private String[] submissionIds;
 
 	@Override
 	public ContestType getType() {
@@ -49,9 +51,24 @@ public class Commentary extends TimedEvent implements ICommentary {
 				problemIds = null;
 			}
 			return true;
+		} else if (SUBMISSION_IDS.equals(name)) {
+			if (value != null) {
+				Object[] ob = JSONParser.getOrReadArray(value);
+				submissionIds = new String[ob.length];
+				for (int i = 0; i < ob.length; i++)
+					submissionIds[i] = (String) ob[i];
+			} else {
+				submissionIds = null;
+			}
+			return true;
 		}
 
 		return super.addImpl(name, value);
+	}
+
+	@Override
+	public String[] getTeamIds() {
+		return teamIds;
 	}
 
 	@Override
@@ -60,8 +77,8 @@ public class Commentary extends TimedEvent implements ICommentary {
 	}
 
 	@Override
-	public String[] getTeamIds() {
-		return teamIds;
+	public String[] getSubmissionIds() {
+		return submissionIds;
 	}
 
 	@Override
@@ -75,6 +92,7 @@ public class Commentary extends TimedEvent implements ICommentary {
 		props.addString(MESSAGE, message);
 		props.addArray(TEAM_IDS, teamIds);
 		props.addArray(PROBLEM_IDS, problemIds);
+		props.addArray(SUBMISSION_IDS, submissionIds);
 		super.getProperties(props);
 	}
 
@@ -96,6 +114,13 @@ public class Commentary extends TimedEvent implements ICommentary {
 			for (String pId : problemIds) {
 				if (c.getProblemById(pId) == null)
 					errors.add("Invalid problem " + pId);
+			}
+		}
+
+		if (submissionIds != null && submissionIds.length > 0) {
+			for (String sId : submissionIds) {
+				if (c.getSubmissionById(sId) == null)
+					errors.add("Invalid submission " + sId);
 			}
 		}
 

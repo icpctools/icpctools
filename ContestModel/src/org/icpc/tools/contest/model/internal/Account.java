@@ -8,6 +8,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 
 public class Account extends ContestObject implements IAccount {
+	private static final String NAME = "name";
 	private static final String USERNAME = "username";
 	private static final String PASSWORD = "password";
 	private static final String TYPE = "type";
@@ -21,10 +22,16 @@ public class Account extends ContestObject implements IAccount {
 	private String ip;
 	private String teamId;
 	private String personId;
+	private String name;
 
 	@Override
 	public ContestType getType() {
 		return ContestType.ACCOUNT;
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 
 	@Override
@@ -58,8 +65,12 @@ public class Account extends ContestObject implements IAccount {
 	}
 
 	@Override
-	protected boolean addImpl(String name, Object value) throws Exception {
-		switch (name) {
+	protected boolean addImpl(String name2, Object value) throws Exception {
+		switch (name2) {
+			case NAME: {
+				name = (String) value;
+				return true;
+			}
 			case USERNAME: {
 				username = (String) value;
 				return true;
@@ -93,6 +104,7 @@ public class Account extends ContestObject implements IAccount {
 	public IContestObject clone() {
 		Account a = new Account();
 		a.id = id;
+		a.name = name;
 		a.username = username;
 		a.password = password;
 		a.type = type;
@@ -105,6 +117,7 @@ public class Account extends ContestObject implements IAccount {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
+		props.addLiteralString(NAME, name);
 		props.addString(USERNAME, username);
 		props.addString(PASSWORD, password);
 		props.addLiteralString(TYPE, type);

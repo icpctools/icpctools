@@ -9,7 +9,6 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
@@ -21,16 +20,14 @@ import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
 
 public class ProjectionScoreboardService {
-	public static void writeScoreboard(PrintWriter pw, Contest contest2) {
+	public static void writeScoreboard(PrintWriter pw, Contest contest) {
 		// figure out which judgement type is the solved one
 		IJudgementType solvedJT = null;
 
-		for (IJudgementType type : contest2.getJudgementTypes()) {
+		for (IJudgementType type : contest.getJudgementTypes()) {
 			if (type.isSolved())
 				solvedJT = type;
 		}
-
-		Contest contest = Scoreboard.getScoreboard(contest2, contest2.getNumObjects() - 28000);
 
 		ITeam[] teams = contest.getOrderedTeams();
 		int numProblems = contest.getNumProblems();

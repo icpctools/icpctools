@@ -16,7 +16,7 @@ public class Run extends TimedEvent implements IRun {
 	private String judgementId;
 	private String judgementTypeId;
 	private int ordinal;
-	private int runTime;
+	private int runTime = -1;
 
 	@Override
 	public ContestType getType() {
@@ -81,13 +81,10 @@ public class Run extends TimedEvent implements IRun {
 		props.addLiteralString(JUDGEMENT_ID, judgementId);
 		props.addLiteralString(JUDGEMENT_TYPE_ID, judgementTypeId);
 		props.addInt(ORDINAL, ordinal);
-		if (runTime > 0)
-			// props.put(RUN_TIME, new Decimal(runTime));
+		if (runTime >= 0)
 			props.add(RUN_TIME, Decimal.format(runTime));
 		super.getProperties(props);
 	}
-
-	// target : 4450x ms
 
 	@Override
 	public List<String> validate(IContest c) {

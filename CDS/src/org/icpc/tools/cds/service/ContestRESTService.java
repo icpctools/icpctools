@@ -146,12 +146,6 @@ public class ContestRESTService extends HttpServlet {
 				ContestFeedService.doStream(request, filter, pw, contest, ind, cc);
 				return;
 			} else if ("scoreboard".equals(segments[1])) {
-				int ind = getAfterEventIndex(request, contest);
-				if (ind == -2) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event id");
-					return;
-				}
-				contest = Scoreboard.getScoreboard(contest, ind);
 				cc.incrementScoreboard();
 				response.setContentType("application/json");
 				Scoreboard.writeScoreboard(response.getWriter(), contest);
@@ -161,23 +155,11 @@ public class ContestRESTService extends HttpServlet {
 				AccessService.write(request, response, cc);
 				return;
 			} else if ("projectedScoreboard".equals(segments[1])) {
-				int ind = getAfterEventIndex(request, contest);
-				if (ind == -2) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event id");
-					return;
-				}
-				contest = Scoreboard.getScoreboard(contest, ind);
 				cc.incrementScoreboard();
 				response.setContentType("application/json");
 				ProjectionScoreboardService.writeScoreboard(response.getWriter(), contest);
 				return;
 			} else if ("optimisticScoreboard".equals(segments[1])) {
-				int ind = getAfterEventIndex(request, contest);
-				if (ind == -2) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid event id");
-					return;
-				}
-				contest = Scoreboard.getScoreboard(contest, ind);
 				cc.incrementScoreboard();
 				response.setContentType("application/json");
 				OptimisticScoreboardService.beOptimistic(contest);
@@ -288,10 +270,6 @@ public class ContestRESTService extends HttpServlet {
 		je.encode("version", "2021-11");
 		je.encode("version_url", "https://ccs-specs.icpc.io/2021-11/contest_api");
 		je.close();
-	}
-
-	protected static int getAfterEventIndex(HttpServletRequest request, IContest contest) {
-		return getEventIndexFromParameter(request, contest, "after_event_id");
 	}
 
 	/**

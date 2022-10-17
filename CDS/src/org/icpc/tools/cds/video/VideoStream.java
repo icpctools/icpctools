@@ -46,7 +46,7 @@ public class VideoStream {
 
 	public VideoStream(VideoAggregator videoAggregator, String name, String url, StreamType type, String teamId) {
 		this.executor = videoAggregator.executor;
-		this.handler = videoAggregator.handler;
+		this.handler = VideoAggregator.handler;
 		this.name = name;
 		this.url = url;
 		this.type = type;
@@ -83,6 +83,45 @@ public class VideoStream {
 
 	public int getConnections() {
 		return listeners.size();
+	}
+
+	public void writeHeader(VideoStreamListener listener) throws IOException {
+		handler.writeHeader(this, new IStreamListener() {
+			@Override
+			public void write(final byte[] b) {
+				sendToListener(listener, l -> listener.write(b));
+			}
+
+			@Override
+			public void write(byte[] b, int off, int len) {
+				sendToListener(listener, l -> listener.write(b, off, len));
+			}
+
+			@Override
+			public void flush() {
+				sendToListener(listener, l -> listener.flush());
+			}
+
+			@Override
+			public boolean isDone() {
+				return false;
+			}
+		});
+	}
+
+	/**
+	 * Execute an action on all listeners.
+	 *
+	 * @param num
+	 * @param b
+	 */
+	private void sendToListener(VideoStreamListener l, StreamOperation a) {
+		try {
+			a.execute(l);
+		} catch (Throwable t) {
+			// could not send. kill this feed
+			removeListener(l);
+		}
 	}
 
 	/**
@@ -273,7 +312,7 @@ public class VideoStream {
 						URLConnection conn = HTTPSSecurity.createURLConnection(url3, null, null);
 						conn.setConnectTimeout(15000);
 						conn.setReadTimeout(10000);
-						conn.setRequestProperty("Content-Type", "video/MP2T");
+						conn.setRequestProperty("Content-Type", handler.getMimeType());
 						if (conn instanceof HttpURLConnection) {
 							HttpURLConnection httpConn = (HttpURLConnection) conn;
 							int httpStatus = httpConn.getResponseCode();
@@ -294,7 +333,7 @@ public class VideoStream {
 
 						in = conn.getInputStream();
 
-						handler.createReader(in, this, new IStreamListener() {
+						handler.createReader(in, VideoStream.this, new IStreamListener() {
 							@Override
 							public void write(final byte[] b) {
 								status = Status.ACTIVE;

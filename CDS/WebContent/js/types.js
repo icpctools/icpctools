@@ -127,11 +127,11 @@ function teamsTd(team) {
 }
 
 function personsTd(person) {
-    return { id: person.id, icpc_id: person.icpc_id, name: person.name, title: person.title, email: person.email, sex: person.sex, role: person.role };
+    return { id: person.id, icpc_id: person.icpc_id, name: person.name, title: person.title, email: person.email, sex: person.sex, role: person.role, team_id: person.team_id };
 }
 
 function accountsTd(account) {
-    return { id: account.id, username: account.username, type: account.type, ip: account.ip, team_id: account.team_id, person_id: account.person_id };
+    return { id: account.id, username: account.username, name: account.name, type: account.type, ip: account.ip, team_id: account.team_id, person_id: account.person_id };
 }
 
 function queueTd(submission) {

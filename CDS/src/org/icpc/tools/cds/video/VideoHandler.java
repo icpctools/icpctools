@@ -2,7 +2,6 @@ package org.icpc.tools.cds.video;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 public abstract class VideoHandler {
 	public interface IStreamListener {
@@ -15,14 +14,25 @@ public abstract class VideoHandler {
 		boolean isDone();
 	}
 
-	protected abstract String getFormat();
+	protected abstract String getFileExtension();
+
+	protected abstract String getMimeType();
+
+	/**
+	 * Return true if the stream is valid for this handler. Return false if it isn't.
+	 *
+	 * @param in
+	 * @return
+	 * @throws IOException
+	 */
+	protected abstract boolean validate(InputStream in) throws IOException;
 
 	/**
 	 * Write header/cached information for the given stream.
 	 *
 	 * @throws IOException
 	 */
-	protected void writeHeader(OutputStream out, Object stream) throws IOException {
+	protected void writeHeader(Object stream, IStreamListener listener) throws IOException {
 		// ignore
 	}
 

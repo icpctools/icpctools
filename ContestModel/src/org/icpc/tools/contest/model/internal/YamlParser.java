@@ -312,6 +312,9 @@ public class YamlParser {
 							account.add(key, val.toString());
 					}
 				}
+				// if there's no id, use username
+				if (account.getId() == null && account.getUsername() != null)
+					account.add("id", account.getUsername());
 				accounts.add(account);
 			}
 		}

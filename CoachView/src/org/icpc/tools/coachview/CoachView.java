@@ -708,10 +708,10 @@ public class CoachView extends Panel {
 
 				try {
 					String webcamURL = null;
-					if (currentTeam.getWebcamURLs() != null && currentTeam.getWebcamURLs().length < num)
+					if (currentTeam.getWebcamURLs() != null && currentTeam.getWebcamURLs().length > num)
 						webcamURL = addAuth(currentTeam.getWebcamURLs()[num]);
 					String desktopURL = null;
-					if (currentTeam.getDesktopURLs() != null && currentTeam.getDesktopURLs().length < num)
+					if (currentTeam.getDesktopURLs() != null && currentTeam.getDesktopURLs().length > num)
 						desktopURL = addAuth(currentTeam.getDesktopURLs()[num]);
 					logoImg = null;
 
