@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Class-Path: snakeyaml-1.27.jar
+Class-Path: snakeyaml-1.33.jar

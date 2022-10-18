@@ -26,7 +26,7 @@
   	<pathelement location="javaee-web-api-8.0.jar"/>
   	<pathelement location="WebContent/WEB-INF/lib/openpdf-1.3.27.jar"/>
     <pathelement location="${contest.model}/bin"/>
-  	<pathelement location="${contest.model}/lib/snakeyaml-1.27.jar"/>
+  	<pathelement location="${contest.model}/lib/snakeyaml-1.33.jar"/>
   </path>
   <target name="init">
     <mkdir dir="bin"/>
