@@ -12,8 +12,8 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Organization;
-import org.icpc.tools.contest.model.internal.Team;
 import org.icpc.tools.contest.model.internal.Person;
+import org.icpc.tools.contest.model.internal.Team;
 
 public class TSVImporter {
 	private static final String ID = "id";
@@ -27,8 +27,6 @@ public class TSVImporter {
 	private static final String COUNTRY = "country";
 	private static final String LOCATION = "location";
 	private static final String TEAM_ID = "team_id";
-	private static final String FIRST_NAME = "first_name";
-	private static final String LAST_NAME = "last_name";
 	private static final String SEX = "sex";
 	private static final String ROLE = "role";
 
@@ -37,9 +35,11 @@ public class TSVImporter {
 			return;
 
 		if (value instanceof String) {
-			String s = (String) value;
-			if (s.trim().isEmpty() || "null".equals(s))
+			String s = ((String) value).trim();
+			if (s.isEmpty() || "null".equals(s))
 				return;
+			co.add(name, s);
+			return;
 		}
 		co.add(name, value);
 	}
@@ -76,7 +76,7 @@ public class TSVImporter {
 			// read header
 			br.readLine();
 
-			int autoTeamId = 1;
+			int autoTeamId = 501;
 
 			String s = br.readLine();
 			while (s != null) {
@@ -104,13 +104,13 @@ public class TSVImporter {
 						else {
 							add(t, ICPC_ID, st[1]);
 							add(t, GROUP_IDS, new Object[] { st[2] });
-							add(t, NAME, st[3]);
+							add(t, NAME, st[3].trim());
 							if (st.length > 7) {
 								String id = realOrgId(st[7]);
 								add(t, ORGANIZATION_ID, id);
 
 								Organization o = JsonToTSVConverter.getOrganizationById(id);
-								o.add(FORMAL_NAME, st[4]);
+								o.add(FORMAL_NAME, st[4].trim());
 								o.add(COUNTRY, st[6]);
 							}
 
@@ -128,11 +128,17 @@ public class TSVImporter {
 	private static String realOrgId(String id) {
 		if (id == null)
 			return null;
+
+		String id2 = id;
 		if (id.startsWith("INST-U-"))
-			return id.substring(7);
+			id2 = id.substring(7);
 		else if (id.startsWith("INST-"))
-			return id.substring(5);
-		return id;
+			id2 = id.substring(5);
+
+		while (id2.startsWith("0"))
+			id2 = id2.substring(1);
+
+		return id2;
 	}
 
 	public static void importInstitutions(List<Organization> list, File f) throws IOException {
@@ -145,12 +151,13 @@ public class TSVImporter {
 
 			String s = br.readLine();
 			while (s != null) {
-				String[] st = s.split("\\t", -1);
+				String[] st = s.split("\\t");
 				if (st != null && st.length > 0) {
 					Organization org = new Organization();
 					String id = realOrgId(st[0]);
 
-					// Note: the CMS seems to change formats quite often, having extra or less columns for institutions
+					// Note: the CMS seems to change formats quite often, having extra or less columns
+					// for institutions
 					// Verify the numbers below, especially the ones from URL and up
 
 					add(org, ID, id);
@@ -158,17 +165,22 @@ public class TSVImporter {
 					add(org, FORMAL_NAME, st[1]);
 					add(org, NAME, st[2]);
 
-					add(org, COUNTRY, st[4]);
+					if (st.length > 4)
+						add(org, COUNTRY, st[4]);
 
-					add(org, URL, st[5]);
-					add(org, HASHTAG, st[6]);
-					JsonObject obj = new JsonObject();
-					if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
-						obj.props.put("latitude", st[7]);
-					if (st[8] != null && !st[8].trim().isEmpty() && !"null".equals(st[8]))
-						obj.props.put("longitude", st[8]);
-					if (obj.containsKey("latitude") && obj.containsKey("longitude"))
-						org.add(LOCATION, obj);
+					if (st.length > 5)
+						add(org, URL, st[5]);
+					if (st.length > 6)
+						add(org, HASHTAG, st[6]);
+					if (st.length > 8) {
+						JsonObject obj = new JsonObject();
+						if (st[8] != null && !st[8].trim().isEmpty() && !"null".equals(st[8]))
+							obj.props.put("latitude", st[8]);
+						if (st[9] != null && !st[9].trim().isEmpty() && !"null".equals(st[9]))
+							obj.props.put("longitude", st[9]);
+						if (obj.containsKey("latitude") && obj.containsKey("longitude"))
+							org.add(LOCATION, obj);
+					}
 
 					list.add(org);
 				}
@@ -196,8 +208,7 @@ public class TSVImporter {
 						role = "coach";
 					if ("coach".equals(role) || "contestant".equals(role)) {
 						add(p, ROLE, role);
-						add(p, FIRST_NAME, st[2]);
-						add(p, LAST_NAME, st[3]);
+						add(p, NAME, st[2] + " " + st[3]);
 						if (st.length >= 5) {
 							String sex = st[4];
 							if ("M".equalsIgnoreCase(sex))
@@ -229,8 +240,7 @@ public class TSVImporter {
 					add(p, ID, st[0]);
 					add(p, ICPC_ID, st[0]);
 					// add(p, TEAM_ID, st[0]);
-					add(p, FIRST_NAME, st[2]);
-					add(p, LAST_NAME, st[3]);
+					add(p, NAME, st[2] + " " + st[3]);
 					if (st.length > 26) {
 						String sex = st[27];
 						if (sex != null)
@@ -274,9 +284,41 @@ public class TSVImporter {
 						} else {
 							add(p, TEAM_ID, t.getId());
 							String role = st[3];
-							add(p, ROLE, role.toLowerCase());
+							if (role != null) {
+								if (role.toLowerCase().equals("cocoach"))
+									role = "coach";
+								add(p, ROLE, role.toLowerCase());
+							}
 							list.add(p);
 						}
+					}
+				}
+				s = br.readLine();
+			}
+		}
+
+		// TODO coach should override staff? 27 Ali Orooji
+		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "Staff.tab")))) {
+			// read header
+			br.readLine();
+
+			String s = br.readLine();
+			while (s != null) {
+				String[] st = s.split("\\t");
+				if (st != null && st.length > 0) {
+					String id = st[0];
+
+					Person p = null;
+					for (Person tm : temp)
+						if (id.equals(tm.getICPCId()))
+							p = tm;
+
+					if (p == null) {
+						System.err.println("Warning: unknown staff");
+					} else {
+						add(p, ROLE, "staff");
+						add(p, "title", st[2].trim());
+						list.add(p);
 					}
 				}
 				s = br.readLine();
