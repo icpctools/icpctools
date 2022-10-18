@@ -1,8 +1,8 @@
 java_import(
     name = "jna",
     jars = [
-        "jna-5.2.0.jar",
-        "jna-platform-5.2.0.jar",
+        "jna-jpms-5.12.1.jar",
+        "jna-platform-jpms-5.12.1.jar",
     ],
     visibility = ["//visibility:public"],
 )
@@ -10,8 +10,8 @@ java_import(
 java_import(
     name = "vlcj",
     jars = [
-        "vlcj-4.7.0.jar",
-        "vlcj-natives-4.1.0.jar"
+        "vlcj-4.8.2.jar",
+        "vlcj-natives-4.8.1.jar"
     ],
     visibility = ["//visibility:public"],
 )
