@@ -1,10 +1,7 @@
 package org.icpc.tools.contest.util.cms;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,49 +10,35 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.feed.JSONArrayWriter;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
-import org.icpc.tools.contest.model.feed.JSONParser;
-import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Team;
-import org.icpc.tools.contest.util.cms.CMSDownloadHelper.ContestInfo;
 
 /**
- * Converter from ICPC CMS formats to both TSV and Contest API JSON formats.
+ * Converter from ICPC CMS formats to both clean TSV and Contest API JSON formats.
  *
- * Arguments: cmsLocation contestRoot [--finals]
+ * Arguments: cmsClicsRoot cmsContestRoot contestRoot [--finals] [--auto-assign-team-ids]
  *
- * cmsLocation - the folder containing downloaded CMS files (typically output of CMSDownloadHelper)
+ * cmsClicsRoot - the folder containing downloaded CMS clics files
+ *
+ * cmsContestRoot - the folder containing downloaded CMS contest files
  *
  * contestRoot - a contest location, i.e. CDP/CAF root folder
  *
- * Use --finals to include a display_name in teams.tsv as used at ICPC World Finals
+ * Use --finals to include a display_name in teams.tsv as used at ICPC World Finals. Use
+ * --auto-assign-team-ids to auto assign team ids if they haven't been set yet
  */
 public class JsonToTSVConverter {
 	private static boolean FINALS_NAMING = false;
 	private static boolean AUTO_ASSIGN_TEAM_IDS = false;
 	private static final boolean OUTPUT_MISSING_NAMES = true;
 
-	public static class CMSWinner {
-		Organization inst;
-		String year;
-	}
-
-	public static class CMSStaffMember {
-		String id;
-		String firstName;
-		String lastName;
-		String role;
-	}
-
 	protected static List<Group> groupList = new ArrayList<>();
 	protected static List<Organization> orgList = new ArrayList<>();
 	protected static List<Team> teamList = new ArrayList<>();
 	protected static List<Person> personList = new ArrayList<>();
-	protected static List<CMSStaffMember> staffMemberList = new ArrayList<>();
-	protected static List<CMSWinner> winnerList = new ArrayList<>();
 	protected static List<String> contestIdList = new ArrayList<>();
 
 	protected static GoogleMapsGeocoder geocoder;
@@ -110,37 +93,11 @@ public class JsonToTSVConverter {
 		return s1.compareTo(s2);
 	}
 
-	protected static void generateHistory(File root) {
-		groupList = new ArrayList<>();
-		orgList = new ArrayList<>();
-		teamList = new ArrayList<>();
-		personList = new ArrayList<>();
-		winnerList = new ArrayList<>();
-		contestIdList = new ArrayList<>();
-
-		try {
-			for (int i = 0; i < CMSLogin.getContests().length; i++) {
-				staffMemberList = new ArrayList<>();
-				ContestInfo contestInfo = CMSLogin.getContests()[i];
-				File folder = new File(root, contestInfo.shortName);
-				readInstitutions(folder);
-				readTeams(folder);
-				readContest(folder);
-			}
-
-			for (Team t : teamList)
-				readTeamResults(t.getId());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	protected static void generateContest(File cmsClicsRoot, File cmsContestRoot, File contestRoot) {
 		groupList = new ArrayList<>();
 		orgList = new ArrayList<>();
 		teamList = new ArrayList<>();
 		personList = new ArrayList<>();
-		staffMemberList = new ArrayList<>();
 
 		try {
 			// load all institutions
@@ -156,7 +113,7 @@ public class JsonToTSVConverter {
 					return false;
 				}
 			});
-
+			
 			System.out.println("Loading " + files.length + " institutions");
 			for (File f : files) {
 				readInstitution(f);
@@ -167,7 +124,7 @@ public class JsonToTSVConverter {
 
 		Info info = null;
 		try {
-			System.out.println("Reading CMS data from tsvs: " + cmsClicsRoot);
+			System.out.println("Reading CMS clics data from: " + cmsClicsRoot);
 			TSVImporter.importGroups(groupList, cmsClicsRoot);
 			TSVImporter.importInstitutions(orgList, cmsClicsRoot);
 			TSVImporter.importTeams(teamList, cmsClicsRoot, AUTO_ASSIGN_TEAM_IDS);
@@ -177,48 +134,8 @@ public class JsonToTSVConverter {
 		}
 
 		try {
-			System.out.println("Reading CMS data from: " + cmsClicsRoot);
-			// File f = new File("/Users/deboer/ICPC/2020/finals/contestRoot/cms");
-			// readInstitutions();
-			/*readInstitutions(cmsClicsRoot);
-			readTeams(cmsClicsRoot);
-			info = readContest(cmsClicsRoot);
-			readStaff(cmsClicsRoot);*/
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try {
-			System.out.println("Reading CMS team members: " + cmsContestRoot);
+			System.out.println("Reading CMS contest persons: " + cmsContestRoot);
 			TSVImporter.importPersonsTab(personList, teamList, cmsContestRoot);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try {
-			// remove 20107: invitational teams
-			String invitationalId = "20107";
-
-			// remove unused institutions
-			List<Team> remove = new ArrayList<>();
-			for (Team t : teamList) {
-				String gid = t.getGroupIds()[0];
-				if (invitationalId.equals(gid))
-					remove.add(t);
-			}
-
-			System.out.println("Removing invitational: " + remove.size());
-			for (Team t : remove)
-				teamList.remove(t);
-
-			Group invGroup = null;
-			for (Group g : groupList) {
-				if (invitationalId.equals(g.getId()))
-					invGroup = g;
-			}
-
-			if (invGroup != null)
-				groupList.remove(invGroup);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -227,18 +144,7 @@ public class JsonToTSVConverter {
 			// repad team org ID's - CMS sucks
 			for (Team t : teamList) {
 				if (t.getOrganizationId().length() < 4)
-					t.add("organization_id", pad(t.getOrganizationId()));
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		try {
-			// repad orgs - CMS sucks
-			for (Organization o : orgList) {
-				if (o.getId().length() < 4)
-					o.add("id", pad(o.getId()));
+					t.add("organization_id", t.getOrganizationId());
 			}
 
 		} catch (Exception e) {
@@ -248,7 +154,7 @@ public class JsonToTSVConverter {
 		try {
 			System.out.println("Cleaning and sorting");
 			teamList.removeIf(t -> t.getId() == null);
-			personList.removeIf(m -> m.getTeamId() == null);
+			// personList.removeIf(m -> m.getTeamId() == null);
 
 			if (FINALS_NAMING) {
 				for (Team t : teamList) {
@@ -273,7 +179,8 @@ public class JsonToTSVConverter {
 				if (!usedOrgs.contains(o.getId()))
 					remove.add(o);
 			}
-			System.out.println("Removing orgs: " + remove.size() + " (" + (orgList.size() - remove.size()) + " left)");
+			System.out
+					.println("Removing unused orgs: " + remove.size() + " (" + (orgList.size() - remove.size()) + " left)");
 			for (Organization o : remove)
 				orgList.remove(o);
 
@@ -306,8 +213,6 @@ public class JsonToTSVConverter {
 			writeTeamsTSV(teamList, configFolder, true);
 			writeInstitutionsTSV(orgList, configFolder, false);
 			writeInstitutionsTSV(orgList, configFolder, true);
-			writeMembersTSV(personList, configFolder);
-			writeStaffMembersTSV(staffMemberList, configFolder);
 
 			writeContestJSON(info, configFolder);
 
@@ -380,14 +285,6 @@ public class JsonToTSVConverter {
 				System.err.println("Team with no institution: " + team.getId() + " - " + team.getName());
 		}
 		fw.close();
-	}
-
-	private static final String PAD = "0000";
-
-	private static String pad(String s) {
-		if (s.length() < 4)
-			return PAD.substring(0, 4 - s.length()) + s;
-		return s;
 	}
 
 	protected static void writeInstitutionsTSV(List<Organization> teams, File folder, boolean two) throws Exception {
@@ -485,299 +382,6 @@ public class JsonToTSVConverter {
 		pw.close();
 	}
 
-	protected static void writeAttr(FileWriter fw, boolean first, String name, String value) throws IOException {
-		if (value == null || value.isEmpty())
-			return;
-
-		if (!first)
-			fw.write(",");
-		fw.write("\"" + name + "\":" + "\"" + value + "\"");
-	}
-
-	protected static void writeSimpleAttr(FileWriter fw, boolean first, String name, String value) throws IOException {
-		if (!first)
-			fw.write(",");
-		fw.write("\"" + name + "\":" + "" + value + "");
-	}
-
-	protected static void writeMembersTSV(List<Person> members, File folder) throws Exception {
-		File f = new File(folder, "members.tsv");
-		FileWriter fw = new FileWriter(f);
-		fw.write("File_Version\t1\n");
-		for (Person member : members) {
-			fw.write(member.getTeamId());
-			fw.write("\t");
-			fw.write(member.getRole().substring(0, 1).toUpperCase());
-			fw.write(member.getRole().substring(1));
-			fw.write("\t");
-			fw.write(member.getFirstName());
-			fw.write("\t");
-			fw.write(member.getLastName());
-			fw.write("\t");
-			if ("male".equals(member.getSex()))
-				fw.write("M");
-			else if ("female".equals(member.getSex()))
-				fw.write("F");
-			fw.write("\n");
-		}
-		fw.close();
-	}
-
-	protected static void writeStaffMembersTSV(List<CMSStaffMember> members, File folder) throws Exception {
-		File f = new File(folder, "staff-members.tsv");
-		FileWriter fw = new FileWriter(f);
-		fw.write("File_Version\t1\n");
-		for (CMSStaffMember member : members) {
-			if (member.role != null)
-				fw.write(member.role);
-			fw.write("\t");
-			fw.write(member.firstName);
-			fw.write("\t");
-			fw.write(member.lastName);
-			fw.write("\n");
-		}
-		fw.close();
-	}
-
-	protected static void readTeams(File folder) throws Exception {
-		// File f = new File("/Users/deboer/ICPC/cms/2017/teams.json");
-		File f = new File(folder, "teams.json");
-
-		InputStream is = new FileInputStream(f);
-		JSONParser parser = new JSONParser(is);
-		JsonObject obj = parser.readObject();
-		Object[] teams = obj.getArray("teams");
-		for (Object teamObj : teams) {
-			JsonObject team = (JsonObject) teamObj;
-			// String name = team.getString("name");
-			String tId = team.getInt("externalReservationId") + "";
-			// int instId = team.getInt("institutionId");
-			// System.out.println("team: " + name + " (" + instId + ")");
-			// Team t =
-			getTeamByICPCId(tId);
-
-			if (team.containsKey("persons")) {
-				Object[] persons = (Object[]) team.get("persons");
-				for (Object personObj : persons) {
-					JsonObject person = (JsonObject) personObj;
-					String pId = person.getInt("personId") + "";
-					Person m = getMemberByICPCId(pId);
-					m.add("team_id", team.getInt("workstationId") + "");
-					m.add("first_name", person.getString("firstname"));
-					m.add("last_name", person.getString("lastname"));
-					if (person.containsKey("sex")) {
-						String sex = person.getString("sex");
-						if ("M".equalsIgnoreCase(sex))
-							m.add("sex", "male");
-						else if ("F".equalsIgnoreCase(sex))
-							m.add("sex", "female");
-					}
-					String role = person.getString("role").toLowerCase();
-					// if ("co-coach".equals(role))
-					// role = "coach";
-					m.add("role", role);
-					// System.out.println(" " + role + ": " + first + " " + last);
-				}
-			}
-
-			// CMSDownloadHelper.downloadTeam(instId+"", token);
-
-			/*System.out.print(result.getJsonObject("from").getString("name"));
-			System.out.print(": ");
-			System.out.println(result.getString("message", ""));
-			System.out.println("-----------");*/
-		}
-	}
-
-	protected static void readTeamResults(String id) throws Exception {
-		// File f = new File(CMSDownloadHelper.TEAM_FOLDER, id + "-past-results.json");
-		/*{
-		  "externalContestId": 56,
-		  "rank": 3,
-		  "problemssolved": 7,
-		  "totaltime": 1215,
-		  "lastproblemtime": 0
-		    }*/
-		/*InputStream is = new FileInputStream(f);
-		JsonReader rdr = Json.createReader(is);
-		JsonArray arr = rdr.readArray();
-		for (JsonObject result : arr.getValuesAs(JsonObject.class)) {
-			// String name = team.getString("name");
-			// String cId = result.getInt("externalContestId") + "";
-
-			// String rank = result.getInt("rank") + "";
-			// String problemssolved = result.getInt("problemssolved") + "";
-			// String totaltime = result.getInt("totaltime") + "";
-			// String lastproblemtime = result.getInt("lastproblemtime") + "";
-			// CMSTeam t = getTeam(tId);
-
-			// System.out.println(id + " " + cId + " " + rank + " " + contestIdList.contains(cId));
-		}*/
-	}
-
-	protected static void readStaff(File folder) throws Exception {
-		File f = new File(folder, "staff-members.json");
-
-		InputStream is = new FileInputStream(f);
-		JSONParser parser = new JSONParser(is);
-		JsonObject obj = parser.readObject();
-		Object[] persons = obj.getArray("persons");
-		for (Object personObj : persons) {
-			JsonObject person = (JsonObject) personObj;
-			String pId = person.getInt("personId") + "";
-			CMSStaffMember m = getStaffMember(pId);
-			m.firstName = person.getString("firstname");
-			if (m.firstName != null)
-				m.firstName = m.firstName.trim();
-			m.lastName = person.getString("lastname");
-			if (m.lastName != null)
-				m.lastName = m.lastName.trim();
-			m.role = person.getString("badgeRole");
-			if (m.role != null)
-				m.role = m.role.trim();
-		}
-	}
-
-	protected static void readInstitutions(File folder) throws Exception {
-		File f = new File(folder, "institutions.json");
-		JSONParser parser = new JSONParser(f);
-		JsonObject obj = parser.readObject();
-		Object[] insts = obj.getArray("institutions");
-		for (Object instObj : insts) {
-			JsonObject inst = (JsonObject) instObj;
-			String id = inst.getInt("institutionId") + "";
-			// String id = inst.getInt("institutionUnitAliasId") + "";
-			Organization i = getOrganizationById(id);
-			if (inst.getString("name") != null)
-				i.add("formal_name", inst.getString("name").trim());
-			i.add("name", inst.getString("shortName"));
-			i.add("url", inst.getString("homepageurl"));
-
-			if (inst.containsKey("twitterhash"))
-				i.add("twitter_hashtag", inst.getString("twitterhash"));
-			if (inst.containsKey("latitude") || inst.containsKey("longitude"))
-				i.add("location", "{\"latitude\":" + inst.getString("latitude") + ",\"longitude\":"
-						+ inst.getString("longitude") + "}");
-
-			// CMSDownloadHelper.downloadInstitution(id);
-
-			/*JsonArray persons = team.getJsonArray("persons");
-			if (persons != null) {
-				for (JsonObject person : persons.getValuesAs(JsonObject.class)) {
-					System.out.println("   firstname: " + person.getString("firstname"));
-					System.out.println("   lastname: " + person.getString("lastname"));
-					System.out.println("   role: " + person.getString("role"));
-				}
-			}*/
-		}
-	}
-
-	protected static void readInstitution(File f) throws Exception {
-		JSONParser parser = new JSONParser(f);
-		JsonObject obj = parser.readObject();
-		JsonObject inst = obj;
-		String id = inst.getInt("institutionId") + "";
-		// String id = inst.getInt("institutionUnitAliasId") + "";
-		Organization i = getOrganizationById(id);
-		if (inst.getString("name") != null)
-			i.add("formal_name", inst.getString("name").trim());
-		i.add("name", inst.getString("shortName"));
-		i.add("url", inst.getString("homepageurl"));
-
-		if (inst.containsKey("twitterhash"))
-			i.add("twitter_hashtag", inst.getString("twitterhash"));
-		if (inst.containsKey("latitude") || inst.containsKey("longitude"))
-			i.add("location",
-					"{\"latitude\":" + inst.getString("latitude") + ",\"longitude\":" + inst.getString("longitude") + "}");
-	}
-
-	protected static Info readContest(File folder) throws Exception {
-		File f = new File(folder, "wf.json");
-
-		InputStream is = new FileInputStream(f);
-		JSONParser parser = new JSONParser(is);
-		JsonObject obj = parser.readObject();
-		JsonObject contest = obj.getJsonObject("contest");
-		if (contest == null)
-			contest = obj;
-
-		Info info = new Info();
-		String name = contest.getString("contestName");
-		info.add("formal_name", name);
-		String cId = contest.getString("contestId");
-		contestIdList.add(cId);
-		info.add("id", cId);
-		String shortName = contest.getString("contestShortName");
-		info.add("name", shortName);
-
-		String start = contest.getString("contestStartDate");
-		info.add("start_time", start + "T01:00:00+00:00");
-		System.out.println(name + " (" + shortName + " - " + cId + ")");
-
-		Object[] groups = contest.getArray("group");
-		for (Object groupObj : groups) {
-			JsonObject group = (JsonObject) groupObj;
-			String id = group.getString("groupId");
-			Group g = getGroup(id);
-			g.add("name", group.getString("groupName"));
-
-			Object[] teams = group.getArray("team");
-			if (teams == null)
-				teams = group.getArray("teams");
-			for (Object teamObj : teams) {
-				JsonObject team = (JsonObject) teamObj;
-				id = team.getString("teamId");
-
-				// CMSDownloadHelper.downloadTeam(id);
-
-				Team t = getTeamByICPCId(id);
-				if (team.getString("teamName") != null)
-					t.add("name", team.getString("teamName").trim());
-
-				t.add("id", team.getString("teamNumber"));
-
-				String iname = team.getString("institutionName");
-				if (iname == null)
-					iname = team.getString("instName");
-				if (iname != null)
-					iname = iname.trim();
-				Organization i = getOrganizationByFormalName(iname);
-				if (i == null)
-					System.err.println("no inst: " + iname);
-				else {
-					i.add("country", team.getString("country"));
-					t.add("organization_id", i.getId());
-				}
-				// t.add("group_ids", "[\"" + g.getId() + "\"]");
-				t.add("group_ids", new String[] { g.getId() });
-
-				/*JsonArray teamMembers = team.getJsonArray("teamMember");
-				for (JsonObject member : teamMembers.getValuesAs(JsonObject.class)) {
-					String firstName = member.getString("firstName");
-					String lastName = member.getString("lastName");
-
-					CMSMember m = getMember(firstName, lastName);
-					m.role = member.getString("teamRole");
-					m.team = t;
-				}*/
-			}
-		}
-		return info;
-	}
-
-	private static Group getGroup(String id) {
-		for (Group g : groupList) {
-			if (g.getId().equals(id))
-				return g;
-		}
-
-		Group g = new Group();
-		g.add("id", id);
-		g.add("icpc_id", id);
-		groupList.add(g);
-		return g;
-	}
-
 	protected static Organization getOrganizationById(String id) {
 		for (Organization o : orgList) {
 			if (o.getId().equals(id))
@@ -794,14 +398,6 @@ public class JsonToTSVConverter {
 		return o;
 	}
 
-	private static Organization getOrganizationByFormalName(String name) {
-		for (Organization o : orgList) {
-			if (o.getFormalName().equals(name))
-				return o;
-		}
-		return null;
-	}
-
 	private static Team getTeamFromOrganization(String orgId) {
 		for (Team t : teamList) {
 			if (t.getOrganizationId().equals(orgId))
@@ -809,43 +405,5 @@ public class JsonToTSVConverter {
 		}
 
 		return null;
-	}
-
-	private static Team getTeamByICPCId(String id) {
-		for (Team t : teamList) {
-			if (t.getICPCId().equals(id))
-				return t;
-		}
-
-		Team t = new Team();
-		t.add("id", id);
-		t.add("icpc_id", id);
-		teamList.add(t);
-		return t;
-	}
-
-	private static CMSStaffMember getStaffMember(String id) {
-		for (CMSStaffMember m : staffMemberList) {
-			if (m.id.equals(id))
-				return m;
-		}
-
-		CMSStaffMember m = new CMSStaffMember();
-		m.id = id;
-		staffMemberList.add(m);
-		return m;
-	}
-
-	private static Person getMemberByICPCId(String id) {
-		for (Person m : personList) {
-			if (m.getICPCId().equals(id))
-				return m;
-		}
-
-		Person m = new Person();
-		m.add("id", id);
-		m.add("icpc_id", id);
-		personList.add(m);
-		return m;
 	}
 }
