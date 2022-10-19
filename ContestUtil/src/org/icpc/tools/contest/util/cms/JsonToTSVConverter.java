@@ -66,17 +66,13 @@ public class JsonToTSVConverter {
 		if (args.length >= 4)
 			geocoder = new GoogleMapsGeocoder(args[3]);
 
-		if (args.length >= 5 && "--finals".equals(args[4]))
-			FINALS_NAMING = true;
+		for (String s : args)
+			if ("--finals".equals(s))
+				FINALS_NAMING = true;
 
-		if (args.length >= 6 && "--finals".equals(args[5]))
-			FINALS_NAMING = true;
-
-		if (args.length >= 5 && "--auto-assign-team-ids".equals(args[4]))
-			AUTO_ASSIGN_TEAM_IDS = true;
-
-		if (args.length >= 6 && "--auto-assign-team-ids".equals(args[5]))
-			AUTO_ASSIGN_TEAM_IDS = true;
+		for (String s : args)
+			if ("--auto-assign-team-ids".equals(s))
+				AUTO_ASSIGN_TEAM_IDS = true;
 
 		generateContest(cmsClicsRoot, cmsContestRoot, contestRoot);
 	}
@@ -113,7 +109,7 @@ public class JsonToTSVConverter {
 					return false;
 				}
 			});
-			
+
 			System.out.println("Loading " + files.length + " institutions");
 			for (File f : files) {
 				readInstitution(f);

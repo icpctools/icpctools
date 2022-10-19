@@ -151,11 +151,16 @@ public class TSVImporter {
 					if (st.length > 6)
 						add(org, HASHTAG, st[6]);
 					if (st.length > 8) {
+						if (st.length == 10) {
+							// assume CMS extra column issue, move things for now
+							System.arraycopy(st, 8, st, 7, st.length - 8);
+						}
+
 						JsonObject obj = new JsonObject();
+						if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
+							obj.props.put("latitude", st[7]);
 						if (st[8] != null && !st[8].trim().isEmpty() && !"null".equals(st[8]))
-							obj.props.put("latitude", st[8]);
-						if (st[9] != null && !st[9].trim().isEmpty() && !"null".equals(st[9]))
-							obj.props.put("longitude", st[9]);
+							obj.props.put("longitude", st[8]);
 						if (obj.containsKey("latitude") && obj.containsKey("longitude"))
 							org.add(LOCATION, obj);
 					}

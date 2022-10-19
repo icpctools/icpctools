@@ -53,58 +53,58 @@ public class FloorGeneratorDhaka extends FloorGenerator {
 			floor.createAisle(-taw * 9, y, taw * 9, y);
 
 			y += aisle / 2;
-			floor.createTeamRow(6, 0, taw * 6, y, FloorMap.S, false, true);
-			floor.createTeamRow(7, 6, -taw * 1, y, FloorMap.S, false, true);
+			floor.createTeamRow(5, 0, taw * 6, y, FloorMap.S, false, true);
+			floor.createTeamRow(6, 5, -taw * 2, y, FloorMap.S, false, true);
 
 			y += tad / 2;
-			floor.createTeamRow(7, 13, -taw * 7, y, FloorMap.N, false, true);
-			floor.createTeamRow(6, 20, taw * 1, y, FloorMap.N, false, true);
+			floor.createTeamRow(6, 11, -taw * 7, y, FloorMap.N, false, true);
+			floor.createTeamRow(5, 17, taw * 2, y, FloorMap.N, false, true);
 			y += aisle / 2;
 
 			floor.createAisle(-taw * 9, y, taw * 9, y);
 			float aisle1 = y;
 
 			y += aisle / 2;
-			floor.createTeamRow(8, 26, taw * 8, y, FloorMap.S, false, true);
-			floor.createTeamRow(8, 34, -taw * 1, y, FloorMap.S, false, true);
+			floor.createTeamRow(8, 22, taw * 8, y, FloorMap.S, false, true);
+			floor.createTeamRow(8, 30, -taw * 1, y, FloorMap.S, false, true);
 
 			y += tad / 2;
-			floor.createTeamRow(8, 42, -taw * 8, y, FloorMap.N, false, true);
-			floor.createTeamRow(8, 50, taw * 1, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 38, -taw * 8, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 46, taw * 1, y, FloorMap.N, false, true);
 			y += aisle / 2;
 
 			floor.createAisle(-taw * 9, y, taw * 9, y);
 
 			y += aisle / 2;
-			floor.createTeamRow(8, 58, taw * 8, y, FloorMap.S, false, true);
-			floor.createTeamRow(8, 66, -taw * 1, y, FloorMap.S, false, true);
+			floor.createTeamRow(8, 54, taw * 8, y, FloorMap.S, false, true);
+			floor.createTeamRow(8, 62, -taw * 1, y, FloorMap.S, false, true);
 
 			y += tad / 2;
-			floor.createTeamRow(8, 74, -taw * 8, y, FloorMap.N, false, true);
-			floor.createTeamRow(8, 82, taw * 1, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 70, -taw * 8, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 78, taw * 1, y, FloorMap.N, false, true);
 			y += aisle / 2;
 
 			floor.createAisle(-taw * 9, y, taw * 9, y);
 
 			y += aisle / 2;
-			floor.createTeamRow(8, 90, taw * 8, y, FloorMap.S, false, true);
-			floor.createTeamRow(8, 98, -taw * 1, y, FloorMap.S, false, true);
+			floor.createTeamRow(8, 86, taw * 8, y, FloorMap.S, false, true);
+			floor.createTeamRow(8, 94, -taw * 1, y, FloorMap.S, false, true);
 
 			y += tad / 2;
-			floor.createTeamRow(8, 106, -taw * 8, y, FloorMap.N, false, true);
-			floor.createTeamRow(8, 114, taw * 1, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 102, -taw * 8, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 110, taw * 1, y, FloorMap.N, false, true);
 			y += aisle / 2;
 
 			floor.createAisle(-taw * 9, y, taw * 9, y);
 			float aisle4 = y;
 
 			y += aisle / 2;
-			floor.createTeamRow(4, 122, taw * 6, y, FloorMap.S, false, true);
-			floor.createTeamRow(6, 126, -taw * 2, y, FloorMap.S, false, true);
+			floor.createTeamRow(5, 118, taw * 6, y, FloorMap.S, false, true);
+			floor.createTeamRow(6, 123, -taw * 2, y, FloorMap.S, false, true);
 
 			y += tad / 2;
-			floor.createTeamRow(6, 132, -taw * 7, y, FloorMap.N, false, true);
-			floor.createTeamRow(4, 138, taw * 3, y, FloorMap.N, false, true);
+			floor.createTeamRow(6, 129, -taw * 7, y, FloorMap.N, false, true);
+			floor.createTeamRow(5, 135, taw * 2, y, FloorMap.N, false, true);
 			y += aisle / 2;
 
 			floor.createAisle(-taw * 9, y, taw * 9, y);
@@ -120,14 +120,20 @@ public class FloorGeneratorDhaka extends FloorGenerator {
 			floor.createAisle(-taw * 9, aisle4, -taw * 8, y);
 			floor.createAisle(taw * 9, aisle4, taw * 7, y);
 
-			floor.createAisle(taw * 2, aisle4, -taw, y);
-			floor.createAisle(-taw, aisle4, taw * 2, y);
+			// X aisle at top
+			floor.createAisle(taw, aisle1, -taw, 0);
+			floor.createAisle(-taw, aisle1, taw, 0);
+
+			// X aisle at bottom
+			floor.createAisle(taw, aisle4, -taw, y);
+			floor.createAisle(-taw, aisle4, taw, y);
 
 			IPrinter p = floor.createPrinter(taw * 10, aisle1);
 
 			// convert spares
 			floor.makeSpare(0);
-			floor.makeSpare(141);
+			floor.makeSpare(138);
+			floor.makeSpare(139);
 
 			if (args != null && args.length > 0) {
 				File f = new File(args[0]);
