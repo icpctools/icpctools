@@ -47,6 +47,7 @@ public class Launcher {
 		System.out.println("     LogoUtil");
 		System.out.println("     RescaleImages");
 		System.out.println("     ScreenMaskUtil");
+		System.out.println("     cms.JsonToTSVConverter");
 		System.out.println("");
 		System.out.println("ex: contestUtil.bat LogoUtil");
 	}
