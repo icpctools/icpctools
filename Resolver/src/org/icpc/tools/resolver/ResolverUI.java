@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.presentations.MessagePresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.JudgePresentation2;
@@ -352,7 +353,7 @@ public class ResolverUI {
 			g.fillRect(0, d.height - fm.getHeight() - 10, d.width, fm.getHeight() + 10);
 			g.setComposite(AlphaComposite.SrcOver);
 			g.setColor(Color.WHITE);
-			g.drawString(s, 10, d.height - fm.getDescent() - 5);
+			TextHelper.drawString(g, s, 10, d.height - fm.getDescent() - 5);
 
 			// poke fun at John
 			if (thread != null && thread.isAlive())
