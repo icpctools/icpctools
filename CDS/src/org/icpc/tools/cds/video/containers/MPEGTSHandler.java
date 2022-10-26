@@ -37,7 +37,7 @@ public class MPEGTSHandler extends VideoHandler {
 	}
 
 	@Override
-	protected void createReader(InputStream in, Object stream, IStreamListener listener) throws IOException {
+	protected void createReader(InputStream in, IStore stream, IStreamListener listener) throws IOException {
 		byte[] b = new byte[PACKET_LEN * 500]; // a little over 90K
 		int offset = 0;
 		int len = 0;

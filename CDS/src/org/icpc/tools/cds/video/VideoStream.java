@@ -14,11 +14,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoAggregator.Status;
+import org.icpc.tools.cds.video.VideoHandler.IStore;
 import org.icpc.tools.cds.video.VideoHandler.IStreamListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
-public class VideoStream {
+public class VideoStream implements IStore {
 	private final ThreadPoolExecutor executor;
 	private final VideoHandler handler;
 	private final Stats stats = new Stats();
@@ -85,7 +86,15 @@ public class VideoStream {
 		return listeners.size();
 	}
 
-	public void writeHeader(VideoStreamListener listener) throws IOException {
+	protected String getFileExtension() {
+		return handler.getFileExtension();
+	}
+
+	public String getMimeType() {
+		return handler.getMimeType();
+	}
+
+	private void writeHeader(VideoStreamListener listener) throws IOException {
 		handler.writeHeader(this, new IStreamListener() {
 			@Override
 			public void write(final byte[] b) {
@@ -150,9 +159,17 @@ public class VideoStream {
 		}
 	}
 
-	public void addListener(VideoStreamListener listener) {
+	/**
+	 * Add a new listener, and output header information (if there is any for the current format).
+	 *
+	 * @param listener
+	 * @throws IOException
+	 */
+	public void addListener(VideoStreamListener listener) throws IOException {
 		if (listener == null)
 			return;
+
+		writeHeader(listener);
 
 		boolean isListening = false;
 		synchronized (listeners) {
@@ -195,6 +212,7 @@ public class VideoStream {
 					}
 				}
 			}
+			object = null;
 		}
 
 		if (worked)
@@ -273,7 +291,7 @@ public class VideoStream {
 	}
 
 	private void startReadThread() {
-		handler.clearCache(this);
+		object = null;
 
 		URL url2 = null;
 		try {
@@ -332,6 +350,15 @@ public class VideoStream {
 						}*/
 
 						in = conn.getInputStream();
+
+						if (in.markSupported()) {
+							in.mark(50);
+							if (!handler.validate(in)) {
+								// stream not configured correctly
+								Trace.trace(Trace.WARNING, "Stream didn't validate, likely mis-configuration");
+							}
+							in.reset();
+						}
 
 						handler.createReader(in, VideoStream.this, new IStreamListener() {
 							@Override
@@ -444,5 +471,17 @@ public class VideoStream {
 			}
 			status = Status.UNKNOWN;
 		}
+	}
+
+	protected Object object;
+
+	@Override
+	public void setObject(Object obj) {
+		this.object = obj;
+	}
+
+	@Override
+	public Object getObject() {
+		return object;
 	}
 }

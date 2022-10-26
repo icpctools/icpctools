@@ -230,7 +230,6 @@ public class PlaybackContest extends Contest {
 		if (in == null || in.isEmpty())
 			return null;
 
-		String mimeType = VideoAggregator.getMimeType();
 		FileReferenceList list = new FileReferenceList();
 		for (Integer i : in) {
 			FileReference ref = new FileReference();
@@ -239,7 +238,7 @@ public class PlaybackContest extends Contest {
 				ref.href = vs.getURL();
 			else
 				ref.href = "http://<host>/stream/" + i;
-			ref.mime = mimeType;
+			ref.mime = vs.getMimeType();
 			list.add(ref);
 		}
 		return list;

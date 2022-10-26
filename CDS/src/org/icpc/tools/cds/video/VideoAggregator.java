@@ -127,10 +127,6 @@ public class VideoAggregator {
 		return videoStreams;
 	}
 
-	public static String getMimeType() {
-		return handler.getMimeType();
-	}
-
 	public int addReservation(String name, String url, StreamType type, ConnectionMode mode) {
 		return addReservation(name, url, mode, type, null);
 	}
@@ -158,7 +154,7 @@ public class VideoAggregator {
 		return channels[channel].stream;
 	}
 
-	public boolean setChannel(int channel, int stream) {
+	public boolean setChannel(int channel, int stream) throws IOException {
 		if (channel < 0 || channel >= MAX_CHANNELS)
 			return false;
 
@@ -188,7 +184,7 @@ public class VideoAggregator {
 		return true;
 	}
 
-	public void addChannelListener(int channel, VideoStreamListener listener) {
+	public void addChannelListener(int channel, VideoStreamListener listener) throws IOException {
 		if (channel < 0 || channel >= MAX_CHANNELS || listener == null)
 			return;
 
@@ -219,20 +215,6 @@ public class VideoAggregator {
 			return null;
 
 		return videoStreams.get(stream).getType();
-	}
-
-	public void writeHeader(int stream, VideoStreamListener listener) throws IOException {
-		if (stream < 0 || stream >= videoStreams.size())
-			return;
-
-		videoStreams.get(stream).writeHeader(listener);
-	}
-
-	public void addStreamListener(int stream, VideoStreamListener listener) {
-		if (stream < 0 || stream >= videoStreams.size() || listener == null)
-			return;
-
-		videoStreams.get(stream).addListener(listener);
 	}
 
 	public static ConnectionMode getConnectionMode(String s) {

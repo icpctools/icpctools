@@ -112,11 +112,13 @@ public class ReactionVideoRecorder {
 		if (!submissionDir.exists())
 			submissionDir.mkdirs();
 
-		File file = new File(submissionDir, "reaction.m2ts");
+		VideoHandler handler = VideoAggregator.handler;
+		String extension = handler.getFileExtension();
+		File file = new File(submissionDir, "reaction." + extension);
 		if (file.exists()) { // recordings already exist, just return the files
 			FileReferenceList list = new FileReferenceList();
-			File[] files = submissionDir.listFiles(
-					(dir, name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith(".m2ts")));
+			File[] files = submissionDir.listFiles((dir,
+					name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith("." + extension)));
 
 			if (files != null) {
 				for (File f : files) {
@@ -124,7 +126,7 @@ public class ReactionVideoRecorder {
 					ref.filename = f.getName();
 					String name = f.getName().substring(0, f.getName().length() - 5);
 					ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
-					ref.mime = "application/m2ts";
+					ref.mime = handler.getMimeType();
 					ref.file = f;
 					list.add(ref);
 				}
@@ -148,7 +150,7 @@ public class ReactionVideoRecorder {
 		FileReferenceList list = new FileReferenceList();
 		for (int i = 0; i < numStreams; i++) {
 			if (i > 0)
-				file = new File(submissionDir, "reaction-" + (i + 1) + ".m2ts");
+				file = new File(submissionDir, "reaction-" + (i + 1) + "." + extension);
 			info.file[i] = file;
 			info.stream[i] = streams.get(i);
 
@@ -184,16 +186,21 @@ public class ReactionVideoRecorder {
 
 				info.listener[i] = new VideoStreamListener(info.out[i], true);
 
-				VideoAggregator aggregator = VideoAggregator.getInstance();
-				Trace.trace(Trace.INFO, "Recording reaction for " + submissionId + " from " + teamId + " on "
-						+ aggregator.getStreamName(info.stream[i]));
-				aggregator.addStreamListener(info.stream[i], info.listener[i]);
+				VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[i]);
+				Trace.trace(Trace.INFO,
+						"Recording reaction for " + submissionId + " from " + teamId + " on " + stream.getName());
+				try {
+					stream.addListener(info.listener[i]);
+				} catch (Exception e) {
+					Trace.trace(Trace.WARNING, "Could not write header info for reaction " + submissionId);
+				}
 			}
 
+			VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[0]);
 			FileReference ref = new FileReference();
 			String name = file.getName().substring(0, file.getName().length() - 5);
 			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
-			ref.mime = "application/m2ts";
+			ref.mime = stream.getMimeType();
 			ref.file = file;
 			list.add(ref);
 		}
@@ -249,7 +256,7 @@ public class ReactionVideoRecorder {
 	}
 
 	public static void streamReaction(ConfiguredContest cc, ISubmission submission, HttpServletRequest request,
-			HttpServletResponse response) throws IOException { // TODO
+			HttpServletResponse response) throws IOException {
 		String rootFolder = cc.getLocation();
 		if (rootFolder == null) {
 			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -268,11 +275,13 @@ public class ReactionVideoRecorder {
 			return;
 		}
 
+		VideoHandler handler = VideoAggregator.handler;
+		String extension = handler.getFileExtension();
 		File submissionDir = new File(rootFolder, "submissions" + File.separator + submission.getId());
-		File file = new File(submissionDir, "reaction" + ".m2ts"); // TODO 3 per team
+		File file = new File(submissionDir, "reaction" + "." + extension); // TODO 3 per team
 		if (!file.exists()) {
 			if (cc.isTesting())
-				file = new File(CDSConfig.getFolder(), "test" + File.separator + "reaction.m2ts");
+				file = new File(CDSConfig.getFolder(), "test" + File.separator + "reaction." + extension);
 
 			// otherwise, fail
 			if (!file.exists()) {
@@ -281,8 +290,9 @@ public class ReactionVideoRecorder {
 			}
 		}
 
-		response.setContentType("application/octet");
-		response.setHeader("Content-Disposition", "inline; filename=\"reaction" + submission.getId() + ".m2ts\"");
+		response.setContentType(handler.getMimeType());
+		response.setHeader("Content-Disposition",
+				"inline; filename=\"reaction" + submission.getId() + "." + extension + "\"");
 
 		final File tempFile = new File(submissionDir, file.getName() + "-temp");
 		if (!tempFile.exists()) {
