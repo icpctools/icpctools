@@ -3,14 +3,10 @@ package org.icpc.tools.cds.video.containers;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.icpc.tools.cds.video.VideoHandler;
 
 public class FLVHandler extends VideoHandler {
-	private Map<Object, FLVReader> readers = new HashMap<>();
-
 	@Override
 	protected String getFileExtension() {
 		return "flv";
@@ -39,7 +35,7 @@ public class FLVHandler extends VideoHandler {
 	}
 
 	@Override
-	protected void writeHeader(Object stream, IStreamListener listener) throws IOException {
+	protected void writeHeader(IStore store, IStreamListener listener) throws IOException {
 		// TODO
 		/*FLVWriter.writeHeader(new DataOutputStream(out));
 
@@ -49,17 +45,12 @@ public class FLVHandler extends VideoHandler {
 	}
 
 	@Override
-	protected void clearCache(Object stream) {
-		readers.remove(stream);
-	}
-
-	@Override
-	protected void createReader(InputStream in, Object stream, IStreamListener listener) throws IOException {
+	protected void createReader(InputStream in, IStore store, IStreamListener listener) throws IOException {
 		final DataInputStream din = new DataInputStream(in);
-		FLVReader r = readers.get(stream);
+		FLVReader r = (FLVReader) store.getObject();
 		if (r == null) {
 			r = new FLVReader();
-			readers.put(stream, r);
+			store.setObject(r);
 		}
 
 		r.read(din, listener);

@@ -14,6 +14,16 @@ public abstract class VideoHandler {
 		boolean isDone();
 	}
 
+	/**
+	 * Interface to set and get a stream-specific object, most commonly used to store header
+	 * information.
+	 */
+	public interface IStore {
+		void setObject(Object obj);
+
+		Object getObject();
+	}
+
 	protected abstract String getFileExtension();
 
 	protected abstract String getMimeType();
@@ -32,13 +42,9 @@ public abstract class VideoHandler {
 	 *
 	 * @throws IOException
 	 */
-	protected void writeHeader(Object stream, IStreamListener listener) throws IOException {
-		// ignore
+	protected void writeHeader(IStore store, IStreamListener listener) throws IOException {
+		// default no-op
 	}
 
-	protected void clearCache(Object stream) {
-		// ignore
-	}
-
-	protected abstract void createReader(InputStream in, Object stream, IStreamListener listener) throws IOException;
+	protected abstract void createReader(InputStream in, IStore store, IStreamListener listener) throws IOException;
 }

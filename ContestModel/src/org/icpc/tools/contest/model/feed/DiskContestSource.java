@@ -66,6 +66,7 @@ public class DiskContestSource extends ContestSource {
 
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
+	private static final String[] VIDEO_EXTENSIONS = new String[] { "m2ts", "ogg", "flv", };
 
 	protected File eventFeedFile;
 	private File root;
@@ -619,6 +620,12 @@ public class DiskContestSource extends ContestSource {
 		return ref;
 	}
 
+	/**
+	 * Return mime-type based on filename.
+	 *
+	 * @param name
+	 * @return
+	 */
 	private static String getMimeType(String name) {
 		if (name.endsWith(".zip"))
 			return "application/zip";
@@ -629,7 +636,11 @@ public class DiskContestSource extends ContestSource {
 		else if (name.endsWith(".svg"))
 			return "image/svg+xml";
 		else if (name.endsWith(".m2ts"))
-			return "video/MP2T";
+			return "video/m2ts";
+		else if (name.endsWith(".ogg"))
+			return "video/ogg";
+		else if (name.endsWith(".flv"))
+			return "video/x-flv";
 		else if (name.endsWith(".txt"))
 			return "text/plain";
 		else if (name.endsWith(".log"))
@@ -637,6 +648,12 @@ public class DiskContestSource extends ContestSource {
 		return null;
 	}
 
+	/**
+	 * Return filename based on mime-type.
+	 *
+	 * @param mimeType
+	 * @return
+	 */
 	private static String getExtension(String mimeType) {
 		if (mimeType == null)
 			return null;
@@ -649,8 +666,12 @@ public class DiskContestSource extends ContestSource {
 			return "jpg";
 		else if (mimeType.equals("image/svg+xml"))
 			return "svg";
-		else if (mimeType.equals("video/MP2T"))
+		else if (mimeType.equals("video/MP2T") || mimeType.equals("video/m2ts"))
 			return "m2ts";
+		else if (mimeType.equals("video/ogg"))
+			return "ogg";
+		else if (mimeType.equals("video/x-flv"))
+			return "flv";
 		else if (mimeType.equals("text/plain"))
 			return "txt";
 		return null;
@@ -827,7 +848,7 @@ public class DiskContestSource extends ContestSource {
 			if (PHOTO.equals(property))
 				return new FilePattern(type, id, property, PHOTO_EXTENSIONS);
 			if (VIDEO.equals(property))
-				return new FilePattern(type, id, property, "m2ts");
+				return new FilePattern(type, id, property, VIDEO_EXTENSIONS);
 			if (BACKUP.equals(property))
 				return new FilePattern(type, id, property, "zip");
 			if (KEY_LOG.equals(property))
@@ -846,7 +867,7 @@ public class DiskContestSource extends ContestSource {
 			if (FILES.equals(property))
 				return new FilePattern(type, id, property, "zip");
 			if (REACTION.equals(property))
-				return new FilePattern(type, id, property, "m2ts");
+				return new FilePattern(type, id, property, VIDEO_EXTENSIONS);
 		} else if (type == ContestType.GROUP) {
 			if (LOGO.equals(property))
 				return new FilePattern(type, id, property, LOGO_EXTENSIONS);

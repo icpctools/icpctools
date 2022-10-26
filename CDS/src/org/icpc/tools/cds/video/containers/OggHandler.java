@@ -3,9 +3,7 @@ package org.icpc.tools.cds.video.containers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.cds.video.VideoHandler;
 
@@ -13,8 +11,6 @@ import org.icpc.tools.cds.video.VideoHandler;
  * Ogg container handler.
  */
 public class OggHandler extends VideoHandler {
-	private Map<Object, List<byte[]>> headers = new HashMap<>();
-
 	@Override
 	protected String getFileExtension() {
 		return "ogg";
@@ -26,18 +22,14 @@ public class OggHandler extends VideoHandler {
 	}
 
 	@Override
-	protected void writeHeader(Object stream, IStreamListener listener) throws IOException {
-		List<byte[]> hdr = headers.get(stream);
+	protected void writeHeader(IStore store, IStreamListener listener) throws IOException {
+		@SuppressWarnings("unchecked")
+		List<byte[]> hdr = (List<byte[]>) store.getObject();
 		if (hdr == null)
 			return;
 
 		for (byte[] b : hdr)
 			listener.write(b);
-	}
-
-	@Override
-	protected void clearCache(Object stream) {
-		headers.remove(stream);
 	}
 
 	@Override
@@ -58,7 +50,7 @@ public class OggHandler extends VideoHandler {
 	}
 
 	@Override
-	protected void createReader(InputStream in, Object stream, IStreamListener listener) throws IOException {
+	protected void createReader(InputStream in, IStore store, IStreamListener listener) throws IOException {
 		byte[] b = new byte[27];
 
 		while (!listener.isDone()) {
@@ -110,10 +102,11 @@ public class OggHandler extends VideoHandler {
 				System.arraycopy(bb, 0, hdr2, b.length, bb.length);
 				System.arraycopy(d, 0, hdr2, b.length + bb.length, d.length);
 
-				List<byte[]> hdr = headers.get(stream);
+				@SuppressWarnings("unchecked")
+				List<byte[]> hdr = (List<byte[]>) store.getObject();
 				if (hdr == null) {
 					hdr = new ArrayList<byte[]>(8);
-					headers.put(stream, hdr);
+					store.setObject(hdr);
 				}
 				hdr.add(hdr2);
 			}
