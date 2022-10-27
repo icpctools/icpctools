@@ -399,7 +399,8 @@ public class ContestRESTService extends HttpServlet {
 			}
 
 			if (obj instanceof ITeam) {
-				if (!cc.isAnalyst(request) && (url.startsWith("key_log") || url.startsWith("tool_data"))) {
+				if (!cc.isAnalyst(request)
+						&& (url.startsWith("key_log") || url.startsWith("tool_data") || url.startsWith("backup"))) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 					return true;
 				}
