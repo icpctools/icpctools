@@ -2,12 +2,23 @@
 
 ## V2.5 - TBD
 -----------------
-* Contest API improvements:
-  * Will be first release to support breaking changes in next spec release.
+* First release supporting the 2022-07 release of the Contest API spec.
+* Dropped Java 8 support (now Java 11 minimum, and Java 17 recommended).
+* Updated dependencies: Liberty, SnakeYaml, VLCJ, AdminLTE. 
 * CDS:
+  * Everything (almost) is now over HTTPS (with redirects).
   * User accounts are now defined via accounts.yaml or .json.
+  * Support for OGG video (for now, enabled via ICPC_OGG=true system property)
+  * Contest comparison includes all contest types.
+* Presentation client:
+  * New animated splash screen.
+  * New key bindings. e.g. Ctrl-D to see fps, #s for paging scoreboards.
+  * Commentary presentation formatting improved.
 * Balloon utility:
   * Don't print balloons by default when problem UUID matches another solved problem.
+  * Switched to AWT printing to avoid issues on Linux.
+* Coach view:
+  * Support for Ogg video.
 
 ## V2.4 - April 2022
 -----------------

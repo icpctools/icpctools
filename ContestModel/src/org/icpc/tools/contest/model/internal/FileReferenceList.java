@@ -19,6 +19,13 @@ public class FileReferenceList implements Iterable<FileReference> {
 	}
 
 	public FileReferenceList(Object value) {
+		if (value instanceof FileReferenceList) {
+			FileReferenceList list = (FileReferenceList) value;
+			for (FileReference ref : list.refs)
+				refs.add(ref);
+
+			return;
+		}
 		Object[] objs = JSONParser.getOrReadArray(value);
 		for (Object obj : objs) {
 			refs.add(new FileReference((JsonObject) obj));
