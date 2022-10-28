@@ -28,6 +28,7 @@ import javax.imageio.stream.FileImageOutputStream;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -46,6 +47,7 @@ import org.icpc.tools.contest.model.internal.Organization;
  */
 public class ImagesGenerator {
 	private static final String DEFAULT_NAME = "logo.png";
+	private static final String DEFAULT_PHOTO_NAME = "photo.";
 	private static final int MAX_LOGO_SIZE = 1080;
 	private static final int MIN_SIZE = 250;
 	private static final int HD_MARGIN = 15;
@@ -92,7 +94,7 @@ public class ImagesGenerator {
 
 		File contestRoot = new File(args[1]);
 		if (!contestRoot.exists()) {
-			Trace.trace(Trace.ERROR, "Contest data package could not be found: " + contestRoot.getAbsolutePath());
+			Trace.trace(Trace.ERROR, "Contest package format could not be found: " + contestRoot.getAbsolutePath());
 			System.exit(0);
 			return;
 		}
@@ -156,6 +158,9 @@ public class ImagesGenerator {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		Trace.trace(Trace.USER, "----- Generating person photos -----");
+		generator.generatePersonPhotos();
 
 		Trace.trace(Trace.USER, "----- Done generating -----");
 		Trace.trace(Trace.USER, (System.currentTimeMillis() - time) + " ms");
@@ -478,6 +483,95 @@ public class ImagesGenerator {
 		Trace.trace(Trace.USER, numWarnings + " warnings out of " + contest.getNumOrganizations());
 	}
 
+	public void generatePersonPhotos() {
+		File sourceRoot = new File(cmsRoot, "ProfilePictures");
+		if (!sourceRoot.exists()) {
+			Trace.trace(Trace.ERROR, "Couldn't find CMS profile pictures folder. Exiting");
+			return;
+		}
+
+		File personRootFolder = new File(contestRoot, "persons");
+		int numWarnings = 0;
+
+		// generate files
+		File[] imageFiles = sourceRoot.listFiles();
+		for (File imgFile : imageFiles) {
+			try {
+				String personStr = imgFile.getName();
+				Trace.trace(Trace.USER, "Generating photo for: " + personStr);
+
+				IPerson person = null;
+				String pn = imgFile.getName().toLowerCase();
+				for (IPerson p : contest.getPersons()) {
+					int count = 0;
+					String[] s = p.getName().split(" ");
+					for (String ss : s)
+						if (pn.contains(ss.toLowerCase()))
+							count++;
+					if (pn.contains(p.getRole().toLowerCase()))
+						count++;
+					if (count == s.length + 1)
+						person = p;
+				}
+
+				if (person == null) {
+					Trace.trace(Trace.USER, "  No match " + contest.getNumPersons());
+					continue;
+				}
+
+				long mod = imgFile.lastModified();
+				BufferedImage img = ImageIO.read(imgFile);
+				if (img == null)
+					continue;
+
+				img = removeBorders(img);
+
+				File personFolder = new File(personRootFolder, person.getId());
+				if (!personFolder.exists())
+					personFolder.mkdirs();
+				else {
+					// clean up old photos
+					File[] files = personFolder.listFiles();
+					for (File ff : files) {
+						if (ff.getName().startsWith("photo") && ff.getName().endsWith(".png") && ff.lastModified() != mod)
+							ff.delete();
+					}
+				}
+
+				boolean hasAlpha = img.getTransparency() != Transparency.OPAQUE;
+				File file = new File(personFolder, DEFAULT_PHOTO_NAME + "jpg");
+				if (hasAlpha)
+					file = new File(personFolder, DEFAULT_PHOTO_NAME + "png");
+				if (!file.exists()) {
+					BufferedImage scImg = img;
+					if (img.getWidth() > MAX_LOGO_SIZE || img.getHeight() > MAX_LOGO_SIZE)
+						scImg = ImageScaler.scaleImage(img, MAX_LOGO_SIZE, MAX_LOGO_SIZE);
+					if (hasAlpha)
+						ImageIO.write(scImg, "png", file);
+					else
+						ImageIO.write(scImg, "jpg", file);
+					file.setLastModified(mod);
+					if (!file.exists())
+						System.err.println("What??");
+				}
+
+				/*BufferedImage scImg = ImageScaler.scaleImage(img, ICON.width, ICON.height);
+				double aspect = scImg.getWidth() / (double) scImg.getHeight();
+				if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
+					writePhotoWithSize(scImg, personFolder, mod);*/
+
+				BufferedImage scImg = ImageScaler.scaleImage(img, TILE.width, TILE.height);
+				double aspect = scImg.getWidth() / (double) scImg.getHeight();
+				if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
+					writePhotoWithSize(scImg, personFolder, mod);
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
+			}
+		}
+
+		Trace.trace(Trace.USER, numWarnings + " warnings out of " + contest.getNumPersons());
+	}
+
 	private static void createDesktop(BufferedImage img, String name, Font[] fonts, File file) throws IOException {
 		BufferedImage newImg = new BufferedImage(DESKTOP.width, DESKTOP.height, Transparency.OPAQUE);
 		Graphics2D g = (Graphics2D) newImg.getGraphics();
@@ -580,11 +674,32 @@ public class ImagesGenerator {
 		return name.substring(0, ind) + "." + img.getWidth() + "x" + img.getHeight() + name.substring(ind);
 	}
 
+	private static String getPhotoFileName(BufferedImage img) {
+		String name = DEFAULT_PHOTO_NAME;
+		int ind = name.lastIndexOf(".");
+		return name.substring(0, ind) + "." + img.getWidth() + "x" + img.getHeight() + name.substring(ind);
+	}
+
 	private static void writeImageWithSize(BufferedImage scImg, File folder, long mod) throws IOException {
 		File file = new File(folder, getFileName(scImg));
 		if (file.exists())
 			return;
 		ImageIO.write(scImg, "png", file);
+		file.setLastModified(mod);
+	}
+
+	private static void writePhotoWithSize(BufferedImage scImg, File folder, long mod) throws IOException {
+		boolean hasAlpha = scImg.getTransparency() != Transparency.OPAQUE;
+		File file = new File(folder, getPhotoFileName(scImg) + "jpg");
+		if (hasAlpha)
+			file = new File(folder, getPhotoFileName(scImg) + "png");
+		if (file.exists())
+			return;
+
+		if (hasAlpha)
+			ImageIO.write(scImg, "png", file);
+		else
+			ImageIO.write(scImg, "jpg", file);
 		file.setLastModified(mod);
 	}
 

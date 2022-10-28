@@ -322,6 +322,7 @@ public class Person extends ContestObject implements IPerson {
 		p.sex = sex;
 		p.teamId = teamId;
 		p.role = role;
+		p.title = title;
 		return p;
 	}
 
@@ -350,7 +351,7 @@ public class Person extends ContestObject implements IPerson {
 	public List<String> validate(IContest c) {
 		List<String> errors = new ArrayList<>();
 
-		if (c.getTeamById(teamId) == null)
+		if ("contestant".equals(role) && c.getTeamById(teamId) == null)
 			errors.add("Invalid team " + teamId);
 
 		if (getName() == null || getName().isEmpty())

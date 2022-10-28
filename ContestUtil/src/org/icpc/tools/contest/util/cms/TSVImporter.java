@@ -22,7 +22,8 @@ public class TSVImporter {
 	private static final String ORGANIZATION_ID = "organization_id";
 	private static final String FORMAL_NAME = "formal_name";
 	private static final String URL = "url";
-	private static final String HASHTAG = "twitter_hashtag";
+	private static final String TWIT_HASHTAG = "twitter_hashtag";
+	private static final String TWIT_ACCOUNT = "twitter_account";
 	private static final String GROUP_IDS = "group_ids";
 	private static final String COUNTRY = "country";
 	private static final String LOCATION = "location";
@@ -171,13 +172,8 @@ public class TSVImporter {
 					if (st.length > 5)
 						add(org, URL, st[5]);
 					if (st.length > 6)
-						add(org, HASHTAG, st[6]);
+						add(org, TWIT_HASHTAG, st[6]);
 					if (st.length > 8) {
-						if (st.length == 10) {
-							// assume CMS extra column issue, move things for now
-							System.arraycopy(st, 8, st, 7, st.length - 8);
-						}
-
 						JsonObject obj = new JsonObject();
 						if (st[7] != null && !st[7].trim().isEmpty() && !"null".equals(st[7]))
 							obj.props.put("latitude", st[7]);
@@ -186,6 +182,8 @@ public class TSVImporter {
 						if (obj.containsKey("latitude") && obj.containsKey("longitude"))
 							org.add(LOCATION, obj);
 					}
+					if (st.length > 9)
+						add(org, TWIT_ACCOUNT, st[9]);
 
 					list.add(org);
 				}

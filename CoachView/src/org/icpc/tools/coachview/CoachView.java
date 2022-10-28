@@ -371,8 +371,6 @@ public class CoachView extends Panel {
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 		if (org != null) {
 			int BORDER = 15;
-			if (logoImg != null)
-				g.drawImage(logoImg, d.width - logoImg.getWidth() - BORDER, BORDER, null);
 
 			y = drawLine(g, y, "Organization", org.getActualFormalName());
 			y = drawLine(g, y, null, "(" + org.getName() + ")");
@@ -382,7 +380,10 @@ public class CoachView extends Panel {
 			if (country != null)
 				y = drawLine(g, y, "Country", country);
 			y = drawLine(g, y, "URL", org.getURL());
-			y = drawLine(g, y, "Hashtag", org.getHashtag());
+			y = drawLine(g, y, "Hashtag", org.getTwitterHashtag());
+
+			if (logoImg != null)
+				g.drawImage(logoImg, d.width - logoImg.getWidth() - BORDER, BORDER, null);
 		}
 
 		IPerson[] persons = contest.getPersonsByTeamId(team.getId());

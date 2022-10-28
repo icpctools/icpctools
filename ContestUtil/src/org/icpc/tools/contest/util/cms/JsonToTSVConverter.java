@@ -109,7 +109,7 @@ public class JsonToTSVConverter {
 					return false;
 				}
 			});
-
+			
 			System.out.println("Loading " + files.length + " institutions");
 			for (File f : files) {
 				readInstitution(f);
@@ -283,7 +283,7 @@ public class JsonToTSVConverter {
 		fw.close();
 	}
 
-	protected static void writeInstitutionsTSV(List<Organization> teams, File folder, boolean two) throws Exception {
+	protected static void writeInstitutionsTSV(List<Organization> orgs, File folder, boolean two) throws Exception {
 		File f = new File(folder, "institutions.tsv");
 		if (two)
 			f = new File(folder, "institutions2.tsv");
@@ -291,50 +291,53 @@ public class JsonToTSVConverter {
 		fw.write("File_Version\t0.5\n");
 		int hashCount = 0;
 		int locCount = 0;
-		for (Organization inst : teams) {
-			fw.write("INST-U-" + inst.getId());
+		for (Organization org : orgs) {
+			fw.write("INST-U-" + org.getId());
 			fw.write("\t");
-			if (inst.getFormalName() != null)
-				fw.write(inst.getFormalName());
+			if (org.getFormalName() != null)
+				fw.write(org.getFormalName());
 			fw.write("\t");
-			if (inst.getName() != null)
-				fw.write(inst.getName());
+			if (org.getName() != null)
+				fw.write(org.getName());
 			fw.write("\t");
-			Team team = getTeamFromOrganization(inst.getId());
+			Team team = getTeamFromOrganization(org.getId());
 			if (team != null && team.getGroupIds() != null && team.getGroupIds().length > 0)
 				fw.write(team.getGroupIds()[0]);
 			else
-				System.err.println("Institution not in a group: " + inst.getFormalName());
+				System.err.println("Institution not in a group: " + org.getFormalName());
 			fw.write("\t");
-			if (inst.getCountry() != null)
-				fw.write(inst.getCountry());
+			if (org.getCountry() != null)
+				fw.write(org.getCountry());
 			else
-				System.err.println("Institution not in a country: " + inst.getFormalName());
+				System.err.println("Institution not in a country: " + org.getFormalName());
 			if (two) {
 				fw.write("\t");
-				if (inst.getURL() != null && !inst.getURL().isEmpty())
-					fw.write(inst.getURL());
+				if (org.getURL() != null && !org.getURL().isEmpty())
+					fw.write(org.getURL());
 				// else
 				// System.err.println("No URL: " + inst.id + " - " + inst.name);
 				fw.write("\t");
-				if (inst.getHashtag() != null && !inst.getHashtag().isEmpty())
-					fw.write(inst.getHashtag());
+				if (org.getTwitterHashtag() != null && !org.getTwitterHashtag().isEmpty())
+					fw.write(org.getTwitterHashtag());
 				else {
 					if (OUTPUT_MISSING_NAMES)
-						System.out.println("No hashtag: " + inst.getId() + " - " + inst.getFormalName());
+						System.out.println("No hashtag: " + org.getId() + " - " + org.getFormalName());
 					hashCount++;
 				}
 				fw.write("\t");
-				if (!Double.isNaN(inst.getLatitude()))
-					fw.write(inst.getLatitude() + "");
+				if (!Double.isNaN(org.getLatitude()))
+					fw.write(org.getLatitude() + "");
 				fw.write("\t");
-				if (!Double.isNaN(inst.getLongitude()))
-					fw.write(inst.getLongitude() + "");
-				if (Double.isNaN(inst.getLatitude()) || Double.isNaN(inst.getLongitude())) {
+				if (!Double.isNaN(org.getLongitude()))
+					fw.write(org.getLongitude() + "");
+				if (Double.isNaN(org.getLatitude()) || Double.isNaN(org.getLongitude())) {
 					if (OUTPUT_MISSING_NAMES)
-						System.out.println("No location: " + inst.getId() + " - " + inst.getFormalName());
+						System.out.println("No location: " + org.getId() + " - " + org.getFormalName());
 					locCount++;
 				}
+				fw.write("\t");
+				if (org.getTwitterAccount() != null && !org.getTwitterAccount().isEmpty())
+					fw.write(org.getTwitterAccount());
 			}
 			fw.write("\n");
 		}

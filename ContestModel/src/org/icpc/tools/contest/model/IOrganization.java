@@ -74,11 +74,18 @@ public interface IOrganization extends IContestObject {
 	String getURL();
 
 	/**
-	 * The hashtag of the organization.
+	 * The twitter hashtag of the organization.
 	 *
 	 * @return the hashtag
 	 */
-	String getHashtag();
+	String getTwitterHashtag();
+
+	/**
+	 * The twitter account of the organization.
+	 *
+	 * @return the account
+	 */
+	String getTwitterAccount();
 
 	/**
 	 * The latitude of the organization.
