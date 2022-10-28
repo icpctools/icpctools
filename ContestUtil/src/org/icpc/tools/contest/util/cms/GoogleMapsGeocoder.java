@@ -26,6 +26,9 @@ public class GoogleMapsGeocoder {
 		try {
 			String address = org.getFormalName() + " " + org.getCountry();
 			Object[] results = geocodeResultsFor(address);
+			if (results == null)
+				return;
+
 			if (results.length > 1) {
 				System.err
 						.println("Geocode for '" + address + "' returned " + results.length + " results, using first one");

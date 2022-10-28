@@ -15,6 +15,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private static final String COUNTRY = "country";
 	private static final String URL = "url";
 	private static final String HASHTAG = "twitter_hashtag";
+	private static final String ACCOUNT = "twitter_account";
 	private static final String LOCATION = "location";
 	private static final String LOGO = "logo";
 	private static final String COUNTRY_FLAG = "country_flag";
@@ -25,6 +26,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private String country;
 	private String url;
 	private String hashtag;
+	private String account;
 	private Location location;
 	private FileReferenceList logo;
 	private FileReferenceList countryFlag;
@@ -67,8 +69,13 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
-	public String getHashtag() {
+	public String getTwitterHashtag() {
 		return hashtag;
+	}
+
+	@Override
+	public String getTwitterAccount() {
+		return account;
 	}
 
 	@Override
@@ -155,6 +162,10 @@ public class Organization extends ContestObject implements IOrganization {
 				hashtag = (String) value;
 				return true;
 			}
+			case ACCOUNT: {
+				account = (String) value;
+				return true;
+			}
 			case LOCATION: {
 				location = new Location(value);
 				return true;
@@ -184,6 +195,7 @@ public class Organization extends ContestObject implements IOrganization {
 		o.countryFlag = countryFlag;
 		o.url = url;
 		o.hashtag = hashtag;
+		o.account = account;
 		o.location = location;
 		return o;
 	}
@@ -198,6 +210,7 @@ public class Organization extends ContestObject implements IOrganization {
 		props.addFileRef(COUNTRY_FLAG, countryFlag);
 		props.addString(URL, url);
 		props.addString(HASHTAG, hashtag);
+		props.addString(ACCOUNT, account);
 		if (location != null)
 			props.add(LOCATION, location.getJSON());
 		props.addFileRef(LOGO, logo);
