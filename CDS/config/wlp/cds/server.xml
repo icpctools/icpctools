@@ -14,7 +14,7 @@
        <httpOptions ThrowIOEForInboundConnections="true"/>
     </httpEndpoint>
 
-    <httpSession invalidationTimeout="8h"/>
+    <httpSession invalidationTimeout="8h" idReuse="true"/>
 
     <keyStore id="defaultKeyStore" password="{xor}FhwPHAswMDMs" />
 
