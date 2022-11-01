@@ -321,6 +321,7 @@ public class Person extends ContestObject implements IPerson {
 		p.email = email;
 		p.sex = sex;
 		p.teamId = teamId;
+		p.teamIds = teamIds;
 		p.role = role;
 		p.title = title;
 		return p;
@@ -337,6 +338,7 @@ public class Person extends ContestObject implements IPerson {
 		props.addString(EMAIL, email);
 		props.addLiteralString(SEX, sex);
 		props.addLiteralString(TEAM_ID, teamId);
+		props.addArray(TEAM_IDS, teamIds);
 		props.addLiteralString(ROLE, role);
 		props.addFileRef(PHOTO, photo);
 		props.addFileRefSubs(DESKTOP, desktop);

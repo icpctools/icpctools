@@ -109,7 +109,7 @@ public class JsonToTSVConverter {
 					return false;
 				}
 			});
-			
+
 			System.out.println("Loading " + files.length + " institutions");
 			for (File f : files) {
 				readInstitution(f);
@@ -184,7 +184,7 @@ public class JsonToTSVConverter {
 			groupList.sort((g1, g2) -> compare(g1.getId(), g2.getId()));
 			teamList.sort((t1, t2) -> compare(t1.getId(), t2.getId()));
 			orgList.sort((i1, i2) -> compare(i1.getId(), i2.getId()));
-			personList.sort((m1, m2) -> compare(m1.getTeamId(), m2.getTeamId()));
+			personList.sort((m1, m2) -> compare(m1.getId(), m2.getId()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -120,14 +120,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-		
+
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -551,19 +551,12 @@ public class ImagesGenerator {
 					else
 						ImageIO.write(scImg, "jpg", file);
 					file.setLastModified(mod);
-					if (!file.exists())
-						System.err.println("What??");
 				}
 
-				/*BufferedImage scImg = ImageScaler.scaleImage(img, ICON.width, ICON.height);
-				double aspect = scImg.getWidth() / (double) scImg.getHeight();
-				if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
-					writePhotoWithSize(scImg, personFolder, mod);*/
-
-				BufferedImage scImg = ImageScaler.scaleImage(img, TILE.width, TILE.height);
-				double aspect = scImg.getWidth() / (double) scImg.getHeight();
-				if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
+				if (img.getWidth() > TILE.width || img.getHeight() > TILE.height) {
+					BufferedImage scImg = ImageScaler.scaleImage(img, TILE.width, TILE.height);
 					writePhotoWithSize(scImg, personFolder, mod);
+				}
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
 			}
