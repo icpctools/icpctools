@@ -28,6 +28,7 @@ public class TSVImporter {
 	private static final String COUNTRY = "country";
 	private static final String LOCATION = "location";
 	private static final String TEAM_ID = "team_id";
+	private static final String TEAM_IDS = "team_ids";
 	private static final String SEX = "sex";
 	private static final String ROLE = "role";
 
@@ -286,13 +287,24 @@ public class TSVImporter {
 							System.err.println("Warning: person " + p.getName() + " in unknown team " + teamId);
 						} else {
 							add(p, TEAM_ID, t.getId());
+							String[] teamIds = p.getTeamIds();
+							if (teamIds == null)
+								teamIds = new String[] { t.getId() };
+							else {
+								String[] ss = new String[teamIds.length + 1];
+								System.arraycopy(teamIds, 0, ss, 0, teamIds.length);
+								ss[teamIds.length] = t.getId();
+								teamIds = ss;
+							}
+							add(p, TEAM_IDS, "[" + String.join(",", teamIds) + "]");
 							String role = st[3];
 							if (role != null) {
 								if (role.toLowerCase().equals("cocoach"))
 									role = "coach";
 								add(p, ROLE, role.toLowerCase());
 							}
-							list.add(p);
+							if (!list.contains(p))
+								list.add(p);
 						}
 					}
 				}
@@ -300,7 +312,7 @@ public class TSVImporter {
 			}
 		}
 
-		// TODO coach should override staff? 27 Ali Orooji
+		// coach should override staff?
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "Staff.tab")))) {
 			// read header
 			br.readLine();
@@ -319,9 +331,12 @@ public class TSVImporter {
 					if (p == null) {
 						System.err.println("Warning: unknown staff");
 					} else {
-						add(p, ROLE, "staff");
+						// coach and contestant take precedence over staff
+						if (!"coach".equals(p.getRole()) && !"contestant".equals(p.getRole()))
+							add(p, ROLE, "staff");
 						add(p, "title", st[2].trim());
-						list.add(p);
+						if (!list.contains(p))
+							list.add(p);
 					}
 				}
 				s = br.readLine();
