@@ -25,6 +25,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -111,15 +113,22 @@ public class CoachView extends Panel {
 	}
 
 	private MediaPlayerFactory mediaPlayerFactory;
-	private EmbeddedMediaPlayer mediaPlayerCamera;
-	private EmbeddedMediaPlayer mediaPlayerScreen;
+	private EmbeddedMediaPlayer mediaPlayerWebcam;
+	private EmbeddedMediaPlayer mediaPlayerDesktop;
+	private EmbeddedMediaPlayer mediaPlayerReaction;
 	private BufferedImage imageWebcam;
 	private BufferedImage imageDesktop;
-	private int[] webcamBuffer;
-	private int[] desktopBuffer;
+	private BufferedImage imageReaction;
+	private int[] bufferWebcam;
+	private int[] bufferDesktop;
+	private int[] bufferReaction;
+
+	private enum VideoMode {
+		WEBCAM, DESKTOP, REACTION
+	}
 
 	private enum DisplayMode {
-		WEBCAM, DESKTOP, BOTH, PIP, ACTIVITY, DETAILS, NONE
+		WEBCAM, DESKTOP, BOTH, PIP, ACTIVITY, DETAILS, REACTION, NONE
 	}
 
 	private DisplayMode displayMode = DisplayMode.NONE;
@@ -266,9 +275,14 @@ public class CoachView extends Panel {
 					paintActivity(g, currentTeam, d);
 				} else if (displayMode == DisplayMode.DETAILS) {
 					paintDetails(g, currentTeam, d);
+				} else if (displayMode == DisplayMode.REACTION) {
+					drawImage(g, imageReaction, d);
 				} else { // displayMode == DisplayMode.NONE) {
 					// do nothing
 				}
+
+				if (displayMode != DisplayMode.ACTIVITY)
+					reactions = null;
 
 				if (currentTeam != null)
 					paintOverlay(g, currentTeam, d);
@@ -281,6 +295,24 @@ public class CoachView extends Panel {
 				if ((KeyEvent.VK_Q == e.getKeyCode() || KeyEvent.VK_ESCAPE == e.getKeyCode())
 						&& (e.isControlDown() || e.isShiftDown()))
 					System.exit(0);
+			}
+		});
+		mainPanel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String reactionURL = null;
+				for (Rectangle r : reactions.keySet()) {
+					if (r.contains(e.getX(), e.getY())) {
+						reactionURL = reactions.get(r);
+					}
+				}
+				if (reactionURL == null)
+					return;
+
+				Trace.trace(Trace.INFO, "Selected reaction: " + reactionURL);
+				displayMode = DisplayMode.REACTION;
+
+				mediaPlayerReaction = createMediaPlayer(VideoMode.REACTION, reactionURL);
 			}
 		});
 
@@ -451,6 +483,7 @@ public class CoachView extends Panel {
 		int BORDER = 5;
 		g.setFont(problemFont);
 
+		Map<Rectangle, String> tempReactions = new HashMap<>();
 		IProblem[] problems = contest.getProblems();
 		int numProblems = problems.length;
 		int GAP = 5;
@@ -476,13 +509,15 @@ public class CoachView extends Panel {
 			int y = yy + p.getOrdinal() * cubeY;
 			ShadedRectangle.drawRoundRect(g, x, y, cubeWidth, cubeHeight, contest, sub, 0, s);
 			if (sub.getReactionURL() != null)
-				reactions.put(new Rectangle(x, y, cubeWidth, cubeHeight), sub.getReactionURL());
+				tempReactions.put(new Rectangle(x, y, cubeWidth, cubeHeight), sub.getReactionURL());
 			x += cubeWidth + GAP;
 			if (x + cubeWidth > d.width - BORDER) {
 				x = BORDER;
 				y += cubeHeight + GAP;
 			}
 		}
+
+		reactions = tempReactions;
 	}
 
 	protected void loadTeamList() {
@@ -649,6 +684,7 @@ public class CoachView extends Panel {
 					Trace.trace(Trace.INFO, "Switch to mode: " + displayMode.name());
 
 					mainPanel.repaint();
+					clearMediaPlayer(VideoMode.REACTION);
 				}
 			});
 		}
@@ -687,16 +723,9 @@ public class CoachView extends Panel {
 			}
 
 			private void connectToTeam(ITeam newTeam, int num) {
-				if (mediaPlayerScreen != null) {
-					mediaPlayerScreen.release();
-					mediaPlayerScreen = null;
-					imageDesktop = null;
-				}
-				if (mediaPlayerCamera != null) {
-					mediaPlayerCamera.release();
-					mediaPlayerCamera = null;
-					imageWebcam = null;
-				}
+				clearMediaPlayer(VideoMode.DESKTOP);
+				clearMediaPlayer(VideoMode.WEBCAM);
+				clearMediaPlayer(VideoMode.REACTION);
 
 				currentTeam = newTeam;
 				currentNum = num;
@@ -726,18 +755,11 @@ public class CoachView extends Panel {
 						displayMode = DisplayMode.DETAILS;
 					modes[displayMode.ordinal()].setState(true);
 
-					if (desktopURL != null) {
-						if (mediaPlayerScreen == null)
-							mediaPlayerScreen = createMediaPlayer(true);
-						mediaPlayerScreen.media().play(desktopURL);
-					}
-					if (webcamURL != null) {
-						if (mediaPlayerCamera == null)
-							mediaPlayerCamera = createMediaPlayer(false);
-						mediaPlayerCamera.media().play(webcamURL);
-					}
+					if (desktopURL != null && mediaPlayerDesktop == null)
+						mediaPlayerDesktop = createMediaPlayer(VideoMode.DESKTOP, desktopURL);
 
-					logoImg = null;
+					if (webcamURL != null && mediaPlayerWebcam == null)
+						mediaPlayerWebcam = createMediaPlayer(VideoMode.WEBCAM, webcamURL);
 
 					IOrganization org = contest.getOrganizationById(currentTeam.getOrganizationId());
 					if (org != null) {
@@ -793,21 +815,24 @@ public class CoachView extends Panel {
 		modes[3].setEnabled(webcamURL != null && desktopURL != null);
 	}
 
-	private EmbeddedMediaPlayer createMediaPlayer(final boolean screen) {
+	private EmbeddedMediaPlayer createMediaPlayer(final VideoMode mode, String url) {
 		if (mediaPlayerFactory == null)
 			mediaPlayerFactory = new MediaPlayerFactory();
 
 		BufferFormatCallback bufferCallback = new BufferFormatCallbackAdapter() {
 			@Override
 			public BufferFormat getBufferFormat(int width, int height) {
-				if (screen) {
-					imageDesktop = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-					imageDesktop.setAccelerationPriority(1);
-					desktopBuffer = new int[width * height];
-				} else {
-					imageWebcam = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-					imageWebcam.setAccelerationPriority(1);
-					webcamBuffer = new int[width * height];
+				BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+				img.setAccelerationPriority(1);
+				if (mode == VideoMode.DESKTOP) {
+					imageDesktop = img;
+					bufferDesktop = new int[width * height];
+				} else if (mode == VideoMode.WEBCAM) {
+					imageWebcam = img;
+					bufferWebcam = new int[width * height];
+				} else if (mode == VideoMode.REACTION) {
+					imageReaction = img;
+					bufferReaction = new int[width * height];
 				}
 
 				return new RV32BufferFormat(width, height);
@@ -819,14 +844,18 @@ public class CoachView extends Panel {
 			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
 				IntBuffer ib = nativeBuffers[0].asIntBuffer();
 
-				if (screen) {
-					ib.get(desktopBuffer);
-					imageDesktop.setRGB(0, 0, imageDesktop.getWidth(), imageDesktop.getHeight(), desktopBuffer, 0,
+				if (mode == VideoMode.DESKTOP) {
+					ib.get(bufferDesktop);
+					imageDesktop.setRGB(0, 0, imageDesktop.getWidth(), imageDesktop.getHeight(), bufferDesktop, 0,
 							imageDesktop.getWidth());
-				} else {
-					ib.get(webcamBuffer);
-					imageWebcam.setRGB(0, 0, imageWebcam.getWidth(), imageWebcam.getHeight(), webcamBuffer, 0,
+				} else if (mode == VideoMode.WEBCAM) {
+					ib.get(bufferWebcam);
+					imageWebcam.setRGB(0, 0, imageWebcam.getWidth(), imageWebcam.getHeight(), bufferWebcam, 0,
 							imageWebcam.getWidth());
+				} else if (mode == VideoMode.REACTION) {
+					ib.get(bufferReaction);
+					imageReaction.setRGB(0, 0, imageReaction.getWidth(), imageReaction.getHeight(), bufferReaction, 0,
+							imageReaction.getWidth());
 				}
 
 				mainPanel.repaint();
@@ -836,7 +865,33 @@ public class CoachView extends Panel {
 		EmbeddedMediaPlayer mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
 		mediaPlayer.videoSurface()
 				.set(mediaPlayerFactory.videoSurfaces().newVideoSurface(bufferCallback, renderCallback, true));
+		mediaPlayer.media().play(url);
 		return mediaPlayer;
+	}
+
+	private void clearMediaPlayer(final VideoMode mode) {
+		if (mode == VideoMode.DESKTOP) {
+			if (mediaPlayerDesktop != null) {
+				mediaPlayerDesktop.release();
+				mediaPlayerDesktop = null;
+			}
+			imageDesktop = null;
+			bufferDesktop = null;
+		} else if (mode == VideoMode.WEBCAM) {
+			if (mediaPlayerWebcam != null) {
+				mediaPlayerWebcam.release();
+				mediaPlayerWebcam = null;
+			}
+			imageWebcam = null;
+			bufferWebcam = null;
+		} else if (mode == VideoMode.REACTION) {
+			if (mediaPlayerReaction != null) {
+				mediaPlayerReaction.release();
+				mediaPlayerReaction = null;
+			}
+			imageReaction = null;
+			bufferReaction = null;
+		}
 	}
 
 	protected static void showHelp() {
