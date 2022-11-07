@@ -27,8 +27,8 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 
 public class BalloonMapPresentation extends AbstractICPCPresentation {
-	private static final double DEFAULT_LONGITUDE = 55.75376;
-	private static final double DEFAULT_LATITUDE = 37.61225;
+	private static final double DEFAULT_LONGITUDE = 23.829082;
+	private static final double DEFAULT_LATITUDE = 90.426443;
 	private static final long TIME_TO_KEEP_SOLVED = 11000;
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
