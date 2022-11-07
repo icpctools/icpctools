@@ -379,7 +379,9 @@ public class ResolverLogic {
 		List<String> judgeRuns = new ArrayList<>();
 
 		SubmissionInfo runInfo = getNextResolve();
-		projectStandings(runInfo);
+		// Project standings for the first run, if we have any. We don't have any for an empty scoreboard
+		if (runInfo != null)
+			projectStandings(runInfo);
 
 		int currentRow = contest.getOrderedTeams().length - 1;
 		while (currentRow >= 0) {
