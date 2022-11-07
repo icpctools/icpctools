@@ -7,6 +7,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -92,12 +94,32 @@ public class TextHelper {
 		public StringItem(String s) {
 			this.s = s;
 			d = new Dimension(fm.stringWidth(s), fm.getHeight());
+			// TODO: allow space for fm.maxAscent() and fm.maxDescent(), see fm.getHeight()
 		}
 
 		@Override
 		protected void draw() {
 			g.setColor(Color.WHITE);
-			g.drawString(s, x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
+
+			Rectangle2D bounds = fm.getStringBounds(s, g);
+			int width = (int) Math.round(bounds.getMaxX());
+			if (width > d.width + 1 || width < d.width - 1) {
+				// Layout width and string bounds do not match, need to rescale!
+				// TODO: use string bounds to set correct widths in the layout directly
+				AffineTransform at = g.getTransform();
+				g.translate(x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
+				final boolean BOUNDS_RESCALE_DEBUG = false;
+				if (BOUNDS_RESCALE_DEBUG) {
+					g.setColor(Color.YELLOW.brighter());
+					g.drawString("*", d.width - 11, 0);
+					g.draw(new Line2D.Double(width, -fm.getMaxAscent(), d.width - (width - d.width), 0));
+				}
+				g.scale(d.width / (double) width, 1);
+				g.drawString(s, 0, 0);
+				g.setTransform(at);
+			} else {
+				g.drawString(s, x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
+			}
 		}
 
 		@Override

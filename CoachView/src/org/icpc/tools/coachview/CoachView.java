@@ -48,6 +48,7 @@ import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPerson;
@@ -406,11 +407,19 @@ public class CoachView extends Panel {
 
 			y = drawLine(g, y, "Organization", org.getActualFormalName());
 			y = drawLine(g, y, null, "(" + org.getName() + ")");
+			/* No country shown at World Finals
 			String country = null;
 			if (org.getCountry() != null)
 				country = localeMap.get(org.getCountry()).getDisplayCountry();
 			if (country != null)
-				y = drawLine(g, y, "Country", country);
+				y = drawLine(g, y, "Country", country);*/
+			String[] groupIds = team.getGroupIds();
+			if (groupIds != null && groupIds.length > 0) {
+				IGroup group = contest.getGroupById(groupIds[0]);
+				String groupName = group.getName();
+				if (groupName != null)
+					y = drawLine(g, y, "Group", groupName);
+			}
 			y = drawLine(g, y, "URL", org.getURL());
 			y = drawLine(g, y, "Hashtag", org.getTwitterHashtag());
 
