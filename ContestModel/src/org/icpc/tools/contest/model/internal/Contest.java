@@ -154,14 +154,20 @@ public class Contest implements IContest {
 		}
 
 		// update known properties
-		int ord = obj.getType().ordinal();
+		addKnownProperty(obj.getType(), obj.getProperties());
+	}
+
+	public void addKnownProperty(IContestObject.ContestType type, Map<String, Object> props) {
+		if (type == null || props == null)
+			return;
+
+		int ord = type.ordinal();
 		Set<String> knownProps = allKnownProperties[ord];
 		if (knownProps == null) {
 			knownProps = new SimpleSet();
 			allKnownProperties[ord] = knownProps;
 		}
 
-		Map<String, Object> props = obj.getProperties();
 		for (String name : props.keySet())
 			if (!knownProps.contains(name))
 				knownProps.add(name);
