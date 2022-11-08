@@ -58,6 +58,7 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
@@ -940,7 +941,7 @@ public class CoachView extends Panel {
 
 		RESTContestSource restSource = RESTContestSource.ensureContestAPI(contestSource);
 		restSource.outputValidation();
-		if (restSource.isCDS())
+		if (ContestAPIHelper.isCDS())
 			restSource.checkForUpdates("coachview-");
 
 		CoachView cv = new CoachView();

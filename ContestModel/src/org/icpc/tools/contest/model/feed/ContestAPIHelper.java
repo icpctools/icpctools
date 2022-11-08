@@ -14,6 +14,8 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Info;
 
 public class ContestAPIHelper {
+	protected static boolean isCDS;
+
 	private static String listContest(URL url, Info info) {
 		return url.toExternalForm() + " - " + info.getName() + " starting at "
 				+ ContestUtil.formatStartTime(info.getStartTime());
@@ -135,6 +137,9 @@ public class ContestAPIHelper {
 		}
 
 		int response = conn.getResponseCode();
+
+		if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
+			isCDS = true;
 
 		if (response == HttpURLConnection.HTTP_UNAUTHORIZED)
 			throw new IllegalArgumentException("Invalid user or password (401)");
@@ -321,5 +326,9 @@ public class ContestAPIHelper {
 			return null;
 		}
 		return previous;
+	}
+
+	public static boolean isCDS() {
+		return isCDS;
 	}
 }

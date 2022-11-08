@@ -56,6 +56,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
 import org.icpc.tools.contest.model.feed.ContestSource.ContestSourceListener;
@@ -1071,7 +1072,7 @@ public class BalloonUtility {
 		contestSource.outputValidation();
 		if (contestSource instanceof RESTContestSource) {
 			RESTContestSource restSource = (RESTContestSource) contestSource;
-			if (restSource.isCDS())
+			if (ContestAPIHelper.isCDS())
 				restSource.checkForUpdates("balloonUtil-");
 		}
 
