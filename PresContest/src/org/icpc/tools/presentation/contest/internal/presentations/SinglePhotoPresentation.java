@@ -29,7 +29,7 @@ public class SinglePhotoPresentation extends Presentation {
 			return image;
 
 		try {
-			File f = ContestSource.getInstance().getFile("present/photo.jpg");
+			File f = ContestSource.getInstance().getFile("/presentation/photo.jpg");
 			if (f != null && f.exists())
 				image = ImageScaler.scaleImage(ImageIO.read(f), width, height);
 		} catch (IOException e) {
@@ -63,6 +63,8 @@ public class SinglePhotoPresentation extends Presentation {
 
 	@Override
 	public void setProperty(String value) {
+		if (value == null || value.startsWith("lightMode:"))
+			return;
 		message = value;
 	}
 }
