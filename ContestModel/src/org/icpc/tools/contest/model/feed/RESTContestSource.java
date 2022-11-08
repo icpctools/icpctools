@@ -18,6 +18,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
 import java.util.Base64;
 import java.util.Locale;
@@ -361,14 +363,13 @@ public class RESTContestSource extends DiskContestSource {
 			return;
 		}
 
-		if (localFile.exists())
-			localFile.delete();
-
-		InputStream in = conn.getInputStream();
-
 		if (!localFile.getParentFile().exists())
 			localFile.getParentFile().mkdirs();
-		FileOutputStream out = new FileOutputStream(localFile);
+
+		File temp = File.createTempFile("download", "tmp", localFile.getParentFile().getParentFile());
+
+		InputStream in = conn.getInputStream();
+		FileOutputStream out = new FileOutputStream(temp);
 
 		byte[] buf = new byte[8096];
 		int n = in.read(buf);
@@ -380,11 +381,23 @@ public class RESTContestSource extends DiskContestSource {
 		out.close();
 		long mod = conn.getLastModified();
 		if (mod != 0)
-			localFile.setLastModified(mod);
+			temp.setLastModified(mod);
 		time = System.currentTimeMillis() - time;
-		String size = nf.format(localFile.length() / 1024.0);
+		String size = nf.format(temp.length() / 1024.0);
 		sb.append(" (" + size + "kb in " + time + "ms)");
 		Trace.trace(Trace.INFO, sb.toString());
+
+		if (!localFile.exists() || mod == 0 || localFile.lastModified() != mod) {
+			try {
+				Files.move(temp.toPath(), localFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
+			} catch (IOException e) {
+				Files.move(temp.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			}
+
+			// be paranoid and set the timestamp after move as well
+			if (mod != 0)
+				localFile.setLastModified(mod);
+		}
 
 		String etag = conn.getHeaderField("ETag");
 		updateFileInfo(localFile, href, etag);
