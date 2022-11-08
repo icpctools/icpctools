@@ -128,12 +128,19 @@ public class FloorGeneratorDhaka extends FloorGenerator {
 			floor.createAisle(taw, aisle4, -taw, y);
 			floor.createAisle(-taw, aisle4, taw, y);
 
-			IPrinter p = floor.createPrinter(taw * 10, aisle1);
+			IPrinter p = floor.createPrinter(0, -3);
 
 			// convert spares
 			floor.makeSpare(0);
+			floor.makeSpare(32);
+			floor.makeSpare(37);
+			floor.makeSpare(87);
+			floor.makeSpare(134);
+			floor.makeSpare(137);
 			floor.makeSpare(138);
 			floor.makeSpare(139);
+
+			IProblem pp = null;
 
 			if (args != null && args.length > 0) {
 				File f = new File(args[0]);
@@ -142,23 +149,36 @@ public class FloorGeneratorDhaka extends FloorGenerator {
 				source.waitForContest(10000);
 				IProblem[] problems = contest2.getProblems();
 
-				double b0 = 0;
-				for (int i = 0; i < problems.length; i++)
-					floor.createBalloon(problems[i].getId(), b0 + i * 2, -8);
+				floor.createAisle(-1 * (problems.length - 1), -2, problems.length - 1, -2);
+
+				double b0 = -1 * (problems.length - 1);
+				for (int i = 0; i < problems.length; i++) {
+					floor.createBalloon(problems[i].getId(), b0 + i * 2, -1);
+					floor.createAisle(b0 + i * 2, -2, b0 + i * 2, 0);
+				}
 
 				floor.write(f);
+
+				pp = problems[problems.length - 2];
 			}
 
 			long time = System.currentTimeMillis();
 			ITeam t1 = floor.getTeam(10);
 			ITeam t2 = floor.getTeam(107);
 			ITeam t3 = floor.getTeam(135);
+			ITeam t4 = floor.getTeam(22);
 			Path path1 = floor.getPath(t1, t2);
-			Path path2 = floor.getPath(t3, p);
+			Path path2 = floor.getPath(t4, pp);
+			Path path3 = null;
+			if (pp != null)
+				path3 = floor.getPath(p, pp);
 
 			Trace.trace(Trace.USER, "Time: " + (System.currentTimeMillis() - time));
 
-			show(floor, 57, true, path1, path2);
+			if (path3 != null)
+				show(floor, 57, true, path1, path2, path3);
+			else
+				show(floor, 57, true, path1, path2);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error generating floor map", e);
 		}
