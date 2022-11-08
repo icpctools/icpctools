@@ -431,7 +431,12 @@ public class BalloonUtility {
 				b.setPrinted(true);
 				bc.save();
 			}
-			updateBalloon(b);
+			balloonTable.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					updateBalloon(b);
+				}
+			});
 		} catch (Exception e) {
 			ErrorHandler.error("Error printing balloon", e);
 		}
