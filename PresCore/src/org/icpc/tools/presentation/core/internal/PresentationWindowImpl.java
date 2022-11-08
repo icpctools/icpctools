@@ -253,6 +253,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private IThumbnailListener thumbnailListener;
 
 	protected GraphicsDevice device;
+	protected String title;
 
 	public interface IThumbnailListener {
 		void handleThumbnail(BufferedImage image);
@@ -260,6 +261,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	public PresentationWindowImpl(String title, Rectangle r, Image iconImage) {
 		super(title);
+		this.title = title;
 
 		setIconImage(iconImage);
 		Taskbar.setTaskbarImage(iconImage);
@@ -754,17 +756,17 @@ public class PresentationWindowImpl extends PresentationWindow {
 		return p;
 	}
 
-	protected void paintPresentations(Graphics2D g, long time, boolean hidden2) {
-		if (currentPlan == null)
+	private void paintPresentations(Graphics2D g, PresentationPlan plan, long time, boolean hidden2) {
+		if (plan == null)
 			return;
 
 		if (updateTime < time - 2000) {
 			updateTime = time;
-			currentPlan.build();
+			plan.build();
 		}
 
-		long repeatTime = time % currentPlan.totalRepeatTime;
-		PresentationSegment[] segments = currentPlan.segments;
+		long repeatTime = time % plan.totalRepeatTime;
+		PresentationSegment[] segments = plan.segments;
 		PresentationSegment segment = segments[0];
 		for (PresentationSegment ps : segments) {
 			if (ps.startTime < repeatTime) {
@@ -779,6 +781,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 					-d.height * (displayConfig.pos / displayConfig.ww));
 		}
 
+		setTitle(title + " - " + segment.p1.getClass().getSimpleName());
+
 		if (segment.trans == null) {
 			segment.p1.setTimeMs(time);
 			long lastRepeatTime = segment.p1.getRepeatTimeMs();
@@ -790,9 +794,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 			if (!hidden2)
 				segment.p1.paint(g);
 
-			if (time < currentPlan.startTime + PLAN_FADE_TIME)
+			if (time < plan.startTime + PLAN_FADE_TIME)
 				timeUntilPlanChange = 0;
-			else if (time > currentPlan.endTime - PLAN_FADE_TIME)
+			else if (time > plan.endTime - PLAN_FADE_TIME)
 				timeUntilPlanChange = 0;
 			else
 				timeUntilPlanChange = segment.endTime - repeatTime - segment.startTime;
@@ -851,18 +855,21 @@ public class PresentationWindowImpl extends PresentationWindow {
 				oldPlan.dispose();
 		}
 
-		long start = currentPlan.startTime;
-		if (time > start && time < start + PLAN_FADE_TIME)
-			g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
-		paintPresentations(g, time, hidden2);
+		PresentationPlan plan = currentPlan;
+		if (plan != null) {
+			long start = plan.startTime;
+			if (time > start && time < start + PLAN_FADE_TIME)
+				g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
+			paintPresentations(g, plan, time, hidden2);
+		}
 
 		if (showDebug) {
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
 			Dimension d = getSize();
 			String[] ss = new String[] { fps + " fps", d.width + " x " + d.height, "No presentation" };
-			if (currentPlan != null)
-				ss[2] = currentPlan.summary();
+			if (plan != null)
+				ss[2] = plan.summary();
 
 			g.setColor(lightMode ? new Color(255, 255, 255, 196) : new Color(0, 0, 0, 196));
 			g.fillRect(d.width - fm.stringWidth(ss[2]) - 15, d.height - fm.getHeight() * 3 - 15,
