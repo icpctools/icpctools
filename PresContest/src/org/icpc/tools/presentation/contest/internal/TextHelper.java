@@ -32,11 +32,13 @@ import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ICPCColors;
+import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.w3c.dom.Document;
@@ -101,8 +103,8 @@ public class TextHelper {
 		protected void draw() {
 			g.setColor(Color.WHITE);
 
-			Rectangle2D bounds = fm.getStringBounds(s, g);
-			int width = (int) Math.round(bounds.getMaxX());
+			Rectangle2D bounds2 = fm.getStringBounds(s, g);
+			int width = (int) Math.round(bounds2.getMaxX());
 			if (width > d.width + 1 || width < d.width - 1) {
 				// Layout width and string bounds do not match, need to rescale!
 				// TODO: use string bounds to set correct widths in the layout directly
@@ -142,6 +144,39 @@ public class TextHelper {
 		@Override
 		protected void draw() {
 			// ignore
+		}
+	}
+
+	protected class LabelItem extends Item {
+		protected String label;
+		protected Color color;
+		protected Font font;
+
+		protected LabelItem(String label, Color color) {
+			this.label = label;
+			this.color = color;
+
+			d = new Dimension((int) (fm.getHeight() * 1.5) + fm.stringWidth(label), fm.getHeight());
+
+			Font f = g.getFont();
+			font = f.deriveFont(f.getSize2D() * 0.75f);
+		}
+
+		@Override
+		protected void draw() {
+			Color cc = ICPCColors.getContrastColor(color);
+			int w = (int) (fm.getHeight() * 1.35);
+			int h = (fm.getAscent());
+			ShadedRectangle.drawRoundRect(g, x - d.width / 2, y - d.height / 2 + fm.getAscent() / 2 - h / 2, w, h, color,
+					Color.WHITE, "");
+
+			g.setColor(cc);
+			Font curFont = g.getFont();
+			g.setFont(font);
+			FontMetrics fm2 = g.getFontMetrics();
+			g.drawString(label, x - d.width / 2 + w / 2 - fm2.stringWidth(label) / 2,
+					y - fm2.getHeight() / 2 + fm2.getAscent());
+			g.setFont(curFont);
 		}
 	}
 
@@ -540,7 +575,7 @@ public class TextHelper {
 			String word = m.group();
 
 			if (fm.stringWidth(sb.toString() + word) > width) {
-				if (sb.isEmpty()) {
+				if (sb.length() == 0) {
 					// add individual letters?
 					if (word.trim().length() < 6) // not worth wrapping, just start a new line
 						return null;
@@ -598,6 +633,12 @@ public class TextHelper {
 		} else if (obj instanceof IProblem) {
 			IProblem p = (IProblem) obj;
 			add(new ProblemItem(p));
+		} else if (obj instanceof ISubmission) {
+			ISubmission s = (ISubmission) obj;
+			add(new LabelItem(s.getId(), Color.YELLOW));
+		} else if (obj instanceof IClarification) {
+			IClarification clar = (IClarification) obj;
+			add(new LabelItem(clar.getId(), Color.LIGHT_GRAY));
 		} else {
 			// unsupported contest object
 			addPlainText("contest object");
@@ -761,6 +802,8 @@ public class TextHelper {
 				new InputStreamReader(ICPCFont.class.getClassLoader().getResourceAsStream(filename)))) {
 			String s;
 			while ((s = br.readLine()) != null) {
+				if (s.startsWith("#"))
+					continue;
 				String[] hexCodes = s.split("-");
 				int[] codePoints = Arrays.stream(hexCodes).mapToInt(hex -> Integer.parseInt(hex, 16)).toArray();
 				String raw = new String(codePoints, 0, hexCodes.length);
