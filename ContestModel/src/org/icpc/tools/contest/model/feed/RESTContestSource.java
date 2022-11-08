@@ -391,7 +391,16 @@ public class RESTContestSource extends DiskContestSource {
 			try {
 				Files.move(temp.toPath(), localFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
 			} catch (IOException e) {
-				Files.move(temp.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				try {
+					Files.move(temp.toPath(), localFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				} catch (Exception ex) {
+					localFile.delete();
+					try {
+						Files.move(temp.toPath(), localFile.toPath());
+					} catch (IOException ex2) {
+						// no way to move
+					}
+				}
 			}
 
 			// be paranoid and set the timestamp after move as well
