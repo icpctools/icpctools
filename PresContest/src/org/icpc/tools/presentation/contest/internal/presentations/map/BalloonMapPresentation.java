@@ -27,8 +27,8 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 
 public class BalloonMapPresentation extends AbstractICPCPresentation {
-	private static final double DEFAULT_LONGITUDE = 23.829082;
-	private static final double DEFAULT_LATITUDE = 90.426443;
+	private static final double DEFAULT_LONGITUDE = 90.426443;
+	private static final double DEFAULT_LATITUDE = 23.829082;
 	private static final long TIME_TO_KEEP_SOLVED = 11000;
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
@@ -186,20 +186,22 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 		sr.anim.setTarget(0.95);
 		sr.problem = contest.getProblemIndex(submission.getProblemId());
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
-		if (org != null) {
-			sr.org = org;
-			sr.logo = org.getLogoImage(height / 6, height / 6, true, true);
-			sr.smLogo = org.getLogoImage(height * 4 / 6 / 10, height * 4 / 6 / 10, true, true);
-			sr.lat = new double[NUM_SEGMENTS];
-			sr.lon = new double[NUM_SEGMENTS];
-			sr.lat[0] = org.getLatitude();
-			sr.lon[0] = org.getLongitude();
-			double h = 40.0 * (Math.abs(sr.lat[0] - o_lat) + Math.abs(sr.lon[0] - o_lon)) / 180.0;
-			for (int i = 1; i < NUM_SEGMENTS; i++) {
-				double d = 1.0 - i / (NUM_SEGMENTS - 1.0);
-				sr.lon[i] = sr.lon[0] * d + o_lon * (1.0 - d);
-				sr.lat[i] = sr.lat[0] * d + o_lat * (1.0 - d) + Math.sin(i * Math.PI / (NUM_SEGMENTS - 1.0)) * h;
-			}
+		if (org == null || org.getLatitude() == Double.NaN || org.getLongitude() == Double.NaN)
+			// we have no origin location, so can't include on map
+			return;
+
+		sr.org = org;
+		sr.logo = org.getLogoImage(height / 6, height / 6, true, true);
+		sr.smLogo = org.getLogoImage(height * 4 / 6 / 10, height * 4 / 6 / 10, true, true);
+		sr.lat = new double[NUM_SEGMENTS];
+		sr.lon = new double[NUM_SEGMENTS];
+		sr.lat[0] = org.getLatitude();
+		sr.lon[0] = org.getLongitude();
+		double h = 40.0 * (Math.abs(sr.lat[0] - o_lat) + Math.abs(sr.lon[0] - o_lon)) / 180.0;
+		for (int i = 1; i < NUM_SEGMENTS; i++) {
+			double d = 1.0 - i / (NUM_SEGMENTS - 1.0);
+			sr.lon[i] = sr.lon[0] * d + o_lon * (1.0 - d);
+			sr.lat[i] = sr.lat[0] * d + o_lat * (1.0 - d) + Math.sin(i * Math.PI / (NUM_SEGMENTS - 1.0)) * h;
 		}
 
 		submissions.add(sr);
@@ -383,7 +385,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 			int i = (int) (d * 0.999 * (NUM_SEGMENTS - 1));
 			double dd = (d - i * 1.0 / (NUM_SEGMENTS - 1)) * (NUM_SEGMENTS - 1);
 
-			double lat = sr.lat[i] * (1.0 - dd) + sr.lat[i + 1] * dd;// NPE
+			double lat = sr.lat[i] * (1.0 - dd) + sr.lat[i + 1] * dd;
 			double lon = sr.lon[i] * (1.0 - dd) + sr.lon[i + 1] * dd;
 			int x = (int) (width * (lon + 180.0) * scm / 360.0);
 			int y = (int) (height * (90 - lat) * scm / 180.0);

@@ -105,7 +105,6 @@ public class FloorMap {
 	}
 
 	private Rectangle2D.Double tBounds;
-	private Rectangle2D.Double otBounds;
 	private int aisleCounter;
 
 	public static class AisleIntersection {
@@ -160,10 +159,8 @@ public class FloorMap {
 		ContestWriter.write(contest, new File(folder, "extend-floor"));
 	}
 
-	public Rectangle2D.Double getBounds(boolean onlyTeams) {
-		if (onlyTeams && otBounds != null)
-			return otBounds;
-		if (!onlyTeams && tBounds != null)
+	public Rectangle2D.Double getBounds() {
+		if (tBounds != null)
 			return tBounds;
 		double x1 = 0;
 		double y1 = 0;
@@ -193,28 +190,26 @@ public class FloorMap {
 			y2 = Math.max(y2, r2.getMaxY());
 		}
 
-		if (!onlyTeams) {
-			int bd = 2;
-			for (IProblem b : contest.getProblems()) {
-				if (Double.isNaN(b.getX()) || Double.isNaN(b.getY()))
-					continue;
+		int bd = 2;
+		for (IProblem b : contest.getProblems()) {
+			if (Double.isNaN(b.getX()) || Double.isNaN(b.getY()))
+				continue;
 
-				x1 = Math.min(x1, b.getX() - bd);
-				y1 = Math.min(y1, b.getY() - bd);
-				x2 = Math.max(x2, b.getX() + bd);
-				y2 = Math.max(y2, b.getY() + bd);
-			}
+			x1 = Math.min(x1, b.getX() - bd);
+			y1 = Math.min(y1, b.getY() - bd);
+			x2 = Math.max(x2, b.getX() + bd);
+			y2 = Math.max(y2, b.getY() + bd);
+		}
 
-			for (IAisle a : mapInfo.getAisles()) {
-				x1 = Math.min(x1, a.getX1());
-				y1 = Math.min(y1, a.getY1());
-				x2 = Math.max(x2, a.getX1());
-				y2 = Math.max(y2, a.getY1());
-				x1 = Math.min(x1, a.getX2());
-				y1 = Math.min(y1, a.getY2());
-				x2 = Math.max(x2, a.getX2());
-				y2 = Math.max(y2, a.getY2());
-			}
+		for (IAisle a : mapInfo.getAisles()) {
+			x1 = Math.min(x1, a.getX1());
+			y1 = Math.min(y1, a.getY1());
+			x2 = Math.max(x2, a.getX1());
+			y2 = Math.max(y2, a.getY1());
+			x1 = Math.min(x1, a.getX2());
+			y1 = Math.min(y1, a.getY2());
+			x2 = Math.max(x2, a.getX2());
+			y2 = Math.max(y2, a.getY2());
 		}
 
 		// add small gap
@@ -224,12 +219,8 @@ public class FloorMap {
 		y1 -= gap;
 		x2 += gap;
 		y2 += gap;
-		Rectangle2D.Double b = new Rectangle2D.Double(x1, y1, x2 - x1, y2 - y1);
-		if (onlyTeams)
-			otBounds = b;
-		else
-			tBounds = b;
-		return b;
+		tBounds = new Rectangle2D.Double(x1, y1, x2 - x1, y2 - y1);
+		return tBounds;
 	}
 
 	private void computeAisleIntersections() {
@@ -486,7 +477,7 @@ public class FloorMap {
 	}
 
 	public void drawFloor(Graphics2D g, Rectangle r, String teamId, boolean showAisles, Path... paths) {
-		Rectangle2D.Double bounds = getBounds(false);
+		Rectangle2D.Double bounds = getBounds();
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int x1 = r.x - (int) (bounds.x * scale);
 		int y1 = r.y - (int) (bounds.y * scale);
@@ -653,7 +644,7 @@ public class FloorMap {
 	}
 
 	public Point2D getPosition(Rectangle r, Point2D p) {
-		Rectangle2D.Double bounds = getBounds(true);
+		Rectangle2D.Double bounds = getBounds();
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int ww = (int) (bounds.width * scale);
 		int hh = (int) (bounds.height * scale);
@@ -677,7 +668,7 @@ public class FloorMap {
 	}
 
 	public Point2D getPosition(Rectangle r, double x, double y) {
-		Rectangle2D.Double bounds = getBounds(true);
+		Rectangle2D.Double bounds = getBounds();
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int ww = (int) (bounds.width * scale);
 		int hh = (int) (bounds.height * scale);
@@ -689,7 +680,7 @@ public class FloorMap {
 	}
 
 	public void drawPath(Graphics2D g, Rectangle r, Path p) {
-		Rectangle2D.Double bounds = getBounds(true);
+		Rectangle2D.Double bounds = getBounds();
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int ww = (int) (bounds.width * scale);
 		int hh = (int) (bounds.height * scale);
@@ -719,7 +710,7 @@ public class FloorMap {
 	}
 
 	public void drawFloor(Graphics2D g, Rectangle r, FloorColors colors) {
-		Rectangle2D.Double bounds = getBounds(false);
+		Rectangle2D.Double bounds = getBounds();
 		double scale = Math.min(r.width / bounds.width, r.height / bounds.height);
 		int ww = (int) (bounds.width * scale);
 		int hh = (int) (bounds.height * scale);
