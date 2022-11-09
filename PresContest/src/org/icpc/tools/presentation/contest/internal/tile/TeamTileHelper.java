@@ -51,6 +51,7 @@ public class TeamTileHelper {
 	private boolean lightMode;
 
 	private boolean approximateRendering;
+	private boolean nameRenderingGlitchAvoidance;
 
 	private Map<String, BufferedImage> nameImages = Collections.synchronizedMap(new HashMap<>());
 	private Map<String, SoftReference<BufferedImage>> resultImages = Collections.synchronizedMap(new HashMap<>());
@@ -69,6 +70,7 @@ public class TeamTileHelper {
 		resultImages = from.resultImages;
 		problemImages = from.problemImages;
 		logoImages = from.logoImages;
+		nameRenderingGlitchAvoidance = true;
 	}
 
 	public void clearCaches() {
@@ -181,7 +183,11 @@ public class TeamTileHelper {
 			text.draw(1, 2);
 			gg.dispose();
 
-			nameImages.put(team.getId(), img);
+			if (!nameRenderingGlitchAvoidance) {
+				// TODO: for some reason, text renders ever so slightly different when pre-rendering
+				// it should render identically, so the natural size cached version could be updated
+				nameImages.put(team.getId(), img);
+			}
 			img = cacheMiss(img);
 		}
 
