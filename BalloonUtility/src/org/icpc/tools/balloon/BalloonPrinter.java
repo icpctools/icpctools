@@ -218,8 +218,8 @@ public class BalloonPrinter {
 		if (font == null) {
 			font = tempFont.deriveFont(Font.PLAIN, 10f);
 			mediumFont = tempFont.deriveFont(Font.PLAIN, 16f);
-			largeFont = tempFont.deriveFont(Font.PLAIN, 28f);
-			hugeFont = tempFont.deriveFont(Font.PLAIN, 90f);
+			largeFont = tempFont.deriveFont(Font.PLAIN, 22f);
+			hugeFont = tempFont.deriveFont(Font.PLAIN, 70f);
 		}
 
 		IContest c = bc.getContest();
@@ -449,7 +449,7 @@ public class BalloonPrinter {
 		try {
 			g.setFont(font);
 			UPCa upc = new UPCa(b.getId() + 100000);
-			upc.draw(g, new Rectangle(r.width - w - r.width / 50, yy + r.width / 60, w, w / 2));
+			upc.draw(g, new Rectangle(r.width - w - r.width / 50, yy + r.width / 60, w, w * 2 / 5));
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error drawing UPC", e);
 		}
@@ -478,13 +478,6 @@ public class BalloonPrinter {
 		g.setFont(font);
 		fm = g.getFontMetrics();
 
-		if (bannerImage != null) {
-			float scale = r.width * 0.5f / bannerImage.getWidth();
-			int bw = (int) (bannerImage.getWidth() * scale);
-			int bh = (int) (bannerImage.getHeight() * scale);
-			g.drawImage(bannerImage, (r.width - bw) / 2, r.height - bh, bw, bh, null);
-		}
-
 		try {
 			if (map == null)
 				map = new FloorMap(c);
@@ -506,16 +499,22 @@ public class BalloonPrinter {
 		g.drawString(contestTitle, 0, r.height - fm.getDescent());
 
 		s = "Printed " + BalloonUtility.getDateString();
-		g.drawString(s, r.width - fm.stringWidth(s), r.height - fm.getDescent());
+		g.drawString(s, (r.width - fm.stringWidth(s)) / 2, r.height - fm.getDescent());
 
 		// draw delivery signature line
 		s = "Delivered";
 		g.setFont(mediumFont);
 		fm = g.getFontMetrics();
-		int dw = (int) (r.width * 0.8);
-		y = r.height - fm.getHeight();
-		g.drawString(s, dw - fm.stringWidth(s), y);
-		g.drawLine(dw, y, r.width, y);
+		int dw = (int) (r.width * 0.84);
+		g.drawString(s, dw - fm.stringWidth(s), r.height - fm.getDescent());
+		g.drawLine(dw, r.height, r.width, r.height);
+
+		if (bannerImage != null) {
+			float scale = r.width * 0.5f / bannerImage.getWidth();
+			int bw = (int) (bannerImage.getWidth() * scale);
+			int bh = (int) (bannerImage.getHeight() * scale);
+			g.drawImage(bannerImage, (r.width - bw) / 2, r.height - fm.getHeight() - bh, bw, bh, null);
+		}
 	}
 
 	private static String subs(String message, String group, String pLabel, String pColor) {
