@@ -73,6 +73,7 @@ public class ReactionVideoRecorder {
 		if (dir == null)
 			return;
 
+		// TODO - wrong folder, need to remove or do deep scan on submissions folder
 		File reactDir = new File(dir, "video" + File.separator + "reactions");
 		if (!reactDir.exists())
 			return;
@@ -124,7 +125,7 @@ public class ReactionVideoRecorder {
 				for (File f : files) {
 					FileReference ref = new FileReference();
 					ref.filename = f.getName();
-					String name = f.getName().substring(0, f.getName().length() - 5);
+					String name = f.getName().substring(0, f.getName().length() - extension.length() - 1);
 					ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
 					ref.mime = handler.getMimeType();
 					ref.file = f;
@@ -198,7 +199,7 @@ public class ReactionVideoRecorder {
 
 			VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[0]);
 			FileReference ref = new FileReference();
-			String name = file.getName().substring(0, file.getName().length() - 5);
+			String name = file.getName().substring(0, file.getName().length() - extension.length() - 1);
 			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
 			ref.mime = stream.getMimeType();
 			ref.file = file;
@@ -246,8 +247,9 @@ public class ReactionVideoRecorder {
 							info.tempFile[i].delete();
 
 						if (info.file[i].exists() && info.file[i].length() == 0) {
-							Trace.trace(Trace.WARNING, "No video received for submission. Stream: " + info.stream);
-							info.file[i].delete();
+							Trace.trace(Trace.WARNING, "No video received for submission: " + info.file[i].toString());
+							// TODO - not safe to delete if another CDS has picked it up already
+							// info.file[i].delete();
 						}
 					}
 				}

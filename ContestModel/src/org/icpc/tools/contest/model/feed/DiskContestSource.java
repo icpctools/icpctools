@@ -613,10 +613,15 @@ public class DiskContestSource extends ContestSource {
 
 	protected FileReference getMetadata(String href, File file) {
 		FileReference ref = getFileRef(file);
-		if (ref == null)
+		if (ref == null) {
 			Trace.trace(Trace.ERROR, "Null file ref! " + href + " - " + file + " - " + file.exists());
-		else
-			ref.href = "contests/" + contestId + "/" + href;
+			ref = getFileRef(file);
+			if (ref == null) {
+				Trace.trace(Trace.ERROR, "Not found second pass");
+				return null;
+			}
+		}
+		ref.href = "contests/" + contestId + "/" + href;
 		return ref;
 	}
 
@@ -827,7 +832,9 @@ public class DiskContestSource extends ContestSource {
 				for (File file : files) {
 					String diff = file.getName();
 					diff = diff.substring(pattern.name.length(), diff.length() - ext.length() - 1);
-					refList.add(getMetadata(pattern.url + diff, file));
+					FileReference ref = getMetadata(pattern.url + diff, file);
+					if (ref != null)
+						refList.add(ref);
 					// TODO future: url currently would not be able to handle logo2.svg and logo2.png
 				}
 			}
