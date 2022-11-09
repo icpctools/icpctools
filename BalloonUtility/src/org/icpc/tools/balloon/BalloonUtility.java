@@ -483,18 +483,14 @@ public class BalloonUtility {
 
 			// print & update flags
 			if (autoPrint && b.getFlags() >= 0)
-				javax.swing.SwingUtilities.invokeLater(() -> {
-					print(b);
-				});
+				print(b);
 
 			bc.updateFlags(new BalloonContest.FlagListener() {
 				@Override
 				public void updatedFlags(Balloon bb) {
 					updateBalloon(bb);
-					if (autoPrint && isRunFromGroup(bb)) {
-						javax.swing.SwingUtilities.invokeLater(() -> {
-							print(bb);
-						});
+					if (autoPrint && !b.isPrinted() && isRunFromGroup(bb)) {
+						print(bb);
 					}
 				}
 			});
