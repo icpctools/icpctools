@@ -293,10 +293,12 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				boolean visible = (x - hScroll + tileDim.width > 0 && x - hScroll < width - margin);
 				long time = getRepeatTimeMs();
 				boolean scrolling = Math.abs(Math.IEEEremainder(scroll.getScroll(time), 1)) > 1e-3;
+				boolean animating = Math.abs(Math.IEEEremainder(currentColumns, 1)) > 1e-3;
 				if (visible) {
 					tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs, false);
-				} else if (!scrolling) {
-					// pre-render a small section of what is visible next, when not scrolling columns
+				} else if (!scrolling && !animating) {
+					// pre-render a small section of what is visible next, when not scrolling columns,
+					// and not animating columns
 					int prerenderX1 = width - margin;
 					int prerenderX2 = prerenderX1 + tileDim.width;
 					int prerenderY = (timeMs % (MS_PER_COLUMN / 3)) * height / (MS_PER_COLUMN / 3);
