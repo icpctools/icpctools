@@ -9,6 +9,10 @@ public class RenderPerfTimer {
         LOGO,
         NAME,
         PROBLEM,
+        PROBLEM_DRAW,
+        INACTIVE_PROBLEM,
+        INACTIVE_PROBLEM2,
+        INACTIVE_PROBLEM3,
         ACTIVE_PROBLEM,
     }
 
