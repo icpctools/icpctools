@@ -888,6 +888,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 				g.drawString(ss[i], d.width - fm.stringWidth(ss[i]) - 10,
 						d.height - fm.getDescent() - fm.getHeight() * 2 + fm.getHeight() * i - 10);
 		}
+
+		colorCacheMisses = showDebug && (showTimerStats || showTimerSparklines);
 		if (showDebug && (showTimerStats || showTimerSparklines)) {
 			FontMetrics fm = g.getFontMetrics();
 			Dimension d = getDisplaySize();
@@ -1088,5 +1090,11 @@ public class PresentationWindowImpl extends PresentationWindow {
 	@Override
 	public void update(Graphics g) {
 		paint(g);
+	}
+
+	private static volatile boolean colorCacheMisses;
+
+	public static boolean shouldColorCacheMisses() {
+		return colorCacheMisses;
 	}
 }
