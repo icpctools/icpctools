@@ -49,7 +49,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private static final long TRANSITION_TIME = 2000;
 	private static final long DEFAULT_REPEAT_TIME = 10000;
 	private static final long PLAN_FADE_TIME = 800; // time to fade in/out when changing plan
-	private static final long MAX_FPS = 1000000000L / 60L; // limit to 60fps max
+	private static final long MAX_FPS = 1000_000_000L / (60L + 7); // limit to 60fps max with some margin
 
 	private boolean lightMode;
 
