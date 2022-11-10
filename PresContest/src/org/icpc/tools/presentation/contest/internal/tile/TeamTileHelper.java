@@ -218,7 +218,11 @@ public class TeamTileHelper {
 		RenderPerfTimer.Counter rankAndScoreMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
 		RenderPerfTimer.Counter nameMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
 		RenderPerfTimer.Counter problemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
+		RenderPerfTimer.Counter inactiveProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM);
+		RenderPerfTimer.Counter inactive2ProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM2);
+		RenderPerfTimer.Counter inactive3ProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM3);
 		RenderPerfTimer.Counter activeProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
+		RenderPerfTimer.Counter problemDrawMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM_DRAW);
 		rankAndScoreMeasure.startMeasure();
 		g.setFont(rankFont);
 		FontMetrics rankFm = g.getFontMetrics();
@@ -289,6 +293,7 @@ public class TeamTileHelper {
 				hash += " FIRST";
 			}
 			if (r.getNumSubmissions() == 0) {
+				inactiveProblemMeasure.startMeasure();
 				String label = problems[i].getLabel();
 				String problemOnlyHash = label + (int) w;
 				BufferedImage img = problemImages.get(problemOnlyHash);
@@ -301,30 +306,38 @@ public class TeamTileHelper {
 					gg.dispose();
 					problemImages.put(problemOnlyHash, img);
 				}
+				inactiveProblemMeasure.stopMeasure();
+				problemDrawMeasure.startMeasure();
 				g.drawImage(img, xx + (int) (w * i), y, null);
+				problemDrawMeasure.stopMeasure();
 			} else if (ContestUtil.isRecent(contest, r)) {
-				problemMeasure.stopMeasure();
 				activeProblemMeasure.startMeasure();
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
 				String backHash = r.getStatus().name() + " " + (int) w + " flash " + k;
 				BufferedImage backImg = getCacheOrRender(backHash, problemImages, (int) w, h, (gg) -> {
 					paintResultBackground(gg, k, r, 0, 0, (int) w, h, arc);
 				});
-				g.drawImage(backImg, xx + (int) (w * i), y, null);
 				// TODO: only cache up to the natural string width
 				String resultTextOnlyHash = hash + " TEXT";
 				BufferedImage img = getCacheOrRender(resultTextOnlyHash, problemImages, (int) w, h, (gg) -> {
 					gg.setFont(statusFont);
 					paintResultText(gg, r, 0, 0, (int) w, h, arc, statusFm);
 				});
-				g.drawImage(img, xx + (int) (w * i), y, null);
 				activeProblemMeasure.stopMeasure();
-				problemMeasure.startMeasure();
+				problemDrawMeasure.startMeasure();
+				g.drawImage(backImg, xx + (int) (w * i), y, null);
+				g.drawImage(img, xx + (int) (w * i), y, null);
+				problemDrawMeasure.stopMeasure();
 			} else {
+				inactive2ProblemMeasure.startMeasure();
 				SoftReference<BufferedImage> ref = resultImages.get(hash);
 				BufferedImage img = null;
-				if (ref != null)
+				if (ref != null) {
 					img = ref.get();
+					if (img == null) {
+						Trace.trace(Trace.INFO, "Soft image reference cleared: " + hash);
+					}
+				}
 				if (img == null) {
 					Trace.trace(Trace.INFO, "problem cache miss " + hash);
 					img = new BufferedImage((int) w, h, BufferedImage.TYPE_4BYTE_ABGR);
@@ -336,7 +349,10 @@ public class TeamTileHelper {
 					gg.dispose();
 					resultImages.put(hash, new SoftReference<BufferedImage>(img));
 				}
+				inactive2ProblemMeasure.stopMeasure();
+				problemDrawMeasure.startMeasure();
 				g.drawImage(img, xx + (int) (w * i), y, null);
+				problemDrawMeasure.stopMeasure();
 			}
 		}
 		problemMeasure.stopMeasure();
