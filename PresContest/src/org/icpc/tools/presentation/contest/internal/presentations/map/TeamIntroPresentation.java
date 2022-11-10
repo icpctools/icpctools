@@ -280,6 +280,11 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 				if (teamInd >= 0 && teamInd < gz.instPos.length) {
 					Position p = gz.instPos[teamInd];
 					anim.setTarget(p.x, p.y, p.z);
+					/*if (Double.isNaN(p.x) || Double.isNaN(p.y)) {
+						anim.setTarget(gz.pos.x, gz.pos.y, gz.pos.z);
+					} else {
+						anim.setTarget(p.x, p.y, p.z);
+					}*/
 				}
 
 				BubbleOut.bubbleOut(gz.instPos, teamInd, width, height, 1 / anim.getZValue(), dt);
@@ -382,6 +387,20 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 				int y = (int) (height * (90 - gz.instPos[i].y) * sc / 180.0);
 				g2.drawImage(gz.instPos[i].smImage, x - gz.instPos[i].smImage.getWidth() / 2,
 						y - gz.instPos[i].smImage.getHeight() / 2, null);
+
+				/*Position p = gz.instPos[i];
+				if (!Double.isNaN(p.gridX) && !Double.isNaN(p.gridY)) {
+					int gx = (int) (width * (gz.instPos[i].gridX + 180.0) * sc / 360.0);
+					int gy = (int) (height * (90 - gz.instPos[i].gridY) * sc / 180.0);
+					g2.setColor(Color.BLUE);
+					g2.drawLine(x, y, gx, gy);
+				}
+				if (!Double.isNaN(p.originalX) && !Double.isNaN(p.originalX)) {
+					int ox = (int) (width * (gz.instPos[i].originalX + 180.0) * sc / 360.0);
+					int oy = (int) (height * (90 - gz.instPos[i].originalY) * sc / 180.0);
+					g2.setColor(Color.RED);
+					g2.drawLine(x, y, ox, oy);
+				}*/
 			}
 		}
 
