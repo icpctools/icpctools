@@ -2,9 +2,13 @@ package org.icpc.tools.presentation.contest.internal.tile;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,12 +69,40 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 
 	@Override
 	protected void paintImpl(Graphics2D g) {
+		preRenderRandom();
+
 		double cols = initScroll.getValue();
 		setColumns(cols);
 
 		tileHelper.setApproximateRendering(Math.abs(cols - initScroll.getTarget()) > 1e-3);
 
 		super.paintImpl(g);
+	}
+
+	private void preRenderRandom() {
+		double cols = 1.000 + Math.random() * (columns - 1);
+		setColumns(cols);
+
+		TeamTileHelper tileHelper2 = createTileHelper();
+		tileHelper2.joinCaches(tileHelper);
+		tileHelper2.setLightMode(isLightMode());
+		tileHelper2.setSize(tileHelper.getSize());
+		tileHelper2.setApproximateRendering(cols > 1.001 && cols < 1.999);
+
+		renderPool.getExecutor().submit(() -> {
+			ITeam[] teams = getContest().getOrderedTeams();
+
+			BufferedImage dummy = new BufferedImage(100, 100, BufferedImage.TYPE_4BYTE_ABGR);
+			Graphics2D gg = dummy.createGraphics();
+			final int N_PRE_PER_FRAME = 11;
+			for (int i = 0; i < N_PRE_PER_FRAME; i++) {
+				int randomTopRow = (int) (Math.random() * Math.min(2 * rows, teams.length));
+				ITeam team = teams[randomTopRow];
+
+				tileHelper2.paintTile(gg, 0, 0, 1.0, team, (int) getRepeatTimeMs(), true);
+			}
+			gg.dispose();
+		});
 	}
 
 	@Override

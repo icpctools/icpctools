@@ -8,6 +8,8 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.Future;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
@@ -268,6 +270,8 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 			paintHeader(g);
 	}
 
+	protected RenderPool renderPool = new RenderPool();
+
 	protected void paintTiles(Graphics2D g, int hScroll) {
 		IContest contest = getContest();
 		if (contest == null)
@@ -289,7 +293,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				long time = getRepeatTimeMs();
 				boolean scrolling = Math.abs(Math.IEEEremainder(scroll.getScroll(time), 1)) > 1e-3;
 				if (visible) {
-					tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs);
+					tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs, false);
 				} else if (!scrolling) {
 					// pre-render a small section of what is visible next, when not scrolling columns
 					int prerenderX1 = width - margin;
@@ -299,9 +303,22 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 						if (y + tileDim.height > prerenderY && y < prerenderY) {
 							final boolean debugShowPrerender = false;
 							int dx = debugShowPrerender ? -300 : 0;
-							tileHelper.setPreRendering(true);
-							tileHelper.paintTile(g, x + dx, y, anim.getZoom(), team, timeMs);
-							tileHelper.setPreRendering(false);
+							int preX = x, preY = y;
+							Future<?> future = renderPool.getExecutor().submit(() -> {
+								BufferedImage dummy = new BufferedImage(10, 10, BufferedImage.TYPE_4BYTE_ABGR);
+								Graphics2D gg = debugShowPrerender ? g : dummy.createGraphics();
+								tileHelper.paintTile(gg, preX + dx, preY, anim.getZoom(), team, timeMs, true);
+								if (!debugShowPrerender)
+									gg.dispose();
+							});
+
+							if (debugShowPrerender) {
+								try {
+									future.wait();
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
 						}
 					}
 				}
@@ -313,7 +330,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 					y -= colHeight;
 					x += tileDim.width + TILE_H_GAP;
 					if ((x - hScroll + tileDim.width > 0 && x - hScroll < width - margin))
-						tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs);
+						tileHelper.paintTile(g, x, y, anim.getZoom(), team, timeMs, false);
 				}
 			}
 		}
@@ -335,7 +352,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 				int y = (int) (p.getY() * (tileDim.height + TILE_V_GAP));
 
 				if (y - vScrollv + tileDim.height > 0 && y - vScrollv < height)
-					tileHelper.paintTile(g, x, y, anim.getZoom(), teams[i], timeMs);
+					tileHelper.paintTile(g, x, y, anim.getZoom(), teams[i], timeMs, false);
 			}
 		}
 	}

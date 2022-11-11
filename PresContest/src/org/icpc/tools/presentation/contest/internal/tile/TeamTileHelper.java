@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.lang.ref.SoftReference;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -50,18 +51,24 @@ public class TeamTileHelper {
 	private boolean lightMode;
 
 	private boolean approximateRendering;
-	private boolean preRendering;
 
-	private Map<String, BufferedImage> nameImages = new HashMap<>();
-	private Map<String, SoftReference<BufferedImage>> resultImages = new HashMap<>();
-	private Map<String, BufferedImage> problemImages = new HashMap<>();
-	private Map<String, BufferedImage> logoImages = new HashMap<>();
+	private Map<String, BufferedImage> nameImages = Collections.synchronizedMap(new HashMap<>());
+	private Map<String, SoftReference<BufferedImage>> resultImages = Collections.synchronizedMap(new HashMap<>());
+	private Map<String, BufferedImage> problemImages = Collections.synchronizedMap(new HashMap<>());
+	private Map<String, BufferedImage> logoImages = Collections.synchronizedMap(new HashMap<>());
 
 	public TeamTileHelper(Dimension tileDim, IContest contest) {
 		this.tileDim = tileDim;
 		this.contest = contest;
 
 		setup();
+	}
+
+	public void joinCaches(TeamTileHelper from) {
+		nameImages = from.nameImages;
+		resultImages = from.resultImages;
+		problemImages = from.problemImages;
+		logoImages = from.logoImages;
 	}
 
 	public void clearCaches() {
@@ -75,16 +82,16 @@ public class TeamTileHelper {
 		this.tileDim = d;
 	}
 
+	protected Dimension getSize() {
+		return new Dimension(tileDim.width, tileDim.height);
+	}
+
 	protected void setLightMode(boolean lightMode) {
 		this.lightMode = lightMode;
 	}
 
 	public void setApproximateRendering(boolean approximateRendering) {
 		this.approximateRendering = approximateRendering;
-	}
-
-	public void setPreRendering(boolean preRendering) {
-		this.preRendering = preRendering;
 	}
 
 	protected void setup() {
@@ -99,10 +106,10 @@ public class TeamTileHelper {
 	}
 
 	public void paintTile(Graphics2D g, int x, int y, ITeam team, int timeMs) {
-		paintTile(g, x, y, 1.0, team, timeMs);
+		paintTile(g, x, y, 1.0, team, timeMs, false);
 	}
 
-	public void paintTile(Graphics2D g, int x, int y, double scale, ITeam team, int timeMs) {
+	public void paintTile(Graphics2D g, int x, int y, double scale, ITeam team, int timeMs, boolean preRendering) {
 		Graphics2D gg = (Graphics2D) g.create();
 		gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -153,7 +160,7 @@ public class TeamTileHelper {
 			logoMeasure.stopMeasure();
 		}
 
-		paintTileForeground(gg, team, timeMs);
+		paintTileForeground(gg, team, timeMs, preRendering);
 
 		gg.dispose();
 	}
@@ -225,7 +232,7 @@ public class TeamTileHelper {
 				null);
 	}
 
-	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs) {
+	private void paintTileForeground(Graphics2D g, ITeam team, int timeMs, boolean preRendering) {
 		RenderPerfTimer.Counter rankAndScoreMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
 		RenderPerfTimer.Counter nameMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
 		RenderPerfTimer.Counter problemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
