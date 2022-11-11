@@ -51,16 +51,18 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 	protected void updateTeamTargets(ITeam[] teams, Point2D[] targets) {
 		IContest contest = getContest();
 		int size = teams.length;
-		breaks.clear();
-		int numSolved = 0;
-		if (size > 0)
-			numSolved = contest.getStanding(teams[0]).getNumSolved();
-		for (int i = 0; i < size; i++) {
-			targets[i].setLocation(0, i);
-			int num = contest.getStanding(teams[i]).getNumSolved();
-			if (num != numSolved) {
-				numSolved = num;
-				breaks.add(i);
+		synchronized (breaks) {
+			breaks.clear();
+			int numSolved = 0;
+			if (size > 0)
+				numSolved = contest.getStanding(teams[0]).getNumSolved();
+			for (int i = 0; i < size; i++) {
+				targets[i].setLocation(0, i);
+				int num = contest.getStanding(teams[i]).getNumSolved();
+				if (num != numSolved) {
+					numSolved = num;
+					breaks.add(i);
+				}
 			}
 		}
 
@@ -166,10 +168,12 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 		int arc = tileDim.width / 90;
 		g.setColor(isLightMode() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setStroke(new BasicStroke(2f));
-		for (Integer i : breaks) {
-			int x = ((i / rows) * (tileDim.width + TILE_H_GAP));
-			int y = ((i % rows) * (tileDim.height + TILE_V_GAP)) - (TILE_V_GAP + 1) / 2;
-			g.drawLine(x + arc, y, x + tileDim.width - arc, y);
+		synchronized (breaks) {
+			for (Integer i : breaks) {
+				int x = ((i / rows) * (tileDim.width + TILE_H_GAP));
+				int y = ((i % rows) * (tileDim.height + TILE_V_GAP)) - (TILE_V_GAP + 1) / 2;
+				g.drawLine(x + arc, y, x + tileDim.width - arc, y);
+			}
 		}
 	}
 }
