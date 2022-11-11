@@ -230,28 +230,39 @@ public class TSVImporter {
 		}
 	}
 
+	private static int findColumn(String[] cols, String name) {
+		for (int i = 0; i < cols.length; i++) {
+			String s = cols[i];
+			if (s != null && s.toLowerCase().equals(name.toLowerCase()))
+				return i;
+		}
+		return -1;
+	}
+
 	public static void importPersonsTab(List<Person> list, List<Team> teams, File f) throws IOException {
 		List<Person> temp = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(new File(f, "Person.tab")))) {
 			// read header
-			br.readLine();
-
 			String s = br.readLine();
+			String[] st = s.split("\\t");
+			int nameCol = findColumn(st, "prefered name");
+			int sexCol = findColumn(st, "sex");
+
+			s = br.readLine();
 			while (s != null) {
-				String[] st = s.split("\\t");
+				st = s.split("\\t");
 				if (st != null && st.length > 0) {
 					Person p = new Person();
 					add(p, ID, st[0]);
 					add(p, ICPC_ID, st[0]);
 					// add(p, TEAM_ID, st[0]);
-					add(p, NAME, st[2] + " " + st[3]);
-					if (st.length > 26) {
-						String sex = st[27];
-						if (sex != null)
-							add(p, SEX, sex.toLowerCase());
-					} else {
+					add(p, NAME, st[nameCol]);
+					String sex = st[sexCol];
+					if (sex != null)
+						add(p, SEX, sex.toLowerCase());
+					else
 						Trace.trace(Trace.USER, "Sex not known: " + st[0] + " - " + st[2] + " " + st[3]);
-					}
+
 					temp.add(p);
 				}
 				s = br.readLine();
