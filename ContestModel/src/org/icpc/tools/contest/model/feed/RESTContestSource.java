@@ -367,6 +367,7 @@ public class RESTContestSource extends DiskContestSource {
 			localFile.getParentFile().mkdirs();
 
 		File temp = File.createTempFile("download", "tmp", localFile.getParentFile().getParentFile());
+		temp.deleteOnExit();
 
 		InputStream in = conn.getInputStream();
 		FileOutputStream out = new FileOutputStream(temp);
@@ -406,7 +407,8 @@ public class RESTContestSource extends DiskContestSource {
 			// be paranoid and set the timestamp after move as well
 			if (mod != 0)
 				localFile.setLastModified(mod);
-		}
+		} else
+			temp.delete();
 
 		String etag = conn.getHeaderField("ETag");
 		updateFileInfo(localFile, href, etag);
