@@ -91,6 +91,15 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 				if (KeyEvent.VK_D == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
 					toggleDebug();
 
+				if (KeyEvent.VK_C == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					clearCaches();
+
+				if (KeyEvent.VK_T == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					resetTime();
+
+				if (KeyEvent.VK_L == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					setLightMode(e.isShiftDown());
+
 				keyEvent(e, KeyEvent.KEY_PRESSED);
 			}
 
