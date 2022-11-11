@@ -2,7 +2,9 @@ package org.icpc.tools.contest.model.internal;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.ParseException;
 
+import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -21,7 +23,7 @@ public class YamlParserTest {
 				+ "scoreboard-freeze-length: 1:23:00\n"
 				+ "penalty-time:             17\n";
 		Reader reader = new StringReader(exampleYaml);
-		Info info = YamlParser.parseInfo(reader);
+		Info info = YamlParser.parseInfo(reader, true);
 		assertThat(info.getFormalName()).isEqualTo("Example contest");
 		assertThat(info.getName()).isEqualTo("example19");
 		assertThat(info.getStartTime()).isEqualTo(1573981200000L);
@@ -39,8 +41,8 @@ public class YamlParserTest {
 				+ "scoreboard-freeze-length: 1:23:33\n"
 				+ "penalty-time:             17\n";
 		Reader reader = new StringReader(exampleYaml);
-		Info info = YamlParser.parseInfo(reader);
-		assertThat(info.getStartTime()).isEqualTo(1573974011000L);
+		Info info = YamlParser.parseInfo(reader, false);
+		assertThat(info.getStartTime()).isEqualTo(1573972211000L); // 1573974011000L);
 		assertThat(info.getDuration()).isEqualTo((7 * 3600 + 22) * 1000);
 		assertThat(info.getFreezeDuration()).isEqualTo(((60 + 23) * 60 + 33) * 1000);
 	}
@@ -53,20 +55,31 @@ public class YamlParserTest {
 				+ "duration:                 7:00:22\n"
 				+ "scoreboard-freeze-length: 1:23:33\n";
 		Reader reader = new StringReader(exampleYaml);
-		Info info = YamlParser.parseInfo(reader);
-		assertThat(info.getPenaltyTime()).isEqualTo(20);
+		Info info = YamlParser.parseInfo(reader, false);
+		boolean npe = false;
+		try {
+			assertThat(info.getPenaltyTime()).isEqualTo(20);
+		} catch (NullPointerException e) {
+			// TODO: use assertThrows, @since JUnit 4.13
+			npe = true;
+		}
+		assertThat(npe).isTrue();
 	}
 
 	@Test
 	public void testParseTime() throws Exception {
-		assertThat(YamlParser.parseTime("5:00:00")).isEqualTo(5 * 3600);
-		assertThat(YamlParser.parseTime("05:00:00")).isEqualTo(5 * 3600);
-		assertThat(YamlParser.parseTime("2:30:00")).isEqualTo(2 * 3600 + 30 * 60);
-		assertThat(YamlParser.parseTime("1:23:42")).isEqualTo(1 * 3600 + 23 * 60 + 42);
+		assertThat(parseTime("5:00:00")).isEqualTo(5 * 3_600_000);
+		assertThat(parseTime("05:00:00")).isEqualTo(5 * 3_600_000);
+		assertThat(parseTime("2:30:00")).isEqualTo(2 * 3_600_000 + 30 * 60_000);
+		assertThat(parseTime("1:23:42")).isEqualTo(1 * 3_600_000 + 23 * 60_000 + 42_000);
 	}
 
 	@Test(expected = Exception.class)
-	public void testParseTimeWithoutSeconds() {
-		YamlParser.parseTime("5:00");
+	public void testParseTimeWithoutSeconds() throws Exception {
+		parseTime("5:00");
+	}
+
+	private int parseTime(String s) throws ParseException {
+		return RelativeTime.parse(s);
 	}
 }
