@@ -223,6 +223,11 @@ public class TeamTileHelper {
 			gg.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			text.setGraphics(gg);
 			text.drawFit(1, 2, hashWidth);
+			final boolean DEBUG_APPROXIMATE_RENDERING = false;
+			if (approximateRendering && DEBUG_APPROXIMATE_RENDERING) {
+				gg.setColor(Color.YELLOW);
+				gg.drawString("*", 7, gg.getFontMetrics().getAscent());
+			}
 			gg.dispose();
 
 			nameImages.put(hash, img);

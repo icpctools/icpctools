@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.icpc.tools.contest.model.IContest;
@@ -301,21 +302,21 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 					int prerenderY = (timeMs % (MS_PER_COLUMN / 3)) * height / (MS_PER_COLUMN / 3);
 					if ((x - hScroll + tileDim.width > prerenderX1 && x - hScroll < prerenderX2)) {
 						if (y + tileDim.height > prerenderY && y < prerenderY) {
-							final boolean debugShowPrerender = false;
-							int dx = debugShowPrerender ? -300 : 0;
+							final boolean DEBUG_SHOW_PRERENDER = false;
+							int dx = DEBUG_SHOW_PRERENDER ? -300 : 0;
 							int preX = x, preY = y;
 							Future<?> future = renderPool.getExecutor().submit(() -> {
 								BufferedImage dummy = new BufferedImage(10, 10, BufferedImage.TYPE_4BYTE_ABGR);
-								Graphics2D gg = debugShowPrerender ? g : dummy.createGraphics();
+								Graphics2D gg = DEBUG_SHOW_PRERENDER ? g : dummy.createGraphics();
 								tileHelper.paintTile(gg, preX + dx, preY, anim.getZoom(), team, timeMs, true);
-								if (!debugShowPrerender)
+								if (!DEBUG_SHOW_PRERENDER)
 									gg.dispose();
 							});
 
-							if (debugShowPrerender) {
+							if (DEBUG_SHOW_PRERENDER) {
 								try {
-									future.wait();
-								} catch (InterruptedException e) {
+									future.get();
+								} catch (InterruptedException | ExecutionException e) {
 									e.printStackTrace();
 								}
 							}
