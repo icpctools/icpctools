@@ -141,6 +141,13 @@ public class CDSConfig {
 			Trace.trace(Trace.ERROR, "Could not load accounts", e);
 		}
 
+		contests = new ConfiguredContest[0];
+		contestHashes = new long[0];
+		domains = new Domain[0];
+		hosts = new String[0];
+		auths = new Auth[0];
+		System.setProperty("CDS-name", "CDS");
+
 		lastModified = file.lastModified();
 		try {
 			Element e = readElement(file);
@@ -265,8 +272,10 @@ public class CDSConfig {
 						break;
 					}
 				}
-				if (!stillInUse)
+				if (!stillInUse) {
+					Trace.trace(Trace.USER, "Removing " + oldHashes[i]);
 					oldContests[i].close();
+				}
 			}
 		}
 
