@@ -637,7 +637,7 @@ public class DiskContestSource extends ContestSource {
 		else if (name.endsWith(".png"))
 			return "image/png";
 		else if (name.endsWith(".jpg"))
-			return "image/jpg";
+			return "image/jpeg";
 		else if (name.endsWith(".svg"))
 			return "image/svg+xml";
 		else if (name.endsWith(".m2ts"))
@@ -667,7 +667,7 @@ public class DiskContestSource extends ContestSource {
 			return "zip";
 		else if (mimeType.equals("image/png"))
 			return "png";
-		else if (mimeType.equals("image/jpg"))
+		else if (mimeType.equals("image/jpeg"))
 			return "jpg";
 		else if (mimeType.equals("image/svg+xml"))
 			return "svg";
