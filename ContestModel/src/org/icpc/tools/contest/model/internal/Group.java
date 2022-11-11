@@ -148,9 +148,6 @@ public class Group extends ContestObject implements IGroup {
 	public List<String> validate(IContest c) {
 		List<String> errors = super.validate(c);
 
-		if (icpcId == null)
-			errors.add("Missing external id");
-
 		if (name == null || name.isEmpty())
 			errors.add("Name missing");
 
