@@ -430,21 +430,21 @@ public class PresentationWindowImpl extends PresentationWindow {
 						if (timeUntilPlanChange == 0)
 							delayNs = 0;
 						else if (currentPresentation != null)
-							delayNs = Math.min(timeUntilPlanChange * 1000000L,
-									currentPresentation.getDelayTimeMs() * 1000000L);
+							delayNs = Math.min(timeUntilPlanChange * 1_000_000L,
+									currentPresentation.getDelayTimeMs() * 1_000_000L);
 
 						// cap speed at our max frame rate
 						delayNs = Math.max(delayNs, MAX_FPS - (System.nanoTime() - now));
 
 						if (delayNs <= 0) {
 							// no need to delay here - do nothing
-						} else if (delayNs <= 250000000L) {
+						} else if (delayNs <= 250_000_000L) {
 							// short delay of less than 1/4s, just delay the thread
 							LockSupport.parkNanos(delayNs);
 						} else {
 							// if we aren't going to change for more than 5s,
 							// send a thumbnail and info
-							if (thumbnailListener != null && delayNs > 500000000L) {
+							if (thumbnailListener != null && delayNs > 500_000_000L) {
 								fps = 0;
 								sendThumbnail();
 							}
@@ -452,7 +452,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 							// longer/indefinite delay, so lock a monitor
 							synchronized (lock) {
 								try {
-									lock.wait(delayNs / 1000000L);
+									lock.wait(delayNs / 1_000_000L);
 								} catch (Exception e) {
 									// ignore
 								}
@@ -460,7 +460,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 						}
 
 						frameCount++;
-						if (now - startTime > 1000000000L) { // 1 second
+						if (now - startTime > 1_000_000_000L) { // 1 second
 							fps = frameCount;
 							frameCount = 0;
 							startTime = now;
