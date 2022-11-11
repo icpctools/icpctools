@@ -99,7 +99,7 @@ public class VideoServlet extends HttpServlet {
 		String videoId = null;
 		String filename = "stream";
 		int stream = -1;
-		boolean trusted = CDSAuth.isAnalyst(request);
+		boolean analyst = CDSAuth.isAnalyst(request);
 		try {
 			videoId = path.substring(1);
 			stream = Integer.parseInt(videoId);
@@ -140,14 +140,8 @@ public class VideoServlet extends HttpServlet {
 			return;
 		}
 
-		// block https connections
-		if (request.isSecure() && !CDSAuth.isAdmin(request)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Use the Contest API. Incorrect URL, should be http");
-			return;
-		}
-
 		// check if any contests are in freeze
-		if (!trusted) {
+		if (!analyst) {
 			for (ConfiguredContest cc : CDSConfig.getContests()) {
 				IState state = cc.getContest().getState();
 				if (state.isFrozen() && state.isRunning()) {
@@ -174,11 +168,11 @@ public class VideoServlet extends HttpServlet {
 		Trace.trace(Trace.INFO, "Video request: " + request.getRemoteUser() + " requesting video " + videoId + " -> "
 				+ va.getStreamName(stream) + " (channel: " + channel + ")");
 
-		doVideo(request, response, filename, stream, channel, trusted);
+		doVideo(request, response, filename, stream, channel, analyst);
 	}
 
 	public static void doVideo(HttpServletRequest request, HttpServletResponse response, final String filename,
-			final int stream, boolean channel, boolean trusted) throws IOException {
+			final int stream, boolean channel, boolean staff) throws IOException {
 
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("Access-Control-Allow-Origin", "*");
@@ -189,7 +183,7 @@ public class VideoServlet extends HttpServlet {
 		response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "." + vs.getFileExtension() + "\"");
 
 		OutputStream out = response.getOutputStream();
-		final VideoStreamListener listener = new VideoStreamListener(out, trusted);
+		final VideoStreamListener listener = new VideoStreamListener(out, staff);
 		if (!channel)
 			vs.addListener(listener);
 		else

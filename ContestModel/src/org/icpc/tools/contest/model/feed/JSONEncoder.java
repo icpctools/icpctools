@@ -17,7 +17,7 @@ public class JSONEncoder {
 	}
 
 	private static final ThreadLocal<String> local = new ThreadLocal<>();
-	private static String DEFAULT_HOST = "cds";
+	private static String DEFAULT_HOST = "http://cds";
 	static {
 		try {
 			DEFAULT_HOST = NetworkUtil.getLocalAddress();
