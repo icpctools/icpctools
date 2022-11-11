@@ -274,5 +274,8 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 			}
 		} else if (value.startsWith("lightMode:") && tileHelper != null)
 			tileHelper.setLightMode(value.substring(10).equals("light"));
+		else if (value.startsWith("clearCaches:true")) {
+			tileHelper.clearCaches();
+		}
 	}
 }

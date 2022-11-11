@@ -63,6 +63,13 @@ public class TeamTileHelper {
 		setup();
 	}
 
+	public void clearCaches() {
+		nameImages.clear();
+		resultImages.clear();
+		problemImages.clear();
+		logoImages.clear();
+	}
+
 	protected void setSize(Dimension d) {
 		this.tileDim = d;
 	}
