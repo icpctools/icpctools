@@ -20,7 +20,6 @@ import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
-import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.Presentation;
@@ -75,8 +74,6 @@ public class PresentationClient extends BasicClient {
 
 	public PresentationClient(String clientId, String role, RESTContestSource source, String type) {
 		this(source, clientId, role, type);
-		String s = clientId + NetworkUtil.getLocalAddress();
-		setUID(s.hashCode());
 	}
 
 	private void init() {
