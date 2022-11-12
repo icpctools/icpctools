@@ -180,7 +180,7 @@ public class BasicClient {
 		this.clientType = type;
 		if (this.name == null)
 			this.name = NetworkUtil.getLocalAddress();
-		uid = (user + NetworkUtil.getLocalAddress()).hashCode();
+		uid = (user + type + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	// helper method to create based on a REST contest source
@@ -200,7 +200,7 @@ public class BasicClient {
 		this.clientType = type;
 		if (this.name == null)
 			this.name = NetworkUtil.getLocalAddress();
-		uid = (contestSource.getUser() + NetworkUtil.getLocalAddress()).hashCode();
+		uid = (contestSource.getUser() + type + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	/**
@@ -225,14 +225,14 @@ public class BasicClient {
 		this.clientType = clientType.toLowerCase();
 
 		name += " " + NetworkUtil.getLocalAddress();
-		uid = (contestSource.getUser() + NetworkUtil.getLocalAddress()).hashCode();
+		uid = (contestSource.getUser() + clientType + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	private static String getAuth(String user, String password) throws UnsupportedEncodingException {
 		return Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
 	}
 
-	protected void setUID(int uid) {
+	public void setUID(int uid) {
 		this.uid = uid;
 	}
 
