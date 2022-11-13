@@ -16,16 +16,7 @@ public class HttpHelper {
 	private static final String OK_CHARS = new String("[]{},.~`?!@#$^&*()-_=+:|");
 
 	public static void setThreadHost(HttpServletRequest request) {
-		StringBuilder sb = new StringBuilder(request.getServerName());
-		if (true) {
-			int port = request.getLocalPort();
-			if (port > 1000) {
-				int th = port / 1000;
-				port = th * 1000 + 80;
-				sb.append(":" + port);
-			}
-		}
-		JSONEncoder.setThreadHost(sb.toString());
+		JSONEncoder.setThreadHost("https://" + request.getServerName());
 	}
 
 	public static void sendFile(HttpServletRequest request, HttpServletResponse response, File f) throws IOException {
