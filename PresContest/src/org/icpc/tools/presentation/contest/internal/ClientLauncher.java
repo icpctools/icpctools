@@ -105,7 +105,7 @@ public class ClientLauncher {
 			if (member != null) {
 				teamLabel += member;
 			}
-			client = new PresentationClient(cdsSource, teamLabel, teamLabel.hashCode(), "!admin");
+			client = new PresentationClient(cdsSource, teamLabel, "!admin");
 		} else
 			client = new PresentationClient(name, "!admin", cdsSource);
 		instance = client;

@@ -6,12 +6,12 @@ import java.io.OutputStream;
 public class VideoStreamListener {
 	private OutputStream out;
 	private long startTime;
-	private boolean trusted;
+	private boolean analyst;
 	private boolean done;
 
-	public VideoStreamListener(OutputStream out, boolean trusted) {
+	public VideoStreamListener(OutputStream out, boolean analyst) {
 		this.out = out;
-		this.trusted = trusted;
+		this.analyst = analyst;
 		startTime = System.currentTimeMillis();
 	}
 
@@ -23,8 +23,8 @@ public class VideoStreamListener {
 		return done;
 	}
 
-	public boolean isTrusted() {
-		return trusted;
+	public boolean isAnalyst() {
+		return analyst;
 	}
 
 	public void write(byte[] b) throws IOException {

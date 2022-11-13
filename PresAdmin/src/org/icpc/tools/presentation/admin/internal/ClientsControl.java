@@ -245,11 +245,17 @@ public class ClientsControl extends Canvas {
 
 					if (!found) {
 						clientRects.remove(uid);
-						clientStates.remove(uid);
 
 						ClientInfo ci = clientStates.get(uid);
-						if (ci != null && ci.thumbnail != null)
-							ci.thumbnail.dispose();
+						if (ci != null) {
+							Image img = ci.thumbnail;
+							if (img != null) {
+								ci.thumbnail = null;
+								img.dispose();
+							}
+						}
+
+						clientStates.remove(uid);
 					}
 				}
 			}
@@ -312,6 +318,7 @@ public class ClientsControl extends Canvas {
 		if (ci == null)
 			ci = new ClientInfo();
 
+		System.out.println("state for: " + id);
 		try {
 			synchronized (uiLock) {
 				if (obj.containsKey(WIDTH))

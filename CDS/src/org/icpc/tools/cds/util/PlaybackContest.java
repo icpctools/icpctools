@@ -237,7 +237,7 @@ public class PlaybackContest extends Contest {
 			if (ConnectionMode.DIRECT.equals(vs.getMode()))
 				ref.href = vs.getURL();
 			else
-				ref.href = "http://<host>/stream/" + i;
+				ref.href = "<host>/stream/" + i;
 			ref.mime = vs.getMimeType();
 			list.add(ref);
 		}
