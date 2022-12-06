@@ -219,6 +219,40 @@ public class ContestComparator {
 		}
 	}
 
+	/**
+	 * Returns true if two arrays contain the same objects, and false otherwise.
+	 *
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private static boolean compareArrays(Object[] a, Object[] b) {
+		if (a.length != b.length)
+			return false;
+
+		for (Object aa : a) {
+			boolean found = false;
+			for (Object bb : b) {
+				if (aa != null && aa.equals(bb))
+					found = true;
+			}
+			if (!found)
+				return false;
+		}
+
+		for (Object bb : b) {
+			boolean found = false;
+			for (Object aa : a) {
+				if (bb != null && bb.equals(aa))
+					found = true;
+			}
+			if (!found)
+				return false;
+		}
+
+		return true;
+	}
+
 	private static void compareContestObjects(TypeComparison type, String id, IContestObject... co) {
 		Set<String> keys = new HashSet<String>();
 
@@ -272,9 +306,17 @@ public class ContestComparator {
 
 				boolean samePropValue = true;
 				for (int j = 0; j < numContests - 1; j++) {
-					if (co[j] != null && co[j + 1] != null
-							&& ((comp[j] == null && comp[j + 1] != null) || (comp[j] != null && !comp[j].equals(comp[j + 1]))))
-						samePropValue = false;
+					if (co[j] != null && co[j + 1] != null && ((comp[j] == null && comp[j + 1] != null)
+							|| (comp[j] != null && !comp[j].equals(comp[j + 1])))) {
+						if (comp[j] != null && comp[j] instanceof Object[] && comp[j + 1] != null
+								&& comp[j + 1] instanceof Object[]) {
+							Object[] a = (Object[]) comp[j];
+							Object[] b = (Object[]) comp[j + 1];
+							if (!compareArrays(a, b))
+								samePropValue = false;
+						} else
+							samePropValue = false;
+					}
 				}
 
 				if (!samePropValue) {
@@ -292,7 +334,17 @@ public class ContestComparator {
 						Map<String, String> m = d.get(j);
 						if (comp[j] == null)
 							m.put(key, "null");
-						else
+						else if (comp[j] instanceof Object[]) {
+							Object[] a = (Object[]) comp[j];
+							String[] s = new String[a.length];
+							for (int k = 0; k < a.length; k++) {
+								if (a[k] == null)
+									s[k] = "null";
+								else
+									s[k] = a[k].toString();
+							}
+							m.put(key, "[" + String.join(",", s) + "]");
+						} else
 							m.put(key, comp[j].toString());
 					}
 				}
