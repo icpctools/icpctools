@@ -405,7 +405,10 @@ public abstract class ContestObject implements IContestObject {
 			for (FileReference ref : list) {
 				if (bestRef == null)
 					bestRef = ref;
-				else {
+				else if (ref.mime.equals("image/svg+xml")) {
+					bestRef = ref;
+					break;
+				} else {
 					if (bestRef.width < width && bestRef.height < height) {
 						// current best image is too small - is this one better (larger than current)?
 						if (ref.width > bestRef.width || ref.height > bestRef.height)
