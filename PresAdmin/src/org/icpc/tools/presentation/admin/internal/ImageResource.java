@@ -60,20 +60,11 @@ public class ImageResource {
 	 * @param partialURL java.lang.String
 	 */
 	private static void registerImage(String key, String partialURL, Class<?> c, Display display) {
-		InputStream in = null;
-		try {
-			in = c.getResourceAsStream("/images/" + partialURL);
+		try (InputStream in = c.getResourceAsStream("/images/" + partialURL)) {
 			if (in != null)
 				images.put(key, new Image(display, in));
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error registering image " + key, e);
-		} finally {
-			try {
-				if (in != null)
-					in.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
 	}
 }

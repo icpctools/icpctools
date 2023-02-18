@@ -113,12 +113,7 @@ public class View {
 					return;
 
 				clientsControl.setClients(clients);
-				clientsControl.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						updateActions();
-					}
-				});
+				clientsControl.getDisplay().asyncExec((Runnable) () -> updateActions());
 			}
 
 			@Override
@@ -148,31 +143,25 @@ public class View {
 			}
 		};
 
-		client.addListener(new IConnectionListener() {
-			@Override
-			public void connectionStateChanged(final boolean connected) {
-				if (presentationList.isDisposed())
-					return;
+		client.addListener(connected -> {
+			if (presentationList.isDisposed())
+				return;
 
-				presentationList.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (connected)
-							setStatus("Connected");
-						else
-							setStatus("Disconnected");
-					}
-				});
+			presentationList.getDisplay().asyncExec((Runnable) () -> {
+				if (connected)
+					setStatus("Connected");
+				else
+					setStatus("Disconnected");
+			});
 
-				if (!connected || requestedPresentations)
-					return;
+			if (!connected || requestedPresentations)
+				return;
 
-				try {
-					client.requestPresentationList();
-					requestedPresentations = true;
-				} catch (IOException e) {
-					Trace.trace(Trace.ERROR, "Error sending jar", e);
-				}
+			try {
+				client.requestPresentationList();
+				requestedPresentations = true;
+			} catch (IOException e) {
+				Trace.trace(Trace.ERROR, "Error sending jar", e);
 			}
 		});
 	}
@@ -182,31 +171,25 @@ public class View {
 	}
 
 	protected void addPresentations(final List<PresentationInfo> list) {
-		for (PresentationInfo info : list)
-			presentations.add(info);
+		presentations.addAll(list);
 
 		if (presentationList == null) {
 			Trace.trace(Trace.ERROR, "No presentation list");
 			return;
 		}
 
-		presentationList.getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				if (clientsControl == null || clientsControl.isDisposed())
-					return;
+		presentationList.getDisplay().asyncExec((Runnable) () -> {
+			if (clientsControl == null || clientsControl.isDisposed())
+				return;
 
-				for (PresentationInfo info : list) {
-					presentationList.add(info, false);
-				}
+			for (PresentationInfo info : list) {
+				presentationList.add(info, false);
 			}
 		});
 	}
 
 	protected void addTransitions(final List<PresentationInfo> list) {
-		for (PresentationInfo info : list) {
-			transitions.add(info);
-		}
+		transitions.addAll(list);
 	}
 
 	public void createPartControl(Composite parent) {
@@ -280,36 +263,25 @@ public class View {
 				updateActions();
 			}
 		});
-		clientsControl.setDropListener(new ClientsControl.IDropListener() {
+		clientsControl.setDropListener((clientUID, info) -> executeAction(new RemoteAction() {
 			@Override
-			public void drop(final int clientUID, final PresentationInfo info) {
-				executeAction(new RemoteAction() {
-					@Override
-					public void run() throws Exception {
-						client.sendProperty(new int[] { clientUID }, "presentation", "1100|" + info.getClassName());
-						// if (propCombo.getText().length() > 0)
-						// writeProperty(info.getClassName(), propCombo.getText());
-					}
-				});
+			public void run() throws Exception {
+				client.sendProperty(new int[] { clientUID }, "presentation", "1100|" + info.getClassName());
+				// if (propCombo.getText().length() > 0)
+				// writeProperty(info.getClassName(), propCombo.getText());
 			}
-		});
+		}));
 
-		client.addListener(new IConnectionListener() {
-			@Override
-			public void connectionStateChanged(boolean connected) {
+		client.addListener(connected -> {
+			if (clientsControl == null || clientsControl.isDisposed())
+				return;
+
+			Display.getDefault().asyncExec((Runnable) () -> {
 				if (clientsControl == null || clientsControl.isDisposed())
 					return;
 
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (clientsControl == null || clientsControl.isDisposed())
-							return;
-
-						clientsControl.redraw();
-					}
-				});
-			}
+				clientsControl.redraw();
+			});
 		});
 
 		clientDetailLabel = new Label(clientComp, SWT.NONE);
@@ -460,25 +432,22 @@ public class View {
 				} catch (final Exception ex) {
 					// ignore
 				}
-				progress.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							action.run();
-							setStatus("Action successful");
-						} catch (final Exception ex) {
-							Trace.trace(Trace.ERROR, "Error running action", ex);
-							setStatus("Error executing action, check logs");
+				progress.getDisplay().asyncExec((Runnable) () -> {
+					try {
+						action.run();
+						setStatus("Action successful");
+					} catch (final Exception ex) {
+						Trace.trace(Trace.ERROR, "Error running action", ex);
+						setStatus("Error executing action, check logs");
 
-							MessageBox mb = new MessageBox(progress.getShell(), SWT.ICON_ERROR | SWT.OK);
-							mb.setText("Presentation Admin");
-							mb.setMessage("Error: " + ex.getMessage());
-							mb.open();
-						}
-
-						progress.setVisible(false);
-						updateActions(false);
+						MessageBox mb = new MessageBox(progress.getShell(), SWT.ICON_ERROR | SWT.OK);
+						mb.setText("Presentation Admin");
+						mb.setMessage("Error: " + ex.getMessage());
+						mb.open();
 					}
+
+					progress.setVisible(false);
+					updateActions(false);
 				});
 			}
 		};
@@ -500,15 +469,12 @@ public class View {
 				} catch (final Exception ex) {
 					// ignore
 				}
-				progress.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						if (statusLabel == null || statusLabel.isDisposed())
-							return;
+				progress.getDisplay().asyncExec((Runnable) () -> {
+					if (statusLabel == null || statusLabel.isDisposed())
+						return;
 
-						if (s.equals(statusLabel.getText()))
-							statusLabel.setText("");
-					}
+					if (s.equals(statusLabel.getText()))
+						statusLabel.setText("");
 				});
 			}
 		};

@@ -462,10 +462,7 @@ public class PresentationInfoListControl extends Canvas {
 					if (s == null)
 						s = "Other";
 
-					if (closedCategories.contains(s))
-						categoryIsClosed = true;
-					else
-						categoryIsClosed = false;
+					categoryIsClosed = closedCategories.contains(s);
 
 					column++;
 					if (column >= presentationsPerLine - 1) {
@@ -541,10 +538,7 @@ public class PresentationInfoListControl extends Canvas {
 					if (s == null)
 						s = "Other";
 
-					if (closedCategories.contains(s))
-						categoryIsClosed = true;
-					else
-						categoryIsClosed = false;
+					categoryIsClosed = closedCategories.contains(s);
 
 					column++;
 					if (column >= presentationsPerLine) {
@@ -749,7 +743,7 @@ public class PresentationInfoListControl extends Canvas {
 		description.setText(s);
 
 		String[] propData = info.getProperties();
-		if (propData != null && propData.length > 0) {
+		if (propData != null) {
 			for (String prop : propData) {
 				Label propLabel = new Label(hoverShell, SWT.WRAP);
 				propLabel.setText(prop);

@@ -52,8 +52,6 @@ public class DisplayDialog extends Dialog {
 		label.setText("Display:");
 		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
-		label = new Label(comp, SWT.NONE);
-
 		final Text text = new Text(comp, SWT.BORDER);
 		GridData data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.widthHint = 125;

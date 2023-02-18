@@ -272,7 +272,6 @@ public class CompositePresentationDialog extends Dialog {
 
 		Label label = new Label(parent, SWT.NONE);
 		label.setText("Properties:");
-		data = new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING | GridData.VERTICAL_ALIGN_CENTER);
 		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		final Combo propCombo = new Combo(parent, SWT.BORDER | SWT.DROP_DOWN);

@@ -43,19 +43,10 @@ public class PropertiesPreferences extends AbstractPreferences {
 		if (props == null)
 			return;
 
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(file);
+		try (FileOutputStream fos = new FileOutputStream(file)) {
 			props.store(fos, null);
 		} catch (IOException ioe) {
 			throw new BackingStoreException(ioe);
-		} finally {
-			try {
-				if (fos != null)
-					fos.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
 	}
 
@@ -106,19 +97,10 @@ public class PropertiesPreferences extends AbstractPreferences {
 		props = new Properties();
 
 		if (file.exists()) {
-			FileInputStream fin = null;
-			try {
-				fin = new FileInputStream(file);
+			try (FileInputStream fin = new FileInputStream(file)) {
 				props.load(fin);
 			} catch (IOException e) {
 				Trace.trace(Trace.ERROR, "Error loading properties", e);
-			} finally {
-				try {
-					if (fin != null)
-						fin.close();
-				} catch (Exception e) {
-					// ignore
-				}
 			}
 		}
 	}
