@@ -78,6 +78,7 @@ public class Resolver {
 	private String displayName;
 	private String[] groupList;
 	private String[] problemList;
+	private String[] problemIdList;
 
 	// client/server variables
 	private PresentationClient client;
@@ -199,11 +200,14 @@ public class Resolver {
 			r.loadSteps(cs);
 			String g = null;
 			String p = null;
+			String pId = null;
 			if (r.groupList != null && r.groupList.length > 0)
 				g = r.groupList[i % r.groupList.length];
-			if (r.problemList != null && r.groupList.length > 0)
+			if (r.problemList != null && r.problemList.length > 0)
 				p = r.problemList[i % r.problemList.length];
-			r.init(steps, g, p);
+			if (r.problemIdList != null && r.problemIdList.length > 0)
+				pId = r.problemIdList[i % r.problemIdList.length];
+			r.init(steps, g, p, pId);
 			i++;
 		}
 
@@ -354,6 +358,9 @@ public class Resolver {
 		} else if ("--problems".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "problems:string", "*");
 			problemList = options.toArray(new String[0]);
+		} else if ("--problemIds".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "problemIds:string", "*");
+			problemIdList = options.toArray(new String[0]);
 		} else if ("--rowDisplayOffset".equalsIgnoreCase(option)) {
 			// causes rows to be moved up the screen so they are not blocked by people on
 			// stage
@@ -480,10 +487,10 @@ public class Resolver {
 		}
 	}
 
-	private void init(List<ResolutionStep> steps, String groups, String problems) {
+	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
-		if (groups != null || problems != null) {
+		if (groups != null || problems != null || problemIds != null) {
 			IAward[] fullAwards = finalContest.getAwards();
 			boolean hasAwards = fullAwards != null && fullAwards.length > 0;
 			Contest cc = finalContest.clone(true);
@@ -517,6 +524,22 @@ public class Resolver {
 				cc.removeProblems(removeProblems);
 
 				Trace.trace(Trace.INFO, "Resolved for problems labels. Problems left: " + cc.getNumProblems());
+			}
+
+			if (problemIds != null) {
+				Trace.trace(Trace.INFO,
+						"Resolving for problem ids " + problemIds + " (Initial problems: " + cc.getNumProblems() + ")");
+				List<String> removeProblems = new ArrayList<String>();
+				IProblem[] probs = cc.getProblems();
+
+				Pattern pattern = Pattern.compile(problemIds.trim());
+				for (int i = 0; i < probs.length; i++) {
+					if (!pattern.matcher(probs[i].getId()).matches())
+						removeProblems.add(probs[i].getId());
+				}
+				cc.removeProblems(removeProblems);
+
+				Trace.trace(Trace.INFO, "Resolved for problems ids. Problems left: " + cc.getNumProblems());
 			}
 
 			// error if no teams

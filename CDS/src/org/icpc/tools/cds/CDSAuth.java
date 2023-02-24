@@ -140,6 +140,7 @@ public class CDSAuth implements HttpAuthenticationMechanism {
 		IAccount account = getAccount(request);
 		if (account == null)
 			return false;
-		return IAccount.ANALYST.equals(account.getAccountType());
+		return IAccount.ANALYST.equals(account.getAccountType()) || IAccount.STAFF.equals(account.getAccountType())
+				|| IAccount.ADMIN.equals(account.getAccountType());
 	}
 }

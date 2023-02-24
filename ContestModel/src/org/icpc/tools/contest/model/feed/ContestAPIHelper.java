@@ -16,6 +16,16 @@ import org.icpc.tools.contest.model.internal.Info;
 public class ContestAPIHelper {
 	protected static boolean isCDS;
 
+	static class Result {
+		String content;
+		URL url;
+
+		public Result(String content, URL url) {
+			this.content = content;
+			this.url = url;
+		}
+	}
+
 	private static String listContest(URL url, Info info) {
 		return url.toExternalForm() + " - " + info.getName() + " starting at "
 				+ ContestUtil.formatStartTime(info.getStartTime());
@@ -45,7 +55,9 @@ public class ContestAPIHelper {
 		URL url = null;
 		try {
 			url = new URL(url2);
-			String content = getContent(url, user, password, 0);
+			Result result = getContent(url, user, password, 0);
+			String content = result.content;
+			url = result.url;
 			String name = isContestURL(content);
 			if (name != null) {
 				Trace.trace(Trace.USER, "Connecting to " + name + " at " + url);
@@ -55,7 +67,9 @@ public class ContestAPIHelper {
 			URL theURL = url;
 			if (isBaseURL(content)) {
 				theURL = getChildURL(theURL, "contests");
-				content = getContent(theURL, user, password, 0);
+				result = getContent(theURL, user, password, 0);
+				content = result.content;
+				theURL = result.url;
 			}
 
 			Info[] infos = null;
@@ -105,7 +119,7 @@ public class ContestAPIHelper {
 					testURL = new URL(url.getProtocol() + "://" + url.getAuthority() + path);
 				else
 					testURL = getChildURL(url, path);
-				String content = getContent(testURL, user, password, 0);
+				String content = getContent(testURL, user, password, 0).content;
 				Info[] infos = readContests(content, testURL);
 
 				Trace.trace(Trace.USER, "URL invalid, but Contest API found at: " + testURL);
@@ -125,7 +139,7 @@ public class ContestAPIHelper {
 		throw new IllegalArgumentException("Could not detect Contest API at " + url);
 	}
 
-	private static String getContent(URL url, String user, String password, int redirects) throws Exception {
+	private static Result getContent(URL url, String user, String password, int redirects) throws Exception {
 		HttpURLConnection conn = null;
 
 		try {
@@ -160,7 +174,7 @@ public class ContestAPIHelper {
 				s = br.readLine();
 			}
 
-			return sb.toString();
+			return new Result(sb.toString(), url);
 		}
 
 		throw new IllegalArgumentException("Invalid response code (" + response + ")");

@@ -686,6 +686,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 			return;
 		}
 		gDevice.setFullScreenWindow(this);
+		// See https://stackoverflow.com/questions/13064607/fullscreen-swing-components-fail-to-receive-keyboard-input-on-java-7-on-mac-os-x why we do this
+		this.setVisible(false);
+		this.setVisible(true);
 
 		if (dc.mode == Mode.FULL_SCREEN_MAX) {
 			DisplayMode bestMode = null;

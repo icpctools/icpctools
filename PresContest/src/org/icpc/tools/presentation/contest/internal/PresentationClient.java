@@ -20,7 +20,6 @@ import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
-import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.Presentation;
@@ -43,12 +42,12 @@ public class PresentationClient extends BasicClient {
 	protected boolean sendingInfoUpdate;
 	protected boolean sendingInfo;
 
-	protected PresentationClient(RESTContestSource source, String clientId, int uid, String role) {
-		this(source, clientId, uid, role, "presentation");
+	protected PresentationClient(RESTContestSource source, String clientId, String role) {
+		this(source, clientId, role, "presentation");
 	}
 
-	public PresentationClient(RESTContestSource source, String clientId, int uid, String role, String type) {
-		super(source, clientId, uid, role, type);
+	public PresentationClient(RESTContestSource source, String clientId, String role, String type) {
+		super(source, clientId, role, type);
 		executor = new ThreadPoolExecutor(2, 4, 20L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(5),
 				new ThreadFactory() {
 					@Override
@@ -74,9 +73,7 @@ public class PresentationClient extends BasicClient {
 	}
 
 	public PresentationClient(String clientId, String role, RESTContestSource source, String type) {
-		this(source, clientId, 0, role, type);
-		String s = clientId + NetworkUtil.getLocalAddress();
-		setUID(s.hashCode());
+		this(source, clientId, role, type);
 	}
 
 	private void init() {

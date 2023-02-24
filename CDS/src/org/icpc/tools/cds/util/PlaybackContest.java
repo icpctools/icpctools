@@ -237,7 +237,7 @@ public class PlaybackContest extends Contest {
 			if (ConnectionMode.DIRECT.equals(vs.getMode()))
 				ref.href = vs.getURL();
 			else
-				ref.href = "http://<host>/stream/" + i;
+				ref.href = "<host>/stream/" + i;
 			ref.mime = vs.getMimeType();
 			list.add(ref);
 		}
@@ -370,10 +370,12 @@ public class PlaybackContest extends Contest {
 			Group g = (Group) obj;
 			if (g.isHidden()) {
 				for (ITeam team : getTeams()) {
-					for (String gId : team.getGroupIds()) {
-						if (gId.equals(g.getId()) && !team.isHidden()) {
-							((Team) team).add("hidden", "true");
-							add(team);
+					if (team.getGroupIds() != null) {
+						for (String gId : team.getGroupIds()) {
+							if (gId.equals(g.getId()) && !team.isHidden()) {
+								((Team) team).add("hidden", "true");
+								add(team);
+							}
 						}
 					}
 				}
