@@ -2,6 +2,7 @@ package org.icpc.tools.presentation.contest.internal;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +108,8 @@ public class NLS {
 			String val = p.getProperty(f.getName());
 			if (val == null)
 				Trace.trace(Trace.WARNING, "No translation available for " + c.getCanonicalName() + "." + f.getName());
+			else if (!Modifier.isStatic(f.getModifiers()))
+				Trace.trace(Trace.WARNING, "Non-static NLS field " + c.getCanonicalName() + "." + f.getName());
 			else if (!f.canAccess(null))
 				Trace.trace(Trace.WARNING,
 						"Field not accessible for translation: " + c.getCanonicalName() + "." + f.getName());

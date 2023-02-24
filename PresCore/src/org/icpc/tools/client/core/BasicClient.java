@@ -163,7 +163,7 @@ public class BasicClient {
 
 	private WSClientEndpoint clientEndpoint;
 
-	public BasicClient(String url, String user, String password, String contestIds, String name, int uid, String role,
+	public BasicClient(String url, String user, String password, String contestIds, String name, String role,
 			String type) {
 		this.url = url.replace("https", "wss").replace("http", "wss");
 		if (this.url.endsWith("/"))
@@ -176,15 +176,15 @@ public class BasicClient {
 		if (contestIds != null)
 			this.contestIds = new String[] { contestIds };
 		this.name = name;
-		this.uid = uid;
 		this.role = role;
 		this.clientType = type;
 		if (this.name == null)
 			this.name = NetworkUtil.getLocalAddress();
+		uid = (user + type + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	// helper method to create based on a REST contest source
-	public BasicClient(RESTContestSource contestSource, String name, int uid, String role, String type) {
+	public BasicClient(RESTContestSource contestSource, String name, String role, String type) {
 		try {
 			URL url2 = contestSource.getURL();
 			this.url = "wss://" + url2.getHost();
@@ -196,11 +196,11 @@ public class BasicClient {
 		}
 		this.contestIds = new String[] { contestSource.getContestId() };
 		this.name = name;
-		this.uid = uid;
 		this.role = role;
 		this.clientType = type;
 		if (this.name == null)
 			this.name = NetworkUtil.getLocalAddress();
+		uid = (contestSource.getUser() + type + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	/**
@@ -224,16 +224,15 @@ public class BasicClient {
 		this.name = clientType;
 		this.clientType = clientType.toLowerCase();
 
-		String s = contestSource.getUser();
 		name += " " + NetworkUtil.getLocalAddress();
-		uid = s.hashCode();
+		uid = (contestSource.getUser() + clientType + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	private static String getAuth(String user, String password) throws UnsupportedEncodingException {
 		return Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
 	}
 
-	protected void setUID(int uid) {
+	public void setUID(int uid) {
 		this.uid = uid;
 	}
 

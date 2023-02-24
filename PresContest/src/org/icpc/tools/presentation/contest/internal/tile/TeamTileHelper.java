@@ -221,7 +221,7 @@ public class TeamTileHelper {
 			nameImages.put(hash, img);
 			img = cacheMiss(img);
 		}
-		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 2, maxwid + 2, img.getHeight(),
+		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 1, maxwid + 2, img.getHeight(),
 				null);
 	}
 

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,13 @@ public class YamlParser {
 			throw new FileNotFoundException("Contest config file not found");
 
 		BufferedReader br = new BufferedReader(new FileReader(f));
+		Info info = parseInfo(br, oldFormat);
+		br.close();
+
+		return info;
+	}
+
+	public static Info parseInfo(Reader br, boolean oldFormat) throws IOException {
 		Yaml yaml = new Yaml(new SafeConstructor(), new Representer(), new DumperOptions(), new CustomYamlResolver());
 		Object obj = yaml.load(br);
 
@@ -82,7 +90,6 @@ public class YamlParser {
 			}
 		}
 
-		br.close();
 		return info;
 	}
 

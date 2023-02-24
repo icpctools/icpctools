@@ -20,11 +20,6 @@ import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 
 public class AwardUtil {
-	private static final String[][] GROUPS = new String[][] { { "Asia", "Asian Champions" },
-			{ "North America", "North American Champions" }, { "South America", "South American Champions" },
-			{ "Europe", "European Champions" }, { "Africa", "African Champions" },
-			{ "Latin America", "Latin American Champions" } };
-
 	public static String getAwardTypeNames(List<AwardType> types) {
 		List<String> names = new ArrayList<>();
 		for (AwardType type : types)
@@ -702,13 +697,6 @@ public class AwardUtil {
 	 * @return
 	 */
 	private static String getGroupCitation(IContest contest, String groupName, int ind) {
-		for (String[] s : GROUPS) {
-			if (s[0].equals(groupName)) {
-				if (ind == 1)
-					return s[1];
-				return getPlaceString(ind) + " " + s[1];
-			}
-		}
 		if (ind == 1)
 			return Messages.getString("awardChampions").replace("{0}", groupName);
 		return getPlaceString(ind) + " " + groupName

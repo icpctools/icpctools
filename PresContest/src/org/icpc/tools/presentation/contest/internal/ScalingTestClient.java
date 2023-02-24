@@ -27,7 +27,8 @@ public class ScalingTestClient {
 
 		clients = new PresentationClient[NUM_CLIENTS + 1];
 		for (int teamId = 1; teamId <= NUM_CLIENTS; teamId++) {
-			PresentationClient client = new PresentationClient(source, "team" + (teamId + START), teamId + START, null);
+			PresentationClient client = new PresentationClient(source, "team" + (teamId + START), null);
+			client.setUID(teamId + START);
 
 			clients[teamId] = client;
 			createWindow(client, SEND_THUMBNAILS && teamId == 1);
