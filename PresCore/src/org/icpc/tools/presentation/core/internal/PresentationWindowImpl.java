@@ -21,6 +21,8 @@ import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.lang.management.GarbageCollectorMXBean;
+import java.lang.management.ManagementFactory;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -241,6 +243,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	protected int fps;
 	protected boolean showDebug;
+	protected boolean showTimerStats;
+	protected boolean showTimerSparklines;
 
 	private long thumbnailDelay = DEFAULT_THUMBNAIL_DELAY;
 	private int thumbnailHeight = DEFAULT_THUMBNAIL_HEIGHT;
@@ -838,6 +842,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	protected void paintImpl(Graphics2D g, boolean hidden2) {
+		RenderPerfTimer.Counter frameMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.FRAME);
+		frameMeasure.startMeasure();
 		long time = getCurrentTimeMs();
 		Font defaultFont = g.getFont();
 		if (currentPlan != null && time > currentPlan.endTime - PLAN_FADE_TIME) {
@@ -858,6 +864,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 				oldPlan.dispose();
 		}
 
+		frameMeasure.stopMeasure();
 		PresentationPlan plan = currentPlan;
 		if (plan != null) {
 			long start = plan.startTime;
@@ -865,40 +872,123 @@ public class PresentationWindowImpl extends PresentationWindow {
 				g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
 			paintPresentations(g, plan, time, hidden2);
 		}
-
+		frameMeasure.startMeasure();
+		final Color TRANSPARENT_WHITE = new Color(255, 255, 255, 196);
+		final Color TRANSPARENT_BLACK = new Color(0, 0, 0, 196);
 		if (showDebug) {
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
-			Dimension d = getSize();
-			String[] ss = new String[] { fps + " fps", d.width + " x " + d.height, "No presentation" };
+			Dimension d = getDisplaySize();
+			String[] ss = new String[]{fps + " fps", d.width + " x " + d.height, "No presentation"};
 			if (plan != null)
 				ss[2] = plan.summary();
 
-			g.setColor(lightMode ? new Color(255, 255, 255, 196) : new Color(0, 0, 0, 196));
+			g.setColor(lightMode ? TRANSPARENT_WHITE : TRANSPARENT_BLACK);
 			g.fillRect(d.width - fm.stringWidth(ss[2]) - 15, d.height - fm.getHeight() * 3 - 15,
 					fm.stringWidth(ss[2]) + 10, fm.getHeight() * 3 + 10);
 			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			for (int i = 0; i < 3; i++)
 				g.drawString(ss[i], d.width - fm.stringWidth(ss[i]) - 10,
 						d.height - fm.getDescent() - fm.getHeight() * 2 + fm.getHeight() * i - 10);
+		}
 
+		colorCacheMisses = showDebug && (showTimerStats || showTimerSparklines);
+		if (showDebug && (showTimerStats || showTimerSparklines)) {
+			FontMetrics fm = g.getFontMetrics();
+			Dimension d = getDisplaySize();
+			final Color TRANSPARENT_RED = new Color(255, 0, 0, 196);
+			final Color MORE_TRANSPARENT_RED = new Color(255, 0, 0, 95);
+			RenderPerfTimer.DEFAULT_INSTANCE.frame();
 			int i = RenderPerfTimer.Category.values().length;
+			int categoryTextWidth = 15;
 			for (RenderPerfTimer.Category category : RenderPerfTimer.Category.values()) {
+				String s = String.format(Locale.ENGLISH, "%s %.2f%%", category, 100.0);
+				categoryTextWidth = Math.max(categoryTextWidth, fm.stringWidth(s));
+			}
+			int frameX = d.width - categoryTextWidth - 10 - RenderPerfTimer.N_FRAMES * 5;
+			for (RenderPerfTimer.Category category : RenderPerfTimer.Category.values()) {
+				int y = d.height - fm.getDescent() - fm.getHeight() * 3 - (fm.getDescent() + 10) * i;
+
+				g.setColor(lightMode ? TRANSPARENT_WHITE : TRANSPARENT_BLACK);
+				g.fillRect(d.width - categoryTextWidth - 5, y - (fm.getDescent() + 10),
+						categoryTextWidth + 10, fm.getDescent() + 10);
+				if (showTimerSparklines) {
+					g.fillRect(frameX - 5, y - (fm.getDescent() + 10),
+							RenderPerfTimer.N_FRAMES * 5 + 10, (fm.getDescent() + 10));
+				}
+
 				RenderPerfTimer.Counter measure = RenderPerfTimer.measure(category);
 				double nps = measure.nanosPerSecond();
 				double percent = 100 * nps / 1e9;
-				if (percent < 0.01)
+				if (percent < 0.01) {
+					if (showTimerSparklines) {
+						i--;  // keep vertical positioning stable for sparklines
+					}
 					continue;
+				}
 
 				String s = String.format(Locale.ENGLISH, "%s %.2f%%", category, percent);
 				g.setColor(lightMode ? Color.WHITE : Color.BLACK);
-				g.drawString(s, d.width - fm.stringWidth(s) - 10 + 1, d.height - (fm.getDescent() + 10) * (i + 1) + 1);
+				int x = d.width - fm.stringWidth(s) - 10;
+				g.drawString(s, x + 1, y + 1);
 				g.setColor(lightMode ? Color.BLACK : Color.WHITE);
-				g.drawString(s, d.width - fm.stringWidth(s) - 10, d.height - (fm.getDescent() + 10) * (i + 1));
+				g.drawString(s, x, y);
+
+				if (showTimerSparklines) {
+					int j = 0;
+					g.setColor(category == RenderPerfTimer.Category.FRAME ? MORE_TRANSPARENT_RED : TRANSPARENT_RED);
+					for (long frameNanos : measure.getFrameNanos()) {
+						int h = (int) (frameNanos / 1e6);
+						g.fillRect(frameX + 5 * j, y - h, 4, h + 1);
+						j++;
+					}
+				}
+
 				i--;
 			}
+			long nanos = System.nanoTime();
+			long oldestFrameNanos = RenderPerfTimer.DEFAULT_INSTANCE.getFrameStartNanos()[0];
+			int oldestX = d.width - categoryTextWidth - 15 - (int) (60 * 5 * (nanos - oldestFrameNanos) / 1e9);
+			oldestX = Math.max(0, oldestX);
+			int y = d.height - (fm.getDescent() + 10) * 1 - 5;
+			g.setColor(lightMode ? TRANSPARENT_WHITE : TRANSPARENT_BLACK);
+			g.fillRoundRect(oldestX - 7, y - 7, d.width - categoryTextWidth - 15 - oldestX + 14, 14, 7, 7);
+			for (long frameStartNanos : RenderPerfTimer.DEFAULT_INSTANCE.getFrameStartNanos()) {
+				int x = d.width - categoryTextWidth - 15 - (int) (60 * 5 * (nanos - frameStartNanos) / 1e9);
+				g.setColor(TRANSPARENT_RED);
+				g.fillOval(x - 2, y - 2, 5, 5);
+			}
+			collectGcStats();
 		}
+		frameMeasure.stopMeasure();
 	}
+
+	private void collectGcStats() {
+		long totalGarbageCollections = 0;
+		long garbageCollectionTime = 0;
+		for(GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
+			long count = gc.getCollectionCount();
+			if(count >= 0) {
+				totalGarbageCollections += count;
+			}
+			long gcTime = gc.getCollectionTime();
+			if(gcTime >= 0) {
+				garbageCollectionTime += gcTime;
+			}
+		}
+		RenderPerfTimer.Counter gcMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.GC);
+		if (lastGarbageCollectionTime > 0)
+			gcMeasure.addMeasurement((garbageCollectionTime - lastGarbageCollectionTime) * 1_000_000);
+		RenderPerfTimer.Counter gcCountMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.GC_COUNT);
+		if (totalGarbageCollections > 0)
+			gcCountMeasure.addMeasurement((totalGarbageCollections - lastTotalGarbageCollections) * 1_000_000);
+
+		lastGarbageCollectionTime = garbageCollectionTime;
+		lastTotalGarbageCollections = totalGarbageCollections;
+	}
+
+	long lastGarbageCollectionTime;
+	long lastTotalGarbageCollections;
 
 	@Override
 	public int getFPS() {
@@ -908,6 +998,27 @@ public class PresentationWindowImpl extends PresentationWindow {
 	@Override
 	public void toggleDebug() {
 		showDebug = !showDebug;
+		RenderPerfTimer.DEFAULT_INSTANCE.frameReset();
+	}
+
+	@Override
+	public void setShowTimerStats(boolean show) {
+		showTimerStats = show;
+	}
+
+	@Override
+	public void setShowTimerSparklines(boolean show) {
+		showTimerSparklines = show;
+	}
+
+	@Override
+	public void clearCaches() {
+		currentPresentation.setProperty("clearCaches:true"); // TODO: clear all presentations' caches?
+	}
+
+	@Override
+	public void resetTime() {
+		nanoTimeDelta = -System.nanoTime();
 	}
 
 	public boolean paintImmediately() {
@@ -931,7 +1042,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 		bg.dispose();
 		if (!bs.contentsRestored()) {
 			bs.show();
+			RenderPerfTimer.Counter syncMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.SYNC);
+			syncMeasure.startMeasure();
 			Toolkit.getDefaultToolkit().sync();
+			syncMeasure.stopMeasure();
 			return true;
 		}
 
@@ -979,5 +1093,11 @@ public class PresentationWindowImpl extends PresentationWindow {
 	@Override
 	public void update(Graphics g) {
 		paint(g);
+	}
+
+	private static volatile boolean colorCacheMisses;
+
+	public static boolean shouldColorCacheMisses() {
+		return colorCacheMisses;
 	}
 }

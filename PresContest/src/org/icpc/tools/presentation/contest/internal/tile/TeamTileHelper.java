@@ -28,6 +28,7 @@ import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.core.RenderPerfTimer;
+import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 public class TeamTileHelper {
 	private static final int IN_TILE_GAP = 3;
@@ -61,6 +62,13 @@ public class TeamTileHelper {
 		this.contest = contest;
 
 		setup();
+	}
+
+	public void clearCaches() {
+		nameImages.clear();
+		resultImages.clear();
+		problemImages.clear();
+		logoImages.clear();
 	}
 
 	protected void setSize(Dimension d) {
@@ -136,6 +144,7 @@ public class TeamTileHelper {
 				Trace.trace(Trace.INFO, "logo cache miss " + logoHash);
 				logoImg = org.getLogoImage(logoWidth, logoHeight, true, true);
 				logoImages.put(logoHash, logoImg);
+				logoImg = cacheMiss(logoImg);
 			}
 			if (logoImg != null) {
 				gg.drawImage(logoImg, ww + (tileDim.height - logoImg.getWidth()) / 2,
@@ -166,6 +175,7 @@ public class TeamTileHelper {
 			gg.dispose();
 
 			nameImages.put(team.getId(), img);
+			img = cacheMiss(img);
 		}
 
 		int naturalWidth = img.getWidth() - 2;
@@ -209,6 +219,7 @@ public class TeamTileHelper {
 			gg.dispose();
 
 			nameImages.put(hash, img);
+			img = cacheMiss(img);
 		}
 		g.drawImage(img, ww + tileDim.height + IN_TILE_GAP - 1, tileDim.height * 1 / 10 - 1, maxwid + 2, img.getHeight(),
 				null);
@@ -218,7 +229,11 @@ public class TeamTileHelper {
 		RenderPerfTimer.Counter rankAndScoreMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
 		RenderPerfTimer.Counter nameMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
 		RenderPerfTimer.Counter problemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
+		RenderPerfTimer.Counter inactiveProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM);
+		RenderPerfTimer.Counter inactive2ProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM2);
+		RenderPerfTimer.Counter inactive3ProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM3);
 		RenderPerfTimer.Counter activeProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
+		RenderPerfTimer.Counter problemDrawMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM_DRAW);
 		rankAndScoreMeasure.startMeasure();
 		g.setFont(rankFont);
 		FontMetrics rankFm = g.getFontMetrics();
@@ -289,6 +304,7 @@ public class TeamTileHelper {
 				hash += " FIRST";
 			}
 			if (r.getNumSubmissions() == 0) {
+				inactiveProblemMeasure.startMeasure();
 				String label = problems[i].getLabel();
 				String problemOnlyHash = label + (int) w;
 				BufferedImage img = problemImages.get(problemOnlyHash);
@@ -300,31 +316,40 @@ public class TeamTileHelper {
 					paintProblem(gg, (int) w, h, arc, problemFm, label);
 					gg.dispose();
 					problemImages.put(problemOnlyHash, img);
+					img = cacheMiss(img);
 				}
+				inactiveProblemMeasure.stopMeasure();
+				problemDrawMeasure.startMeasure();
 				g.drawImage(img, xx + (int) (w * i), y, null);
+				problemDrawMeasure.stopMeasure();
 			} else if (ContestUtil.isRecent(contest, r)) {
-				problemMeasure.stopMeasure();
 				activeProblemMeasure.startMeasure();
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
 				String backHash = r.getStatus().name() + " " + (int) w + " flash " + k;
 				BufferedImage backImg = getCacheOrRender(backHash, problemImages, (int) w, h, (gg) -> {
 					paintResultBackground(gg, k, r, 0, 0, (int) w, h, arc);
 				});
-				g.drawImage(backImg, xx + (int) (w * i), y, null);
 				// TODO: only cache up to the natural string width
 				String resultTextOnlyHash = hash + " TEXT";
 				BufferedImage img = getCacheOrRender(resultTextOnlyHash, problemImages, (int) w, h, (gg) -> {
 					gg.setFont(statusFont);
 					paintResultText(gg, r, 0, 0, (int) w, h, arc, statusFm);
 				});
-				g.drawImage(img, xx + (int) (w * i), y, null);
 				activeProblemMeasure.stopMeasure();
-				problemMeasure.startMeasure();
+				problemDrawMeasure.startMeasure();
+				g.drawImage(backImg, xx + (int) (w * i), y, null);
+				g.drawImage(img, xx + (int) (w * i), y, null);
+				problemDrawMeasure.stopMeasure();
 			} else {
+				inactive2ProblemMeasure.startMeasure();
 				SoftReference<BufferedImage> ref = resultImages.get(hash);
 				BufferedImage img = null;
-				if (ref != null)
+				if (ref != null) {
 					img = ref.get();
+					if (img == null) {
+						Trace.trace(Trace.INFO, "Soft image reference cleared: " + hash);
+					}
+				}
 				if (img == null) {
 					Trace.trace(Trace.INFO, "problem cache miss " + hash);
 					img = new BufferedImage((int) w, h, BufferedImage.TYPE_4BYTE_ABGR);
@@ -335,8 +360,12 @@ public class TeamTileHelper {
 					paintResult(gg, r, (int) w, h, arc, statusFm);
 					gg.dispose();
 					resultImages.put(hash, new SoftReference<BufferedImage>(img));
+					img = cacheMiss(img);
 				}
+				inactive2ProblemMeasure.stopMeasure();
+				problemDrawMeasure.startMeasure();
 				g.drawImage(img, xx + (int) (w * i), y, null);
+				problemDrawMeasure.stopMeasure();
 			}
 		}
 		problemMeasure.stopMeasure();
@@ -349,6 +378,7 @@ public class TeamTileHelper {
 			Trace.trace(Trace.INFO, "cache miss " + hash);
 			img = renderBufferedImage(w, h, renderer);
 			cache.put(hash, img);
+			img = cacheMiss(img);
 		}
 		return img;
 	}
@@ -504,5 +534,19 @@ public class TeamTileHelper {
 		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
 		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		g.drawString(s, x + (w - fm.stringWidth(s)) / 2, y + (h + fm.getAscent()) / 2 - 1);
+	}
+
+	private static BufferedImage cacheMiss(BufferedImage img) {
+		if (!PresentationWindowImpl.shouldColorCacheMisses()) {
+			return img;
+		}
+		BufferedImage red = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics2D g = red.createGraphics();
+		final Color TRANSPARENT_RED = new Color(255, 0, 0, 192);
+		g.drawImage(img, 0, 0, null);
+		g.setColor(TRANSPARENT_RED);
+		g.fillRect(0, 0, img.getWidth(), img.getHeight());
+		g.dispose();
+		return red;
 	}
 }

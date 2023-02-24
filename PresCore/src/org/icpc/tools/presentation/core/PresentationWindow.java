@@ -88,8 +88,27 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 						&& (e.isControlDown() || e.isShiftDown()))
 					System.exit(0);
 
-				if (KeyEvent.VK_D == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+				if (KeyEvent.VK_D == e.getKeyCode() && (e.isControlDown() || e.isShiftDown())) {
 					toggleDebug();
+					boolean showStats = false, showSparklines = false;
+					if (e.isControlDown()) {
+						showStats = true;
+					}
+					if (e.isControlDown() && e.isShiftDown()) {
+						showSparklines = true;
+					}
+					setShowTimerStats(showStats);
+					setShowTimerSparklines(showSparklines);
+				}
+
+				if (KeyEvent.VK_C == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					clearCaches();
+
+				if (KeyEvent.VK_T == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					resetTime();
+
+				if (KeyEvent.VK_L == e.getKeyCode() && (e.isControlDown() || e.isShiftDown()))
+					setLightMode(e.isShiftDown());
 
 				keyEvent(e, KeyEvent.KEY_PRESSED);
 			}
@@ -185,4 +204,12 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	public abstract void setLightMode(boolean light);
 
 	public abstract void toggleDebug();
+
+	public abstract void setShowTimerStats(boolean show);
+
+	public abstract void setShowTimerSparklines(boolean show);
+
+	public abstract void clearCaches();
+
+	public abstract void resetTime();
 }
