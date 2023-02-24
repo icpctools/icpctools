@@ -1,12 +1,19 @@
 package org.icpc.tools.presentation.contest.internal.tile;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
@@ -44,16 +51,18 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 	protected void updateTeamTargets(ITeam[] teams, Point2D[] targets) {
 		IContest contest = getContest();
 		int size = teams.length;
-		breaks.clear();
-		int numSolved = 0;
-		if (size > 0)
-			numSolved = contest.getStanding(teams[0]).getNumSolved();
-		for (int i = 0; i < size; i++) {
-			targets[i].setLocation(0, i);
-			int num = contest.getStanding(teams[i]).getNumSolved();
-			if (num != numSolved) {
-				numSolved = num;
-				breaks.add(i);
+		synchronized (breaks) {
+			breaks.clear();
+			int numSolved = 0;
+			if (size > 0)
+				numSolved = contest.getStanding(teams[0]).getNumSolved();
+			for (int i = 0; i < size; i++) {
+				targets[i].setLocation(0, i);
+				int num = contest.getStanding(teams[i]).getNumSolved();
+				if (num != numSolved) {
+					numSolved = num;
+					breaks.add(i);
+				}
 			}
 		}
 
@@ -71,6 +80,69 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 		tileHelper.setApproximateRendering(Math.abs(cols - initScroll.getTarget()) > 1e-3);
 
 		super.paintImpl(g);
+
+		preRenderRandom(g);
+	}
+
+	/**
+	 * Pre-render random appearances of the first two columns at random column sizes, so that
+	 * all versions eventually get rendered, so that the whole column animation gets smooth.
+	 *
+	 * @param g2 graphics to drow visible graphics on, only used for DEBUG_SHOW_PRERENDER.
+	 */
+	private void preRenderRandom(Graphics2D g2) {
+		final boolean DEBUG_SHOW_PRERENDER = false;
+
+		double cols = 1.000 + Math.random() * (columns - 1);
+		final Graphics2D g;
+		if (DEBUG_SHOW_PRERENDER) {
+			cols = 1.000 + (getTimeMs() % 2000 / 1999.0) * (columns - 1);
+			g = (Graphics2D) g2.create();
+			g.setComposite(AlphaComposite.SrcOver.derive(.4f));
+		} else {
+			g = null;
+		}
+		setColumns(cols);
+
+		TeamTileHelper tileHelper2 = createTileHelper();
+		tileHelper2.setLightMode(isLightMode());
+		tileHelper2.setSize(tileHelper.getSize());
+		tileHelper2.joinCaches(tileHelper);
+		tileHelper2.setApproximateRendering(Math.abs(cols - Math.round(cols)) > 1e-3);
+
+		Future<?> f = renderPool.getExecutor().submit(() -> {
+			ITeam[] teams = getContest().getOrderedTeams();
+
+			BufferedImage dummy = new BufferedImage(10, 10, BufferedImage.TYPE_4BYTE_ABGR);
+			Graphics2D gg = dummy.createGraphics();
+			int N_PRE_PER_FRAME = 21;
+			if (DEBUG_SHOW_PRERENDER) {
+				N_PRE_PER_FRAME = Math.min(2 * rows, teams.length);
+			}
+			for (int i = 0; i < N_PRE_PER_FRAME; i++) {
+				int randomTopRow = (int) (Math.random() * Math.min(2 * rows, teams.length));
+				if (DEBUG_SHOW_PRERENDER) {
+					randomTopRow = i;
+				}
+				ITeam team = teams[randomTopRow];
+
+				if (DEBUG_SHOW_PRERENDER) {
+					int x = margin + randomTopRow / rows * (tileDim.width + TILE_H_GAP);
+					int y = (randomTopRow % rows) * (tileDim.height + TILE_V_GAP);
+					tileHelper2.paintTile(g, x, y, 1.0, team, (int) getRepeatTimeMs(), true);
+				} else {
+					tileHelper2.paintTile(gg, 0, 0, 1.0, team, (int) getRepeatTimeMs(), true);
+				}
+			}
+			gg.dispose();
+		});
+		if (DEBUG_SHOW_PRERENDER) {
+			try {
+				f.get();
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
@@ -96,10 +168,12 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 		int arc = tileDim.width / 90;
 		g.setColor(isLightMode() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setStroke(new BasicStroke(2f));
-		for (Integer i : breaks) {
-			int x = ((i / rows) * (tileDim.width + TILE_H_GAP));
-			int y = ((i % rows) * (tileDim.height + TILE_V_GAP)) - (TILE_V_GAP + 1) / 2;
-			g.drawLine(x + arc, y, x + tileDim.width - arc, y);
+		synchronized (breaks) {
+			for (Integer i : breaks) {
+				int x = ((i / rows) * (tileDim.width + TILE_H_GAP));
+				int y = ((i % rows) * (tileDim.height + TILE_V_GAP)) - (TILE_V_GAP + 1) / 2;
+				g.drawLine(x + arc, y, x + tileDim.width - arc, y);
+			}
 		}
 	}
 }
