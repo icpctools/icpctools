@@ -304,11 +304,22 @@ public class JSONParser {
 			throw new IllegalArgumentException("Expected object start");
 		}
 
+		// check for empty object or first attribute
+		t = nextToken();
+		if (t == Token.OBJECT_END)
+			return obj;
+		if (t != Token.QUOTE)
+			throw new IllegalArgumentException("Expected attribute");
+		ind--;
+		readAttr(obj);
+
+		// read remaining attributes
+		t = nextToken();
 		while (t != Token.OBJECT_END) {
+			if (t != Token.COMMA)
+				throw new IllegalArgumentException("Expected comma (" + t + ")");
 			readAttr(obj);
 			t = nextToken();
-			if (t != Token.COMMA && t != Token.OBJECT_END)
-				throw new IllegalArgumentException("Unexpected " + t);
 		}
 
 		return obj;
