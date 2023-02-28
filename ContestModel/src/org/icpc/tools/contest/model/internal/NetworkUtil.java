@@ -23,6 +23,14 @@ public class NetworkUtil {
 		if (localAddress != null)
 			return localAddress;
 
+		// Try to get the IP from the env var (if exists). Useful in scenarios
+		// without internet and in which the first network interface is not the
+		// one that should be used
+		if (System.getenv("ICPCTOOL_IP") != null) {
+			localAddress = System.getenv("ICPCTOOL_IP");
+			return localAddress;
+		}
+
 		// Try to use a socket to connect to google and find the local IP address for the socket
 		// This is the best approach but only works when there is internet
 		try (Socket socket = new Socket()) {
