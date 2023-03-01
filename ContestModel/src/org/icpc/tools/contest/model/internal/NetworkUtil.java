@@ -26,8 +26,8 @@ public class NetworkUtil {
 		// Try to get the IP from the env var (if exists). Useful in scenarios
 		// without internet and in which the first network interface is not the
 		// one that should be used
-		if (System.getenv("ICPCTOOL_IP") != null) {
-			localAddress = System.getenv("ICPCTOOL_IP");
+		if (System.getenv("ICPC_TOOLS_IP") != null) {
+			localAddress = System.getenv("ICPC_TOOLS_IP");
 			return localAddress;
 		}
 
