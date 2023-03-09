@@ -146,6 +146,64 @@ public class AwardUtil {
 		}
 	}
 
+	private static void assignExpectedToAdvance(Contest contest, Award a, int numSchools) {
+		//initialize to no teams
+		a.setTeamIds(new String[0]);
+
+		int count = 0;
+		List<String> teamIds = new ArrayList<>();
+		List<String> organizations = new ArrayList<>();
+		for (ITeam team : contest.getOrderedTeams()) {
+			if (contest.getStanding(team).getNumSolved() == 0
+					|| count == numSchools)
+				break;
+
+			String organization = team.getOrganizationId();
+			if ( !organizations.contains(organization)) {
+				if (count < numSchools) {
+					teamIds.add(team.getId());
+					organizations.add(organization);
+					count++;
+				}
+			}
+		}
+
+		if (!teamIds.isEmpty()) {
+			a.setTeamIds(teamIds.toArray(new String[0]));
+			if (a.getCitation() == null)
+				a.setCitation(IAward.EXPECTED_TO_ADVANCE.getName());
+		}
+	}
+
+	public static void createExpectedToAdvanceAwards(Contest contest, int numSchools) {
+		Award expectedToAdvance = new Award(IAward.EXPECTED_TO_ADVANCE, "", null, (String) null);
+		expectedToAdvance.setParameter(numSchools + "");
+		createExpectedToAdvanceAwards(contest, expectedToAdvance);
+	}
+
+	public static void createExpectedToAdvanceAwards(Contest contest, IAward template) {
+		int numSchools = 3;
+		try {
+			if (template.getParameter() != null)
+				numSchools = Integer.parseInt(template.getParameter());
+
+			if (numSchools < 1)
+				throw new IllegalArgumentException("Cannot assign expected to advance awards to less than one team");
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse numSchools parameter: " + template.getParameter());
+		}
+
+		DisplayMode mode = template.getDisplayMode();
+
+		if (template.getId().equals("expected-to-advance")) {
+				Award expectedToAdvanceAward = new Award(IAward.EXPECTED_TO_ADVANCE, "", null, (String) null, mode);
+				contest.add(expectedToAdvanceAward);
+				assignExpectedToAdvance(contest, expectedToAdvanceAward, numSchools);
+		} else {
+			assignExpectedToAdvance(contest, (Award) template, numSchools);
+		}
+	}
+
 	private static void assignFirstToSolve(Contest contest, Award a) {
 		String problemId = a.getId().substring(15);
 		a.setTeamIds(new String[0]);
