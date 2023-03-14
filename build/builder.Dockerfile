@@ -1,5 +1,7 @@
 FROM openjdk:17-bullseye
 LABEL maintainer="Tim deBoer"
+LABEL org.opencontainers.image.description="ICPC Tools code builder"
+LABEL org.opencontainers.image.source=https://github.com/icpctools/icpctools
 
 RUN apt-get update \
    && apt-get install -y ant pandoc texlive \

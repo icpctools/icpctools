@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: icpctools/builder
+    container: ghcr.io/icpctools/builder
     steps:
       - uses: actions/checkout@v2
         with:
@@ -22,7 +22,7 @@ jobs:
           path: dist/*
   push-release:
     runs-on: ubuntu-latest
-    container: icpctools/website
+    container: ghcr.io/icpctools/website
     needs: build
     if: github.ref == 'refs/heads/main'
     steps:
@@ -75,7 +75,7 @@ jobs:
           done
   update-website:
     runs-on: ubuntu-latest
-    container: icpctools/website
+    container: ghcr.io/icpctools/website
     needs: push-release
     if: github.ref == 'refs/heads/main'
     steps:
@@ -122,12 +122,13 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1 
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Docker image
         run: |
           export VERSION_PREFIX=$(awk -F '=' '{ print $2 } ' version.properties)
           VERSION=${VERSION_PREFIX}.$(git rev-list $GITHUB_SHA --count)
           cd build/cds/Docker
-          docker build -t icpctools/cds:${VERSION} --build-arg CDS_VERSION=${VERSION} .
-          docker push icpctools/cds:${VERSION}
+          docker build -t ghcr.io/icpctools/cds:${VERSION} --build-arg CDS_VERSION=${VERSION} .
+          docker push ghcr.io/icpctools/cds:${VERSION}
