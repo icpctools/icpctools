@@ -1,5 +1,5 @@
-docker build . -f builder.Dockerfile -t icpctools/builder
-docker push icpctools/builder
+docker build . -f builder.Dockerfile -t ghcr.io/icpctools/builder
+docker push ghcr.io/icpctools/builder
 
-docker build . -f website.Dockerfile -t icpctools/website
-docker push icpctools/website
+docker build . -f website.Dockerfile -t ghcr.io/icpctools/website
+docker push ghcr.io/icpctools/website

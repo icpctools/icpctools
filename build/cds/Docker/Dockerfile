@@ -1,6 +1,8 @@
 FROM ubuntu:focal
 
 ENV DEBIAN_FRONTEND=noninteractive
+LABEL org.opencontainers.image.description="ICPC Tools Contest Data Server"
+LABEL org.opencontainers.image.source=https://github.com/icpctools/icpctools
 
 ARG CDS_VERSION
 

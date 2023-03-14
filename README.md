@@ -67,6 +67,47 @@ We will add information on how to run and debug later.
 
 See [the IntelliJ IDEA specific documentation](doc/intellij-idea.md).
 
+### Using the CDS docker image
+
+A [Docker image](https://ghcr.io/icpctools/cds) is provided to run the CDS without having to install it yourself.
+
+#### Running it
+
+The basic way to run it, is to run
+
+```bash
+docker run --name cds --rm -it  -p 8080:8080 -p 8443:8443 -e CCS_URL=https://www.domjudge.org/demoweb/api/contests/nwerc18 -e CCS_USER=admin -e CCS_PASSWORD=admin ghcr.io/icpctools/cds:2.2.407
+```
+
+Replace `https://www.domjudge.org/demoweb/api/contests/nwerc18` with your CCS contest API URL, `CCS_USER` with a user with admin privileges to the CCS URL, `CCS_PASSWORD` with the password for the given user and `2.2.407` with the version of the CDS you want to run.
+
+Now you can access the CDS at https://localhost:8443/.
+
+*Note*: this will use default credentials for all users, so it is recommended to change them. This can be done using environment variables or overwriting the `users.xml` file.
+
+#### Environment variables
+
+* `ADMIN_PASSWORD`: the password for the user with admin privileges.
+* `PRESADMIN_PASSWORD`: the password for the user with presentation admin privileges.
+* `BLUE_PASSWORD`: the password for the user with blue privileges.
+* `BALLOON_PASSWORD`: the password for the user with balloon privileges.
+* `PUBLIC_PASSWORD`: the password for the user with public privileges.
+* `PRESENTATION_PASSWORD`: the password for the user with presentation privileges.
+* `MYICPC_PASSWORD`: the password for the user with MyICPC privileges.
+* `LIVE_PASSWORD`: the password for the user with Live privileges.
+* `CCS_URL`: the URL to a CCS contest.
+* `CCS_USER`: the user that has admin access to `CCS_URL`.
+* `CCS_PASSWORD`: the password for `CCS_USER`.
+
+#### Overwriting config files
+
+* If you want to supply your own `users.xml`, mount a file at `/opt/wlp/usr/servers/cds/users.xml`.
+* If you want to supply your own `cdsConfig.xml`, mount a file at `/opt/wlp/usr/servers/cds/config/cdsConfig.xml`.
+
+#### Contest data directory
+
+The contest data directory is located at `/contest` so you can mount that as a volume if you want to store the data or use team photos, organization logos, banners or any other files.
+
 ## License
 
 All of the tools are provided under the included license and are "Free as in Beer". We welcome you to use
