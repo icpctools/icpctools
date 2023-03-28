@@ -53,10 +53,11 @@ public interface IAward extends IContestObject {
 	AwardType TOP = new AwardType("Top", "top-.*");
 	AwardType HONORS = new AwardType("Honors", "honors-.*");
 	// AwardType HONORABLE_MENTION = new AwardType("Honorable Mention", "honorable-mention");
+	AwardType EXPECTED_TO_ADVANCE = new AwardType("Expected to Advance", "expected-to-advance");
 	AwardType OTHER = new AwardType("Other", ".*");
 
 	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP, ORGANIZATION,
-			GROUP_HIGHLIGHT, SOLVED, TOP, HONORS, OTHER };
+			GROUP_HIGHLIGHT, SOLVED, TOP, HONORS, EXPECTED_TO_ADVANCE, OTHER };
 
 	/**
 	 * Returns the ids of the teams that this award is for.
