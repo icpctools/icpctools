@@ -32,10 +32,7 @@ public class FinalizeService {
 		Trace.trace(Trace.USER, "Finalize command: " + command);
 		try {
 			Contest c = (Contest) contest;
-			if (command.startsWith("b:")) {
-				int b = Integer.parseInt(command.substring(2));
-				AwardUtil.createWorldFinalsAwards(c, b);
-			} else if ("template".equals(command)) {
+			if ("template".equals(command)) {
 				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "award-template.json");
 				if (!f.exists()) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No award template found");

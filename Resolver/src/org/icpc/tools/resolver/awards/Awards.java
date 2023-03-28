@@ -140,6 +140,17 @@ public class Awards {
 						changed[0] = true;
 						break;
 					}
+					case "--expectedToAdvance": {
+						ArgumentParser.expectOptions(option, options, "numTeams:int");
+						int num = (int) options.get(0);
+						if (num < 1 || num > 100)
+							throw new IllegalArgumentException("Invalid number of advancing teams");
+
+						Trace.trace(Trace.USER, "Assigning expected to advance awards.");
+						AwardUtil.createExpectedToAdvanceAwards(contest, num);
+						changed[0] = true;
+						break;
+					}
 					case "--list": {
 						ArgumentParser.expectNoOptions(option, options);
 						IAward[] awards = contest.getAwards();
@@ -211,6 +222,9 @@ public class Awards {
 		System.out.println("         is before or after scoreboard freeze");
 		System.out.println("     --group <numTeams>");
 		System.out.println("         Assigns group awards to the given number of teams, e.g. \"Toronto site winner\"");
+		System.out.println("     --expectedToAdvance <numTeams>");
+		System.out.println(
+				"         Assigns 'expected to advance' awards to the top number of teams, with at most one per organization");
 		System.out.println("     --list");
 		System.out.println("         List current awards");
 		System.out.println("     --help");

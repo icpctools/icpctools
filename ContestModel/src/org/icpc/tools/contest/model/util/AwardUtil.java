@@ -234,7 +234,7 @@ public class AwardUtil {
 
 		String citation = template.getCitation();
 		if (citation == null)
-			citation = Messages.getString("awardWorldChampion");
+			citation = Messages.getString("awardChampion");
 
 		contest.add(new Award(IAward.WINNER, teams[0].getId(), citation, template.getDisplayMode()));
 	}
@@ -533,21 +533,64 @@ public class AwardUtil {
 		return num;
 	}
 
+	private static void assignExpectedToAdvance(Contest contest, Award a, int numTeams) {
+		// initialize to no teams
+		a.setTeamIds(new String[0]);
+
+		int count = 0;
+		List<String> teamIds = new ArrayList<>();
+		List<String> organizations = new ArrayList<>();
+		for (ITeam team : contest.getOrderedTeams()) {
+			if (contest.getStanding(team).getNumSolved() == 0 || count == numTeams)
+				break;
+
+			String organization = team.getOrganizationId();
+			if (!organizations.contains(organization)) {
+				if (count < numTeams) {
+					teamIds.add(team.getId());
+					if (organization != null)
+						organizations.add(organization);
+					count++;
+				}
+			}
+		}
+
+		if (!teamIds.isEmpty()) {
+			a.setTeamIds(teamIds.toArray(new String[0]));
+			if (a.getCitation() == null)
+				a.setCitation(IAward.EXPECTED_TO_ADVANCE.getName());
+		}
+	}
+
+	public static void createExpectedToAdvanceAwards(Contest contest, int numTeams) {
+		Award expectedToAdvance = new Award(IAward.EXPECTED_TO_ADVANCE, "", null, (String) null);
+		expectedToAdvance.setParameter(numTeams + "");
+		createExpectedToAdvanceAwards(contest, expectedToAdvance);
+	}
+
+	public static void createExpectedToAdvanceAwards(Contest contest, IAward template) {
+		int numTeams = 3;
+		try {
+			if (template.getParameter() != null)
+				numTeams = Integer.parseInt(template.getParameter());
+
+			if (numTeams < 1)
+				throw new IllegalArgumentException("Cannot assign expected to advance awards to less than one team");
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse numTeams parameter: " + template.getParameter());
+		}
+
+		assignExpectedToAdvance(contest, (Award) template, numTeams);
+		contest.add(template);
+	}
+
 	public static void createDefaultAwards(Contest contest) {
-		createWorldFinalsAwards(contest);
-	}
-
-	public static void createWorldFinalsAwards(Contest contest) {
-		createWorldFinalsAwards(contest, 0);
-	}
-
-	public static void createWorldFinalsAwards(Contest contest, int b) {
 		Award gold = new Award(IAward.MEDAL, "gold", null, (String) null);
 		gold.setParameter("4");
 		Award silver = new Award(IAward.MEDAL, "silver", null, (String) null);
 		silver.setParameter("4");
 		Award bronze = new Award(IAward.MEDAL, "bronze", null, (String) null);
-		bronze.setParameter((4 + b) + "");
+		bronze.setParameter("4");
 		createMedalAwards(contest, gold, silver, bronze);
 
 		Award group = new Award(IAward.GROUP, "*", null, (String) null);
@@ -574,6 +617,8 @@ public class AwardUtil {
 				createFirstToSolveAwards(contest, award);
 			} else if (award.getAwardType() == IAward.TOP) {
 				createTopAwards(contest, award);
+			} else if (award.getAwardType() == IAward.EXPECTED_TO_ADVANCE) {
+				createExpectedToAdvanceAwards(contest, award);
 			} else if (award.getAwardType() == IAward.HONORS) {
 				createHonorsAwards(contest, award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
@@ -588,22 +633,6 @@ public class AwardUtil {
 
 		if (gold != null || silver != null || bronze != null)
 			createMedalAwards(contest, gold, silver, bronze);
-	}
-
-	public static void applyAward(Contest contest, IAward awardTemplate) {
-		if (awardTemplate.getAwardType() == IAward.GROUP) {
-			createGroupAwards(contest, awardTemplate);
-		} else if (awardTemplate.getAwardType() == IAward.FIRST_TO_SOLVE) {
-			createFirstToSolveAwards(contest, awardTemplate);
-		} else if (awardTemplate.getAwardType() == IAward.MEDAL) {
-			// createFirstToSolveAwards(contest, awardTemplate);
-		} else if (awardTemplate.getAwardType() == IAward.WINNER) {
-			createWinnerAward(contest, awardTemplate);
-		} else if (awardTemplate.getAwardType() == IAward.TOP) {
-			createTopAwards(contest, awardTemplate);
-		} else if (awardTemplate.getAwardType() == IAward.HONORS) {
-			createHonorsAwards(contest, awardTemplate);
-		}
 	}
 
 	public static void sortAwards(IContest contest, IAward[] awards) {

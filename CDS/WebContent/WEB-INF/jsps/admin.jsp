@@ -108,22 +108,6 @@
            </div>
         <div class="card-body">
           Finalize (signal end of updates for) the contest.
-          <form class="form-inline">
-            <div class="form-group">
-                <label for="bSelect">B value</label>
-                <select id="bSelect" class="form-control">
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-                <button id="finalize" class="btn btn-info"
-                    onclick="var e = document.getElementById('bSelect'); sendFinalizeCommand('finalize', 'b:' + e.options[e.selectedIndex].value)">Apply</button>
-            </div>
-          </form>
             <div class="form-group">
                 <button id="finalize2" class="btn btn-info" onclick="sendFinalizeCommand('finalize2', 'template')">Apply from Template</button></div>
             <div class="form-group">
