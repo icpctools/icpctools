@@ -121,8 +121,8 @@
                     <table class="table table-sm table-hover table-striped">
                         <tbody>
                             <tr>
-                                <td><b>Contest location:</b></td>
-                                <td><%= cc.getLocation() %>
+                                <td><b>Contest path:</b></td>
+                                <td><%= cc.getPath() %>
                                 </td>
                             </tr>
                             <tr>

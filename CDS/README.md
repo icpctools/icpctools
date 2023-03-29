@@ -114,24 +114,24 @@ This configuration is done via an XML file named _cdsConfig.xml_,
 located in the _usr/servers/cds_ folder. 
 The _cdsConfig.xml_ file contains a root element *cds* which in turn contains a separate "service-defining" XML element for each 
 service which the CDS knows how to provide. All nested elements and attributes are optional except
-for the _contest location_ attribute, and unknown elements or attributes are ignored - 
+for the contest _path_ attribute, and unknown elements or attributes are ignored - 
 this allows you to easily rename or comment-out an element to add or remove a service.
 If you save changes to _cdsConfig.xml_ while the CDS is running the changes will be automatically applied after a few seconds.
 
 A simple example of a _cdsConfig.xml_ file is shown below.
 
 ```
-  <!-- specify the location of the folder holding the contest data package
-       (used to find config files, resources, etc.) -->
-  <contest location="/Users/me/contests/test" recordReactions="true">
+  <!-- specify the path of the folder holding the contest package
+       (used to find config files, logos, etc.) -->
+  <contest path="/Users/me/contests/test" recordReactions="true">
     <!-- Configure communication with the CCS -->
     <ccs url="http://myccs/api/contests/finals" user="admin" password="adm1n"/>
   </contest>
 </cds>
 ```
 
-The above file specifies two "service elements": *contest*, with its (required) _location_ attribute which points to the
-location of the Contest Data Package (see below), and *ccs*, whose attributes describe how to connect to the Contest Control System.
+The above file specifies two "service elements": *contest*, with its (required) _path_ attribute which points to the
+location of the Contest Package (see below), and *ccs*, whose attributes describe how to connect to the Contest Control System.
 (See below for further description of the attribute values in the sample file.)
 
 ##### CDS Configuration Service Elements
@@ -142,7 +142,7 @@ The supported service-defining elements and their structure and functions are de
 ###### contest Element
 
 ```
-<contest id="id" location="path" recordReactions="false"/>
+<contest id="id" path="path" recordReactions="false"/>
 ```
 
 The attributes associated with this element are as follows:
@@ -150,11 +150,11 @@ The attributes associated with this element are as follows:
 * id: an optional _id_ specifying the contest id to expose, which will override any contest id used by the underlying CCS or event feed.
 
   If unspecified, the id will be picked up from the CCS' Contest API endpoint (e.g. 'finals' in 'http://api/contests/finals') or by the last
-segment of the location (e.g. 'test' in 'C:\\icpc\\test').
+segment of the path (e.g. 'test' in 'C:\\icpc\\test').
 
-* location: specifies the full path to a *_contest data package_* (CDP) defining the organization of the contest
-(config files, logos, etc.). See the [CLI CDP specification](https://clics.ecs.baylor.edu/index.php/CDP) for details on how
-to organize a Contest Data Package. Note that _the location attribute is required_; the CDS will not 
+* path: specifies the full path to a Contest Package defining the organization of the contest
+(config files, logos, etc.). See the [Contest Package](https://ccs-specs.icpc.io/2022-07/contest_package) specification for details on how
+to organize a Contest Package. Note that _the path attribute is required_; the CDS will not 
 operate if it does not have a folder to store contest related data, even when it is empty and getting all data from the CCS.
 
 * recordReactions: an optional string ("true" or "false" [default]) instructing the CDS whether or not to record reaction videos
@@ -187,7 +187,7 @@ The attributes associated with this element are as follows:
 * password: the password for the CCS user account
 
 If the *ccs* element is present then the CDS will use the CCS as the master source of all contest data. The local
-*contest* folder is used as an initial source, cache, and can provide additional data (e.g. logos if the CCS does
+*contest package* folder is used as an initial source, cache, and can provide additional data (e.g. logos if the CCS does
 not provide those) but the event feed and all other contest data will come from or be overridden by the CCS.
 
 ###### video Child Element
@@ -277,7 +277,7 @@ These are the supported modes:
 
 The *test* element is used to enable test (_contest playback_) mode. 
 When you enable test mode the CDS will attempt to play back a past contest based on the content of
-the specified _contest location_ (see the *contest* element, above) -- meaning, the CDS will provide 
+the specified _contest path_ (see the *contest* element, above) -- meaning, the CDS will provide 
 responses to service requests as if the requested data came from the specified contest, 
 at the time rate and sequence order in which they actually occurred in that contest. 
 The attributes associated with this element are as follows:
@@ -291,7 +291,7 @@ Only one of the countdown and startTime attributes can be set at a time!
 Several services normally require additional hardware or software to run; e.g. /video/desktop requires
 a team machine that's capturing and streaming desktop video. To avoid this requirement during a test (contest playback),
  the CDS allows you to put into the contest
-location (CDP) a _test_ folder that contains some sample data. The following is a list of the sample files that are supported:
+package a _test_ folder that contains some sample data. The following is a list of the sample files that are supported:
 
 *   reaction.m2ts
 *   submission.json

@@ -69,7 +69,7 @@ public class ReactionVideoRecorder {
 
 	private static void cleanUpReactions(ConfiguredContest cc) {
 		// check if already recorded in a previous run
-		String dir = cc.getLocation();
+		String dir = cc.getPath();
 		if (dir == null)
 			return;
 
@@ -91,7 +91,7 @@ public class ReactionVideoRecorder {
 
 	public void startRecording(ConfiguredContest cc, ISubmission submission) {
 		IContest contest = cc.getContest();
-		String rootFolder = cc.getLocation();
+		String rootFolder = cc.getPath();
 
 		String submissionId = submission.getId();
 		if (submissions.containsKey(submissionId))
@@ -259,7 +259,7 @@ public class ReactionVideoRecorder {
 
 	public static void streamReaction(ConfiguredContest cc, ISubmission submission, HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
-		String rootFolder = cc.getLocation();
+		String rootFolder = cc.getPath();
 		if (rootFolder == null) {
 			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 			return;
