@@ -59,7 +59,7 @@ public class ConfiguredContest {
 	}
 
 	private String id;
-	private String location;
+	private String path;
 	private boolean recordReactions;
 	private boolean hidden;
 	private CCS ccs;
@@ -281,7 +281,10 @@ public class ConfiguredContest {
 
 	protected ConfiguredContest(Element e) {
 		id = CDSConfig.getString(e, "id");
-		location = CDSConfig.getString(e, "location");
+
+		path = CDSConfig.getString(e, "path");
+		if (path == null)
+			path = CDSConfig.getString(e, "location");
 
 		recordReactions = CDSConfig.getBoolean(e, "recordReactions");
 		hidden = CDSConfig.getBoolean(e, "hidden");
@@ -298,10 +301,10 @@ public class ConfiguredContest {
 			}
 		}
 		// if no id, default to last folder in location
-		if (id == null && location != null) {
-			int ind = Math.max(location.lastIndexOf("/"), location.lastIndexOf("\\"));
+		if (id == null && path != null) {
+			int ind = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
 			if (ind >= 0)
-				id = location.substring(ind + 1);
+				id = path.substring(ind + 1);
 		}
 
 		Element[] vee = CDSConfig.getChildren(e, "video");
@@ -421,8 +424,8 @@ public class ConfiguredContest {
 		}
 	}
 
-	public String getLocation() {
-		return location;
+	public String getPath() {
+		return path;
 	}
 
 	public String getId() {
@@ -577,10 +580,10 @@ public class ConfiguredContest {
 		if (contestSource != null)
 			return contestSource;
 
-		if (location == null)
+		if (path == null)
 			return null;
 
-		File folder = new File(location);
+		File folder = new File(path);
 
 		if (ccs == null) {
 			contestSource = new DiskContestSource(folder);
@@ -959,7 +962,7 @@ public class ConfiguredContest {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(id);
-		sb.append(" on disk at " + location + " - ");
+		sb.append(" on disk at " + path + " - ");
 		if (ccs != null)
 			sb.append("CCS configured (" + ccs + "), ");
 		else

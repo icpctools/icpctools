@@ -33,7 +33,7 @@ public class FinalizeService {
 		try {
 			Contest c = (Contest) contest;
 			if ("template".equals(command)) {
-				File f = new File(cc.getLocation() + File.separator + "config" + File.separator + "award-template.json");
+				File f = new File(cc.getPath() + File.separator + "config" + File.separator + "award-template.json");
 				if (!f.exists()) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No award template found");
 					return;

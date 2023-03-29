@@ -40,15 +40,15 @@ Presentation System; see below for a complete list of available presentations.
 
 When a Presentation Client is started it must be told, in addition to what presentations to display,
 where to obtain its input data (images, contest events, etc.).
-This is referred to as specifying a _contest data source_.
-Presentation Clients can obtain their input data from two different types of contest data sources:
+This is referred to as specifying a _contest source_.
+Presentation Clients can obtain their input data from two different types of contest sources:
 a compliant [_Contest API_](https://ccs-specs.icpc.io/contest_api), or a
-a [_contest data package (CDP)_](https://clics.ecs.baylor.edu/index.php/Main_Page#Contest_Data_Package).
+a [_Contest Package_](https://ccs-specs.icpc.io/2022-07/contest_package) folder.
 
-When connecting to a live Contest Control System via the Contest API, the Presentation Client works
-by reading the _event feed_ output of the CCS.
+When connecting to a live contest via the Contest API, the Presentation Client works
+by reading the _event feed_.
 The ICPC Presentation System will work with any CCS or the CDS that produces an event feed which is 
-compliant with the [Contest API Specification](https://ccs-specs.icpc.io/contest_api).
+compliant with the Contest API specification.
 Tools known to produce compliant event feeds include
 [Contest Data Server](https://tools.icpc.global/cds/), 
 [DOMjudge](https://www.domjudge.org),
@@ -57,9 +57,8 @@ Tools known to produce compliant event feeds include
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Presentation System.
 
-A second way to provide the Presentation Client with input data is by creating a _contest data package_ (CDP). 
-A CDP is an arbitrarily-named folder with specific contest-configuration contents;
-see the above reference for details on CDP structure.
+A second way to provide the Presentation Client with input data is by creating a _Contest Package_ folder
+as per the reference above.
 
 ## Using the Presentation Client
 
@@ -96,7 +95,7 @@ Presentation Client folder (i.e. from the folder where the distribution was unzi
 and is invoked with a set of command line parameters to control its operation.
 
 The first parameter to the script specifies a contest data source, either a URL to a
-Contest API server, or a local folder that is the root of a _contest data package (CDP)_
+Contest API server, or a local folder that is the root of a _Contest Package_
 as described above.
 
 If the first parameter is a URL, the Presentation Client expects the next two parameters to
@@ -158,7 +157,7 @@ where
 ```
   contestURL is an HTTPS URL to connect to a CDS, followed by user and password
 
-  contestPath is a local file or folder to load from a contest data package archive
+  contestPath is a local folder to load from a contest package
 ```
 
 The general form for executing the Presentation Client in admin-controlled mode is
@@ -249,19 +248,19 @@ two presentation displays: the first consisting of the ICPC Contest Logo, the se
 consisting of a set of pictures obtained from the appropriate CDS URL.
   
 ```
-  standalone.bat c:\myContestCDP --p 1 3 16
+  standalone.bat c:\myContest --p 1 3 16
 ```
 
 The above command starts the Presentation Client, causes it to load contest information
-from the Contest Data Package whose root is the folder "c:\\myContestCDP", and begins
+from the Contest Package whose root is the folder "c:\\myContest", and begins
 alternating between presentations 1, 3, and 16.
 
 ```
-  client.sh https://contestDataServer user pwd --name "Site 2"
+  client.sh https://cds user pwd --name "Site 2"
 ```
 
 The above command starts a Presentation Client in admin-controlled mode, causing it
-to connect to the CDS specified by the URL _https://contestDataServer_ logging in 
+to connect to the CDS specified by the URL _https://cds_ logging in 
 with the name "user" and the password "pwd" and registering itself with the Presentation
 Admin as "Site 2". The Presentation Client then remains
 quiescent with a blank screen until it receives a command from a Presentation Admin
