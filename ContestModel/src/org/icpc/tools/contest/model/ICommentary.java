@@ -9,7 +9,7 @@ public interface ICommentary extends IContestObject {
 	 *
 	 * @return the contest time
 	 */
-	int getContestTime();
+	long getContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
