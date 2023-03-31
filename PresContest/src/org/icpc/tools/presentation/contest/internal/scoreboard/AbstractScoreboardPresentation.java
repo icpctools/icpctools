@@ -450,12 +450,12 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 					width - BORDER - fm.stringWidth(" 9999") - (fm.stringWidth("99") + fm.stringWidth(s)) / 2, 5);
 		}
 
-		n = standing.getTime();
+		long t = standing.getTime();
 
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
-		if (n > 0) {
-			s = n + "";
+		if (t > 0) {
+			s = t + "";
 			TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 		}
 	}

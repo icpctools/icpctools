@@ -170,7 +170,7 @@ public abstract class ContestObject implements IContestObject {
 		return 0;
 	}
 
-	public static int getContestTime(IContestObject obj) {
+	public static long getContestTime(IContestObject obj) {
 		if (obj instanceof TimedEvent) {
 			return ((TimedEvent) obj).getContestTime();
 		} else if (obj instanceof IJudgement) {
@@ -182,7 +182,7 @@ public abstract class ContestObject implements IContestObject {
 		return 0;
 	}
 
-	protected static Integer parseRelativeTime(Object value) throws ParseException {
+	protected static Long parseRelativeTime(Object value) throws ParseException {
 		if (value == null || "null".equals(value))
 			return null;
 		return RelativeTime.parse((String) value);

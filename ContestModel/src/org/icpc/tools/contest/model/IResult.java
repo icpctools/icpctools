@@ -38,7 +38,7 @@ public interface IResult {
 	 *
 	 * @return the submission time, in ms
 	 */
-	int getContestTime();
+	long getContestTime();
 
 	/**
 	 * Return the penalty time for this problem, in minutes.

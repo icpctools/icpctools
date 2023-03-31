@@ -50,7 +50,7 @@ public class AwardUtil {
 				boolean afterFreeze = false;
 
 				if (contest.getFreezeDuration() != null) {
-					int freezeMin = (contest.getDuration() - contest.getFreezeDuration()) / 60000;
+					long freezeMin = (contest.getDuration() - contest.getFreezeDuration()) / 60000;
 					if (ContestUtil.getTimeInMin(s.getContestTime()) < freezeMin)
 						beforeFreeze = true;
 					else
@@ -162,7 +162,7 @@ public class AwardUtil {
 				boolean afterFreeze = false;
 
 				if (contest.getFreezeDuration() != null) {
-					int freezeMin = (contest.getDuration() - contest.getFreezeDuration()) / 60000;
+					long freezeMin = (contest.getDuration() - contest.getFreezeDuration()) / 60000;
 					if (ContestUtil.getTimeInMin(s.getContestTime()) < freezeMin)
 						beforeFreeze = true;
 					else

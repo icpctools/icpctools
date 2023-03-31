@@ -68,14 +68,14 @@ public interface IContest {
 	 *
 	 * @return the time remaining before the contest, in ms
 	 */
-	Integer getCountdownPauseTime();
+	Long getCountdownPauseTime();
 
 	/**
 	 * Returns the duration of the contest, in ms.
 	 *
 	 * @return the duration
 	 */
-	int getDuration();
+	long getDuration();
 
 	/**
 	 * Returns the duration of the end of contest freeze in ms, or null if there is no freeze in
@@ -83,7 +83,7 @@ public interface IContest {
 	 *
 	 * @return the freeze duration
 	 */
-	Integer getFreezeDuration();
+	Long getFreezeDuration();
 
 	/**
 	 * Returns the penalty time. null means there is no concept of penalty time; 0 indicates there
@@ -169,7 +169,7 @@ public interface IContest {
 	 *
 	 * @return
 	 */
-	int getContestTimeOfLastEvent();
+	long getContestTimeOfLastEvent();
 
 	/**
 	 * Return the most recent timed contest object.

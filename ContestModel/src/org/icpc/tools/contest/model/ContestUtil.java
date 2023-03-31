@@ -15,7 +15,7 @@ public class ContestUtil {
 
 	public static boolean flashPending = true;
 
-	public static boolean isRecent(IContest c, int contestTime) {
+	public static boolean isRecent(IContest c, long contestTime) {
 		Long l = c.getStartTime();
 		if (l == null)
 			return false;
@@ -72,8 +72,8 @@ public class ContestUtil {
 		return r2n < r1n;
 	}
 
-	public static int getTimeInMin(int timeMs) {
-		return timeMs / 60000;
+	public static long getTimeInMin(long timeMs) {
+		return timeMs / 60000L;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class ContestUtil {
 	 * @param time contest time, in ms
 	 * @return
 	 */
-	public static String getTime(int timeMs) {
+	public static String getTime(long timeMs) {
 		return getTimeInMin(timeMs) + "";
 	}
 
@@ -123,10 +123,10 @@ public class ContestUtil {
 	 * @param duration a duration, in ms
 	 * @return
 	 */
-	public static String formatDuration(Integer duration) {
+	public static String formatDuration(Long duration) {
 		if (duration == null)
 			return "None";
-		return formatDuration((int) duration);
+		return formatDuration((long) duration);
 	}
 
 	/**
@@ -135,8 +135,8 @@ public class ContestUtil {
 	 * @param duration a duration, in ms
 	 * @return
 	 */
-	public static String formatDuration(int duration2) {
-		int duration = duration2 / 1000;
+	public static String formatDuration(long duration2) {
+		long duration = duration2 / 1000;
 		if (duration < 0)
 			return "unknown";
 
@@ -144,15 +144,15 @@ public class ContestUtil {
 			return "0s";
 
 		StringBuilder sb = new StringBuilder();
-		int hours = (int) Math.floor(duration / 3600);
+		long hours = (long) Math.floor(duration / 3600);
 		if (hours > 0)
 			sb.append(hours + "h");
 
-		int mins = (int) Math.floor(duration / 60) % 60;
+		long mins = (long) Math.floor(duration / 60) % 60;
 		if (mins > 0)
 			sb.append(mins + "m");
 
-		int secs = duration % 60;
+		long secs = duration % 60;
 		if (secs > 0)
 			sb.append(secs + "s");
 		return sb.toString();

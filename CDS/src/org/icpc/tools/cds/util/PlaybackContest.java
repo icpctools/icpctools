@@ -93,7 +93,7 @@ public class PlaybackContest extends Contest {
 	 * @param info
 	 * @param time
 	 */
-	protected void waitForContestTime(int time) {
+	protected void waitForContestTime(long time) {
 		if (startTime == null || startTime < 0)
 			return;
 

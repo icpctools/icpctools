@@ -608,7 +608,7 @@ public class PresentationServer {
 
 						// parse time
 						int index = key.indexOf(":");
-						int time = 0;
+						long time = 0;
 						if (index > 0) {
 							String timeStr = key.substring(0, index);
 							if (timeStr.startsWith("+")) {
@@ -727,13 +727,13 @@ public class PresentationServer {
 		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 45L, TimeUnit.SECONDS);
 	}
 
-	public void scheduleCallback(IContest c, int contestTimeMs) {
+	public void scheduleCallback(IContest c, long contestTimeMs) {
 		// Future: schedule based on next callback
 		/*// find next event
 		int nextEventTime = Integer.MAX_VALUE;
 		for (TimedEvent event : events)
 			nextEventTime = (int) Math.min(event.contestTimeMs, nextEventTime);
-
+		
 		// leave if there are no scheduled events
 		if (nextEventTime == Integer.MAX_VALUE)
 			return;*/
@@ -746,12 +746,12 @@ public class PresentationServer {
 		double contestTime = System.currentTimeMillis() - startTime;
 		long dt = (long) (contestTimeMs / c.getTimeMultiplier() - contestTime);
 
-		final int nextEventTimeMs = contestTimeMs;
+		final long nextEventTimeMs = contestTimeMs;
 		Trace.trace(Trace.INFO, "Callback scheduled in " + (dt / 1000) + " seconds");
 		executor.schedule(() -> onTime(nextEventTimeMs), dt / 1000, TimeUnit.SECONDS);
 	}
 
-	protected void onTime(int contestTimeMs) {
+	protected void onTime(long contestTimeMs) {
 		List<TimedEvent> remove = new ArrayList<>();
 		for (TimedEvent event : events) {
 			if (event.contestTimeMs <= contestTimeMs) {

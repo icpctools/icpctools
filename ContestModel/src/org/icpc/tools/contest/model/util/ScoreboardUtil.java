@@ -149,11 +149,11 @@ public class ScoreboardUtil {
 		cc.add(row, "Different " + field + " (" + a + " vs " + b + ")");
 	}
 
-	private static void match(CompareCount cc, String row, String field, int a, int b) {
+	private static void match(CompareCount cc, String row, String field, long a, long b) {
 		cc.add(row, "Different " + field + " (" + a + " vs " + b + ")");
 	}
 
-	private static void match(CompareCount cc, String row, String problem, String field, int a, int b) {
+	private static void match(CompareCount cc, String row, String problem, String field, long a, long b) {
 		cc.add(row, problem, "Different " + field + " (" + a + " vs " + b + ")");
 	}
 

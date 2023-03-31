@@ -39,7 +39,7 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		if (state.getStarted() != null)
 			return getTime((getTimeMs() - state.getStarted()) * timeMultiplier, true);
 
-		Integer pauseTime = contest.getCountdownPauseTime();
+		Long pauseTime = contest.getCountdownPauseTime();
 		if (pauseTime != null)
 			return NLS.bind(Messages.pausedAt, getTime(-pauseTime * timeMultiplier, false));
 
@@ -67,7 +67,7 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		if (state.getStarted() != null)
 			return getTime((state.getStarted() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
 
-		Integer pauseTime = contest.getCountdownPauseTime();
+		Long pauseTime = contest.getCountdownPauseTime();
 		if (pauseTime != null)
 			return NLS.bind(Messages.pausedAt, getTime(-pauseTime * timeMultiplier, false));
 

@@ -24,7 +24,7 @@ public class HistoricalComparisonChart extends AbstractChartPresentation {
 	private static final int MIN = 5;
 
 	protected IContest contest = ContestData.getContest();
-	protected int maxTime;
+	protected long maxTime;
 	protected int numValues;
 	protected List<IContest> pastContests;
 	protected List<Series> pastData = new ArrayList<>();
@@ -75,7 +75,7 @@ public class HistoricalComparisonChart extends AbstractChartPresentation {
 			}
 		}
 
-		numValues = maxTime / 60000 / MIN;
+		numValues = (int) (maxTime / 60000 / MIN);
 		if (numValues < 1)
 			numValues = 1;
 	}
@@ -97,7 +97,7 @@ public class HistoricalComparisonChart extends AbstractChartPresentation {
 			int[] total = new int[numValues];
 			ISubmission[] submissions = contest2.getSubmissions();
 			for (ISubmission s : submissions) {
-				int time = s.getContestTime();
+				long time = s.getContestTime();
 				if (time <= maxTime) {
 					int rt = (int) Math.max(0, time / 1000L / 60 / MIN);
 					rt = Math.min(rt, numValues - 1);
@@ -134,7 +134,7 @@ public class HistoricalComparisonChart extends AbstractChartPresentation {
 		int[] total = new int[numValues];
 		ISubmission[] submissions = contest.getSubmissions();
 		for (ISubmission s : submissions) {
-			int time = s.getContestTime();
+			long time = s.getContestTime();
 			if (time < maxTime) {
 				int rt = (int) Math.max(0, time / 1000L / 60 / MIN);
 				rt = Math.min(rt, numValues - 1);

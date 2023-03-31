@@ -28,10 +28,10 @@ public class Info extends ContestObject implements IInfo {
 	private String name;
 	private String formalName;
 	private Long startTime;
-	private Integer pauseTime;
+	private Long pauseTime;
 	private boolean supportsPauseTime;
-	private int duration;
-	private Integer freezeDuration;
+	private long duration;
+	private Long freezeDuration;
 	private Integer penalty;
 	private ScoreboardType scoreboardType;
 	private double timeMultiplier = Double.NaN;
@@ -72,7 +72,7 @@ public class Info extends ContestObject implements IInfo {
 			pauseTime = null;
 			startTime = null;
 		} else if (start.longValue() < 0) {
-			pauseTime = -start.intValue();
+			pauseTime = -start.longValue();
 			supportsPauseTime = true;
 			startTime = null;
 		} else {
@@ -85,15 +85,15 @@ public class Info extends ContestObject implements IInfo {
 		return supportsPauseTime;
 	}
 
-	public Integer getCountdownPauseTime() {
+	public Long getCountdownPauseTime() {
 		return pauseTime;
 	}
 
-	public int getDuration() {
+	public long getDuration() {
 		return duration;
 	}
 
-	public Integer getFreezeDuration() {
+	public Long getFreezeDuration() {
 		return freezeDuration;
 	}
 
@@ -111,7 +111,7 @@ public class Info extends ContestObject implements IInfo {
 		timeMultiplier = multiplier;
 	}
 
-	public void setCountdownPauseTime(Integer time) {
+	public void setCountdownPauseTime(Long time) {
 		supportsPauseTime = true;
 		pauseTime = time;
 	}
@@ -291,7 +291,7 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public int deepHash() {
-		int hash = duration + (int) timeMultiplier;
+		int hash = (int) duration + (int) timeMultiplier;
 		if (freezeDuration != null)
 			hash += freezeDuration;
 		if (penalty != null)

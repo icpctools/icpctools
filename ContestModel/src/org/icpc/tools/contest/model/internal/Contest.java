@@ -79,7 +79,7 @@ public class Contest implements IContest {
 	private Recent[] recentActivity;
 	private IJudgement[] submissionJudgements;
 	private IJudgementType[] submissionJudgementTypes;
-	private int lastEventTime;
+	private long lastEventTime;
 	private IContestObject lastTimedEvent;
 	private int lastTimedEventIndex;
 
@@ -173,7 +173,7 @@ public class Contest implements IContest {
 				knownProps.add(name);
 	}
 
-	private void updateTime(int time) {
+	private void updateTime(long time) {
 		lastEventTime = Math.max(lastEventTime, time);
 	}
 
@@ -549,7 +549,7 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public Integer getCountdownPauseTime() {
+	public Long getCountdownPauseTime() {
 		return info.getCountdownPauseTime();
 	}
 
@@ -559,7 +559,7 @@ public class Contest implements IContest {
 	 * @return the duration
 	 */
 	@Override
-	public int getDuration() {
+	public long getDuration() {
 		return info.getDuration();
 	}
 
@@ -569,7 +569,7 @@ public class Contest implements IContest {
 	 * @return the freeze duration
 	 */
 	@Override
-	public Integer getFreezeDuration() {
+	public Long getFreezeDuration() {
 		return info.getFreezeDuration();
 	}
 
@@ -740,7 +740,7 @@ public class Contest implements IContest {
 		if (startTime != null)
 			return startTime;
 
-		Integer pause = info.getCountdownPauseTime();
+		Long pause = info.getCountdownPauseTime();
 		if (pause == null)
 			return null;
 
@@ -1020,14 +1020,14 @@ public class Contest implements IContest {
 			// sort submissions by time (just in case they aren't)
 			ISubmission[] sortedSubs = new ISubmission[submissions.length];
 			System.arraycopy(submissions, 0, sortedSubs, 0, submissions.length);
-			Arrays.sort(sortedSubs, Comparator.comparingInt(ISubmission::getContestTime));
+			Arrays.sort(sortedSubs, Comparator.comparingLong(ISubmission::getContestTime));
 
 			// sb.append((System.currentTimeMillis() - scoreTime) + "ms ");
 
 			String[] tempFTS = new String[numProblems];
-			int duration = getDuration();
+			long duration = getDuration();
 			for (ISubmission s : sortedSubs) {
-				int time = s.getContestTime();
+				long time = s.getContestTime();
 				if (time >= 0 && time < duration) {
 					int teamIndex = getTeamIndex(s.getTeamId());
 					int problemIndex = getProblemIndex(s.getProblemId());
@@ -1054,12 +1054,12 @@ public class Contest implements IContest {
 			for (int i = 0; i < numTeams; i++) {
 				int numSolved = 0;
 				int penalty = 0;
-				int lastSolution = -1;
+				long lastSolution = -1;
 				double score = 0;
 				for (int j = 0; j < numProblems; j++) {
 					penalty += tempResults[i][j].getPenaltyTime();
 					if (tempResults[i][j].getStatus() == Status.SOLVED) {
-						int time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime());
+						long time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime());
 						penalty += time;
 						numSolved++;
 						score += tempResults[i][j].getScore();
@@ -1331,7 +1331,7 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public int getContestTimeOfLastEvent() {
+	public long getContestTimeOfLastEvent() {
 		return lastEventTime;
 	}
 
@@ -1839,7 +1839,7 @@ public class Contest implements IContest {
 		List<IContestObject> remove = new ArrayList<>();
 
 		for (ISubmission s : getSubmissions()) {
-			int time = s.getContestTime();
+			long time = s.getContestTime();
 			if (time < 0 || time >= getDuration())
 				removeSubmission(remove, s);
 		}

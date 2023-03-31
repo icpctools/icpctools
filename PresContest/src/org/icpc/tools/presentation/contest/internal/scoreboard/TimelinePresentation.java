@@ -62,7 +62,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 			g.drawLine(width - 27, -7, width - 20, 0);
 			g.drawLine(width - 27, +7, width - 20, 0);
 
-			int numHours = contest.getDuration() / MS_PER_HOUR;
+			long numHours = contest.getDuration() / MS_PER_HOUR;
 
 			int hour = 0;
 			while (hour < numHours) {
@@ -129,7 +129,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 
 		// draw vertical line for current time
 		g.setColor(ICPCColors.BLUE);
-		int currentTime = 0;
+		long currentTime = 0;
 		IState state = contest.getState();
 		if (state.getEnded() != null)
 			currentTime = contest.getDuration();
@@ -193,7 +193,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 		}
 	}
 
-	private int getX(int contestTimeMs) {
+	private int getX(long contestTimeMs) {
 		return start + (int) (contestTimeMs * scale);
 	}
 

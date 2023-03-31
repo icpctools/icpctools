@@ -342,10 +342,10 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 					width - BORDER - fm.stringWidth(" 9999") - (fm.stringWidth("99") + fm.stringWidth(s)) / 2, 5);
 		}
 
-		n = standing.getTime();
+		long t = standing.getTime();
 		g.setFont(rowFont);
-		if (n > 0) {
-			String s = n + "";
+		if (t > 0) {
+			String s = t + "";
 			TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 		}
 

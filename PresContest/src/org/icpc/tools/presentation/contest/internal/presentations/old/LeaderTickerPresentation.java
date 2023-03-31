@@ -23,9 +23,9 @@ public class LeaderTickerPresentation extends AbstractTickerPresentation {
 		protected int rank;
 		protected String name;
 		protected int solved;
-		protected int penalty;
+		protected long penalty;
 
-		public LeaderTicker(int rank, String name, int solved, int penalty) {
+		public LeaderTicker(int rank, String name, int solved, long penalty) {
 			this.rank = rank;
 			this.name = name;
 			this.solved = solved;

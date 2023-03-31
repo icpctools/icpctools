@@ -49,16 +49,16 @@ public class PolarCountdownPresentation extends CountdownPresentation {
 			int[] angle = new int[NUM_ARCS];
 
 			int s = (int) Math.floor(l.longValue() / 1000.0);
-			int maxHours = contest.getDuration() / 3600000;
+			long maxHours = contest.getDuration() / 3600000;
 			if (maxHours != 0) {
 				if (s < 0) {
 					angle[0] = -(59 + (s % 120)) * 6;
 					angle[1] = -(60 + ((s / 60) % 120)) * 6;
-					angle[2] = -(maxHours + ((s / 3600) % maxHours)) * (360 / maxHours);
+					angle[2] = (int) -((maxHours + ((s / 3600) % maxHours)) * (360 / maxHours));
 				} else {
 					angle[0] = -(s % 120) * 6;
 					angle[1] = -((s / 60) % 120) * 6;
-					angle[2] = -((s / 3600) % maxHours) * (360 / maxHours);
+					angle[2] = (int) -(((s / 3600) % maxHours) * (360 / maxHours));
 				}
 			}
 

@@ -27,7 +27,7 @@ public class Scoreboard {
 		pw.write(" \"event_id\":\"cds" + index + "\",\n");
 		if (obj == null) {
 			pw.write("  \"time\":\"" + Timestamp.format(System.currentTimeMillis()) + "\",\n");
-			pw.write("  \"contest_time\":\"" + RelativeTime.format(0) + "\",\n");
+			pw.write("  \"contest_time\":\"" + RelativeTime.format(0L) + "\",\n");
 		} else {
 			pw.write("  \"time\":\"" + Timestamp.format(ContestObject.getTime(obj)) + "\",\n");
 			pw.write("  \"contest_time\":\"" + RelativeTime.format(ContestObject.getContestTime(obj)) + "\",\n");

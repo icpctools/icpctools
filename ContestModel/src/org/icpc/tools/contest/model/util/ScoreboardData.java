@@ -11,7 +11,7 @@ public class ScoreboardData {
 		public String rank;
 		public String teamId;
 		public int numSolved;
-		public int totalTime;
+		public long totalTime;
 		public SProblem[] problems;
 
 		@Override
@@ -115,7 +115,7 @@ public class ScoreboardData {
 
 	public String eventId;
 	public Long time;
-	public Integer contestTime;
+	public Long contestTime;
 	public IState state;
 
 	public STeam[] teams;

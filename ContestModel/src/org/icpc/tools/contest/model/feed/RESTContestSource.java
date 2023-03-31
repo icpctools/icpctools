@@ -735,7 +735,7 @@ public class RESTContestSource extends DiskContestSource {
 
 			if (time != null && time < 0) {
 				bw.write(", \"countdown_pause_time\":");
-				bw.write("\"" + RelativeTime.format(-time.intValue()) + "\"");
+				bw.write("\"" + RelativeTime.format(-time.longValue()) + "\"");
 			}
 
 			bw.write(" }");

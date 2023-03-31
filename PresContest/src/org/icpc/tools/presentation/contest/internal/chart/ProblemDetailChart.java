@@ -45,7 +45,7 @@ public class ProblemDetailChart extends AbstractChartPresentation {
 		IProblem problem = contest.getProblems()[problemNum];
 		setTitle("Problem " + problem.getLabel() + " Submissions");
 
-		numMin = contest.getContestTimeOfLastEvent() / 60000 / MIN;
+		numMin = (int) (contest.getContestTimeOfLastEvent() / 60000 / MIN);
 		if (numMin < 1)
 			numMin = 1;
 

@@ -127,7 +127,7 @@ public class PublicContest extends Contest {
 				ISubmission sub = (ISubmission) obj;
 
 				// hide submissions from outside the contest time
-				int time = sub.getContestTime();
+				long time = sub.getContestTime();
 				if (time < 0 || time >= getDuration())
 					return;
 
@@ -147,13 +147,13 @@ public class PublicContest extends Contest {
 					return;
 
 				// hide judgements for submissions outside the contest time
-				int time = s.getContestTime();
+				long time = s.getContestTime();
 				if (time < 0 || time >= getDuration())
 					return;
 
 				// or during the freeze
 				if (getFreezeDuration() != null) {
-					int freezeTime = getDuration() - getFreezeDuration();
+					long freezeTime = getDuration() - getFreezeDuration();
 					if (time >= freezeTime)
 						return;
 				}

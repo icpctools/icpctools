@@ -263,7 +263,7 @@ public class EventFeedUtil {
 			}
 		}
 
-		int freeze = 0;
+		long freeze = 0;
 		if (contest.getFreezeDuration() != null)
 			freeze = contest.getDuration() - contest.getFreezeDuration();
 		int unjudgedSubmissions = 0;

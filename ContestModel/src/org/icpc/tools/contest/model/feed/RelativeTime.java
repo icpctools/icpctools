@@ -30,49 +30,49 @@ public class RelativeTime {
 		return contestTime;
 	}
 
-	public static int parse(String contestTime) throws ParseException {
+	public static long parse(String contestTime) throws ParseException {
 		Matcher match = TIME_PATTERN.matcher(contestTime);
 		if (!match.matches())
 			throw new ParseException("Invalid contest time string: " + contestTime, 0);
 
-		int h = Integer.parseInt(match.group(1));
-		int m = Integer.parseInt(match.group(2));
-		int s = Integer.parseInt(match.group(3));
+		long h = Integer.parseInt(match.group(1));
+		long m = Integer.parseInt(match.group(2));
+		long s = Integer.parseInt(match.group(3));
 		if (m > 59 || s > 59)
 			throw new ParseException("Invalid contest time string: " + contestTime, 0);
-		int ms = 0;
+		long ms = 0;
 		if (match.group(4) != null) {
 			ms = Integer.parseInt(match.group(4).substring(1));
 		}
 
-		int val = h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms;
+		long val = h * 60 * 60 * 1000 + m * 60 * 1000 + s * 1000 + ms;
 		if (contestTime.startsWith("-"))
 			return -val;
 
 		return val;
 	}
 
-	public static String format(Integer contestTimeMs) {
+	public static String format(Long contestTimeMs) {
 		if (contestTimeMs == null)
 			return "null";
-		return format(contestTimeMs.intValue());
+		return format(contestTimeMs.longValue());
 	}
 
-	public static String format(int contestTimeMs) {
-		int ms = contestTimeMs;
+	public static String format(long contestTimeMs) {
+		long ms = contestTimeMs;
 		StringBuilder sb = new StringBuilder();
 		if (contestTimeMs < 0) {
 			ms = -contestTimeMs;
 			sb.append("-");
 		}
 
-		int s = ms / 1000;
+		long s = ms / 1000;
 		if (s > 0)
 			ms -= s * 1000;
-		int m = s / 60;
+		long m = s / 60;
 		if (m > 0)
 			s -= m * 60;
-		int h = m / 60;
+		long h = m / 60;
 		if (h > 0)
 			m -= h * 60;
 
@@ -96,7 +96,7 @@ public class RelativeTime {
 		String o = "1:22:05.034";
 		// String o = "2:09:05.134";
 		// String o = "2:09:05";
-		int num = parse(o);
+		long num = parse(o);
 		System.out.println(o + " -> " + num + " -> " + format(num));
 	}
 }

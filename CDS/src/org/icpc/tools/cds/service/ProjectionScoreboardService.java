@@ -31,7 +31,7 @@ public class ProjectionScoreboardService {
 
 		ITeam[] teams = contest.getOrderedTeams();
 		int numProblems = contest.getNumProblems();
-		int contestTimeMs = contest.getContestTimeOfLastEvent();
+		long contestTimeMs = contest.getContestTimeOfLastEvent();
 		// contestTimeMs -= 12000000;
 
 		pw.write("{");
@@ -111,8 +111,8 @@ public class ProjectionScoreboardService {
 	}
 
 	private static void projection(PrintWriter pw, Contest contest, ITeam team, IProblem p, IJudgementType solvedJT,
-			int contestTimeMs2) {
-		int contestTimeMs = contestTimeMs2;
+			long contestTimeMs2) {
+		long contestTimeMs = contestTimeMs2;
 		if (contestTimeMs >= contest.getDuration())
 			return;
 
@@ -131,7 +131,7 @@ public class ProjectionScoreboardService {
 			IStanding ns = clone.getStanding(team);
 			pw.write("\"rank\":" + ns.getRank());
 			pw.write(",\"total_time\":" + ns.getTime());
-			int sf = getSafetyFactor(clone, team, ns, contestTimeMs, contestTimeMs2);
+			long sf = getSafetyFactor(clone, team, ns, contestTimeMs, contestTimeMs2);
 			if (sf >= 0)
 				pw.write(",\"within_time\":" + sf);
 
@@ -172,7 +172,8 @@ public class ProjectionScoreboardService {
 		return out.toString();
 	}
 
-	private static int getSafetyFactor(Contest contest, ITeam team, IStanding s, int contestTimeMs, int contestTimeMs2) {
+	private static long getSafetyFactor(Contest contest, ITeam team, IStanding s, long contestTimeMs,
+			long contestTimeMs2) {
 		int i = contest.getOrderOf(team);
 		int[] order = contest.getOrder();
 		if (i == order.length - 1)
@@ -186,7 +187,7 @@ public class ProjectionScoreboardService {
 		return (contest.getDuration() - contestTimeMs2) / 60000;
 	}
 
-	private static Submission solveAProblem(Contest contest, ITeam team, IProblem problem, int contestTimeMs,
+	private static Submission solveAProblem(Contest contest, ITeam team, IProblem problem, long contestTimeMs,
 			IJudgementType solvedJT) {
 		String id = "projection";
 		Submission submission = new Submission();
