@@ -23,8 +23,8 @@ public class Judgement extends ContestObject implements IJudgement {
 
 	private String submissionId;
 	private String judgementTypeId;
-	protected Long startContestTime = Long.MIN_VALUE;
-	protected Long startTime = Long.MIN_VALUE;
+	protected Long startContestTime;
+	protected Long startTime;
 	protected Long endContestTime;
 	protected Long endTime;
 	protected int maxRunTime;
