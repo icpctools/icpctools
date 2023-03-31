@@ -38,7 +38,7 @@ public class TotalProblemsChart extends AbstractChartPresentation {
 		if (contest == null)
 			return;
 
-		numValues = contest.getContestTimeOfLastEvent() / 60000 / MIN;
+		numValues = (int) (contest.getContestTimeOfLastEvent() / 60000 / MIN);
 		if (numValues < 1)
 			numValues = 1;
 

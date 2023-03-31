@@ -5,7 +5,7 @@ import org.icpc.tools.contest.model.IStanding;
 public class Standing implements IStanding {
 	private int penalty;
 	private int numSolved;
-	private int lastSolution;
+	private long lastSolution;
 	private String rank;
 	private double score;
 
@@ -13,7 +13,7 @@ public class Standing implements IStanding {
 		// do nothing
 	}
 
-	public void init(int numSolved2, int penalty2, double score2, int lastSolution2) {
+	public void init(int numSolved2, int penalty2, double score2, long lastSolution2) {
 		this.numSolved = numSolved2;
 		this.penalty = penalty2;
 		this.score = score2;
@@ -25,7 +25,7 @@ public class Standing implements IStanding {
 	}
 
 	@Override
-	public int getTime() {
+	public long getTime() {
 		return penalty;
 	}
 
@@ -39,7 +39,7 @@ public class Standing implements IStanding {
 	}
 
 	@Override
-	public int getLastSolutionTime() {
+	public long getLastSolutionTime() {
 		return lastSolution;
 	}
 

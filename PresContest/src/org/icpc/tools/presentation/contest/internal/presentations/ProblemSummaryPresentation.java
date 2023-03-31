@@ -90,7 +90,7 @@ public class ProblemSummaryPresentation extends AbstractICPCPresentation {
 				if (timeMs <= i * FLY_IN)
 					break;
 
-				int[] stats = new int[4]; // attempted, solved, failed, fts
+				long[] stats = new long[4]; // attempted, solved, failed, fts
 				stats[3] = -1;
 
 				if (probs[i].getProblem() != null) {

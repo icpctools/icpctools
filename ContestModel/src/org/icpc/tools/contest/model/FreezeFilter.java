@@ -6,7 +6,7 @@ package org.icpc.tools.contest.model;
  */
 public class FreezeFilter implements IContestObjectFilter {
 	protected IContest contest;
-	protected int freezeTime;
+	protected long freezeTime;
 
 	public FreezeFilter(IContest contest) {
 		this.contest = contest;

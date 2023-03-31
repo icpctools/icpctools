@@ -41,8 +41,8 @@ public class JudgeQueueDepthChart extends AbstractChartPresentation {
 		if (contest == null)
 			return;
 
-		int dur = contest.getDuration();
-		numPoints = dur / INTERVAL;
+		long dur = contest.getDuration();
+		numPoints = (int) (dur / INTERVAL);
 		if (numPoints < 1)
 			numPoints = 1;
 
@@ -67,7 +67,7 @@ public class JudgeQueueDepthChart extends AbstractChartPresentation {
 		if (contest == null || getSeries() == null)
 			return;
 
-		int now = contest.getContestTimeOfLastEvent();
+		long now = contest.getContestTimeOfLastEvent();
 		int ms2 = (int) (Math.floor(now / (double) INTERVAL));
 
 		int[] arr = new int[numPoints];

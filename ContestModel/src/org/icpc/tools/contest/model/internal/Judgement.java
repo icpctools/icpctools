@@ -23,9 +23,9 @@ public class Judgement extends ContestObject implements IJudgement {
 
 	private String submissionId;
 	private String judgementTypeId;
-	protected int startContestTime = Integer.MIN_VALUE;
-	protected long startTime = Long.MIN_VALUE;
-	protected Integer endContestTime;
+	protected Long startContestTime = Long.MIN_VALUE;
+	protected Long startTime = Long.MIN_VALUE;
+	protected Long endContestTime;
 	protected Long endTime;
 	protected int maxRunTime;
 	protected Double score;
@@ -64,17 +64,17 @@ public class Judgement extends ContestObject implements IJudgement {
 	}
 
 	@Override
-	public int getStartContestTime() {
+	public Long getStartContestTime() {
 		return startContestTime;
 	}
 
 	@Override
-	public long getStartTime() {
+	public Long getStartTime() {
 		return startTime;
 	}
 
 	@Override
-	public Integer getEndContestTime() {
+	public Long getEndContestTime() {
 		return endContestTime;
 	}
 

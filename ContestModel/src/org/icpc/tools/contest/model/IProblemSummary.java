@@ -16,7 +16,7 @@ public interface IProblemSummary {
 	 *
 	 * @return the submission time, in ms
 	 */
-	int getPendingContestTime();
+	long getPendingContestTime();
 
 	/**
 	 * Return the number of failed submissions.
@@ -30,7 +30,7 @@ public interface IProblemSummary {
 	 *
 	 * @return the submission time, in ms
 	 */
-	int getFailedContestTime();
+	long getFailedContestTime();
 
 	/**
 	 * Return the number of solved submissions.
@@ -44,7 +44,7 @@ public interface IProblemSummary {
 	 *
 	 * @return the submission time, in ms
 	 */
-	int getSolvedContestTime();
+	long getSolvedContestTime();
 
 	/**
 	 * Return the total number of submissions.

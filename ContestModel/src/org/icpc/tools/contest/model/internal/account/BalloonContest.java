@@ -36,7 +36,7 @@ public class BalloonContest extends PublicContest {
 				return;
 
 			// hide judgements for submissions outside the contest time
-			int time = s.getContestTime();
+			long time = s.getContestTime();
 			if (time < 0 || time >= getDuration())
 				return;
 
@@ -46,7 +46,7 @@ public class BalloonContest extends PublicContest {
 
 			// do show before the freeze
 			if (getFreezeDuration() != null) {
-				int freezeTime = getDuration() - getFreezeDuration();
+				long freezeTime = getDuration() - getFreezeDuration();
 				if (time < freezeTime) {
 					addIt(j);
 					return;

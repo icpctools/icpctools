@@ -44,13 +44,13 @@ public class AnalystContest extends PublicContest {
 					return;
 
 				// hide runs for submissions outside the contest time
-				int time = s.getContestTime();
+				long time = s.getContestTime();
 				if (time < 0 || time >= getDuration())
 					return;
 
 				// hide runs for submissions after freeze
 				if (getFreezeDuration() != null) {
-					int freezeTime = getDuration() - getFreezeDuration();
+					long freezeTime = getDuration() - getFreezeDuration();
 					if (s.getContestTime() >= freezeTime)
 						return;
 				}

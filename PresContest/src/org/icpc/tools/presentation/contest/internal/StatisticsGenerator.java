@@ -57,7 +57,7 @@ public class StatisticsGenerator {
 		int numProblems = problems.length;
 
 		int[] totalProblemSolved = new int[numProblems];
-		int[] fastestProblemSolved = new int[numProblems];
+		long[] fastestProblemSolved = new long[numProblems];
 		ITeam[] fastestProblemSolvedTeam = new ITeam[numProblems];
 
 		for (int j = 0; j < numProblems; j++)
@@ -65,7 +65,7 @@ public class StatisticsGenerator {
 
 		int mostAttempts = -1;
 		int mostAttemptsProblem = -1;
-		int lastSolvedTime = -1;
+		long lastSolvedTime = -1;
 		int lastSolvedProblem = -1;
 		int totalPending = 0;
 

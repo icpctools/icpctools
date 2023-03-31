@@ -9,7 +9,7 @@ public class Result implements IResult {
 	private Status status = Status.UNATTEMPTED;
 	private int numPending;
 	private int numJudged;
-	private int time;
+	private long time;
 	private int penalty;
 	private int pendingPenalty;
 	private double score;
@@ -40,7 +40,7 @@ public class Result implements IResult {
 	}
 
 	@Override
-	public int getContestTime() {
+	public long getContestTime() {
 		return time;
 	}
 
@@ -54,7 +54,7 @@ public class Result implements IResult {
 		return score;
 	}
 
-	protected void addSubmission(Contest contest, int submissionTime, IJudgement j, IJudgementType jt) {
+	protected void addSubmission(Contest contest, long submissionTime, IJudgement j, IJudgementType jt) {
 		if (status == Status.SOLVED)
 			return;
 
@@ -106,7 +106,7 @@ public class Result implements IResult {
 
 	@Override
 	public int hashCode() {
-		return getNumSubmissions() * 80000 + getContestTime();
+		return getNumSubmissions() * 80000 + (int) getContestTime();
 	}
 
 	@Override

@@ -92,10 +92,10 @@ public class CountdownPresentation extends ClockPresentation {
 
 		// where should we switch countdown between the start and end of a contest?
 		// switch at the contest freeze, or (if there is no freeze) 2/3 of the contest
-		int duration = contest.getDuration();
+		long duration = contest.getDuration();
 		long switchPoint = duration * 2 / 3;
 
-		Integer freezeDuration = contest.getFreezeDuration();
+		Long freezeDuration = contest.getFreezeDuration();
 		if (freezeDuration != null)
 			switchPoint = duration - freezeDuration;
 

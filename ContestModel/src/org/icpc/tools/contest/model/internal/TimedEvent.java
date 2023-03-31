@@ -10,7 +10,7 @@ public abstract class TimedEvent extends ContestObject {
 	private static final String CONTEST_TIME = "contest_time";
 	private static final String TIME = "time";
 
-	protected int contestTime = Integer.MIN_VALUE;
+	protected long contestTime = Long.MIN_VALUE;
 	protected long time = Long.MIN_VALUE;
 
 	public TimedEvent() {
@@ -21,7 +21,7 @@ public abstract class TimedEvent extends ContestObject {
 		super(id);
 	}
 
-	public int getContestTime() {
+	public long getContestTime() {
 		return contestTime;
 	}
 
@@ -43,7 +43,7 @@ public abstract class TimedEvent extends ContestObject {
 
 	@Override
 	protected void getProperties(Properties props) {
-		if (contestTime != Integer.MIN_VALUE)
+		if (contestTime != Long.MIN_VALUE)
 			props.addLiteralString(CONTEST_TIME, RelativeTime.format(contestTime));
 		if (time != Long.MIN_VALUE)
 			props.addLiteralString(TIME, Timestamp.format(time));
@@ -53,7 +53,7 @@ public abstract class TimedEvent extends ContestObject {
 	public List<String> validate(IContest c) {
 		List<String> errors = super.validate(c);
 
-		if (contestTime == Integer.MIN_VALUE)
+		if (contestTime == Long.MIN_VALUE)
 			errors.add("Invalid contest time " + contestTime);
 
 		if (time == Long.MIN_VALUE)

@@ -6,11 +6,11 @@ import org.icpc.tools.contest.model.Status;
 
 public class ProblemSummary implements IProblemSummary {
 	private int numPending;
-	private int pendingTime;
+	private long pendingTime;
 	private int numSolved;
-	private int solvedTime;
+	private long solvedTime;
 	private int numFailed;
-	private int failedTime;
+	private long failedTime;
 
 	public ProblemSummary() {
 		super();
@@ -22,7 +22,7 @@ public class ProblemSummary implements IProblemSummary {
 	}
 
 	@Override
-	public int getPendingContestTime() {
+	public long getPendingContestTime() {
 		return failedTime;
 	}
 
@@ -32,7 +32,7 @@ public class ProblemSummary implements IProblemSummary {
 	}
 
 	@Override
-	public int getSolvedContestTime() {
+	public long getSolvedContestTime() {
 		return failedTime;
 	}
 
@@ -42,7 +42,7 @@ public class ProblemSummary implements IProblemSummary {
 	}
 
 	@Override
-	public int getFailedContestTime() {
+	public long getFailedContestTime() {
 		return failedTime;
 	}
 

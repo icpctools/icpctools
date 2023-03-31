@@ -29,7 +29,7 @@ public class ProblemComparisonChart extends AbstractChartPresentation {
 
 		setTitle("Submissions by Problem");
 
-		numMin = contest.getContestTimeOfLastEvent() / 60000 / MIN;
+		numMin = (int) (contest.getContestTimeOfLastEvent() / 60000 / MIN);
 		if (numMin < 1)
 			numMin = 1;
 

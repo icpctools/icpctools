@@ -274,8 +274,8 @@ public class BalloonContest {
 					if (s1 == null || s2 == null)
 						return 0;
 
-					int t1 = s1.getContestTime();
-					int t2 = s2.getContestTime();
+					long t1 = s1.getContestTime();
+					long t2 = s2.getContestTime();
 					if (t1 > t2)
 						return inc;
 					if (t1 < t2)

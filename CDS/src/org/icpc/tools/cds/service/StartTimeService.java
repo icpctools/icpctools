@@ -55,7 +55,7 @@ public class StartTimeService {
 		Trace.trace(Trace.USER, "Start time command: " + command);
 		try {
 			if (command.startsWith("set:")) {
-				setStartTime(cc, (long) -RelativeTime.parse(command.substring(4).trim()));
+				setStartTime(cc, -RelativeTime.parse(command.substring(4).trim()));
 			} else if (command.startsWith("add:")) {
 				if (errorIfContestNotPaused(currentStart, response))
 					return;
@@ -139,7 +139,7 @@ public class StartTimeService {
 		if (time == null)
 			Trace.trace(Trace.INFO, "Setting start time to: null");
 		else if (time < 0)
-			Trace.trace(Trace.INFO, "Setting start time to paused at: " + RelativeTime.format(-time.intValue()));
+			Trace.trace(Trace.INFO, "Setting start time to paused at: " + RelativeTime.format(-time.longValue()));
 		else
 			Trace.trace(Trace.INFO,
 					"Setting start time to: " + Timestamp.format(time) + " (" + ContestUtil.formatStartTime(time) + ")");

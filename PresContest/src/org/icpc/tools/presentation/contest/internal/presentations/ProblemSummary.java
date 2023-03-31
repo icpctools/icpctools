@@ -25,7 +25,7 @@ public class ProblemSummary {
 	private Color darkBgColor;
 
 	// private boolean recent;
-	private int[] stats;
+	private long[] stats;
 
 	public ProblemSummary(Rectangle r, IProblem p) {
 		this.r = r;
@@ -59,7 +59,7 @@ public class ProblemSummary {
 		g.drawString(s, x + (w - fm.stringWidth(s)) / 2, y + (h + fm.getAscent()) / 2 - 1);
 	}
 
-	public void setStats(int[] s) {
+	public void setStats(long[] s) {
 		stats = s;
 	}
 

@@ -9,14 +9,14 @@ public interface IJudgement extends IContestObject {
 	 *
 	 * @return the contest time
 	 */
-	int getStartContestTime();
+	Long getStartContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.
 	 *
 	 * @return the time
 	 */
-	long getStartTime();
+	Long getStartTime();
 
 	/**
 	 * Returns the submission that this judgement is for.
@@ -44,7 +44,7 @@ public interface IJudgement extends IContestObject {
 	 *
 	 * @return the contest time
 	 */
-	Integer getEndContestTime();
+	Long getEndContestTime();
 
 	/**
 	 * Returns the wall clock time, in ms since the epoch.

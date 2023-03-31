@@ -62,16 +62,16 @@ public class YamlParser {
 					else if ("short-name".equals(key))
 						info.add("name", value);
 					else if ("length".equals(key) || "duration".equals(key)) {
-						int length = RelativeTime.parse(value);
+						long length = RelativeTime.parse(value);
 						if (length >= 0)
 							info.add("duration", RelativeTime.format(length));
 					} else if ("scoreboard-freeze".equals(key)) {
-						int length = RelativeTime.parse(value);
-						int d = info.getDuration();
+						long length = RelativeTime.parse(value);
+						long d = info.getDuration();
 						if (length >= 0 && d > 0)
 							info.add("scoreboard_freeze_duration", RelativeTime.format(d / 1000 - length));
 					} else if ("scoreboard-freeze-length".equals(key)) {
-						int length = RelativeTime.parse(value);
+						long length = RelativeTime.parse(value);
 						if (length >= 0)
 							info.add("scoreboard_freeze_duration", RelativeTime.format(length));
 					} else if ("penalty-time".equals(key)) {

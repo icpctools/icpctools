@@ -23,14 +23,14 @@ public interface IStanding {
 	 *
 	 * @return the total time of this team
 	 */
-	int getTime();
+	long getTime();
 
 	/**
 	 * Returns the time of the last (most recent) solution, in minutes.
 	 *
 	 * @return the time of last solution
 	 */
-	int getLastSolutionTime();
+	long getLastSolutionTime();
 
 	/**
 	 * Return the current rank of this team.

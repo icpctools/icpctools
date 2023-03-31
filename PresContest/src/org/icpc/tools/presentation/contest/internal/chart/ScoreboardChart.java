@@ -33,7 +33,7 @@ public class ScoreboardChart extends AbstractChartPresentation {
 		if (contest == null || contest.getNumTeams() < NUM_TEAMS)
 			return;
 
-		numValues = contest.getContestTimeOfLastEvent() / MS_PER_MIN / MIN_PER_STEP;
+		numValues = (int) (contest.getContestTimeOfLastEvent() / MS_PER_MIN / MIN_PER_STEP);
 		if (numValues < 1)
 			numValues = 1;
 
