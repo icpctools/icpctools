@@ -92,7 +92,7 @@ public class ShadedRectangle {
 	}
 
 	public static void drawRoundRect(Graphics2D g, int x, int y, int w, int h, IContest contest, Status status,
-			int contestTime, long time, String s) {
+			long contestTime, long time, String s) {
 		Paint paint = getPaint(h, status, ContestUtil.isRecent(contest, contestTime), false, time);
 		drawRoundRect(g, x, y, w, h, paint, null, s);
 	}
