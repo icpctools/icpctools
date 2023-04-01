@@ -20,7 +20,7 @@ public class Language extends ContestObject implements ILanguage {
 	private static final String COMMAND = "command";
 	private static final String ARGS = "args";
 	private static final String VERSION = "version";
-	private static final String VERSION_COMMAND = "version-command";
+	private static final String VERSION_COMMAND = "version_command";
 
 	private String name;
 	private boolean entryPointRequired;
@@ -41,6 +41,8 @@ public class Language extends ContestObject implements ILanguage {
 			args = obj.getString(ARGS);
 			version = obj.getString(VERSION);
 			versionCommand = obj.getString(VERSION_COMMAND);
+			if (versionCommand == null)
+				versionCommand = obj.getString("version-command");
 		}
 
 		public String getJSON() {
