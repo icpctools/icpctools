@@ -25,6 +25,7 @@ var cds=(function() {
  	    return $.ajax({
 		    url: getURL(type, null),
 		    method: 'POST',
+		    contentType: "application/json; charset=utf-8",
 		    data: body,
 		    success: function(result) {
 		    	ok(result);
@@ -40,6 +41,7 @@ var cds=(function() {
  	    return $.ajax({
 		    url: getURL(type, id),
 		    method: 'PUT',
+		    contentType: "application/json; charset=utf-8",
 		    data: body,
 		    success: function(result) {
 		    	ok(result);
@@ -55,6 +57,7 @@ var cds=(function() {
         return $.ajax({
 		    url: getURL(type, id),
 		    method: 'PATCH',
+		    contentType: "application/json; charset=utf-8",
 		    data: body,
 		    success: function(result) {
 		    	ok(result);
