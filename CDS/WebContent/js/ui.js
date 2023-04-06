@@ -301,7 +301,7 @@ function getDisplayStr(teamId) {
 
 	team = findById(contest.getTeams(), teamId);
     if (team != null)
-		return teamId + ': ' + getDisplayName(team);
+		return team.label + ': ' + getDisplayName(team);
 	
 	return teamId + ': (not found)';
 }

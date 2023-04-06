@@ -127,7 +127,7 @@ public class SummaryPrint {
 
 				gc.drawString(submission.getId() + "", r.x + col[1], yy, true);
 
-				String s = team.getId() + ":";
+				String s = team.getLabel() + ":";
 				gc.drawString(s, r.x + col[2] + (int) (aw * 4.0) - gc.stringExtent(s).x, yy, true);
 
 				s = team.getActualDisplayName();

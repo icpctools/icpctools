@@ -629,11 +629,11 @@ public class CoachView extends Panel {
 					max = s.length;
 
 				if (max == 1) {
-					teamList.add(team.getId() + ": " + team.getActualDisplayName());
+					teamList.add(team.getLabel() + ": " + team.getActualDisplayName());
 					selections.add(new TeamSelect(i, 0));
 				} else {
 					for (int j = 0; j < max; j++) {
-						teamList.add(team.getId() + ": " + team.getActualDisplayName() + " (" + (j + 1) + ")");
+						teamList.add(team.getLabel() + ": " + team.getActualDisplayName() + " (" + (j + 1) + ")");
 						selections.add(new TeamSelect(i, j));
 					}
 				}

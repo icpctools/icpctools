@@ -17,7 +17,7 @@ public interface IProblem extends IContestObject, IPosition {
 	/**
 	 * The problem label, typically a simple letter or number like "A".
 	 *
-	 * @return the name
+	 * @return the label
 	 */
 	String getLabel();
 

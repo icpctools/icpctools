@@ -258,7 +258,7 @@ public class EventFeedUtil {
 				IStanding standing = contest.getStanding(team);
 				Trace.trace(Trace.USER,
 						"  " + standing.getRank() + " " + standing.getNumSolved() + " " + standing.getTime());
-				Trace.trace(Trace.USER, "    " + team.getId() + ": " + team.getActualDisplayName() + " ("
+				Trace.trace(Trace.USER, "    " + team.getLabel() + ": " + team.getActualDisplayName() + " ("
 						+ getGroupLabel(contest, team) + ")");
 			}
 		}

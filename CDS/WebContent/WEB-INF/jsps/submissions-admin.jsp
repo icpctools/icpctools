@@ -38,7 +38,7 @@
   <td class="text-center">{{time}}</td>
   <td class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></td>
   <td class="text-center">{{lang}}</td>
-  <td>{{#team}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/team}}</td>
+  <td>{{#team}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/team}}</td>
   <td>{{#team}}{{orgName}}{{/team}}</td>
   <td class="text-center">{{{judge}}}</td>
 </script>

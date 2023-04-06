@@ -39,7 +39,7 @@
   <td><a href="{{api}}">{{id}}</a></td>
   <td class="text-center">{{{time}}}</td>
   <td class="text-center">{{#problems}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/problems}}</td>
-  <td>{{#teams}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/teams}}</td>
+  <td>{{#teams}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/teams}}</td>
   <td class="pre-line">{{{message}}}</td>
 </script>
 <script type="text/javascript">

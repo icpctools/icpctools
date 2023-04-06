@@ -563,7 +563,7 @@ public class AwardUI {
 			IStanding standing = contest.getStanding(team);
 			String awardStr = getAwardString(team);
 			String groupName = getGroupLabel(team);
-			ti.setText(new String[] { standing.getRank(), team.getId(), team.getActualDisplayName(), groupName,
+			ti.setText(new String[] { standing.getRank(), team.getLabel(), team.getActualDisplayName(), groupName,
 					standing.getNumSolved() + "", standing.getTime() + "", awardStr });
 		}
 	}

@@ -148,6 +148,7 @@
 			                <tr>
 			                    <th class="text-center">Id</th>
 			                    <th></th>
+			                    <th class="text-center">Label</th>
 			                    <th>Name</th>
 			                    <th>Organization</th>
 			                    <th>Group</th>
@@ -180,6 +181,7 @@
 <script type="text/html" id="teams-template">
   <td class="text-right"><a href="{{api}}">{{id}}</a></td>
   <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
+  <td>{{label}}</td>
   <td>{{name}}</td>
   <td>{{orgName}}</td>
   <td>{{groupNames}}</td>

@@ -56,7 +56,7 @@ Status: <span id="status">ready</span>
 %>
 
 <tr>
-<td><button id="team<%= t.getId() %>" onclick="sendCommand('<%= t.getId() %>')"><%= t.getId() %></button></td>
+<td><button id="team<%= t.getId() %>" onclick="sendCommand('<%= t.getId() %>')"><%= t.getLabel() %></button></td>
 <td><%= t.getActualDisplayName() %></td>
 <td id="current<%= t.getId() %>">-</td>
 </tr>

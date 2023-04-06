@@ -41,8 +41,8 @@
   <td><a href="{{api}}">{{id}}</a></td>
   <td class="text-center">{{{time}}}</td>
   <td class="text-center">{{#label}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/label}}</td>
-  <td>{{#fromTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/fromTeam}}</td>
-  <td>{{#toTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/toTeam}}</td>
+  <td>{{#fromTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/fromTeam}}</td>
+  <td>{{#toTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/toTeam}}</td>
   <td>{{replyTo}}</td>
   <td class="pre-line">{{{text}}}</td>
 </script>
