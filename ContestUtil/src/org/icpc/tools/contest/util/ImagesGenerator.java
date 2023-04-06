@@ -120,14 +120,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-
+		
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -333,7 +333,7 @@ public class ImagesGenerator {
 		ITeam[] teams = contest.getTeams();
 		for (ITeam team : teams) {
 			Trace.trace(Trace.USER,
-					"Generating desktop background for: " + team.getId() + " - " + team.getActualDisplayName());
+					"Generating desktop background for: " + team.getLabel() + " - " + team.getActualDisplayName());
 
 			String teamId = team.getId();
 			String name = team.getActualDisplayName();

@@ -139,6 +139,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 
+		// TODO don't include empty groups
 		IGroup[] groups = contest.getGroups();
 		int numGroups = groups.length;
 		zooms = new GroupZoom[numGroups];
@@ -187,9 +188,9 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 					minLon = Math.min(minLon, lon);
 					maxLon = Math.max(maxLon, lon);
 				}
-				String label = t.getId() + " - " + t.getActualDisplayName();
+				String label = t.getLabel() + " - " + t.getActualDisplayName();
 				if (showOrganizations) {
-					label = org.getFormalName();
+					label = t.getLabel() + " - " + org.getFormalName();
 				}
 				Position p = new Position(lon, lat, 1, label);
 				createOrgLogo(p, org, height);

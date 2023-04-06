@@ -8,6 +8,13 @@ import java.io.File;
  */
 public interface ITeam extends IContestObject, IPosition {
 	/**
+	 * The team label, typically the team number or short identifier. e.g. "15".
+	 *
+	 * @return the label
+	 */
+	String getLabel();
+
+	/**
 	 * The name of the team.
 	 *
 	 * @return the name

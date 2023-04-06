@@ -33,6 +33,11 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><b>Label:</b></td>
+                            <td><%= team.getLabel() %>
+                            </td>
+                        </tr>
+                        <tr>
                             <td><b>Display Name:</b></td>
                             <td><%= team.getDisplayName() == null ? "" : HttpHelper.sanitizeHTML(team.getDisplayName()) %>
                             </td>

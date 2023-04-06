@@ -21,7 +21,7 @@ public class SingleTeamPresentation extends AbstractScoreboardPresentation {
 		try {
 			ITeam[] teams = getContest().getTeams();
 			for (ITeam t : teams) {
-				if (value.equals(t.getId()))
+				if (value.equals(t.getId()) || value.equals(t.getLabel()))
 					teamId = t.getId();
 			}
 		} catch (Exception e) {
