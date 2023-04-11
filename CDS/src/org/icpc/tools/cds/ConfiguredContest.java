@@ -864,7 +864,15 @@ public class ConfiguredContest {
 		if (account == null)
 			return false;
 		String type = account.getAccountType();
-		return IAccount.ADMIN.equals(type) || IAccount.STAFF.equals(type);
+		return IAccount.ADMIN.equals(type) || IAccount.STAFF.equals(type) || IAccount.JUDGE.equals(type);
+	}
+
+	public boolean isJudge(HttpServletRequest request) {
+		IAccount account = getAccount(request.getRemoteUser());
+		if (account == null)
+			return false;
+		String type = account.getAccountType();
+		return IAccount.ADMIN.equals(type) || IAccount.JUDGE.equals(type);
 	}
 
 	public boolean isAnalyst(HttpServletRequest request) {

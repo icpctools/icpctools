@@ -34,10 +34,15 @@ public class AccessService {
 				caps.add("team_submit");
 				caps.add("team_clar");
 			}
+			if ("judge".equals(type)) {
+				caps.add("admin_clar");
+				caps.add("commentary_submit");
+			}
 			if ("admin".equals(type)) {
 				caps.add("contest_start");
 				caps.add("admin_submit");
 				caps.add("admin_clar");
+				caps.add("commentary_submit");
 			}
 		}
 		String user = request.getRemoteUser();
