@@ -273,6 +273,7 @@ class Contest {
 		this.submissions = null;
 		this.judgements = null;
 		this.clarifications = null;
+		this.commentary = null;
 	}
 
 	post(type, body, success, error) {
@@ -281,6 +282,7 @@ class Contest {
 		    url: this.getURL(type),
 		    method: 'POST',
 		    headers: { "Accept": "application/json" },
+		    contentType: "application/json; charset=utf-8",
 		    data: body,
 		    success: success,
 		    error: function(result, ajaxOptions, thrownError) {
@@ -300,6 +302,10 @@ class Contest {
 
 	postClarification(obj, success, error) {
         this.post('clarifications', obj, success, error);
+	}
+
+	postCommentary(obj, success, error) {
+        this.post('commentary', obj, success, error);
 	}
 }
 

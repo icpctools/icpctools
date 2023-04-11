@@ -36,6 +36,33 @@
 			</div>
 		</div>
     </div>
+    <div class="row" id="submit-clar-ui" style="display: none">
+        <div class="col-12">
+			<div class="card">
+			    <div class="card-header">
+			        <h4 class="card-title">Submit Clarification</h4>
+			        <div class="card-tools">
+			        	<div id="clar-status"></div>
+			        </div>
+			    </div>
+			    <div class="card-body">
+			      <div class="form-group row">
+                       <label class="col-sm-2 col-form-label">Problem</label>
+                       <select id="problem-id" class="col-sm-3 custom-select">
+                         <option id="*No Selection*">None</option>
+                       </select>
+                     </div>
+                     <div class="form-group row">
+                       <label class="col-sm-2 col-form-label">Clarification</label>  
+			        <textarea id="text" class="col-sm-10 form-control" placeholder="Enter clarification..."></textarea>
+			      </div>
+			    </div>
+			    <div class="card-footer">
+                  <button type="submit" class="btn btn-primary" onclick="submitClarification()">Submit</button>
+                </div>
+			</div>
+        </div>
+    </div>
 </div>
 <script type="text/html" id="clarifications-template">
   <td><a href="{{api}}">{{id}}</a></td>
@@ -61,17 +88,24 @@ function clarificationsRefresh() {
 
 $(document).ready(function () {
 	clarificationsRefresh();
+	
+	$.when(contest.loadAccess()).done(function () {
+        var access = contest.getAccess();
+        if (access.capabilities.some(e => (e === 'team_clar' || e === 'admin_clar')))
+	        $("#submit-clar-ui").show();
+    })
 })
 
-function submitClarification(to_team, text) {
-	var obj = { to_team_id: to_team, text: text };
-	console.log(obj);
-	console.log(JSON.stringify(obj));
+function submitClarification() {
+	var obj = { text: $('#text').val() };
+	prob = $('#problem-id').children(":selected").attr("id");
+	if (prob != '*No Selection*')
+		obj.problem_id = $('#problem-id').children(":selected").attr("id");
 	contest.postClarification(JSON.stringify(obj), function(body) {
-		$('#object-status').text("Posted successfully: " + body);
+		$('#clar-status').text("Posted successfully");
 	}, function(result) {
-		$('#object-status').text("Post failed: " + result.responseText);
-	})
+		$('#clar-status').text("Post failed: " + result.responseText);
+	});
 }
 
 updateContestClock(contest, "contest-time");

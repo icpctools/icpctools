@@ -55,8 +55,8 @@
 			      </div>
 			    </div>
 			    <div class="card-footer">
-                     <button type="submit" class="btn btn-primary" onclick="submitClarification()">Submit</button>
-                   </div>
+                  <button type="submit" class="btn btn-primary" onclick="submitClarification()">Submit</button>
+                </div>
 			</div>
         </div>
     </div>
@@ -92,8 +92,8 @@ $(document).ready(function () {
 	
 	$.when(contest.loadAccess()).done(function () {
         var access = contest.getAccess();
-        if (access.capabilities.some(e => e === 'team_clar'))
-	        $("#submit-clar-ui").show();
+        if (access.capabilities.some(e => (e === 'team_clar' || e === 'admin_clar')))
+	      $("#submit-clar-ui").show();
     })
 })
 
@@ -106,7 +106,7 @@ function submitClarification() {
 		$('#clar-status').text("Submitted successfully");
 	}, function(result) {
 		$('#clar-status').html("Not accepted: " + sanitizeHTML(result));
-	})
+	});
 }
 
 updateContestClock(contest, "contest-time");
