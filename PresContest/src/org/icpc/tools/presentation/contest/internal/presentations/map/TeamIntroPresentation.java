@@ -190,7 +190,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 				}
 				String label = t.getLabel() + " - " + t.getActualDisplayName();
 				if (showOrganizations) {
-					label = t.getLabel() + " - " + org.getFormalName();
+					label = org.getFormalName();
 				}
 				Position p = new Position(lon, lat, 1, label);
 				createOrgLogo(p, org, height);
