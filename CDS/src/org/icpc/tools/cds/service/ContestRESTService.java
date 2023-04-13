@@ -515,7 +515,7 @@ public class ContestRESTService extends HttpServlet {
 			if (countdownTime != null && !"null".equals(countdownTime))
 				try {
 					newTime = (long) -RelativeTime.parse(countdownTime.toString());
-					Trace.trace(Trace.INFO, "Patch countdown time: " + RelativeTime.format(newTime.intValue()));
+					Trace.trace(Trace.INFO, "Patch countdown time: " + RelativeTime.format(newTime.longValue()));
 				} catch (Exception e) {
 					Trace.trace(Trace.WARNING, "Invalid patch countdown time: " + e.getMessage());
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -613,7 +613,7 @@ public class ContestRESTService extends HttpServlet {
 		}
 		a.cc = cc;
 
-		if (segments.length > 0) {
+		if (segments.length > 1) {
 			a.type = segments[1];
 			ContestType cType = IContestObject.getTypeByName(a.type);
 			if (cType == null) {
@@ -638,7 +638,7 @@ public class ContestRESTService extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		EndpointInfo ei = getEndpointInfo(request, response);
-		if (!CDSAuth.isAdmin(request) && !ei.cc.isTeam(request)) {
+		if (!CDSAuth.isAdmin(request) && !ei.cc.isTeam(request) && !ei.cc.isJudge(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -664,8 +664,7 @@ public class ContestRESTService extends HttpServlet {
 			JSONParser parser = new JSONParser(is);
 			obj = parser.readObject();
 
-			String jsonId = obj.getString("id");
-			if (jsonId != null) {
+			if (obj.getString("id") != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Posts cannot assign an id");
 				return;
 			}
@@ -681,6 +680,8 @@ public class ContestRESTService extends HttpServlet {
 			rObj = postClarification(request, response, ei.cc, obj);
 		else if (ei.cType == ContestType.AWARD)
 			rObj = postAward(request, response, ei.cc, obj);
+		else if (ei.cType == ContestType.COMMENTARY)
+			rObj = postCommentary(request, response, ei.cc, obj);
 
 		if (rObj == null)
 			return;
@@ -922,34 +923,12 @@ public class ContestRESTService extends HttpServlet {
 				obj.props.put("from_team_id", teamId2);
 		}
 
-		if (cc.isAdmin(request) && fromTeamId == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No team specified");
+		if ((cc.isAdmin(request) || cc.isJudge(request)) && fromTeamId != null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot send on behalf of a team");
 			return null;
 		}
 
-		ContestSource source = cc.getContestSource();
-
-		if (cc.isTesting()) {
-			// when in test mode just accept clarification and return dummy id
-			obj.put("id", "test-" + obj.getString("from_team_id"));
-			obj.put("contest_time", "1:23:45");
-			return obj;
-		} else if (cc.getCCS() == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
-			return null;
-		} else if (!(source instanceof RESTContestSource)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support clarification via the CDS");
-			return null;
-		} else {
-			try {
-				RESTContestSource restSource = (RESTContestSource) source;
-				return restSource.post(ContestType.CLARIFICATION, obj);
-			} catch (Exception e) {
-				response.sendError(HttpServletResponse.SC_BAD_GATEWAY,
-						"Error submitting clarification to CCS: " + e.getMessage());
-				return null;
-			}
-		}
+		return postContestObject(request, response, cc, ContestType.CLARIFICATION, obj);
 	}
 
 	protected JsonObject postAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
@@ -957,15 +936,8 @@ public class ContestRESTService extends HttpServlet {
 		if (!cc.isAdmin(request))
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only admins can modify awards");
 
-		String id = obj.getString("id");
 		String citation = obj.getString("citation");
 		String teamIds = obj.getString("team_ids");
-
-		Contest contest = cc.getContestByRole(request);
-		if (id == null || id.isEmpty() || contest.getAwardById(id) != null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Award already exists");
-			return null;
-		}
 
 		if (citation == null || citation.isEmpty()) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Citation is missing");
@@ -977,26 +949,7 @@ public class ContestRESTService extends HttpServlet {
 			return null;
 		}
 
-		ContestSource source = cc.getContestSource();
-
-		if (cc.isTesting()) {
-			// when in test mode just accept award
-			return obj;
-		} else if (cc.getCCS() == null) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
-			return null;
-		} else if (!(source instanceof RESTContestSource)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "CCS does not support awards via the CDS");
-			return null;
-		} else {
-			try {
-				RESTContestSource restSource = (RESTContestSource) source;
-				return restSource.post(ContestType.AWARD, obj);
-			} catch (Exception e) {
-				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
-				return null;
-			}
-		}
+		return postContestObject(request, response, cc, ContestType.AWARD, obj);
 	}
 
 	protected void patchAward(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
@@ -1068,6 +1021,52 @@ public class ContestRESTService extends HttpServlet {
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
 				return;
+			}
+		}
+	}
+
+	protected JsonObject postCommentary(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
+			JsonObject obj) throws IOException {
+		if (!cc.isAdmin(request) && !cc.isJudge(request))
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Only judges and admins can post commentary");
+
+		String message = obj.getString("message");
+
+		if (message == null || message.isEmpty()) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Message is missing");
+			return null;
+		}
+
+		return postContestObject(request, response, cc, ContestType.COMMENTARY, obj);
+	}
+
+	protected JsonObject postContestObject(HttpServletRequest request, HttpServletResponse response,
+			ConfiguredContest cc, ContestType type, JsonObject obj) throws IOException {
+		ContestSource source = cc.getContestSource();
+
+		if (cc.isTesting()) {
+			// when in test mode just accept object and assign dummy id
+			if (obj.get("id") == null)
+				obj.put("id", "test-" + (int) (Math.random() * 1000000.0));
+			if (type == ContestType.CLARIFICATION || type == ContestType.COMMENTARY) {
+				obj.put("time", Timestamp.now());
+				obj.put("contest_time", "0:00:10");
+			}
+			return obj;
+		} else if (cc.getCCS() == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No CCS configured");
+			return null;
+		} else if (!(source instanceof RESTContestSource)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+					"Configured contest does not support POSTs via the CDS");
+			return null;
+		} else {
+			try {
+				RESTContestSource restSource = (RESTContestSource) source;
+				return restSource.post(type, obj);
+			} catch (Exception e) {
+				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error POSTing to CCS: " + e.getMessage());
+				return null;
 			}
 		}
 	}

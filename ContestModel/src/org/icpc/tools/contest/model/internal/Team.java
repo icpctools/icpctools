@@ -14,6 +14,7 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 public class Team extends ContestObject implements ITeam {
 	private static final String NAME = "name";
 	private static final String DISPLAY_NAME = "display_name";
+	private static final String LABEL = "label";
 	private static final String GROUP_IDS = "group_ids";
 	private static final String ORGANIZATION_ID = "organization_id";
 	private static final String ICPC_ID = "icpc_id";
@@ -33,6 +34,7 @@ public class Team extends ContestObject implements ITeam {
 
 	private String name;
 	private String displayName;
+	private String label;
 	private String[] groupIds;
 	private String organizationId;
 	private String icpcId;
@@ -67,6 +69,11 @@ public class Team extends ContestObject implements ITeam {
 	@Override
 	public String getICPCId() {
 		return icpcId;
+	}
+
+	@Override
+	public String getLabel() {
+		return label;
 	}
 
 	@Override
@@ -312,10 +319,16 @@ public class Team extends ContestObject implements ITeam {
 			}
 			case NAME: {
 				name = (String) value;
+				if (label == null)
+					label = id;
 				return true;
 			}
 			case DISPLAY_NAME: {
 				displayName = (String) value;
+				return true;
+			}
+			case LABEL: {
+				label = (String) value;
 				return true;
 			}
 			case LOCATION: {
@@ -380,6 +393,7 @@ public class Team extends ContestObject implements ITeam {
 		t.audio = audio;
 		t.name = name;
 		t.displayName = displayName;
+		t.label = label;
 		t.groupIds = groupIds;
 		t.organizationId = organizationId;
 		t.icpcId = icpcId;
@@ -393,6 +407,7 @@ public class Team extends ContestObject implements ITeam {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
+		props.addString(LABEL, label);
 		props.addString(NAME, name);
 		props.addString(DISPLAY_NAME, displayName);
 		props.addLiteralString(ICPC_ID, icpcId);

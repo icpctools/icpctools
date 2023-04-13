@@ -262,7 +262,7 @@ public class BalloonPrinter {
 		g.drawString(s, (px - fm.stringWidth(s)) / 2, y + fm.getAscent());
 		y += fm.getHeight();
 
-		s = team.getId() + "";
+		s = team.getLabel() + "";
 		g.setFont(hugeFont);
 		fm = g.getFontMetrics();
 		if (fm.stringWidth(s) > px - 10) {

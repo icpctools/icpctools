@@ -55,8 +55,8 @@
 			      </div>
 			    </div>
 			    <div class="card-footer">
-                     <button type="submit" class="btn btn-primary" onclick="submitClarification()">Submit</button>
-                   </div>
+                  <button type="submit" class="btn btn-primary" onclick="submitClarification()">Submit</button>
+                </div>
 			</div>
         </div>
     </div>
@@ -65,8 +65,8 @@
 <script type="text/html" id="clarifications-template">
   <td class="text-center">{{{time}}}</td>
   <td class="text-center">{{#label}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/label}}</td>
-  <td>{{#fromTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/fromTeam}}</td>
-  <td>{{#toTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/toTeam}}</td>
+  <td>{{#fromTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/fromTeam}}</td>
+  <td>{{#toTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/toTeam}}</td>
   <td class="pre-line">{{{text}}}</td>
 </script>
 <script type="text/javascript">
@@ -82,12 +82,6 @@ function clarificationsRefresh() {
         for (var i = 0; i < problems.length; i++) {
         	$('#problem-id').append('<option id="' + problems[i].id + '">' + problems[i].label + ': ' + problems[i].name + '</option>');
 		}
-
-        $.when(contest.loadAccess()).done(function () {
-            var access = contest.getAccess();
-            if (access.capabilities.some(e => e === 'team_clar'))
-    	        $("#submit-clar-ui").show();
-        })
     }).fail(function (result) {
     	console.log("Error loading clarifications: " + result);
     })
@@ -95,6 +89,12 @@ function clarificationsRefresh() {
 
 $(document).ready(function () {
 	clarificationsRefresh();
+	
+	$.when(contest.loadAccess()).done(function () {
+        var access = contest.getAccess();
+        if (access.capabilities.some(e => (e === 'team_clar' || e === 'admin_clar')))
+	      $("#submit-clar-ui").show();
+    })
 })
 
 function submitClarification() {
@@ -106,7 +106,7 @@ function submitClarification() {
 		$('#clar-status').text("Submitted successfully");
 	}, function(result) {
 		$('#clar-status').html("Not accepted: " + sanitizeHTML(result));
-	})
+	});
 }
 
 updateContestClock(contest, "contest-time");

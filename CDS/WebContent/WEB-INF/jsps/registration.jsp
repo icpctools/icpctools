@@ -19,7 +19,7 @@
 			        <table id="teams-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			                <tr>
-			                    <th class="text-center">#</th>
+			                    <th class="text-center">Label</th>
 			                    <th></th>
 			                    <th>Name</th>
 			                    <th>Organization</th>
@@ -75,7 +75,7 @@
     </div>
 </div>
 <script type="text/html" id="teams-template">
-  <td class="text-right">{{id}}</td>
+  <td class="text-right">{{label}}</td>
   <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
   <td>{{name}}</td>
   <td>{{orgName}}</td>

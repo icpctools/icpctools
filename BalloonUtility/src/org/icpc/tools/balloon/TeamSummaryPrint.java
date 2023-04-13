@@ -154,7 +154,7 @@ public class TeamSummaryPrint {
 			gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_BLACK));
 			gc.setFont(regularFont);
 
-			String s = team.getId() + ":";
+			String s = team.getLabel() + ":";
 			gc.drawString(s, r.x + col[0] + (int) (aw * 4.0) - gc.stringExtent(s).x, yy, true);
 
 			s = team.getActualDisplayName();

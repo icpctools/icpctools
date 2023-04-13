@@ -585,12 +585,13 @@ public class FloorMap {
 				gg.draw(tr);
 
 			FontMetrics fm = gg.getFontMetrics();
-			if (id != null) {
+			String label = t.getLabel();
+			if (label != null) {
 				AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
 				AffineTransform at = gg.getTransform();
 				at.concatenate(transform2);
 				gg.setTransform(at);
-				gg.drawString(id, -fm.stringWidth(id) / 2f, (fm.getAscent() - 3.5f) / 2f);
+				gg.drawString(label, -fm.stringWidth(label) / 2f, (fm.getAscent() - 3.5f) / 2f);
 			}
 			gg.dispose();
 		}
@@ -757,14 +758,15 @@ public class FloorMap {
 
 			gg.setColor(colors.getTextColor());
 
-			if (id != null && img == null) {
+			String label = t.getLabel();
+			if (label != null && img == null) {
 				AffineTransform transform2 = AffineTransform.getRotateInstance(Math.toRadians(90));
 				if (t.getRotation() == 270)
 					transform2 = AffineTransform.getRotateInstance(Math.toRadians(t.getRotation()));
 				AffineTransform at = gg.getTransform();
 				at.concatenate(transform2);
 				gg.setTransform(at);
-				gg.drawString(id, -fm.stringWidth(id) / 2f, (fm.getAscent() - 3.5f) / 2f);
+				gg.drawString(label, -fm.stringWidth(label) / 2f, (fm.getAscent() - 3.5f) / 2f);
 			}
 			gg.dispose();
 		}

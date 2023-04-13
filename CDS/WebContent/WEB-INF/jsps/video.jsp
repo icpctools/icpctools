@@ -44,7 +44,7 @@
                             if (org != null)
                                 orgName = org.getName(); %>
                             <tr>
-                                <td><%= tId %>
+                                <td><%= t.getLabel() %>
                                 </td>
                                 <td><%= HttpHelper.sanitizeHTML(t.getActualDisplayName()) %>
                                 </td>

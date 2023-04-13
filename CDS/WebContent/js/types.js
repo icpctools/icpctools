@@ -123,7 +123,7 @@ function teamsTd(team) {
     if (team.hidden != null)
         hidden = "true";
 
-    return { id: team.id, name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames, hidden: hidden };
+    return { id: team.id, label: team.label, name: name, logo: logoSrc, orgName: orgName, groupNames: groupNames, hidden: hidden };
 }
 
 function personsTd(person) {

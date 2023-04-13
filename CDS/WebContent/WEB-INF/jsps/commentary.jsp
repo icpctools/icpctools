@@ -1,11 +1,28 @@
 <% request.setAttribute("title", "Commentary"); %>
 <%@ include file="layout/head.jsp" %>
 <script src="${pageContext.request.contextPath}/js/contest.js"></script>
+<script src="${pageContext.request.contextPath}/js/cds.js"></script>
 <script src="${pageContext.request.contextPath}/js/model.js"></script>
 <script src="${pageContext.request.contextPath}/js/ui.js"></script>
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <div class="container-fluid">
+	<div class="row" id="submit-comment-ui" style="display: none">
+        <div class="col-12">
+			<div class="card">
+			    <div class="card-header">
+			        <h4 class="card-title">Submit Commentary</h4>
+			        <div class="card-tools">
+			        	<div id="comm-status"></div>
+			        </div>
+			    </div>
+			    <div class="card-body p-0">
+				    <textarea class="form-control" rows="2" id="commentary-message" placeholder="Commentary"></textarea>
+					<button type="button" onclick="postCommentary()">Post</button>
+			    </div>
+			</div>
+		</div>
+    </div>
     <div class="row">
         <div class="col-12">
 			<div class="card">
@@ -39,11 +56,12 @@
   <td><a href="{{api}}">{{id}}</a></td>
   <td class="text-center">{{{time}}}</td>
   <td class="text-center">{{#problems}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/problems}}</td>
-  <td>{{#teams}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{id}}: {{name}}{{/teams}}</td>
+  <td>{{#teams}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/teams}}</td>
   <td class="pre-line">{{{message}}}</td>
 </script>
 <script type="text/javascript">
 contest = new Contest("/api", "<%= cc.getId() %>");
+cds.setContestId("<%= cc.getId() %>");
 registerContestObjectTable("commentary");
 
 function commentaryRefresh() {
@@ -55,8 +73,23 @@ function commentaryRefresh() {
     })
 }
 
+function postCommentary() {
+	var obj = { message: $('#commentary-message').val() };
+	contest.postCommentary(JSON.stringify(obj), function(body) {
+		$('#comm-status').text("Submitted successfully");
+	}, function(result) {
+		$('#comm-status').html("Not accepted: " + sanitizeHTML(result));
+	})
+}
+
 $(document).ready(function () {
 	commentaryRefresh();
+	
+	$.when(contest.loadAccess()).done(function () {
+        var access = contest.getAccess();
+        if (access.capabilities.some(e => e === 'commentary_submit'))
+	        $("#submit-comment-ui").show();
+    })
 })
 
 updateContestClock(contest, "contest-time");
