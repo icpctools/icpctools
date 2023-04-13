@@ -241,6 +241,17 @@
       image="images/presentations/clockCountdown.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.clock.StatusCountdownPresentation"/>
    <presentation
+      id="org.icpc.tools.presentation.contest.multisitecountdown"
+      name="Countdown with sites status"
+      category="Clock"
+      properties="statusOn - show status content,
+         statusOff - hide status content,
+         # - countdown to number of seconds from the epoch,
+         reset"
+      description="A countdown clock for start of a contest that includes status of every site."
+      image="images/presentations/multisiteCountdown.png"
+      class="org.icpc.tools.presentation.contest.internal.presentations.clock.SitesStatusCountdownPresentation"/>
+   <presentation
       id="org.icpc.tools.presentation.contest.polar"
       name="Polar countdown"
       category="Clock"
