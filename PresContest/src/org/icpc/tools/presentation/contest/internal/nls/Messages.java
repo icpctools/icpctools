@@ -31,6 +31,8 @@ public class Messages {
 	public static String titleGroupLeaderboardSubs;
 	public static String titleCommentary;
 
+	public static String numReadySites;
+
 	public static String splashTitle;
 	public static String splashConceptBy;
 	public static String splashConceptAttr1;

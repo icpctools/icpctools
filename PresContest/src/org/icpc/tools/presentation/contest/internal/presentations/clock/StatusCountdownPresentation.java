@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IStartStatus;
@@ -27,8 +28,22 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 
 	private Font font;
 
+	private Predicate<IStartStatus> statusSwitchFilter;
+
 	public StatusCountdownPresentation() {
 		// do nothing
+	}
+
+	/**
+	 * Constructor that allows derived classes to specify a filter for the
+	 * switches to be rendered.
+	 * 
+	 * See as an example SitesStatusCountdownPresentation.
+	 * 
+	 * @param statusSwitchFilter
+	 */
+	protected StatusCountdownPresentation(Predicate<IStartStatus> statusSwitchFilter) {
+		this.statusSwitchFilter = statusSwitchFilter;
 	}
 
 	@Override
@@ -62,6 +77,9 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 			return;
 
 		for (IStartStatus ss : startStatus) {
+			if ((this.statusSwitchFilter != null) &&
+				!this.statusSwitchFilter.test(ss))
+				continue;
 			Animator an = animMap.get(ss.getLabel());
 			if (an == null) {
 				an = new Animator(0, SLIDER_ANIM);
@@ -91,6 +109,9 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 			return;
 
 		for (IStartStatus ss : startStatus) {
+			if ((this.statusSwitchFilter != null) &&
+				!this.statusSwitchFilter.test(ss))
+				continue;
 			Animator an = animMap.get(ss.getId());
 			if (an == null) {
 				an = new Animator(0, SLIDER_ANIM);
@@ -168,6 +189,9 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		int n = 0;
 		g.setFont(font);
 		for (IStartStatus ss : startStatus) {
+			if ((this.statusSwitchFilter != null) &&
+				!this.statusSwitchFilter.test(ss))
+				continue;
 			int x = width / 20 + (n % 3) * width * 3 / 10;
 			int y = 40 + (n / 3) * (int) (height / 18f);
 			drawStatus(g, x, y, ss);
