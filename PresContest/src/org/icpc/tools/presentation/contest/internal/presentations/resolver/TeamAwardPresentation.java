@@ -423,19 +423,20 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		String[] teamIds = new String[] { currentCache.teamId };
 		int numFTS = fts.size();
 		if (numFTS == 1) {
-			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), teamIds, "First to solve problem " + fts.get(0), mode));
+			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), teamIds, Messages.getString("awardFTSOne").replace("{0}", fts.get(0)), mode));
 		} else if (numFTS >= 2) {
 			fts.sort((s1, s2) -> s1.compareTo(s2));
-			fts.set(numFTS - 1, "and " + fts.get(numFTS - 1));
+			fts.set(numFTS - 1, Messages.getString("and") + " " + fts.get(numFTS - 1));
 
 			String citation = null;
 			if (numFTS == 2)
-				citation = "First to solve problems " + fts.get(0) + " " + fts.get(1);
+				citation = Messages.getString("awardFTSMultiple").replace("{0}", fts.get(0) + " " + fts.get(1));
 			else
-				citation = "First to solve problems " + String.join(", ", fts);
+				citation = Messages.getString("awardFTSMultiple").replace("{0}", String.join(", ", fts));
 
 			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), teamIds, citation, mode));
 		} else if (fts.size() == 1) {
+			// TODO/FIX: Is this case redundant?
 			list.add(new Award(IAward.FIRST_TO_SOLVE, String.join("_", fts), teamIds,
 					"First to solve problem " + fts.get(0), mode));
 		}
