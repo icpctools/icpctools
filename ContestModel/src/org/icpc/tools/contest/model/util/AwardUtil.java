@@ -62,7 +62,7 @@ public class AwardUtil {
 				if ((beforeFreeze && showBeforeFreeze) || (afterFreeze && showAfterFreeze))
 					mode = null;
 
-				String citation = Messages.getString("awardFTS").replace("{0}", p.getLabel());
+				String citation = Messages.getString("awardFTSOne").replace("{0}", p.getLabel());
 				contest.add(
 						new Award(IAward.FIRST_TO_SOLVE, s.getProblemId(), new String[] { team.getId() }, citation, mode));
 			}
@@ -176,7 +176,7 @@ public class AwardUtil {
 
 				a.setTeamIds(new String[] { team.getId() });
 				if (a.getCitation() == null)
-					a.setCitation(Messages.getString("awardFTS").replace("{0}", p.getLabel()));
+					a.setCitation(Messages.getString("awardFTSOne").replace("{0}", p.getLabel()));
 				a.setDisplayMode(mode);
 			}
 		}
@@ -508,6 +508,8 @@ public class AwardUtil {
 			if (percentileTop > 1 && percentileBottom == 100)
 				citation = Messages.getString("awardHonorableMention");
 			else
+				// TODO: this seems wrong. Entry 'awardHonors' is "{0}% Honors"
+				// The "{0}" should be replaced by something!
 				citation = Messages.getString("awardHonors");
 		}
 
@@ -728,7 +730,6 @@ public class AwardUtil {
 	private static String getGroupCitation(IContest contest, String groupName, int ind) {
 		if (ind == 1)
 			return Messages.getString("awardChampions").replace("{0}", groupName);
-		return getPlaceString(ind) + " " + groupName
-				+ Messages.getString("awardChampions2").replace("{0}", groupName).replace("{1}", getPlaceString(ind));
+		return Messages.getString("awardChampions2").replace("{0}", groupName).replace("{1}", getPlaceString(ind));
 	}
 }
