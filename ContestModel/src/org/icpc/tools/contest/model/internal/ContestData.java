@@ -189,30 +189,10 @@ public class ContestData implements Iterable<IContestObject> {
 		co[arr] = obj;
 		delt[arr] = Delta.DELETE;
 		toArray = null;
+		totalSize++;
 
 		// remove the original from the type cache
-		int type = obj.getType().ordinal();
-		TypeCache tc = typeCache[type];
-
-		int index = getIndexById(obj.getId(), type);
-		if (index < tc.size - 1) {
-			System.arraycopy(tc.cache, index + 1, tc.cache, index, tc.size - index - 1);
-			System.arraycopy(tc.index, index + 1, tc.index, index, tc.size - index - 1);
-		}
-		tc.cache[tc.size - 1] = null;
-
-		tc.size--;
-		if (tc.idMap != null) {
-			tc.idMap.remove(obj.getId());
-
-			for (String key : tc.idMap.keySet()) {
-				Integer in = tc.idMap.get(key);
-				if (in > index)
-					tc.idMap.put(key, in - 1);
-			}
-		}
-
-		totalSize++;
+		removeFromCache(obj);
 	}
 
 	/**
@@ -237,40 +217,9 @@ public class ContestData implements Iterable<IContestObject> {
 		co[arr] = obj;
 		delt[arr] = d;
 		toArray = null;
-
-		TypeCache tc = typeCache[obj.getType().ordinal()];
-
-		// update case
-		if (index >= 0) {
-			tc.cache[index] = obj;
-			tc.index[index] = totalSize;
-			totalSize++;
-			return;
-		}
-
-		// true add case
-		if (tc.cache == null) {
-			tc.cache = new IContestObject[20];
-			tc.index = new int[20];
-		} else if (tc.size == tc.cache.length) {
-			int newLen = Math.max(10, tc.cache.length * 3 / 2);
-			IContestObject[] temp = new IContestObject[newLen];
-			System.arraycopy(tc.cache, 0, temp, 0, tc.cache.length);
-			tc.cache = temp;
-
-			int[] temp2 = new int[newLen];
-			System.arraycopy(tc.index, 0, temp2, 0, tc.index.length);
-			tc.index = temp2;
-		}
-		tc.cache[tc.size] = obj;
-		tc.index[tc.size] = totalSize;
-
-		if (tc.idMap == null)
-			tc.idMap = new HashMap<>();
-		tc.idMap.put(obj.getId(), tc.size);
-
 		totalSize++;
-		tc.size++;
+
+		addOrUpdateCache(typeCache[obj.getType().ordinal()], obj, totalSize - 1, index);
 	}
 
 	public IContestObject[] toArray(ContestType cType) {
@@ -423,30 +372,21 @@ public class ContestData implements Iterable<IContestObject> {
 						co2[arr2] = obj;
 						delt2[arr2] = deltas[num][arr];
 
-						// update type cache
-						int index = -1;
-						int type = obj.getType().ordinal();
-						TypeCache tc = typeCache[type];
-						Integer in = tc.idMap.get(obj.getId());
-						if (in != null)
-							index = in;
-
-						if (index >= 0) {
-							tc.cache[index] = obj;
-							tc.index[index] = totalSize;
-							totalSize++;
-							continue;
-						}
-
-						tc.cache[tc.size] = obj;
-						tc.index[tc.size] = totalSize;
-
-						if (tc.idMap == null)
-							tc.idMap = new HashMap<>();
-						tc.idMap.put(obj.getId(), tc.size);
-
 						totalSize++;
-						tc.size++;
+
+						// update type cache
+						if (! (obj instanceof IDelete)) {
+							int index = -1;
+							int type = obj.getType().ordinal();
+							TypeCache tc = typeCache[type];
+							Integer in = tc.idMap.get(obj.getId());
+							if (in != null)
+								index = in;
+	
+							addOrUpdateCache(tc, obj, totalSize - 1, index);
+						} else {
+							removeFromCache((Deletion)obj);
+						}
 					}
 				}
 			}
@@ -541,6 +481,70 @@ public class ContestData implements Iterable<IContestObject> {
 		}
 
 		totalSize--;
+	}
+
+	// Incorporates the object to the cache. The
+	// Adds the object to the cache if it's new or updates it if the
+	// object already appears.
+	// It receives the cache, the object's position in the obs[][] array
+	// and the index in the cache (update operation).
+	private void addOrUpdateCache(TypeCache tc, IContestObject obj, int globalPos, int indexCache) {
+
+		if (indexCache >= 0) {
+			// Update
+			tc.cache[indexCache] = obj;
+			tc.index[indexCache] = totalSize - 1;
+		} else {
+			// Add
+			// Ensure that cache arrays have enough space
+			if (tc.cache == null) {
+				tc.cache = new IContestObject[20];
+				tc.index = new int[20];
+			} else if (tc.size == tc.cache.length) {
+				int newLen = Math.max(10, tc.cache.length * 3 / 2);
+				IContestObject[] temp = new IContestObject[newLen];
+				System.arraycopy(tc.cache, 0, temp, 0, tc.cache.length);
+				tc.cache = temp;
+
+				int[] temp2 = new int[newLen];
+				System.arraycopy(tc.index, 0, temp2, 0, tc.index.length);
+				tc.index = temp2;
+			}
+
+			// Add
+			tc.cache[tc.size] = obj;
+			tc.index[tc.size] = totalSize - 1;
+
+			if (tc.idMap == null)
+				tc.idMap = new HashMap<>();
+			tc.idMap.put(obj.getId(), tc.size);
+
+			tc.size++;
+		}
+	}
+
+	private void removeFromCache(Deletion obj) {
+		int type = obj.getType().ordinal();
+		TypeCache tc = typeCache[type];
+
+		int index = getIndexById(obj.getId(), type);
+		if (index < tc.size - 1) {
+			System.arraycopy(tc.cache, index + 1, tc.cache, index, tc.size - index - 1);
+			System.arraycopy(tc.index, index + 1, tc.index, index, tc.size - index - 1);
+		}
+		tc.cache[tc.size - 1] = null;
+		tc.index[tc.size - 1] = -1;
+
+		tc.size--;
+		if (tc.idMap != null) {
+			tc.idMap.remove(obj.getId());
+
+			for (String key : tc.idMap.keySet()) {
+				Integer in = tc.idMap.get(key);
+				if (in > index)
+					tc.idMap.put(key, in - 1);
+			}
+		}
 	}
 
 	public void clone(ContestData list) {
