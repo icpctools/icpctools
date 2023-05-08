@@ -26,9 +26,7 @@ public class PresentationListIO {
 	protected static void save(List<CompositePresentationInfo> list) throws IOException {
 		File f = new File(getTempDir(), FILENAME);
 
-		BufferedWriter bw = null;
-		try {
-			bw = new BufferedWriter(new FileWriter(f));
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(f))) {
 			bw.write(Integer.toString(list.size()));
 			bw.newLine();
 			for (CompositePresentationInfo plan : list) {
@@ -48,7 +46,7 @@ public class PresentationListIO {
 					bw.write(info.getId());
 					bw.newLine();
 					String[] data = info.getData();
-					if (data != null && data.length > 0) {
+					if (data != null) {
 						for (String s : data) {
 							bw.write("-" + s);
 							bw.newLine();
@@ -59,13 +57,6 @@ public class PresentationListIO {
 			}
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			try {
-				if (bw != null)
-					bw.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
 	}
 
@@ -75,9 +66,7 @@ public class PresentationListIO {
 			return new ArrayList<>();
 
 		List<CompositePresentationInfo> list2 = new ArrayList<>();
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(f));
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			String id = br.readLine();
 			int num = Integer.parseInt(id);
 			for (int i = 0; i < num; i++) {
@@ -109,13 +98,6 @@ public class PresentationListIO {
 			}
 		} catch (IOException e) {
 			throw e;
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
 		return list2;
 	}

@@ -50,9 +50,7 @@ public class PresentationHelper {
 		Trace.trace(Trace.INFO, "Looking for presentations in " + f);
 
 		PresentationsParser parser = new PresentationsParser();
-		ZipFile zipFile = null;
-		try {
-			zipFile = new ZipFile(f);
+		try (ZipFile zipFile = new ZipFile(f)) {
 			ZipEntry entry = zipFile.getEntry("META-INF/presentations.xml");
 			if (entry != null) {
 				InputStream in = zipFile.getInputStream(entry);
@@ -112,13 +110,6 @@ public class PresentationHelper {
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error loading presentation list", e);
-		} finally {
-			try {
-				if (zipFile != null)
-					zipFile.close();
-			} catch (Exception e) {
-				// ignore
-			}
 		}
 
 		return parser;

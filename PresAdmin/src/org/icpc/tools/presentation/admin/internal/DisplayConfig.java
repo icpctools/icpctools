@@ -13,13 +13,13 @@ public class DisplayConfig {
 	public int ww; // number of screens wide
 	public int hh; // number of screens high
 
-	private char[] PosStrs = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'm', 'l', 'w', 'x' };
+	private final char[] PosStrs = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'm', 'l', 'w', 'x' };
 
 	public DisplayConfig(String displayStr) {
 		if (displayStr == null)
 			return;
 
-		device = Integer.parseInt(displayStr.charAt(0) + "") - 1;
+		device = Integer.parseInt(String.valueOf(displayStr.charAt(0))) - 1;
 
 		mode = Mode.FULL_SCREEN;
 		if (displayStr.length() > 1) {
@@ -39,7 +39,7 @@ public class DisplayConfig {
 	public DisplayConfig(String display, String multiDisplay) throws IllegalArgumentException {
 		if (display != null) {
 			try {
-				device = Integer.parseInt(display.charAt(0) + "") - 1;
+				device = Integer.parseInt(String.valueOf(display.charAt(0))) - 1;
 			} catch (Exception e) {
 				throw new IllegalArgumentException("Invalid display argument, should be a digit");
 			}
@@ -62,9 +62,9 @@ public class DisplayConfig {
 			hh = 1;
 		} else {
 			try {
-				pos = Integer.parseInt(multiDisplay.charAt(0) + "") - 1;
-				ww = Integer.parseInt(multiDisplay.charAt(2) + "");
-				hh = Integer.parseInt(multiDisplay.charAt(4) + "");
+				pos = Integer.parseInt(String.valueOf(multiDisplay.charAt(0))) - 1;
+				ww = Integer.parseInt(String.valueOf(multiDisplay.charAt(2)));
+				hh = Integer.parseInt(String.valueOf(multiDisplay.charAt(4)));
 				if (multiDisplay.length() > 5)
 					id = multiDisplay.charAt(5) - 'a';
 				else
@@ -77,8 +77,8 @@ public class DisplayConfig {
 
 	public String getDisplay() {
 		if (mode != Mode.FULL_SCREEN)
-			return (device + 1) + "" + PosStrs[mode.ordinal()];
-		return (device + 1) + "";
+			return (device + 1) + String.valueOf(PosStrs[mode.ordinal()]);
+		return String.valueOf(device + 1);
 	}
 
 	public String getMultiDisplay() {
@@ -88,7 +88,7 @@ public class DisplayConfig {
 		String idChar = "";
 		if (id != 0)
 			idChar = String.valueOf((char) (id + 'a'));
-		return (pos + 1) + "@" + ww + "x" + hh + "" + idChar;
+		return (pos + 1) + "@" + ww + "x" + hh + idChar;
 	}
 
 	public static void main(String[] s) {

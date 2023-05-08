@@ -75,7 +75,7 @@ public class ClientsControl extends Canvas {
 	protected Map<Integer, Rectangle> clientRects = new HashMap<>();
 	protected Map<Integer, ClientInfo> clientStates = new HashMap<>();
 
-	protected Object uiLock = new Object();
+	protected final Object uiLock = new Object();
 
 	protected List<SelectionListener> listeners;
 	protected IDropListener dropListener;
@@ -216,19 +216,16 @@ public class ClientsControl extends Canvas {
 	public void setClients(Client[] s) {
 		Client[] st = new Client[s.length];
 		System.arraycopy(s, 0, st, 0, s.length);
-		Arrays.sort(st, new Comparator<Client>() {
-			@Override
-			public int compare(Client c1, Client c2) {
-				try {
-					Integer in1 = Integer.parseInt(c1.name);
-					Integer in2 = Integer.parseInt(c2.name);
-					return in1.compareTo(in2);
-				} catch (Exception e) {
-					// ignore
-				}
-
-				return c1.name.compareTo(c2.name);
+		Arrays.sort(st, (c1, c2) -> {
+			try {
+				Integer in1 = Integer.parseInt(c1.name);
+				Integer in2 = Integer.parseInt(c2.name);
+				return in1.compareTo(in2);
+			} catch (Exception e) {
+				// ignore
 			}
+
+			return c1.name.compareTo(c2.name);
 		});
 
 		synchronized (uiLock) {
@@ -240,8 +237,10 @@ public class ClientsControl extends Canvas {
 					int uid = c.uid;
 					boolean found = false;
 					for (Client cc : clients)
-						if (cc.uid == uid)
+						if (cc.uid == uid) {
 							found = true;
+							break;
+						}
 
 					if (!found) {
 						clientRects.remove(uid);
@@ -260,12 +259,7 @@ public class ClientsControl extends Canvas {
 				}
 			}
 		}
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				resize();
-			}
-		});
+		getDisplay().asyncExec((Runnable) this::resize);
 	}
 
 	public void addTypeFilter(String type) {
@@ -300,15 +294,12 @@ public class ClientsControl extends Canvas {
 		if (waitingForRedraw)
 			return;
 
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				waitingForRedraw = false;
-				if (isDisposed())
-					return;
+		getDisplay().asyncExec((Runnable) () -> {
+			waitingForRedraw = false;
+			if (isDisposed())
+				return;
 
-				redraw();
-			}
+			redraw();
 		});
 		waitingForRedraw = true;
 	}
@@ -406,12 +397,7 @@ public class ClientsControl extends Canvas {
 		Device device = getDisplay();
 		final Image img = new Image(device, id2[0]);
 
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				showSnapshot(uid, img);
-			}
-		});
+		getDisplay().asyncExec((Runnable) () -> showSnapshot(uid, img));
 	}
 
 	private void showSnapshot(int uid, final Image img) {
@@ -452,12 +438,7 @@ public class ClientsControl extends Canvas {
 	}
 
 	public void handleLog(final int uid, String log) {
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				showLog(uid, log);
-			}
-		});
+		getDisplay().asyncExec((Runnable) () -> showLog(uid, log));
 	}
 
 	private void showLog(int uid, final String log) {
@@ -495,10 +476,9 @@ public class ClientsControl extends Canvas {
 		int size = selection.size();
 		if (size == 0)
 			return false;
-		for (int i = 0; i < size; i++) {
-			int uid = selection.get(i);
-			for (int j = 0; j < clients.length; j++) {
-				if (clients[j].uid == uid && clients[j].displays != null && display >= clients[j].displays.length)
+		for (int uid : selection) {
+			for (Client client : clients) {
+				if (client.uid == uid && client.displays != null && display >= client.displays.length)
 					return false;
 			}
 			ClientInfo ci = clientStates.get(uid);
@@ -512,8 +492,7 @@ public class ClientsControl extends Canvas {
 		int size = selection.size();
 		if (size == 0)
 			return false;
-		for (int i = 0; i < size; i++) {
-			int uid = selection.get(i);
+		for (int uid : selection) {
 			ClientInfo ci = clientStates.get(uid);
 			if (ci != null) {
 				if (ci.displayConfig != null && ci.displayConfig.device == -1)
@@ -851,24 +830,24 @@ public class ClientsControl extends Canvas {
 					if (ci == null)
 						return "(unavailable)";
 
-					String ss = "no presentation";
-					if (!"null".equals(ci.pres))
-						ss = ci.pres;
+					StringBuilder ss = new StringBuilder("no presentation");
+					if (ci.pres != null)
+						ss = new StringBuilder(ci.pres);
 
 					if (ci.hidden)
-						ss += " (hidden)";
+						ss.append(" (hidden)");
 
-					ss += " / ";
+					ss.append(" / ");
 					if (c.displays != null) {
 						for (int i = 0; i < c.displays.length; i++) {
 							if (i > 0)
-								ss += ", ";
-							ss += c.displays[i].width + "x" + c.displays[i].height + "@" + c.displays[i].refresh + "hz";
+								ss.append(", ");
+							ss.append(c.displays[i].width).append("x").append(c.displays[i].height).append("@").append(c.displays[i].refresh).append("hz");
 							if (ci.displayConfig != null && ci.displayConfig.device == i)
-								ss += "*";
+								ss.append("*");
 						}
 					}
-					return ss;
+					return ss.toString();
 				}
 			}
 		}
