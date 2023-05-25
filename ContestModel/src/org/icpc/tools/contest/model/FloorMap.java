@@ -143,6 +143,7 @@ public class FloorMap {
 		ITeam team = contest.getTeamById(teamNum + "");
 		((Contest) contest).removeFromHistory(team);
 		((Team) team).add("id", "-1");
+		((Team) team).add("label", "spare");
 		MapInfo mapInfo = (MapInfo) contest.getMapInfo();
 		mapInfo.addSpareTeam(team);
 	}
@@ -836,6 +837,7 @@ public class FloorMap {
 	public ITeam createTeam(String id, double x, double y, double rotation) {
 		Team t = new Team();
 		t.add("id", id);
+		t.add("label", id);
 		t.setLocation(x, y, rotation);
 		((Contest) contest).add(t);
 		return t;
