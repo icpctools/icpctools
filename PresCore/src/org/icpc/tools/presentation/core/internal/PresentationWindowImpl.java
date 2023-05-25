@@ -681,14 +681,19 @@ public class PresentationWindowImpl extends PresentationWindow {
 		else if (dc.mode == Mode.FULL_WINDOW)
 			setBounds(r.x, r.y, r.width, r.height);
 
-		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX) {
+		if (dc.mode != Mode.FULL_SCREEN && dc.mode != Mode.FULL_SCREEN_MAX && dc.mode != Mode.FULL_SCREEN_T) {
 			requestFocus();
 			return;
 		}
 		gDevice.setFullScreenWindow(this);
-		// See https://stackoverflow.com/questions/13064607/fullscreen-swing-components-fail-to-receive-keyboard-input-on-java-7-on-mac-os-x why we do this
-		this.setVisible(false);
-		this.setVisible(true);
+
+		if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+			// See
+			// https://stackoverflow.com/questions/13064607/fullscreen-swing-components-fail-to-receive-keyboard-input-on-java-7-on-mac-os-x
+			// why we do this
+			this.setVisible(false);
+			this.setVisible(true);
+		}
 
 		if (dc.mode == Mode.FULL_SCREEN_MAX) {
 			DisplayMode bestMode = null;
@@ -704,6 +709,34 @@ public class PresentationWindowImpl extends PresentationWindow {
 				Trace.trace(Trace.INFO, "Best display mode: " + bestMode.getWidth() + " x " + bestMode.getHeight());
 				gDevice.setDisplayMode(bestMode);
 			}
+		} else if (dc.mode == Mode.FULL_SCREEN_T) {
+			DisplayMode[] modes = gDevice.getDisplayModes();
+			int num = modes.length;
+			if (dc.conf < 0 || dc.conf >= num)
+				throw new IllegalArgumentException("Invalid T mode");
+
+			Arrays.sort(modes, new Comparator<DisplayMode>() {
+				@Override
+				public int compare(DisplayMode m1, DisplayMode m2) {
+					int d = m2.getWidth() - m1.getWidth();
+					if (d != 0)
+						return d;
+					d = m2.getHeight() - m1.getHeight();
+					if (d != 0)
+						return d;
+					d = m2.getRefreshRate() - m1.getRefreshRate();
+					if (d != 0)
+						return d;
+					d = m2.getBitDepth() - m1.getBitDepth();
+					if (d != 0)
+						return d;
+					return 0;
+				}
+			});
+			DisplayMode tMode = modes[dc.conf];
+			Trace.trace(Trace.INFO,
+					"T display mode: " + tMode.getWidth() + " x " + tMode.getHeight() + " @ " + tMode.getRefreshRate());
+			gDevice.setDisplayMode(tMode);
 		}
 
 		requestFocus();
@@ -879,7 +912,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 			g.setFont(defaultFont);
 			FontMetrics fm = g.getFontMetrics();
 			Dimension d = getDisplaySize();
-			String[] ss = new String[]{fps + " fps", d.width + " x " + d.height, "No presentation"};
+			String[] ss = new String[] { fps + " fps", d.width + " x " + d.height, "No presentation" };
 			if (plan != null)
 				ss[2] = plan.summary();
 
@@ -922,7 +955,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 				double percent = 100 * nps / 1e9;
 				if (percent < 0.01) {
 					if (showTimerSparklines) {
-						i--;  // keep vertical positioning stable for sparklines
+						i--; // keep vertical positioning stable for sparklines
 					}
 					continue;
 				}
@@ -966,13 +999,13 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private void collectGcStats() {
 		long totalGarbageCollections = 0;
 		long garbageCollectionTime = 0;
-		for(GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
+		for (GarbageCollectorMXBean gc : ManagementFactory.getGarbageCollectorMXBeans()) {
 			long count = gc.getCollectionCount();
-			if(count >= 0) {
+			if (count >= 0) {
 				totalGarbageCollections += count;
 			}
 			long gcTime = gc.getCollectionTime();
-			if(gcTime >= 0) {
+			if (gcTime >= 0) {
 				garbageCollectionTime += gcTime;
 			}
 		}
