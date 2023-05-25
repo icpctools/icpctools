@@ -84,7 +84,8 @@ public class AwardUI {
 	protected Button groupHighlightAwards;
 	protected Button ftsAwards;
 	protected Button templateAwards;
-	protected Button save;
+	protected Button saveFeed;
+	protected Button saveAwards;
 	protected Button upload;
 
 	private Map<String, List<IAward>> awards;
@@ -243,21 +244,47 @@ public class AwardUI {
 		GridLayout layout = new GridLayout(1, true);
 		opsGroup.setLayout(layout);
 
-		save = SWTUtil.createButton(opsGroup, "Save...");
-		save.setEnabled(false);
-		save.addSelectionListener(new SelectionAdapter() {
+		saveFeed = SWTUtil.createButton(opsGroup, "Save event feed...");
+		saveFeed.setEnabled(false);
+		saveFeed.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				FileDialog dialog = new FileDialog(parent.getShell(), SWT.SAVE);
-				dialog.setFilterExtensions(new String[] { "*.json", "*.xml" });
+				dialog.setFileName("event-feed.ndjson");
+				dialog.setFilterExtensions(new String[] { "*.ndjson" });
 				String name = dialog.open();
 				if (name != null) {
 					File f = new File(name);
 					if (!f.exists() || promptToOverwrite(f)) {
 						try {
-							Awards.save(f, contest);
+							Awards.saveEventFeed(f, contest);
 							modified = false;
 							Trace.trace(Trace.INFO, "Event feed saved to: " + f.getAbsolutePath());
+						} catch (Exception e) {
+							Trace.trace(Trace.ERROR, "Could not save", e);
+						}
+					} else
+						Trace.trace(Trace.INFO, "Save cancelled");
+				}
+			}
+		});
+
+		saveAwards = SWTUtil.createButton(opsGroup, "Save awards.json...");
+		saveAwards.setEnabled(false);
+		saveAwards.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				FileDialog dialog = new FileDialog(parent.getShell(), SWT.SAVE);
+				dialog.setFileName("awards.json");
+				dialog.setFilterExtensions(new String[] { "*.json" });
+				String name = dialog.open();
+				if (name != null) {
+					File f = new File(name);
+					if (!f.exists() || promptToOverwrite(f)) {
+						try {
+							Awards.saveAwards(f, contest);
+							modified = false;
+							Trace.trace(Trace.INFO, "Awards.json saved to: " + f.getAbsolutePath());
 						} catch (Exception e) {
 							Trace.trace(Trace.ERROR, "Could not save", e);
 						}
@@ -387,7 +414,8 @@ public class AwardUI {
 						ftsAwards.setEnabled(true);
 						templateAwards.setEnabled(true);
 
-						save.setEnabled(true);
+						saveFeed.setEnabled(true);
+						saveAwards.setEnabled(true);
 						if (contestSource instanceof RESTContestSource)
 							upload.setEnabled(true);
 
