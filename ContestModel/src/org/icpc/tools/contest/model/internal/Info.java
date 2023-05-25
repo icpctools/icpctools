@@ -15,6 +15,7 @@ public class Info extends ContestObject implements IInfo {
 	private static final String NAME = "name";
 	private static final String FORMAL_NAME = "formal_name";
 	private static final String START_TIME = "start_time";
+	private static final String SCOREBOARD_THAW_TIME = "scoreboard_thaw_time";
 	private static final String DURATION = "duration";
 	private static final String SCOREBOARD_FREEZE_DURATION = "scoreboard_freeze_duration";
 	private static final String PENALTY_TIME = "penalty_time";
@@ -29,6 +30,7 @@ public class Info extends ContestObject implements IInfo {
 	private String formalName;
 	private Long startTime;
 	private Long pauseTime;
+	private Long thawTime;
 	private boolean supportsPauseTime;
 	private long duration;
 	private Long freezeDuration;
@@ -95,6 +97,10 @@ public class Info extends ContestObject implements IInfo {
 
 	public Long getFreezeDuration() {
 		return freezeDuration;
+	}
+
+	public Long getThawTime() {
+		return thawTime;
 	}
 
 	public int getPenaltyTime() {
@@ -190,6 +196,9 @@ public class Info extends ContestObject implements IInfo {
 		} else if (name2.equals(SCOREBOARD_FREEZE_DURATION)) {
 			freezeDuration = parseRelativeTime(value);
 			return true;
+		} else if (name2.equals(SCOREBOARD_THAW_TIME)) {
+			thawTime = parseTimestamp(value);
+			return true;
 		} else if (name2.equals(PENALTY_TIME)) {
 			penalty = parseInt(value);
 			return true;
@@ -229,6 +238,7 @@ public class Info extends ContestObject implements IInfo {
 		i.startTime = startTime;
 		i.duration = duration;
 		i.freezeDuration = freezeDuration;
+		i.thawTime = thawTime;
 		i.penalty = penalty;
 		i.location = location;
 		i.scoreboardType = scoreboardType;
@@ -255,8 +265,6 @@ public class Info extends ContestObject implements IInfo {
 		props.addLiteralString(DURATION, RelativeTime.format(duration));
 		if (freezeDuration != null)
 			props.addLiteralString(SCOREBOARD_FREEZE_DURATION, RelativeTime.format(freezeDuration));
-		if (penalty != null)
-			props.addInt(PENALTY_TIME, penalty);
 
 		if (scoreboardType != null) {
 			if (ScoreboardType.PASS_FAIL.equals(scoreboardType))
@@ -264,6 +272,11 @@ public class Info extends ContestObject implements IInfo {
 			else if (ScoreboardType.SCORE.equals(scoreboardType))
 				props.addLiteralString(SCOREBOARD_TYPE, "score");
 		}
+		if (thawTime != null)
+			props.addLiteralString(SCOREBOARD_THAW_TIME, Timestamp.format(thawTime.longValue()));
+
+		if (penalty != null)
+			props.addInt(PENALTY_TIME, penalty);
 
 		if (!Double.isNaN(timeMultiplier))
 			props.addDouble(TIME_MULTIPLIER, timeMultiplier);

@@ -503,41 +503,21 @@ public class Contest implements IContest {
 		return info;
 	}
 
-	/**
-	 * Returns the id of the contest.
-	 *
-	 * @return the id
-	 */
 	@Override
 	public String getId() {
 		return info.getId();
 	}
 
-	/**
-	 * Returns the name of the contest.
-	 *
-	 * @return the name
-	 */
 	@Override
 	public String getName() {
 		return info.getName();
 	}
 
-	/**
-	 * Returns the formal name of the contest.
-	 *
-	 * @return the formal name
-	 */
 	@Override
 	public String getFormalName() {
 		return info.getFormalName();
 	}
 
-	/**
-	 * Returns the formal name of the contest, or fall back to the name.
-	 *
-	 * @return the formal name
-	 */
 	@Override
 	public String getActualFormalName() {
 		return info.getActualFormalName();
@@ -553,62 +533,36 @@ public class Contest implements IContest {
 		return info.getCountdownPauseTime();
 	}
 
-	/**
-	 * Returns the duration of the contest, in ms.
-	 *
-	 * @return the duration
-	 */
 	@Override
 	public long getDuration() {
 		return info.getDuration();
 	}
 
-	/**
-	 * Returns the duration of the end of contest freeze, in ms.
-	 *
-	 * @return the freeze duration
-	 */
 	@Override
 	public Long getFreezeDuration() {
 		return info.getFreezeDuration();
 	}
 
-	/**
-	 * Returns the penalty time. null means there is no concept of penalty time; 0 indicates there
-	 * is no penalty.
-	 *
-	 * @return the penalty time
-	 */
+	@Override
+	public Long getThawTime() {
+		return info.getThawTime();
+	}
+
 	@Override
 	public Integer getPenaltyTime() {
 		return info.getPenaltyTime();
 	}
 
-	/**
-	 * Returns the time multiplier, if the contest is in test/playback mode. Otherwise, returns 1.
-	 *
-	 * @return the time multiplier
-	 */
 	@Override
 	public double getTimeMultiplier() {
 		return info.getTimeMultiplier();
 	}
 
-	/**
-	 * The latitude of the contest location.
-	 *
-	 * @return the latitude
-	 */
 	@Override
 	public double getLatitude() {
 		return info.getLatitude();
 	}
 
-	/**
-	 * The longitude of the contest location.
-	 *
-	 * @return the longitude
-	 */
 	@Override
 	public double getLongitude() {
 		return info.getLongitude();
