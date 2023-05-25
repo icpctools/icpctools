@@ -86,6 +86,14 @@ public interface IContest {
 	Long getFreezeDuration();
 
 	/**
+	 * The contest thaw time in ms from the Unix epoch (Jan 1, 1970). Null indicates that the thaw
+	 * time is not known or set.
+	 *
+	 * @return the thaw time, in ms since the epoch
+	 */
+	Long getThawTime();
+
+	/**
 	 * Returns the penalty time. null means there is no concept of penalty time; 0 indicates there
 	 * is no penalty.
 	 *
