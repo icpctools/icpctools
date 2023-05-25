@@ -13,6 +13,7 @@ import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
+import org.icpc.tools.contest.model.feed.JSONArrayWriter;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.ArgumentParser;
@@ -192,10 +193,12 @@ public class Awards {
 					ef = ef.substring(0, ef.length() - 4);
 				else if (ef.endsWith(".json"))
 					ef = ef.substring(0, ef.length() - 5);
-				ef = ef + "-awards.json";
+				else if (ef.endsWith(".ndjson"))
+					ef = ef.substring(0, ef.length() - 7);
+				ef = ef + "-awards.ndjson";
 				File f = new File(ef);
 				if (!f.exists() || promptToOverwrite(f)) {
-					save(f, contest);
+					saveEventFeed(f, contest);
 					Trace.trace(Trace.USER, "Event feed saved to: " + ef);
 				} else
 					Trace.trace(Trace.USER, "Save cancelled");
@@ -240,10 +243,25 @@ public class Awards {
 		return 'Y' == c || 'y' == c;
 	}
 
-	protected static void save(File file, Contest contest) throws IOException {
+	protected static void saveEventFeed(File file, Contest contest) throws IOException {
 		PrintWriter pw = new PrintWriter(file);
 		NDJSONFeedWriter writer = new NDJSONFeedWriter(pw);
 		writer.writeContest(contest);
+		pw.close();
+	}
+
+	protected static void saveAwards(File file, Contest contest) throws IOException {
+		PrintWriter pw = new PrintWriter(file);
+		JSONArrayWriter writer = new JSONArrayWriter(pw);
+		writer.writePrelude();
+		boolean first = true;
+		for (IAward a : contest.getAwards()) {
+			if (!first)
+				writer.writeSeparator();
+			first = false;
+			writer.write(a);
+		}
+		writer.writePostlude();
 		pw.close();
 	}
 
