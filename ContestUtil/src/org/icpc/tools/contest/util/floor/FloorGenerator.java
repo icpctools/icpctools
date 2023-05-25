@@ -22,7 +22,7 @@ public class FloorGenerator {
 		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, rot);
 	}
 
-	protected void createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy) {
+	protected static void createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy) {
 		ITeam t = floor.getTeam(teamNumber);
 		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
 	}

@@ -68,7 +68,10 @@ public class AccessService {
 			if (properties != null) {
 				je.writeSeparator();
 				je.open();
-				je.encode("type", IContestObject.getTypeName(ct));
+				if (ct == IContestObject.ContestType.CONTEST)
+					je.encode("type", "contest");
+				else
+					je.encode("type", IContestObject.getTypeName(ct));
 
 				String s = String.join("\",\"", properties);
 				je.encodePrimitive("properties", "[\"" + s + "\"]");
