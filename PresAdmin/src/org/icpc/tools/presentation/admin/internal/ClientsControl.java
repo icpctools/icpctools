@@ -318,7 +318,6 @@ public class ClientsControl extends Canvas {
 		if (ci == null)
 			ci = new ClientInfo();
 
-		System.out.println("state for: " + id);
 		try {
 			synchronized (uiLock) {
 				if (obj.containsKey(WIDTH))
