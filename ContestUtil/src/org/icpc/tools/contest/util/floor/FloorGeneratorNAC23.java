@@ -81,12 +81,12 @@ public class FloorGeneratorNAC23 extends FloorGenerator {
 			IPrinter p = floor.createPrinter(25, 5);
 
 			// add spares next to 8 and 46
-			createAdjacentTeam(floor, 8, -1, 0, -taw);
-			createAdjacentTeam(floor, 46, -1, 0, -taw);
+			ITeam t = createAdjacentTeam(floor, 8, -2, 0, -taw);
+			floor.makeSpare(t);
+			t = createAdjacentTeam(floor, 46, -1, 0, -taw);
+			floor.makeSpare(t);
 
-			// remove team 52
-			// ITeam team = floor.getTeam(52);
-			// ((Contest) contest).removeFromHistory(team);
+			floor.removeTeam(floor.getTeam(52));
 
 			if (args != null && args.length > 0) {
 				File f = new File(args[0]);
@@ -97,7 +97,7 @@ public class FloorGeneratorNAC23 extends FloorGenerator {
 
 				double bx = 0;
 				for (int i = 0; i < problems.length; i++)
-					floor.createBalloon(problems[i].getId(), bx + i * 2, -8);
+					floor.createBalloon(problems[i].getId(), bx + i * 2, y - taw * 6.5);
 
 				floor.write(f);
 			}

@@ -17,14 +17,14 @@ import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.ITeam;
 
 public class FloorGenerator {
-	protected static void createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy, int rot) {
+	protected static ITeam createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy, int rot) {
 		ITeam t = floor.getTeam(teamNumber);
-		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, rot);
+		return floor.createTeam(newId, t.getX() + dx, t.getY() + dy, rot);
 	}
 
-	protected static void createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy) {
+	protected static ITeam createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy) {
 		ITeam t = floor.getTeam(teamNumber);
-		floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
+		return floor.createTeam(newId, t.getX() + dx, t.getY() + dy, t.getRotation());
 	}
 
 	protected static void show(final FloorMap floor, final int teamNumber, final boolean showAisles,

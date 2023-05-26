@@ -140,12 +140,19 @@ public class FloorMap {
 	}
 
 	public void makeSpare(int teamNum) {
-		ITeam team = contest.getTeamById(teamNum + "");
+		makeSpare(contest.getTeamById(teamNum + ""));
+	}
+
+	public void makeSpare(ITeam team) {
 		((Contest) contest).removeFromHistory(team);
 		((Team) team).add("id", "-1");
 		((Team) team).add("label", "spare");
 		MapInfo mapInfo = (MapInfo) contest.getMapInfo();
 		mapInfo.addSpareTeam(team);
+	}
+
+	public void removeTeam(ITeam team) {
+		((Contest) contest).removeFromHistory(team);
 	}
 
 	/**
