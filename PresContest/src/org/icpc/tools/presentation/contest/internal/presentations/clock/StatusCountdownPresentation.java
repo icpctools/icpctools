@@ -35,11 +35,10 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 	}
 
 	/**
-	 * Constructor that allows derived classes to specify a filter for the
-	 * switches to be rendered.
-	 * 
+	 * Constructor that allows derived classes to specify a filter for the switches to be rendered.
+	 *
 	 * See as an example SitesStatusCountdownPresentation.
-	 * 
+	 *
 	 * @param statusSwitchFilter
 	 */
 	protected StatusCountdownPresentation(Predicate<IStartStatus> statusSwitchFilter) {
@@ -51,6 +50,9 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		super.setSize(d);
 
 		font = ICPCFont.deriveFont(Font.BOLD, height * 36f / 10f / 96f);
+
+		// remove vertical clock offset since the status balance against the banner
+		verticalOffset = 0;
 	}
 
 	@Override
@@ -77,8 +79,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 			return;
 
 		for (IStartStatus ss : startStatus) {
-			if ((this.statusSwitchFilter != null) &&
-				!this.statusSwitchFilter.test(ss))
+			if ((this.statusSwitchFilter != null) && !this.statusSwitchFilter.test(ss))
 				continue;
 			Animator an = animMap.get(ss.getLabel());
 			if (an == null) {
@@ -109,8 +110,7 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 			return;
 
 		for (IStartStatus ss : startStatus) {
-			if ((this.statusSwitchFilter != null) &&
-				!this.statusSwitchFilter.test(ss))
+			if ((this.statusSwitchFilter != null) && !this.statusSwitchFilter.test(ss))
 				continue;
 			Animator an = animMap.get(ss.getId());
 			if (an == null) {
@@ -163,12 +163,21 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 
 		g.setFont(font);
 		String s = "Status: Go";
+
+		IStartStatus[] startStatus = getContest().getStartStatuses();
+		if (startStatus != null) {
+			for (IStartStatus ss : startStatus) {
+				if (ss.getStatus() == NO)
+					s = "Status: Active countdown";
+			}
+		}
+
 		IContest contest = getContest();
 		if (contest != null) {
-			Long startStatus = contest.getStartStatus();
-			if (startStatus == null)
+			Long contestStatus = contest.getStartStatus();
+			if (contestStatus == null)
 				s = "Start time undefined";
-			else if (startStatus < 0)
+			else if (contestStatus < 0)
 				s = "Status: Paused";
 		}
 
@@ -182,15 +191,13 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 		if (getContest() == null)
 			return;
 
-		IStartStatus[] startStatus = getContest().getStartStatuses();
 		if (startStatus == null)
 			return;
 
 		int n = 0;
 		g.setFont(font);
 		for (IStartStatus ss : startStatus) {
-			if ((this.statusSwitchFilter != null) &&
-				!this.statusSwitchFilter.test(ss))
+			if ((this.statusSwitchFilter != null) && !this.statusSwitchFilter.test(ss))
 				continue;
 			int x = width / 20 + (n % 3) * width * 3 / 10;
 			int y = 40 + (n / 3) * (int) (height / 18f);

@@ -5,32 +5,30 @@ import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.image.BufferedImage;
 import java.util.function.Predicate;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IStartStatus;
-import org.icpc.tools.contest.Trace;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 /**
- * Presentation that shows the clock countdown with a row of 3 switches
- * and the state of different sites in a multi-site contest.
- * 
- * The status of the sites is composed by two different areas:
- *    - The logo area (equivalent to 3 rows of switches in the
- * StatusCountdownPresentation): a logo for each site. The size of the
- * logo represents its status: 10% = NO, 65% = UNDECIDED, 100% = YES.
- *    - A "progress bar" that shows the number of ready sites (status YES).
- * 
- * The sites are standard IStartStatus with an special name: the prefix
- * "site_" followed by the id (or ICPC id) of the affiliation/organization
- * in the contest.
+ * Presentation that shows the clock countdown with a row of 3 switches and the state of different
+ * sites in a multi-site contest.
+ *
+ * The status of the sites is composed by two different areas: - The logo area (equivalent to 3
+ * rows of switches in the StatusCountdownPresentation): a logo for each site. The size of the logo
+ * represents its status: 10% = NO, 65% = UNDECIDED, 100% = YES. - A "progress bar" that shows the
+ * number of ready sites (status YES).
+ *
+ * The sites are standard IStartStatus with an special name: the prefix "site_" followed by the id
+ * (or ICPC id) of the affiliation/organization in the contest.
  */
 public class SitesStatusCountdownPresentation extends StatusCountdownPresentation {
 
@@ -87,11 +85,10 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 	// Animator of the progress bar with the ready sites
 	private Animator readySitesAnim;
 
-
 	public SitesStatusCountdownPresentation() {
 		// Instruct our base class to only render switches that are not
 		// site switches.
-		super(((Predicate<IStartStatus>)SitesStatusCountdownPresentation::isSiteSwitch).negate());
+		super(((Predicate<IStartStatus>) SitesStatusCountdownPresentation::isSiteSwitch).negate());
 	}
 
 	@Override
@@ -115,14 +112,14 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 	public void incrementTimeMs(long dt) {
 		super.incrementTimeMs(dt);
 		updateSites(dt);
-	}	
+	}
 
 	@Override
 	public void paint(Graphics2D g) {
 		super.paint(g);
 
 		// Debug: border in the logos area
-		//g.drawRect(logosLeftPosition, logosTopPosition, logosWidth, logosHeight);
+		// g.drawRect(logosLeftPosition, logosTopPosition, logosWidth, logosHeight);
 
 		if (numSites > 0) {
 			drawSiteLogos(g);
@@ -131,18 +128,17 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 	}
 
 	/**
-	 * Cache position and dimensions of the area with the site status
-	 * information.
+	 * Cache position and dimensions of the area with the site status information.
 	 */
 	private void cacheLogosAreaSize() {
 
 		// Horizontal margin 1/20
-		logosWidth = width - 2*width/20;
+		logosWidth = width - 2 * width / 20;
 		// Area equivalent to three rows of switches
-		logosHeight = height * 3/18; 
+		logosHeight = height * 3 / 18;
 
 		// The area starts after a (maybe empty) row of switches
-		logosTopPosition = 40 + (int)(0.5*height / 18);
+		logosTopPosition = 40 + (int) (0.5 * height / 18);
 		logosLeftPosition = width / 20;
 	}
 
@@ -151,14 +147,13 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 	}
 
 	/**
-	 * Search the organization in the contest with the given id or
-	 * ICPC ID
+	 * Search the organization in the contest with the given id or ICPC ID
+	 *
 	 * @param contest
 	 * @param id
 	 * @return
 	 */
-	private static IOrganization searchOrganization(IContest contest,
-										String id) {
+	private static IOrganization searchOrganization(IContest contest, String id) {
 
 		IOrganization org = contest.getOrganizationById(id);
 		if (org != null)
@@ -166,17 +161,21 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 
 		for (IOrganization organization : contest.getOrganizations())
 			if (organization.getICPCId().equals(id))
-			return organization;
+				return organization;
 
 		return null;
 	}
 
 	private static float getExpectedLogoSizeRatio(IStartStatus ss) {
-		switch(ss.getStatus()) {
-			case 0: return NO_LOGO_SIZE;
-			case 1: return UNDECIDED_LOGO_SIZE;
-			case 2: return YES_LOGO_SIZE;
-			default: return 0;
+		switch (ss.getStatus()) {
+			case 0:
+				return NO_LOGO_SIZE;
+			case 1:
+				return UNDECIDED_LOGO_SIZE;
+			case 2:
+				return YES_LOGO_SIZE;
+			default:
+				return 0;
 		}
 	}
 
@@ -192,7 +191,7 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 		// First step: check whether the number of sites did not change
 		// and if we have information about all of them.
 		// In other case, we start from scratch using cacheSites().
-			
+
 		int currentSites = 0;
 		for (IStartStatus ss : startStatus) {
 			if (!isSiteSwitch(ss))
@@ -226,9 +225,9 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 		// Adjust and tick the ready sites animator
 		if (readySitesAnim == null) {
 			readySitesAnim = new Animator(0, PROGRESS_BAR_ANIM);
-			readySitesAnim.reset(numSites != 0 ? (float)numReadySites / numSites : 0);
+			readySitesAnim.reset(numSites != 0 ? (float) numReadySites / numSites : 0);
 		} else {
-			readySitesAnim.setTarget((float)numReadySites / numSites);
+			readySitesAnim.setTarget((float) numReadySites / numSites);
 		}
 		readySitesAnim.incrementTimeMs(dt);
 	}
@@ -253,23 +252,23 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 		}
 		if (numSites == 0)
 			return;
-		
+
 		// Next step: find out the size of the logos that ensures that
 		// there will be space for all of them.
-		logoAreaSize = (int)(Math.sqrt(logosHeight*logosWidth / numSites));
+		logoAreaSize = (int) (Math.sqrt(logosHeight * logosWidth / numSites));
 		int logosCapacity = (logosWidth / logoAreaSize) * (logosHeight / logoAreaSize);
 		while ((logosCapacity < numSites) && (logoAreaSize > 5)) {
 			logoAreaSize--;
-			logosCapacity = (logosWidth / logoAreaSize) * (logosHeight / logoAreaSize);			
+			logosCapacity = (logosWidth / logoAreaSize) * (logosHeight / logoAreaSize);
 		}
-		logoImageSize = (int)(logoAreaSize * 0.9);
+		logoImageSize = (int) (logoAreaSize * 0.9);
 
 		// Calculate padding
 		int logosPerRow = logosWidth / logoAreaSize;
 		int numRows = (numSites + logosPerRow - 1) / logosPerRow;
 		logosVerticalPadding = (logosHeight - (numRows * logoAreaSize)) / 2;
 		logosHorizontalPadding = (logosWidth - (logosPerRow * logoAreaSize)) / 2;
-		int logosLastRow = numSites - ((numRows-1) * logosPerRow);
+		int logosLastRow = numSites - ((numRows - 1) * logosPerRow);
 		logosLastRowHorizontalPadding = (logosWidth - (logosLastRow * logoAreaSize)) / 2;
 		if (numRows == 1)
 			logosHorizontalPadding = logosLastRowHorizontalPadding;
@@ -286,14 +285,12 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 
 				IOrganization org = searchOrganization(contest, siteId);
 				if (org == null) {
-					Trace.trace(Trace.WARNING,
-							"Site start status switch " + switchId + " does not have an organization.");
+					Trace.trace(Trace.WARNING, "Site start status switch " + switchId + " does not have an organization.");
 					continue;
 				}
 				BufferedImage logo = org.getLogoImage(logoImageSize, logoImageSize, true, true);
 				if (logo == null) {
-					Trace.trace(Trace.WARNING,
-							"Organization " + siteId + " without logo. A mockup image will be used.");
+					Trace.trace(Trace.WARNING, "Organization " + siteId + " without logo. A mockup image will be used.");
 				} else
 					siteLogo.put(switchId, logo);
 			}
@@ -322,9 +319,9 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 		// Create (or set) the progress bar animator
 		if (readySitesAnim == null) {
 			readySitesAnim = new Animator(0, PROGRESS_BAR_ANIM);
-			readySitesAnim.reset((float)numReadySites / numSites);
+			readySitesAnim.reset((float) numReadySites / numSites);
 		} else {
-			readySitesAnim.setTarget((float)numReadySites / numSites);
+			readySitesAnim.setTarget((float) numReadySites / numSites);
 		}
 
 	}
@@ -357,8 +354,8 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 			int basePosY = currentY + (logoAreaSize - logoImageSize) / 2;
 
 			double mult = logoSizeAnim.get(switchId).getValue();
-			int size =  (int)(mult * logoImageSize);
-			int padding = (logoImageSize - size) / 2; 
+			int size = (int) (mult * logoImageSize);
+			int padding = (logoImageSize - size) / 2;
 			basePosX += padding;
 			basePosY += padding;
 
@@ -379,9 +376,8 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 					currentX = logosLeftPosition + logosLastRowHorizontalPadding;
 				}
 			}
-		}		
+		}
 	}
-
 
 	private void drawReadySitesProgressBar(Graphics2D g) {
 
