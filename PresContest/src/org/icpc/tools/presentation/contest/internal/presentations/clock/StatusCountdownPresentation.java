@@ -179,6 +179,9 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 				s = "Start time undefined";
 			else if (contestStatus < 0)
 				s = "Status: Paused";
+
+			if (contest.getState() != null && contest.getState().isRunning())
+				s = "Status: Contest started";
 		}
 
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
