@@ -384,6 +384,15 @@ public abstract class ContestSource {
 		// ignore
 	}
 
+	/**
+	 * Set the contest scoreboard thaw time to null or a value in ms since the epoch.
+	 *
+	 * @throws IOException
+	 */
+	public void setContestThawTime(Long time) throws IOException {
+		// ignore
+	}
+
 	public void addListener(ContestSourceListener listener) {
 		listeners.add(listener);
 	}
