@@ -49,6 +49,9 @@ public class PlaybackContest extends Contest {
 	private static final String COUNTRY_FLAG = "country_flag";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
+	private static final String BACKUP = "backup";
+	private static final String KEY_LOG = "key_log";
+	private static final String TOOL_DATA = "tool_data";
 
 	protected ConfiguredContest cc;
 	protected String contestId;
@@ -162,7 +165,9 @@ public class PlaybackContest extends Contest {
 			Team t = (Team) obj;
 			downloadMissingFiles(src, obj, PHOTO, t.getPhoto());
 			downloadMissingFiles(src, obj, VIDEO, t.getVideo());
-			// later: backup, key_log or tool data
+			downloadMissingFiles(src, obj, BACKUP, t.getBackup());
+			downloadMissingFiles(src, obj, KEY_LOG, t.getKeyLog());
+			downloadMissingFiles(src, obj, TOOL_DATA, t.getToolData());
 			src.attachLocalResources(t);
 		} else if (obj instanceof Person) {
 			Person tm = (Person) obj;

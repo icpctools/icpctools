@@ -15,6 +15,7 @@ import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 
+import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
@@ -630,6 +631,7 @@ public class ConfiguredContest {
 
 			contestSource.setInitialContest(pc);
 			contest = contestSource.getContest();
+			contestSource.setExecutor(ExecutorListener.getExecutor());
 
 			if (isTesting())
 				contest.setHashCode(contest.hashCode() + (int) (Math.random() * 500.0));

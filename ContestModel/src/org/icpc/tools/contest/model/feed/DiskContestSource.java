@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -27,7 +29,9 @@ import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
+import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.TSVImporter;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -75,6 +79,9 @@ public class DiskContestSource extends ContestSource {
 	private Closeable parser;
 	private Validation configValidation = new Validation();
 	private Map<String, List<FileReference>> cache = new HashMap<>();
+
+	private static Team defaultTeam = new Team();
+	private static Person defaultPerson = new Person();
 
 	static class FilePattern {
 		// the folder containing the file
@@ -170,6 +177,9 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		cleanUpTempDir();
+
+		defaultTeam.setPhoto(getDefaultFilesWithPattern(defaultTeam, PHOTO));
+		defaultPerson.setPhoto(getDefaultFilesWithPattern(defaultPerson, PHOTO));
 
 		instance = this;
 	}
@@ -636,7 +646,7 @@ public class DiskContestSource extends ContestSource {
 			return "application/zip";
 		else if (name.endsWith(".png"))
 			return "image/png";
-		else if (name.endsWith(".jpg"))
+		else if (name.endsWith(".jpg") || name.endsWith(".jpeg"))
 			return "image/jpeg";
 		else if (name.endsWith(".svg"))
 			return "image/svg+xml";
@@ -782,6 +792,26 @@ public class DiskContestSource extends ContestSource {
 		Trace.trace(Trace.INFO, "Time to load EF: " + (System.currentTimeMillis() - time) + "ms");
 	}
 
+	public void setExecutor(ScheduledExecutorService executor) {
+		executor.scheduleWithFixedDelay(() -> scanForNewResources(), 30L, 30L, TimeUnit.SECONDS);
+	}
+
+	protected void scanForNewResources() {
+		Trace.trace(Trace.INFO, "Rescanning " + this.contestId);
+		// re-add existing objects to the contest. This will trigger the notifier to scan for
+		// resources on disk. If there's no change the add should be ignored; if there are new
+		// resources the object should be added
+		IOrganization[] orgs = contest.getOrganizations();
+		for (IOrganization org : orgs) {
+			contest.add(org);
+		}
+
+		ITeam[] teams = contest.getTeams();
+		for (ITeam team : teams) {
+			contest.add(team);
+		}
+	}
+
 	@Override
 	public void close() throws Exception {
 		if (parser != null)
@@ -806,6 +836,18 @@ public class DiskContestSource extends ContestSource {
 			return null;
 		}
 		return getFilesWithPattern(pattern);
+	}
+
+	/**
+	 * Returns a list of default files that match the pattern, or <code>null</code> if there are no
+	 * matching files.
+	 *
+	 * @param obj
+	 * @param property
+	 * @return
+	 */
+	public FileReferenceList getDefaultFilesWithPattern(IContestObject obj, String property) {
+		return getFilesWithPattern(getLocalPattern(obj.getType(), "default-id", property));
 	}
 
 	/**
@@ -918,6 +960,25 @@ public class DiskContestSource extends ContestSource {
 		return list;
 	}
 
+	/**
+	 * Merge two file reference lists, typically the current list on an object property and locally
+	 * found resources. If they're empty, use the default list.
+	 *
+	 * @param curList
+	 * @param localList
+	 * @return
+	 */
+	private static FileReferenceList mergeRefs(FileReferenceList curList, FileReferenceList localList,
+			FileReferenceList defaultList) {
+		FileReferenceList list = mergeRefs(curList, localList);
+		if (curList == defaultList)
+			list = localList;
+		if (list != null && !list.isEmpty())
+			return list;
+
+		return defaultList;
+	}
+
 	public void attachLocalResources(IContestObject obj) {
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
@@ -929,14 +990,14 @@ public class DiskContestSource extends ContestSource {
 			org.setCountryFlag(mergeRefs(org.getCountryFlag(), getFilesWithPattern(obj, COUNTRY_FLAG)));
 		} else if (obj instanceof Team) {
 			Team team = (Team) obj;
-			team.setPhoto(mergeRefs(team.getPhoto(), getFilesWithPattern(obj, PHOTO)));
+			team.setPhoto(mergeRefs(team.getPhoto(), getFilesWithPattern(obj, PHOTO), defaultTeam.getPhoto()));
 			team.setVideo(mergeRefs(team.getVideo(), getFilesWithPattern(obj, VIDEO)));
 			team.setBackup(mergeRefs(team.getBackup(), getFilesWithPattern(obj, BACKUP)));
 			team.setKeyLog(mergeRefs(team.getKeyLog(), getFilesWithPattern(obj, KEY_LOG)));
 			team.setToolData(mergeRefs(team.getToolData(), getFilesWithPattern(obj, TOOL_DATA)));
 		} else if (obj instanceof Person) {
 			Person person = (Person) obj;
-			person.setPhoto(mergeRefs(person.getPhoto(), getFilesWithPattern(obj, PHOTO)));
+			person.setPhoto(mergeRefs(person.getPhoto(), getFilesWithPattern(obj, PHOTO), defaultPerson.getPhoto()));
 		} else if (obj instanceof Submission) {
 			Submission submission = (Submission) obj;
 			submission.setFiles(mergeRefs(submission.getFiles(), getFilesWithPattern(obj, FILES)));
