@@ -35,6 +35,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 			"{\"id\":\"top-25\",\"parameter\":\"25\"}\n" + // top 25% of teams
 			"{\"id\":\"honors-mention\",\"parameter\":\"50-100\"}\n" + // honorable mention for teams
 			// scoring below 50th percentile
+			"{\"id\":\"solved-*\"}\n" + // solution awards
 			"{\"id\":\"group-winner-*\"}"; // group winners
 
 	protected Text text;
@@ -114,7 +115,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 	@Override
 	protected AwardType[] getAwardTypes() {
 		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL, IAward.TOP,
-				IAward.HONORS, IAward.EXPECTED_TO_ADVANCE };
+				IAward.HONORS, IAward.EXPECTED_TO_ADVANCE, IAward.SOLVED };
 	}
 
 	protected Award parseAward(JsonObject data) {
