@@ -146,6 +146,65 @@ public class AwardUtil {
 		}
 	}
 
+	public static void createSolutionAwards(Contest contest) {
+		Award solved = new Award(IAward.SOLVED, "*", null, (String) null);
+		createSolutionAwards(contest, solved);
+	}
+
+	public static void createSolutionAwards(Contest contest, IAward template) {
+		// skip any team that already has an honourable mention
+		List<String> teamIdsHM = new ArrayList<>();
+		IAward[] awards = contest.getAwards();
+		for (IAward a : awards) {
+			if (a.getAwardType() == IAward.HONORS && a.getId().contains("mention")) {
+				for (String s : a.getTeamIds())
+					teamIdsHM.add(s);
+			}
+		}
+
+		// create buckets
+		Map<Integer, List<ITeam>> solutions = new HashMap<>();
+		for (ITeam t : contest.getTeams()) {
+			IStanding s = contest.getStanding(t);
+
+			if (teamIdsHM.contains(t.getId()))
+				continue;
+
+			if (s != null && s.getNumSolved() > 0) {
+				int ns = s.getNumSolved();
+				List<ITeam> teams = solutions.get(ns);
+				if (teams == null) {
+					teams = new ArrayList<ITeam>();
+					solutions.put(ns, teams);
+				}
+				teams.add(t);
+			}
+		}
+
+		String citation = template.getCitation();
+		if (citation == null || citation.trim().length() < 1)
+			citation = Messages.getString("awardSolvedMultiple");
+
+		DisplayMode mode = null;
+		if (template.hasDisplayMode())
+			mode = template.getDisplayMode();
+		else
+			mode = DisplayMode.LIST;
+
+		// create awards for each bucket
+		for (Integer ns : solutions.keySet()) {
+			List<ITeam> teams = solutions.get(ns);
+			String[] teamIds = new String[teams.size()];
+			for (int i = 0; i < teams.size(); i++) {
+				teamIds[i] = teams.get(i).getId();
+			}
+
+			Award solutionAward = new Award(IAward.SOLVED, "solved-" + ns, teamIds, citation.replace("{0}", ns + ""),
+					mode);
+			contest.add(solutionAward);
+		}
+	}
+
 	private static void assignFirstToSolve(Contest contest, Award a) {
 		String problemId = a.getId().substring(15);
 		a.setTeamIds(new String[0]);
@@ -478,7 +537,7 @@ public class AwardUtil {
 		int n = teams.length;
 		int t = 0;
 		if (percentileTop > 0) {
-			t = (int) Math.round(percentileTop * n / 100.0);
+			t = (int) Math.floor(percentileTop * n / 100.0);
 			IStanding standing = contest.getStanding(teams[t]);
 			int numSolved = standing.getNumSolved();
 
@@ -623,6 +682,8 @@ public class AwardUtil {
 				createExpectedToAdvanceAwards(contest, award);
 			} else if (award.getAwardType() == IAward.HONORS) {
 				createHonorsAwards(contest, award);
+			} else if (award.getAwardType() == IAward.SOLVED) {
+				createSolutionAwards(contest, award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
 				if (award.getId().contains("gold"))
 					gold = award;
