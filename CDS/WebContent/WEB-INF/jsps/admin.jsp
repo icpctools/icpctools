@@ -112,6 +112,8 @@
                 <button id="finalize2" class="btn btn-info" onclick="sendFinalizeCommand('finalize2', 'template')">Apply from Template</button></div>
             <div class="form-group">
                 <button id="finalize3" class="btn btn-info" onclick="sendFinalizeCommand('finalize3', 'eou')">End of Updates</button></div>
+            <div class="form-group">
+                <button id="finalize4" class="btn btn-info" onclick="sendFinalizeCommand('finalize4', 'thaw')">Thaw</button></div>
             <span id="final-status">&nbsp;</span>
         </div>
         </div></div>

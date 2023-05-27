@@ -11,8 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.State;
@@ -27,7 +29,9 @@ public class FinalizeService {
 		}
 
 		// valid commands:
-		// b# - set value of b and assign awards
+		// template - assign awards from template
+		// eou - set end of updates
+		// thaw - thaw contest
 
 		Trace.trace(Trace.USER, "Finalize command: " + command);
 		try {
@@ -49,6 +53,14 @@ public class FinalizeService {
 				state = (State) state.clone();
 				state.setEndOfUpdates(System.currentTimeMillis());
 				((Contest) contest).add(state);
+			} else if ("thaw".equals(command)) {
+				if (cc.getCCS() != null) {
+					ContestSource source = cc.getContestSource();
+					if (source instanceof RESTContestSource) {
+						long now = System.currentTimeMillis();
+						source.setContestThawTime(now);
+					}
+				}
 			}
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
