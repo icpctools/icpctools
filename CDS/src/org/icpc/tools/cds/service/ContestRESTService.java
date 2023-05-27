@@ -497,9 +497,31 @@ public class ContestRESTService extends HttpServlet {
 				return;
 			}
 
-			// check for start or countdown time
+			// check for start, countdown pause, or thaw times
 			String time = obj.getString("start_time");
 			String countdownTime = obj.getString("countdown_pause_time");
+			String thawTime = obj.getString("countdown_thaw_time");
+
+			if (thawTime != null) {
+				try {
+					Trace.trace(Trace.INFO, "Patching thaw time to " + thawTime);
+					ConfiguredContest cc = ei.cc;
+
+					if (!cc.isTesting() && cc.getCCS() != null) {
+						ContestSource source = cc.getContestSource();
+						if (source instanceof RESTContestSource) {
+							Long thaw = Long.parseLong(thawTime);
+							source.setContestThawTime(thaw);
+							// RESTContestSource restSource = (RESTContestSource) source;
+							// restSource.cacheClientSideEvent(, Delta.UPDATE); // TODO cache later
+						}
+					}
+				} catch (Exception e) {
+					Trace.trace(Trace.ERROR, "Error setting thaw time", e);
+					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+				}
+				return;
+			}
 
 			Long newTime = null;
 			if (time != null && !"null".equals(time))

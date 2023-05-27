@@ -752,6 +752,45 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
+	 * Set or clear the scoreboard thaw time. Times are in s since Jan 1, 1970 (the Unix epoch), or
+	 * null to clear.
+	 *
+	 * @param thawTime
+	 * @throws IOException
+	 */
+	@Override
+	public void setContestThawTime(Long thawTime) throws IOException {
+		try {
+			Trace.trace(Trace.INFO, "Setting contest time at " + url);
+
+			HttpURLConnection conn = createConnection(url);
+			// conn.setRequestMethod("PATCH") not allowed
+			setRequestMethod(conn, "PATCH");
+			conn.setRequestProperty("Content-Type", "application/json");
+			conn.setDoOutput(true);
+
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+			bw.write("{ \"id\":\"" + contestId + "\", \"scoreboard_thaw_time\":");
+
+			if (thawTime == null || thawTime <= 0)
+				bw.write("null");
+			else
+				bw.write("\"" + Timestamp.format(thawTime.longValue()) + "\"");
+
+			bw.write(" }");
+			bw.close();
+
+			if (conn.getResponseCode() != 200)
+				throw new IOException("Error setting contest start time (" + getResponseError(conn) + ")");
+		} catch (IOException e) {
+			Trace.trace(Trace.INFO, "Error setting contest start time", e);
+			throw e;
+		} catch (Exception e) {
+			throw new IOException("Connection error", e);
+		}
+	}
+
+	/**
 	 * Encode the given files into a base-64 encoded string of a zip archive containing the files.
 	 *
 	 * @param files the files to encode
@@ -1036,9 +1075,13 @@ public class RESTContestSource extends DiskContestSource {
 		return (IOrganization) parseContestObject("organizations/" + orgId, ContestType.ORGANIZATION);
 	}
 
-	private IContestObject parseContestObject(String partialURL, ContestType type) throws IOException {
+	public JsonObject getAccess() throws IOException {
+		return getJsonObject("acccess");
+	}
+
+	private JsonObject getJsonObject(String partialURL) throws IOException {
 		try {
-			Trace.trace(Trace.INFO, "Getting contest object: " + type.name());
+			Trace.trace(Trace.INFO, "Getting contest object: " + partialURL);
 			HttpURLConnection conn = createConnection(partialURL);
 			conn.setRequestProperty("Content-Type", "application/json");
 
@@ -1047,14 +1090,23 @@ public class RESTContestSource extends DiskContestSource {
 
 			InputStream in = conn.getInputStream();
 			JSONParser rdr = new JSONParser(in);
-			JsonObject obj = rdr.readObject();
+			return rdr.readObject();
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error getting json", e);
+			throw e;
+		}
+	}
+
+	private IContestObject parseContestObject(String partialURL, ContestType type) throws IOException {
+		try {
+			JsonObject obj = getJsonObject(partialURL);
 			ContestObject co = (ContestObject) IContestObject.createByType(type);
 			for (String key : obj.props.keySet())
 				co.add(key, obj.props.get(key));
 
 			return co;
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error getting object", e);
+			Trace.trace(Trace.ERROR, "Error parsing object", e);
 			throw e;
 		}
 	}
