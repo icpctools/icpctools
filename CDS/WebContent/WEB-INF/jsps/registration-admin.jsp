@@ -22,7 +22,7 @@
 			        <table id="persons-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			                <tr>
-			                    <th class="text-center">Id</th>
+			                    <th>Id</th>
 			                    <th>ICPC Id</th>
 			                    <th>Name</th>
 			                    <th>Title</th>
@@ -54,7 +54,7 @@
 			        <table id="accounts-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			                <tr>
-			                    <th class="text-center">Id</th>
+			                    <th>Id</th>
 			                    <th>Username</th>
 			                    <th>Name</th>
 			                    <th>Type</th>
@@ -146,9 +146,9 @@
 			        <table id="teams-table" class="table table-sm table-hover table-striped table-head-fixed">
 			            <thead>
 			                <tr>
-			                    <th class="text-center">Id</th>
-			                    <th></th>
+			                    <th>Id</th>
 			                    <th class="text-center">Label</th>
+			                    <th></th>
 			                    <th>Name</th>
 			                    <th>Organization</th>
 			                    <th>Group</th>
@@ -179,9 +179,9 @@
   <td>{{country}}{{#flag}} <img src="{{{flag}}}" width="20" height="20"/>{{/flag}}</td>
 </script>
 <script type="text/html" id="teams-template">
-  <td class="text-right"><a href="{{api}}">{{id}}</a></td>
+  <td><a href="{{api}}">{{id}}</a></td>
+  <td class="text-center">{{label}}</td>
   <td style="width: 20px;" class="text-center">{{#logo}}<img src="{{{logo}}}" width="20" height="20"/>{{/logo}}</td>
-  <td>{{label}}</td>
   <td>{{name}}</td>
   <td>{{orgName}}</td>
   <td>{{groupNames}}</td>
