@@ -28,6 +28,8 @@ public class PresentationWebSocket {
 	public void onOpen(Session session, EndpointConfig config) {
 		// set buffer to 500k. thumbnails are usually under 20k, but snapshots can be much bigger
 		session.setMaxTextMessageBufferSize(500 * 1024);
+		session.setMaxIdleTimeout(60000);
+		session.getContainer().setAsyncSendTimeout(15000);
 
 		String name = getParam(session, "name");
 		if (name == null) {
