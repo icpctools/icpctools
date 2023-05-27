@@ -300,6 +300,7 @@ public class ClientsControl extends Canvas {
 		if (waitingForRedraw)
 			return;
 
+		waitingForRedraw = true;
 		getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -310,7 +311,6 @@ public class ClientsControl extends Canvas {
 				redraw();
 			}
 		});
-		waitingForRedraw = true;
 	}
 
 	public void handleState(int id, JsonObject obj) {
