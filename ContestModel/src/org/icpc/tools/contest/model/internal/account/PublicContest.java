@@ -17,6 +17,7 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.Person;
 
 /**
  * Public filter: information that everyone can see, regardless of role (including teams and
@@ -36,9 +37,16 @@ import org.icpc.tools.contest.model.internal.Contest;
  * </ul>
  */
 public class PublicContest extends Contest {
+	private static final String EMAIL = "email";
+	private static final String SEX = "sex";
+
 	protected String username;
 
-	protected List<IProblem> problems = new ArrayList<IProblem>();
+	protected List<IProblem> problems = new ArrayList<>();
+	// TODO - simplified judgement types deferred
+	// protected Map<String, String> judgementTypeMap = new HashMap<>();
+
+	protected List<IContestObject> freeze = new ArrayList<>();
 
 	public PublicContest() {
 		// do nothing
@@ -66,13 +74,23 @@ public class PublicContest extends Contest {
 			// all of these are fully public
 			case CONTEST:
 			case LANGUAGE:
-			case JUDGEMENT_TYPE:
 			case MAP_INFO:
 			case START_STATUS:
 			case ORGANIZATION:
 				super.add(obj);
 				return;
-			case PROBLEM: {
+			case JUDGEMENT_TYPE: {
+				/*IJudgementType jt = (IJudgementType) obj;
+				if (jt.getSimplifiedId() == null) {
+					judgementTypeMap.remove(jt.getId());
+					super.add(obj);
+				} else
+					judgementTypeMap.put(jt.getId(), jt.getSimplifiedId());*/
+				super.add(obj);
+				return;
+			}
+			case PROBLEM: { // TODO - access block - problem package, test data
+				// TODO - teams should not get sample data
 				if (getState().getStarted() == null)
 					problems.add((IProblem) obj);
 				else
@@ -89,6 +107,12 @@ public class PublicContest extends Contest {
 					}
 					problems.clear();
 				}
+				if (state.getThawed() != null) {
+					for (IContestObject co : freeze) {
+						super.add(co);
+					}
+					freeze.clear();
+				}
 				return;
 			}
 			case GROUP: {
@@ -97,7 +121,9 @@ public class PublicContest extends Contest {
 					super.add(group);
 				return;
 			}
-			case TEAM: {
+			case TEAM: { // TODO - access block tool-data, keylog
+				// TODO - backups
+				// TODO - teams should not have access to webcam, audio, etc
 				ITeam team = (ITeam) obj;
 				if (!isTeamHidden(team))
 					super.add(team);
@@ -116,11 +142,18 @@ public class PublicContest extends Contest {
 				super.add(account);
 				return;
 			}
-			case PERSON: {
+			case PERSON: { // TODO - access block strip sex, email
 				IPerson person = (IPerson) obj;
 				ITeam team = getTeamById(person.getTeamId());
-				if (!isTeamHidden(team))
-					super.add(person);
+				if (isTeamHidden(team))
+					return;
+
+				if (person.getEmail() != null) {
+					person = (IPerson) ((Person) person).clone();
+					((Person) person).add(EMAIL, null);
+					((Person) person).add(SEX, null);
+				}
+				super.add(person);
 				return;
 			}
 			case SUBMISSION: {
@@ -136,10 +169,11 @@ public class PublicContest extends Contest {
 				if (isTeamHidden(team))
 					return;
 
+				// TODO - language
 				super.add(sub);
 				return;
 			}
-			case JUDGEMENT: {
+			case JUDGEMENT: { // TODO - access block - max runtime
 				IJudgement j = (IJudgement) obj;
 
 				ISubmission s = getSubmissionById(j.getSubmissionId());
@@ -151,17 +185,29 @@ public class PublicContest extends Contest {
 				if (time < 0 || time >= getDuration())
 					return;
 
-				// or during the freeze
-				if (getFreezeDuration() != null) {
-					long freezeTime = getDuration() - getFreezeDuration();
-					if (time >= freezeTime)
-						return;
-				}
-
 				// don't show judgements for hidden teams
 				if (isJudgementHidden(j))
 					return;
 
+				// or during the freeze
+				if (getFreezeDuration() != null) {
+					long freezeTime = getDuration() - getFreezeDuration();
+					if (time >= freezeTime) {
+						freeze.add(j);
+						return;
+					}
+				}
+
+				// TODO - max run time
+
+				/*String jtId = j.getJudgementTypeId();
+				if (judgementTypeMap.containsKey(jtId)) {
+					// TODO not for actual team
+					IJudgement sj = (IJudgement) ((Judgement) j).clone();
+					((Judgement) sj).add("judgement_type_id", judgementTypeMap.get(jtId));
+					super.add(sj);
+					// super.add(j);
+				} else*/
 				super.add(j);
 				return;
 			}
