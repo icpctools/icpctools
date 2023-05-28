@@ -9,6 +9,12 @@
       image="images/presentations/problems.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.ProblemSummaryPresentation"/>
    <presentation
+      id="org.icpc.tools.presentation.contest.icpc.logo"
+      name="Logo"
+      category="Logos and Messages"
+      description="The contest logo."
+      class="org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation"/>
+   <presentation
       id="org.icpc.tools.presentation.contest.logo"
       name="Logo A"
       category="Logos and Messages"
@@ -471,12 +477,6 @@
 
    <!-- ICPC Team Desktop -->
 
-   <presentation
-      id="org.icpc.tools.presentation.contest.icpc.logo"
-      name="Logo"
-      category="Team"
-      description="The ICPC identifier."
-      class="org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.icpc.team"
       name="Desktop"
