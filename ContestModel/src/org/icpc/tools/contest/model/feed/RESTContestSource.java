@@ -316,6 +316,10 @@ public class RESTContestSource extends DiskContestSource {
 				|| status == HttpURLConnection.HTTP_SEE_OTHER || status == 307 || status == 308);
 	}
 
+	protected static boolean isOkResponse(int responseCode) {
+		return responseCode >= 200 && responseCode < 300;
+	}
+
 	private void downloadIfNecessaryImpl(String href, File localFile) throws IOException {
 		URL url2 = getResolvedURL(href);
 		if (url2 == null)
@@ -741,7 +745,7 @@ public class RESTContestSource extends DiskContestSource {
 			bw.write(" }");
 			bw.close();
 
-			if (conn.getResponseCode() != 200)
+			if (!isOkResponse(conn.getResponseCode()))
 				throw new IOException("Error setting contest start time (" + getResponseError(conn) + ")");
 		} catch (IOException e) {
 			Trace.trace(Trace.INFO, "Error setting contest start time", e);
@@ -780,7 +784,7 @@ public class RESTContestSource extends DiskContestSource {
 			bw.write(" }");
 			bw.close();
 
-			if (conn.getResponseCode() != 200)
+			if (!isOkResponse(conn.getResponseCode()))
 				throw new IOException("Error setting contest start time (" + getResponseError(conn) + ")");
 		} catch (IOException e) {
 			Trace.trace(Trace.INFO, "Error setting contest start time", e);
@@ -860,7 +864,7 @@ public class RESTContestSource extends DiskContestSource {
 				jw.close();
 			}
 
-			if (conn.getResponseCode() != 200)
+			if (!isOkResponse(conn.getResponseCode()))
 				throw new IOException("Error " + method + "ing (" + getResponseError(conn) + ")");
 
 			if (!expectReturn)
@@ -904,7 +908,7 @@ public class RESTContestSource extends DiskContestSource {
 				pw.flush();
 			}
 
-			if (conn.getResponseCode() != 200)
+			if (!isOkResponse(conn.getResponseCode()))
 				throw new IOException("Error " + method + "ing (" + getResponseError(conn) + ")");
 
 			if (!expectReturn)
@@ -1085,7 +1089,7 @@ public class RESTContestSource extends DiskContestSource {
 			HttpURLConnection conn = createConnection(partialURL);
 			conn.setRequestProperty("Content-Type", "application/json");
 
-			if (conn.getResponseCode() != 200)
+			if (!isOkResponse(conn.getResponseCode()))
 				throw new IOException(getResponseError(conn));
 
 			InputStream in = conn.getInputStream();

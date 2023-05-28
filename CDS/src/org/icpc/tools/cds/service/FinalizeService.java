@@ -66,7 +66,7 @@ public class FinalizeService {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal error");
-			Trace.trace(Trace.ERROR, "Error durng finalization", e);
+			Trace.trace(Trace.ERROR, "Error during finalization", e);
 		}
 	}
 
