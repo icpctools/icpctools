@@ -60,6 +60,8 @@ public class BasicClient {
 	protected static final String REFRESH = "refresh";
 	protected static final String WIDTH = "width";
 	protected static final String HEIGHT = "height";
+	protected static final String FPS = "fps";
+	protected static final String PRESENTATION = "presentation";
 
 	protected enum Type {
 		PING, // ping, used to guage client response time and sync client time
@@ -484,6 +486,18 @@ public class BasicClient {
 
 			addBasicClientInfo(je);
 		});
+	}
+
+	protected void sendInfoUpdate(String presentationName, int fps, byte[] image) throws IOException {
+		sendInfo(je -> {
+			je.encode(PRESENTATION, presentationName);
+			je.encode(FPS, fps);
+			encodeImage(je, image);
+		});
+	}
+
+	public void sendInfoUpdate() {
+		// TODO
 	}
 
 	protected void addBasicClientInfo(JSONEncoder je) {
