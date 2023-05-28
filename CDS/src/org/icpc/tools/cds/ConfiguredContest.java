@@ -882,7 +882,8 @@ public class ConfiguredContest {
 		if (account == null)
 			return false;
 		String type = account.getAccountType();
-		return IAccount.ADMIN.equals(type) || IAccount.STAFF.equals(type) || IAccount.ANALYST.equals(type);
+		return IAccount.ADMIN.equals(type) || IAccount.STAFF.equals(type) || IAccount.JUDGE.equals(type)
+				|| IAccount.ANALYST.equals(type);
 	}
 
 	public boolean isBalloon(HttpServletRequest request) {
