@@ -497,7 +497,7 @@ public class BasicClient {
 	}
 
 	public void sendInfoUpdate() {
-		// TODO
+		// to override
 	}
 
 	protected void addBasicClientInfo(JSONEncoder je) {
