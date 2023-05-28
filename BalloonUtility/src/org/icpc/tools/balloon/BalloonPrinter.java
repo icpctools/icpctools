@@ -414,12 +414,6 @@ public class BalloonPrinter {
 			g.drawImage(tmpImg, px + gap + wid * ii, iy, nbp.x, nbp.y, null);
 			tmpImg.flush();
 
-			if (i == solvedProblem)
-				g.setColor(Color.WHITE);
-			else if (solved[i])
-				g.setColor(Color.BLACK);
-			else
-				g.setColor(Color.GRAY);
 			s = probs[i].getLabel();
 			if (s == null)
 				s = "";
@@ -427,6 +421,18 @@ public class BalloonPrinter {
 			fm = g.getFontMetrics();
 			int bx = px + gap + nbp.x / 2 + wid * ii;
 
+			if (i == solvedProblem) {
+				g.setFont(largeFont);
+				fm = g.getFontMetrics();
+				Color cc = probs[i].getColorVal();
+				if (cc.getRed() + cc.getGreen() + cc.getBlue() < 255 * 2)
+					g.setColor(Color.WHITE);
+				else
+					g.setColor(Color.BLACK);
+			} else if (solved[i])
+				g.setColor(Color.DARK_GRAY);
+			else
+				g.setColor(Color.GRAY);
 			g.drawString(s, bx - fm.stringWidth(s) / 2, iy + nbp.y / 2);
 
 			if (i == solvedProblem)
@@ -445,7 +451,6 @@ public class BalloonPrinter {
 				gg.drawString(s, 0, 0);
 				gg.dispose();
 			}
-
 		}
 
 		g.setFont(font);
