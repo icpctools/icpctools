@@ -30,8 +30,6 @@ public class PresentationClient extends BasicClient {
 	private static final String HIDDEN = "hidden";
 	private static final String DISPLAY = "display";
 	private static final String MULTI_DISPLAY = "multi_display";
-	private static final String FPS = "fps";
-	private static final String PRESENTATION = "presentation";
 
 	protected ThreadPoolExecutor executor;
 
@@ -332,11 +330,8 @@ public class PresentationClient extends BasicClient {
 			@Override
 			public void run() {
 				try {
-					sendInfo(je -> {
-						je.encode(PRESENTATION, window.getPresentationName());
-						je.encode(FPS, window.getFPS());
-						encodeImage(je, imageToBytes(image));
-					});
+					PresentationClient.this.sendInfoUpdate(window.getPresentationName(), window.getFPS(),
+							imageToBytes(image));
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error sending status", e);
 				}
