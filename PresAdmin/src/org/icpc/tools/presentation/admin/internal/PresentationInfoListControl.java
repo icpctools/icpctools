@@ -169,6 +169,8 @@ public class PresentationInfoListControl extends Canvas {
 
 		closedCategories.add("Fun");
 		closedCategories.add("Test");
+		closedCategories.add("Resolver");
+		closedCategories.add("Beta");
 	}
 
 	protected void createDragSource() {
