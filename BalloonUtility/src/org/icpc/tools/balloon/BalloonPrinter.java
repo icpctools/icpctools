@@ -216,10 +216,10 @@ public class BalloonPrinter {
 		// create fonts
 		Font tempFont = g.getFont();
 		if (font == null) {
-			font = tempFont.deriveFont(Font.PLAIN, 10f);
-			mediumFont = tempFont.deriveFont(Font.PLAIN, 16f);
-			largeFont = tempFont.deriveFont(Font.PLAIN, 22f);
-			hugeFont = tempFont.deriveFont(Font.PLAIN, 70f);
+			font = tempFont.deriveFont(Font.PLAIN, 9f);
+			mediumFont = tempFont.deriveFont(Font.PLAIN, 12f);
+			largeFont = tempFont.deriveFont(Font.PLAIN, 20f);
+			hugeFont = tempFont.deriveFont(Font.PLAIN, 64f);
 		}
 
 		IContest c = bc.getContest();
@@ -368,7 +368,7 @@ public class BalloonPrinter {
 		g.setFont(font);
 		fm = g.getFontMetrics();
 		if (otherBalloons.size() == 0)
-			s = "Team has no existing balloons";
+			s = "Team has no other balloons";
 		else {
 			s = "Team has " + otherBalloons.size() + " other balloon";
 			if (otherBalloons.size() != 1)
@@ -416,23 +416,36 @@ public class BalloonPrinter {
 
 			if (i == solvedProblem)
 				g.setColor(Color.WHITE);
-			else
+			else if (solved[i])
 				g.setColor(Color.BLACK);
+			else
+				g.setColor(Color.GRAY);
 			s = probs[i].getLabel();
 			if (s == null)
 				s = "";
 			g.setFont(mediumFont);
 			fm = g.getFontMetrics();
 			int bx = px + gap + nbp.x / 2 + wid * ii;
+
 			g.drawString(s, bx - fm.stringWidth(s) / 2, iy + nbp.y / 2);
 
 			if (i == solvedProblem)
 				g.setColor(Color.BLACK);
+			else if (solved[i])
+				g.setColor(Color.DARK_GRAY);
+			else
+				g.setColor(Color.GRAY);
 			g.setFont(font);
 			fm = g.getFontMetrics();
 			s = probs[i].getColor();
-			if (s != null)
-				g.drawString(s, bx - fm.stringWidth(s) / 2, iy + nbp.y + gap + fm.getAscent());
+			if (s != null) {
+				Graphics2D gg = (Graphics2D) g.create();
+				gg.translate(bx - fm.stringWidth(s) / 2, iy + nbp.y + gap + fm.getAscent());
+				gg.rotate(-0.15);
+				gg.drawString(s, 0, 0);
+				gg.dispose();
+			}
+
 		}
 
 		g.setFont(font);
