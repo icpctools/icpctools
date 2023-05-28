@@ -1,5 +1,7 @@
 package org.icpc.tools.balloon;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -44,6 +46,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.icpc.tools.client.core.BasicClient;
+import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
@@ -805,11 +808,50 @@ public class BalloonUtility {
 
 			if (restContestSource.isCDS()) {
 				BasicClient client = new BasicClient(restContestSource, "Balloon") {
+					byte[] icon = null;
+
 					@Override
 					protected void handleTime() {
 						BalloonUtility.this.nanoTimeDelta = super.nanoTimeDelta;
 					}
+
+					@Override
+					protected void clientsChanged(Client[] clients2) {
+						sendInfoUpdate();
+					}
+
+					@Override
+					public void sendInfoUpdate() {
+						try {
+							sendInfoUpdate(null, 0, getImageBytes());
+						} catch (Exception e) {
+							Trace.trace(Trace.ERROR, "Could not send image");
+						}
+					}
+
+					private byte[] getImageBytes() throws IOException {
+						if (icon != null)
+							return icon;
+
+						InputStream in = BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png");
+						ByteArrayOutputStream bout = new ByteArrayOutputStream();
+						byte[] buffer = new byte[8192];
+						int n = in.read(buffer);
+						while (n != -1) {
+							bout.write(buffer, 0, n);
+							n = in.read(buffer);
+						}
+						icon = bout.toByteArray();
+
+						return icon;
+					}
 				};
+				client.addListener(new IConnectionListener() {
+					@Override
+					public void connectionStateChanged(boolean connected) {
+						client.sendInfoUpdate();
+					}
+				});
 				client.connect();
 			}
 		}
