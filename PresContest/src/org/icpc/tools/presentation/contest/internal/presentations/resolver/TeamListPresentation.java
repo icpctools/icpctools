@@ -212,7 +212,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 			text.addSpacer(GAP, rowHeight);
 			text.addString(t.getActualDisplayName());
 
-			int y = height - headerHeight + rowHeight / 2 - scr + (int) (rowHeight * i * SPACING);
+			int y = height - headerHeight - scr + (int) (rowHeight * i * SPACING);
 			if (y + text.getHeight() < headerHeight || y >= height)
 				continue;
 
