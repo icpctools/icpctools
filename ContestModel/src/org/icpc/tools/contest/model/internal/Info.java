@@ -134,6 +134,10 @@ public class Info extends ContestObject implements IInfo {
 		return location.longitude;
 	}
 
+	public void setLocation(Location loc) {
+		location = loc;
+	}
+
 	public ScoreboardType getScoreboardType() {
 		return scoreboardType;
 	}
@@ -282,7 +286,7 @@ public class Info extends ContestObject implements IInfo {
 			props.addDouble(TIME_MULTIPLIER, timeMultiplier);
 
 		if (location != null)
-			props.addLiteralString(LOCATION, location.getJSON());
+			props.add(LOCATION, location.getJSON());
 
 		props.addFileRef(LOGO, logo);
 		props.addFileRef(BANNER, banner);
