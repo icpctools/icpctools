@@ -144,6 +144,10 @@ public class Problem extends ContestObject implements IProblem {
 		return maxScore;
 	}
 
+	public void setPackage(FileReferenceList list) {
+		package_ = list;
+	}
+
 	public FileReferenceList getPackage() {
 		return package_;
 	}
@@ -151,6 +155,10 @@ public class Problem extends ContestObject implements IProblem {
 	@Override
 	public File getPackage(boolean force) {
 		return getFile(package_.first(), PACKAGE, force);
+	}
+
+	public void setStatement(FileReferenceList list) {
+		statement = list;
 	}
 
 	public FileReferenceList getStatement() {
@@ -293,5 +301,10 @@ public class Problem extends ContestObject implements IProblem {
 		if (errors.isEmpty())
 			return null;
 		return errors;
+	}
+
+	@Override
+	public Object resolveFileReference(String url2) {
+		return FileReferenceList.resolve(url2, statement, package_);
 	}
 }

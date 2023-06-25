@@ -186,6 +186,10 @@ public class YamlParser {
 								problem.add("id", value);
 							if (problem.getName() == null)
 								problem.add("name", value);
+						} else if ("package".equals(key)) {
+							problem.setPackage(parseFileReferenceList((List<?>) val));
+						} else if ("statement".equals(key)) {
+							problem.setStatement(parseFileReferenceList((List<?>) val));
 						} else
 							problem.add(key, value);
 					}

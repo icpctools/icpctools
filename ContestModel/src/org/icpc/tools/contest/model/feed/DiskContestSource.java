@@ -43,6 +43,7 @@ import org.icpc.tools.contest.model.internal.IContestModifier;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Person;
+import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
 import org.icpc.tools.contest.model.internal.YamlParser;
@@ -67,6 +68,8 @@ public class DiskContestSource extends ContestSource {
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
 	private static final String COUNTRY_FLAG = "country_flag";
+	private static final String PACKAGE = "package";
+	private static final String STATEMENT = "statement";
 
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
@@ -660,6 +663,8 @@ public class DiskContestSource extends ContestSource {
 			return "text/plain";
 		else if (name.endsWith(".log"))
 			return "text/plain";
+		else if (name.endsWith(".pdf"))
+			return "application/pdf";
 		return null;
 	}
 
@@ -689,6 +694,8 @@ public class DiskContestSource extends ContestSource {
 			return "flv";
 		else if (mimeType.equals("text/plain"))
 			return "txt";
+		else if (mimeType.equals("application/pdf"))
+			return "pdf";
 		return null;
 	}
 
@@ -920,6 +927,11 @@ public class DiskContestSource extends ContestSource {
 		} else if (type == ContestType.GROUP) {
 			if (LOGO.equals(property))
 				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
+		} else if (type == ContestType.PROBLEM) {
+			if (PACKAGE.equals(property))
+				return new FilePattern(type, id, property, "zip");
+			if (STATEMENT.equals(property))
+				return new FilePattern(type, id, property, "pdf");
 		}
 		return null;
 	}
@@ -1005,6 +1017,10 @@ public class DiskContestSource extends ContestSource {
 		} else if (obj instanceof Group) {
 			Group group = (Group) obj;
 			group.setLogo(mergeRefs(group.getLogo(), getFilesWithPattern(obj, LOGO)));
+		} else if (obj instanceof Problem) {
+			Problem problem = (Problem) obj;
+			problem.setPackage(mergeRefs(problem.getPackage(), getFilesWithPattern(obj, PACKAGE)));
+			problem.setStatement(mergeRefs(problem.getStatement(), getFilesWithPattern(obj, STATEMENT)));
 		}
 	}
 
