@@ -8,6 +8,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -82,6 +84,8 @@ public class YamlParser {
 						info.setBanner(parseFileReferenceList((List<?>) val));
 					} else if ("logo".equals(key)) {
 						info.setLogo(parseFileReferenceList((List<?>) val));
+					} else if ("location".equals(key)) {
+						info.setLocation(parseLocation((Map<?, ?>) val));
 					} else
 						info.add(key, value);
 				} catch (Exception ex) {
@@ -99,27 +103,36 @@ public class YamlParser {
 		for (Object obj : list) {
 			Map<?, ?> map = (Map<?, ?>) obj;
 
-			JsonObject jo = new JsonObject();
-			for (Object ob : map.keySet()) {
-				if (ob instanceof String) {
-					String key = (String) ob;
-					Object val = map.get(key);
-					String value = null;
-					if (val != null)
-						value = val.toString();
-
-					try {
-						jo.put(key, val);
-					} catch (Exception ex) {
-						Trace.trace(Trace.ERROR, "Could not parse " + key + ": " + value);
-					}
-				}
-			}
-
+			JsonObject jo = mapToJson(map);
 			FileReference ref = new FileReference(jo);
 			refList.add(ref);
 		}
 		return refList;
+	}
+
+	private static Location parseLocation(Map<?, ?> map) {
+		return new Location(mapToJson(map));
+	}
+
+	private static JsonObject mapToJson(Map<?, ?> map) {
+		JsonObject jo = new JsonObject();
+		for (Object ob : map.keySet()) {
+			if (ob instanceof String) {
+				String key = (String) ob;
+				Object val = map.get(key);
+				String value = null;
+				if (val != null)
+					value = val.toString();
+
+				try {
+					jo.put(key, val);
+				} catch (Exception ex) {
+					Trace.trace(Trace.ERROR, "Could not parse " + key + ": " + value);
+				}
+			}
+		}
+
+		return jo;
 	}
 
 	// .timelimit
