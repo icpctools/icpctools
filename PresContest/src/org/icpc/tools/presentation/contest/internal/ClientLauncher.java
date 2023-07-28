@@ -44,7 +44,7 @@ public class ClientLauncher {
 		System.out.println("         Set the contest title of the presentations using a template. Parameters:");
 		System.out.println("         {contest.name) and {contest.formal_name)");
 		System.out.println("     --contestTitleColor");
-		System.out.println("         Set the contest title color of the presentations. Currently supports `blue` and `yellow`");
+		System.out.println("         Set the contest title color of the presentations. Supports hex colors starting with #");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
 		System.out.println("     --help");

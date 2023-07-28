@@ -121,7 +121,7 @@ public class Resolver {
 		System.out.println("         Set the contest title of the resolver presentations using a template. Parameters:");
 		System.out.println("         {contest.name) and {contest.formal_name)");
 		System.out.println("     --contestTitleColor");
-		System.out.println("         Set the contest title color of the resolver presentations. Currently supports `blue` and `yellow`");
+		System.out.println("         Set the contest title color of the resolver presentations. Supports hex colors starting with #");
 		System.out.println("     --groups");
 		System.out.println("         Resolve only the groups in the given regex pattern for ids");
 		System.out.println("         If multiple groups are given, each is resolved separately");
