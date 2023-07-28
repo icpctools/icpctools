@@ -1,5 +1,6 @@
 package org.icpc.tools.presentation.contest.internal.standalone;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.TeamDisplay;
+import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.Presentation;
@@ -37,6 +39,8 @@ public class StandaloneLauncher {
 		List<String> presList = new ArrayList<String>();
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
+		String[] contestTitle = new String[1];
+		Color[] contestTitleColor = new Color[1];
 		String[] accountType = new String[1];
 		boolean[] lightMode = new boolean[1];
 		ContestSource source = ArgumentParser.parse(args, new OptionParser() {
@@ -54,6 +58,23 @@ public class StandaloneLauncher {
 				} else if ("--multi-display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "p@wxh:string");
 					displayStr[1] = (String) options.get(0);
+					return true;
+				} else if ("--contestTitle".equalsIgnoreCase(option)) {
+					ArgumentParser.expectNoOptions(option, options);
+					contestTitle[0] = "{contest.name}";
+					return true;
+				} else if ("--contestTitleTemplate".equalsIgnoreCase(option)) {
+					ArgumentParser.expectOptions(option, options, "contestTitleTemplate:string");
+					contestTitle[0] = (String) options.get(0);
+					return true;
+				} else if ("--contestTitleColor".equalsIgnoreCase(option)) {
+					ArgumentParser.expectOptions(option, options, "contestTitleColor:string");
+					String contestTitleColorString = (String) options.get(0);
+					try {
+						contestTitleColor[0] = Color.decode(contestTitleColorString);
+					} catch (NumberFormatException e) {
+						throw new IllegalArgumentException("Invalid contest title color " + contestTitleColorString);
+					}
 					return true;
 				} else if ("--light".equals(option)) {
 					lightMode[0] = true;
@@ -95,6 +116,9 @@ public class StandaloneLauncher {
 			Trace.trace(Trace.ERROR, "Must provide one or more presentations");
 			return;
 		}
+
+		AbstractICPCPresentation.setContestTitleTemplate(contestTitle[0]);
+		AbstractICPCPresentation.setContestTitleColor(contestTitleColor[0]);
 
 		// load presentation(s)
 		Iterator<String> iter = presList.iterator();
