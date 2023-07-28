@@ -14,8 +14,9 @@ public abstract class AbstractICPCPresentation extends Presentation {
 	private IContest contest = ContestData.getContest();
 
 	private Font contestTitleFont;
-	private final int contestTitleHeight = 20;
-	private final int contestTitleMargin = 2;
+	private int contestTitleHeight;
+	private final double contestTitleMarginPercentage = 0.1; // Percentage of contestTitleHeight
+	private int contestTitleMargin;
 	private BufferedImage contestTitleImage;
 	private static String contestTitleTemplate;
 	protected static Color contestTitleColor;
@@ -24,6 +25,10 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		final float dpi = 96;
 		float size = (int) (height * 72.0 * 0.028 / dpi);
 		contestTitleFont = ICPCFont.deriveFont(Font.BOLD, size * 2.2f);
+
+		Canvas c = new Canvas();
+		contestTitleHeight = c.getFontMetrics(contestTitleFont).getHeight();
+		contestTitleMargin = (int)(contestTitleHeight * contestTitleMarginPercentage);
 
 		contestTitleImage = createContestTitleImage();
 	}
