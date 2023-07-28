@@ -86,7 +86,7 @@ public class WavePresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		long timeMs = getRepeatTimeMs();
 		double time = timeMs * speed;
 		long waveWidth = WAVE_WIDTH_MS;

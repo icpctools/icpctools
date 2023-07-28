@@ -63,7 +63,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 	 * submissions). It also draws an "extra presenter-info" box if that option was selected.
 	 */
 	@Override
-	protected void paintImpl(Graphics2D g) {
+	protected void paintImplTitled(Graphics2D g) {
 		IContest contest = getContest();
 		if (contest == null)
 			return;

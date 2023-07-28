@@ -102,7 +102,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 	}
 
 	@Override
-	protected void paintImpl(Graphics2D g) {
+	protected void paintImplTitled(Graphics2D g) {
 		IContest contest = getContest();
 		if (contest == null)
 			return;

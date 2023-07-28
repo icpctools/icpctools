@@ -111,9 +111,11 @@ public class ResolverUI {
 	private Thread thread;
 	private int rowOffset;
 	private boolean light;
+	private String contestTitle;
+	private Color contestTitleColor;
 
 	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, DisplayConfig displayConfig, boolean isPresenter,
-			int rowOffset, Screen screen, ClickListener listener, boolean light) {
+			int rowOffset, Screen screen, ClickListener listener, boolean light, String contestTitle, Color contestTitleColor) {
 		this.steps = steps;
 		this.showInfo = showInfo;
 		this.displayConfig = displayConfig;
@@ -147,6 +149,8 @@ public class ResolverUI {
 			}
 		});
 		this.light = light;
+		this.contestTitle = contestTitle;
+		this.contestTitleColor = contestTitleColor;
 	}
 
 	public void moveTo(int pause2) {
@@ -245,6 +249,9 @@ public class ResolverUI {
 			}
 		});
 		window.setControlable(false);
+
+		AbstractICPCPresentation.setContestTitleTemplate(contestTitle);
+		AbstractICPCPresentation.setContestTitleColor(contestTitleColor);
 
 		if (screen == Screen.TEAM || screen == Screen.SIDE || screen == Screen.ORG) {
 			logoPresentation = new StaticLogoPresentation();

@@ -157,7 +157,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 	}
 
 	@Override
-	protected void paintImpl(Graphics2D g) {
+	protected void paintImplTitled(Graphics2D g) {
 		SubmissionRecord[] submissions2 = null;
 		synchronized (submissions) {
 			submissions2 = submissions.toArray(new SubmissionRecord[0]);

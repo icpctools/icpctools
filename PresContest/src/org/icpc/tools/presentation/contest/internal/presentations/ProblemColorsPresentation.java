@@ -168,7 +168,7 @@ public class ProblemColorsPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		if (problemInfos == null)
 			return;
 

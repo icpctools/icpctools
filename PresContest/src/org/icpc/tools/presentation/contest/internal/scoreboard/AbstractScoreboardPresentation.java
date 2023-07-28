@@ -582,7 +582,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	}
 
 	@Override
-	protected void paintImpl(Graphics2D g) {
+	protected void paintImplTitled(Graphics2D g) {
 		IContest contest = getContest();
 		if (contest == null)
 			return;

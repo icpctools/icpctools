@@ -134,7 +134,7 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -156,11 +156,11 @@ public abstract class TitledPresentation extends AbstractICPCPresentation {
 		Graphics2D g2 = (Graphics2D) g.create();
 		g2.translate(0, headerHeight + titleHeight);
 		g2.setClip(0, 0, width, height - headerHeight - titleHeight);
-		paintImpl(g2);
+		paintImplTitled(g2);
 		g2.dispose();
 	}
 
-	protected abstract void paintImpl(Graphics2D g);
+	protected abstract void paintImplTitled(Graphics2D g);
 
 	@Override
 	public void setProperty(String value) {

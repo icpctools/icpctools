@@ -1,5 +1,6 @@
 package org.icpc.tools.presentation.contest.internal;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -37,6 +38,13 @@ public class ClientLauncher {
 		System.out.println("     --multi-display p@wxh");
 		System.out.println("         Stretch the presentation across multiple clients. Use \"2@3x2\"");
 		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
+		System.out.println("     --contestTitle");
+		System.out.println("         Set the contest title of the presentations to the contest name");
+		System.out.println("     --contestTitleTemplate template");
+		System.out.println("         Set the contest title of the presentations using a template. Parameters:");
+		System.out.println("         {contest.name) and {contest.formal_name)");
+		System.out.println("     --contestTitleColor");
+		System.out.println("         Set the contest title color of the presentations. Currently supports `blue` and `yellow`");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
 		System.out.println("     --help");
@@ -52,6 +60,8 @@ public class ClientLauncher {
 		String[] nameStr = new String[1];
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
+		String[] contestTitle = new String[1];
+		Color[] contestTitleColor = new Color[1];
 		boolean[] lightMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -68,12 +78,25 @@ public class ClientLauncher {
 					ArgumentParser.expectOptions(option, options, "p@wxh:string");
 					displayStr[1] = (String) options.get(0);
 					return true;
+				} else if ("--contestTitle".equalsIgnoreCase(option)) {
+					ArgumentParser.expectNoOptions(option, options);
+					contestTitle[0] = "{contest.name}";
+					return true;
+				} else if ("--contestTitleTemplate".equalsIgnoreCase(option)) {
+					ArgumentParser.expectOptions(option, options, "contestTitleTemplate:string");
+					contestTitle[0] = (String) options.get(0);
+					return true;
+				} else if ("--contestTitleColor".equalsIgnoreCase(option)) {
+					ArgumentParser.expectOptions(option, options, "contestTitleColor:string");
+					String contestTitleColorString = (String) options.get(0);
+					try {
+						contestTitleColor[0] = Color.decode(contestTitleColorString);
+					} catch (NumberFormatException e) {
+						throw new IllegalArgumentException("Invalid contest title color " + contestTitleColorString);
+					}
+					return true;
 				} else if ("--light".equals(option)) {
 					lightMode[0] = true;
-					return true;
-				} else if ("--display_name".equals(option)) {
-					ArgumentParser.expectOptions(option, options, "display_name:string");
-					displayName[0] = (String) options.get(0);
 					return true;
 				}
 				return false;
@@ -98,6 +121,8 @@ public class ClientLauncher {
 			TeamDisplay.overrideDisplayName(cdsSource.getContest(), displayName[0]);
 
 		String name = nameStr[0];
+		AbstractICPCPresentation.setContestTitleTemplate(contestTitle[0]);
+		AbstractICPCPresentation.setContestTitleColor(contestTitleColor[0]);
 		PresentationClient client = null;
 		if ("team".equals(name)) {
 			String teamLabel = TeamUtil.getTeamId();

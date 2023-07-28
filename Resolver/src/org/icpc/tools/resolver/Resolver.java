@@ -1,5 +1,6 @@
 package org.icpc.tools.resolver;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,6 +34,7 @@ import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.contest.model.util.Taskbar;
 import org.icpc.tools.contest.model.util.TeamDisplay;
+import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
@@ -76,6 +78,8 @@ public class Resolver {
 	private boolean test;
 	private boolean lightMode;
 	private String displayName;
+	private String contestTitle;
+	private Color contestTitleColor;
 	private String[] groupList;
 	private String[] problemList;
 	private String[] problemIdList;
@@ -111,6 +115,13 @@ public class Resolver {
 		System.out.println("     --display_name template");
 		System.out.println("         Change the way teams are displayed using a template. Parameters:");
 		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
+		System.out.println("     --contestTitle");
+		System.out.println("         Set the contest title of the resolver presentations to the contest name");
+		System.out.println("     --contestTitleTemplate template");
+		System.out.println("         Set the contest title of the resolver presentations using a template. Parameters:");
+		System.out.println("         {contest.name) and {contest.formal_name)");
+		System.out.println("     --contestTitleColor");
+		System.out.println("         Set the contest title color of the resolver presentations. Currently supports `blue` and `yellow`");
 		System.out.println("     --groups");
 		System.out.println("         Resolve only the groups in the given regex pattern for ids");
 		System.out.println("         If multiple groups are given, each is resolved separately");
@@ -352,6 +363,20 @@ public class Resolver {
 		} else if ("--display_name".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "display_name:string");
 			displayName = (String) options.get(0);
+		} else if ("--contestTitle".equalsIgnoreCase(option)) {
+			ArgumentParser.expectNoOptions(option, options);
+			contestTitle = "{contest.name}";
+		} else if ("--contestTitleTemplate".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "contestTitleTemplate:string");
+			contestTitle = (String) options.get(0);
+		} else if ("--contestTitleColor".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "contestTitleColor:string");
+			String contestTitleColorString = (String) options.get(0);
+			try {
+				contestTitleColor = Color.decode(contestTitleColorString);
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Invalid contest title color " + contestTitleColorString);
+			}
 		} else if ("--groups".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "groups:string", "*");
 			groupList = options.toArray(new String[0]);
@@ -620,7 +645,7 @@ public class Resolver {
 					public void speedFactor(double d) {
 						sendSpeedFactor(d);
 					}
-				}, lightMode);
+				}, lightMode, contestTitle, contestTitleColor);
 
 		ui.setSpeedFactor(speedFactor);
 		ui.display();

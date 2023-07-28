@@ -28,7 +28,7 @@ public class TeamLogoPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		if (logo != null)
 			g.drawImage(logo, (width - logo.getWidth()) / 2, (height - logo.getHeight()) / 2, null);
 	}

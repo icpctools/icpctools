@@ -182,7 +182,7 @@ public class TeamJudgePresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		SubmissionRecord[] submissions2 = null;
 		synchronized (submissions) {
 			submissions2 = submissions.toArray(new SubmissionRecord[0]);

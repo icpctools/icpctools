@@ -1,7 +1,7 @@
 package org.icpc.tools.presentation.contest.internal;
 
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,12 +13,129 @@ import org.icpc.tools.presentation.core.Presentation;
 public abstract class AbstractICPCPresentation extends Presentation {
 	private IContest contest = ContestData.getContest();
 
+	private Font contestTitleFont;
+	private final int contestTitleHeight = 20;
+	private final int contestTitleMargin = 2;
+	private BufferedImage contestTitleImage;
+	private static String contestTitleTemplate;
+	protected static Color contestTitleColor;
+
+	protected void setupContestTitle() {
+		final float dpi = 96;
+		float size = (int) (height * 72.0 * 0.028 / dpi);
+		contestTitleFont = ICPCFont.deriveFont(Font.BOLD, size * 2.2f);
+
+		contestTitleImage = createContestTitleImage();
+	}
+
+	@Override
+	public void setSize(Dimension d) {
+		super.setSize(d);
+
+		contestTitleImage = null;
+
+		if (d.width == 0 || d.height == 0)
+			return;
+
+		setupContestTitle();
+	}
+
+	protected void paintContestTitle(Graphics2D g) {
+		g.drawImage(contestTitleImage, 0, 0, null);
+	}
+
+	protected BufferedImage createContestTitleImage() {
+		// The + 2 is here (and in paint(g)) to make sure there is some room between the header and the rest of the presentation
+		BufferedImage img = new BufferedImage(width, contestTitleHeight + 2 * contestTitleMargin + 2, Transparency.OPAQUE);
+		Graphics2D g = (Graphics2D) img.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+		if (getContestTitle() != null) {
+			drawContestTitle(g);
+		}
+
+		g.dispose();
+		return img;
+	}
+
+	protected void drawContestTitle(Graphics2D g) {
+		String s = getContestTitle();
+
+		Color color = isLightMode() ? Color.WHITE : Color.BLACK;
+		if (contestTitleColor != null) {
+			color = contestTitleColor;
+		}
+		g.setColor(color);
+		g.fillRect(0, 0, width, contestTitleHeight + contestTitleMargin * 2);
+
+		g.setColor(ICPCColors.foregroundColor(color));
+		g.setFont(contestTitleFont);
+		FontMetrics fm = g.getFontMetrics();
+		g.drawString(s, (width - fm.stringWidth(s)) / 2, contestTitleMargin + fm.getAscent());
+	}
+
+	protected boolean shouldDrawContestTitle() {
+		return getContestTitle() != null;
+	}
+
+	public static void setContestTitleTemplate(String titleTemplate) {
+		AbstractICPCPresentation.contestTitleTemplate = titleTemplate;
+	}
+
+	public static void setContestTitleColor(Color titleColor) {
+		AbstractICPCPresentation.contestTitleColor = titleColor;
+	}
+
+	protected String getContestTitle() {
+		if (contestTitleTemplate == null) {
+			return null;
+		}
+
+		return contestTitleTemplate
+				.replace("{contest.name}", contest.getName())
+				.replace("{contest.formal_name}", contest.getActualFormalName());
+	}
+
+	@Override
+	public void paint(Graphics2D g) {
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+		Graphics2D g2 = g;
+
+		if (shouldDrawContestTitle()) {
+			paintContestTitle(g);
+
+			IContest c = getContest();
+			if (c == null || c.getNumTeams() == 0)
+				return;
+
+			g2 = (Graphics2D) g.create();
+			g2.translate(0, contestTitleMargin * 2 + contestTitleHeight + 2);
+			g2.setClip(0, 0, width, height - contestTitleMargin * 2 - contestTitleHeight - 2);
+		}
+
+		paintImpl(g2);
+
+		if (shouldDrawContestTitle()) {
+			g2.dispose();
+		}
+	}
+
+	protected abstract void paintImpl(Graphics2D g);
+
 	protected IContest getContest() {
 		return contest;
 	}
 
 	public void setContest(IContest newContest) {
 		contest = newContest;
+		if (width > 0 && height > 0) {
+			setupContestTitle();
+		}
 	}
 
 	/**

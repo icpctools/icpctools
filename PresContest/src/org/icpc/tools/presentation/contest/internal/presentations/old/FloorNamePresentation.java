@@ -23,7 +23,7 @@ public class FloorNamePresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		IContest contest = getContest();
 		if (floor == null)
 			floor = new FloorMap(contest);

@@ -165,7 +165,7 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 	}
 
 	@Override
-	protected void paintImpl(Graphics2D g) {
+	protected void paintImplTitled(Graphics2D g) {
 		SubmissionRecord[] runs2 = null;
 		synchronized (submissions) {
 			runs2 = submissions.toArray(new SubmissionRecord[0]);

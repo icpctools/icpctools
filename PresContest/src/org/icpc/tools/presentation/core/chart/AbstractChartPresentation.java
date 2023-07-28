@@ -16,11 +16,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 
+import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.internal.Animator;
 import org.icpc.tools.presentation.core.transition.SmoothUtil;
 
-public abstract class AbstractChartPresentation extends Presentation {
+public abstract class AbstractChartPresentation extends AbstractICPCPresentation {
 	private static final int MARGIN = 10;
 	private static final int GAP = 5;
 	private static final int DEPTH = 20;
@@ -616,7 +617,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		if (dataSeries == null)
 			return;
 
