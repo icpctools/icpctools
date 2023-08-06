@@ -267,8 +267,8 @@ public class ContestRESTService extends HttpServlet {
 		je.encode("name", "Contest Data Server");
 		je.encodePrimitive("logo", "[{\"href\":\"/cdsIcon.png\",\"filename\":\"logo.png\","
 				+ "\"mime\":\"image/png\",\"width\":512,\"height\":512}]");
-		je.encode("version", "2021-11");
-		je.encode("version_url", "https://ccs-specs.icpc.io/2021-11/contest_api");
+		je.encode("version", "2023-06");
+		je.encode("version_url", "https://ccs-specs.icpc.io/2023-06/contest_api");
 		je.close();
 	}
 
