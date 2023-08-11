@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IContestObject;
@@ -42,6 +43,8 @@ public class Info extends ContestObject implements IInfo {
 	private Location location;
 	private FileReferenceList banner;
 	private FileReferenceList logo;
+	private String rgb;
+	private Color colorVal;
 
 	@Override
 	public ContestType getType() {
