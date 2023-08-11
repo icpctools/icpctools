@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -25,6 +26,7 @@ public class Info extends ContestObject implements IInfo {
 	private static final String COUNTDOWN_PAUSE_TIME = "countdown_pause_time";
 	private static final String LOCATION = "location";
 	private static final String SCOREBOARD_TYPE = "scoreboard_type";
+	private static final String RGB = "rgb";
 
 	private String name;
 	private String formalName;
@@ -63,6 +65,44 @@ public class Info extends ContestObject implements IInfo {
 		if (formalName == null)
 			return name;
 		return formalName;
+	}
+
+	public String getRGB() {
+		return rgb;
+	}
+
+	public Color getColorVal() {
+		if (colorVal != null)
+			return colorVal;
+
+		if (rgb == null || !(rgb.length() == 3 || rgb.length() == 4 || rgb.length() == 6 || rgb.length() == 7)) {
+			colorVal = Color.BLACK;
+			return colorVal;
+		}
+
+		try {
+			String rgbv = rgb;
+			if (rgbv.length() == 3 || rgbv.length() == 4) {
+				if (rgbv.length() == 4)
+					rgbv = rgbv.substring(1);
+				int r = Integer.parseInt(rgbv.substring(0, 1) + rgbv.substring(0, 1), 16);
+				int g = Integer.parseInt(rgbv.substring(1, 2) + rgbv.substring(1, 2), 16);
+				int b = Integer.parseInt(rgbv.substring(2, 3) + rgbv.substring(2, 3), 16);
+				colorVal = new Color(r, g, b);
+				return colorVal;
+			}
+			if (rgbv.length() == 7)
+				rgbv = rgbv.substring(1);
+			int r = Integer.parseInt(rgbv.substring(0, 2), 16);
+			int g = Integer.parseInt(rgbv.substring(2, 4), 16);
+			int b = Integer.parseInt(rgbv.substring(4, 6), 16);
+			colorVal = new Color(r, g, b);
+			return colorVal;
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Invalid color value for problem " + id + " (" + rgb + ")");
+			colorVal = Color.BLACK;
+			return colorVal;
+		}
 	}
 
 	public Long getStartTime() {
@@ -187,6 +227,10 @@ public class Info extends ContestObject implements IInfo {
 		} else if (name2.equals(FORMAL_NAME)) {
 			formalName = (String) value;
 			return true;
+		} else if (name2.equals(RGB)) {
+			rgb = (String) value;
+			colorVal = null;
+			return true;
 		} else if (name2.equals(START_TIME)) {
 			startTime = parseTimestamp(value);
 			return true;
@@ -239,6 +283,7 @@ public class Info extends ContestObject implements IInfo {
 		i.banner = banner;
 		i.name = name;
 		i.formalName = formalName;
+		i.rgb = rgb;
 		i.startTime = startTime;
 		i.duration = duration;
 		i.freezeDuration = freezeDuration;
@@ -287,6 +332,8 @@ public class Info extends ContestObject implements IInfo {
 
 		if (location != null)
 			props.add(LOCATION, location.getJSON());
+
+		props.addLiteralString(RGB, rgb);
 
 		props.addFileRef(LOGO, logo);
 		props.addFileRef(BANNER, banner);
