@@ -431,7 +431,7 @@
         setInterval(updateInfoStartStatus, 5000);
 
         $('#lock').change(function() {
-        	  if (!$(this).prop('checked')) {
+        	  if ($(this).prop('checked')) {
             	  $("#locker").removeClass('btn-secondary').addClass('btn-danger');
             	  $("#lock-group").find('*').addClass("disabled");
         	  } else {
