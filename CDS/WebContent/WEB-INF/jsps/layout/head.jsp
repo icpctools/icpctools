@@ -168,6 +168,16 @@ function logout() {
               </ul>
             </li>
             <% } } %>
+
+            <% if (CDSAuth.isAdmin(request)) { %>
+            <li class="nav-item">
+              <a href="${pageContext.request.contextPath}/countdown"
+                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("countdown")) { %> active<% } %>">
+                <i class="nav-icon fas fa-clock"></i>
+                <p>Countdown Control</p>
+              </a>
+            </li>
+            <% } %>
             
             <% if (CDSAuth.isPresAdmin(request)) { %>
             <li class="nav-item">
