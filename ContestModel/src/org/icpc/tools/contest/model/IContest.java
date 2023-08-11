@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.List;
@@ -53,6 +54,20 @@ public interface IContest {
 	 * @return the formal name
 	 */
 	String getActualFormalName();
+
+	/**
+	 * A 3 or 6 character hex string representing the rgb color of the contest, e.g. FF0000 or 0F0.
+	 *
+	 * @return the rgb value
+	 */
+	String getRGB();
+
+	/**
+	 * A Java Color object representation of the RGB value, e.g. Color.RED or Color(0,0,255).
+	 *
+	 * @return the color
+	 */
+	Color getColorVal();
 
 	/**
 	 * The contest start time in ms from the Unix epoch (Jan 1, 1970). Null indicates that the start

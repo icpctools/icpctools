@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.Collator;
@@ -521,6 +522,16 @@ public class Contest implements IContest {
 	@Override
 	public String getActualFormalName() {
 		return info.getActualFormalName();
+	}
+
+	@Override
+	public String getRGB() {
+		return info.getRGB();
+	}
+
+	@Override
+	public Color getColorVal() {
+		return info.getColorVal();
 	}
 
 	@Override
