@@ -59,7 +59,7 @@ public class PlaybackContest extends Contest {
 	protected boolean isTesting;
 	protected double timeMultiplier = Double.NaN;
 	protected Long startTime;
-	private List<IContestObject> defaults = new ArrayList<>();
+	private Contest defaultConfig = new Contest(false);
 	protected boolean configurationLoaded;
 
 	public PlaybackContest(ConfiguredContest cc) {
@@ -408,18 +408,20 @@ public class PlaybackContest extends Contest {
 
 		ContestType type = obj.getType();
 		boolean configType = true;
-		if (type == ContestType.PROBLEM || type == ContestType.GROUP || type == ContestType.LANGUAGE
-				|| type == ContestType.JUDGEMENT_TYPE || type == ContestType.TEAM || type == ContestType.PERSON
-				|| type == ContestType.ORGANIZATION) {
+		if (type == ContestType.CONTEST || type == ContestType.PROBLEM || type == ContestType.GROUP
+				|| type == ContestType.LANGUAGE || type == ContestType.JUDGEMENT_TYPE || type == ContestType.TEAM
+				|| type == ContestType.PERSON || type == ContestType.ORGANIZATION) {
 			applyDefaults(obj);
 			configType = true;
 		}
 
 		if (!configurationLoaded) {
-			if (type != ContestType.CONTEST && !configType)
+			if (!configType)
 				configurationLoaded = true;
-			else if (type != ContestType.CONTEST)
-				defaults.add(obj);
+			else {
+				applyDefaults(obj);
+				defaultConfig.add(obj);
+			}
 		}
 
 		// if the CCS says the contest is stopped but doesn't support pause time, fix it
@@ -513,20 +515,26 @@ public class PlaybackContest extends Contest {
 	}
 
 	private void applyDefaults(IContestObject obj) {
-		for (IContestObject de : defaults) {
-			if (de.equals(obj)) {
-				Map<String, Object> props = de.getProperties();
-				Map<String, Object> existingProps = obj.getProperties();
-				for (String key : props.keySet()) {
-					boolean found = false;
-					for (String key2 : existingProps.keySet()) {
-						if (key2.equals(key))
-							found = true;
-					}
-					if (!found) {
-						((ContestObject) obj).add(key, props.get(key));
-						// ((ContestObject) obj).cloneProperty(de, p);
-					}
+		IContestObject.ContestType type = obj.getType();
+		IContestObject def = null;
+		if (IContestObject.isSingleton(type)) {
+			IContestObject[] objs = defaultConfig.getObjects(type);
+			if (objs != null && objs.length == 1)
+				def = objs[0];
+		} else
+			def = defaultConfig.getObjectByTypeAndId(type, obj.getId());
+
+		if (def != null) {
+			Map<String, Object> props = def.getProperties();
+			Map<String, Object> existingProps = obj.getProperties();
+			for (String key : props.keySet()) {
+				boolean found = false;
+				for (String key2 : existingProps.keySet()) {
+					if (key2.equals(key))
+						found = true;
+				}
+				if (!found) {
+					((ContestObject) obj).add(key, props.get(key));
 				}
 			}
 		}
