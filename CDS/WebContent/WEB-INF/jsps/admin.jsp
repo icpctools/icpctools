@@ -9,70 +9,11 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-8">
-        <div class="card">
-           <div class="card-header">
-             <h3 class="card-title">Countdown Control</h3>
-             <div class="card-tools">
-               <div class="btn-group-toggle" data-toggle="buttons">
-                 <label class="btn btn-secondary active fa fa-lock" id="locker">
-                 <input id="lock" type="checkbox" autocomplete="off">Lock
-                 </label>
-               </div>
-             </div>
-           </div>
-        <div class="card-body" id="lock-group">
-          <b><font size="+7"><span id="countdown">&nbsp;</span></font></b>
-        
-           <p>You cannot change time in the final 30s before a contest starts.</p>
-                <button id="pause" class="btn btn-secondary" onclick="sendCommand('pause', 'pause')">Pause</button>
-                <button id="resume" class="btn btn-secondary" onclick="sendCommand('resume', 'resume')">Resume</button>
-                <button id="clear" class="btn btn-secondary" onclick="sendCommand('clear', 'clear')">Clear</button>
-                <span id="status">&nbsp;</span>
-
-                <table class="table table-sm table-hover table-striped">
-                    <tbody>
-                    <tr>
-                        <td>
-                            <select id="timeSelect" class="custom-select">
-                                <option value="0:00:01">1 second</option>
-                                <option value="0:00:05">5 seconds</option>
-                                <option value="0:00:15">15 seconds</option>
-                                <option value="0:00:30">30 seconds</option>
-                                <option value="0:01:00" selected>1 minute</option>
-                                <option value="0:05:00">5 minutes</option>
-                                <option value="0:15:00">15 minutes</option>
-                                <option value="0:30:00">30 minutes</option>
-                                <option value="1:00:00">1 hour</option>
-                                <option value="2:00:00">2 hours</option>
-                            </select>
-                        </td>
-                        <td>
-                            <button id="set" class="btn btn-secondary" onclick="sendCommand('set', 'set: ' + $('#timeSelect').children('option:selected').val())">Set</button>
-                        </td>
-                        <td>
-                            <button id="add" class="btn btn-secondary" onclick="sendCommand('add', 'add: ' + $('#timeSelect').children('option:selected').val())">Add</button>
-                        </td>
-                        <td>
-                            <button id="remove" class="btn btn-secondary" onclick="sendCommand('remove', 'remove: ' + $('#timeSelect').children('option:selected').val())">Remove</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="text" id="timeSelect2" value="0:01:00" class="form-control"/>
-                        </td>
-                        <td>
-                            <button id="set2" class="btn btn-secondary" onclick="sendCommand('set', 'set: ' + $('#timeSelect2').val())">Set</button>
-                        </td>
-                        <td>
-                            <button id="add2" class="btn btn-secondary" onclick="sendCommand('add', 'add: ' + $('#timeSelect2').val())">Add</button>
-                        </td>
-                        <td>
-                            <button id="remove3" class="btn btn-secondary" onclick="sendCommand('remove', 'remove: ' + $('#timeSelect2').val())">Remove</button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-          </div></div>
+            <%
+                IContest[] countdownContests = {contest};
+                boolean multiCountdown = false;
+            %>
+            <%@ include file="countdown-control.jsp" %>
       </div>
 
       <div class="col-4">
@@ -228,34 +169,7 @@
 </script>
 <script>
     contest = new Contest("/api", "<%= cc.getId() %>");
-	cds.setContestId("<%= cc.getId() %>");
-
-    function sendCommand(id, command) {
-    	if ($("#locker").hasClass('btn-danger'))
-    		return;
-    	
-        document.getElementById(id).disabled = true;
-
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            document.getElementById("status").innerHTML = "Sending request...";
-            if (xmlhttp.readyState == 4) {
-                if (xmlhttp.status == 200)
-                    document.getElementById("status").innerHTML = "Request successful";
-                else
-                    document.getElementById("status").innerHTML = xmlhttp.responseText;
-                document.getElementById(id).disabled = false;
-                updateInfoStartStatus();
-            }
-        }
-        xmlhttp.timeout = 10000;
-        xmlhttp.ontimeout = function () {
-            document.getElementById("status").innerHTML = "Request timed out";
-            document.getElementById(id).disabled = false;
-        }
-        xmlhttp.open("PUT", "<%= webroot %>/admin/time/" + command, true);
-        xmlhttp.send();
-    }
+    cds.setContestId("<%= cc.getId() %>");
 
     function addStartStatusDefaults() {
     	addStartStatus("Security", 0);
@@ -424,21 +338,10 @@
     }
 
     function updateInBackground() {
-    	updateContestClock(contest, "countdown", true);
         updateInfoStartStatus();
         updateResolver();
 
         setInterval(updateInfoStartStatus, 5000);
-
-        $('#lock').change(function() {
-        	  if ($(this).prop('checked')) {
-            	  $("#locker").removeClass('btn-secondary').addClass('btn-danger');
-            	  $("#lock-group").find('*').addClass("disabled");
-        	  } else {
-        	      $("#locker").removeClass('btn-danger').addClass('btn-secondary');
-        	      $("#lock-group").find('*').removeClass("disabled");
-        	  }
-        	})
     }
 
     $(document).ready(updateInBackground);
