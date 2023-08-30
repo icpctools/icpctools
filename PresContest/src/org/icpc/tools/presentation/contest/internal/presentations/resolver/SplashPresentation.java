@@ -30,6 +30,11 @@ public class SplashPresentation extends AbstractICPCPresentation {
 	private BufferedImage icpcToolsImage;
 
 	@Override
+	protected boolean shouldDrawContestTitle() {
+		return false;
+	}
+
+	@Override
 	public void init() {
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
@@ -91,7 +96,7 @@ public class SplashPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);

@@ -88,4 +88,14 @@ public class ICPCColors {
 
 		return ICPCColors.PENDING2[k];
 	}
+
+	public static Color foregroundColor(Color background) {
+		int r = background.getRed();
+		int g = background.getGreen();
+		int b = background.getBlue();
+		// http://www.w3.org/TR/AERT#color-contrast
+		int brightness = (int)Math.round(((r * 299) + (g * 587) + (b * 114)) / 1000.0);
+
+		return brightness > 125 ? Color.black : Color.white;
+	}
 }

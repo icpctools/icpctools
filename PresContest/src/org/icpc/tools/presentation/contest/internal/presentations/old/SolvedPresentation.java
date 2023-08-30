@@ -103,7 +103,7 @@ public class SolvedPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		if (currentRun == null) {
 			if (runs.isEmpty())
 				return;

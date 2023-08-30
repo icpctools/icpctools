@@ -169,7 +169,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g2) {
+	public void paintImpl(Graphics2D g2) {
 		if (award == null || teams == null)
 			return;
 

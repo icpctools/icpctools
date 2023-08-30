@@ -39,7 +39,7 @@ public class TilePictureScoreboardPresentation extends AbstractICPCPresentation 
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		IContest c = getContest();
 		if (c == null || c.getNumTeams() == 0)
 			return;

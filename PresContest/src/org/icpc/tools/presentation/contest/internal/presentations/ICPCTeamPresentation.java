@@ -30,7 +30,7 @@ public class ICPCTeamPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		int h = 0;
 		if (image != null) {
 			int w = image.getWidth();

@@ -244,7 +244,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		Cache c = currentCache;
 		if (c == null)
 			return;

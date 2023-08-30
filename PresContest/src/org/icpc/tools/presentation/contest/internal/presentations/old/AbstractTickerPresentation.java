@@ -184,7 +184,7 @@ public class AbstractTickerPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		paintBackground(g);
 
 		if (verticalTicker)

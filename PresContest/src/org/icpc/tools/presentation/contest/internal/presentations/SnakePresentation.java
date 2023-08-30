@@ -62,7 +62,7 @@ public class SnakePresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		double time = getRepeatTimeMs();
 		Color color = ICPCColors.BLUE;
 		double start = (double) (x - min) * WAVE_TIME_MS / (max - min);

@@ -62,7 +62,7 @@ public class LogScreenPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		float index = getTimeMs() / 1000f;
 		// g.setColor(Color.blue);
 		// g.fillRect((1280-640)/2, 50, 640, 480);

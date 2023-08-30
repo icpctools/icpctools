@@ -25,7 +25,7 @@ public class StaticLogoPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintImpl(Graphics2D g) {
 		if (image != null)
 			g.drawImage(image, (width - image.getWidth()) / 2, (height - image.getHeight()) / 2, null);
 	}
