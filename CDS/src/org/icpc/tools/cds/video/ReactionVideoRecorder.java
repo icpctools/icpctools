@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +33,18 @@ import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.FileReferenceList;
 import org.icpc.tools.contest.model.internal.Submission;
 
+/**
+ * Reaction video recorder. Will record webcam and desktop video from when a submission is received
+ * until 30 seconds after the corresponding judgement. If there is no judgement, recording will be
+ * capped at 5 minutes.
+ */
 public class ReactionVideoRecorder {
 	private ScheduledExecutorService scheduledExecutor;
 	private static ReactionVideoRecorder instance = new ReactionVideoRecorder();
 	private static final int DURATION = 30; // 30 seconds
 	private static final int MAX_DURATION = 5 * 60; // 5 minutes
+	private static final String WEBCAM = "webcam";
+	private static final String DESKTOP = "desktop";
 
 	protected class Info {
 		int[] stream;
@@ -43,9 +52,9 @@ public class ReactionVideoRecorder {
 		OutputStream[] out;
 		File[] tempFile;
 		File[] file;
-		ScheduledFuture<?> future;
 	}
 
+	// map from submission id to reaction Info
 	private Map<String, Info> submissions = new HashMap<>(100);
 
 	private ReactionVideoRecorder() {
@@ -122,6 +131,20 @@ public class ReactionVideoRecorder {
 					name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith("." + extension)));
 
 			if (files != null) {
+				// sort files
+				Arrays.sort(files, new Comparator<File>() {
+					@Override
+					public int compare(File f1, File f2) {
+						// sort webcam first
+						if (f1.getName().contains(WEBCAM) && !f2.getName().contains(WEBCAM))
+							return -1;
+						else if (!f1.getName().contains(WEBCAM) && f2.getName().contains(WEBCAM))
+							return 1;
+						return f1.getName().compareTo(f2.getName());
+					}
+				});
+
+				// add references
 				for (File f : files) {
 					FileReference ref = new FileReference();
 					ref.filename = f.getName();
@@ -137,26 +160,66 @@ public class ReactionVideoRecorder {
 			return;
 		}
 
-		List<Integer> streams = cc.getStreams(teamId, StreamType.WEBCAM);
-		if (streams == null || streams.isEmpty())
+		startRecordingImpl(cc, info, teamId, submission);
+	}
+
+	private void startRecordingImpl(ConfiguredContest cc, Info info, String teamId, ISubmission submission) {
+		int numStreams = 0;
+
+		List<Integer> streamsWebcam = cc.getStreams(teamId, StreamType.WEBCAM);
+		if (streamsWebcam != null)
+			numStreams += streamsWebcam.size();
+
+		List<Integer> streamsDesktop = cc.getStreams(teamId, StreamType.DESKTOP);
+		if (streamsDesktop != null)
+			numStreams += streamsDesktop.size();
+
+		if (numStreams == 0)
 			return;
 
-		int numStreams = streams.size();
 		info.file = new File[numStreams];
 		info.stream = new int[numStreams];
 		info.listener = new VideoStreamListener[numStreams];
 		info.out = new OutputStream[numStreams];
 		info.tempFile = new File[numStreams];
 
+		VideoHandler handler = VideoAggregator.handler;
+		String extension = handler.getFileExtension();
+
+		String rootFolder = cc.getPath();
+		String submissionId = submission.getId();
+		File submissionDir = new File(rootFolder, "submissions" + File.separator + submissionId);
+
+		// setup all the streams we're going to save and the filenames we'll save them to
+		int count = 0;
+		if (streamsWebcam != null) {
+			int numWebcam = streamsWebcam.size();
+			for (int i = 0; i < numWebcam; i++) {
+				info.stream[count] = streamsWebcam.get(i);
+				if (numWebcam > 1)
+					info.file[count] = new File(submissionDir, "reaction-" + WEBCAM + (i + 1) + "." + extension);
+				else
+					info.file[count] = new File(submissionDir, "reaction-" + WEBCAM + "." + extension);
+				count++;
+			}
+		}
+
+		if (streamsDesktop != null) {
+			int numDesktop = streamsDesktop.size();
+			for (int i = 0; i < numDesktop; i++) {
+				info.stream[count] = streamsDesktop.get(i);
+				if (numDesktop > 1)
+					info.file[count] = new File(submissionDir, "reaction-" + DESKTOP + (i + 1) + "." + extension);
+				else
+					info.file[count] = new File(submissionDir, "reaction-" + DESKTOP + "." + extension);
+				count++;
+			}
+		}
+
 		FileReferenceList list = new FileReferenceList();
 		for (int i = 0; i < numStreams; i++) {
-			if (i > 0)
-				file = new File(submissionDir, "reaction-" + (i + 1) + "." + extension);
-			info.file[i] = file;
-			info.stream[i] = streams.get(i);
-
 			// create marker file
-			info.tempFile[i] = new File(submissionDir, file.getName() + "-temp");
+			info.tempFile[i] = new File(submissionDir, info.file[i].getName() + "-temp");
 			boolean secondary = false;
 			if (info.tempFile[i].exists()) // another CDS already recording
 				secondary = true;
@@ -178,7 +241,7 @@ public class ReactionVideoRecorder {
 				info.tempFile[i].deleteOnExit();
 
 				try {
-					info.out[i] = new BufferedOutputStream(new FileOutputStream(file));
+					info.out[i] = new BufferedOutputStream(new FileOutputStream(info.file[i]));
 				} catch (Exception e) {
 					// could not create file
 					Trace.trace(Trace.ERROR, "Error creating output stream", e);
@@ -199,16 +262,16 @@ public class ReactionVideoRecorder {
 
 			VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[0]);
 			FileReference ref = new FileReference();
-			String name = file.getName().substring(0, file.getName().length() - extension.length() - 1);
+			String name = info.file[i].getName().substring(0, info.file[i].getName().length() - extension.length() - 1);
 			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
 			ref.mime = stream.getMimeType();
-			ref.file = file;
+			ref.file = info.file[i];
 			list.add(ref);
 		}
 
 		((Submission) submission).setReaction(list);
 
-		info.future = scheduleEndOfRecording(info, MAX_DURATION);
+		scheduleEndOfRecording(info, MAX_DURATION);
 	}
 
 	public void stopRecording(ConfiguredContest cc, IJudgement judgement) {
@@ -219,11 +282,10 @@ public class ReactionVideoRecorder {
 		if (submission == null)
 			return;
 
-		final Info info = submissions.get(subId);
-		if (info == null || info.out == null)
-			return;
-
-		scheduleEndOfRecording(info, DURATION);
+		Info info = submissions.get(subId);
+		if (info != null && info.out != null) {
+			scheduleEndOfRecording(info, DURATION);
+		}
 	}
 
 	protected ScheduledFuture<?> scheduleEndOfRecording(Info info, int time) {
