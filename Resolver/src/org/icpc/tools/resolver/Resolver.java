@@ -1,9 +1,7 @@
 package org.icpc.tools.resolver;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -13,21 +11,24 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
-import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContestListener;
+import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
-import org.icpc.tools.contest.model.resolver.ResolverLogic.PredeterminedStep;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
@@ -53,20 +54,12 @@ import org.icpc.tools.resolver.ResolverUI.Screen;
 public class Resolver {
 	private static final int DEFAULT_ROW_OFFSET_WHEN_ENABLED = 4;
 
-	private static final String DATA_RESOLVER_CLICKS = "org.icpc.tools.presentation.contest.resolver.clicks";
-	private static final String DATA_RESOLVER_SETTINGS = "org.icpc.tools.presentation.contest.resolver.settings";
-	private static final String DATA_RESOLVER_SCROLL = "org.icpc.tools.presentation.contest.resolver.scroll";
-	private static final String DATA_RESOLVER_SPEED = "org.icpc.tools.presentation.contest.resolver.speed";
-
 	// contest/resolving variables
+	private ContestSource source;
 	private Contest finalContest;
-	private int singleStepStartRow = Integer.MIN_VALUE;
-	private int rowOffset;
 
 	// UI variables
 	private ResolverUI ui;
-	private double speedFactor = 1;
-	private int clicks;
 	private boolean isPresenter;
 	private Screen screen = null;
 	private String displayStr;
@@ -82,13 +75,11 @@ public class Resolver {
 
 	// client/server variables
 	private PresentationClient client;
-	private int[] clients = new int[0];
-
-	private List<PredeterminedStep> predeterminedSteps = new ArrayList<>();
 
 	protected static void showHelp() {
 		System.out.println("Usage: resolver.bat/sh contestURL user password [options]");
-		System.out.println("   or: resolver.bat/sh contestPath [options]");
+		System.out.println("   or: resolver.bat/sh contestPackagePath [options]");
+		System.out.println("   or: resolver.bat/sh eventFeedPath [options]");
 		System.out.println();
 		System.out.println("  General options:");
 		System.out.println("     --info");
@@ -164,10 +155,11 @@ public class Resolver {
 
 		// create the Resolver object
 		final Resolver r = new Resolver();
+		final ResolveInfo resolveInfo = new ResolveInfo();
 		ContestSource[] contestSource = ArgumentParser.parseMulti(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
-				return r.processOption(option, options);
+				return r.processOption(option, options, resolveInfo);
 			}
 
 			@Override
@@ -196,8 +188,11 @@ public class Resolver {
 		List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
 		int i = 0;
 		for (ContestSource cs : contestSource) {
-			r.loadFromSource(cs);
-			r.loadSteps(cs);
+			r.source = cs;
+			r.loadFromSource();
+
+			if (r.isPresenter)
+				r.sendSettings(resolveInfo);
 			String g = null;
 			String p = null;
 			String pId = null;
@@ -216,7 +211,7 @@ public class Resolver {
 			Trace.trace(Trace.INFO, "  " + step);
 
 		try {
-			r.connectToCDS(contestSource[0]);
+			r.connectToCDS();
 		} catch (NumberFormatException e) {
 			Trace.trace(Trace.ERROR, "Could not connect to CDS");
 			System.exit(2);
@@ -225,7 +220,7 @@ public class Resolver {
 		r.launch(steps);
 	}
 
-	private void connectToCDS(ContestSource source) {
+	private void connectToCDS() {
 		if (!isPresenter && screen == null)
 			return;
 
@@ -240,61 +235,20 @@ public class Resolver {
 			if (isPresenter)
 				role = "presAdmin";
 
-			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
-				@Override
-				protected void clientsChanged(Client[] cl) {
-					Trace.trace(Trace.INFO, "Client list changed: " + cl.length);
-					int size = cl.length;
-					int[] c = new int[size];
-					for (int i = 0; i < size; i++)
-						c[i] = cl[i].uid;
-					clients = c;
-
-					// re-send the settings to all the clients
-					sendSettings();
-
-					// click count too
-					sendClicks();
-				}
-			};
+			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver");
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Trouble connecting to CDS: " + e.getMessage());
 			System.exit(1);
 		}
 
 		try {
-			client.addListener(new IPropertyListener() {
-				@Override
-				public void propertyUpdated(String key, String value) {
-					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
-					if (DATA_RESOLVER_CLICKS.equals(key)) {
-						clicks = Integer.parseInt(value);
-						if (ui != null)
-							ui.moveTo(clicks);
-					} else if (DATA_RESOLVER_SCROLL.equals(key)) {
-						boolean b = Boolean.parseBoolean(value);
-						if (ui != null)
-							ui.setScrollPause(b);
-					} else if (DATA_RESOLVER_SPEED.equals(key)) {
-						double sf = Double.parseDouble(value);
-						if (ui != null)
-							ui.setSpeedFactor(sf);
-					} else if (DATA_RESOLVER_SETTINGS.equals(key)) {
-						String[] clientArgs = value.split(",");
-						ui.setSpeedFactor(Double.parseDouble(clientArgs[0]));
-						singleStepStartRow = Integer.parseInt(clientArgs[1]);
-						rowOffset = Integer.parseInt(clientArgs[2]);
-					}
-				}
-			});
-
 			client.connect();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Client error", e);
 		}
 	} // end connectToServer
 
-	private boolean processOption(String option, List<Object> options) {
+	private boolean processOption(String option, List<Object> options, ResolveInfo resolveInfo) {
 		if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
 			// --fast varies the speed at which the resolving process should run (useful for
 			// previewing results).
@@ -309,26 +263,25 @@ public class Resolver {
 				// illegal value; ignore and use default
 				Trace.trace(Trace.ERROR, "Illegal --fast value ignored (must be positive)");
 			} else
-				speedFactor = fastVal;
+				resolveInfo.setSpeedFactor(fastVal);
 		} else if ("--singlestep".equalsIgnoreCase(option)) {
 			// --singleStep option: indicate row where single-stepping should start
 			ArgumentParser.expectOptions(option, options, "startRow:int");
 
-			// Default to single-stepping from the very beginning (bottom)
-			singleStepStartRow = Integer.MAX_VALUE;
-
 			// check if arguments specify a specific row on which to start single-stepping
 			// get the row on which single-stepping should start; subtract 1 for zero-base
-			singleStepStartRow = (int) options.get(0) - 1;
+			int singleStepStartRow = (int) options.get(0) - 1;
 			if (singleStepStartRow <= 0)
 				Trace.trace(Trace.ERROR, "Illegal --singleStep value ignored");
+			else
+				resolveInfo.setSingleStepRow(singleStepStartRow);
 		} else if ("--info".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			// --info option: display extra commentary information visible only on the Presenter
 			show_info = true;
 		} else if ("--pause".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "#:int");
-			clicks = (int) options.get(0);
+			resolveInfo.setClicks((int) options.get(0));
 		} else if ("--client".equalsIgnoreCase(option) || "--presenter".equalsIgnoreCase(option)
 				|| "--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)
 				|| "--org".equalsIgnoreCase(option)) {
@@ -371,9 +324,9 @@ public class Resolver {
 			if (numRows <= 0) {
 				// illegal value; ignore and use default
 				Trace.trace(Trace.ERROR, "Illegal --rowDisplayOffset value ignored (must be positive)");
-				rowOffset = DEFAULT_ROW_OFFSET_WHEN_ENABLED;
+				resolveInfo.setRowOffset(DEFAULT_ROW_OFFSET_WHEN_ENABLED);
 			} else
-				rowOffset = numRows;
+				resolveInfo.setRowOffset(numRows);
 		} else if ("--judgeQueue".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			judgeQueue = true;
@@ -396,34 +349,65 @@ public class Resolver {
 		// do not create
 	}
 
-	private void loadFromSource(ContestSource source) {
+	private void loadFromSource() {
 		Trace.trace(Trace.INFO, "Loading from " + source);
 
 		int showHour = -1;
 		// we're a stand-alone resolver; load the event feed and create a Contest object
 		try {
 			source.outputValidation();
-			finalContest = source.getContest();
+
+			finalContest = source.loadContest(new IContestListener() {
+				@Override
+				public void contestChanged(IContest contest, IContestObject obj, Delta delta) {
+					if (delta != Delta.DELETE && obj instanceof IResolveInfo) {
+						IResolveInfo resolveInfo = (IResolveInfo) obj;
+						if (ui != null) {
+							if (resolveInfo.getClicks() >= 0)
+								ui.moveTo(resolveInfo.getClicks());
+							ui.setScrollPause(resolveInfo.isAnimationPaused());
+							if (!Double.isNaN(resolveInfo.getSpeedFactor()))
+								ui.setSpeedFactor(resolveInfo.getSpeedFactor());
+						}
+					}
+				}
+			});
 			if (displayName != null)
 				TeamDisplay.overrideDisplayName(finalContest, displayName);
 
-			if (test)
-				source.waitForContest(10000);
-			else if (!source.waitForContest(20000))
-				Trace.trace(Trace.ERROR, "Could not load complete contest");
-
 			if (test) {
-				if (finalContest.isDoneUpdating()) {
-					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are done updating.");
+				source.waitForContest(10000);
+				if (finalContest.getState().isFinal()) {
+					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are finalized.");
 					System.exit(1);
 				}
-				int num = finalContest.removeUnjudgedSubmissions();
-				Trace.trace(Trace.WARNING, "Test mode active, " + num + " unjudged submissions discarded.");
+				Trace.trace(Trace.INFO, "Test mode active");
+			} else {
+				// not test mode
+				if (!source.waitForContest(20000))
+					Trace.trace(Trace.ERROR, "Could not load complete contest");
 			}
 
-			if (!test && !finalContest.isDoneUpdating()) {
-				Trace.trace(Trace.ERROR,
-						"Contest is not done updating. Use --test if running against an incomplete contest");
+			// check for unjudged runs. if we're in test mode warn the user and delete them.
+			// if not in test mode, fail
+			int num = finalContest.removeUnjudgedSubmissions();
+			if (num > 0) {
+				if (test)
+					Trace.trace(Trace.WARNING, "Warning: " + num + " unjudged submissions discarded.");
+				else {
+					Trace.trace(Trace.ERROR,
+							num + " unjudged submissions! Use --test if running against an incomplete contest");
+					System.exit(1);
+				}
+			}
+
+			if (!test && !finalContest.getState().isFinal()) {
+				Trace.trace(Trace.WARNING, "Contest is not over. Use --test if running against an incomplete contest");
+				System.exit(1);
+			}
+
+			if (finalContest.isDoneUpdating() && isPresenter && source instanceof RESTContestSource) {
+				Trace.trace(Trace.ERROR, "Contest is already resolved, nothing to do");
 				System.exit(1);
 			}
 
@@ -450,45 +434,13 @@ public class Resolver {
 			finalContest = finalContest.clone(false, new TimeFilter(finalContest, showHour * 3600000));
 	}
 
-	private void loadSteps(ContestSource source) {
-		Trace.trace(Trace.INFO, "Checking for predetermined steps");
-
-		try {
-			File f = source.getFile("resolver.tsv");
-			if (f == null || !f.exists()) {
-				Trace.trace(Trace.INFO, "No predetermined steps found");
-				return;
-			}
-			Trace.trace(Trace.INFO, "Predetermined steps found in " + f);
-
-			BufferedReader br = new BufferedReader(new FileReader(f));
-			try {
-				// read header
-				br.readLine();
-
-				String s = br.readLine();
-				while (s != null) {
-					String[] st = s.split("\\t");
-					if (st != null && st.length > 0)
-						predeterminedSteps.add(new PredeterminedStep(st[0], st[1]));
-
-					s = br.readLine();
-				}
-			} finally {
-				try {
-					br.close();
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-			Trace.trace(Trace.INFO, "Loaded " + predeterminedSteps.size() + " predetermined steps");
-		} catch (Exception e) {
-			// Trace.trace(Trace.ERROR, "Could not load predetermined steps", e);
-		}
-	}
-
 	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
+
+		// ResolveInfo resolveInfo = new ResolveInfo();
+		// TODO setup resolveInfo.singleStepStartRow = singleStepStartRow;
+		// resolveInfo.predeterminedSteps = predeterminedSteps;
+		// finalContest.add(resolveInfo);
 
 		if (groups != null || problems != null || problemIds != null) {
 			IAward[] fullAwards = finalContest.getAwards();
@@ -561,7 +513,7 @@ public class Resolver {
 			// create the official scoreboard
 			cc.officialResults();
 
-			ResolverLogic logic = new ResolverLogic(cc, singleStepStartRow, show_info, predeterminedSteps);
+			ResolverLogic logic = new ResolverLogic(cc, show_info);
 
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
@@ -577,7 +529,7 @@ public class Resolver {
 			// create the official scoreboard
 			finalContest.officialResults();
 
-			ResolverLogic logic = new ResolverLogic(finalContest, singleStepStartRow, show_info, predeterminedSteps);
+			ResolverLogic logic = new ResolverLogic(finalContest, show_info);
 
 			int showHour = -1;
 			if (showHour > 0) {
@@ -603,12 +555,11 @@ public class Resolver {
 	}
 
 	protected void launch(List<ResolutionStep> steps) {
-		ui = new ResolverUI(steps, show_info, new DisplayConfig(displayStr, multiDisplayStr),
-				isPresenter || client == null, rowOffset, screen, new ClickListener() {
+		ui = new ResolverUI(show_info, new DisplayConfig(displayStr, multiDisplayStr), isPresenter || client == null,
+				screen, new ClickListener() {
 					@Override
 					public void clicked(int num) {
-						clicks = num;
-						sendClicks();
+						sendClicks(num);
 					}
 
 					@Override
@@ -622,14 +573,8 @@ public class Resolver {
 					}
 				}, lightMode);
 
-		ui.setSpeedFactor(speedFactor);
+		ui.setup(steps);
 		ui.display();
-		ui.moveTo(clicks);
-
-		if (client != null && clicks > 0) {
-			Trace.trace(Trace.INFO, "Catching up to click: " + clicks);
-			ui.moveTo(clicks);
-		}
 	}
 
 	private void outputStats(List<ResolutionStep> steps, long time) {
@@ -637,6 +582,11 @@ public class Resolver {
 		long min = ((int) totalTime) / 60;
 		long seconds = ((int) totalTime) % 60;
 		Trace.trace(Trace.USER, "  Playback time: " + min + "m " + seconds + "s");
+		IResolveInfo resolveInfo = finalContest.getResolveInfo();
+		double speedFactor = 1.0;
+		if (resolveInfo != null) {
+			speedFactor = resolveInfo.getSpeedFactor();
+		}
 		if (speedFactor != 1.0) {
 			totalTime *= speedFactor;
 			min = ((int) totalTime) / 60;
@@ -650,53 +600,47 @@ public class Resolver {
 		Trace.trace(Trace.INFO, "  Time to resolve: " + (System.currentTimeMillis() - time) + "ms");
 	}
 
-	private void sendSettings() {
-		try {
-			String clientArgs = speedFactor + "," + singleStepStartRow + "," + rowOffset;
-
-			Trace.trace(Trace.INFO, "Sending settings: " + clientArgs);
-			client.sendProperty(clients, DATA_RESOLVER_SETTINGS, clientArgs);
-		} catch (Exception ex) {
-			Trace.trace(Trace.WARNING, "Failed to send settings", ex);
-		}
+	private void sendSettings(ResolveInfo resolveInfo) {
+		putResolve(resolveInfo);
 	}
 
-	private void sendClicks() {
+	private void sendClicks(int clicks2) {
 		if (!isPresenter || client == null)
 			return;
 
-		try {
-			Trace.trace(Trace.INFO, "Sending clicks: " + clicks);
-
-			client.sendProperty(clients, DATA_RESOLVER_CLICKS, Integer.toString(clicks));
-		} catch (Exception ex) {
-			Trace.trace(Trace.WARNING, "Failed to send clicks", ex);
-		}
+		ResolveInfo resolveInfo = new ResolveInfo();
+		resolveInfo.setClicks(clicks2);
+		putResolve(resolveInfo);
 	}
 
 	private void sendScroll(boolean pause) {
 		if (!isPresenter || client == null)
 			return;
 
-		try {
-			Trace.trace(Trace.INFO, "Sending scroll: " + pause);
-
-			client.sendProperty(clients, DATA_RESOLVER_SCROLL, Boolean.toString(pause));
-		} catch (Exception ex) {
-			Trace.trace(Trace.WARNING, "Failed to send clicks", ex);
-		}
+		ResolveInfo resolveInfo = new ResolveInfo();
+		resolveInfo.setAnimationPause(pause);
+		putResolve(resolveInfo);
 	}
 
-	private void sendSpeedFactor(double d) {
+	private void sendSpeedFactor(double factor) {
 		if (!isPresenter || client == null)
 			return;
 
-		try {
-			Trace.trace(Trace.INFO, "Sending speed: " + d);
+		ResolveInfo resolveInfo = new ResolveInfo();
+		resolveInfo.setSpeedFactor(factor);
+		putResolve(resolveInfo);
+	}
 
-			client.sendProperty(clients, DATA_RESOLVER_SPEED, Double.toString(d));
-		} catch (Exception ex) {
-			Trace.trace(Trace.WARNING, "Failed to send clicks", ex);
+	private void putResolve(ResolveInfo resolveInfo) {
+		if (source instanceof RESTContestSource) {
+			try {
+				Trace.trace(Trace.INFO, "PUTting resolve info: " + resolveInfo);
+				((RESTContestSource) source).put(resolveInfo);
+			} catch (Exception ex) {
+				Trace.trace(Trace.WARNING, "Failed to set resolve", ex);
+			}
+		} else {
+			finalContest.add(resolveInfo);
 		}
 	}
 

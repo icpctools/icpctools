@@ -233,7 +233,7 @@ public class ContestRESTService extends HttpServlet {
 		CompositeFilter filter = new CompositeFilter();
 
 		boolean isArray = true;
-		if (segments.length == 1 || type2 == ContestType.STATE || type2 == ContestType.MAP_INFO)
+		if (segments.length == 1 || IContestObject.isSingleton(type2))
 			isArray = false;
 		if (ind == 3 && segments.length == 3) {
 			// id filtering
@@ -707,6 +707,8 @@ public class ContestRESTService extends HttpServlet {
 			rObj = postAward(request, response, ei.cc, obj);
 		else if (ei.cType == ContestType.COMMENTARY)
 			rObj = postCommentary(request, response, ei.cc, obj);
+		else if (ei.cType == ContestType.RESOLVE_INFO)
+			rObj = obj;
 
 		if (rObj == null)
 			return;
@@ -753,7 +755,7 @@ public class ContestRESTService extends HttpServlet {
 		} else if (ei.id == null && !IContestObject.isSingleton(ei.cType)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing id");
 			return;
-		} else if (!ei.id.matches("[a-zA-Z0-9_.-]*")) {
+		} else if (ei.id != null && !ei.id.matches("[a-zA-Z0-9_.-]*")) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid id");
 			return;
 		}
@@ -902,8 +904,19 @@ public class ContestRESTService extends HttpServlet {
 
 	protected JsonObject postClarification(HttpServletRequest request, HttpServletResponse response,
 			ConfiguredContest cc, JsonObject obj) throws IOException {
-		String id = obj.getString("id");
-		String time = obj.getString("time");
+		if (!cc.isAdmin(request) && !cc.isJudge(request) && !cc.isTeam(request))
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Account not authorized to post commentary");
+
+		if (!cc.isAdmin(request)) {
+			String id = obj.getString("id");
+			String time = obj.getString("time");
+			String contestTime = obj.getString("contest_time");
+			if (id != null || time != null || contestTime != null) {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Cannot assign id, time, or contest_time");
+				return null;
+			}
+		}
+
 		String fromTeamId = obj.getString("from_team_id");
 		String toTeamId = obj.getString("to_team_id");
 		String problemId = obj.getString("problem_id");
@@ -926,10 +939,6 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		if (cc.isTeam(request)) {
-			if (id != null || time != null) {
-				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot assign id or time");
-				return null;
-			}
 			if (toTeamId != null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Team cannot send to another team");
 				return null;

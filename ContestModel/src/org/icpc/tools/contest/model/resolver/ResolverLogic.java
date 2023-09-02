@@ -14,6 +14,8 @@ import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IResolveInfo;
+import org.icpc.tools.contest.model.IResolveInfo.PredeterminedStep;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
@@ -25,6 +27,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -32,7 +35,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep2;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
@@ -100,23 +102,8 @@ public class ResolverLogic {
 		}
 	}
 
-	public static class PredeterminedStep {
-		String teamId;
-		String problemLabel;
-
-		public PredeterminedStep(String teamId, String problemLabel) {
-			this.teamId = teamId;
-			this.problemLabel = problemLabel;
-		}
-
-		@Override
-		public String toString() {
-			return "Step: " + teamId + " " + problemLabel;
-		}
-	}
-
 	// which row to start single-stepping on
-	private int singleStepStartRow;
+	private int singleStepStartRow = -1;
 	private boolean calculateProjections;
 
 	// map from all the teamIds getting an award to the list of awards they're getting
@@ -130,17 +117,22 @@ public class ResolverLogic {
 
 	private List<PredeterminedStep> predeterminedSteps = new ArrayList<>();
 
-	public ResolverLogic(Contest contest, int singleStepStartRow, boolean calculateProjections,
-			List<PredeterminedStep> predeterminedSteps) {
+	public ResolverLogic(Contest contest, boolean calculateProjections) {
 		finalContest = filter(contest);
-		this.singleStepStartRow = singleStepStartRow;
 		this.calculateProjections = calculateProjections;
-		this.predeterminedSteps = predeterminedSteps;
+
+		IResolveInfo resolveInfo = finalContest.getResolveInfo();
+		if (resolveInfo != null) {
+			if (resolveInfo.getSingleStepRow() >= 0)
+				this.singleStepStartRow = resolveInfo.getSingleStepRow();
+			this.predeterminedSteps = resolveInfo.getPredeterminedSteps();
+		}
+
 		if (predeterminedSteps == null)
-			this.predeterminedSteps = new ArrayList<ResolverLogic.PredeterminedStep>(0);
+			this.predeterminedSteps = new ArrayList<>(0);
 
 		// defaults to -2 (don't start single step automatically) if no medals exist
-		if (this.singleStepStartRow < 0 && finalContest.isDoneUpdating()) {
+		if (this.singleStepStartRow < 0 && finalContest.getAwards().length > 0) {
 			IAward[] awards2 = finalContest.getAwards();
 			for (IAward a : awards2) {
 				if (a.getAwardType() == IAward.MEDAL) {
@@ -379,7 +371,8 @@ public class ResolverLogic {
 		List<String> judgeRuns = new ArrayList<>();
 
 		SubmissionInfo runInfo = getNextResolve();
-		// Project standings for the first run, if we have any. We don't have any for an empty scoreboard
+		// Project standings for the first run, if we have any. We don't have any for an empty
+		// scoreboard
 		if (runInfo != null)
 			projectStandings(runInfo);
 
@@ -729,7 +722,7 @@ public class ResolverLogic {
 
 			// check for predetermined steps first
 			for (PredeterminedStep ps : predeterminedSteps) {
-				if (ps.teamId.equals(team.getId())) {
+				if (ps.teamLabel.equals(team.getLabel())) {
 					int pInd = contest.getProblemIndexByLabel(ps.problemLabel);
 					if (pInd >= 0) {
 						IResult r1 = contest.getResult(team, pInd);
@@ -772,6 +765,7 @@ public class ResolverLogic {
 		types.add(ContestType.JUDGEMENT_TYPE);
 		types.add(ContestType.LANGUAGE);
 		types.add(ContestType.AWARD);
+		types.add(ContestType.RESOLVE_INFO);
 		TypeFilter filter = new TypeFilter(types);
 		return contest.clone(false, filter);
 	}

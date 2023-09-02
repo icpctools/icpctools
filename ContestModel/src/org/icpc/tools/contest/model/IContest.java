@@ -633,6 +633,13 @@ public interface IContest {
 	IMapInfo getMapInfo();
 
 	/**
+	 * Return the resolve info for this contest.
+	 *
+	 * @return the resolve info
+	 */
+	IResolveInfo getResolveInfo();
+
+	/**
 	 * Validate all contest objects that can be validated.
 	 *
 	 * @return a list of validation issues

@@ -18,6 +18,8 @@ import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
+import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
@@ -109,20 +111,33 @@ public class ResolverUI {
 
 	private long lastClickTime = -1;
 	private Thread thread;
-	private int rowOffset;
 	private boolean light;
+	private int firstStep = -1;
 
-	public ResolverUI(List<ResolutionStep> steps, boolean showInfo, DisplayConfig displayConfig, boolean isPresenter,
-			int rowOffset, Screen screen, ClickListener listener, boolean light) {
-		this.steps = steps;
+	public ResolverUI(boolean showInfo, DisplayConfig displayConfig, boolean isPresenter, Screen screen,
+			ClickListener listener, boolean light) {
 		this.showInfo = showInfo;
 		this.displayConfig = displayConfig;
 		this.isPresenter = isPresenter;
 		this.screen = screen;
-		this.rowOffset = rowOffset;
 		if (screen == null)
 			this.screen = Screen.MAIN;
 		this.listener = listener;
+		this.light = light;
+	}
+
+	public void setup(List<ResolutionStep> steps) {
+		this.steps = steps;
+
+		IContest contest = getFirstContest();
+		IResolveInfo resolveInfo = contest.getResolveInfo();
+		if (resolveInfo != null) {
+			if (!Double.isNaN(resolveInfo.getSpeedFactor()))
+				setSpeedFactor(resolveInfo.getSpeedFactor());
+			if (resolveInfo.getClicks() >= 0)
+				firstStep = resolveInfo.getClicks() % 1000 + 1000;
+		}
+
 		control = new ResolutionControl(steps);
 		control.addListener(new IResolutionListener() {
 			@Override
@@ -146,7 +161,6 @@ public class ResolverUI {
 				// ignore
 			}
 		});
-		this.light = light;
 	}
 
 	public void moveTo(int pause2) {
@@ -223,9 +237,10 @@ public class ResolverUI {
 				else if ('+' == e.getKeyChar() || '=' == e.getKeyChar() || KeyEvent.VK_UP == e.getKeyCode())
 					setSpeedFactorImpl(control.getSpeedFactor() * 0.8);
 				else if ('-' == e.getKeyChar() || '_' == e.getKeyChar() || KeyEvent.VK_DOWN == e.getKeyCode())
-					setSpeedFactorImpl(control.getSpeedFactor() * 1.2);
+					setSpeedFactorImpl(control.getSpeedFactor() * 1.2); // should only affect the
+																							// 'current' animation??
 				else if ('j' == e.getKeyChar() || 'J' == e.getKeyChar())
-					setSpeedFactorImpl(1.0);
+					setSpeedFactorImpl(1.0); // TODO should reset to what the command line is??
 				else if ('p' == e.getKeyChar()) {
 					setScrollPauseImpl(!pauseScroll);
 				} else if ('i' == e.getKeyChar())
@@ -290,6 +305,7 @@ public class ResolverUI {
 				paintHook(g);
 			}
 		};
+		judgePresentation.setProperty("clockOff");
 
 		awardPresentation = new TeamAwardPresentation() {
 			@Override
@@ -316,7 +332,10 @@ public class ResolverUI {
 		float size = (window.getHeight() / 14f) * 36f / dpi;
 		messageFont = ICPCFont.deriveFont(Font.PLAIN, size);
 
-		processAction(Action.FORWARD);
+		if (firstStep >= 0)
+			moveTo(firstStep);
+		else
+			moveTo(0);
 	}
 
 	private String getStatusInfo() {
@@ -463,6 +482,11 @@ public class ResolverUI {
 			teamListPresentation.scrollIt(scroll.top);
 		} else if (step instanceof ScrollStep) {
 			ScrollStep scroll = (ScrollStep) step;
+			IContest contest = getFirstContest();
+			IResolveInfo resolveInfo = contest.getResolveInfo();
+			int rowOffset = 0;
+			if (resolveInfo != null && resolveInfo.getRowOffset() >= 0)
+				rowOffset = resolveInfo.getRowOffset();
 			int row = Math.max(0, scroll.row - scoreboardPresentation.getNumRows() - rowOffset + 3);
 			scoreboardPresentation.setScrollToRow(row);
 		} else if (step instanceof PresentationStep) {
@@ -552,5 +576,8 @@ public class ResolverUI {
 
 		currentPresentation = pres2;
 		window.setPresentation(pres2);
+		// Transition t = new SlidesTransition();
+		// long time = System.currentTimeMillis() + 1000;
+		// window.setPresentations(time, new Presentation[] { pres2 }, new Transition[] { t });
 	}
 }
