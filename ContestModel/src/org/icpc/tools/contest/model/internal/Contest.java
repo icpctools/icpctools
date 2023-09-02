@@ -34,6 +34,7 @@ import org.icpc.tools.contest.model.IPause;
 import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IProblemSummary;
+import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.IStanding;
@@ -70,6 +71,7 @@ public class Contest implements IContest {
 	private IAward[] awards;
 	private IPause[] pauses;
 	private IMapInfo mapInfo;
+	private IResolveInfo resolveInfo;
 
 	private Result[][] results;
 	private ProblemSummary[] resultSummary;
@@ -335,6 +337,8 @@ public class Contest implements IContest {
 			commentary = null;
 		} else if (type == ContestType.MAP_INFO) {
 			mapInfo = (MapInfo) obj;
+		} else if (type == ContestType.RESOLVE_INFO) {
+			resolveInfo = (ResolveInfo) obj;
 		}
 	}
 
@@ -910,6 +914,11 @@ public class Contest implements IContest {
 	@Override
 	public IMapInfo getMapInfo() {
 		return mapInfo;
+	}
+
+	@Override
+	public IResolveInfo getResolveInfo() {
+		return resolveInfo;
 	}
 
 	protected IResult getResult(ITeam team, IProblem problem) {

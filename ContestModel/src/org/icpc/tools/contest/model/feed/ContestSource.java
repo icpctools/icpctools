@@ -260,21 +260,6 @@ public abstract class ContestSource {
 	}
 
 	/**
-	 * Wait for the contest to be reading from a live source, or done/failed from any other source.
-	 *
-	 * @return <code>true</code> if the contest is or was successfully loaded, and
-	 *         <code>false</code> otherwise
-	 */
-	public boolean waitForContestConnect() {
-		return waitForContest(new Ready() {
-			@Override
-			public boolean isReady(ConnectionState state) {
-				return state == ConnectionState.CONNECTED;
-			}
-		}, 2000);
-	}
-
-	/**
 	 * Wait for the contest to be loading.
 	 *
 	 * @return <code>true</code> if the contest is or was successfully loaded, and
@@ -284,20 +269,47 @@ public abstract class ContestSource {
 		return waitForContest(new Ready() {
 			@Override
 			public boolean isReady(ConnectionState state) {
-				return state == ConnectionState.CONNECTED;
+				return state == ConnectionState.CONNECTED || state == ConnectionState.READING;
 			}
 		}, 2000);
 	}
 
 	/**
-	 * Wait for the contest to be loaded with the given timeout in ms.
+	 * Wait for the contest to be loaded with the given timeout in ms. The method will return if the
+	 * timeout has been hit, if the contest has been completely read (state = done updating), or if
+	 * 2s pass with no new events.
 	 *
 	 * @param timeout a timeout in ms
 	 * @return <code>true</code> if the contest was successfully loaded, and <code>false</code>
 	 *         otherwise
 	 */
 	public boolean waitForContest(int timeout) {
-		return waitForContest(null, timeout);
+		long endTime = System.currentTimeMillis() + timeout;
+		boolean b = waitForContestLoad();
+		if (!b)
+			return false;
+
+		int last = -1;
+		int count = 0;
+		int n = getContest().getNumObjects();
+		while (count < 3 && !contest.isDoneUpdating()) {
+			if (System.currentTimeMillis() > endTime)
+				return false;
+
+			if (last == n)
+				count++;
+			else
+				count = 0;
+			last = n;
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {
+				// ignore
+			}
+
+			n = getContest().getNumObjects();
+		}
+		return true;
 	}
 
 	interface Ready {

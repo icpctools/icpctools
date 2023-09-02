@@ -142,7 +142,7 @@ public class ResolutionControl {
 	 * @param includeDelays
 	 */
 	public synchronized void rewind(boolean includeDelays) {
-		if (currentStep == 0)
+		if (currentStep == 0 || currentStep == 1000)
 			return;
 
 		stepToPause(currentPause - 1, includeDelays);

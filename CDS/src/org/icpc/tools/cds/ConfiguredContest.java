@@ -683,7 +683,7 @@ public class ConfiguredContest {
 
 			// wait up to 2s to connect
 			if (contestSource instanceof RESTContestSource)
-				contestSource.waitForContestConnect();
+				contestSource.waitForContestLoad();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading event feed: " + e.getMessage());
 		}

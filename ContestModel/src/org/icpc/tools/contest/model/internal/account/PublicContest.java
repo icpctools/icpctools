@@ -80,6 +80,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 			case CONTEST:
 			case LANGUAGE:
 			case MAP_INFO:
+			case RESOLVE_INFO:
 			case START_STATUS:
 			case ORGANIZATION:
 				super.add(obj);

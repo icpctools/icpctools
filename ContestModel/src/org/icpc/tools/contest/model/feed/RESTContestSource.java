@@ -18,6 +18,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
@@ -712,6 +717,29 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	/**
+	 * Helper method to grab any HTTP response body error text or build a generic error message.
+	 *
+	 * @param conn an HTTP connection
+	 * @return an error message suitable for returning to clients
+	 * @throws IOException
+	 */
+	private static String getResponseError(String body) throws IOException {
+		// try to parse as json error object first
+		try {
+			JSONParser rdr = new JSONParser(body);
+			JsonObject obj = rdr.readObject();
+			String message = obj.getString("message");
+			if (message != null && message.length() > 0)
+				return message;
+		} catch (Exception x) {
+			// ignore
+		}
+
+		// otherwise, just return the body
+		return body;
+	}
+
+	/**
 	 * Set or clear the start time of a contest. Time is in s since Jan 1, 1970 (the Unix epoch), or
 	 * null to clear.
 	 *
@@ -852,25 +880,33 @@ public class RESTContestSource extends DiskContestSource {
 		try {
 			Trace.trace(Trace.INFO, method + "ing to " + partialURL + " at " + url);
 
-			HttpURLConnection conn = createConnection(partialURL);
-			conn.setRequestMethod(method);
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Accept", "application/json");
-			conn.setDoOutput(true);
-
+			BodyPublisher bp = null;
 			if (obj != null) {
-				JSONWriter jw = new JSONWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				OutputStreamWriter pw = new OutputStreamWriter(bout, "UTF-8");
+				JSONWriter jw = new JSONWriter(pw);
 				jw.writeObject(obj);
 				jw.close();
+				pw.flush();
+				bp = HttpRequest.BodyPublishers.ofByteArray(bout.toByteArray());
 			}
 
-			if (!isOkResponse(conn.getResponseCode()))
-				throw new IOException("Error " + method + "ing (" + getResponseError(conn) + ")");
+			// -Djdk.internal.httpclient.disableHostnameVerification
+			String auth = Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
+			HttpRequest request = HttpRequest.newBuilder().uri(getChildURL(partialURL).toURI()).method(method, bp)
+					.header("Authorization", "Basic " + auth).header("Content-Type", "application/json")
+					.header("Accept", "application/json").build();
+
+			HttpClient client = HttpClient.newHttpClient();
+
+			HttpResponse<String> resp = client.send(request, BodyHandlers.ofString());
+			if (!isOkResponse(resp.statusCode()))
+				throw new IOException("Error " + method + "ing (" + getResponseError(resp.body()) + ")");
 
 			if (!expectReturn)
 				return null;
 
-			JSONParser parser2 = new JSONParser(conn.getInputStream());
+			JSONParser parser2 = new JSONParser(resp.body());
 			JsonObject rObj = parser2.readObject();
 			if (rObj == null)
 				throw new IOException(method + " successful but invalid object returned");
@@ -889,32 +925,39 @@ public class RESTContestSource extends DiskContestSource {
 
 		try {
 			String partialURL = IContestObject.getTypeName(type);
-			if (partialURL2 != null)
-				partialURL += partialURL2;
+			if (partialURL2 != null && !IContestObject.isSingleton(type))
+				partialURL += "/" + partialURL2;
 			Trace.trace(Trace.INFO, method + "ing to " + partialURL + " at " + url);
 
-			HttpURLConnection conn = createConnection(partialURL);
-			conn.setRequestMethod(method);
-			conn.setRequestProperty("Content-Type", "application/json");
-			conn.setRequestProperty("Accept", "application/json");
-			conn.setDoOutput(true);
-
+			BodyPublisher bp = null;
 			if (obj != null) {
-				PrintWriter pw = new PrintWriter(conn.getOutputStream());
+				ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				PrintWriter pw = new PrintWriter(bout);
 				JSONEncoder je = new JSONEncoder(pw);
 				je.open();
 				((ContestObject) obj).writeBody(je);
 				je.close();
 				pw.flush();
-			}
+				bp = HttpRequest.BodyPublishers.ofByteArray(bout.toByteArray());
+			} // TODO: resolve-info singleton output from CDS endpoint as array. id matching on patch
+				// fails
 
-			if (!isOkResponse(conn.getResponseCode()))
-				throw new IOException("Error " + method + "ing (" + getResponseError(conn) + ")");
+			// -Djdk.internal.httpclient.disableHostnameVerification
+			String auth = Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
+			HttpRequest request = HttpRequest.newBuilder().uri(getChildURL(partialURL).toURI()).method(method, bp)
+					.header("Authorization", "Basic " + auth).header("Content-Type", "application/json")
+					.header("Accept", "application/json").build();
+
+			HttpClient client = HttpClient.newHttpClient();
+
+			HttpResponse<String> resp = client.send(request, BodyHandlers.ofString());
+			if (!isOkResponse(resp.statusCode()))
+				throw new IOException("Error " + method + "ing (" + getResponseError(resp.body()) + ")");
 
 			if (!expectReturn)
 				return null;
 
-			JSONParser parser2 = new JSONParser(conn.getInputStream());
+			JSONParser parser2 = new JSONParser(resp.body());
 			JsonObject rObj = parser2.readObject();
 			if (rObj == null)
 				throw new IOException(method + " successful but invalid object returned");
@@ -971,7 +1014,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or posting the object
 	 */
 	public JsonObject post(ContestType type, JsonObject obj) throws IOException {
-		return httpUtil("POST", IContestObject.getTypeName(type), obj, true);
+		return httpUtil("POST", IContestObject.getTypeName(type), obj, false);
 	}
 
 	/**
@@ -982,7 +1025,14 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or posting the object
 	 */
 	public IContestObject post(IContestObject obj) throws IOException {
-		return httpUtil("POST", obj.getType(), null, obj, true);
+		return httpUtil("POST", obj.getType(), null, obj, false);
+	}
+
+	private static String getURL(ContestType type, JsonObject obj) {
+		if (IContestObject.isSingleton(type))
+			return IContestObject.getTypeName(type);
+
+		return IContestObject.getTypeName(type) + "/" + obj.getString("id");
 	}
 
 	/**
@@ -994,7 +1044,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or putting the object
 	 */
 	public JsonObject put(ContestType type, JsonObject obj) throws IOException {
-		return httpUtil("PUT", IContestObject.getTypeName(type) + "/" + obj.getString("id"), obj, true);
+		return httpUtil("PUT", getURL(type, obj), obj, true);
 	}
 
 	/**
@@ -1005,7 +1055,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or putting the object
 	 */
 	public IContestObject put(IContestObject obj) throws IOException {
-		return httpUtil("PUT", obj.getType(), "/" + obj.getId(), obj, true);
+		return httpUtil("PUT", obj.getType(), obj.getId(), obj, true);
 	}
 
 	/**
@@ -1017,7 +1067,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or patching the object
 	 */
 	public JsonObject patch(ContestType type, JsonObject obj) throws IOException {
-		return httpUtil("PATCH", IContestObject.getTypeName(type) + "/" + obj.getString("id"), obj, true);
+		return httpUtil("PATCH", getURL(type, obj), obj, true);
 	}
 
 	/**
@@ -1028,7 +1078,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or patching the object
 	 */
 	public IContestObject patch(IContestObject obj) throws IOException {
-		return httpUtil("PATCH", obj.getType(), "/" + obj.getId(), obj, true);
+		return httpUtil("PATCH", obj.getType(), obj.getId(), obj, true);
 	}
 
 	/**
@@ -1039,7 +1089,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or deleting the object
 	 */
 	public void delete(ContestType type, String id) throws IOException {
-		httpUtil("DELETE", type, "/" + id, null, false);
+		httpUtil("DELETE", type, id, null, false);
 	}
 
 	/**
@@ -1049,7 +1099,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException if there is any problem connecting to the server or deleting the object
 	 */
 	public void delete(IContestObject obj) throws IOException {
-		httpUtil("DELETE", obj.getType(), "/" + obj.getId(), null, false);
+		httpUtil("DELETE", obj.getType(), obj.getId(), null, false);
 	}
 
 	public void cacheClientSideEvent(IContestObject obj, Delta d) {

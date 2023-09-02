@@ -6,6 +6,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
+// need initial (empty) state if contest data doesn't have one, otherwise endpoint is null
 public class State extends ContestObject implements IState {
 	private static final String STARTED = "started";
 	private static final String ENDED = "ended";
@@ -20,7 +21,6 @@ public class State extends ContestObject implements IState {
 	private Long thawed;
 	private Long finalized;
 	private Long endOfUpdates;
-	private boolean hasEoU;
 
 	@Override
 	public ContestType getType() {
@@ -104,7 +104,6 @@ public class State extends ContestObject implements IState {
 			finalized = parseTimestamp(value);
 			return true;
 		} else if (END_OF_UPDATES.equals(name)) {
-			hasEoU = true;
 			endOfUpdates = parseTimestamp(value);
 			return true;
 		}
@@ -145,8 +144,7 @@ public class State extends ContestObject implements IState {
 
 	@Override
 	public boolean isDoneUpdating() {
-		// check for no support for EoU for 2018 contests
-		return (endOfUpdates != null || (!hasEoU && finalized != null));
+		return (endOfUpdates != null);
 	}
 
 	@Override

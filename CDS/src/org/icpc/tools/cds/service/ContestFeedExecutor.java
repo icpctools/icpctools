@@ -20,7 +20,7 @@ public class ContestFeedExecutor {
 	}
 
 	protected void start(ScheduledExecutorService executor) {
-		executor.scheduleAtFixedRate(() -> output(), 5000, 750, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(() -> output(), 5000, 250, TimeUnit.MILLISECONDS);
 	}
 
 	public void output() {

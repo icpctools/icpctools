@@ -89,7 +89,7 @@ public class ResolverService {
 				}
 				Trace.trace(Trace.USER, "Auto-resolved " + count + " judgements");
 
-				ResolverLogic resolver = new ResolverLogic(c, 12, false, null);
+				ResolverLogic resolver = new ResolverLogic(c, false);
 				steps = resolver.resolveFrom(false);
 				control = new ResolutionControl(steps);
 				control.addListener(new IResolutionListener() {
