@@ -560,7 +560,7 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public Integer getPenaltyTime() {
+	public Long getPenaltyTime() {
 		return info.getPenaltyTime();
 	}
 

@@ -37,7 +37,7 @@ public class Info extends ContestObject implements IInfo {
 	private boolean supportsPauseTime;
 	private long duration;
 	private Long freezeDuration;
-	private Integer penalty;
+	private Long penalty;
 	private ScoreboardType scoreboardType;
 	private double timeMultiplier = Double.NaN;
 	private Location location;
@@ -146,7 +146,7 @@ public class Info extends ContestObject implements IInfo {
 		return thawTime;
 	}
 
-	public int getPenaltyTime() {
+	public Long getPenaltyTime() {
 		return penalty;
 	}
 
@@ -251,7 +251,13 @@ public class Info extends ContestObject implements IInfo {
 			thawTime = parseTimestamp(value);
 			return true;
 		} else if (name2.equals(PENALTY_TIME)) {
-			penalty = parseInt(value);
+			try {
+				penalty = parseLong(value);
+				// TODO future relative time
+				// penalty = parseRelativeTime(value);
+			} catch (Exception e) {
+				return false;
+			}
 			return true;
 		} else if (name2.equals(TIME_MULTIPLIER)) {
 			timeMultiplier = parseDouble(value);
@@ -328,7 +334,8 @@ public class Info extends ContestObject implements IInfo {
 			props.addLiteralString(SCOREBOARD_THAW_TIME, Timestamp.format(thawTime.longValue()));
 
 		if (penalty != null)
-			props.addInt(PENALTY_TIME, penalty);
+			props.addInt(PENALTY_TIME, penalty.intValue());
+		// TODO: future - props.addLiteralString(PENALTY_TIME, RelativeTime.format(penalty));
 
 		if (!Double.isNaN(timeMultiplier))
 			props.addDouble(TIME_MULTIPLIER, timeMultiplier);

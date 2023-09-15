@@ -109,12 +109,12 @@ public interface IContest {
 	Long getThawTime();
 
 	/**
-	 * Returns the penalty time. null means there is no concept of penalty time; 0 indicates there
-	 * is no penalty.
+	 * Returns the penalty time in ms. null means there is no concept of penalty time; 0 indicates
+	 * there is no penalty.
 	 *
 	 * @return the penalty time
 	 */
-	Integer getPenaltyTime();
+	Long getPenaltyTime();
 
 	/**
 	 * Returns the time multiplier, if the contest is in test/playback mode. Otherwise, returns 1.
