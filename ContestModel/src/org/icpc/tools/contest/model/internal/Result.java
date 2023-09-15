@@ -70,9 +70,9 @@ public class Result implements IResult {
 					score = j.getScore();
 			} else if (jt.isPenalty()) {
 				status = Status.FAILED;
-				Integer penaltyTime = contest.getPenaltyTime();
+				Long penaltyTime = contest.getPenaltyTime(); // TODO relative time
 				if (penaltyTime != null)
-					pendingPenalty += penaltyTime;
+					pendingPenalty += penaltyTime / (60L * 1000L);
 				numJudged++;
 			} // else compile or judgement error that doesn't count as an attempt or penalty
 		}
