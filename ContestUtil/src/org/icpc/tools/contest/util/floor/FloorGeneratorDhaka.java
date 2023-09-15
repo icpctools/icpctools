@@ -165,7 +165,7 @@ public class FloorGeneratorDhaka extends FloorGenerator {
 			long time = System.currentTimeMillis();
 			ITeam t1 = floor.getTeam(10);
 			ITeam t2 = floor.getTeam(107);
-			ITeam t3 = floor.getTeam(135);
+			// ITeam t3 = floor.getTeam(135);
 			ITeam t4 = floor.getTeam(22);
 			Path path1 = floor.getPath(t1, t2);
 			Path path2 = floor.getPath(t4, pp);
