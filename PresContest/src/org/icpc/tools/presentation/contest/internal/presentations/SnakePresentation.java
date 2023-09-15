@@ -41,9 +41,9 @@ public class SnakePresentation extends AbstractICPCPresentation {
 			}
 		}
 
-		String teamLabel = TeamUtil.getTeamId();
+		String teamId = TeamUtil.getTeamId(contest);
 		try {
-			x = Integer.parseInt(teamLabel);
+			x = Integer.parseInt(teamId);
 		} catch (Exception e) {
 			// ignore
 		}

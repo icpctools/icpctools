@@ -73,7 +73,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void init() {
-		setTeam(TeamUtil.getTeamId(), TeamUtil.getTeamMember());
+		setTeam(TeamUtil.getTeamId(getContest()), TeamUtil.getTeamMember());
 	}
 
 	@Override
@@ -91,7 +91,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 
 			IContest contest = getContest();
 			FloorMap map = new FloorMap(contest);
-			ITeam t = contest.getTeamById(teamId + "");
+			ITeam t = contest.getTeamById(teamId);
 			Trace.trace(Trace.INFO, "Floor map team: " + t);
 			if (t != null) {
 				ITeam tt = map.getTeamToLeftOf(t);
