@@ -37,7 +37,7 @@ public class WavePresentation extends AbstractICPCPresentation {
 	public void init() {
 		min = Double.MAX_VALUE;
 		max = Double.MIN_VALUE;
-		String teamId = TeamUtil.getTeamId();
+		String teamId = TeamUtil.getTeamId(getContest());
 		IContest contest = getContest();
 		for (ITeam t : contest.getTeams()) {
 			double vv = 0;

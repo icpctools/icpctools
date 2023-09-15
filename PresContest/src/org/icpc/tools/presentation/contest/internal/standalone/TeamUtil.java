@@ -3,34 +3,56 @@ package org.icpc.tools.presentation.contest.internal.standalone;
 import java.awt.geom.Point2D;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 
 public class TeamUtil {
 
 	/**
-	 * Find a good default for which team is using the local machine. This is decided by looking for
-	 * team-identifying information in the following order:
+	 * Returns the team id of the team using the local machine, by looking for known system
+	 * properties, environment variables, or using heuristics on the host name or IP address.
+	 * Team-identifying information is checked in the following order:
 	 * <ol>
-	 * <li>The team-id environment variable (e.g. "team-id=37" -> team "37")</li>
-	 * <li>The team-id system property (e.g. "team-id=37" -> team "37")</li>
-	 * <li>The hostname. (e.g. "host73a" -> team "73")</li>
-	 * <li>The last segment of the IP v4 host address. (e.g. "192.168.0.45" -> team "45")</li>
+	 * <li>The TEAM_ID environment variable (e.g. "TEAM_ID=37" -> team "37")</li>
+	 * <li>The TEAM_ID system property (e.g. "TEAM_ID=37" -> team "37")</li> *
+	 * <li>The TEAM_LABEL environment variable (e.g. "TEAM_LABEL=37" -> team "37")</li>
+	 * <li>The TEAM_LABEL system property (e.g. "TEAM_LABEL=37" -> team "37")</li>
+	 * <li>The hostname. (e.g. "host73a" -> team or label "73")</li>
+	 * <li>The last segment of the IP v4 host address. (e.g. "192.168.0.45" -> team or label
+	 * "45")</li>
 	 * </ol>
 	 *
-	 * @return the team label
+	 * @return the team id
 	 */
-	public static String getTeamId() {
-		String prop = System.getenv("team-id");
-		if (prop != null)
-			return prop;
+	public static String getTeamId(IContest contest) {
+		String teamId = System.getenv("TEAM_ID");
+		if (teamId != null)
+			return teamId;
 
-		prop = System.getProperty("team-id");
-		if (prop != null)
-			return prop;
+		teamId = System.getProperty("TEAM_ID");
+		if (teamId != null)
+			return teamId;
+
+		String teamLabel = System.getenv("TEAM_LABEL");
+		if (teamLabel != null) {
+			teamId = getTeamIdByLabel(contest, teamLabel);
+			if (teamId != null)
+				return teamId;
+		}
+
+		teamLabel = System.getProperty("TEAM_LABEL");
+		if (teamLabel != null) {
+			teamId = getTeamIdByLabel(contest, teamLabel);
+			if (teamId != null)
+				return teamId;
+		}
 
 		try {
-			String num = getTeamNumber(NetworkUtil.getHostName());
+			String num = getNumber(NetworkUtil.getHostName());
+			if (doesTeamExist(contest, num))
+				return num;
+			num = getTeamIdByLabel(contest, num);
 			if (num != null)
 				return num;
 		} catch (Exception e) {
@@ -38,7 +60,10 @@ public class TeamUtil {
 		}
 
 		try {
-			String num = getTeamNumber(NetworkUtil.getLocalAddress());
+			String num = getNumber(NetworkUtil.getLocalAddress());
+			if (doesTeamExist(contest, num))
+				return num;
+			num = getTeamIdByLabel(contest, num);
 			if (num != null)
 				return num;
 		} catch (Exception e) {
@@ -102,12 +127,47 @@ public class TeamUtil {
 	}
 
 	/**
-	 * Utility method that returns team number from a string, e.g. "some36string82a" returns "82".
+	 * Returns true if we can absolutely
 	 *
-	 * @param s
+	 * @param contest
+	 * @param teamId
 	 * @return
 	 */
-	public static String getTeamNumber(String s) {
+	private static boolean doesTeamExist(IContest contest, String teamId) {
+		if (contest == null)
+			return true;
+
+		if (teamId == null)
+			return false;
+
+		for (ITeam t : contest.getTeams()) {
+			if (teamId.equals(t.getLabel()))
+				return true;
+		}
+
+		return false;
+	}
+
+	private static String getTeamIdByLabel(IContest contest, String teamLabel) {
+		if (contest == null || teamLabel == null)
+			return null;
+
+		for (ITeam t : contest.getTeams()) {
+			if (teamLabel.equals(t.getLabel()))
+				return t.getId();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Utility method that finds the last number within a string, by stripping alphabetic characters
+	 * from either side. e.g. "some36string82a" returns "82".
+	 *
+	 * @param s
+	 * @return a
+	 */
+	public static String getNumber(String s) {
 		if (s == null || s.isEmpty())
 			return null;
 		int end = s.length() - 1;
