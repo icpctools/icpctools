@@ -54,6 +54,10 @@ public class ImagesGenerator {
 	private static final int HD_TOP = 30;
 	private static final double FUDGE = 0.075; // 7.5%
 
+	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
+	// private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg"
+	// };
+
 	private static final boolean DEBUG = false;
 	private static final Rectangle LOGO = new Rectangle(95, 795, 230, 230);
 	private static final Rectangle TEXT = new Rectangle(370, 795, 1275, 230);
@@ -75,7 +79,6 @@ public class ImagesGenerator {
 		}
 	}
 
-	private final File cmsRoot;
 	private final File contestRoot;
 	private Contest contest;
 	private Font masterFont;
@@ -84,23 +87,21 @@ public class ImagesGenerator {
 	public static void main(String[] args) {
 		Trace.init("ICPC Image Generator", "imageGenerator", args);
 
-		if (args == null || args.length != 2) {
-			Trace.trace(Trace.ERROR, "Missing argument, must point to CMS source and a contest location");
+		if (args == null || args.length != 1) {
+			Trace.trace(Trace.ERROR, "Missing argument, must point to a contest location");
 			System.exit(0);
 			return;
 		}
 
-		File cmsRoot = new File(args[0]);
-
-		File contestRoot = new File(args[1]);
+		File contestRoot = new File(args[0]);
 		if (!contestRoot.exists()) {
-			Trace.trace(Trace.ERROR, "Contest package format could not be found: " + contestRoot.getAbsolutePath());
+			Trace.trace(Trace.ERROR, "Contest location could not be found: " + contestRoot.getAbsolutePath());
 			System.exit(0);
 			return;
 		}
 
 		long time = System.currentTimeMillis();
-		ImagesGenerator generator = new ImagesGenerator(cmsRoot, contestRoot);
+		ImagesGenerator generator = new ImagesGenerator(contestRoot);
 
 		Trace.trace(Trace.USER, "----- Generating organization logos -----");
 		generator.generateOrganizationLogos();
@@ -166,8 +167,7 @@ public class ImagesGenerator {
 		Trace.trace(Trace.USER, (System.currentTimeMillis() - time) + " ms");
 	}
 
-	protected ImagesGenerator(File cmsRoot, File contestRoot) {
-		this.cmsRoot = cmsRoot;
+	protected ImagesGenerator(File contestRoot) {
 		this.contestRoot = contestRoot;
 		init();
 	}
@@ -355,14 +355,17 @@ public class ImagesGenerator {
 				}
 
 				// generate desktop
-				File file = new File(desktopFolder, teamId + ".jpg");
+				String teamLabel = teamId;
+				if (team.getLabel() != null)
+					teamLabel = team.getLabel();
+				File file = new File(desktopFolder, teamLabel + ".jpg");
 				if (!file.exists() || file.lastModified() != mod) {
 					createDesktop(logoImg, name, fonts, file);
 					file.setLastModified(mod);
 				}
 
 				// generate overlay
-				file = new File(overlayFolder, teamId + ".png");
+				file = new File(overlayFolder, teamLabel + ".png");
 				if (!file.exists() || file.lastModified() != mod) {
 					createOverlay(logoImg, name, fonts, file);
 					file.setLastModified(mod);
@@ -384,25 +387,47 @@ public class ImagesGenerator {
 		}
 	}
 
+	private static boolean hasExtension(String filename, String[] extensions) {
+		if (filename == null || extensions == null)
+			return false;
+
+		for (String ext : extensions) {
+			if (filename.endsWith("." + ext))
+				return true;
+		}
+		return false;
+	}
+
 	public void generateOrganizationLogos() {
-		File sourceRoot = new File(cmsRoot, "Institutions");
-		if (!sourceRoot.exists()) {
-			Trace.trace(Trace.ERROR, "Couldn't find CMS Institutions folder. Exiting");
+		File orgRootFolder = new File(contestRoot, "organizations");
+		if (!orgRootFolder.exists()) {
+			Trace.trace(Trace.ERROR, "Couldn't find /organizations folder. Exiting");
 			return;
 		}
 
-		File orgRootFolder = new File(contestRoot, "organizations");
 		int numWarnings = 0;
 
 		// generate files
-		File[] folders = sourceRoot.listFiles();
+		File[] folders = orgRootFolder.listFiles();
 		for (File f : folders) {
 			File imgFile = null;
 			if (f.isDirectory()) {
 				File[] subFolders = f.listFiles();
+				boolean foundPattern = false;
 				for (File ff : subFolders) {
+					// skip generated files
+					String name = ff.getName();
+					if (name.startsWith("logo") && hasExtension(name, LOGO_EXTENSIONS)) {
+						foundPattern = true;
+						// skip over generated logos (should really use regex to look for logo.<w>x<h>.)
+						if (name.startsWith("logo.") && name.contains("x"))
+							continue;
+					}
+
 					imgFile = ff;
-					if (DEFAULT_NAME.equals(ff.getName().toLowerCase()))
+
+					// if this is the default name, use it
+					if (DEFAULT_NAME.equals(name.toLowerCase()))
 						break;
 				}
 
@@ -414,15 +439,11 @@ public class ImagesGenerator {
 
 				try {
 					String orgStr = imgFile.getParentFile().getName();
-					Trace.trace(Trace.USER, "Generating logo for: " + orgStr);
-					int ind = orgStr.indexOf("INST-");
-					if (ind >= 0)
-						orgStr = orgStr.substring(ind + 5);
-					while (orgStr.startsWith("0"))
-						orgStr = orgStr.substring(1);
+					Trace.trace(Trace.USER, "Updating logo for: " + orgStr);
 
 					IOrganization org = contest.getOrganizationById(orgStr);
 					if (org == null) {
+						Trace.trace(Trace.WARNING, "Unknown organization: " + orgStr);
 						Organization org2 = new Organization();
 						org2.add("id", orgStr);
 						org2.add("name", orgStr);
@@ -440,23 +461,28 @@ public class ImagesGenerator {
 					if (!orgFolder.exists())
 						orgFolder.mkdirs();
 					else {
-						// clean up old logos
+						// clean up old generated logos
 						File[] files = orgFolder.listFiles();
 						for (File ff : files) {
-							if (ff.getName().startsWith("logo") && ff.getName().endsWith(".png") && ff.lastModified() != mod)
+							if (ff.getName().startsWith("logo.") && hasExtension(ff.getName(), LOGO_EXTENSIONS)
+									&& ff.lastModified() != mod)
 								ff.delete();
 						}
 					}
 
 					numWarnings = checkForWarnings(f.getName(), img, numWarnings);
 
-					File file = new File(orgFolder, DEFAULT_NAME);
-					if (!file.exists()) {
-						BufferedImage scImg = img;
-						if (img.getWidth() > MAX_LOGO_SIZE || img.getHeight() > MAX_LOGO_SIZE)
-							scImg = ImageScaler.scaleImage(img, MAX_LOGO_SIZE, MAX_LOGO_SIZE);
-						ImageIO.write(scImg, "png", file);
+					if (!foundPattern) {
+						// there's no filename with the spec extension, create one
+						File file = new File(orgFolder, DEFAULT_NAME);
+						ImageIO.write(img, "png", file);
 						file.setLastModified(mod);
+					}
+
+					// if the file dimensions are massive, start with a reasonably large one
+					if (img.getWidth() > MAX_LOGO_SIZE || img.getHeight() > MAX_LOGO_SIZE) {
+						BufferedImage scImg = ImageScaler.scaleImage(img, MAX_LOGO_SIZE, MAX_LOGO_SIZE);
+						writeImageWithSize(scImg, orgFolder, mod);
 					}
 
 					BufferedImage scImg = ImageScaler.scaleImage(img, ICON.width, ICON.height);
@@ -484,21 +510,20 @@ public class ImagesGenerator {
 	}
 
 	public void generatePersonPhotos() {
-		File sourceRoot = new File(cmsRoot, "ProfilePictures");
-		if (!sourceRoot.exists()) {
-			Trace.trace(Trace.ERROR, "Couldn't find CMS profile pictures folder. Exiting");
+		File personRootFolder = new File(contestRoot, "persons-todo");
+		if (!personRootFolder.exists()) {
+			Trace.trace(Trace.ERROR, "Couldn't find /persons folder. Exiting");
 			return;
 		}
 
-		File personRootFolder = new File(contestRoot, "persons");
 		int numWarnings = 0;
 
 		// generate files
-		File[] imageFiles = sourceRoot.listFiles();
+		File[] imageFiles = personRootFolder.listFiles();
 		for (File imgFile : imageFiles) {
 			try {
 				String personStr = imgFile.getName();
-				Trace.trace(Trace.USER, "Generating photo for: " + personStr);
+				Trace.trace(Trace.USER, "Updating photo for: " + personStr);
 
 				IPerson person = null;
 				String pn = imgFile.getName().toLowerCase();
