@@ -17,7 +17,11 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.Person;
+import org.icpc.tools.contest.model.internal.Problem;
+import org.icpc.tools.contest.model.internal.Submission;
+import org.icpc.tools.contest.model.internal.Team;
 
 /**
  * Public filter: information that everyone can see, regardless of role (including teams and
@@ -26,25 +30,26 @@ import org.icpc.tools.contest.model.internal.Person;
  * This filter removes:
  * <ul>
  * <li>Accounts (but subclasses can set username to allow their own account through)</li>
- * <li>Problems before contest start</li>
  * <li>Hidden groups & teams (and all associated data)</li>
+ * <li>Team backups, tool data, and key logs</li>
+ * <li>Email and sex of all persons</li>
+ * <li>Problems before contest start (and no test data count or package after)</li>
+ * <li>Submission files and entry point, language, and reaction videos</li>
+ * <li>Judgemewnts after the freeze (and max runtime always)</li>
  * <li>Clarifications (except broadcasts)</li>
- * <li>Judgemewnts and commentary after the freeze</li>
  * <li>Awards, except for first to solve awards before the freeze</li>
  * <li>Test_data</li>
  * <li>Runs</li>
  * <li>Commentary</li>
  * </ul>
  */
-public class PublicContest extends Contest {
+public class PublicContest extends Contest implements IFilteredContest {
 	private static final String EMAIL = "email";
 	private static final String SEX = "sex";
 
 	protected String username;
 
 	protected List<IProblem> problems = new ArrayList<>();
-	// TODO - simplified judgement types deferred
-	// protected Map<String, String> judgementTypeMap = new HashMap<>();
 
 	protected List<IContestObject> freeze = new ArrayList<>();
 
@@ -80,20 +85,15 @@ public class PublicContest extends Contest {
 				super.add(obj);
 				return;
 			case JUDGEMENT_TYPE: {
-				/*IJudgementType jt = (IJudgementType) obj;
-				if (jt.getSimplifiedId() == null) {
-					judgementTypeMap.remove(jt.getId());
-					super.add(obj);
-				} else
-					judgementTypeMap.put(jt.getId(), jt.getSimplifiedId());*/
 				super.add(obj);
 				return;
 			}
-			case PROBLEM: { // TODO - access block - problem package, test data
-				// TODO - teams should not get sample data
-				if (getState().getStarted() == null)
-					problems.add((IProblem) obj);
-				else
+			case PROBLEM: {
+				IProblem p = (IProblem) obj;
+				if (getState().getStarted() == null) {
+					p = filterProblem(p);
+					problems.add(p);
+				} else
 					super.add(obj);
 				return;
 			}
@@ -121,12 +121,18 @@ public class PublicContest extends Contest {
 					super.add(group);
 				return;
 			}
-			case TEAM: { // TODO - access block tool-data, keylog
-				// TODO - backups
-				// TODO - teams should not have access to webcam, audio, etc
+			case TEAM: {
 				ITeam team = (ITeam) obj;
-				if (!isTeamHidden(team))
+				if (!isTeamHidden(team)) {
+					team = (ITeam) ((Team) team).clone();
+					((Team) team).add("desktop", null);
+					((Team) team).add("webcam", null);
+					((Team) team).add("audio", null);
+					((Team) team).add("backup", null);
+					((Team) team).add("key_log", null);
+					((Team) team).add("tool_data", null);
 					super.add(team);
+				}
 				return;
 			}
 			case ACCOUNT: {
@@ -142,16 +148,16 @@ public class PublicContest extends Contest {
 				super.add(account);
 				return;
 			}
-			case PERSON: { // TODO - access block strip sex, email
+			case PERSON: {
 				IPerson person = (IPerson) obj;
 				ITeam team = getTeamById(person.getTeamId());
 				if (isTeamHidden(team))
 					return;
 
-				if (person.getEmail() != null) {
-					person = (IPerson) ((Person) person).clone();
-					((Person) person).add(EMAIL, null);
-					((Person) person).add(SEX, null);
+				if (person.getEmail() != null || person.getSex() != null) {
+					IPerson p = filterPerson(person);
+					addIt(p);
+					return;
 				}
 				super.add(person);
 				return;
@@ -169,7 +175,7 @@ public class PublicContest extends Contest {
 				if (isTeamHidden(team))
 					return;
 
-				// TODO - language
+				sub = filterSubmission(sub);
 				super.add(sub);
 				return;
 			}
@@ -198,16 +204,7 @@ public class PublicContest extends Contest {
 					}
 				}
 
-				// TODO - max run time
-
-				/*String jtId = j.getJudgementTypeId();
-				if (judgementTypeMap.containsKey(jtId)) {
-					// TODO not for actual team
-					IJudgement sj = (IJudgement) ((Judgement) j).clone();
-					((Judgement) sj).add("judgement_type_id", judgementTypeMap.get(jtId));
-					super.add(sj);
-					// super.add(j);
-				} else*/
+				j = filterJudgement(j);
 				super.add(j);
 				return;
 			}
@@ -248,6 +245,47 @@ public class PublicContest extends Contest {
 		super.add(obj);
 	}
 
+	/**
+	 * Helper method for subclasses to filter problems.
+	 */
+	protected IProblem filterProblem(IProblem problem) {
+		Problem p = (Problem) ((Problem) problem).clone();
+		p.add("test_data_count", null);
+		p.setPackage(null);
+		return p;
+	}
+
+	/**
+	 * Helper method for subclasses to filter persons.
+	 */
+	protected IPerson filterPerson(IPerson person) {
+		Person p = (Person) ((Person) person).clone();
+		p.add(EMAIL, null);
+		p.add(SEX, null);
+		return p;
+	}
+
+	/**
+	 * Helper method for subclasses to filter submissions.
+	 */
+	protected ISubmission filterSubmission(ISubmission sub) {
+		Submission s = (Submission) ((Submission) sub).clone();
+		s.add("language_id", null);
+		s.add("entry_point", null);
+		s.setFiles(null);
+		s.setReaction(null);
+		return s;
+	}
+
+	/**
+	 * Helper method for subclasses to filter judgements.
+	 */
+	protected IJudgement filterJudgement(IJudgement jud) {
+		Judgement j = (Judgement) ((Judgement) jud).clone();
+		j.add("max_run_time", null);
+		return j;
+	}
+
 	protected boolean isJudgementHidden(IJudgement j) {
 		if (j == null)
 			return false;
@@ -258,5 +296,31 @@ public class PublicContest extends Contest {
 
 		ITeam team = getTeamById(sub.getTeamId());
 		return isTeamHidden(team);
+	}
+
+	@Override
+	public boolean allowFileReference(IContestObject obj, String property) {
+		switch (obj.getType()) {
+			case TEAM: {
+				if ("desktop".equals(property) || "webcam".equals(property) || "audio".equals(property)
+						|| "backup".equals(property) || "tool_data".equals(property) || "key_log".equals(property))
+					return false;
+				return true;
+			}
+			case PROBLEM: {
+				if ("package".equals(property))
+					return false;
+				return true;
+			}
+			case SUBMISSION: {
+				return false;
+				/*if ("files".equals(property))
+					return false;
+				else if ("reaction".equals(property))
+					return false;*/
+			}
+			default:
+				return true;
+		}
 	}
 }

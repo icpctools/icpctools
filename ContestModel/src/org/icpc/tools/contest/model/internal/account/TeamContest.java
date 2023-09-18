@@ -5,16 +5,17 @@ import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.ITeam;
 
 /**
  * Filter that adds things teams can see compared to public:
  * <ul>
+ * <li>Full details of persons that are on the team</li>
  * <li>Their own submissions and judgements (even if outside contest time)</li>
  * <li>Clarifications to or from the team, broadcasts</li>
  * </ul>
- *
- * and removes commentary.
  */
 public class TeamContest extends PublicContest {
 	private String teamId;
@@ -23,6 +24,9 @@ public class TeamContest extends PublicContest {
 		super();
 		username = account.getUsername();
 		teamId = account.getTeamId();
+
+		if (teamId == null)
+			throw new IllegalArgumentException("Team account can only be created for a team");
 	}
 
 	@Override
@@ -35,6 +39,20 @@ public class TeamContest extends PublicContest {
 		IContestObject.ContestType cType = obj.getType();
 
 		switch (cType) {
+			case PERSON: {
+				IPerson person = (IPerson) obj;
+
+				// teams see full details for anyone on the team
+				String[] teamIds = person.getTeamIds();
+				for (String ids : teamIds) {
+					if (teamId.equals(ids)) {
+						super.add(person);
+						return;
+					}
+				}
+
+				break;
+			}
 			case SUBMISSION: {
 				ISubmission sub = (ISubmission) obj;
 
@@ -81,5 +99,31 @@ public class TeamContest extends PublicContest {
 				break;
 		}
 		super.add(obj);
+	}
+
+	@Override
+	public boolean allowFileReference(IContestObject obj, String property) {
+		switch (obj.getType()) {
+			case TEAM: {
+				ITeam team = (ITeam) obj;
+				if ("desktop".equals(property) || "webcam".equals(property) || "audio".equals(property))
+					return teamId.equals(team.getId());
+
+				return super.allowFileReference(obj, property);
+			}
+			case SUBMISSION: {
+				ISubmission s = (ISubmission) obj;
+				if (!teamId.equals(s.getTeamId()))
+					super.allowFileReference(obj, property);
+
+				if ("reaction".equals(property) || "files".equals(property))
+					return true;
+
+				return super.allowFileReference(obj, property);
+			}
+
+			default:
+				return super.allowFileReference(obj, property);
+		}
 	}
 }
