@@ -117,7 +117,7 @@ public class Account extends ContestObject implements IAccount {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		props.addLiteralString(NAME, name);
+		props.addString(NAME, name);
 		props.addString(USERNAME, username);
 		props.addString(PASSWORD, password);
 		props.addLiteralString(TYPE, type);
