@@ -4,13 +4,14 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IPause;
+import org.icpc.tools.contest.model.feed.Timestamp;
 
 public class Pause extends ContestObject implements IPause {
 	private static final String START = "start";
 	private static final String END = "end";
 
-	private long start;
-	private long end;
+	private Long start;
+	private Long end;
 
 	public Pause() {
 		// create an empty pause
@@ -22,12 +23,12 @@ public class Pause extends ContestObject implements IPause {
 	}
 
 	@Override
-	public long getStart() {
+	public Long getStart() {
 		return start;
 	}
 
 	@Override
-	public long getEnd() {
+	public Long getEnd() {
 		return end;
 	}
 
@@ -35,14 +36,14 @@ public class Pause extends ContestObject implements IPause {
 	protected boolean addImpl(String name, Object value) throws Exception {
 		if (START.equals(name)) {
 			try {
-				start = Long.parseLong((String) value);
+				start = parseTimestamp(value);
 			} catch (Exception e) {
 				// ignore
 			}
 			return true;
 		} else if (END.equals(name)) {
 			try {
-				end = Long.parseLong((String) value);
+				end = parseTimestamp(value);
 			} catch (Exception e) {
 				// ignore
 			}
@@ -55,9 +56,10 @@ public class Pause extends ContestObject implements IPause {
 	@Override
 	protected void getProperties(Properties props) {
 		props.addLiteralString(ID, id);
-		props.addLiteralString(START, start + "");
-		if (end != 0)
-			props.addLiteralString(END, end + "");
+		if (start != null)
+			props.addLiteralString(START, Timestamp.format(start));
+		if (end != null)
+			props.addLiteralString(END, Timestamp.format(end));
 	}
 
 	@Override
