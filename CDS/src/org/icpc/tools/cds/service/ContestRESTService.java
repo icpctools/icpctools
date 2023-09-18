@@ -35,7 +35,6 @@ import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IInfo;
 import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.ISubmission;
-import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
@@ -50,6 +49,7 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Deletion;
+import org.icpc.tools.contest.model.internal.account.IFilteredContest;
 
 @WebServlet(urlPatterns = { "/api", "/api/", "/api/*" }, asyncSupported = true)
 public class ContestRESTService extends HttpServlet {
@@ -382,32 +382,19 @@ public class ContestRESTService extends HttpServlet {
 		if (obj == null)
 			return false;
 
+		if (contest instanceof IFilteredContest) {
+			IFilteredContest fc = (IFilteredContest) contest;
+			if (!fc.allowFileReference(obj, url)) {
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return true;
+			}
+		}
+
 		Object ext = obj.resolveFileReference(url);
 		if (ext == null)
 			return false;
 
 		if (ext instanceof File) {
-			if (obj instanceof ISubmission) {
-				ISubmission s = (ISubmission) obj;
-				if (!cc.isAnalyst(request) && "files".equals(url)) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-					return true;
-				} else if (!cc.isAnalyst(request) && url.startsWith("reactions") && !contest.isBeforeFreeze(s)) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-					return true;
-				}
-			}
-
-			if (obj instanceof ITeam) {
-				if (!cc.isAnalyst(request)
-						// TODO - temporary for NAC 23
-						// && (url.startsWith("key_log") || url.startsWith("tool_data") ||
-						// url.startsWith("backup"))) {
-						&& (url.startsWith("backup"))) {
-					response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-					return true;
-				}
-			}
 			cc.incrementDownload();
 			HttpHelper.sendFile(request, response, (File) ext);
 			return true;
