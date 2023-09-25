@@ -252,7 +252,7 @@ public class Info extends ContestObject implements IInfo {
 			return true;
 		} else if (name2.equals(PENALTY_TIME)) {
 			try {
-				penalty = parseLong(value);
+				penalty = parseInt(value) * (60 * 1000L);
 				// TODO future relative time
 				// penalty = parseRelativeTime(value);
 			} catch (Exception e) {
@@ -334,7 +334,7 @@ public class Info extends ContestObject implements IInfo {
 			props.addLiteralString(SCOREBOARD_THAW_TIME, Timestamp.format(thawTime.longValue()));
 
 		if (penalty != null)
-			props.addInt(PENALTY_TIME, penalty.intValue());
+			props.addInt(PENALTY_TIME, (int) (penalty.longValue() / (60 * 1000L)));
 		// TODO: future - props.addLiteralString(PENALTY_TIME, RelativeTime.format(penalty));
 
 		if (!Double.isNaN(timeMultiplier))

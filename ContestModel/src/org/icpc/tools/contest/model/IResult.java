@@ -41,11 +41,11 @@ public interface IResult {
 	long getContestTime();
 
 	/**
-	 * Return the penalty time for this problem, in minutes.
+	 * Return the penalty time for this problem.
 	 *
-	 * @return the penalty time
+	 * @return the penalty time, in ms.
 	 */
-	int getPenaltyTime();
+	long getPenaltyTime();
 
 	/**
 	 * Return the score for this problem.
