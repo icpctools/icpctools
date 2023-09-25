@@ -394,8 +394,8 @@ public class EventFeedUtil {
 				s += " (submissions: " + r.getNumSubmissions();
 				if (r.getStatus() == Status.SOLVED) {
 					s += ", time: " + ContestUtil.getTimeInMin(r.getContestTime());
-					if (r.getPenaltyTime() != 0)
-						s += ", penalty: " + r.getPenaltyTime() + "";
+					if (r.getPenaltyTime() > 0)
+						s += ", penalty: " + ContestUtil.getTimeInMin(r.getPenaltyTime()) + "";
 					s += ")";
 				}
 			}

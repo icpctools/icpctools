@@ -10,8 +10,8 @@ public class Result implements IResult {
 	private int numPending;
 	private int numJudged;
 	private long time;
-	private int penalty;
-	private int pendingPenalty;
+	private long penalty;
+	private long pendingPenalty;
 	private double score;
 	private boolean isFTS;
 
@@ -35,7 +35,7 @@ public class Result implements IResult {
 	}
 
 	@Override
-	public int getPenaltyTime() {
+	public long getPenaltyTime() {
 		return penalty;
 	}
 
@@ -70,9 +70,10 @@ public class Result implements IResult {
 					score = j.getScore();
 			} else if (jt.isPenalty()) {
 				status = Status.FAILED;
-				Long penaltyTime = contest.getPenaltyTime(); // TODO relative time
-				if (penaltyTime != null)
-					pendingPenalty += penaltyTime / (60L * 1000L);
+				Long penaltyTime = contest.getPenaltyTime();
+				if (penaltyTime != null) {
+					pendingPenalty += penaltyTime;
+				}
 				numJudged++;
 			} // else compile or judgement error that doesn't count as an attempt or penalty
 		}
