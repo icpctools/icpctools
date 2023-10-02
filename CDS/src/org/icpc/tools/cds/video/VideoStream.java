@@ -15,13 +15,12 @@ import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoAggregator.Status;
 import org.icpc.tools.cds.video.VideoHandler.IStore;
-import org.icpc.tools.cds.video.VideoHandler.IStreamListener;
+import org.icpc.tools.cds.video.VideoStreamHandler.IStreamListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
 public class VideoStream implements IStore {
 	private final ThreadPoolExecutor executor;
-	private final VideoHandler handler;
 	private final Stats stats = new Stats();
 
 	private interface ReadThread extends Runnable {
@@ -40,13 +39,25 @@ public class VideoStream implements IStore {
 	private StreamType type;
 	private String teamId;
 	private String url;
+	private VideoHandler handler;
 	private Status status = Status.UNKNOWN;
 	private ConnectionMode mode = ConnectionMode.LAZY;
 	private ReadThread thread;
 	private List<VideoStreamListener> listeners = new ArrayList<>(3);
 
-	public VideoStream(VideoAggregator videoAggregator, String name, String url, StreamType type, String teamId) {
+	public VideoStream(VideoAggregator videoAggregator, String name, String url, StreamType type, String teamId,
+			String... handlerType) {
 		this.executor = videoAggregator.executor;
+		if (handlerType != null) {
+			for (VideoHandler vh : VideoAggregator.HANDLERS) {
+				if (vh.getName().equals(handlerType)) {
+					this.handler = vh;
+					break;
+				}
+			}
+		}
+		if (this.handler == null)
+			this.handler = VideoAggregator.HANDLERS[0];
 		this.handler = VideoAggregator.handler;
 		this.name = name;
 		this.url = url;
@@ -95,27 +106,28 @@ public class VideoStream implements IStore {
 	}
 
 	private void writeHeader(VideoStreamListener listener) throws IOException {
-		handler.writeHeader(this, new IStreamListener() {
-			@Override
-			public void write(final byte[] b) {
-				sendToListener(listener, l -> listener.write(b));
-			}
+		if (handler != null && handler instanceof VideoStreamHandler)
+			((VideoStreamHandler) handler).writeHeader(this, new IStreamListener() {
+				@Override
+				public void write(final byte[] b) {
+					sendToListener(listener, l -> listener.write(b));
+				}
 
-			@Override
-			public void write(byte[] b, int off, int len) {
-				sendToListener(listener, l -> listener.write(b, off, len));
-			}
+				@Override
+				public void write(byte[] b, int off, int len) {
+					sendToListener(listener, l -> listener.write(b, off, len));
+				}
 
-			@Override
-			public void flush() {
-				sendToListener(listener, l -> listener.flush());
-			}
+				@Override
+				public void flush() {
+					sendToListener(listener, l -> listener.flush());
+				}
 
-			@Override
-			public boolean isDone() {
-				return false;
-			}
-		});
+				@Override
+				public boolean isDone() {
+					return false;
+				}
+			});
 	}
 
 	/**
@@ -360,34 +372,36 @@ public class VideoStream implements IStore {
 							in.reset();
 						}
 
-						handler.createReader(in, VideoStream.this, new IStreamListener() {
-							@Override
-							public void write(final byte[] b) {
-								status = Status.ACTIVE;
-								failures = 0;
-								if (!done)
-									sendToListeners(listener -> listener.write(b));
-							}
+						if (handler instanceof VideoStreamHandler) {
+							((VideoStreamHandler) handler).createReader(in, VideoStream.this, new IStreamListener() {
+								@Override
+								public void write(final byte[] b) {
+									status = Status.ACTIVE;
+									failures = 0;
+									if (!done)
+										sendToListeners(listener -> listener.write(b));
+								}
 
-							@Override
-							public void write(byte[] b, int off, int len) {
-								status = Status.ACTIVE;
-								failures = 0;
-								if (!done)
-									sendToListeners(listener -> listener.write(b, off, len));
-							}
+								@Override
+								public void write(byte[] b, int off, int len) {
+									status = Status.ACTIVE;
+									failures = 0;
+									if (!done)
+										sendToListeners(listener -> listener.write(b, off, len));
+								}
 
-							@Override
-							public void flush() {
-								if (!done)
-									sendToListeners(listener -> listener.flush());
-							}
+								@Override
+								public void flush() {
+									if (!done)
+										sendToListeners(listener -> listener.flush());
+								}
 
-							@Override
-							public boolean isDone() {
-								return done;
-							}
-						});
+								@Override
+								public boolean isDone() {
+									return done;
+								}
+							});
+						}
 
 						// end of stream
 					} catch (Exception e) {

@@ -3,15 +3,20 @@ package org.icpc.tools.cds.video.containers;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.icpc.tools.cds.video.VideoHandler;
+import org.icpc.tools.cds.video.VideoStreamHandler;
 
 /**
  * MPEG-TS handler.
  *
  * For HD webcam, stream is averaging over 1850 packets/s.
  */
-public class MPEGTSHandler extends VideoHandler {
+public class MPEGTSHandler extends VideoStreamHandler {
 	private static final int PACKET_LEN = 188;
+
+	@Override
+	protected String getName() {
+		return "MPEG";
+	}
 
 	@Override
 	protected String getFileExtension() {

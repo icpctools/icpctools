@@ -5,12 +5,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.icpc.tools.cds.video.VideoHandler;
+import org.icpc.tools.cds.video.VideoStreamHandler;
 
 /**
  * Ogg container handler.
  */
-public class OggHandler extends VideoHandler {
+public class OggHandler extends VideoStreamHandler {
+	@Override
+	protected String getName() {
+		return "OGG";
+	}
+
 	@Override
 	protected String getFileExtension() {
 		return "ogg";

@@ -4,9 +4,14 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.icpc.tools.cds.video.VideoHandler;
+import org.icpc.tools.cds.video.VideoStreamHandler;
 
-public class FLVHandler extends VideoHandler {
+public class FLVHandler extends VideoStreamHandler {
+	@Override
+	protected String getName() {
+		return "FLV";
+	}
+
 	@Override
 	protected String getFileExtension() {
 		return "flv";
@@ -38,7 +43,7 @@ public class FLVHandler extends VideoHandler {
 	protected void writeHeader(IStore store, IStreamListener listener) throws IOException {
 		// TODO
 		/*FLVWriter.writeHeader(new DataOutputStream(out));
-
+		
 		FLVReader r = readers.get(stream);
 		if (r != null)
 			r.sendCache(out);*/
