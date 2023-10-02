@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.icpc.tools.cds.video.VideoHandler.IStreamListener;
+import org.icpc.tools.cds.video.VideoStreamHandler.IStreamListener;
 
 public class FLVReader {
 	private byte[] metadata = null;

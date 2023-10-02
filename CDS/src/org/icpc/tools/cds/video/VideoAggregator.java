@@ -9,6 +9,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.icpc.tools.cds.video.VideoStream.StreamType;
+import org.icpc.tools.cds.video.containers.FLVHandler;
+import org.icpc.tools.cds.video.containers.HLSHandler;
 import org.icpc.tools.cds.video.containers.MPEGTSHandler;
 import org.icpc.tools.cds.video.containers.OggHandler;
 import org.icpc.tools.contest.Trace;
@@ -75,13 +77,20 @@ public class VideoAggregator {
 
 	protected static Stats stats = new Stats();
 
+	protected static VideoHandler[] HANDLERS = { new HLSHandler(), new MPEGTSHandler(), new OggHandler(),
+			new FLVHandler() };
+
 	protected static VideoHandler handler;
 
 	static {
-		if ("true".equals(System.getProperty("ICPC_OGG")))
-			handler = new OggHandler();
+		if ("hls".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
+			handler = HANDLERS[0];
+		else if ("ogg".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
+			handler = HANDLERS[2];
+		else if ("mpeg".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
+			handler = HANDLERS[1];
 		else
-			handler = new MPEGTSHandler();
+			handler = HANDLERS[0];
 	}
 
 	protected static VideoAggregator instance = new VideoAggregator();
