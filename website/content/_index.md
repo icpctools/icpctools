@@ -12,6 +12,8 @@ icon: fas fa-home
 {{< button name="Github" icon="fab fa-github" link="https://github.com/icpctools/icpctools" >}}
 {{< button name="Slack" icon="fab fa-slack" link="https://join.slack.com/t/icpctools/shared_invite/zt-wti6k1r6-t25~VYEcyKbVn4Vj_ecBLA" >}}
 
+WARNING: We are in the middle of making massive code changes for the ICPC 46th and 47th World Finals. We would love feedback on whether the latest changes cause any regressions, but if you are running a live contest we strongly suggest you use v2.5.940 or earlier until we are able to test and release in November.
+
 Welcome to the ICPC Tools web page! This page contains a variety of tools implemented by the International Collegiate Programming Contest (ICPC) Tools Group, most of which were originally developed for use at the ICPC World Finals and have been adapted for use at other programming contests.
 These tools have been used to support a wide variety of programming contests including local contests at Universities world-wide, multiple ICPC Regional Contests around the world, and a number of ICPC World Finals.
 
