@@ -104,24 +104,13 @@ public class VideoAggregator {
 
 	private List<VideoStream> videoStreams = new ArrayList<>();
 
-	protected ThreadPoolExecutor executor = null;
+	private ThreadPoolExecutor executor = null;
 
 	public VideoAggregator() {
 		super();
 
 		for (int i = 0; i < MAX_CHANNELS; i++)
 			channels[i] = new Channel();
-
-		executor = new ThreadPoolExecutor(MAX_STREAMS + 2, MAX_STREAMS + 2, 15L, TimeUnit.SECONDS,
-				new ArrayBlockingQueue<Runnable>(MAX_STREAMS + 2), new ThreadFactory() {
-					@Override
-					public Thread newThread(Runnable r) {
-						Thread t = new Thread(r, "CDS Video Worker");
-						t.setPriority(Thread.NORM_PRIORITY);
-						t.setDaemon(true);
-						return t;
-					}
-				});
 	}
 
 	public static boolean isRunning() {
@@ -130,6 +119,37 @@ public class VideoAggregator {
 
 	public static VideoAggregator getInstance() {
 		return instance;
+	}
+
+	private ThreadPoolExecutor getExecutor() {
+		if (executor != null)
+			return executor;
+
+		synchronized (this) {
+			if (executor != null)
+				return executor;
+
+			// we only need a big thread pool when streaming video
+			int size = 10;
+			if (handler instanceof VideoStreamHandler)
+				size = MAX_STREAMS + 2;
+			System.out.println("Creating thread pool: " + size);
+			executor = new ThreadPoolExecutor(size, size, 15L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(size),
+					new ThreadFactory() {
+						@Override
+						public Thread newThread(Runnable r) {
+							Thread t = new Thread(r, "CDS Video Worker");
+							t.setPriority(Thread.NORM_PRIORITY);
+							t.setDaemon(true);
+							return t;
+						}
+					});
+		}
+		return executor;
+	}
+
+	public void execute(Runnable r) {
+		getExecutor().execute(r);
 	}
 
 	public List<VideoStream> getVideoInfo() {
@@ -144,7 +164,7 @@ public class VideoAggregator {
 		if (name == null)
 			throw new IllegalArgumentException();
 
-		VideoStream stream = new VideoStream(this, name, url, type, teamId);
+		VideoStream stream = new VideoStream(name, url, type, teamId);
 		stream.setConnectionMode(mode);
 
 		int numReserved = videoStreams.size();
@@ -347,7 +367,7 @@ public class VideoAggregator {
 
 	public void dropUntrustedListeners() {
 		Trace.trace(Trace.INFO, "Contest freeze! Cutting off unauthorized video feeds");
-		if (!executor.isShutdown())
+		if (executor != null && !executor.isShutdown())
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -359,6 +379,9 @@ public class VideoAggregator {
 	}
 
 	public void shutdownNow() {
+		if (executor == null)
+			return;
+
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {

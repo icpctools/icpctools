@@ -12,11 +12,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.icpc.tools.cds.service.ExecutorListener;
+import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoServingHandler;
 import org.icpc.tools.cds.video.VideoStream;
 import org.icpc.tools.cds.video.VideoStreamHandler.IStreamListener;
@@ -29,16 +31,20 @@ import org.icpc.tools.contest.model.feed.HTTPSSecurity;
  */
 // TODO - cache HLS m3u8
 // TODO - handle HLS query params
-// TODO - no hardcoded stream
-// TODO - multiplexing
-// TODO - cache cleanup
+// TODO - multiplexing m3u8
+// TODO - switch gap.mp4 to using #EXT-X-GAP
+// TODO - handling preloads
+// TODO - connection modes
 public class HLSHandler extends VideoServingHandler {
 	private static final String HEADER = "#EXTM3U";
 	/*private static final String PARAM_MEDIA = "_HLS_msn";
 	private static final String PARAM_PART = "_HLS_part";
 	private static final String PARAM_SKIP = "_HLS_skip";
 	*/
-	// protected static final HLSFileCache fileCache = new HLSFileCache();
+
+	static {
+		startBackgroundCleanup();
+	}
 
 	protected List<String> deleteMe = new ArrayList<>();
 
@@ -107,7 +113,7 @@ public class HLSHandler extends VideoServingHandler {
 
 			conn.setConnectTimeout(15000);
 			conn.setReadTimeout(10000);
-			conn.setRequestProperty("Content-Type", "application/vnd.apple.mpegurl");
+			// conn.setRequestProperty("Content-Type", "application/vnd.apple.mpegurl");
 			// index.m3u8
 			if (conn instanceof HttpURLConnection) {
 				HttpURLConnection httpConn = (HttpURLConnection) conn;
@@ -133,7 +139,7 @@ public class HLSHandler extends VideoServingHandler {
 			}
 
 			// cache files - segments + parts
-			for (String s : parser.files()) {
+			for (String s : parser.filesToDownload()) {
 				fileCache.cacheIt(url, s);
 			}
 
@@ -146,9 +152,26 @@ public class HLSHandler extends VideoServingHandler {
 		}
 	}
 
-	protected void start(ScheduledExecutorService executor) {
-		// TODO cache cleanup
-		// executor.scheduleAtFixedRate(() -> output(), 5000, 250, TimeUnit.MILLISECONDS);
+	private static void cleanCaches() {
+		VideoAggregator va = VideoAggregator.getInstance();
+		int numStreams = va.getNumStreams();
+		long cacheSize = 0;
+		for (int i = 0; i < numStreams; i++) {
+			VideoStream vs = va.getStream(i);
+			if (vs != null) {
+				Object obj = vs.getObject();
+				if (obj != null && obj instanceof HLSFileCache) {
+					HLSFileCache fileCache = (HLSFileCache) obj;
+					cacheSize += fileCache.cleanCache();
+				}
+			}
+		}
+
+		System.out.println("Cleaned cache, remaining size: " + cacheSize + " bytes");
+	}
+
+	protected static void startBackgroundCleanup() {
+		ExecutorListener.getExecutor().scheduleAtFixedRate(() -> cleanCaches(), 20, 5, TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -187,23 +210,23 @@ public class HLSHandler extends VideoServingHandler {
 	/*@Override
 	protected void createReader(InputStream in, IStore stream, IStreamListener listener) throws IOException {
 		// TODO
-
+	
 		HLSParser hls = (HLSParser) stream.getObject();
 		if (hls == null)
 			hls = new HLSParser();
-
+	
 		HLSParser parser = new HLSParser();
 		parser.read(in);
-
+	
 		// make sure we have all the new files locally, and stream new ones to listener
 		for (Segment seg : parser.playlist) {
 			URL url = new URL(in, seg.file);
 			pullFile(url, listener);
 		}
-
+	
 		// update playlist for all clients
 		stream.setObject(parser);
-
+	
 		// file old files for deletion
 		for (Segment seg : hls.playlist) {
 			boolean found = false;
@@ -216,7 +239,7 @@ public class HLSHandler extends VideoServingHandler {
 			if (!found && !deleteMe.contains(seg.file))
 				deleteMe.add(seg.file);
 		}
-
+	
 		//
 	}*/
 
@@ -226,7 +249,7 @@ public class HLSHandler extends VideoServingHandler {
 			URLConnection conn = HTTPSSecurity.createURLConnection(url, null, null);
 			conn.setConnectTimeout(15000);
 			conn.setReadTimeout(10000);
-			conn.setRequestProperty("Content-Type", "video/m2t");
+			// conn.setRequestProperty("Content-Type", "video/m2t");
 			if (conn instanceof HttpURLConnection) {
 				HttpURLConnection httpConn = (HttpURLConnection) conn;
 				int httpStatus = httpConn.getResponseCode();

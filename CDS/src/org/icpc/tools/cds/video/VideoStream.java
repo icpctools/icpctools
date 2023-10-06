@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
@@ -20,7 +19,6 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
 public class VideoStream implements IStore {
-	private final ThreadPoolExecutor executor;
 	private final Stats stats = new Stats();
 
 	private interface ReadThread extends Runnable {
@@ -45,9 +43,7 @@ public class VideoStream implements IStore {
 	private ReadThread thread;
 	private List<VideoStreamListener> listeners = new ArrayList<>(3);
 
-	public VideoStream(VideoAggregator videoAggregator, String name, String url, StreamType type, String teamId,
-			String... handlerType) {
-		this.executor = videoAggregator.executor;
+	public VideoStream(String name, String url, StreamType type, String teamId, String... handlerType) {
 		if (handlerType != null) {
 			for (VideoHandler vh : VideoAggregator.HANDLERS) {
 				if (vh.getName().equals(handlerType)) {
@@ -290,16 +286,10 @@ public class VideoStream implements IStore {
 		if (newMode == ConnectionMode.LAZY && listeners.isEmpty())
 			stopThread(false);
 
-		if (newMode == ConnectionMode.EAGER) {
-			executor.execute(new Runnable() {
-				@Override
-				public void run() {
-					startReadThread();
-					mode = newMode;
-				}
-			});
-		} else
-			mode = newMode;
+		if (newMode == ConnectionMode.EAGER)
+			startReadThread();
+
+		mode = newMode;
 	}
 
 	private void startReadThread() {
@@ -464,7 +454,7 @@ public class VideoStream implements IStore {
 				}
 			}
 		};
-		executor.execute(thread);
+		VideoAggregator.getInstance().execute(thread);
 	}
 
 	public void shutdownNow() {
