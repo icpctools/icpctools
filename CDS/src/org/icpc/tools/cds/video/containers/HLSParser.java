@@ -16,6 +16,16 @@ import java.util.List;
  * relative URLs.
  */
 public class HLSParser {
+	private static final String EXT = "#EXT";
+	private static final String X_GAP = "#EXT-X-GAP";
+	private static final String X_MAP = "#EXT-X-MAP:";
+	private static final String X_STREAM_INF = "#EXT-X-STREAM-INF:";
+
+	private static final String INF = "#EXTINF:";
+	private static final String X_PART = "#EXT-X-PART:";
+
+	private static final String PRELOAD_HINT = "#EXT-X-PRELOAD-HINT:";
+
 	// #EXT-X-MAP:URI="60aab25693f9_init.mp4"
 	// 60aab25693f9_seg7.mp4
 	// #EXT-X-PART:DURATION=0.20000,URI="60aab25693f9_part23.mp4"
@@ -35,6 +45,7 @@ public class HLSParser {
 		String[] comments;
 		String[] parts;
 		String file;
+		boolean gap;
 	}
 
 	protected Segment[] playlist;
@@ -70,27 +81,31 @@ public class HLSParser {
 			List<String> buf = new ArrayList<String>();
 			List<String> filebuf = new ArrayList<String>();
 			List<Segment> segments = new ArrayList<Segment>();
+			boolean gap = false;
 			while (s != null) {
-				if (s.startsWith("#EXT-X-STREAM-INF:") || s.startsWith("#EXTINF:")) {
+				if (s.startsWith(X_STREAM_INF) || s.startsWith(INF)) {
 					if (header == null) {
 						header = buf.toArray(EMPTY);
 						buf.clear();
 					}
 
 					buf.add(s);
-				} else if (s.startsWith("#EXT")) {
-					if (s.startsWith("#EXT-X-MAP:")) {
+				} else if (s.startsWith(EXT)) {
+					if (s.startsWith(X_MAP)) {
 						String[] ss = getURI(s);
 						init = ss[0];
 						buf.add(ss[1]);
-					} else if (s.startsWith("#EXT-X-PART:")) {
+					} else if (s.startsWith(X_PART)) {
 						String[] ss = getURI(s);
 						filebuf.add(ss[0]);
 						buf.add(ss[1]);
-					} else if (s.startsWith("#EXT-X-PRELOAD-HINT:")) {
+					} else if (s.startsWith(PRELOAD_HINT)) {
 						String[] ss = getURI(s);
 						preload.add(ss[0]);
 						buf.add(ss[1]);
+					} else if (s.equals(X_GAP)) {
+						gap = true;
+						buf.add(s);
 					} else
 						buf.add(s);
 				} else { // file
@@ -98,9 +113,11 @@ public class HLSParser {
 					seg.comments = buf.toArray(EMPTY);
 					seg.parts = filebuf.toArray(EMPTY);
 					seg.file = s;
+					seg.gap = gap;
 					segments.add(seg);
 					buf.clear();
 					filebuf.clear();
+					gap = false;
 				}
 				s = br.readLine();
 			}
@@ -115,18 +132,20 @@ public class HLSParser {
 		}
 	}
 
-	public List<String> files() {
+	public List<String> filesToDownload() {
 		List<String> list = new ArrayList<String>();
 
 		if (init != null)
 			list.add(init);
 
 		for (Segment s : playlist) {
+			if (s.gap)
+				continue;
+
 			list.add(s.file);
 			for (String ss : s.parts) {
 				list.add(ss);
 			}
-			list.add(s.file);
 		}
 
 		if (footerParts != null && footerParts.length > 0) {

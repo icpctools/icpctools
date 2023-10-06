@@ -18,6 +18,8 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
 public class HLSFileCache {
+	private static final long CACHE_TIME = 20 * 1000L; // 20s
+
 	static class CachedFile {
 		public String name;
 		public byte[] b;
@@ -31,22 +33,26 @@ public class HLSFileCache {
 		// create
 	}
 
-	public void cleanCache() {
+	public long cleanCache() {
 		List<String> remove = new ArrayList<>(100);
+		long size = 0;
 
 		long now = System.currentTimeMillis();
 		synchronized (map) {
 			for (String s : map.keySet()) {
 				CachedFile cf = map.get(s);
 				// older than 20s
-				if (cf.lastAccess < now - 20 * 1000L)
+				if (cf.lastAccess < now - CACHE_TIME)
 					remove.add(s);
+				else
+					size += cf.b.length;
 			}
 		}
 
-		for (String s : remove) {
+		for (String s : remove)
 			map.remove(s);
-		}
+
+		return size;
 	}
 
 	public boolean contains(String name) {
@@ -96,10 +102,6 @@ public class HLSFileCache {
 	}
 
 	protected void cacheIt(String url, String name) {
-		// TODO: what are these gap files and do they matter?
-		if ("gap.mp4".equals(name))
-			return;
-
 		// already cached, don't grab them again
 		if (contains(name))
 			return;
@@ -128,10 +130,6 @@ public class HLSFileCache {
 	}
 
 	protected void preloadIt(String url, String name) {
-		// TODO: what are these gap files and do they matter?
-		if ("gap.mp4".equals(name))
-			return;
-
 		// already cached, don't grab them again
 		if (contains(name))
 			return;
