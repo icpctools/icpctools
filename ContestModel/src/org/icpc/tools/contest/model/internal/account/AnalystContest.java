@@ -8,6 +8,7 @@ import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.internal.Person;
+import org.icpc.tools.contest.model.internal.Submission;
 
 /**
  * Filter that adds things analysts can see compared to spectators:
@@ -65,6 +66,15 @@ public class AnalystContest extends SpectatorContest {
 			default:
 				super.add(obj);
 		}
+	}
+
+	@Override
+	protected ISubmission filterSubmission(ISubmission sub) {
+		Submission s = (Submission) ((Submission) sub).clone();
+
+		if (!isBeforeFreeze(s))
+			s.setReaction(null);
+		return s;
 	}
 
 	@Override
