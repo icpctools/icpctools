@@ -72,8 +72,11 @@ public class AnalystContest extends SpectatorContest {
 	protected ISubmission filterSubmission(ISubmission sub) {
 		Submission s = (Submission) ((Submission) sub).clone();
 
-		if (!isBeforeFreeze(s))
+		if (!isBeforeFreeze(s)) {
+			s.setFiles(null);
+			s.add("entry_point", null);
 			s.setReaction(null);
+		}
 		return s;
 	}
 
