@@ -59,7 +59,8 @@ public class Resolver {
 	private Contest finalContest;
 
 	// UI variables
-	private ResolverUI ui;
+	private int activeUI;
+	private ResolverUI[] ui;
 	private boolean isPresenter;
 	private Screen screen = null;
 	private String displayStr;
@@ -182,12 +183,17 @@ public class Resolver {
 		}
 		Taskbar.setTaskbarImage(iconImage);
 
-		for (ContestSource cs : contestSource)
+		int numContests = 0;
+		for (ContestSource cs : contestSource) {
 			cs.outputValidation();
+			numContests++;
+		}
 
-		List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
+		r.ui = new ResolverUI[numContests];
+
 		int i = 0;
 		for (ContestSource cs : contestSource) {
+			List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
 			r.source = cs;
 			r.loadFromSource();
 
@@ -203,12 +209,14 @@ public class Resolver {
 			if (r.problemIdList != null && r.problemIdList.length > 0)
 				pId = r.problemIdList[i % r.problemIdList.length];
 			r.init(steps, g, p, pId);
+
+			Trace.trace(Trace.INFO, "Resolution steps:");
+			for (ResolutionStep step : steps)
+				Trace.trace(Trace.INFO, "  " + step);
+
+			r.ui[i] = r.createUI(steps);
 			i++;
 		}
-
-		Trace.trace(Trace.INFO, "Resolution steps:");
-		for (ResolutionStep step : steps)
-			Trace.trace(Trace.INFO, "  " + step);
 
 		try {
 			r.connectToCDS();
@@ -217,7 +225,7 @@ public class Resolver {
 			System.exit(2);
 		}
 
-		r.launch(steps);
+		r.launch();
 	}
 
 	private void connectToCDS() {
@@ -362,12 +370,13 @@ public class Resolver {
 				public void contestChanged(IContest contest, IContestObject obj, Delta delta) {
 					if (delta != Delta.DELETE && obj instanceof IResolveInfo) {
 						IResolveInfo resolveInfo = (IResolveInfo) obj;
-						if (ui != null) {
+						ResolverUI ui2 = ui[activeUI];
+						if (ui2 != null) {
 							if (resolveInfo.getClicks() >= 0)
-								ui.moveTo(resolveInfo.getClicks());
-							ui.setScrollPause(resolveInfo.isAnimationPaused());
+								ui2.moveTo(resolveInfo.getClicks());
+							ui2.setScrollPause(resolveInfo.isAnimationPaused());
 							if (!Double.isNaN(resolveInfo.getSpeedFactor()))
-								ui.setSpeedFactor(resolveInfo.getSpeedFactor());
+								ui2.setSpeedFactor(resolveInfo.getSpeedFactor());
 						}
 					}
 				}
@@ -554,9 +563,9 @@ public class Resolver {
 		}
 	}
 
-	protected void launch(List<ResolutionStep> steps) {
-		ui = new ResolverUI(show_info, new DisplayConfig(displayStr, multiDisplayStr), isPresenter || client == null,
-				screen, new ClickListener() {
+	protected ResolverUI createUI(List<ResolutionStep> steps) {
+		ResolverUI ui2 = new ResolverUI(show_info, new DisplayConfig(displayStr, multiDisplayStr),
+				isPresenter || client == null, screen, new ClickListener() {
 					@Override
 					public void clicked(int num) {
 						sendClicks(num);
@@ -571,10 +580,30 @@ public class Resolver {
 					public void speedFactor(double d) {
 						sendSpeedFactor(d);
 					}
+
+					@Override
+					public void swap() {
+						if (ui.length == 1)
+							return;
+
+						ui[activeUI].setVisible(false);
+
+						activeUI++;
+						if (activeUI >= ui.length)
+							activeUI = 0;
+
+						Trace.trace(Trace.USER, "Switching to contest " + (activeUI + 1));
+
+						ui[activeUI].setVisible(true);
+					}
 				}, lightMode);
 
-		ui.setup(steps);
-		ui.display();
+		ui2.setup(steps);
+		return ui2;
+	}
+
+	protected void launch() {
+		ui[activeUI].display();
 	}
 
 	private void outputStats(List<ResolutionStep> steps, long time) {
