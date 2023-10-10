@@ -1,9 +1,7 @@
 package org.icpc.tools.cds.video.containers;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,8 +19,6 @@ import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoServingHandler;
 import org.icpc.tools.cds.video.VideoStream;
-import org.icpc.tools.cds.video.VideoStreamHandler.IStreamListener;
-import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
 /**
@@ -32,9 +28,7 @@ import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 // TODO - cache HLS m3u8
 // TODO - handle HLS query params
 // TODO - multiplexing m3u8
-// TODO - switch gap.mp4 to using #EXT-X-GAP
-// TODO - handling preloads
-// TODO - connection modes
+// TODO - connection modes, e.g. eager, lazy
 public class HLSHandler extends VideoServingHandler {
 	private static final String HEADER = "#EXTM3U";
 	/*private static final String PARAM_MEDIA = "_HLS_msn";
@@ -90,19 +84,30 @@ public class HLSHandler extends VideoServingHandler {
 
 	// @Override
 	protected void handleIndex(HttpServletRequest request, HttpServletResponse response, int stream, IStore store) {
-		System.out.println("hls index: " + request.getRequestURL());
 		String query = request.getQueryString();
-		if (query != null)
-			System.out.println("  query: " + query);
 
+		System.out.println("HLS index: " + request.getRequestURL() + " " + query);
 		/*String media = request.getParameter(PARAM_MEDIA);
 		String part = request.getParameter(PARAM_PART);
 		String skip = request.getParameter(PARAM_SKIP);
 		boolean doSkip = "YES".equals(skip);*/
 
 		VideoStream vs = (VideoStream) store;
+		HLSFileCache fileCache = (HLSFileCache) store.getObject();
+
+		// most simple caching - if we've loaded the index we can serve it to anyone else who isn't
+		// using query params
+		// TODO clear this cache after a few 100ms
+		if (query == null) {
+			if (fileCache != null && fileCache.getParser() != null) {
+				streamIndex(fileCache, response);
+				return;
+			}
+		}
+
 		String url = vs.getURL();
 
+		// long time = System.currentTimeMillis();
 		InputStream in = null;
 		try {
 			URLConnection conn = null;
@@ -130,9 +135,9 @@ public class HLSHandler extends VideoServingHandler {
 			in = conn.getInputStream();
 			parser.read(in);
 			response.setContentType(getMimeType());
-			parser.write(response.getOutputStream());
 
-			HLSFileCache fileCache = (HLSFileCache) store.getObject();
+			// System.out.println(" m3u8 time " + (System.currentTimeMillis() - time) + "ms");
+
 			if (fileCache == null) {
 				fileCache = new HLSFileCache();
 				store.setObject(fileCache);
@@ -140,13 +145,19 @@ public class HLSHandler extends VideoServingHandler {
 
 			// cache files - segments + parts
 			for (String s : parser.filesToDownload()) {
-				fileCache.cacheIt(url, s);
+				fileCache.addToCache(url, s);
 			}
 
 			for (String s : parser.getPreload()) {
-				System.out.println("  preload: " + s);
-				fileCache.preload(s);
+				fileCache.addPreload(s);
 			}
+			fileCache.setParser(parser);
+			// System.out.println(" cache time " + (System.currentTimeMillis() - time) + "ms");
+
+			BufferedOutputStream bout = new BufferedOutputStream(response.getOutputStream());
+			parser.write(bout);
+			bout.close();
+			// System.out.println(" total time " + (System.currentTimeMillis() - time) + "ms");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -182,7 +193,7 @@ public class HLSHandler extends VideoServingHandler {
 			return;
 		}
 		String name = path;
-		System.out.println("hls: " + name);
+		System.out.println("HLS: " + name);
 		HLSFileCache fileCache = (HLSFileCache) store.getObject();
 		if (fileCache == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Attempt to load from unindexed stream");
@@ -191,8 +202,15 @@ public class HLSHandler extends VideoServingHandler {
 
 		if (!fileCache.contains(name)) {
 			if (fileCache.hasPreload(name)) {
-				System.err.println("Preload unsupported: " + name);
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
+				try {
+					VideoStream vs = (VideoStream) store;
+					String url = vs.getURL();
+					fileCache.preloadIt(url, name, response);
+				} catch (Exception e) {
+					//
+					e.printStackTrace();
+				}
+
 				return;
 			}
 			System.err.println("Request to stream an invalid file: " + name);
@@ -207,87 +225,16 @@ public class HLSHandler extends VideoServingHandler {
 		}
 	}
 
-	/*@Override
-	protected void createReader(InputStream in, IStore stream, IStreamListener listener) throws IOException {
-		// TODO
-	
-		HLSParser hls = (HLSParser) stream.getObject();
-		if (hls == null)
-			hls = new HLSParser();
-	
-		HLSParser parser = new HLSParser();
-		parser.read(in);
-	
-		// make sure we have all the new files locally, and stream new ones to listener
-		for (Segment seg : parser.playlist) {
-			URL url = new URL(in, seg.file);
-			pullFile(url, listener);
-		}
-	
-		// update playlist for all clients
-		stream.setObject(parser);
-	
-		// file old files for deletion
-		for (Segment seg : hls.playlist) {
-			boolean found = false;
-			for (Segment seg2 : parser.playlist) {
-				if (seg.file.equals(seg2.file)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found && !deleteMe.contains(seg.file))
-				deleteMe.add(seg.file);
-		}
-	
-		//
-	}*/
-
-	protected static String pullFile(URL url, IStreamListener listener) {
-		InputStream in = null;
+	private static void streamIndex(HLSFileCache fileCache, HttpServletResponse response) {
 		try {
-			URLConnection conn = HTTPSSecurity.createURLConnection(url, null, null);
-			conn.setConnectTimeout(15000);
-			conn.setReadTimeout(10000);
-			// conn.setRequestProperty("Content-Type", "video/m2t");
-			if (conn instanceof HttpURLConnection) {
-				HttpURLConnection httpConn = (HttpURLConnection) conn;
-				int httpStatus = httpConn.getResponseCode();
-				if (httpStatus == HttpURLConnection.HTTP_NOT_FOUND)
-					throw new IOException("404 Not found");
-				else if (httpStatus == HttpURLConnection.HTTP_UNAUTHORIZED)
-					throw new IOException("Not authorized (HTTP response code 401)");
-			}
+			System.err.println("Yay! Index from cache");
+			HLSParser parser = fileCache.getParser();
 
-			in = conn.getInputStream();
-
-			String f = "filename";
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f));
-
-			BufferedInputStream bin = new BufferedInputStream(in);
-			byte[] b = new byte[1024 * 8];
-			int n = bin.read(b);
-			while (n != -1) {
-				out.write(b, 0, n);
-				listener.write(b, 0, n);
-				n = bin.read(b);
-			}
-
-			bin.close();
-			out.close();
-
-			return f;
+			BufferedOutputStream bout = new BufferedOutputStream(response.getOutputStream());
+			parser.write(bout);
+			bout.close();
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Could not pull video");
-			return null;
-		} finally {
-			if (in != null)
-				try {
-					in.close();
-				} catch (Exception e) {
-					// ignore
-				}
+			e.printStackTrace();
 		}
 	}
-
 }

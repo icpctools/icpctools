@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
@@ -26,8 +28,11 @@ public class HLSFileCache {
 		public long lastAccess;
 	}
 
+	private HLSParser parser;
+
 	private Map<String, CachedFile> map = new HashMap<>();
 	private List<String> preload = new ArrayList<>();
+	// private List<String> lazyload = new ArrayList<>();
 
 	public HLSFileCache() {
 		// create
@@ -59,7 +64,7 @@ public class HLSFileCache {
 		return map.containsKey(name);
 	}
 
-	public void preload(String name) {
+	public void addPreload(String name) {
 		if (map.containsKey(name) || preload.contains(name))
 			return;
 		preload.add(name);
@@ -69,7 +74,7 @@ public class HLSFileCache {
 		return preload.contains(name);
 	}
 
-	public void cache(String name, InputStream in) throws IOException {
+	private void cacheImpl(String name, InputStream in) throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		BufferedInputStream bin = new BufferedInputStream(in);
 		byte[] b = new byte[1024 * 8];
@@ -101,59 +106,58 @@ public class HLSFileCache {
 		bout.close();
 	}
 
-	protected void cacheIt(String url, String name) {
+	public boolean addToCache(String url, String name) {
 		// already cached, don't grab them again
 		if (contains(name))
-			return;
+			return true;
 
-		try {
-			URLConnection conn = HTTPSSecurity.createURLConnection(new URL(url + "/" + name), null, null);
-			conn.setConnectTimeout(15000);
-			conn.setReadTimeout(10000);
-			conn.setRequestProperty("Content-Type", "video/mp4");
+		synchronized (this) {
+			if (contains(name))
+				return true;
 
-			if (conn instanceof HttpURLConnection) {
-				HttpURLConnection httpConn = (HttpURLConnection) conn;
-				int httpStatus = httpConn.getResponseCode();
-				if (httpStatus == HttpURLConnection.HTTP_NOT_FOUND)
-					throw new IOException("404 Not found (" + url + ")");
-				else if (httpStatus == HttpURLConnection.HTTP_UNAUTHORIZED)
-					throw new IOException("Not authorized (HTTP response code 401)");
+			long time = System.currentTimeMillis();
+			try {
+				URLConnection conn = HTTPSSecurity.createURLConnection(new URL(url + "/" + name), null, null);
+				conn.setConnectTimeout(15000);
+				conn.setReadTimeout(10000);
+				conn.setRequestProperty("Content-Type", "video/mp4");
+
+				if (conn instanceof HttpURLConnection) {
+					HttpURLConnection httpConn = (HttpURLConnection) conn;
+					int httpStatus = httpConn.getResponseCode();
+					if (httpStatus == HttpURLConnection.HTTP_NOT_FOUND)
+						throw new IOException("404 Not found (" + url + ")");
+					else if (httpStatus == HttpURLConnection.HTTP_UNAUTHORIZED)
+						throw new IOException("Not authorized (HTTP response code 401)");
+				}
+
+				cacheImpl(name, new BufferedInputStream(conn.getInputStream()));
+				System.out.println("  Cache success: " + name + " (" + (System.currentTimeMillis() - time) + "ms)");
+				return true;
+			} catch (Exception e) {
+				System.err.println("  Cache fail: " + name + " (" + (System.currentTimeMillis() - time) + "ms)");
+				Trace.trace(Trace.ERROR, "Could not cache HLS " + url + "/" + name, e);
+				return false;
 			}
-
-			cache(name, conn.getInputStream());
-			System.out.println("  Cache success: " + name);
-		} catch (Exception e) {
-			System.err.println("  Cache fail: " + name);
-			Trace.trace(Trace.ERROR, "Could not cache HLS " + url + "/" + name, e);
 		}
 	}
 
-	protected void preloadIt(String url, String name) {
-		// already cached, don't grab them again
-		if (contains(name))
+	public HLSParser getParser() {
+		return parser;
+	}
+
+	public void setParser(HLSParser parser) {
+		this.parser = parser;
+	}
+
+	// treat preloads like lazy loads
+	protected void preloadIt(String url, String name, HttpServletResponse response) throws IOException {
+		System.out.println("  Preload: " + name);
+		if (!addToCache(url, name)) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
-
-		try {
-			URLConnection conn = HTTPSSecurity.createURLConnection(new URL(url + "/" + name), null, null);
-			conn.setConnectTimeout(15000);
-			conn.setReadTimeout(10000);
-			conn.setRequestProperty("Content-Type", "video/mp4");
-
-			if (conn instanceof HttpURLConnection) {
-				HttpURLConnection httpConn = (HttpURLConnection) conn;
-				int httpStatus = httpConn.getResponseCode();
-				if (httpStatus == HttpURLConnection.HTTP_NOT_FOUND)
-					throw new IOException("404 Not found (" + url + ")");
-				else if (httpStatus == HttpURLConnection.HTTP_UNAUTHORIZED)
-					throw new IOException("Not authorized (HTTP response code 401)");
-			}
-
-			cache(name, conn.getInputStream());
-			System.out.println("  Cache success: " + name);
-		} catch (Exception e) {
-			System.err.println("  Cache fail: " + name);
-			Trace.trace(Trace.ERROR, "Could not cache HLS " + url + "/" + name, e);
 		}
+
+		stream(name, response.getOutputStream());
 	}
 }
