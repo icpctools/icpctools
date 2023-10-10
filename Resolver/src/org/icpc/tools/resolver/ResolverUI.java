@@ -68,6 +68,8 @@ public class ResolverUI {
 		public void scroll(boolean pause);
 
 		public void speedFactor(double d);
+
+		public void swap();
 	}
 
 	private static enum Action {
@@ -247,6 +249,9 @@ public class ResolverUI {
 					scoreboardPresentation.setShowSubmissionInfo(!scoreboardPresentation.getShowSubmissionInfo());
 				else if (' ' == e.getKeyChar() || 'f' == e.getKeyChar() || 'F' == e.getKeyChar())
 					processAction(Action.FORWARD);
+
+				else if ('s' == e.getKeyChar() && listener != null)
+					listener.swap();
 			}
 		});
 
@@ -336,6 +341,13 @@ public class ResolverUI {
 			moveTo(firstStep);
 		else
 			moveTo(0);
+	}
+
+	public void setVisible(boolean b) {
+		if (messageFont == null)
+			display();
+
+		window.setVisible(b);
 	}
 
 	private String getStatusInfo() {
