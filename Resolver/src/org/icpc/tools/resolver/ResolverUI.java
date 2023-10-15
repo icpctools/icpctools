@@ -131,6 +131,7 @@ public class ResolverUI {
 	public void setup(List<ResolutionStep> steps) {
 		this.steps = steps;
 
+		control = new ResolutionControl(steps);
 		IContest contest = getFirstContest();
 		IResolveInfo resolveInfo = contest.getResolveInfo();
 		if (resolveInfo != null) {
@@ -140,7 +141,6 @@ public class ResolverUI {
 				firstStep = resolveInfo.getClicks() % 1000 + 1000;
 		}
 
-		control = new ResolutionControl(steps);
 		control.addListener(new IResolutionListener() {
 			@Override
 			public void toPause(int pause, boolean includeDelays) {
