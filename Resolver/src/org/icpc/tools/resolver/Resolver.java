@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
@@ -53,6 +54,7 @@ import org.icpc.tools.resolver.ResolverUI.Screen;
  */
 public class Resolver {
 	private static final int DEFAULT_ROW_OFFSET_WHEN_ENABLED = 4;
+	private static final String DATA_RESOLVER_ACTIVE_UI = "org.icpc.tools.presentation.contest.resolver.ui";
 
 	// contest/resolving variables
 	private ContestSource source;
@@ -61,6 +63,7 @@ public class Resolver {
 	// UI variables
 	private int activeUI;
 	private ResolverUI[] ui;
+	private String[] contestIds;
 	private boolean isPresenter;
 	private Screen screen = null;
 	private String displayStr;
@@ -76,6 +79,7 @@ public class Resolver {
 
 	// client/server variables
 	private PresentationClient client;
+	private int[] clients = new int[0];
 
 	protected static void showHelp() {
 		System.out.println("Usage: resolver.bat/sh contestURL user password [options]");
@@ -190,6 +194,7 @@ public class Resolver {
 		}
 
 		r.ui = new ResolverUI[numContests];
+		r.contestIds = new String[numContests];
 
 		int i = 0;
 		for (ContestSource cs : contestSource) {
@@ -215,6 +220,7 @@ public class Resolver {
 				Trace.trace(Trace.INFO, "  " + step);
 
 			r.ui[i] = r.createUI(steps);
+			r.contestIds[i] = cs.getContestId();
 			i++;
 		}
 
@@ -243,18 +249,73 @@ public class Resolver {
 			if (isPresenter)
 				role = "presAdmin";
 
-			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver");
+			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
+				@Override
+				protected void clientsChanged(Client[] cl) {
+					Trace.trace(Trace.INFO, "Client list changed: " + cl.length);
+					int size = cl.length;
+					int[] c = new int[size];
+					for (int i = 0; i < size; i++)
+						c[i] = cl[i].uid;
+					clients = c;
+
+					// re-send the activeUI to all clients
+					sendActiveUI();
+				}
+			};
+
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Trouble connecting to CDS: " + e.getMessage());
 			System.exit(1);
 		}
 
 		try {
+			client.addListener(new IPropertyListener() {
+				@Override
+				public void propertyUpdated(String key, String value) {
+					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
+					if (DATA_RESOLVER_ACTIVE_UI.equals(key)) {
+						try {
+							String contestId = value;
+							if (contestIds[activeUI].equals(contestId))
+								return;
+
+							int newActiveUI = -1;
+							for (int i = 0; i < contestIds.length; i++) {
+								if (contestIds[i].equals(contestId))
+									newActiveUI = i;
+							}
+
+							if (newActiveUI == -1)
+								return;
+
+							Trace.trace(Trace.ERROR, "Switching active UI to " + newActiveUI);
+							ui[activeUI].setVisible(false);
+							activeUI = newActiveUI;
+							if (activeUI > ui.length)
+								activeUI = 0;
+
+							ui[activeUI].setVisible(true);
+						} catch (Exception e) {
+							Trace.trace(Trace.ERROR, "Couldn't switch active UI", e);
+						}
+					}
+				}
+			});
 			client.connect();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Client error", e);
 		}
 	} // end connectToServer
+
+	private void sendActiveUI() {
+		try {
+			Trace.trace(Trace.INFO, "Sending active UI: " + activeUI + " " + contestIds[activeUI]);
+			client.sendProperty(clients, DATA_RESOLVER_ACTIVE_UI, contestIds[activeUI]);
+		} catch (Exception ex) {
+			Trace.trace(Trace.WARNING, "Failed to send active UI", ex);
+		}
+	}
 
 	private boolean processOption(String option, List<Object> options, ResolveInfo resolveInfo) {
 		if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
@@ -593,6 +654,8 @@ public class Resolver {
 							activeUI = 0;
 
 						Trace.trace(Trace.USER, "Switching to contest " + (activeUI + 1));
+
+						sendActiveUI();
 
 						ui[activeUI].setVisible(true);
 					}
