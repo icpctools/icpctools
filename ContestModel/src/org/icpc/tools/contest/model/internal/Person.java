@@ -12,7 +12,7 @@ import org.icpc.tools.contest.model.feed.JSONParser;
 
 public class Person extends ContestObject implements IPerson {
 	private static final String ICPC_ID = "icpc_id";
-	private static final String TEAM_ID = "team_id";
+	private static final String OLD_TEAM_ID = "team_id";
 	private static final String TEAM_IDS = "team_ids";
 	private static final String FIRST_NAME = "first_name";
 	private static final String LAST_NAME = "last_name";
@@ -36,7 +36,6 @@ public class Person extends ContestObject implements IPerson {
 	private String title;
 	private String email;
 	private String sex;
-	private String teamId;
 	private String[] teamIds;
 	private String role;
 	private FileReferenceList photo;
@@ -89,7 +88,9 @@ public class Person extends ContestObject implements IPerson {
 
 	@Override
 	public String getTeamId() {
-		return teamId;
+		if (teamIds == null || teamIds.length < 1)
+			return null;
+		return teamIds[0];
 	}
 
 	@Override
@@ -156,8 +157,8 @@ public class Person extends ContestObject implements IPerson {
 				sex = (String) value;
 				return true;
 			}
-			case TEAM_ID: {
-				teamId = (String) value;
+			case OLD_TEAM_ID: {
+				teamIds = new String[] { (String) value };
 				return true;
 			}
 			case TEAM_IDS: {
@@ -320,7 +321,6 @@ public class Person extends ContestObject implements IPerson {
 		p.name = name;
 		p.email = email;
 		p.sex = sex;
-		p.teamId = teamId;
 		p.teamIds = teamIds;
 		p.role = role;
 		p.title = title;
@@ -337,8 +337,10 @@ public class Person extends ContestObject implements IPerson {
 		props.addLiteralString(TITLE, title);
 		props.addString(EMAIL, email);
 		props.addLiteralString(SEX, sex);
-		props.addLiteralString(TEAM_ID, teamId);
 		props.addArray(TEAM_IDS, teamIds);
+		if (teamIds != null && teamIds.length > 0)
+			props.addLiteralString(OLD_TEAM_ID, teamIds[0]);
+
 		props.addLiteralString(ROLE, role);
 		props.addFileRef(PHOTO, photo);
 		props.addFileRefSubs(DESKTOP, desktop);
@@ -353,8 +355,10 @@ public class Person extends ContestObject implements IPerson {
 	public List<String> validate(IContest c) {
 		List<String> errors = new ArrayList<>();
 
-		if ("contestant".equals(role) && c.getTeamById(teamId) == null)
-			errors.add("Invalid team " + teamId);
+		if ("contestant".equals(role)) {
+			if (teamIds == null || teamIds.length != 1 || c.getTeamById(teamIds[0]) == null)
+				errors.add("Invalid contestant team");
+		}
 
 		if (getName() == null || getName().isEmpty())
 			errors.add("Name missing");
