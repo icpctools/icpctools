@@ -121,14 +121,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-		
+
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -139,6 +139,9 @@ public class ImagesGenerator {
 		File file = new File(contestRoot, "images");
 		if (!file.exists())
 			file.mkdir();
+
+		// reload contest to pick up all images we just generated
+		generator.reload();
 
 		/*Trace.trace(Trace.USER, "----- Generating ribbon -----");
 		try {
@@ -766,11 +769,19 @@ public class ImagesGenerator {
 
 		try {
 			icpcLogo = ImageIO.read(getClass().getClassLoader().getResource("images/icpc-logo.png"));
-			File logoFile = new File(contestRoot, "config/logo.png");
+			File logoFile = new File(contestRoot, "contest/logo.png");
+			if (!logoFile.exists())
+				logoFile = new File(contestRoot, "config/logo.png");
 			logo = ImageIO.read(logoFile);
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Could not load id image", e);
+			Trace.trace(Trace.ERROR, "Could not load logo image", e);
 		}
+	}
+
+	private void reload() {
+		DiskContestSource source = new DiskContestSource(contestRoot);
+		contest = source.loadContest(null);
+		source.waitForContest(5000);
 	}
 
 	private static Font[] getFonts(Font masterFont) {
@@ -871,6 +882,7 @@ public class ImagesGenerator {
 			String s = (i + 1) + "";
 			g.drawString(s, x, baseline);
 			x += fm.stringWidth(s) + gap;
+			// TODO use images from contest
 			File logoFile = new File(contestRoot,
 					"organizations" + File.separator + orgs[i].getId() + File.separator + DEFAULT_NAME);
 
@@ -959,18 +971,13 @@ public class ImagesGenerator {
 			g.drawString(s, x + (sq - fm.stringWidth(s)) / 2, baseline);
 			s = orgs[i].getId();
 			g.drawString(s, x + (sq - fm.stringWidth(s)) / 2, baseline2);
-			// File logoFile = new File(contestRoot, "images" + File.separator + "logo" +
-			// File.separator + i + ".png");
-			File logoFile = new File(contestRoot,
-					"organizations" + File.separator + orgs[i].getId() + File.separator + DEFAULT_NAME);
-			if (logoFile.exists()) {
-				BufferedImage logoImg = ImageIO.read(logoFile);
-				BufferedImage bImg = ImageScaler.scaleImage(logoImg, sq, sq);
+
+			BufferedImage logoImg = orgs[i].getLogoImage(sq, sq, true, true);
+			if (logoImg != null) {
 				for (int j = 0; j < 3; j++)
-					g.drawImage(bImg, x + (sq - bImg.getWidth()) / 2,
-							th + pad + (sq + pad * 2) * j + (sq - bImg.getHeight()) / 2, null);
+					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
+							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
 			}
-			// g.drawLine(x, 3, x, 20);
 			x += pad + sq;
 		}
 
