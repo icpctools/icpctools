@@ -167,7 +167,9 @@ public class Organization extends ContestObject implements IOrganization {
 				return true;
 			}
 			case LOCATION: {
-				location = new Location(value);
+				Location loc = new Location(value);
+				if (loc.isValid())
+					location = loc;
 				return true;
 			}
 			case LOGO: {

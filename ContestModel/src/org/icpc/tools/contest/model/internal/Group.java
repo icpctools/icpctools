@@ -105,7 +105,9 @@ public class Group extends ContestObject implements IGroup {
 				return true;
 			}
 			case LOCATION: {
-				location = new Location(value);
+				Location loc = new Location(value);
+				if (loc.isValid())
+					location = loc;
 				return true;
 			}
 			case LOGO: {
