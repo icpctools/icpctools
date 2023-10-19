@@ -645,25 +645,26 @@ public class DiskContestSource extends ContestSource {
 	 * @return
 	 */
 	private static String getMimeType(String name) {
-		if (name.endsWith(".zip"))
+		String name2 = name.toLowerCase();
+		if (name2.endsWith(".zip"))
 			return "application/zip";
-		else if (name.endsWith(".png"))
+		else if (name2.endsWith(".png"))
 			return "image/png";
-		else if (name.endsWith(".jpg") || name.endsWith(".jpeg"))
+		else if (name2.endsWith(".jpg") || name2.endsWith(".jpeg"))
 			return "image/jpeg";
-		else if (name.endsWith(".svg"))
+		else if (name2.endsWith(".svg"))
 			return "image/svg+xml";
-		else if (name.endsWith(".m2ts"))
+		else if (name2.endsWith(".m2ts"))
 			return "video/m2ts";
-		else if (name.endsWith(".ogg"))
+		else if (name2.endsWith(".ogg"))
 			return "video/ogg";
-		else if (name.endsWith(".flv"))
+		else if (name2.endsWith(".flv"))
 			return "video/x-flv";
-		else if (name.endsWith(".txt"))
+		else if (name2.endsWith(".txt"))
 			return "text/plain";
-		else if (name.endsWith(".log"))
+		else if (name2.endsWith(".log"))
 			return "text/plain";
-		else if (name.endsWith(".pdf"))
+		else if (name2.endsWith(".pdf"))
 			return "application/pdf";
 		return null;
 	}
