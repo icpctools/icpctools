@@ -45,6 +45,8 @@ public class JSONParser {
 
 		public String getString(String key) {
 			String value = (String) props.get(key);
+			if (value == null)
+				return null;
 			return unescape(value);
 		}
 
@@ -58,7 +60,10 @@ public class JSONParser {
 
 		public boolean getBoolean(String key) {
 			try {
-				return (Boolean) props.get(key);
+				Boolean b = (Boolean) props.get(key);
+				if (b == null)
+					return false;
+				return b.booleanValue();
 			} catch (Exception e) {
 				return false;
 			}
@@ -67,6 +72,8 @@ public class JSONParser {
 		public int getInt(String key) {
 			try {
 				String value = (String) props.get(key);
+				if (value == null)
+					return -1;
 				return Integer.parseInt(value);
 			} catch (Exception e) {
 				return -1;
@@ -76,6 +83,8 @@ public class JSONParser {
 		public long getLong(String key) {
 			try {
 				String value = (String) props.get(key);
+				if (value == null)
+					return -1;
 				return Long.parseLong(value);
 			} catch (Exception e) {
 				return -1;
@@ -85,6 +94,8 @@ public class JSONParser {
 		public double getDouble(String key) {
 			try {
 				String value = (String) props.get(key);
+				if (value == null)
+					return Double.NaN;
 				return Double.parseDouble(value);
 			} catch (Exception e) {
 				return Double.NaN;
