@@ -46,7 +46,15 @@ public class Location {
 	}
 
 	protected String getJSON() {
-		return "{\"" + LATITUDE + "\":" + round(latitude) + ",\"" + LONGITUDE + "\":" + round(longitude) + "}";
+		StringBuilder sb = new StringBuilder("{");
+		if (!Double.isNaN(latitude))
+			sb.append("\"" + LATITUDE + "\":" + round(latitude));
+		if (!Double.isNaN(latitude) && !Double.isNaN(longitude))
+			sb.append(",");
+		if (!Double.isNaN(longitude))
+			sb.append("\"" + LONGITUDE + "\":" + round(longitude));
+		sb.append("}");
+		return sb.toString();
 	}
 
 	private static double round(double d) {
@@ -70,6 +78,10 @@ public class Location {
 			return false;
 
 		return true;
+	}
+
+	public boolean isValid() {
+		return !Double.isNaN(latitude) && !Double.isNaN(longitude);
 	}
 
 	@Override

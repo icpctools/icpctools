@@ -263,7 +263,9 @@ public class Info extends ContestObject implements IInfo {
 			timeMultiplier = parseDouble(value);
 			return true;
 		} else if (name2.equals(LOCATION)) {
-			location = new Location(value);
+			Location loc = new Location(value);
+			if (loc.isValid())
+				location = loc;
 			return true;
 		} else if (name2.equals(SCOREBOARD_TYPE)) {
 			if ("pass-fail".equals(value))
