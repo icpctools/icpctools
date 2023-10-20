@@ -127,7 +127,7 @@ function teamsTd(team) {
 }
 
 function personsTd(person) {
-    return { id: person.id, icpc_id: person.icpc_id, name: person.name, title: person.title, email: person.email, sex: person.sex, role: person.role, team_id: person.team_id };
+    return { id: person.id, icpc_id: person.icpc_id, name: person.name, title: person.title, email: person.email, sex: person.sex, role: person.role, team_ids: person.team_ids };
 }
 
 function accountsTd(account) {
