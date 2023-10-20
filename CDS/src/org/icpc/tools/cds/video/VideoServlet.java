@@ -166,9 +166,6 @@ public class VideoServlet extends HttpServlet {
 			}
 		}
 
-		Trace.trace(Trace.INFO, "Video request: " + request.getRemoteUser() + " requesting video " + stream + " -> "
-				+ vs.getName() + " (channel: " + channel + ")");
-
 		if (VideoAggregator.handler instanceof VideoServingHandler) {
 			((VideoServingHandler) VideoAggregator.handler).doGet(request, response, stream, vs, subpath);
 		} else {
@@ -178,6 +175,10 @@ public class VideoServlet extends HttpServlet {
 
 	public static void streamVideo(HttpServletRequest request, HttpServletResponse response, final int stream,
 			VideoStream vs, boolean channel, boolean isStaff) throws IOException {
+
+		Trace.trace(Trace.INFO, "Video request: " + request.getRemoteUser() + " requesting video " + stream + " -> "
+				+ vs.getName() + " (channel: " + channel + ")");
+
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("X-Accel-Buffering", "no");

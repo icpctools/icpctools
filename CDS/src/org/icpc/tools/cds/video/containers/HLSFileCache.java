@@ -20,12 +20,13 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
 public class HLSFileCache {
-	private static final long CACHE_TIME = 20 * 1000L; // 20s
+	private static final long CACHE_TIME = 10 * 1000L; // 10s
 
 	static class CachedFile {
 		public String name;
 		public byte[] b;
-		public long lastAccess;
+		public long storeTime;
+		public long lastAccessTime;
 	}
 
 	private HLSParser parser;
@@ -46,8 +47,8 @@ public class HLSFileCache {
 		synchronized (map) {
 			for (String s : map.keySet()) {
 				CachedFile cf = map.get(s);
-				// older than 20s
-				if (cf.lastAccess < now - CACHE_TIME)
+				// remove anything older than the cache time
+				if (cf.storeTime < now - CACHE_TIME)
 					remove.add(s);
 				else
 					size += cf.b.length;
@@ -90,7 +91,7 @@ public class HLSFileCache {
 		CachedFile cf = new CachedFile();
 		cf.name = name;
 		cf.b = bout.toByteArray();
-		cf.lastAccess = System.currentTimeMillis();
+		cf.storeTime = System.currentTimeMillis();
 		map.put(name, cf);
 	}
 
@@ -99,7 +100,7 @@ public class HLSFileCache {
 		if (cf == null)
 			throw new IOException("File does not exist");
 
-		cf.lastAccess = System.currentTimeMillis();
+		cf.lastAccessTime = System.currentTimeMillis();
 
 		BufferedOutputStream bout = new BufferedOutputStream(out);
 		bout.write(cf.b, 0, cf.b.length);
