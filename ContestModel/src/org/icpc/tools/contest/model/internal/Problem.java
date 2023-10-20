@@ -217,11 +217,11 @@ public class Problem extends ContestObject implements IProblem {
 				return true;
 			}
 			case PACKAGE: {
-				package_ = new FileReferenceList(value);
+				package_ = parseFileReference(value);
 				return true;
 			}
 			case STATEMENT: {
-				statement = new FileReferenceList(value);
+				statement = parseFileReference(value);
 				return true;
 			}
 			default:

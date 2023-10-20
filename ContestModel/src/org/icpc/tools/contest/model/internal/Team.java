@@ -339,35 +339,35 @@ public class Team extends ContestObject implements ITeam {
 				return true;
 			}
 			case PHOTO: {
-				photo = new FileReferenceList(value);
+				photo = parseFileReference(value);
 				return true;
 			}
 			case VIDEO: {
-				video = new FileReferenceList(value);
+				video = parseFileReference(value);
 				return true;
 			}
 			case BACKUP: {
-				backup = new FileReferenceList(value);
+				backup = parseFileReference(value);
 				return true;
 			}
 			case KEY_LOG: {
-				keylog = new FileReferenceList(value);
+				keylog = parseFileReference(value);
 				return true;
 			}
 			case TOOL_DATA: {
-				tooldata = new FileReferenceList(value);
+				tooldata = parseFileReference(value);
 				return true;
 			}
 			case DESKTOP: {
-				desktop = new FileReferenceList(value);
+				desktop = parseFileReference(value);
 				return true;
 			}
 			case WEBCAM: {
-				webcam = new FileReferenceList(value);
+				webcam = parseFileReference(value);
 				return true;
 			}
 			case AUDIO: {
-				audio = new FileReferenceList(value);
+				audio = parseFileReference(value);
 				return true;
 			}
 			case HIDDEN: {

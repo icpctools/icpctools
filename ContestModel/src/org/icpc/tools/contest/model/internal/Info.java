@@ -263,9 +263,7 @@ public class Info extends ContestObject implements IInfo {
 			timeMultiplier = parseDouble(value);
 			return true;
 		} else if (name2.equals(LOCATION)) {
-			Location loc = new Location(value);
-			if (loc.isValid())
-				location = loc;
+			location = parseLocation(value);
 			return true;
 		} else if (name2.equals(SCOREBOARD_TYPE)) {
 			if ("pass-fail".equals(value))
@@ -276,10 +274,10 @@ public class Info extends ContestObject implements IInfo {
 				return false;
 			return true;
 		} else if (name2.equals(LOGO)) {
-			logo = new FileReferenceList(value);
+			logo = parseFileReference(value);
 			return true;
 		} else if (name2.equals(BANNER)) {
-			banner = new FileReferenceList(value);
+			banner = parseFileReference(value);
 			return true;
 		}
 

@@ -105,13 +105,11 @@ public class Group extends ContestObject implements IGroup {
 				return true;
 			}
 			case LOCATION: {
-				Location loc = new Location(value);
-				if (loc.isValid())
-					location = loc;
+				location = parseLocation(value);
 				return true;
 			}
 			case LOGO: {
-				logo = new FileReferenceList(value);
+				logo = parseFileReference(value);
 				return true;
 			}
 		}
