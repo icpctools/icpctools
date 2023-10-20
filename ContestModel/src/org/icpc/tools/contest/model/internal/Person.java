@@ -173,35 +173,37 @@ public class Person extends ContestObject implements IPerson {
 				return true;
 			}
 			case ROLE: {
-				role = (String) value;
+				role = (String) value; // TODO - ClassCast - Object[1] {"staff"}
+				if (role != null && !role.equals("contestant") && !role.equals("coach") && !role.equals("staff"))
+					role = "other";
 				return true;
 			}
 			case PHOTO: {
-				photo = new FileReferenceList(value);
+				photo = parseFileReference(value);
 				return true;
 			}
 			case DESKTOP: {
-				desktop = new FileReferenceList(value);
+				desktop = parseFileReference(value);
 				return true;
 			}
 			case WEBCAM: {
-				webcam = new FileReferenceList(value);
+				webcam = parseFileReference(value);
 				return true;
 			}
 			case AUDIO: {
-				audio = new FileReferenceList(value);
+				audio = parseFileReference(value);
 				return true;
 			}
 			case BACKUP: {
-				backup = new FileReferenceList(value);
+				backup = parseFileReference(value);
 				return true;
 			}
 			case KEY_LOG: {
-				keylog = new FileReferenceList(value);
+				keylog = parseFileReference(value);
 				return true;
 			}
 			case TOOL_DATA: {
-				tooldata = new FileReferenceList(value);
+				tooldata = parseFileReference(value);
 				return true;
 			}
 		}

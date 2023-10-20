@@ -158,6 +158,19 @@ public abstract class ContestObject implements IContestObject {
 		return Timestamp.parse((String) value);
 	}
 
+	protected static FileReferenceList parseFileReference(Object value) {
+		if (value == null)
+			return null;
+		return new FileReferenceList(value);
+	}
+
+	protected static Location parseLocation(Object value) {
+		Location loc = new Location(value);
+		if (loc.isValid())
+			return loc;
+		return null;
+	}
+
 	public static long getTime(IContestObject obj) {
 		if (obj instanceof TimedEvent) {
 			return ((TimedEvent) obj).getTime();

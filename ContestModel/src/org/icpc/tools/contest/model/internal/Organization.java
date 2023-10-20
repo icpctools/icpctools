@@ -167,17 +167,15 @@ public class Organization extends ContestObject implements IOrganization {
 				return true;
 			}
 			case LOCATION: {
-				Location loc = new Location(value);
-				if (loc.isValid())
-					location = loc;
+				location = parseLocation(value);
 				return true;
 			}
 			case LOGO: {
-				logo = new FileReferenceList(value);
+				logo = parseFileReference(value);
 				return true;
 			}
 			case COUNTRY_FLAG: {
-				countryFlag = new FileReferenceList(value);
+				countryFlag = parseFileReference(value);
 				return true;
 			}
 		}

@@ -141,10 +141,10 @@ public class Submission extends TimedEvent implements ISubmission {
 			entryPoint = (String) value;
 			return true;
 		} else if (FILES.equals(name)) {
-			files = new FileReferenceList(value);
+			files = parseFileReference(value);
 			return true;
 		} else if (REACTION.equals(name)) {
-			reaction = new FileReferenceList(value);
+			reaction = parseFileReference(value);
 			return true;
 		}
 		return super.addImpl(name, value);
