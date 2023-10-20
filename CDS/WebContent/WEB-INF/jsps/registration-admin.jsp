@@ -29,7 +29,7 @@
 			                    <th>Email</th>
 			                    <th>Sex</th>
 			                    <th>Role</th>
-			                    <th>Team Id</th>
+			                    <th>Team Ids</th>
 			                </tr>
 			            </thead>
 			            <tbody></tbody>
@@ -196,7 +196,7 @@
   <td>{{email}}</td>
   <td>{{sex}}</td>
   <td>{{role}}</td>
-  <td>{{team_id}}</td>
+  <td>{{team_ids}}</td>
 </script>
 <script type="text/html" id="accounts-template">
   <td><a href="{{api}}">{{id}}</td>
