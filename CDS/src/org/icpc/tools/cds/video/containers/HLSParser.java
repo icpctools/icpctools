@@ -10,6 +10,8 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.icpc.tools.contest.Trace;
+
 /**
  * An HLS parser that is able to separate individual segments (files), provide a full list of
  * references files, output the identical file again, and do URL rewriting by adding prefixes to
@@ -38,6 +40,7 @@ public class HLSParser {
 	protected String[] footerParts;
 	protected String init;
 	protected List<String> preload = new ArrayList<>();
+	protected long readTime;
 
 	protected String urlPrefix;
 
@@ -127,9 +130,10 @@ public class HLSParser {
 			footerParts = filebuf.toArray(EMPTY);
 			playlist = segments.toArray(new Segment[0]);
 		} catch (Exception e) {
-			// todo
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Error parsing HLS index", e);
 		}
+
+		readTime = System.currentTimeMillis();
 	}
 
 	public List<String> filesToDownload() {
@@ -197,8 +201,7 @@ public class HLSParser {
 
 			bw.close();
 		} catch (Exception e) {
-			// todo
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Error writing HLS index", e);
 		}
 	}
 

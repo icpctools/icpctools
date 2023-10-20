@@ -19,6 +19,7 @@ import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoServingHandler;
 import org.icpc.tools.cds.video.VideoStream;
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
 /**
@@ -96,10 +97,10 @@ public class HLSHandler extends VideoServingHandler {
 		HLSFileCache fileCache = (HLSFileCache) store.getObject();
 
 		// most simple caching - if we've loaded the index we can serve it to anyone else who isn't
-		// using query params
-		// TODO clear this cache after a few 100ms
+		// using query params. clear after 500ms
 		if (query == null) {
-			if (fileCache != null && fileCache.getParser() != null) {
+			if (fileCache != null && fileCache.getParser() != null
+					&& fileCache.getParser().readTime > System.currentTimeMillis() - 500) {
 				streamIndex(fileCache, response);
 				return;
 			}
@@ -107,7 +108,7 @@ public class HLSHandler extends VideoServingHandler {
 
 		String url = vs.getURL();
 
-		// long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis();
 		InputStream in = null;
 		try {
 			URLConnection conn = null;
@@ -136,6 +137,8 @@ public class HLSHandler extends VideoServingHandler {
 			parser.read(in);
 			response.setContentType(getMimeType());
 
+			System.out.println("  Index success (" + (System.currentTimeMillis() - time) + "ms)");
+
 			// System.out.println(" m3u8 time " + (System.currentTimeMillis() - time) + "ms");
 
 			if (fileCache == null) {
@@ -159,7 +162,7 @@ public class HLSHandler extends VideoServingHandler {
 			bout.close();
 			// System.out.println(" total time " + (System.currentTimeMillis() - time) + "ms");
 		} catch (Exception e) {
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Error loading HLS index", e);
 		}
 	}
 
@@ -193,7 +196,6 @@ public class HLSHandler extends VideoServingHandler {
 			return;
 		}
 		String name = path;
-		System.out.println("HLS: " + name);
 		HLSFileCache fileCache = (HLSFileCache) store.getObject();
 		if (fileCache == null) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Attempt to load from unindexed stream");
@@ -207,13 +209,12 @@ public class HLSHandler extends VideoServingHandler {
 					String url = vs.getURL();
 					fileCache.preloadIt(url, name, response);
 				} catch (Exception e) {
-					//
-					e.printStackTrace();
+					Trace.trace(Trace.ERROR, "Error preloading HLS video", e);
 				}
 
 				return;
 			}
-			System.err.println("Request to stream an invalid file: " + name);
+			Trace.trace(Trace.ERROR, "Request to stream an invalid file: " + name);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
@@ -221,20 +222,19 @@ public class HLSHandler extends VideoServingHandler {
 		try {
 			fileCache.stream(name, response.getOutputStream());
 		} catch (Exception e) {
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Error streaming HLS video from cache", e);
 		}
 	}
 
 	private static void streamIndex(HLSFileCache fileCache, HttpServletResponse response) {
 		try {
-			System.err.println("Yay! Index from cache");
 			HLSParser parser = fileCache.getParser();
 
 			BufferedOutputStream bout = new BufferedOutputStream(response.getOutputStream());
 			parser.write(bout);
 			bout.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Trace.trace(Trace.ERROR, "Error streaming HLS index from cache", e);
 		}
 	}
 }
