@@ -9,16 +9,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.ConfiguredContest;
-import org.icpc.tools.cds.presentations.PresentationServer;
-import org.icpc.tools.cds.presentations.PresentationServer.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContestListener;
+import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
+import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.JSONWriter;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
@@ -28,10 +30,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionS
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
 
 public class ResolverService {
-	private static final String DATA_RESOLVER_CLICKS = "org.icpc.tools.presentation.contest.resolver.clicks";
-	private static final String DATA_RESOLVER_SETTINGS = "org.icpc.tools.presentation.contest.resolver.settings";
-	private static final String DATA_RESOLVER_SPEED = "org.icpc.tools.presentation.contest.resolver.speed";
-
 	protected static List<ResolutionStep> steps;
 	protected static ResolutionControl control;
 	protected static ScheduledExecutorService executor;
@@ -69,7 +67,10 @@ public class ResolverService {
 		Trace.trace(Trace.USER, "Resolver command: " + command);
 		try {
 			Contest c = (Contest) contest;
-			if ("init".equals(command)) {
+			if ("reset".equals(command) && control == null) {
+				ResolveInfo resolveInfo = new ResolveInfo();
+				c.add(resolveInfo);
+			} else if ("init".equals(command)) {
 				if (steps != null)
 					return;
 
@@ -141,45 +142,50 @@ public class ResolverService {
 
 						Trace.trace(Trace.INFO, "Resolver going to pause " + pause);
 
-						PresentationServer ps = PresentationServer.getInstance();
-						int[] cl = ps.getAllClientUIDs();
-						if (!includeDelays)
-							ps.setProperty(cl, DATA_RESOLVER_CLICKS, (pause + 1000) + "");
+						ResolveInfo resolveInfo = (ResolveInfo) c.getResolveInfo();
+						if (resolveInfo != null)
+							resolveInfo = ((ResolveInfo) resolveInfo.clone());
 						else
-							ps.setProperty(cl, DATA_RESOLVER_CLICKS, pause + "");
+							resolveInfo = new ResolveInfo();
+						if (!includeDelays)
+							resolveInfo.setClicks(pause + 1000);
+						else
+							resolveInfo.setClicks(pause);
+						c.add(resolveInfo);
 					}
 				});
 
-				PresentationServer.getInstance().addListener(new IPropertyListener() {
+				c.addListener(new IContestListener() {
 					@Override
-					public void propertyUpdated(int[] clients, String key, String value) {
-						Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
-						if (DATA_RESOLVER_CLICKS.equals(key)) {
-							int pause = Integer.parseInt(value);
-							boolean includeDelays = true;
-							if (pause > 999) {
-								pause -= 1000;
-								includeDelays = false;
-							} else if (Math.abs(pause - control.getCurrentPause()) > 1)
-								includeDelays = false;
+					public void contestChanged(IContest contest2, IContestObject obj, Delta delta) {
+						if (delta != Delta.DELETE && obj instanceof IResolveInfo) {
+							IResolveInfo resolveInfo = (IResolveInfo) obj;
 
-							final int pause2 = pause;
-							boolean includeDelays2 = includeDelays;
-							executor.submit(new Runnable() {
-								@Override
-								public void run() {
-									control.moveToPause(pause2, includeDelays2);
-								}
-							});
-						} else if (DATA_RESOLVER_SPEED.equals(key)) {
-							double sf = Double.parseDouble(value);
-							control.setSpeedFactor(sf);
-						} else if (DATA_RESOLVER_SETTINGS.equals(key)) {
-							String[] clientArgs = value.split(",");
-							control.setSpeedFactor(Double.parseDouble(clientArgs[0]));
+							if (resolveInfo.getSpeedFactor() != Double.NaN) {
+								control.setSpeedFactor(resolveInfo.getSpeedFactor());
+							}
+							int pause = resolveInfo.getClicks();
+							if (pause >= 0 && resolveInfo.getClicks() != control.getCurrentPause()) {
+								boolean includeDelays = true;
+								if (pause > 999) {
+									pause -= 1000;
+									includeDelays = false;
+								} else if (Math.abs(pause - control.getCurrentPause()) > 1)
+									includeDelays = false;
+
+								final int pause2 = pause;
+								boolean includeDelays2 = includeDelays;
+								executor.submit(new Runnable() {
+									@Override
+									public void run() {
+										control.moveToPause(pause2, includeDelays2);
+									}
+								});
+							}
 						}
 					}
 				});
+
 				return;
 			}
 
