@@ -289,7 +289,7 @@ public class Resolver {
 							if (newActiveUI == -1)
 								return;
 
-							Trace.trace(Trace.ERROR, "Switching active UI to " + newActiveUI);
+							Trace.trace(Trace.INFO, "Switching active UI to " + newActiveUI);
 							ui[activeUI].setVisible(false);
 							activeUI = newActiveUI;
 							if (activeUI > ui.length)
@@ -625,8 +625,8 @@ public class Resolver {
 	}
 
 	protected ResolverUI createUI(List<ResolutionStep> steps) {
-		ResolverUI ui2 = new ResolverUI(show_info, new DisplayConfig(displayStr, multiDisplayStr),
-				isPresenter || client == null, screen, new ClickListener() {
+		ResolverUI ui2 = new ResolverUI(show_info, new DisplayConfig(displayStr, multiDisplayStr), isPresenter, screen,
+				new ClickListener() {
 					@Override
 					public void clicked(int num) {
 						sendClicks(num);
