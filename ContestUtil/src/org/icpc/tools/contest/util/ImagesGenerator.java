@@ -11,7 +11,9 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,11 +30,9 @@ import javax.imageio.stream.FileImageOutputStream;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IOrganization;
-import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.icpc.tools.contest.model.internal.Organization;
 
 /**
  * Converts logos and other images from raw source (typically from the CMS attachments) to usable
@@ -46,17 +46,13 @@ import org.icpc.tools.contest.model.internal.Organization;
  * contestRoot - a contest location, i.e. CDP/CAF root folder
  */
 public class ImagesGenerator {
-	private static final String DEFAULT_NAME = "logo.png";
-	private static final String DEFAULT_PHOTO_NAME = "photo.";
-	private static final int MAX_LOGO_SIZE = 1080;
+	private static final int MAX_IMAGE_SIZE = 1080;
 	private static final int MIN_SIZE = 250;
 	private static final int HD_MARGIN = 15;
 	private static final int HD_TOP = 30;
 	private static final double FUDGE = 0.075; // 7.5%
 
-	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
-	// private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg"
-	// };
+	private static final String[] IMAGE_EXTENSIONS = new String[] { "svg", "png", "jpg", "jpeg" };
 
 	private static final boolean DEBUG = false;
 	private static final Rectangle LOGO = new Rectangle(95, 795, 230, 230);
@@ -67,6 +63,16 @@ public class ImagesGenerator {
 	private static final Dimension TILE = new Dimension(160, 160);
 
 	private static BufferedImage icpcLogo, logo;
+
+	static class ImageSpec {
+		Dimension d;
+		boolean pad;
+
+		public ImageSpec(Dimension d, boolean p) {
+			this.d = d;
+			this.pad = p;
+		}
+	}
 
 	class ImageType {
 		File folder;
@@ -107,7 +113,7 @@ public class ImagesGenerator {
 		generator.generateOrganizationLogos();
 
 		Trace.trace(Trace.USER, "----- Generating team desktop & overlays -----");
-		generator.generateTeamDesktop();
+		// TODO generator.generateTeamDesktop();
 
 		Trace.trace(Trace.USER, "----- Generating team photos -----");
 		// TODO generator.generateTeamPhotos();
@@ -168,6 +174,10 @@ public class ImagesGenerator {
 
 		Trace.trace(Trace.USER, "----- Done generating -----");
 		Trace.trace(Trace.USER, (System.currentTimeMillis() - time) + " ms");
+
+		Trace.trace(Trace.USER, "----- Missing data report -----");
+
+		generator.missingDataReport();
 	}
 
 	protected ImagesGenerator(File contestRoot) {
@@ -350,11 +360,11 @@ public class ImagesGenerator {
 						name = org.getActualFormalName();
 
 					File orgFolder = new File(orgRootFolder, org.getId());
-					File imgFile = new File(orgFolder, DEFAULT_NAME);
-					if (imgFile.exists()) {
+					File imgFile = getDefaultFile(orgFolder, "logo");
+					if (imgFile.exists())
 						mod = imgFile.lastModified();
-						logoImg = ImageIO.read(imgFile);
-					}
+
+					logoImg = org.getLogoImage(1920, 1080, true, true);
 				}
 
 				// generate desktop
@@ -401,108 +411,108 @@ public class ImagesGenerator {
 		return false;
 	}
 
+	private static File getDefaultFile(File folder, String property) {
+		// first look for default names, in order of extension preference
+		for (String s : IMAGE_EXTENSIONS) {
+			File f = new File(folder, property + "." + s);
+			if (f.exists())
+				return f;
+		}
+
+		File imgFile = null;
+		File[] files = folder.listFiles();
+		for (File ff : files) {
+			// skip generated files
+			String name = ff.getName();
+			if (name.startsWith(property + ".") && hasExtension(name, IMAGE_EXTENSIONS) && name.contains("x")) {
+				// skip over generated logos (should really use regex to look for logo.<w>x<h>.)
+				continue;
+			}
+			imgFile = ff;
+		}
+		return imgFile;
+	}
+
 	public void generateOrganizationLogos() {
-		File orgRootFolder = new File(contestRoot, "organizations");
-		if (!orgRootFolder.exists()) {
-			Trace.trace(Trace.ERROR, "Couldn't find /organizations folder. Exiting");
+		ImageSpec[] spec = new ImageSpec[] { new ImageSpec(DESKTOP, false), new ImageSpec(ICON, true),
+				new ImageSpec(TILE, true) };
+		generateImages("organizations", "logo", "png", spec);
+	}
+
+	private static void generateImageSpec(BufferedImage img, ImageSpec[] spec, File folder, String property,
+			String preferredExtension, long mod) throws IOException {
+		for (ImageSpec is : spec) {
+			if (img.getWidth() < is.d.width || img.getHeight() < is.d.height)
+				continue;
+
+			BufferedImage scImg = ImageScaler.scaleImage(img, is.d.width, is.d.height);
+			if (!is.pad) {
+				writeImage(property, scImg, folder, mod, true, preferredExtension);
+			} else {
+				double aspect = scImg.getWidth() / (double) scImg.getHeight();
+				if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
+					writeImage(property, scImg, folder, mod, true, preferredExtension);
+
+				scImg = ImageScaler.padImage(scImg);
+				writeImage(property, scImg, folder, mod, true, preferredExtension);
+			}
+		}
+		if (img.getWidth() > MAX_IMAGE_SIZE || img.getHeight() > MAX_IMAGE_SIZE) {
+			BufferedImage scImg = ImageScaler.scaleImage(img, MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
+			writeImage(property, scImg, folder, mod, true, preferredExtension);
+		}
+	}
+
+	public void generateImages(String objectName, String property, String preferredExtension, ImageSpec[] spec) {
+		File rootFolder = new File(contestRoot, objectName);
+		if (!rootFolder.exists()) {
+			Trace.trace(Trace.ERROR, "Couldn't find /" + objectName + " folder. Exiting");
 			return;
 		}
 
 		int numWarnings = 0;
 
-		// generate files
-		File[] folders = orgRootFolder.listFiles();
-		for (File f : folders) {
-			File imgFile = null;
-			if (f.isDirectory()) {
-				File[] subFolders = f.listFiles();
-				boolean foundPattern = false;
-				for (File ff : subFolders) {
-					// skip generated files
-					String name = ff.getName();
-					if (name.startsWith("logo") && hasExtension(name, LOGO_EXTENSIONS)) {
-						foundPattern = true;
-						// skip over generated logos (should really use regex to look for logo.<w>x<h>.)
-						if (name.startsWith("logo.") && name.contains("x"))
-							continue;
-					}
-
-					imgFile = ff;
-
-					// if this is the default name, use it
-					if (DEFAULT_NAME.equals(name.toLowerCase()))
-						break;
-				}
+		File[] folders = rootFolder.listFiles();
+		for (File folder : folders) {
+			if (folder.isDirectory()) {
+				String folderName = folder.getName();
+				File imgFile = getDefaultFile(folder, property);
 
 				if (imgFile == null) {
-					Trace.trace(Trace.ERROR, "Warning: no image found (" + f.getName() + ")");
+					Trace.trace(Trace.ERROR, "Warning: no image found (" + folder.getName() + ")");
 					numWarnings++;
 					continue;
 				}
 
 				try {
-					String orgStr = imgFile.getParentFile().getName();
-					Trace.trace(Trace.USER, "Updating logo for: " + orgStr);
-
-					IOrganization org = contest.getOrganizationById(orgStr);
-					if (org == null) {
-						Trace.trace(Trace.WARNING, "Unknown organization: " + orgStr);
-						Organization org2 = new Organization();
-						org2.add("id", orgStr);
-						org2.add("name", orgStr);
-						contest.add(org2);
-					}
+					Trace.trace(Trace.USER, "Updating " + objectName + " " + property + ": " + folderName);
 
 					long mod = imgFile.lastModified();
 					BufferedImage img = ImageIO.read(imgFile);
-					if (img == null)
+					if (img == null) {
+						Trace.trace(Trace.WARNING, "Couldn't read image");
 						continue;
+					}
 
 					img = removeBorders(img);
 
-					File orgFolder = new File(orgRootFolder, orgStr);
-					if (!orgFolder.exists())
-						orgFolder.mkdirs();
-					else {
-						// clean up old generated logos
-						File[] files = orgFolder.listFiles();
-						for (File ff : files) {
-							if (ff.getName().startsWith("logo.") && hasExtension(ff.getName(), LOGO_EXTENSIONS)
-									&& ff.lastModified() != mod)
-								ff.delete();
-						}
+					// clean up old generated files
+					File[] files2 = folder.listFiles();
+					for (File ff : files2) {
+						if (ff.getName().startsWith(property + ".") && hasExtension(ff.getName(), IMAGE_EXTENSIONS)
+								&& ff.lastModified() != mod)
+							ff.delete();
 					}
 
-					numWarnings = checkForWarnings(f.getName(), img, numWarnings);
+					numWarnings = checkForWarnings(folderName, img, numWarnings);
 
-					if (!foundPattern) {
+					String name = imgFile.getName().toLowerCase();
+					if (!name.equals(property + "." + preferredExtension)) {
 						// there's no filename with the spec extension, create one
-						File file = new File(orgFolder, DEFAULT_NAME);
-						ImageIO.write(img, "png", file);
-						file.setLastModified(mod);
+						writeImage(property, img, folder, mod, false, preferredExtension);
 					}
 
-					// if the file dimensions are massive, start with a reasonably large one
-					if (img.getWidth() > MAX_LOGO_SIZE || img.getHeight() > MAX_LOGO_SIZE) {
-						BufferedImage scImg = ImageScaler.scaleImage(img, MAX_LOGO_SIZE, MAX_LOGO_SIZE);
-						writeImageWithSize(scImg, orgFolder, mod);
-					}
-
-					BufferedImage scImg = ImageScaler.scaleImage(img, ICON.width, ICON.height);
-					double aspect = scImg.getWidth() / (double) scImg.getHeight();
-					if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
-						writeImageWithSize(scImg, orgFolder, mod);
-
-					scImg = ImageScaler.padImage(scImg);
-					writeImageWithSize(scImg, orgFolder, mod);
-
-					scImg = ImageScaler.scaleImage(img, TILE.width, TILE.height);
-					aspect = scImg.getWidth() / (double) scImg.getHeight();
-					if (aspect < 1.0 - FUDGE || aspect > 1.0 + FUDGE)
-						writeImageWithSize(scImg, orgFolder, mod);
-
-					scImg = ImageScaler.padImage(scImg);
-					writeImageWithSize(scImg, orgFolder, mod);
+					generateImageSpec(img, spec, folder, property, preferredExtension, mod);
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
 				}
@@ -513,84 +523,8 @@ public class ImagesGenerator {
 	}
 
 	public void generatePersonPhotos() {
-		File personRootFolder = new File(contestRoot, "persons-todo");
-		if (!personRootFolder.exists()) {
-			Trace.trace(Trace.ERROR, "Couldn't find /persons folder. Exiting");
-			return;
-		}
-
-		int numWarnings = 0;
-
-		// generate files
-		File[] imageFiles = personRootFolder.listFiles();
-		for (File imgFile : imageFiles) {
-			try {
-				String personStr = imgFile.getName();
-				Trace.trace(Trace.USER, "Updating photo for: " + personStr);
-
-				IPerson person = null;
-				String pn = imgFile.getName().toLowerCase();
-				for (IPerson p : contest.getPersons()) {
-					int count = 0;
-					String[] s = p.getName().split(" ");
-					for (String ss : s)
-						if (pn.contains(ss.toLowerCase()))
-							count++;
-					if (pn.contains(p.getRole().toLowerCase()))
-						count++;
-					if (count == s.length + 1)
-						person = p;
-				}
-
-				if (person == null) {
-					Trace.trace(Trace.USER, "  No match " + contest.getNumPersons());
-					continue;
-				}
-
-				long mod = imgFile.lastModified();
-				BufferedImage img = ImageIO.read(imgFile);
-				if (img == null)
-					continue;
-
-				img = removeBorders(img);
-
-				File personFolder = new File(personRootFolder, person.getId());
-				if (!personFolder.exists())
-					personFolder.mkdirs();
-				else {
-					// clean up old photos
-					File[] files = personFolder.listFiles();
-					for (File ff : files) {
-						if (ff.getName().startsWith("photo") && ff.getName().endsWith(".png") && ff.lastModified() != mod)
-							ff.delete();
-					}
-				}
-
-				boolean hasAlpha = img.getTransparency() != Transparency.OPAQUE;
-				File file = new File(personFolder, DEFAULT_PHOTO_NAME + "jpg");
-				if (hasAlpha)
-					file = new File(personFolder, DEFAULT_PHOTO_NAME + "png");
-				if (!file.exists()) {
-					BufferedImage scImg = img;
-					if (img.getWidth() > MAX_LOGO_SIZE || img.getHeight() > MAX_LOGO_SIZE)
-						scImg = ImageScaler.scaleImage(img, MAX_LOGO_SIZE, MAX_LOGO_SIZE);
-					if (hasAlpha)
-						ImageIO.write(scImg, "png", file);
-					else
-						ImageIO.write(scImg, "jpg", file);
-					file.setLastModified(mod);
-				}
-
-				if (img.getWidth() > TILE.width || img.getHeight() > TILE.height) {
-					BufferedImage scImg = ImageScaler.scaleImage(img, TILE.width, TILE.height);
-					writePhotoWithSize(scImg, personFolder, mod);
-				}
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
-			}
-		}
-
-		Trace.trace(Trace.USER, numWarnings + " warnings out of " + contest.getNumPersons());
+		ImageSpec[] spec = new ImageSpec[] { new ImageSpec(DESKTOP, false), new ImageSpec(TILE, false) };
+		generateImages("persons", "photo", "jpg", spec);
 	}
 
 	private static void createDesktop(BufferedImage img, String name, Font[] fonts, File file) throws IOException {
@@ -689,38 +623,21 @@ public class ImagesGenerator {
 		return list.toArray(new String[0]);
 	}
 
-	private static String getFileName(BufferedImage img) {
-		String name = DEFAULT_NAME;
-		int ind = name.lastIndexOf(".");
-		return name.substring(0, ind) + "." + img.getWidth() + "x" + img.getHeight() + name.substring(ind);
-	}
+	private static void writeImage(String prefix, BufferedImage img, File folder, long mod, boolean includeSize,
+			String preferredExtension) throws IOException {
+		String extension = img.getTransparency() != Transparency.OPAQUE ? "png" : preferredExtension;
+		String filename = prefix + "." + extension;
 
-	private static String getPhotoFileName(BufferedImage img) {
-		String name = DEFAULT_PHOTO_NAME;
-		int ind = name.lastIndexOf(".");
-		return name.substring(0, ind) + "." + img.getWidth() + "x" + img.getHeight() + name.substring(ind);
-	}
+		if (includeSize) {
+			int ind = filename.lastIndexOf(".");
+			filename = filename.substring(0, ind) + "." + img.getWidth() + "x" + img.getHeight() + filename.substring(ind);
+		}
 
-	private static void writeImageWithSize(BufferedImage scImg, File folder, long mod) throws IOException {
-		File file = new File(folder, getFileName(scImg));
-		if (file.exists())
-			return;
-		ImageIO.write(scImg, "png", file);
-		file.setLastModified(mod);
-	}
-
-	private static void writePhotoWithSize(BufferedImage scImg, File folder, long mod) throws IOException {
-		boolean hasAlpha = scImg.getTransparency() != Transparency.OPAQUE;
-		File file = new File(folder, getPhotoFileName(scImg) + "jpg");
-		if (hasAlpha)
-			file = new File(folder, getPhotoFileName(scImg) + "png");
+		File file = new File(folder, filename);
 		if (file.exists())
 			return;
 
-		if (hasAlpha)
-			ImageIO.write(scImg, "png", file);
-		else
-			ImageIO.write(scImg, "jpg", file);
+		ImageIO.write(img, extension, file);
 		file.setLastModified(mod);
 	}
 
@@ -882,15 +799,11 @@ public class ImagesGenerator {
 			String s = (i + 1) + "";
 			g.drawString(s, x, baseline);
 			x += fm.stringWidth(s) + gap;
-			// TODO use images from contest
-			File logoFile = new File(contestRoot,
-					"organizations" + File.separator + orgs[i].getId() + File.separator + DEFAULT_NAME);
 
-			if (logoFile.exists()) {
-				BufferedImage logoImg = ImageIO.read(logoFile);
-				BufferedImage bImg = ImageScaler.scaleImage(logoImg, 24, 24);
+			BufferedImage bImg = orgs[i].getLogoImage(24, 24, true, true);
+			if (bImg != null)
 				g.drawImage(bImg, x, 12 - bImg.getHeight() / 2, null);
-			}
+
 			x += 24 + teamGap / 2;
 
 			g.drawLine(x, 3, x, 20);
@@ -1033,5 +946,64 @@ public class ImagesGenerator {
 		File file = new File(contestRoot, "images" + File.separator + "contest-preview.png");
 
 		ImageIO.write(img, "png", file);
+	}
+
+	private void missingDataReport() {
+		// TODO include logo status - e.g. too small, missing, etc
+
+		int count = 0;
+		File f = new File(contestRoot + File.separator + "missing-data.tsv");
+
+		try {
+			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
+
+			String[] h = new String[] { "Id", "Name", "Formal name", "Logo", "Location", "Twitter hashtag",
+					"Twitter account" };
+			bw.write(String.join("\t", h));
+			bw.newLine();
+
+			for (IOrganization org : contest.getOrganizations()) {
+				String[] s = new String[7];
+				s[0] = org.getId();
+				s[1] = org.getName();
+				s[2] = org.getFormalName();
+
+				if (org.getLogo() == null || org.getLogo().isEmpty()) {
+					s[3] = "X";
+				} else {
+					// check sizes/transparency
+					// s[3] = "?";
+				}
+
+				if (Double.isNaN(org.getLongitude()) || Double.isNaN(org.getLatitude())) {
+					s[4] = "X";
+				}
+				if (org.getTwitterHashtag() == null) {
+					s[5] = "X";
+				}
+				if (org.getTwitterAccount() == null) {
+					s[6] = "X";
+				}
+
+				if (s[3] != null || s[4] != null || s[5] != null || s[6] != null) {
+					count++;
+					for (int i = 3; i < s.length; i++) {
+						if (s[i] == null)
+							s[i] = "";
+					}
+					bw.write(String.join("\t", s));
+					bw.newLine();
+				}
+			}
+
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (count == 0)
+			f.delete();
+		else
+			System.out.println(count + " organizations with missing data logged to missing-data.tsv");
 	}
 }
