@@ -44,6 +44,10 @@ public class TeamContest extends PublicContest {
 
 				// teams see full details for anyone on the team
 				String[] teamIds = person.getTeamIds();
+				if (teamIds == null) {
+					return;
+				}
+
 				for (String ids : teamIds) {
 					if (teamId.equals(ids)) {
 						super.add(person);
