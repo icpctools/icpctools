@@ -371,6 +371,9 @@ public class ContestRESTService extends HttpServlet {
 				writer.write(obj);
 			}
 		}
+		if (IContestObject.isSingleton(type) && objects.length == 0) {
+			writer.writeEmpty();
+		}
 		if (isArray)
 			writer.writePostlude();
 	}
