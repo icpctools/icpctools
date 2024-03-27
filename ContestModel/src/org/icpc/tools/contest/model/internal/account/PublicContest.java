@@ -10,6 +10,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IState;
@@ -18,6 +19,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Judgement;
+import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Submission;
@@ -82,8 +84,10 @@ public class PublicContest extends Contest implements IFilteredContest {
 			case MAP_INFO:
 			case RESOLVE_INFO:
 			case START_STATUS:
-			case ORGANIZATION:
 				super.add(obj);
+				return;
+			case ORGANIZATION:
+				super.add(filterOrganization((IOrganization) obj));
 				return;
 			case JUDGEMENT_TYPE: {
 				super.add(obj);
@@ -276,6 +280,24 @@ public class PublicContest extends Contest implements IFilteredContest {
 		s.setFiles(null);
 		s.setReaction(null);
 		return s;
+	}
+
+	/**
+	 * Helper method to filter organizations.
+	 */
+	protected IOrganization filterOrganization(IOrganization org) {
+		String hideCountryInfo = System.getProperty("hide-country-info");
+		if (hideCountryInfo == null) {
+			hideCountryInfo = System.getenv("HIDE_COUNTRY_INFO");
+		}
+		if (Boolean.parseBoolean(hideCountryInfo)) {
+			Organization o = (Organization) ((Organization) org).clone();
+			o.add("country", null);
+			o.setCountryFlag(null);
+			return o;
+		}
+
+		return org;
 	}
 
 	/**
