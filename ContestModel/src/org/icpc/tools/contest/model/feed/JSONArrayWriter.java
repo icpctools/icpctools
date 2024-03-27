@@ -28,6 +28,11 @@ public class JSONArrayWriter {
 		je.close();
 	}
 
+	public void writeEmpty() {
+		je.open();
+		je.close();
+	}
+
 	public void writeSeparator() {
 		je.writeSeparator();
 	}
