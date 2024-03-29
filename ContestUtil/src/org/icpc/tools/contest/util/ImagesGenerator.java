@@ -60,6 +60,7 @@ public class ImagesGenerator {
 
 	private static final Dimension DESKTOP = new Dimension(1920, 1080);
 	private static final Dimension ICON = new Dimension(56, 56);
+	private static final Dimension DOMJUDGE_ICON = new Dimension(64, 64);
 	private static final Dimension TILE = new Dimension(160, 160);
 
 	private static BufferedImage icpcLogo, logo;
@@ -435,7 +436,7 @@ public class ImagesGenerator {
 
 	public void generateOrganizationLogos() {
 		ImageSpec[] spec = new ImageSpec[] { new ImageSpec(DESKTOP, false), new ImageSpec(ICON, true),
-				new ImageSpec(TILE, true) };
+				new ImageSpec(DOMJUDGE_ICON, true), new ImageSpec(TILE, true) };
 		generateImages("organizations", "logo", "png", spec);
 	}
 
