@@ -257,7 +257,10 @@ public class ContestRESTService extends HttpServlet {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		cc.incrementRest();
 
-		doREST(isArray, type2, filter, writer, contest);
+		if (!doREST(isArray, type2, filter, writer, contest)) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
 	}
 
 	private static void sendAPIInfo(HttpServletResponse response) throws IOException {
@@ -354,13 +357,16 @@ public class ContestRESTService extends HttpServlet {
 		return filter;
 	}
 
-	protected static void doREST(boolean isArray, ContestType type, IContestObjectFilter filter, JSONArrayWriter writer,
-			Contest contest) {
+	protected static boolean doREST(boolean isArray, ContestType type, IContestObjectFilter filter,
+			JSONArrayWriter writer, Contest contest) {
 		if (isArray)
 			writer.writePrelude();
 
 		boolean first = true;
 		IContestObject[] objects = contest.getObjects(type);
+		if (!isArray && objects.length == 0) {
+			return false;
+		}
 		for (IContestObject obj : objects) {
 			obj = filter.filter(obj);
 			if (obj != null && !(obj instanceof IDelete)) {
@@ -373,6 +379,7 @@ public class ContestRESTService extends HttpServlet {
 		}
 		if (isArray)
 			writer.writePostlude();
+		return true;
 	}
 
 	protected static boolean doDownload(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc,
