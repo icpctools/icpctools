@@ -59,6 +59,7 @@ public class BalloonContest extends PublicContest {
 				return;
 			}
 
+			// never add to freeze list b/c we don't want to print balloons on thaw
 			return;
 		}
 

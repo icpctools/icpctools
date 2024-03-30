@@ -54,6 +54,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 
 	protected List<IProblem> problems = new ArrayList<>();
 
+	// objects seen during the freeze that should be sent on thaw
 	protected List<IContestObject> freeze = new ArrayList<>();
 
 	public PublicContest() {
@@ -113,11 +114,8 @@ public class PublicContest extends Contest implements IFilteredContest {
 					}
 					problems.clear();
 				}
-				if (state.getThawed() != null) {
-					for (IContestObject co : freeze) {
-						super.add(co);
-					}
-					freeze.clear();
+				if (state.getThawed() != null && !freeze.isEmpty()) {
+					thaw();
 				}
 				return;
 			}
@@ -204,7 +202,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				// or during the freeze
 				if (getFreezeDuration() != null) {
 					long freezeTime = getDuration() - getFreezeDuration();
-					if (time >= freezeTime) {
+					if (time >= freezeTime && getState().getThawed() != null) {
 						freeze.add(j);
 						return;
 					}
@@ -242,6 +240,14 @@ public class PublicContest extends Contest implements IFilteredContest {
 			default:
 				return;
 		}
+	}
+
+	protected void thaw() {
+		for (IContestObject co : freeze) {
+			// send objects back through add() to ensure filtering
+			add(co);
+		}
+		freeze.clear();
 	}
 
 	/**
