@@ -96,6 +96,8 @@ public class Contest implements IContest {
 
 	public Contest(boolean keepHistory) {
 		data = new ContestData(keepHistory);
+		data.add(info);
+		data.add(state);
 	}
 
 	@Override
@@ -742,9 +744,8 @@ public class Contest implements IContest {
 	}
 
 	public boolean isDoneUpdating() {
-		IState state2 = getState();
-		if (state2 != null)
-			return state2.isDoneUpdating();
+		if (state != null)
+			return state.isDoneUpdating();
 
 		return false;
 	}
