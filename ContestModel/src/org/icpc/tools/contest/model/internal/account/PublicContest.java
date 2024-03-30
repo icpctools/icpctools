@@ -17,6 +17,7 @@ import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Account;
+import org.icpc.tools.contest.model.internal.Clarification;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.Organization;
@@ -217,8 +218,10 @@ public class PublicContest extends Contest implements IFilteredContest {
 				IClarification clar = (IClarification) obj;
 
 				// everyone sees broadcasts
-				if (clar.getFromTeamId() == null && clar.getToTeamId() == null)
+				if (clar.getFromTeamId() == null && clar.getToTeamId() == null) {
+					clar = filterClarification(clar);
 					super.add(clar);
+				}
 
 				return;
 			}
@@ -268,6 +271,21 @@ public class PublicContest extends Contest implements IFilteredContest {
 		p.add(EMAIL, null);
 		p.add(SEX, null);
 		return p;
+	}
+
+	/**
+	 * Helper method for subclasses to filter clarifications.
+	 */
+	protected IClarification filterClarification(IClarification clar) {
+		String rtId = clar.getReplyToId();
+		if (getClarificationById(rtId) == null) {
+			// strip reply_to_id if this account can't see it
+			// (e.g. in case a response to a team was broadcast to everyone)
+			Clarification c = (Clarification) ((Clarification) clar).clone();
+			c.add("reply_to_id", null);
+			return c;
+		}
+		return clar;
 	}
 
 	/**

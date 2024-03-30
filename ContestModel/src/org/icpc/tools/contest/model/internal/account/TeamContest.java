@@ -88,11 +88,13 @@ public class TeamContest extends PublicContest {
 
 				// teams see messages to or from them
 				if (clar.getFromTeamId() != null && teamId.equals(clar.getFromTeamId())) {
+					clar = filterClarification(clar);
 					addIt(clar);
 					return;
 				}
 
 				if (clar.getToTeamId() != null && teamId.equals(clar.getToTeamId())) {
+					clar = filterClarification(clar);
 					addIt(clar);
 					return;
 				}
