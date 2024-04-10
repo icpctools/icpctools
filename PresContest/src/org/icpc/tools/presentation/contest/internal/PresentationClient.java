@@ -20,6 +20,7 @@ import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.presentation.contest.internal.presentations.BrandingPresentation;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.Presentation;
@@ -200,6 +201,17 @@ public class PresentationClient extends BasicClient {
 			} else {
 				Presentation p = loadPresentation(s);
 				if (p != null) {
+					String brand = System.getProperty("ICPC_BRANDING_PRES");
+					if (brand == null)
+						brand = System.getenv("ICPC_BRANDING_PRES");
+					if (brand != null) {
+						Presentation bp = loadPresentation(brand);
+						if (bp != null && bp instanceof BrandingPresentation) {
+							BrandingPresentation bp2 = (BrandingPresentation) bp;
+							bp2.setChildPresentation(p);
+							p = bp2;
+						}
+					}
 					if (value != null)
 						p.setProperty(value);
 					pres.add(p);
