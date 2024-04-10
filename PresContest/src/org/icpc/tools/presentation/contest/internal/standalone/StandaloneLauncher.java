@@ -12,6 +12,7 @@ import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.TeamDisplay;
+import org.icpc.tools.presentation.contest.internal.presentations.BrandingPresentation;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.IPresentationHandler;
 import org.icpc.tools.presentation.core.Presentation;
@@ -290,7 +291,7 @@ public class StandaloneLauncher {
 		Trace.trace(Trace.INFO, "Source: " + ContestSource.getInstance());
 		Trace.trace(Trace.INFO, "Presentations:");
 
-		Presentation[] presentation = new Presentation[pres.length];
+		Presentation[] presentations = new Presentation[pres.length];
 		for (int i = 0; i < pres.length; i++) {
 			PresentationInfo info = pres[i];
 			Trace.trace(Trace.INFO, "   " + info.getId() + " - " + info.getName());
@@ -298,7 +299,21 @@ public class StandaloneLauncher {
 			try {
 				String className = info.getClassName();
 				Class<?> c = pres.getClass().getClassLoader().loadClass(className);
-				presentation[i] = (Presentation) c.getDeclaredConstructor().newInstance();
+				presentations[i] = (Presentation) c.getDeclaredConstructor().newInstance();
+
+				String brand = System.getProperty("ICPC_BRANDING_PRES");
+				if (brand == null)
+					brand = System.getenv("ICPC_BRANDING_PRES");
+				if (brand != null) {
+					Class<?> bc = pres.getClass().getClassLoader().loadClass(brand);
+					Presentation bp = (Presentation) bc.getDeclaredConstructor().newInstance();
+					if (bp != null && bp instanceof BrandingPresentation) {
+						BrandingPresentation bp2 = (BrandingPresentation) bp;
+						bp2.setChildPresentation(presentations[i]);
+						presentations[i] = bp2;
+					}
+				}
+
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "      Could not load presentation");
 				return;
@@ -313,6 +328,6 @@ public class StandaloneLauncher {
 		}
 		if (lightMode)
 			((PresentationWindowImpl) window).setLightMode(true);
-		window.setPresentations(0, presentation, null);
+		window.setPresentations(0, presentations, null);
 	}
 }
