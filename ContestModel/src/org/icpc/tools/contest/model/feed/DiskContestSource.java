@@ -1025,13 +1025,13 @@ public class DiskContestSource extends ContestSource {
 		}
 	}
 
-	private static void loadFile(Contest contest, File f, IContestObject.ContestType type) throws IOException {
+	private void loadFile(File f, IContestObject.ContestType type) throws IOException {
 		if (f == null || !f.exists())
 			return;
 
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-			JSONParser parser = new JSONParser(new FileInputStream(f));
-			Object[] arr = parser.readArray();
+			JSONParser parser2 = new JSONParser(new FileInputStream(f));
+			Object[] arr = parser2.readArray();
 			for (Object obj : arr) {
 				JsonObject data = (JsonObject) obj;
 				String id = data.getString("id");
@@ -1048,14 +1048,16 @@ public class DiskContestSource extends ContestSource {
 		Trace.trace(Trace.INFO, "Imported " + f.getName());
 	}
 
-	private static void loadFileSingle(Contest contest, File f, IContestObject.ContestType type) throws IOException {
+	private void loadFileSingle(File f, IContestObject.ContestType type) throws IOException {
 		if (f == null || !f.exists())
 			return;
 
 		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-			JSONParser parser = new JSONParser(new FileInputStream(f));
-			JsonObject data = parser.readObject();
+			JSONParser parser2 = new JSONParser(new FileInputStream(f));
+			JsonObject data = parser2.readObject();
 			String id = data.getString("id");
+			if (type == IContestObject.ContestType.CONTEST)
+				id = contestId;
 			ContestObject co = (ContestObject) contest.getObjectByTypeAndId(type, id);
 			if (co == null)
 				co = (ContestObject) IContestObject.createByType(type);
@@ -1207,13 +1209,13 @@ public class DiskContestSource extends ContestSource {
 			String name = IContestObject.getTypeName(type);
 			try {
 				File f = new File(folder, name + ".json");
-				if ("contests".equals(name))
+				if (type == IContestObject.ContestType.CONTEST)
 					f = new File(folder, "contest.json");
 				if (f.exists()) {
-					if (IContestObject.isSingleton(type) || "contests".equals(name))
-						loadFileSingle(contest, f, type);
+					if (IContestObject.isSingleton(type) || type == IContestObject.ContestType.CONTEST)
+						loadFileSingle(f, type);
 					else
-						loadFile(contest, f, type);
+						loadFile(f, type);
 				}
 			} catch (Exception e) {
 				configValidation.err("Error importing " + name + ": " + e.getMessage());
