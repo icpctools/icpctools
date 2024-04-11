@@ -325,6 +325,8 @@ public class ContestRESTService extends HttpServlet {
 				StringTokenizer st = new StringTokenizer(val2, ",");
 				while (st.hasMoreTokens()) {
 					String val = st.nextToken();
+					if ("<null>".equals(val))
+						val = null;
 					propFilter.addFilter(name, val);
 				}
 			}
