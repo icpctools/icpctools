@@ -182,7 +182,7 @@ public class BasicClient {
 		this.clientType = type;
 		if (this.name == null)
 			this.name = NetworkUtil.getLocalAddress();
-		uid = (user + type + NetworkUtil.getLocalAddress()).hashCode();
+		uid = (user + type + NetworkUtil.getHostName() + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	// helper method to create based on a REST contest source
@@ -202,7 +202,7 @@ public class BasicClient {
 		this.clientType = type;
 		if (this.name == null)
 			this.name = NetworkUtil.getLocalAddress();
-		uid = (contestSource.getUser() + type + NetworkUtil.getLocalAddress()).hashCode();
+		uid = (contestSource.getUser() + type + NetworkUtil.getHostName() + NetworkUtil.getLocalAddress()).hashCode();
 	}
 
 	/**
@@ -227,7 +227,8 @@ public class BasicClient {
 		this.clientType = clientType.toLowerCase();
 
 		name += " " + NetworkUtil.getLocalAddress();
-		uid = (contestSource.getUser() + clientType + NetworkUtil.getLocalAddress()).hashCode();
+		uid = (contestSource.getUser() + clientType + NetworkUtil.getHostName() + NetworkUtil.getLocalAddress())
+				.hashCode();
 	}
 
 	private static String getAuth(String user, String password) throws UnsupportedEncodingException {
@@ -775,8 +776,10 @@ public class BasicClient {
 
 	private static void writeClients(JSONEncoder je, int[] uids) {
 		je.openChildArray("clients");
-		for (int i = 0; i < uids.length; i++)
-			je.encodeValue(Integer.toHexString(uids[i]));
+		if (uids != null) {
+			for (int i = 0; i < uids.length; i++)
+				je.encodeValue(Integer.toHexString(uids[i]));
+		}
 		je.closeArray();
 	}
 
