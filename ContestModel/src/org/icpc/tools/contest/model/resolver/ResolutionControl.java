@@ -14,6 +14,7 @@ public class ResolutionControl {
 	private int currentPause = -1;
 	private int currentStep = -1;
 	private double speedFactor = 1;
+	private double scrollSpeedFactor = 1;
 	private boolean stepping;
 
 	private final List<IResolutionListener> listeners = new ArrayList<>();
@@ -56,6 +57,14 @@ public class ResolutionControl {
 
 	public void setSpeedFactor(double d) {
 		speedFactor = d;
+	}
+
+	public double getScrollSpeedFactor() {
+		return scrollSpeedFactor;
+	}
+
+	public void setScrollSpeedFactor(double d) {
+		scrollSpeedFactor = d;
 	}
 
 	private void notifyListenersAtStep(ResolutionStep step) {

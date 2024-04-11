@@ -38,6 +38,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 	private Animator scroll = new Animator(0, new Movement(0.5, 0.75));
 	private boolean scrollPause = false;
+	private double scrollSpeed = 1.0;
 	private IAward award;
 
 	private ITeam[] teams;
@@ -164,7 +165,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 	@Override
 	public void incrementTimeMs(long dt) {
 		if (!scrollPause)
-			scroll.incrementTimeMs(dt);
+			scroll.incrementTimeMs((long) (dt * scrollSpeed));
 		super.incrementTimeMs(dt);
 	}
 
@@ -250,6 +251,10 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 
 	public void setScrollPause(boolean pause) {
 		scrollPause = pause;
+	}
+
+	public void setScrollSpeed(double d) {
+		scrollSpeed = d;
 	}
 
 	@Override

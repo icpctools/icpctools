@@ -164,6 +164,9 @@ public class ResolverService {
 							if (resolveInfo.getSpeedFactor() != Double.NaN) {
 								control.setSpeedFactor(resolveInfo.getSpeedFactor());
 							}
+							if (resolveInfo.getScrollSpeedFactor() != Double.NaN) {
+								control.setScrollSpeedFactor(resolveInfo.getScrollSpeedFactor());
+							}
 							int pause = resolveInfo.getClicks();
 							if (pause >= 0 && resolveInfo.getClicks() != control.getCurrentPause()) {
 								boolean includeDelays = true;

@@ -11,6 +11,7 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 public class ResolveInfo extends ContestObject implements IResolveInfo {
 	private static final String CLICKS = "clicks";
 	private static final String SPEED_FACTOR = "speed_factor";
+	private static final String SCROLL_SPEED_FACTOR = "scroll_speed_factor";
 	private static final String ANIMATION_PAUSE = "animation_pause";
 	private static final String SINGLE_STEP_ROW = "single_step_row";
 	private static final String ROW_OFFSET = "row_offset";
@@ -20,6 +21,7 @@ public class ResolveInfo extends ContestObject implements IResolveInfo {
 
 	private int clicks = Integer.MIN_VALUE;
 	private double speedFactor = Double.NaN;
+	private double scrollSpeedFactor = Double.NaN;
 	private boolean animationPause = false;
 	private int singleStepRow = Integer.MIN_VALUE;
 	private int rowOffset = Integer.MIN_VALUE;
@@ -47,6 +49,11 @@ public class ResolveInfo extends ContestObject implements IResolveInfo {
 	@Override
 	public double getSpeedFactor() {
 		return speedFactor;
+	}
+
+	@Override
+	public double getScrollSpeedFactor() {
+		return scrollSpeedFactor;
 	}
 
 	@Override
@@ -83,6 +90,14 @@ public class ResolveInfo extends ContestObject implements IResolveInfo {
 			case SPEED_FACTOR: {
 				try {
 					speedFactor = Double.parseDouble((String) value);
+				} catch (Exception e) {
+					// ignore
+				}
+				return true;
+			}
+			case SCROLL_SPEED_FACTOR: {
+				try {
+					scrollSpeedFactor = Double.parseDouble((String) value);
 				} catch (Exception e) {
 					// ignore
 				}
@@ -137,6 +152,8 @@ public class ResolveInfo extends ContestObject implements IResolveInfo {
 			props.addInt(CLICKS, clicks);
 		if (!Double.isNaN(speedFactor))
 			props.addDouble(SPEED_FACTOR, speedFactor);
+		if (!Double.isNaN(scrollSpeedFactor))
+			props.addDouble(SCROLL_SPEED_FACTOR, scrollSpeedFactor);
 		if (animationPause)
 			props.add(ANIMATION_PAUSE, "true");
 		if (singleStepRow >= 0)
@@ -168,6 +185,7 @@ public class ResolveInfo extends ContestObject implements IResolveInfo {
 		r.id = id;
 		r.clicks = clicks;
 		r.speedFactor = speedFactor;
+		r.scrollSpeedFactor = scrollSpeedFactor;
 		r.animationPause = animationPause;
 		r.singleStepRow = singleStepRow;
 		r.rowOffset = rowOffset;
@@ -181,6 +199,10 @@ public class ResolveInfo extends ContestObject implements IResolveInfo {
 
 	public void setSpeedFactor(double speedFactor) {
 		this.speedFactor = speedFactor;
+	}
+
+	public void setScrollSpeedFactor(double scrollSpeedFactor) {
+		this.scrollSpeedFactor = scrollSpeedFactor;
 	}
 
 	public void setAnimationPause(boolean animPause) {
