@@ -20,6 +20,7 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 
 	private Integer scrollToRow = null;
 	private boolean scrollPause = false;
+	private double scrollSpeed = 1.0;
 
 	private int getNumPages() {
 		IContest contest = getContest();
@@ -54,6 +55,10 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 			setScrollToRow(null);
 	}
 
+	public void setScrollSpeed(double d) {
+		scrollSpeed = d;
+	}
+
 	@Override
 	public void aboutToShow() {
 		super.aboutToShow();
@@ -64,7 +69,7 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 	@Override
 	public void incrementTimeMs(long dt) {
 		if (!scrollPause)
-			rowScroll.incrementTimeMs(dt);
+			rowScroll.incrementTimeMs((long) (dt * scrollSpeed));
 
 		super.incrementTimeMs(dt);
 	}

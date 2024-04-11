@@ -643,6 +643,11 @@ public class Resolver {
 					}
 
 					@Override
+					public void scrollSpeedFactor(double d) {
+						sendScrollSpeedFactor(d);
+					}
+
+					@Override
 					public void swap() {
 						if (ui.length == 1)
 							return;
@@ -720,6 +725,15 @@ public class Resolver {
 
 		ResolveInfo resolveInfo = new ResolveInfo();
 		resolveInfo.setSpeedFactor(factor);
+		putResolve(resolveInfo);
+	}
+
+	private void sendScrollSpeedFactor(double factor) {
+		if (!isPresenter || client == null)
+			return;
+
+		ResolveInfo resolveInfo = new ResolveInfo();
+		resolveInfo.setScrollSpeedFactor(factor);
 		putResolve(resolveInfo);
 	}
 

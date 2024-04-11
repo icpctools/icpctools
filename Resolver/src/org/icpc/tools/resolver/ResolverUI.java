@@ -69,6 +69,8 @@ public class ResolverUI {
 
 		public void speedFactor(double d);
 
+		public void scrollSpeedFactor(double d);
+
 		public void swap();
 	}
 
@@ -137,6 +139,10 @@ public class ResolverUI {
 		if (resolveInfo != null) {
 			if (!Double.isNaN(resolveInfo.getSpeedFactor()))
 				setSpeedFactor(resolveInfo.getSpeedFactor());
+
+			if (!Double.isNaN(resolveInfo.getScrollSpeedFactor()))
+				setScrollSpeedFactor(resolveInfo.getScrollSpeedFactor());
+
 			if (resolveInfo.getClicks() >= 0)
 				firstStep = resolveInfo.getClicks() % 1000 + 1000;
 		}
@@ -239,11 +245,17 @@ public class ResolverUI {
 				else if ('+' == e.getKeyChar() || '=' == e.getKeyChar() || KeyEvent.VK_UP == e.getKeyCode())
 					setSpeedFactorImpl(control.getSpeedFactor() * 0.8);
 				else if ('-' == e.getKeyChar() || '_' == e.getKeyChar() || KeyEvent.VK_DOWN == e.getKeyCode())
-					setSpeedFactorImpl(control.getSpeedFactor() * 1.2); // should only affect the
+					setSpeedFactorImpl(control.getSpeedFactor() * 1.2); // TODO should only affect the
 																							// 'current' animation??
-				else if ('j' == e.getKeyChar() || 'J' == e.getKeyChar())
-					setSpeedFactorImpl(1.0); // TODO should reset to what the command line is??
-				else if ('p' == e.getKeyChar()) {
+				else if ('[' == e.getKeyChar() || '{' == e.getKeyChar())
+					setScrollSpeedFactorImpl(control.getScrollSpeedFactor() * 0.8);
+				else if (']' == e.getKeyChar() || '}' == e.getKeyChar())
+					setScrollSpeedFactorImpl(control.getScrollSpeedFactor() * 1.2);
+				else if ('j' == e.getKeyChar() || 'J' == e.getKeyChar()) {
+					// TODO should reset to what the command line is??
+					setSpeedFactorImpl(1.0);
+					setScrollSpeedFactor(1.0);
+				} else if ('p' == e.getKeyChar()) {
 					setScrollPauseImpl(!pauseScroll);
 				} else if ('i' == e.getKeyChar())
 					scoreboardPresentation.setShowSubmissionInfo(!scoreboardPresentation.getShowSubmissionInfo());
@@ -421,6 +433,25 @@ public class ResolverUI {
 		control.setSpeedFactor(d);
 	}
 
+	private void setScrollSpeedFactorImpl(double d) {
+		if (listener != null)
+			listener.scrollSpeedFactor(d);
+
+		control.setScrollSpeedFactor(d);
+
+		setScrollSpeedFactor(d);
+	}
+
+	public void setScrollSpeedFactor(double d) {
+		control.setScrollSpeedFactor(d);
+
+		if (teamListPresentation != null)
+			teamListPresentation.setScrollSpeed(d);
+
+		if (scoreboardPresentation != null)
+			scoreboardPresentation.setScrollSpeed(d);
+	}
+
 	private void setScrollPauseImpl(boolean pause) {
 		if (pause == pauseScroll)
 			return;
@@ -435,6 +466,7 @@ public class ResolverUI {
 		pauseScroll = pause;
 		if (teamListPresentation != null)
 			teamListPresentation.setScrollPause(pause);
+
 		if (scoreboardPresentation != null)
 			scoreboardPresentation.setScrollPause(pause);
 	}
