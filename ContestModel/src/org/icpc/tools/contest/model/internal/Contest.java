@@ -96,7 +96,6 @@ public class Contest implements IContest {
 
 	public Contest(boolean keepHistory) {
 		data = new ContestData(keepHistory);
-		data.add(info);
 		data.add(state);
 	}
 
