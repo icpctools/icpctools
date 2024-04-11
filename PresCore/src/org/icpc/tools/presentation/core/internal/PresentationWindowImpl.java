@@ -364,6 +364,12 @@ public class PresentationWindowImpl extends PresentationWindow {
 					long ns = System.nanoTime();
 					long startTime = ns;
 					while (true) {
+						// check if the window is visible
+						if (!isVisible()) {
+							// we're in the background, just delay by 500ms to slow things down
+							LockSupport.parkNanos(500 * 1000000L);
+						}
+
 						long now = System.nanoTime();
 						try {
 							boolean b = false;
