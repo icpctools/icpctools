@@ -8,8 +8,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -296,11 +294,15 @@ public class YamlParser {
 		Map<?, ?> map = (Map<?, ?>) obj;
 		obj = map.get("name");
 		// time_limit
-		if (obj != null) {
-			if (obj instanceof String) {
-				p.add("name", obj.toString());
-			} else if (obj instanceof Map<?, ?>) {
-				// TODO map = (Map<?, ?>) obj;
+		if (obj != null && obj instanceof String) {
+			p.add("name", obj.toString());
+		}
+		obj = map.get("limits");
+		if (obj != null && obj instanceof Map<?, ?>) {
+			Map<?, ?> limits = (Map<?, ?>) obj;
+			Object s = limits.get("timeout");
+			if (s != null) {
+				p.add("time_limit", s.toString());
 			}
 		}
 
