@@ -155,6 +155,9 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static IGroup[] nonEmptyGroups(IContest contest) {
 		HashSet<String> groupIdsWithTeams = new HashSet<>();
 		for (ITeam t : contest.getTeams()) {
+			if (contest.isTeamHidden(t)) {
+				continue;
+			}
 			groupIdsWithTeams.addAll(Arrays.asList(t.getGroupIds()));
 		}
 		IGroup[] allGroups = contest.getGroups();
@@ -177,6 +180,9 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		List<Position> pos = new ArrayList<>();
 		HashSet<String> orgs = new HashSet<>();
 		for (ITeam t : teams) {
+			if (contest.isTeamHidden(t)) {
+				continue;
+			}
 			IOrganization org = contest.getOrganizationById(t.getOrganizationId());
 			String[] groupIds = t.getGroupIds();
 			if (org != null && (groupId == null || GroupPresentation.belongsToGroup(groupIds, groupId))) {
