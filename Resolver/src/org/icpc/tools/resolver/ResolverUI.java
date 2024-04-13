@@ -38,6 +38,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
+import org.icpc.tools.presentation.contest.internal.presentations.BrandingPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.MessagePresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.StaticLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.JudgePresentation2;
@@ -619,6 +620,24 @@ public class ResolverUI {
 			return;
 
 		currentPresentation = pres2;
+
+		try {
+			String brand = System.getProperty("ICPC_BRANDING_PRES");
+			if (brand == null)
+				brand = System.getenv("ICPC_BRANDING_PRES");
+			if (brand != null) {
+				Class<?> bc = getClass().getClassLoader().loadClass(brand);
+				Presentation bp = (Presentation) bc.getDeclaredConstructor().newInstance();
+				if (bp != null && bp instanceof BrandingPresentation) {
+					BrandingPresentation bp2 = (BrandingPresentation) bp;
+					bp2.setChildPresentation(pres2);
+					pres2 = bp2;
+				}
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error loading branding", e);
+		}
+
 		window.setPresentation(pres2);
 		// Transition t = new SlidesTransition();
 		// long time = System.currentTimeMillis() + 1000;
