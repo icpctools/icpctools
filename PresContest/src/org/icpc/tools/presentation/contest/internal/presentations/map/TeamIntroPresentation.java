@@ -139,8 +139,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 
-		// TODO don't include empty groups
-		IGroup[] groups = contest.getGroups();
+		IGroup[] groups = nonEmptyGroups(contest);
 		int numGroups = groups.length;
 		zooms = new GroupZoom[numGroups];
 		long time = 0;
@@ -151,6 +150,15 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			time += TIME_PER_GROUP + zooms[i].instPos.length * TIME_PER_TEAM;
 			zooms[i].endTime = time;
 		}
+	}
+
+	private static IGroup[] nonEmptyGroups(IContest contest) {
+		HashSet<String> groupIdsWithTeams = new HashSet<>();
+		for (ITeam t : contest.getTeams()) {
+			groupIdsWithTeams.addAll(Arrays.asList(t.getGroupIds()));
+		}
+		IGroup[] allGroups = contest.getGroups();
+		return Arrays.stream(allGroups).filter(g -> groupIdsWithTeams.contains(g.getId())).toArray(IGroup[]::new);
 	}
 
 	public static GroupZoom setTargets(IContest contest, String groupId, int height) {
