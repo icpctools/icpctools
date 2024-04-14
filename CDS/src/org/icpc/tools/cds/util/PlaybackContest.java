@@ -526,9 +526,6 @@ public class PlaybackContest extends Contest {
 
 		if (def != null) {
 			Map<String, Object> props = def.getProperties();
-			if (type == IContestObject.ContestType.CONTEST) {
-				props.remove("start_time");
-			}
 			Map<String, Object> existingProps = obj.getProperties();
 			for (String key : props.keySet()) {
 				boolean found = false;
@@ -536,7 +533,8 @@ public class PlaybackContest extends Contest {
 					if (key2.equals(key))
 						found = true;
 				}
-				if (!found) {
+
+				if (!found && (type != IContestObject.ContestType.CONTEST || !key.equals("start_time"))) {
 					((ContestObject) obj).add(key, props.get(key));
 				}
 			}
