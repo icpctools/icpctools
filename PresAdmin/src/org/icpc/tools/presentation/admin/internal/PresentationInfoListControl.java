@@ -25,6 +25,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -81,6 +82,7 @@ public class PresentationInfoListControl extends Canvas {
 	protected boolean fixedContents;
 
 	protected int fontHeight = 16;
+	protected boolean forceDark;
 
 	public PresentationInfoListControl(Composite parent, int style) {
 		this(parent, style, DEFAULT_THUMBNAIL_SIZE, true, DisplayStyle.CATEGORY);
@@ -497,6 +499,10 @@ public class PresentationInfoListControl extends Canvas {
 
 		GC gc = event.gc;
 		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+		if (forceDark) {
+			Color dark = new Color(getDisplay(), 31, 31, 31);
+			gc.setBackground(dark);
+		}
 		gc.fillRectangle(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2);
 
 		Font font = getDisplay().getSystemFont();
@@ -654,10 +660,14 @@ public class PresentationInfoListControl extends Canvas {
 			gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
 			gc.drawRectangle(x, y, thumbnailSize.width, rh);
 
-			if (selection == info)
+			if (selection == info) {
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
-			else
+			} else {
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
+				if (forceDark) {
+					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+				}
+			}
 
 			String name = getName(info);
 			Point p = gc.textExtent(name);
@@ -799,5 +809,9 @@ public class PresentationInfoListControl extends Canvas {
 
 	protected Image getImage(PresentationInfo info) {
 		return PresentationHelper.getPresentationImage(info);
+	}
+
+	protected void setForceDark(boolean forceDark) {
+		this.forceDark = forceDark;
 	}
 }
