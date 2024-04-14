@@ -5,7 +5,6 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
-import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Submission;
 
@@ -35,23 +34,6 @@ public class SpectatorContest extends PublicContest {
 		}
 
 		switch (cType) {
-			case SUBMISSION: {
-				ISubmission sub = (ISubmission) obj;
-
-				// hide submissions from outside the contest time
-				long time = sub.getContestTime();
-				if (time < 0 || time >= getDuration())
-					return;
-
-				// hide submissions from hidden teams
-				ITeam team = getTeamById(sub.getTeamId());
-				if (isTeamHidden(team))
-					return;
-
-				// TODO - language
-				super.add(sub);
-				return;
-			}
 			case COMMENTARY: {
 				addIt(obj);
 				return;
