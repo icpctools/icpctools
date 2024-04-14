@@ -120,6 +120,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 			for (Presentation p : presentations) {
 				if (key.equals(getPresentationKey(p.getClass().getName())))
 					p.setProperty(value);
+				else if ("BrandingPresentation".equals(p.getClass().getSimpleName()))
+					p.setProperty(key + ":" + value);
 			}
 
 			if (isGlobalKey(key))
