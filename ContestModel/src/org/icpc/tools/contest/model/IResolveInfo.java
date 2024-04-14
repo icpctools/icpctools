@@ -33,7 +33,7 @@ public interface IResolveInfo extends IContestObject {
 	double getSpeedFactor();
 
 	/**
-	 * Returns the scroll speed factor. Normal speed is 1, <1 is faster and >1 is slower.
+	 * Returns the scroll speed factor. Normal speed is 1, >1 is faster and <1 is slower.
 	 *
 	 * @return the relative scrolling speed
 	 */
