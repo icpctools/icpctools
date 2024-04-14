@@ -13,6 +13,8 @@ import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class BrandingPresentation extends AbstractICPCPresentation {
+	private int border = 10;
+	private int topBorder = 10;
 	protected int header = 20;
 	protected Font font;
 
@@ -20,10 +22,6 @@ public class BrandingPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void init() {
-		header = height / 20;
-		final float dpi = 96;
-		font = ICPCFont.deriveFont(Font.BOLD, height * 3.5f / dpi);
-
 		if (childPresentation != null)
 			childPresentation.init();
 	}
@@ -72,10 +70,12 @@ public class BrandingPresentation extends AbstractICPCPresentation {
 		super.setSize(d);
 
 		header = height / 20;
+		border = height / 150;
+		topBorder = height / 300;
 		final float dpi = 96;
 		font = ICPCFont.deriveFont(Font.BOLD, height * 3.5f / dpi);
 
-		Dimension dd = new Dimension(d.width, d.height - header);
+		Dimension dd = new Dimension(d.width - border * 2, d.height - header - topBorder - border);
 		if (childPresentation != null)
 			childPresentation.setSize(dd);
 	}
@@ -106,27 +106,30 @@ public class BrandingPresentation extends AbstractICPCPresentation {
 			childPresentation.dispose();
 	}
 
-	private static Color foregroundColor(Color background) {
-		int r = background.getRed();
-		int g = background.getGreen();
-		int b = background.getBlue();
-		// http://www.w3.org/TR/AERT#color-contrast
-		int brightness = (int) Math.round(((r * 299) + (g * 587) + (b * 114)) / 1000.0);
+	public static void drawStringWithOutline(Graphics2D g, String s, int x, int y) {
+		g.setColor(Color.BLACK);
+		g.drawString(s, x - 1, y - 1);
+		g.drawString(s, x - 1, y + 1);
+		g.drawString(s, x + 1, y - 1);
+		g.drawString(s, x + 1, y + 1);
 
-		return brightness > 125 ? Color.black : Color.white;
+		g.setColor(Color.WHITE);
+		g.drawString(s, x, y);
 	}
 
 	@Override
 	public void paint(Graphics2D g) {
 		if (childPresentation != null) {
-			Graphics2D gg = (Graphics2D) g.create(0, header, width, height - header);
+			Graphics2D gg = (Graphics2D) g.create(border, header + topBorder, width - border * 2,
+					height - header - topBorder - border);
 			childPresentation.paint(gg);
 			gg.dispose();
 		}
 
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-		g.setFont(font);
+		if (font != null)
+			g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 
 		IContest contest = getContest();
@@ -136,12 +139,18 @@ public class BrandingPresentation extends AbstractICPCPresentation {
 			Color contestColor = contest.getColorVal();
 			if (contestColor != null) {
 				g.setColor(contestColor);
-				g.fillRect(0, 0, width, header - height / 100);
-				g.setColor(foregroundColor(contestColor));
+				g.fillRect(0, 0, width, header - topBorder);
+
+				if (border > 0) {
+					g.fillRect(0, header - topBorder, border, height - header + topBorder);
+					g.fillRect(width - border, header - topBorder, border, height - header + topBorder);
+					g.fillRect(border, height - border, width - border * 2, border);
+				}
 			}
 
-			g.drawString(contest.getActualFormalName(), (width - fm.stringWidth(contest.getActualFormalName())) / 2,
-					fm.getAscent() + height / 160);
+			String name = contest.getActualFormalName();
+			if (name != null)
+				drawStringWithOutline(g, name, (width - fm.stringWidth(name)) / 2, fm.getAscent() + height / 140);
 		}
 	}
 }
