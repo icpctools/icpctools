@@ -29,6 +29,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -83,6 +84,7 @@ public class ClientsControl extends Canvas {
 	protected int yOrigin = 0;
 	private boolean waitingForRedraw;
 	protected List<String> filter = new ArrayList<>();
+	protected boolean forceDark;
 
 	class ClientInfo {
 		int width;
@@ -686,6 +688,10 @@ public class ClientsControl extends Canvas {
 
 		GC gc = event.gc;
 		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+		if (forceDark) {
+			Color dark = new Color(getDisplay(), 31, 31, 31);
+			gc.setBackground(dark);
+		}
 		gc.fillRectangle(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2);
 
 		Font font = getDisplay().getSystemFont();
@@ -764,10 +770,14 @@ public class ClientsControl extends Canvas {
 					gc.drawRectangle(p.x, p.y, r.width, r.height);
 				}
 
-				if (selection.contains(uid))
+				if (selection.contains(uid)) {
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
-				else
+				} else {
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
+					if (forceDark) {
+						gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+					}
+				}
 
 				// name & current resolution/fps
 				if (dc != null && dc.id != -1)
@@ -833,6 +843,10 @@ public class ClientsControl extends Canvas {
 			}
 		}
 		resize();
+	}
+
+	protected void setForceDark(boolean forceDark) {
+		this.forceDark = forceDark;
 	}
 
 	protected String getSelectionDetail() {

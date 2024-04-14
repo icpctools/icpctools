@@ -17,6 +17,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -46,6 +47,7 @@ public class View {
 	private static final String PREF_DISPLAY_AREA = "displayArea";
 	private static Preferences prefs = new PropertiesPreferences(PREF_ID);
 
+	private Composite partControl;
 	private PresentationInfoListControl presentationList;
 	private List<PresentationInfo> presentations = new ArrayList<>();
 	private List<PresentationInfo> transitions = new ArrayList<>();
@@ -253,6 +255,8 @@ public class View {
 
 		createMenu(parent.getShell());
 		clientsControl.setFocus();
+
+		partControl = parent;
 	}
 
 	protected void writeProperty(String key, String value) throws Exception {
@@ -880,6 +884,26 @@ public class View {
 			}
 		});
 
+		// Note: Dark themes does not seem to be supported by SWT on Windows,
+		//       but works on mac by default, for example.
+		//       This adds an option to force dark mode by manually overriding background colors.
+		final MenuItem forceDarkMenu = new MenuItem(submenu, SWT.CHECK);
+		forceDarkMenu.setText("Force &Dark mode");
+		forceDarkMenu.addSelectionListener(new SelectionAdapter() {
+			boolean forceDark = false;
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				forceDark = !forceDark;
+				clientsControl.setForceDark(forceDark);
+				clientsControl.redraw();
+				presentationList.setForceDark(forceDark);
+				presentationList.redraw();
+
+				setBackground(forceDark);
+			}
+		});
+
 		new MenuItem(submenu, SWT.SEPARATOR);
 
 		MenuItem presFilterMenu = new MenuItem(submenu, SWT.CHECK);
@@ -1053,6 +1077,23 @@ public class View {
 					}
 				}
 			});
+		}
+	}
+
+	private void setBackground(boolean forceDark) {
+		Color back = partControl.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
+		if (forceDark) {
+			back = new Color(partControl.getDisplay(), 47, 47, 47);
+		}
+		partControl.setBackground(back);
+		for (Control child : partControl.getChildren()) {
+			child.setBackground(back);
+			if (child instanceof Composite) {
+				Composite comp = (Composite) child;
+				for (Control child2 : comp.getChildren()) {
+					child2.setBackground(back);
+				}
+			}
 		}
 	}
 }
