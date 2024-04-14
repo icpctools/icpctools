@@ -94,7 +94,7 @@
                     </button>
                 </td>
                 <td>
-                    <button id="remove3" class="btn btn-secondary"
+                    <button id="remove2" class="btn btn-secondary"
                             onclick="sendCommand('remove', 'remove: ' + $('#timeSelect2').val())">Remove
                     </button>
                 </td>
