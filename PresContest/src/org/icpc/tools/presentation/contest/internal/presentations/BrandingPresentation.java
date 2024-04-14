@@ -51,11 +51,20 @@ public class BrandingPresentation extends AbstractICPCPresentation {
 		return childPresentation.getRepeatTimeMs();
 	}
 
+	private static String getPresentationKey(String className) {
+		int ind = className.lastIndexOf(".");
+		return "property[" + className.substring(ind + 1) + "|" + className.hashCode() + "]";
+	}
+
 	@Override
 	public void setProperty(String s) {
 		super.setProperty(s);
-		if (childPresentation != null)
-			childPresentation.setProperty(s);
+		if (childPresentation != null) {
+			String k = getPresentationKey(childPresentation.getClass().getName()) + ":";
+			if (s.startsWith(k)) {
+				childPresentation.setProperty(s.substring(k.length()));
+			}
+		}
 	}
 
 	@Override
