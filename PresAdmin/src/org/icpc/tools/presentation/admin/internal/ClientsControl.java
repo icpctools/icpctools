@@ -84,7 +84,7 @@ public class ClientsControl extends Canvas {
 	protected int yOrigin = 0;
 	private boolean waitingForRedraw;
 	protected List<String> filter = new ArrayList<>();
-	protected boolean forceDark;
+	protected View.ForceTheme forceTheme;
 
 	class ClientInfo {
 		int width;
@@ -687,11 +687,18 @@ public class ClientsControl extends Canvas {
 		// long time = System.currentTimeMillis();
 
 		GC gc = event.gc;
-		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-		if (forceDark) {
-			Color dark = new Color(getDisplay(), 31, 31, 31);
-			gc.setBackground(dark);
+		Color back = getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+		if (forceTheme != null) {
+			switch (forceTheme) {
+				case DARK:
+					back = new Color(getDisplay(), 31, 31, 31);
+					break;
+				case LIGHT:
+					back = new Color(getDisplay(), 239, 239, 239);
+					break;
+			}
 		}
+		gc.setBackground(back);
 		gc.fillRectangle(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2);
 
 		Font font = getDisplay().getSystemFont();
@@ -773,10 +780,18 @@ public class ClientsControl extends Canvas {
 				if (selection.contains(uid)) {
 					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
 				} else {
-					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
-					if (forceDark) {
-						gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+					Color fore = getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+					if (forceTheme != null) {
+						switch (forceTheme) {
+							case DARK:
+								fore = getDisplay().getSystemColor(SWT.COLOR_GRAY);
+								break;
+							case LIGHT:
+								fore = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+								break;
+						}
 					}
+					gc.setForeground(fore);
 				}
 
 				// name & current resolution/fps
@@ -845,8 +860,8 @@ public class ClientsControl extends Canvas {
 		resize();
 	}
 
-	protected void setForceDark(boolean forceDark) {
-		this.forceDark = forceDark;
+	protected void setForceTheme(View.ForceTheme forceTheme) {
+		this.forceTheme = forceTheme;
 	}
 
 	protected String getSelectionDetail() {
