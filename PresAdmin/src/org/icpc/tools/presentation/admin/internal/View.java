@@ -890,17 +890,48 @@ public class View {
 		final MenuItem forceDarkMenu = new MenuItem(submenu, SWT.CHECK);
 		forceDarkMenu.setText("Force &Dark mode");
 		forceDarkMenu.addSelectionListener(new SelectionAdapter() {
-			boolean forceDark = false;
+			ForceTheme forceTheme = ForceTheme.SYSTEM;
 
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				forceDark = !forceDark;
-				clientsControl.setForceDark(forceDark);
+				switch (forceTheme) {
+					case SYSTEM:
+						forceTheme = ForceTheme.DARK;
+						break;
+					default:
+						forceTheme = ForceTheme.SYSTEM;
+						break;
+				}
+				clientsControl.setForceTheme(forceTheme);
 				clientsControl.redraw();
-				presentationList.setForceDark(forceDark);
+				presentationList.setForceTheme(forceTheme);
 				presentationList.redraw();
 
-				setBackground(forceDark);
+				setBackground(forceTheme);
+			}
+		});
+
+		final MenuItem forceLightMenu = new MenuItem(submenu, SWT.CHECK);
+		forceLightMenu.setText("Force &Light mode");
+		forceLightMenu.addSelectionListener(new SelectionAdapter() {
+			ForceTheme forceTheme = ForceTheme.SYSTEM;
+
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				switch (forceTheme) {
+					case SYSTEM:
+						forceTheme = ForceTheme.LIGHT;
+						break;
+					default:
+						forceTheme = ForceTheme.SYSTEM;
+						break;
+				}
+				clientsControl.setForceTheme(forceTheme);
+				clientsControl.redraw();
+				presentationList.setForceTheme(forceTheme);
+				presentationList.redraw();
+
+				setBackground(forceTheme);
 			}
 		});
 
@@ -1080,10 +1111,23 @@ public class View {
 		}
 	}
 
-	private void setBackground(boolean forceDark) {
+	public static enum ForceTheme {
+		LIGHT,
+		DARK,
+		SYSTEM
+	}
+
+	private void setBackground(ForceTheme forceTheme) {
 		Color back = partControl.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-		if (forceDark) {
-			back = new Color(partControl.getDisplay(), 47, 47, 47);
+		if (forceTheme != null) {
+			switch (forceTheme) {
+				case DARK:
+					back = new Color(partControl.getDisplay(), 47, 47, 47);
+					break;
+				case LIGHT:
+					back = new Color(partControl.getDisplay(), 223, 223, 223);
+					break;
+			}
 		}
 		partControl.setBackground(back);
 		for (Control child : partControl.getChildren()) {

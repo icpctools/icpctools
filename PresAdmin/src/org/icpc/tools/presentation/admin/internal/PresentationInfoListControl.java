@@ -82,7 +82,7 @@ public class PresentationInfoListControl extends Canvas {
 	protected boolean fixedContents;
 
 	protected int fontHeight = 16;
-	protected boolean forceDark;
+	protected View.ForceTheme forceTheme;
 
 	public PresentationInfoListControl(Composite parent, int style) {
 		this(parent, style, DEFAULT_THUMBNAIL_SIZE, true, DisplayStyle.CATEGORY);
@@ -498,11 +498,18 @@ public class PresentationInfoListControl extends Canvas {
 			return;
 
 		GC gc = event.gc;
-		gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-		if (forceDark) {
-			Color dark = new Color(getDisplay(), 31, 31, 31);
-			gc.setBackground(dark);
+		Color back = getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND);
+		if (forceTheme != null) {
+			switch (forceTheme) {
+				case DARK:
+					back = new Color(getDisplay(), 31, 31, 31);
+					break;
+				case LIGHT:
+					back = new Color(getDisplay(), 239, 239, 239);
+					break;
+			}
 		}
+		gc.setBackground(back);
 		gc.fillRectangle(rect.x + 1, rect.y + 1, rect.width - 2, rect.height - 2);
 
 		Font font = getDisplay().getSystemFont();
@@ -663,10 +670,18 @@ public class PresentationInfoListControl extends Canvas {
 			if (selection == info) {
 				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
 			} else {
-				gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
-				if (forceDark) {
-					gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_GRAY));
+				Color fore = getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+				if (forceTheme != null) {
+					switch (forceTheme) {
+						case DARK:
+							fore = getDisplay().getSystemColor(SWT.COLOR_GRAY);
+							break;
+						case LIGHT:
+							fore = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+							break;
+					}
 				}
+				gc.setForeground(fore);
 			}
 
 			String name = getName(info);
@@ -811,7 +826,7 @@ public class PresentationInfoListControl extends Canvas {
 		return PresentationHelper.getPresentationImage(info);
 	}
 
-	protected void setForceDark(boolean forceDark) {
-		this.forceDark = forceDark;
+	protected void setForceTheme(View.ForceTheme forceTheme) {
+		this.forceTheme = forceTheme;
 	}
 }
