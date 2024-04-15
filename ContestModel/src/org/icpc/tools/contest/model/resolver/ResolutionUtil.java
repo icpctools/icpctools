@@ -26,7 +26,7 @@ public class ResolutionUtil {
 
 	public static class PresentationStep implements ResolutionStep {
 		public enum Presentations {
-			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST
+			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST, TEAM_LIST_PHOTO
 		}
 
 		public Presentations p;
@@ -203,11 +203,13 @@ public class ResolutionUtil {
 		public ITeam[] teams;
 		public int topTeam;
 		public Map<String, SelectType> selections;
+		public boolean photos;
 
-		public ListAwardStep(IAward award, ITeam[] teams, Map<String, SelectType> selections) {
+		public ListAwardStep(IAward award, ITeam[] teams, Map<String, SelectType> selections, boolean photos) {
 			this.award = award;
 			this.teams = teams;
 			this.selections = selections;
+			this.photos = photos;
 		}
 
 		@Override

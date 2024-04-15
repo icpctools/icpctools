@@ -37,9 +37,10 @@ public interface IAward extends IContestObject {
 	// details.
 	// 'Pause' will pause but then move on.
 	// 'List' will stop to show a list, but only after all teams have been resolved.
+	// 'Photos' is the same as list, but will show photos instead of a list.
 	// 'Ignore' will skip award (but will be listed if you stop for detail for another award).
 	public enum DisplayMode {
-		DETAIL, PAUSE, LIST, IGNORE
+		DETAIL, PAUSE, LIST, PHOTOS, IGNORE
 	}
 
 	AwardType WINNER = new AwardType("Winner", "winner");

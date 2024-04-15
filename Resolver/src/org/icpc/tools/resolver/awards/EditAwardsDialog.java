@@ -207,7 +207,8 @@ public class EditAwardsDialog extends Dialog {
 		modeLabel.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		mode = new Combo(awardGroup, SWT.READ_ONLY);
-		mode.setItems(new String[] { "Stop to show details", "Pause and move on", "Show as list", "Ignore" });
+		mode.setItems(
+				new String[] { "Stop to show details", "Pause and move on", "Show as list", "Show photos", "Ignore" });
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.horizontalSpan = 2;
 		mode.setLayoutData(data);
