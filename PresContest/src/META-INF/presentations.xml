@@ -648,6 +648,12 @@
       category="Resolver"
       properties="award-id:# - award id"
       class="org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPresentation"/>
+    <presentation
+      id="org.icpc.tools.presentation.contest.resolver.team.list.photo"
+      name="List Photo Award"
+      category="Resolver"
+      properties="award-id:# - award id"
+      class="org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPhotoPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.resolver.team.logo"
       name="Team Logo"

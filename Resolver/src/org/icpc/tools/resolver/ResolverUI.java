@@ -45,6 +45,7 @@ import org.icpc.tools.presentation.contest.internal.presentations.resolver.Judge
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.OrgsPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.SplashPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamAwardPresentation;
+import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPhotoPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation;
@@ -108,6 +109,7 @@ public class ResolverUI {
 	private TeamAwardPresentation awardPresentation;
 	private TeamLogoPresentation teamLogoPresentation;
 	private TeamListPresentation teamListPresentation;
+	private TeamListPhotoPresentation teamListPhotoPresentation;
 	private MessagePresentation messagePresentation;
 	private JudgePresentation2 judgePresentation;
 	private StaticLogoPresentation logoPresentation;
@@ -346,6 +348,16 @@ public class ResolverUI {
 		teamListPresentation.setSize(window.getSize());
 		teamListPresentation.setContest(contest);
 
+		teamListPhotoPresentation = new TeamListPhotoPresentation() {
+			@Override
+			public void paint(Graphics2D g) {
+				super.paint(g);
+				paintHook(g);
+			}
+		};
+		teamListPhotoPresentation.setSize(window.getSize());
+		teamListPhotoPresentation.setContest(contest);
+
 		final float dpi = 96;
 		float size = (window.getHeight() / 14f) * 36f / dpi;
 		messageFont = ICPCFont.deriveFont(Font.PLAIN, size);
@@ -490,6 +502,7 @@ public class ResolverUI {
 			splashPresentation.setContest(state.contest);
 			scoreboardPresentation.setContest(state.contest);
 			teamListPresentation.setContest(state.contest);
+			teamListPhotoPresentation.setContest(state.contest);
 			judgePresentation.setContest(state.contest);
 			awardPresentation.setContest(state.contest);
 			if (teamLogoPresentation != null)
@@ -520,6 +533,7 @@ public class ResolverUI {
 		} else if (step instanceof ListAwardStep) {
 			ListAwardStep teamList = (ListAwardStep) step;
 			teamListPresentation.setAward(teamList.award);
+			teamListPhotoPresentation.setAward(teamList.award);
 			if (messagePresentation != null)
 				messagePresentation.setProperty(teamList.award.getCitation());
 		} else if (step instanceof ScrollTeamListStep) {
@@ -546,6 +560,8 @@ public class ResolverUI {
 				setPresentation(awardPresentation);
 			else if (pstep.p == PresentationStep.Presentations.TEAM_LIST)
 				setPresentation(teamListPresentation);
+			else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO)
+				setPresentation(teamListPhotoPresentation);
 		} else {
 			Trace.trace(Trace.ERROR, "Unknown resolution step!");
 			System.exit(1);
@@ -609,6 +625,8 @@ public class ResolverUI {
 			if (pres == scoreboardPresentation || pres == judgePresentation)
 				pres2 = logoPresentation;
 			if (pres == teamListPresentation)
+				pres2 = messagePresentation;
+			if (pres == teamListPhotoPresentation)
 				pres2 = messagePresentation;
 			if (pres == awardPresentation)
 				pres2 = teamLogoPresentation;

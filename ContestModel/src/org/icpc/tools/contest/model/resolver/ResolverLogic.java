@@ -169,7 +169,7 @@ public class ResolverLogic {
 			if (teamIds != null) {
 				if (award.getDisplayMode() == DisplayMode.IGNORE || teamIds.length == 0) {
 					// requested to ignore, or no/empty award
-				} else if (award.getDisplayMode() != DisplayMode.LIST) {
+				} else if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
 					for (String teamId : teamIds) {
 						List<IAward> aw = awards.get(teamId);
 						if (aw == null) {
@@ -190,7 +190,8 @@ public class ResolverLogic {
 						// TODO figure out selections
 					}
 
-					ListAwardStep step = new ListAwardStep(award, teams, selections);
+					ListAwardStep step = new ListAwardStep(award, teams, selections,
+							award.getDisplayMode() == DisplayMode.PHOTOS);
 					step.topTeam = topTeam;
 					teamLists.add(step);
 				}
@@ -449,9 +450,13 @@ public class ResolverLogic {
 						steps.add(new PauseStep());
 						steps.add(new ScrollTeamListStep(true));
 						steps.add(step);
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
-						steps.add(new PauseStep());
-						steps.add(new ScrollTeamListStep(false));
+						if (step.photos) {
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+						} else {
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
+							steps.add(new PauseStep());
+							steps.add(new ScrollTeamListStep(false));
+						}
 						steps.add(new PauseStep());
 						if (judgeStep != null) {
 							int size = judgeRuns.size();
