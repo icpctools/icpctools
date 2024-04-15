@@ -749,7 +749,7 @@ public class View {
 		data.horizontalSpan = 3;
 		comp.setLayoutData(data);
 
-		layout = new GridLayout(3, true);
+		layout = new GridLayout(4, true);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		layout.horizontalSpacing = 5;
@@ -817,6 +817,29 @@ public class View {
 					PresentationListIO.save(composites);
 				} catch (IOException e) {
 					Trace.trace(Trace.ERROR, "Error creating new presentation", e);
+				}
+			}
+		});
+
+		registerAction(createButton(comp, "Reload", "Reload custom presentations"), new RemoteAction() {
+			@Override
+			public void run() throws Exception {
+				try {
+					composites = PresentationListIO.load();
+					List<PresentationInfo> oldComposites = new ArrayList<>();
+					for (PresentationInfo pres : presentationList.getPresentationInfos()) {
+						if (pres instanceof CompositePresentationInfo) {
+							oldComposites.add(pres);
+						}
+					}
+					for (PresentationInfo pres : oldComposites) {
+						presentationList.remove(pres);
+					}
+					for (CompositePresentationInfo list : composites) {
+						presentationList.add(list);
+					}
+				} catch (IOException e) {
+					Trace.trace(Trace.ERROR, "Error loading presentations", e);
 				}
 			}
 		});
