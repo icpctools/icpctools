@@ -1,12 +1,9 @@
 package org.icpc.tools.contest.model.internal.account;
 
-import org.icpc.tools.contest.model.IAccount;
-import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.IDelete;
-import org.icpc.tools.contest.model.IProblem;
-import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.*;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.Submission;
+import org.icpc.tools.contest.model.internal.Team;
 
 /**
  * Filter that adds things spectators can see compared to public/team area:
@@ -36,6 +33,17 @@ public class SpectatorContest extends PublicContest {
 		switch (cType) {
 			case COMMENTARY: {
 				addIt(obj);
+				return;
+			}
+			case TEAM: {
+				ITeam team = (ITeam) obj;
+				if (!isTeamHidden(team)) {
+					team = (ITeam) ((Team) team).clone();
+					((Team) team).add("backup", null);
+					((Team) team).add("key_log", null);
+					((Team) team).add("tool_data", null);
+					super.addIt(team);
+				}
 				return;
 			}
 			default: {
