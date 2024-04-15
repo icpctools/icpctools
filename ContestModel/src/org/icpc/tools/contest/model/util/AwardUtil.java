@@ -1,9 +1,6 @@
 package org.icpc.tools.contest.model.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -428,18 +425,33 @@ public class AwardUtil {
 		return firstTeamIndex + numTeams;
 	}
 
-	public static void createMedalAwards(Contest contest, IAward gold, IAward silver, IAward bronze) {
+	public static void createMedalAwards(Contest contest, List<IAward> goldList, List<IAward> silverList, List<IAward> bronzeList) {
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
 
-		int nextTeam = 0;
-		nextTeam = assignMedal(gold, nextTeam, teams, Messages.getString("awardMedalGold"));
-		contest.add(gold);
-		nextTeam = assignMedal(silver, nextTeam, teams, Messages.getString("awardMedalSilver"));
-		contest.add(silver);
-		assignMedal(bronze, nextTeam, teams, Messages.getString("awardMedalBronze"));
-		contest.add(bronze);
+		int maxCount = Math.max(Math.max(goldList.size(), silverList.size()), bronzeList.size());
+		for (int i = 0; i < maxCount; i++) {
+			IAward gold = null;
+			IAward silver = null;
+			IAward bronze = null;
+			if (i < goldList.size()) {
+				gold = goldList.get(i);
+			}
+			if (i < silverList.size()) {
+				silver = silverList.get(i);
+			}
+			if (i < bronzeList.size()) {
+				bronze = bronzeList.get(i);
+			}
+			int nextTeam = 0;
+			nextTeam = assignMedal(gold, nextTeam, teams, Messages.getString("awardMedalGold"));
+			contest.add(gold);
+			nextTeam = assignMedal(silver, nextTeam, teams, Messages.getString("awardMedalSilver"));
+			contest.add(silver);
+			assignMedal(bronze, nextTeam, teams, Messages.getString("awardMedalBronze"));
+			contest.add(bronze);
+		}
 	}
 
 	public static int getLastBronze(IContest contest) {
@@ -652,7 +664,12 @@ public class AwardUtil {
 		silver.setParameter("4");
 		Award bronze = new Award(IAward.MEDAL, "bronze", null, (String) null);
 		bronze.setParameter("4");
-		createMedalAwards(contest, gold, silver, bronze);
+		createMedalAwards(
+				contest,
+				Collections.singletonList(gold),
+				Collections.singletonList(silver),
+				Collections.singletonList(bronze)
+		);
 
 		Award group = new Award(IAward.GROUP, "*", null, (String) null);
 		group.setParameter("1");
@@ -663,9 +680,9 @@ public class AwardUtil {
 	}
 
 	public static void applyAwards(Contest contest, IAward[] awardTemplate) {
-		IAward gold = null;
-		IAward silver = null;
-		IAward bronze = null;
+		List<IAward> gold = new ArrayList<>();
+		List<IAward> silver = new ArrayList<>();
+		List<IAward> bronze = new ArrayList<>();
 
 		for (IAward award : awardTemplate) {
 			if (award.getAwardType() == IAward.WINNER) {
@@ -686,16 +703,17 @@ public class AwardUtil {
 				createSolutionAwards(contest, award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
 				if (award.getId().contains("gold"))
-					gold = award;
+					gold.add(award);
 				else if (award.getId().contains("silver"))
-					silver = award;
+					silver.add(award);
 				else if (award.getId().contains("bronze"))
-					bronze = award;
+					bronze.add(award);
 			}
 		}
 
-		if (gold != null || silver != null || bronze != null)
+		if (!gold.isEmpty() || !silver.isEmpty() || !bronze.isEmpty()) {
 			createMedalAwards(contest, gold, silver, bronze);
+		}
 	}
 
 	public static void sortAwards(IContest contest, IAward[] awards) {
