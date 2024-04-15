@@ -16,7 +16,7 @@ public class HttpHelper {
 	private static final String OK_CHARS = new String("[]{},.~`?!@#$^&*()-_=+:|");
 
 	public static void setThreadHost(HttpServletRequest request) {
-		JSONEncoder.setThreadHost("https://" + request.getServerName());
+		JSONEncoder.setThreadHost("https://" + request.getServerName() + ":" + request.getServerPort());
 	}
 
 	public static void sendFile(HttpServletRequest request, HttpServletResponse response, File f) throws IOException {
