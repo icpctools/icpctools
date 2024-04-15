@@ -98,14 +98,14 @@ public class AnalystContest extends SpectatorContest {
 	public boolean allowFileReference(IContestObject obj, String property) {
 		switch (obj.getType()) {
 			case TEAM: {
-				if ("backup".equals(property) || "tool_data".equals(property) || "key_log".equals(property))
-					return !this.getState().isFrozen();
+				if (property.startsWith("backup") || property.startsWith("tool_data") || property.startsWith("key_log"))
+					return this.getState().getStarted() != null && !this.getState().isFrozen();
 
 				return super.allowFileReference(obj, property);
 			}
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
-				if ("files".equals(property)) {
+				if (property.startsWith("files")) {
 					return this.isBeforeFreeze(s);
 				}
 				return super.allowFileReference(obj, property);
