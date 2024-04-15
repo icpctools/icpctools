@@ -90,7 +90,7 @@ public class VideoAggregator {
 		else if ("mpeg".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
 			handler = HANDLERS[1];
 		else
-			handler = HANDLERS[0];
+			handler = HANDLERS[1];
 	}
 
 	protected static VideoAggregator instance = new VideoAggregator();
