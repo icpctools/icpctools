@@ -42,6 +42,7 @@ import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.State;
+import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.w3c.dom.Element;
 
@@ -301,6 +302,18 @@ public class ConfiguredContest {
 					id = url.substring(ind + 1);
 			}
 		}
+
+		// if no id, default to id from contest.yaml
+		// we could wait for the contest to load, but
+		if (id == null && path != null) {
+			try {
+				Info info = YamlParser.importContestInfo(new File(path, "contest.yaml"), false);
+				id = info.getId();
+			} catch (Exception ex) {
+				Trace.trace(Trace.ERROR, "Could not read default contest id from contest yaml", ex);
+			}
+		}
+
 		// if no id, default to last folder in location
 		if (id == null && path != null) {
 			int ind = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
@@ -431,10 +444,6 @@ public class ConfiguredContest {
 
 	public String getId() {
 		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public boolean isRecordingReactions() {
