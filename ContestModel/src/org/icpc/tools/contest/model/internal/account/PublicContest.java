@@ -129,12 +129,19 @@ public class PublicContest extends Contest implements IFilteredContest {
 				ITeam team = (ITeam) obj;
 				if (!isTeamHidden(team)) {
 					team = (ITeam) ((Team) team).clone();
-					((Team) team).add("desktop", null);
-					((Team) team).add("webcam", null);
-					((Team) team).add("audio", null);
-					((Team) team).add("backup", null);
-					((Team) team).add("key_log", null);
-					((Team) team).add("tool_data", null);
+					String[] fileReferences = new String[] {
+							"desktop",
+							"webcam",
+							"audio",
+							"backup",
+							"key_log",
+							"tool_data",
+					};
+					for (String fileReference: fileReferences) {
+						if (!allowFileReference(obj, fileReference)) {
+							((Team) team).add(fileReference, null);
+						}
+					}
 					super.add(team);
 				}
 				return;
