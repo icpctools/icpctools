@@ -1,14 +1,9 @@
 package org.icpc.tools.contest.model.internal.account;
 
-import org.icpc.tools.contest.model.IAccount;
-import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.IDelete;
-import org.icpc.tools.contest.model.IJudgement;
-import org.icpc.tools.contest.model.IPerson;
-import org.icpc.tools.contest.model.IRun;
-import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.*;
 import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Submission;
+import org.icpc.tools.contest.model.internal.Team;
 
 /**
  * Filter that adds things analysts can see compared to spectators:
@@ -63,6 +58,15 @@ public class AnalystContest extends SpectatorContest {
 				}
 
 				addIt(run);
+				return;
+			}
+
+			case TEAM: {
+				ITeam team = (ITeam) obj;
+				if (!isTeamHidden(team)) {
+					team = (ITeam) ((Team) team).clone();
+					super.addIt(team);
+				}
 				return;
 			}
 			default:
