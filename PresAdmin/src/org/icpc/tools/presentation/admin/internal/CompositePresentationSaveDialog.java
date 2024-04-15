@@ -1,5 +1,8 @@
 package org.icpc.tools.presentation.admin.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -9,13 +12,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class CompositePresentationSaveDialog extends Dialog {
+public class CompositePresentationSaveDialog {
 	protected Shell shell;
 	protected Button save;
 
@@ -23,8 +25,13 @@ public class CompositePresentationSaveDialog extends Dialog {
 	protected String name;
 	protected String description;
 	protected String category;
+	protected boolean presentationsOk;
+	protected Label statusLabel;
 
 	public CompositePresentationSaveDialog(Shell parent) {
+		this.shell = parent;
+	}
+	/*public CompositePresentationSaveDialog(Shell parent) {
 		super(parent);
 	}
 
@@ -50,7 +57,7 @@ public class CompositePresentationSaveDialog extends Dialog {
 				display.sleep();
 		}
 		return saveOk;
-	}
+	}*/
 
 	protected void createUI(Composite comp) {
 		GridLayout layout = new GridLayout(2, false);
@@ -59,6 +66,8 @@ public class CompositePresentationSaveDialog extends Dialog {
 		layout.verticalSpacing = 5;
 		layout.horizontalSpacing = 5;
 		comp.setLayout(layout);
+		
+		// The save button will be created in createButtons
 
 		Label label = new Label(comp, SWT.NONE);
 		label.setText("Name:");
@@ -109,21 +118,27 @@ public class CompositePresentationSaveDialog extends Dialog {
 				setOkEnablement();
 			}
 		});
+	}
 
+	protected void createButtons(Composite comp) {
 		Composite buttonComp = new Composite(comp, SWT.NONE);
-		data = new GridData(GridData.END, GridData.CENTER, false, false);
+		GridData data = new GridData(GridData.FILL, GridData.CENTER, true, false);
 		data.horizontalSpan = 2;
 		buttonComp.setLayoutData(data);
 
-		layout = new GridLayout(2, true);
+		GridLayout layout = new GridLayout(3, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		layout.horizontalSpacing = 5;
 		layout.verticalSpacing = 0;
 		buttonComp.setLayout(layout);
 
+		statusLabel = new Label(buttonComp, SWT.PUSH);
+		statusLabel.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		statusLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+
 		save = new Button(buttonComp, SWT.PUSH);
-		save.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		save.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		save.setText("&Save");
 		save.setEnabled(false);
 		save.addSelectionListener(new SelectionAdapter() {
@@ -135,7 +150,7 @@ public class CompositePresentationSaveDialog extends Dialog {
 		});
 
 		Button cancel = new Button(buttonComp, SWT.PUSH);
-		cancel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		cancel.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
 		cancel.setText("&Cancel");
 
 		cancel.addSelectionListener(new SelectionAdapter() {
@@ -148,23 +163,55 @@ public class CompositePresentationSaveDialog extends Dialog {
 
 	protected void setOkEnablement() {
 		boolean ok = true;
-		if (name == null || name.trim().isEmpty())
+		String message = "";
+		List<String> missing = new ArrayList<>();
+		
+		// Check for presentation
+		if (!presentationsOk) {
+			missing.add("presentation");
 			ok = false;
-		else {
+		}
+		
+		// Check name
+		if (name == null || name.trim().isEmpty()) {
+			missing.add("name");
+			ok = false;
+		} else {
 			for (char c : name.toCharArray()) {
-				if (!Character.isLetterOrDigit(c) && c != ' ')
+				if (!Character.isLetterOrDigit(c) && c != ' ') {
+					message = "Name can only contain letters, numbers and spaces";
 					ok = false;
+					break;
+				}
 			}
 		}
-		if (category == null || category.trim().isEmpty())
+		
+		// Check category
+		if (category == null || category.trim().isEmpty()) {
+			missing.add("category");
 			ok = false;
-		else {
+		} else {
 			for (char c : category.toCharArray()) {
-				if (!Character.isLetterOrDigit(c) && c != ' ')
+				if (!Character.isLetterOrDigit(c) && c != ' ') {
+					if (message.isEmpty()) {
+						message = "Category can only contain letters, numbers and spaces";
+					}
 					ok = false;
+					break;
+				}
 			}
 		}
-		save.setEnabled(ok);
+		
+		// Set status message
+		if (ok) {
+			setStatusMessage("");
+		} else if (!message.isEmpty()) {
+			setStatusMessage(message);
+		} else if (!missing.isEmpty()) {
+			setStatusMessage("Add " + String.join(", ", missing));
+		}
+		
+		save.setEnabled(ok && presentationsOk);
 	}
 
 	public String getName() {
@@ -177,5 +224,21 @@ public class CompositePresentationSaveDialog extends Dialog {
 
 	public String getCategory() {
 		return category;
+	}
+	
+	public boolean isSaveOk() {
+		return saveOk;
+	}
+	
+	public void setPresentationsOk(boolean ok) {
+		presentationsOk = ok;
+		setOkEnablement();
+	}
+
+	public void setStatusMessage(String message) {
+		if (statusLabel != null && !statusLabel.isDisposed()) {
+			statusLabel.setText(message);
+			statusLabel.getParent().layout();
+		}
 	}
 }
