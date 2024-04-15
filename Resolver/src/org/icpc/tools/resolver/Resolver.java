@@ -652,17 +652,20 @@ public class Resolver {
 						if (ui.length == 1)
 							return;
 
-						ui[activeUI].setVisible(false);
+						// show new resolver, then hide the current one
+						int newUI = activeUI + 1;
+						if (newUI >= ui.length)
+							newUI = 0;
 
-						activeUI++;
-						if (activeUI >= ui.length)
-							activeUI = 0;
-
-						Trace.trace(Trace.USER, "Switching to contest " + (activeUI + 1));
+						Trace.trace(Trace.USER, "Switching to contest " + newUI);
 
 						sendActiveUI();
 
-						ui[activeUI].setVisible(true);
+						ui[newUI].setVisible(true);
+
+						ui[activeUI].setVisible(false);
+
+						activeUI = newUI;
 					}
 				}, lightMode);
 

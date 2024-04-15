@@ -648,6 +648,7 @@ public class ResolverUI {
 				Presentation bp = (Presentation) bc.getDeclaredConstructor().newInstance();
 				if (bp != null && bp instanceof BrandingPresentation) {
 					BrandingPresentation bp2 = (BrandingPresentation) bp;
+					bp2.setContest(getFirstContest());
 					bp2.setChildPresentation(pres2);
 					pres2 = bp2;
 				}
