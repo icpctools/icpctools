@@ -2,18 +2,14 @@ package org.icpc.tools.contest.model.feed;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 
 public class HTTPSSecurity {
 	private static class AllHostnameVerifier implements HostnameVerifier {
@@ -24,7 +20,7 @@ public class HTTPSSecurity {
 		}
 	}
 
-	public static class ContestTrustManager implements X509TrustManager {
+	public static class ContestTrustManager extends X509ExtendedTrustManager {
 		@Override
 		public X509Certificate[] getAcceptedIssuers() {
 			// ignore
@@ -40,6 +36,26 @@ public class HTTPSSecurity {
 		@Override
 		public void checkClientTrusted(X509Certificate[] paramArrayOfX509Certificate, String paramString)
 				throws CertificateException {
+			// ignore
+		}
+
+		@Override
+		public void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
+			// ignore
+		}
+
+		@Override
+		public void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException {
+			// ignore
+		}
+
+		@Override
+		public void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
+			// ignore
+		}
+
+		@Override
+		public void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException {
 			// ignore
 		}
 	}
