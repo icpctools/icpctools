@@ -190,7 +190,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				super.add(sub);
 				return;
 			}
-			case JUDGEMENT: { // TODO - access block - max runtime
+			case JUDGEMENT: {
 				IJudgement j = (IJudgement) obj;
 
 				ISubmission s = getSubmissionById(j.getSubmissionId());
@@ -209,7 +209,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				// or during the freeze
 				if (getFreezeDuration() != null) {
 					long freezeTime = getDuration() - getFreezeDuration();
-					if (time >= freezeTime && getState().getThawed() != null) {
+					if (time >= freezeTime && getState().getThawed() == null) {
 						freeze.add(j);
 						return;
 					}

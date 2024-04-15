@@ -56,7 +56,7 @@ public class AnalystContest extends SpectatorContest {
 				// hide runs for submissions after freeze
 				if (getFreezeDuration() != null) {
 					long freezeTime = getDuration() - getFreezeDuration();
-					if (s.getContestTime() >= freezeTime && getState().getThawed() != null) {
+					if (s.getContestTime() >= freezeTime && getState().getThawed() == null) {
 						freeze.add(run);
 						return;
 					}
