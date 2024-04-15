@@ -33,7 +33,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 	private static final long TIME_TO_KEEP_FAILED = 8000;
 	private static final long TIME_TO_KEEP_RECENT = 14000;
 	private static final long TIME_TO_FADE_RECENT = 2000;
-	private static final int NUM_SEGMENTS = 15;
+	private static final int NUM_SEGMENTS = 50;
 
 	private static final Movement SUBMISSION_MOVEMENT = new Movement(0.1, 0.1);
 
