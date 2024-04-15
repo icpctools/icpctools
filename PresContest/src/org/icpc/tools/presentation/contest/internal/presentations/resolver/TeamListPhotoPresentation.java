@@ -63,16 +63,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 		if (award != null) {
 			int numTeams = award.getTeamIds().length;
 			numColumns = 1;
-			if (numTeams > 25)
-				numColumns = 6;
-			else if (numTeams > 16)
-				numColumns = 5;
-			else if (numTeams > 9)
-				numColumns = 4;
-			else if (numTeams > 4)
-				numColumns = 3;
-			else if (numTeams > 1)
-				numColumns = 2;
+			if (numTeams > 1)
+				numColumns = (int) Math.ceil(Math.sqrt(numTeams) + 1);
 
 			numRows = (numTeams + numColumns - 1) / numColumns;
 
@@ -145,16 +137,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 		int numTeams = award.getTeamIds().length;
 		numColumns = 1;
-		if (numTeams > 25)
-			numColumns = 6;
-		else if (numTeams > 16)
-			numColumns = 5;
-		else if (numTeams > 9)
-			numColumns = 4;
-		else if (numTeams > 4)
-			numColumns = 3;
-		else if (numTeams > 1)
-			numColumns = 2;
+		if (numTeams > 1)
+			numColumns = (int) Math.ceil(Math.sqrt(numTeams) + 1);
 
 		numRows = (numTeams + numColumns - 1) / numColumns;
 
