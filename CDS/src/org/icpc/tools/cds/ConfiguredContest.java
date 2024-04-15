@@ -303,8 +303,8 @@ public class ConfiguredContest {
 			}
 		}
 
-		// if no id, default to id from contest.yaml
-		// we could wait for the contest to load, but
+		// if no id, default to id from contest.yaml. We could wait for the contest to load,
+		// but by then some data could be accessible to clients
 		if (id == null && path != null) {
 			try {
 				Info info = YamlParser.importContestInfo(new File(path, "contest.yaml"), false);
