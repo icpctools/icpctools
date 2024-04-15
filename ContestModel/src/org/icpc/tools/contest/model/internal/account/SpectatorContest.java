@@ -66,16 +66,18 @@ public class SpectatorContest extends PublicContest {
 	public boolean allowFileReference(IContestObject obj, String property) {
 		switch (obj.getType()) {
 			case TEAM: {
-				if ("desktop".equals(property) || "webcam".equals(property) || "audio".equals(property))
-					return !this.getState().isFrozen();
+				if (property.startsWith("desktop") ||
+						property.startsWith("webcam") ||
+						property.startsWith("audio") ||
+						property.startsWith("tool_data") ||
+						property.startsWith("key_log"))
+					return this.getState().getStarted() != null && !this.getState().isFrozen();
 
-				if ("tool_data".equals(property) || "key_log".equals(property))
-					return true;
 				return super.allowFileReference(obj, property);
 			}
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
-				if ("reaction".equals(property)) {
+				if (property.startsWith("reaction")) {
 					return this.isBeforeFreeze(s);
 				}
 				return super.allowFileReference(obj, property);
