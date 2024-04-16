@@ -37,6 +37,8 @@ import org.icpc.tools.contest.model.util.Taskbar;
 import org.icpc.tools.contest.model.util.TeamDisplay;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.core.DisplayConfig;
+import org.icpc.tools.presentation.core.PresentationWindow;
+import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
 import org.icpc.tools.resolver.ResolverUI.Screen;
 
@@ -290,12 +292,9 @@ public class Resolver {
 								return;
 
 							Trace.trace(Trace.INFO, "Switching active UI to " + newActiveUI);
-							ui[activeUI].setVisible(false);
+							ui[activeUI].setActive(false);
+							ui[newActiveUI].setActive(true);
 							activeUI = newActiveUI;
-							if (activeUI > ui.length)
-								activeUI = 0;
-
-							ui[activeUI].setVisible(true);
 						} catch (Exception e) {
 							Trace.trace(Trace.ERROR, "Couldn't switch active UI", e);
 						}
@@ -625,56 +624,73 @@ public class Resolver {
 	}
 
 	protected ResolverUI createUI(List<ResolutionStep> steps) {
-		ResolverUI ui2 = new ResolverUI(show_info, new DisplayConfig(displayStr, multiDisplayStr), isPresenter, screen,
-				new ClickListener() {
-					@Override
-					public void clicked(int num) {
-						sendClicks(num);
-					}
+		ResolverUI ui2 = new ResolverUI(show_info, isPresenter, screen, new ClickListener() {
+			@Override
+			public void clicked(int num) {
+				sendClicks(num);
+			}
 
-					@Override
-					public void scroll(boolean pause) {
-						sendScroll(pause);
-					}
+			@Override
+			public void scroll(boolean pause) {
+				sendScroll(pause);
+			}
 
-					@Override
-					public void speedFactor(double d) {
-						sendSpeedFactor(d);
-					}
+			@Override
+			public void speedFactor(double d) {
+				sendSpeedFactor(d);
+			}
 
-					@Override
-					public void scrollSpeedFactor(double d) {
-						sendScrollSpeedFactor(d);
-					}
+			@Override
+			public void scrollSpeedFactor(double d) {
+				sendScrollSpeedFactor(d);
+			}
 
-					@Override
-					public void swap() {
-						if (ui.length == 1)
-							return;
+			@Override
+			public void swap() {
+				if (ui.length == 1)
+					return;
 
-						// show new resolver, then hide the current one
-						int newUI = activeUI + 1;
-						if (newUI >= ui.length)
-							newUI = 0;
+				ui[activeUI].setActive(false);
+				activeUI++;
+				if (activeUI >= ui.length)
+					activeUI = 0;
 
-						Trace.trace(Trace.USER, "Switching to contest " + newUI);
+				Trace.trace(Trace.USER, "Switching to contest " + activeUI);
+				sendActiveUI();
 
-						sendActiveUI();
-
-						ui[newUI].setVisible(true);
-
-						ui[activeUI].setVisible(false);
-
-						activeUI = newUI;
-					}
-				}, lightMode);
+				ui[activeUI].setActive(true);
+			}
+		});
 
 		ui2.setup(steps);
 		return ui2;
 	}
 
 	protected void launch() {
-		ui[activeUI].display();
+		BufferedImage iconImage = null;
+		try {
+			iconImage = ImageIO.read(getClass().getClassLoader().getResource("images/resolverIcon.png"));
+		} catch (Exception e) {
+			// could not set title or icon
+		}
+		PresentationWindow window = PresentationWindow.open("Resolver", iconImage);
+		((PresentationWindowImpl) window).setLightMode(lightMode);
+
+		DisplayConfig displayConfig = new DisplayConfig(displayStr, multiDisplayStr);
+		try {
+			window.setDisplayConfig(displayConfig);
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Invalid display option: " + displayConfig + " " + e.getMessage());
+		}
+		window.setControlable(false);
+
+		// display (initialize) any secondary contests and set them inactive
+		for (int i = 1; i < ui.length; i++) {
+			ui[i].display(window);
+			ui[i].setActive(false);
+		}
+		// display the primary contest
+		ui[0].display(window);
 	}
 
 	private void outputStats(List<ResolutionStep> steps, long time) {
