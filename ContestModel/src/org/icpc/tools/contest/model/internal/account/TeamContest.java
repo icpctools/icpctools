@@ -108,28 +108,41 @@ public class TeamContest extends PublicContest {
 	}
 
 	@Override
-	public boolean allowFileReference(IContestObject obj, String property) {
+	public boolean allowProperty(IContestObject obj, String property) {
 		switch (obj.getType()) {
 			case TEAM: {
 				ITeam team = (ITeam) obj;
-				if ("desktop".equals(property) || "webcam".equals(property) || "audio".equals(property))
+				if (property.startsWith("desktop") || property.startsWith("webcam") || property.startsWith("audio"))
 					return teamId.equals(team.getId());
 
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
 			}
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
-				if (!teamId.equals(s.getTeamId()))
-					super.allowFileReference(obj, property);
-
-				if ("reaction".equals(property) || "files".equals(property))
+				if (teamId.equals(s.getTeamId()))
 					return true;
 
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
 			}
-
 			default:
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
+		}
+	}
+
+	@Override
+	public boolean canAccessProperty(IContestObject.ContestType type, String property) {
+		switch (type) {
+			case TEAM: {
+				if (property.startsWith("desktop") || property.startsWith("webcam") || property.startsWith("audio"))
+					return true;
+
+				return super.canAccessProperty(type, property);
+			}
+			case SUBMISSION: {
+				return true;
+			}
+			default:
+				return super.canAccessProperty(type, property);
 		}
 	}
 }

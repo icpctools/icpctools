@@ -1,9 +1,13 @@
 package org.icpc.tools.contest.model.internal.account;
 
-import org.icpc.tools.contest.model.*;
+import org.icpc.tools.contest.model.IAccount;
+import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IDelete;
+import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IPerson;
+import org.icpc.tools.contest.model.IRun;
+import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.internal.Person;
-import org.icpc.tools.contest.model.internal.Submission;
-import org.icpc.tools.contest.model.internal.Team;
 
 /**
  * Filter that adds things analysts can see compared to spectators:
@@ -60,30 +64,9 @@ public class AnalystContest extends SpectatorContest {
 				addIt(run);
 				return;
 			}
-
-			case TEAM: {
-				ITeam team = (ITeam) obj;
-				if (!isTeamHidden(team)) {
-					team = (ITeam) ((Team) team).clone();
-					super.addIt(team);
-				}
-				return;
-			}
 			default:
 				super.add(obj);
 		}
-	}
-
-	@Override
-	protected ISubmission filterSubmission(ISubmission sub) {
-		Submission s = (Submission) ((Submission) sub).clone();
-
-		if (!isBeforeFreeze(s)) {
-			s.setFiles(null);
-			s.add("entry_point", null);
-			s.setReaction(null);
-		}
-		return s;
 	}
 
 	@Override
@@ -99,23 +82,43 @@ public class AnalystContest extends SpectatorContest {
 	}
 
 	@Override
-	public boolean allowFileReference(IContestObject obj, String property) {
+	public boolean allowProperty(IContestObject obj, String property) {
 		switch (obj.getType()) {
 			case TEAM: {
 				if (property.startsWith("backup") || property.startsWith("tool_data") || property.startsWith("key_log"))
-					return this.getState().getStarted() != null && !this.getState().isFrozen();
+					return (this.getState().getStarted() != null && !this.getState().isFrozen());
 
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
 			}
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
-				if (property.startsWith("files")) {
+				if (property.startsWith("entry_point") || property.startsWith("files") || property.startsWith("reaction")) {
 					return this.isBeforeFreeze(s);
 				}
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
 			}
 			default:
-				return true;
+				return super.allowProperty(obj, property);
+		}
+	}
+
+	@Override
+	public boolean canAccessProperty(IContestObject.ContestType type, String property) {
+		switch (type) {
+			case TEAM: {
+				if (property.startsWith("backup"))
+					return true;
+
+				return super.canAccessProperty(type, property);
+			}
+			case SUBMISSION: {
+				if (property.startsWith("entry_point") || property.startsWith("files") || property.startsWith("reaction")) {
+					return true;
+				}
+				return super.canAccessProperty(type, property);
+			}
+			default:
+				return super.canAccessProperty(type, property);
 		}
 	}
 }
