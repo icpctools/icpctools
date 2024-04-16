@@ -10,11 +10,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -49,10 +46,8 @@ import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamL
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamListPresentation;
 import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamLogoPresentation;
 import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation;
-import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
-import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 /**
  * A Resolver contains two types of Presentations: a "ScoreboardPresentation", which is a grid
@@ -95,7 +90,6 @@ public class ResolverUI {
 	private ResolutionControl control;
 	private boolean isPresenter;
 	private Screen screen = Screen.MAIN;
-	private DisplayConfig displayConfig;
 	private boolean showInfo;
 	private boolean pauseScroll = false;
 
@@ -118,19 +112,16 @@ public class ResolverUI {
 
 	private long lastClickTime = -1;
 	private Thread thread;
-	private boolean light;
 	private int firstStep = -1;
+	private boolean active = true;
 
-	public ResolverUI(boolean showInfo, DisplayConfig displayConfig, boolean isPresenter, Screen screen,
-			ClickListener listener, boolean light) {
+	public ResolverUI(boolean showInfo, boolean isPresenter, Screen screen, ClickListener listener) {
 		this.showInfo = showInfo;
-		this.displayConfig = displayConfig;
 		this.isPresenter = isPresenter;
 		this.screen = screen;
 		if (screen == null)
 			this.screen = Screen.MAIN;
 		this.listener = listener;
-		this.light = light;
 	}
 
 	public void setup(List<ResolutionStep> steps) {
@@ -206,7 +197,8 @@ public class ResolverUI {
 		control.moveToPause(pause, includeDelays);
 	}
 
-	public void display() {
+	public void display(PresentationWindow presWindow) {
+		this.window = presWindow;
 		if (steps == null || steps.isEmpty())
 			throw new IllegalArgumentException("Nothing to resolve");
 
@@ -216,25 +208,10 @@ public class ResolverUI {
 
 		ContestUtil.flashPending = false;
 
-		BufferedImage iconImage = null;
-		try {
-			iconImage = ImageIO.read(getClass().getClassLoader().getResource("images/resolverIcon.png"));
-		} catch (Exception e) {
-			// could not set title or icon
-		}
-		window = PresentationWindow.open("Resolver", iconImage);
-		((PresentationWindowImpl) window).setLightMode(light);
-
-		try {
-			window.setDisplayConfig(displayConfig);
-		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Invalid display option: " + displayConfig + " " + e.getMessage());
-		}
-
 		window.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (teamListPresentation == null || !isPresenter)
+				if (teamListPresentation == null || !isPresenter || !active)
 					return;
 
 				if ('r' == e.getKeyChar() || 'R' == e.getKeyChar() || 'b' == e.getKeyChar() || 'B' == e.getKeyChar())
@@ -264,7 +241,6 @@ public class ResolverUI {
 					scoreboardPresentation.setShowSubmissionInfo(!scoreboardPresentation.getShowSubmissionInfo());
 				else if (' ' == e.getKeyChar() || 'f' == e.getKeyChar() || 'F' == e.getKeyChar())
 					processAction(Action.FORWARD);
-
 				else if ('s' == e.getKeyChar() && listener != null)
 					listener.swap();
 			}
@@ -273,13 +249,12 @@ public class ResolverUI {
 		window.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (teamListPresentation == null || !isPresenter)
+				if (teamListPresentation == null || !isPresenter || !active)
 					return;
 
 				processAction(Action.FORWARD);
 			}
 		});
-		window.setControlable(false);
 
 		if (screen == Screen.TEAM || screen == Screen.SIDE || screen == Screen.ORG) {
 			logoPresentation = new StaticLogoPresentation();
@@ -368,11 +343,26 @@ public class ResolverUI {
 			moveTo(0);
 	}
 
-	public void setVisible(boolean b) {
-		if (messageFont == null)
-			display();
-
-		window.setVisible(b);
+	public void setActive(boolean b) {
+		if (b) {
+			window.setPresentation(currentPresentation);
+			// need to wait a tiny bit - otherwise the key listener will catch the current swap key!
+			Thread t = new Thread() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(200);
+					} catch (Exception e) {
+						// ignore
+					}
+					active = true;
+				}
+			};
+			t.setDaemon(true);
+			t.start();
+		} else {
+			active = false;
+		}
 	}
 
 	private String getStatusInfo() {
@@ -649,15 +639,15 @@ public class ResolverUI {
 				if (bp != null && bp instanceof BrandingPresentation) {
 					BrandingPresentation bp2 = (BrandingPresentation) bp;
 					bp2.setContest(getFirstContest());
-					bp2.setChildPresentation(pres2);
-					pres2 = bp2;
+					bp2.setChildPresentation(currentPresentation);
+					currentPresentation = bp2;
 				}
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error loading branding", e);
 		}
 
-		window.setPresentation(pres2);
+		window.setPresentation(currentPresentation);
 		// Transition t = new SlidesTransition();
 		// long time = System.currentTimeMillis() + 1000;
 		// window.setPresentations(time, new Presentation[] { pres2 }, new Transition[] { t });
