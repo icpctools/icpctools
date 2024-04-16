@@ -198,11 +198,12 @@ public class Resolver {
 		r.ui = new ResolverUI[numContests];
 		r.contestIds = new String[numContests];
 		r.contestSources = contestSources;
+		r.finalContest = new Contest[numContests];
+		r.client = new PresentationClient[numContests];
 
 		int i = 0;
 		for (ContestSource cs : contestSources) {
 			List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
-			// r.source = cs;
 			r.loadFromSource(i);
 
 			if (r.isPresenter)
