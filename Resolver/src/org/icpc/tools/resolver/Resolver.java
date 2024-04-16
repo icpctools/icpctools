@@ -225,7 +225,6 @@ public class Resolver {
 
 			r.ui[i] = r.createUI(steps);
 			r.contestIds[i] = cs.getContestId();
-			i++;
 
 			try {
 				r.connectToCDS(i);
@@ -233,6 +232,7 @@ public class Resolver {
 				Trace.trace(Trace.ERROR, "Could not connect to CDS");
 				System.exit(2);
 			}
+			i++;
 		}
 
 		r.launch();
