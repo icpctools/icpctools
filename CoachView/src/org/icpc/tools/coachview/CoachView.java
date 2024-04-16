@@ -309,10 +309,10 @@ public class CoachView extends Panel {
 							reactionURL = reactions.get(r);
 						}
 					}
-					if (reactionURL == null)
-						return;
 				}
 
+				if (reactionURL == null)
+					return;
 				Trace.trace(Trace.INFO, "Selected reaction: " + reactionURL);
 				displayMode = DisplayMode.REACTION;
 
