@@ -159,12 +159,43 @@ public class AwardUtil {
 			}
 		}
 
+		List<String> teamIdsNumMedalsSolved = new ArrayList<>();
+
+		if (template.getParameter() != null && template.getParameter().equals("less-than-medals")) {
+			int lowestMedalNumSolved = Integer.MAX_VALUE;
+			for (IAward a : awards) {
+				if (a.getAwardType() == IAward.MEDAL) {
+					for (String tid : a.getTeamIds()) {
+						IStanding s = contest.getStanding(contest.getTeamById(tid));
+						if (s != null && s.getNumSolved() > 0) {
+							lowestMedalNumSolved = Math.min(lowestMedalNumSolved, s.getNumSolved());
+						}
+					}
+				}
+			}
+
+			for (ITeam t : contest.getTeams()) {
+				IStanding s = contest.getStanding(t);
+
+				if (teamIdsNumMedalsSolved.contains(t.getId())) {
+					continue;
+				}
+
+				if (s.getNumSolved() >= lowestMedalNumSolved) {
+					teamIdsNumMedalsSolved.add(t.getId());
+				}
+			}
+		}
+
 		// create buckets
 		Map<Integer, List<ITeam>> solutions = new HashMap<>();
 		for (ITeam t : contest.getTeams()) {
 			IStanding s = contest.getStanding(t);
 
 			if (teamIdsHM.contains(t.getId()))
+				continue;
+
+			if (teamIdsNumMedalsSolved.contains(t.getId()))
 				continue;
 
 			if (s != null && s.getNumSolved() > 0) {
@@ -684,6 +715,8 @@ public class AwardUtil {
 		List<IAward> silver = new ArrayList<>();
 		List<IAward> bronze = new ArrayList<>();
 
+		List<IAward> solvedAwards = new ArrayList<>();
+
 		for (IAward award : awardTemplate) {
 			if (award.getAwardType() == IAward.WINNER) {
 				createWinnerAward(contest, award);
@@ -700,7 +733,7 @@ public class AwardUtil {
 			} else if (award.getAwardType() == IAward.HONORS) {
 				createHonorsAwards(contest, award);
 			} else if (award.getAwardType() == IAward.SOLVED) {
-				createSolutionAwards(contest, award);
+				solvedAwards.add(award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
 				if (award.getId().contains("gold"))
 					gold.add(award);
@@ -713,6 +746,12 @@ public class AwardUtil {
 
 		if (!gold.isEmpty() || !silver.isEmpty() || !bronze.isEmpty()) {
 			createMedalAwards(contest, gold, silver, bronze);
+		}
+
+		if (!solvedAwards.isEmpty()) {
+			for (IAward award : solvedAwards) {
+				createSolutionAwards(contest, award);
+			}
 		}
 	}
 
