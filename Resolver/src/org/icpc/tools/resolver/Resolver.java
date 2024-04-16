@@ -59,8 +59,8 @@ public class Resolver {
 	private static final String DATA_RESOLVER_ACTIVE_UI = "org.icpc.tools.presentation.contest.resolver.ui";
 
 	// contest/resolving variables
-	private ContestSource source;
-	private Contest finalContest;
+	private ContestSource[] contestSources;
+	private Contest[] finalContest;
 
 	// UI variables
 	private int activeUI;
@@ -80,7 +80,7 @@ public class Resolver {
 	private String[] problemIdList;
 
 	// client/server variables
-	private PresentationClient client;
+	private PresentationClient[] client;
 	private int[] clients = new int[0];
 
 	protected static void showHelp() {
@@ -163,7 +163,7 @@ public class Resolver {
 		// create the Resolver object
 		final Resolver r = new Resolver();
 		final ResolveInfo resolveInfo = new ResolveInfo();
-		ContestSource[] contestSource = ArgumentParser.parseMulti(args, new OptionParser() {
+		ContestSource[] contestSources = ArgumentParser.parseMulti(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
 				return r.processOption(option, options, resolveInfo);
@@ -175,7 +175,7 @@ public class Resolver {
 			}
 		});
 
-		if (contestSource == null) {
+		if (contestSources == null) {
 			showHelp();
 			return;
 		}
@@ -190,19 +190,20 @@ public class Resolver {
 		Taskbar.setTaskbarImage(iconImage);
 
 		int numContests = 0;
-		for (ContestSource cs : contestSource) {
+		for (ContestSource cs : contestSources) {
 			cs.outputValidation();
 			numContests++;
 		}
 
 		r.ui = new ResolverUI[numContests];
 		r.contestIds = new String[numContests];
+		r.contestSources = contestSources;
 
 		int i = 0;
-		for (ContestSource cs : contestSource) {
+		for (ContestSource cs : contestSources) {
 			List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
-			r.source = cs;
-			r.loadFromSource();
+			// r.source = cs;
+			r.loadFromSource(i);
 
 			if (r.isPresenter)
 				r.sendSettings(resolveInfo);
@@ -215,7 +216,7 @@ public class Resolver {
 				p = r.problemList[i % r.problemList.length];
 			if (r.problemIdList != null && r.problemIdList.length > 0)
 				pId = r.problemIdList[i % r.problemIdList.length];
-			r.init(steps, g, p, pId);
+			r.init(steps, g, p, pId, i);
 
 			Trace.trace(Trace.INFO, "Resolution steps:");
 			for (ResolutionStep step : steps)
@@ -224,34 +225,34 @@ public class Resolver {
 			r.ui[i] = r.createUI(steps);
 			r.contestIds[i] = cs.getContestId();
 			i++;
-		}
 
-		try {
-			r.connectToCDS();
-		} catch (NumberFormatException e) {
-			Trace.trace(Trace.ERROR, "Could not connect to CDS");
-			System.exit(2);
+			try {
+				r.connectToCDS(i);
+			} catch (NumberFormatException e) {
+				Trace.trace(Trace.ERROR, "Could not connect to CDS");
+				System.exit(2);
+			}
 		}
 
 		r.launch();
 	}
 
-	private void connectToCDS() {
+	private void connectToCDS(int con) {
 		if (!isPresenter && screen == null)
 			return;
 
-		if (!(source instanceof RESTContestSource)) {
+		if (!(contestSources[con] instanceof RESTContestSource)) {
 			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
 			System.exit(1);
 		}
 
-		RESTContestSource cdsSource = (RESTContestSource) source;
+		RESTContestSource cdsSource = (RESTContestSource) contestSources[con];
 		try {
 			String role = "blue";
 			if (isPresenter)
 				role = "presAdmin";
 
-			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
+			client[con] = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
 				@Override
 				protected void clientsChanged(Client[] cl) {
 					Trace.trace(Trace.INFO, "Client list changed: " + cl.length);
@@ -272,7 +273,7 @@ public class Resolver {
 		}
 
 		try {
-			client.addListener(new IPropertyListener() {
+			client[con].addListener(new IPropertyListener() {
 				@Override
 				public void propertyUpdated(String key, String value) {
 					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
@@ -301,7 +302,7 @@ public class Resolver {
 					}
 				}
 			});
-			client.connect();
+			client[con].connect();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Client error", e);
 		}
@@ -310,7 +311,7 @@ public class Resolver {
 	private void sendActiveUI() {
 		try {
 			Trace.trace(Trace.INFO, "Sending active UI: " + activeUI + " " + contestIds[activeUI]);
-			client.sendProperty(clients, DATA_RESOLVER_ACTIVE_UI, contestIds[activeUI]);
+			client[activeUI].sendProperty(clients, DATA_RESOLVER_ACTIVE_UI, contestIds[activeUI]);
 		} catch (Exception ex) {
 			Trace.trace(Trace.WARNING, "Failed to send active UI", ex);
 		}
@@ -417,15 +418,15 @@ public class Resolver {
 		// do not create
 	}
 
-	private void loadFromSource() {
-		Trace.trace(Trace.INFO, "Loading from " + source);
+	private void loadFromSource(int con) {
+		Trace.trace(Trace.INFO, "Loading from " + contestSources[con]);
 
 		int showHour = -1;
 		// we're a stand-alone resolver; load the event feed and create a Contest object
 		try {
-			source.outputValidation();
+			contestSources[con].outputValidation();
 
-			finalContest = source.loadContest(new IContestListener() {
+			finalContest[con] = contestSources[con].loadContest(new IContestListener() {
 				@Override
 				public void contestChanged(IContest contest, IContestObject obj, Delta delta) {
 					if (delta != Delta.DELETE && obj instanceof IResolveInfo) {
@@ -442,24 +443,24 @@ public class Resolver {
 				}
 			});
 			if (displayName != null)
-				TeamDisplay.overrideDisplayName(finalContest, displayName);
+				TeamDisplay.overrideDisplayName(finalContest[con], displayName);
 
 			if (test) {
-				source.waitForContest(10000);
-				if (finalContest.getState().isFinal()) {
+				contestSources[con].waitForContest(15000);
+				if (finalContest[con].getState().isFinal()) {
 					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are finalized.");
 					System.exit(1);
 				}
 				Trace.trace(Trace.INFO, "Test mode active");
 			} else {
 				// not test mode
-				if (!source.waitForContest(20000))
+				if (!contestSources[con].waitForContest(20000))
 					Trace.trace(Trace.ERROR, "Could not load complete contest");
 			}
 
 			// check for unjudged runs. if we're in test mode warn the user and delete them.
 			// if not in test mode, fail
-			int num = finalContest.removeUnjudgedSubmissions();
+			int num = finalContest[con].removeUnjudgedSubmissions();
 			if (num > 0) {
 				if (test)
 					Trace.trace(Trace.WARNING, "Warning: " + num + " unjudged submissions discarded.");
@@ -470,24 +471,24 @@ public class Resolver {
 				}
 			}
 
-			if (!test && !finalContest.getState().isFinal()) {
+			if (!test && !finalContest[con].getState().isFinal()) {
 				Trace.trace(Trace.WARNING, "Contest is not over. Use --test if running against an incomplete contest");
 				System.exit(1);
 			}
 
-			if (finalContest.isDoneUpdating() && isPresenter && source instanceof RESTContestSource) {
+			if (finalContest[con].isDoneUpdating() && isPresenter && contestSources[con] instanceof RESTContestSource) {
 				Trace.trace(Trace.ERROR, "Contest is already resolved, nothing to do");
 				System.exit(1);
 			}
 
-			validateContest(finalContest);
+			validateContest(finalContest[con]);
 
 			if (isPresenter) {
 				try {
 					File logFolder = new File("logs");
 					File scoreFile = new File(logFolder, "scoreboard.json");
 					PrintWriter pw = new PrintWriter(new FileWriter(scoreFile));
-					Scoreboard.writeScoreboard(pw, finalContest);
+					Scoreboard.writeScoreboard(pw, finalContest[con]);
 					pw.close();
 					Trace.trace(Trace.USER, "Scoreboard written to " + scoreFile.getAbsolutePath());
 				} catch (Exception e) {
@@ -500,10 +501,10 @@ public class Resolver {
 		}
 
 		if (showHour > 0)
-			finalContest = finalContest.clone(false, new TimeFilter(finalContest, showHour * 3600000));
+			finalContest[con] = finalContest[con].clone(false, new TimeFilter(finalContest[con], showHour * 3600000));
 	}
 
-	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds) {
+	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds, int con) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
 		// ResolveInfo resolveInfo = new ResolveInfo();
@@ -512,9 +513,9 @@ public class Resolver {
 		// finalContest.add(resolveInfo);
 
 		if (groups != null || problems != null || problemIds != null) {
-			IAward[] fullAwards = finalContest.getAwards();
+			IAward[] fullAwards = finalContest[con].getAwards();
 			boolean hasAwards = fullAwards != null && fullAwards.length > 0;
-			Contest cc = finalContest.clone(true);
+			Contest cc = finalContest[con].clone(true);
 			if (groups != null) {
 				Trace.trace(Trace.INFO, "Resolving for group ids " + groups + " (Initial teams: " + cc.getNumTeams() + ")");
 
@@ -587,18 +588,18 @@ public class Resolver {
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
 			steps.addAll(subSteps);
-			outputStats(steps, time);
+			outputStats(steps, time, con);
 		} else {
-			IAward[] contestAwards = finalContest.getAwards();
+			IAward[] contestAwards = finalContest[con].getAwards();
 			if (contestAwards == null || contestAwards.length == 0) {
 				Trace.trace(Trace.USER, "Generating awards");
-				AwardUtil.createDefaultAwards(finalContest);
+				AwardUtil.createDefaultAwards(finalContest[con]);
 			}
 
 			// create the official scoreboard
-			finalContest.officialResults();
+			finalContest[con].officialResults();
 
-			ResolverLogic logic = new ResolverLogic(finalContest, show_info);
+			ResolverLogic logic = new ResolverLogic(finalContest[con], show_info);
 
 			int showHour = -1;
 			if (showHour > 0) {
@@ -610,7 +611,7 @@ public class Resolver {
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
 			steps.addAll(subSteps);
-			outputStats(steps, time);
+			outputStats(steps, time, con);
 		}
 	}
 
@@ -693,12 +694,12 @@ public class Resolver {
 		ui[0].display(window);
 	}
 
-	private void outputStats(List<ResolutionStep> steps, long time) {
+	private void outputStats(List<ResolutionStep> steps, long time, int con) {
 		double totalTime = ResolutionUtil.getTotalTime(steps);
 		long min = ((int) totalTime) / 60;
 		long seconds = ((int) totalTime) % 60;
 		Trace.trace(Trace.USER, "  Playback time: " + min + "m " + seconds + "s");
-		IResolveInfo resolveInfo = finalContest.getResolveInfo();
+		IResolveInfo resolveInfo = finalContest[con].getResolveInfo();
 		double speedFactor = 1.0;
 		if (resolveInfo != null) {
 			speedFactor = resolveInfo.getSpeedFactor();
@@ -757,15 +758,15 @@ public class Resolver {
 	}
 
 	private void putResolve(ResolveInfo resolveInfo) {
-		if (source instanceof RESTContestSource) {
+		if (contestSources[activeUI] instanceof RESTContestSource) {
 			try {
-				Trace.trace(Trace.INFO, "PUTting resolve info: " + resolveInfo);
-				((RESTContestSource) source).put(resolveInfo);
+				Trace.trace(Trace.INFO, "PUTting resolve info: " + resolveInfo.toString());
+				((RESTContestSource) contestSources[activeUI]).put(resolveInfo);
 			} catch (Exception ex) {
 				Trace.trace(Trace.WARNING, "Failed to set resolve", ex);
 			}
 		} else {
-			finalContest.add(resolveInfo);
+			finalContest[activeUI].add(resolveInfo);
 		}
 	}
 
