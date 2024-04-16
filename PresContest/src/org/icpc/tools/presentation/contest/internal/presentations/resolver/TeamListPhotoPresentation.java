@@ -40,6 +40,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 	private Font titleFont;
 	private int header;
 	private int gap;
+	private BufferedImage contestLogo;
 
 	private int numRows;
 	private int numColumns;
@@ -59,6 +60,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 		header = height / 20;
 		gap = height / 120;
+		contestLogo = null;
 
 		if (award != null) {
 			int numTeams = award.getTeamIds().length;
@@ -69,7 +71,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			tileDim = new Dimension((width - (numColumns - 1) * gap - 1) / numColumns,
 					(height - header - (numRows - 1) * gap - 1) / numRows);
 
-			teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 250);
+			teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 400);
 
 			logos.clear();
 			photos.clear();
@@ -89,6 +91,9 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				if (teams2 == null)
 					return;
 
+				if (contestLogo == null)
+					contestLogo = getContest().getLogoImage(tileDim.width, tileDim.height, true, true);
+
 				for (ITeam team : teams2) {
 					if (team != null) {
 						BufferedImage img = team.getPhotoImage(tileDim.width, tileDim.height, true, true);
@@ -97,7 +102,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 						IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
 						if (org != null) {
-							BufferedImage img2 = org.getLogoImage(tileDim.height / 5, tileDim.height / 5, true, true);
+							BufferedImage img2 = org.getLogoImage(tileDim.height / 8, tileDim.height / 8, true, true);
 							if (img2 != null)
 								logos.put(team.getId(), img2);
 						}
@@ -143,7 +148,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
-		teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 250);
+		teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 400);
 
 		cacheLogos();
 	}
@@ -179,10 +184,16 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			ITeam t = teams[i];
 			BufferedImage photo = photos.get(t.getId());
 			if (photo != null)
-				g.drawImage(photo, xx, yy, null);
+				g.drawImage(photo, xx + (tileDim.width - photo.getWidth()) / 2,
+						yy + (tileDim.height - photo.getHeight()) / 2, null);
 			else {
 				g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 				g.drawRect(xx, yy, tileDim.width, tileDim.height);
+
+				if (contestLogo != null) {
+					g.drawImage(contestLogo, xx + (tileDim.width - contestLogo.getWidth()) / 2,
+							yy + (tileDim.height - contestLogo.getHeight()) / 2, null);
+				}
 			}
 
 			SelectType sel = selections.get(t.getId());
@@ -198,7 +209,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 			TextHelper text = new TextHelper(g);
 			text = new TextHelper(g);
-			BufferedImage logo = photos.get(t.getId());
+			BufferedImage logo = logos.get(t.getId());
 			if (logo != null)
 				text.addImage(logo);
 			text.addSpacer(8, fm.getHeight());
