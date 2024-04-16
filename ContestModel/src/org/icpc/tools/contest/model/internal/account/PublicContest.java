@@ -7,6 +7,7 @@ import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
@@ -128,14 +129,8 @@ public class PublicContest extends Contest implements IFilteredContest {
 			case TEAM: {
 				ITeam team = (ITeam) obj;
 				if (!isTeamHidden(team)) {
-					team = (ITeam) ((Team) team).clone();
-					((Team) team).add("desktop", null);
-					((Team) team).add("webcam", null);
-					((Team) team).add("audio", null);
-					((Team) team).add("backup", null);
-					((Team) team).add("key_log", null);
-					((Team) team).add("tool_data", null);
-					super.add(team);
+					ITeam t = filterTeam(team);
+					super.add(t);
 				}
 				return;
 			}
@@ -299,10 +294,12 @@ public class PublicContest extends Contest implements IFilteredContest {
 	 */
 	protected ISubmission filterSubmission(ISubmission sub) {
 		Submission s = (Submission) ((Submission) sub).clone();
-		s.add("language_id", null);
-		s.add("entry_point", null);
-		s.setFiles(null);
-		s.setReaction(null);
+		String[] properties = new String[] { "language_id", "entry_point", "files", "reaction" };
+		for (String property : properties) {
+			if (!canAccessProperty(ContestType.SUBMISSION, property) || !allowProperty(s, property)) {
+				s.add(property, null);
+			}
+		}
 		return s;
 	}
 
@@ -322,6 +319,22 @@ public class PublicContest extends Contest implements IFilteredContest {
 		}
 
 		return org;
+	}
+
+	/**
+	 * Helper method to filter team.
+	 */
+	protected ITeam filterTeam(ITeam team) {
+		Team t = (Team) ((Team) team).clone();
+		// all file references on non-timed object, only remove if they can never be accessed
+		String[] properties = new String[] { "desktop", "webcam", "audio", "backup", "key_log", "tool_data" };
+		for (String property : properties) {
+			if (canAccessProperty(ContestType.TEAM, property)) {
+				t.add(property, null);
+			}
+		}
+
+		return t;
 	}
 
 	/**
@@ -346,25 +359,33 @@ public class PublicContest extends Contest implements IFilteredContest {
 	}
 
 	@Override
-	public boolean allowFileReference(IContestObject obj, String property) {
-		switch (obj.getType()) {
+	public boolean allowProperty(IContestObject obj, String property) {
+		if (!canAccessProperty(obj.getType(), property))
+			return false;
+
+		return true;
+	}
+
+	@Override
+	public boolean canAccessProperty(IContestObject.ContestType type, String property) {
+		switch (type) {
 			case TEAM: {
-				if ("desktop".equals(property) || "webcam".equals(property) || "audio".equals(property)
-						|| "backup".equals(property) || "tool_data".equals(property) || "key_log".equals(property))
+				if (property.startsWith("desktop") || property.startsWith("webcam") || property.startsWith("audio")
+						|| property.startsWith("backup") || property.startsWith("tool_data")
+						|| property.startsWith("key_log"))
 					return false;
 				return true;
 			}
 			case PROBLEM: {
-				if ("package".equals(property))
+				if (property.startsWith("package") || property.startsWith("test_data_count"))
 					return false;
 				return true;
 			}
 			case SUBMISSION: {
-				return false;
-				/*if ("files".equals(property))
+				if (property.startsWith("language_id") || property.startsWith("entry_point") || property.startsWith("files")
+						|| property.startsWith("reaction"))
 					return false;
-				else if ("reaction".equals(property))
-					return false;*/
+				return true;
 			}
 			default:
 				return true;

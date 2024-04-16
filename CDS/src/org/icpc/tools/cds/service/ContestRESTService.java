@@ -393,7 +393,7 @@ public class ContestRESTService extends HttpServlet {
 
 		if (contest instanceof IFilteredContest) {
 			IFilteredContest fc = (IFilteredContest) contest;
-			if (!fc.allowFileReference(obj, url)) {
+			if (!fc.allowProperty(obj, url)) {
 				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return true;
 			}

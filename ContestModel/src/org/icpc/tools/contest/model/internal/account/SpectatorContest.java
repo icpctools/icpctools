@@ -1,9 +1,11 @@
 package org.icpc.tools.contest.model.internal.account;
 
-import org.icpc.tools.contest.model.*;
+import org.icpc.tools.contest.model.IAccount;
+import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IDelete;
+import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.internal.Problem;
-import org.icpc.tools.contest.model.internal.Submission;
-import org.icpc.tools.contest.model.internal.Team;
 
 /**
  * Filter that adds things spectators can see compared to public/team area:
@@ -35,17 +37,6 @@ public class SpectatorContest extends PublicContest {
 				addIt(obj);
 				return;
 			}
-			case TEAM: {
-				ITeam team = (ITeam) obj;
-				if (!isTeamHidden(team)) {
-					team = (ITeam) ((Team) team).clone();
-					((Team) team).add("backup", null);
-					((Team) team).add("key_log", null);
-					((Team) team).add("tool_data", null);
-					super.addIt(team);
-				}
-				return;
-			}
 			default: {
 				super.add(obj);
 			}
@@ -60,39 +51,45 @@ public class SpectatorContest extends PublicContest {
 	}
 
 	@Override
-	protected ISubmission filterSubmission(ISubmission sub) {
-		Submission s = (Submission) ((Submission) sub).clone();
-		s.setFiles(null);
-		s.add("entry_point", null);
-
-		if (!isBeforeFreeze(s))
-			s.setReaction(null);
-		return s;
-	}
-
-	@Override
-	public boolean allowFileReference(IContestObject obj, String property) {
+	public boolean allowProperty(IContestObject obj, String property) {
 		switch (obj.getType()) {
 			case TEAM: {
-				if (property.startsWith("desktop") ||
-						property.startsWith("webcam") ||
-						property.startsWith("audio") ||
-						property.startsWith("tool_data") ||
-						property.startsWith("key_log"))
+				if (property.startsWith("desktop") || property.startsWith("webcam") || property.startsWith("audio")
+						|| property.startsWith("tool_data") || property.startsWith("key_log")) {
 					return this.getState().getStarted() != null && !this.getState().isFrozen();
-
-				return super.allowFileReference(obj, property);
+				}
+				return super.allowProperty(obj, property);
 			}
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
 				if (property.startsWith("reaction")) {
 					return this.isBeforeFreeze(s);
 				}
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
 			}
-
 			default:
-				return super.allowFileReference(obj, property);
+				return super.allowProperty(obj, property);
+		}
+	}
+
+	@Override
+	public boolean canAccessProperty(IContestObject.ContestType type, String property) {
+		switch (type) {
+			case TEAM: {
+				if (property.startsWith("desktop") || property.startsWith("webcam") || property.startsWith("audio")
+						|| property.startsWith("tool_data") || property.startsWith("key_log"))
+					return true;
+
+				return super.canAccessProperty(type, property);
+			}
+			case SUBMISSION: {
+				if (property.startsWith("language_id") || property.startsWith("reaction")) {
+					return true;
+				}
+				return super.canAccessProperty(type, property);
+			}
+			default:
+				return super.canAccessProperty(type, property);
 		}
 	}
 }
