@@ -1,6 +1,10 @@
 package org.icpc.tools.contest.model.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -229,6 +233,7 @@ public class AwardUtil {
 
 			Award solutionAward = new Award(IAward.SOLVED, "solved-" + ns, teamIds, citation.replace("{0}", ns + ""),
 					mode);
+			solutionAward.setParameter(ns.toString());
 			contest.add(solutionAward);
 		}
 	}
@@ -456,7 +461,8 @@ public class AwardUtil {
 		return firstTeamIndex + numTeams;
 	}
 
-	public static void createMedalAwards(Contest contest, List<IAward> goldList, List<IAward> silverList, List<IAward> bronzeList) {
+	public static void createMedalAwards(Contest contest, List<IAward> goldList, List<IAward> silverList,
+			List<IAward> bronzeList) {
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
@@ -695,12 +701,8 @@ public class AwardUtil {
 		silver.setParameter("4");
 		Award bronze = new Award(IAward.MEDAL, "bronze", null, (String) null);
 		bronze.setParameter("4");
-		createMedalAwards(
-				contest,
-				Collections.singletonList(gold),
-				Collections.singletonList(silver),
-				Collections.singletonList(bronze)
-		);
+		createMedalAwards(contest, Collections.singletonList(gold), Collections.singletonList(silver),
+				Collections.singletonList(bronze));
 
 		Award group = new Award(IAward.GROUP, "*", null, (String) null);
 		group.setParameter("1");

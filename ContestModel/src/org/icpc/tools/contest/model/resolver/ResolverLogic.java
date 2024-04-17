@@ -185,18 +185,21 @@ public class ResolverLogic {
 					int topTeam = finalContest.getNumTeams();
 					for (int i = 0; i < size; i++) {
 						teams[i] = finalContest.getTeamById(teamIds[i]);
-						topTeam = Math.min(topTeam, finalContest.getOrderOf(teams[i]));
+						if (award.getParameter() != null) {
+							topTeam = Math.min(topTeam, finalContest.getOrderOf(teams[i]));
+						}
 
 						// TODO figure out selections
 					}
 
 					ListAwardStep step = new ListAwardStep(award, teams, selections,
-							award.getDisplayMode() == DisplayMode.PHOTOS);
+							award.getDisplayMode() == DisplayMode.PHOTOS, "after".equals(award.getParameter()));
 					step.topTeam = topTeam;
 					teamLists.add(step);
 				}
 			}
 		}
+		Trace.trace(Trace.USER, contestAwards.length + " awards assigned");
 
 		// sort team lists
 		teamLists.sort(new Comparator<ListAwardStep>() {
@@ -442,8 +445,8 @@ public class ResolverLogic {
 				boolean backToScoreboard = false;
 				if (!teamLists.isEmpty()) {
 					ListAwardStep step = teamLists.get(0);
-					if (step != null && allTeamsResolved(step, currentRow)) {
-						Trace.trace(Trace.INFO, "Team list at row: " + currentRow);
+					if (step != null && allTeamsResolved(step, currentRow) && !step.after) {
+						Trace.trace(Trace.INFO, "Team list at row: " + currentRow + " " + step);
 						teamLists.remove(step);
 
 						steps.add(new TeamSelectionStep(step.teams));
@@ -505,7 +508,6 @@ public class ResolverLogic {
 						backToScoreboard = true;
 					}
 				}
-				// }
 
 				if (doneWithRow) {
 					// we've finished resolving a team, check if they have any awards
@@ -544,7 +546,7 @@ public class ResolverLogic {
 							}
 						} else {
 							// the award is for something other than FTS
-							steps.add(new TeamSelectionStep(team, SelectType.HIGHLIGHT));
+							steps.add(new TeamSelectionStep(team, SelectType.HIGHLIGHT));// TODO
 						}
 						steps.add(new PauseStep());
 
@@ -556,6 +558,32 @@ public class ResolverLogic {
 							steps.add(new PauseStep());
 
 							// go back to the scoreboard presentation
+							backToScoreboard = true;
+						}
+					}
+
+					if (!teamLists.isEmpty()) {
+						ListAwardStep step = teamLists.get(0);
+						if (step != null && allTeamsResolved(step, currentRow) && step.after) {
+							Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
+							teamLists.remove(step);
+
+							if (backToScoreboard)
+								steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+
+							steps.add(new TeamSelectionStep(step.teams));
+							steps.add(new PauseStep());
+							steps.add(step);
+
+							if (step.photos) {
+								steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+							} else {
+								steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
+								steps.add(new PauseStep());
+								steps.add(new ScrollTeamListStep(false));
+							}
+							steps.add(new PauseStep());
+
 							backToScoreboard = true;
 						}
 					}
@@ -590,6 +618,26 @@ public class ResolverLogic {
 					return false;
 			}
 		}
+
+		// and for solution awards, wait until every team higher on the scoreboard has solved more
+		// problems
+		if (step.award.getAwardType() == IAward.SOLVED) {
+			int numSolved = -1;
+			try {
+				numSolved = Integer.parseInt(step.award.getParameter());
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not parse solved award parameter " + step.award.getParameter());
+				return true;
+			}
+
+			ITeam[] teams = contest.getOrderedTeams();
+			for (int i = 0; i < row; i++) {
+				IStanding s = contest.getStanding(teams[i]);
+				if (s.getNumSolved() <= numSolved)
+					return false;
+			}
+		}
+
 		return true;
 	}
 
