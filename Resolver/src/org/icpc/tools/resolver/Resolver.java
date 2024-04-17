@@ -439,6 +439,8 @@ public class Resolver {
 							ui2.setScrollPause(resolveInfo.isAnimationPaused());
 							if (!Double.isNaN(resolveInfo.getSpeedFactor()))
 								ui2.setSpeedFactor(resolveInfo.getSpeedFactor());
+							if (!Double.isNaN(resolveInfo.getScrollSpeedFactor()))
+								ui2.setScrollSpeedFactor(resolveInfo.getScrollSpeedFactor());
 						}
 					}
 				}
