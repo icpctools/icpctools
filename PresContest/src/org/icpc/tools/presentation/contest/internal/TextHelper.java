@@ -92,24 +92,26 @@ public class TextHelper {
 
 	class StringItem extends Item {
 		protected String s;
+		protected boolean outline;
 
-		public StringItem(String s) {
+		public StringItem(String s, boolean outline) {
 			this.s = s;
 			d = new Dimension(fm.stringWidth(s), fm.getHeight());
+			this.outline = outline;
 			// TODO: allow space for fm.maxAscent() and fm.maxDescent(), see fm.getHeight()
 		}
 
 		@Override
 		protected void draw() {
-			g.setColor(Color.WHITE);
-
 			Rectangle2D bounds2 = fm.getStringBounds(s, g);
 			int width = (int) Math.round(bounds2.getMaxX());
+
+			AffineTransform at = g.getTransform();
+			g.translate(x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
 			if (width > d.width + 1 || width < d.width - 1) {
 				// Layout width and string bounds do not match, need to rescale!
 				// TODO: use string bounds to set correct widths in the layout directly
-				AffineTransform at = g.getTransform();
-				g.translate(x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
+
 				final boolean BOUNDS_RESCALE_DEBUG = false;
 				if (BOUNDS_RESCALE_DEBUG) {
 					g.setColor(Color.YELLOW.brighter());
@@ -117,11 +119,20 @@ public class TextHelper {
 					g.draw(new Line2D.Double(width, -fm.getMaxAscent(), d.width - (width - d.width), 0));
 				}
 				g.scale(d.width / (double) width, 1);
-				g.drawString(s, 0, 0);
-				g.setTransform(at);
-			} else {
-				g.drawString(s, x - d.width / 2, y - fm.getHeight() / 2 + fm.getAscent());
 			}
+
+			if (outline) {
+				g.setColor(Color.BLACK);
+				g.drawString(s, -1, -1);
+				g.drawString(s, -1, +1);
+				g.drawString(s, +1, -1);
+				g.drawString(s, +1, +1);
+			}
+
+			g.setColor(Color.WHITE);
+			g.drawString(s, 0, 0);
+			g.setTransform(at);
+
 		}
 
 		@Override
@@ -352,11 +363,15 @@ public class TextHelper {
 	}
 
 	public void addPlainText(String s) {
+		addPlainText(s, false);
+	}
+
+	public void addPlainText(String s, boolean outline) {
 		String ss = s;
 		int ind = ss.indexOf("\n");
 		while (ind >= 0) {
 			if (ind > 0) {
-				add(new StringItem(ss.substring(0, ind)));
+				add(new StringItem(ss.substring(0, ind), outline));
 			}
 			add(new NewLineItem());
 			if (ind == ss.length() - 1)
@@ -365,7 +380,7 @@ public class TextHelper {
 			ss = ss.substring(ind + 1);
 			ind = ss.indexOf("\n");
 		}
-		add(new StringItem(ss));
+		add(new StringItem(ss, outline));
 	}
 
 	public void addICPCString(IContest contest, String s) {
@@ -414,6 +429,10 @@ public class TextHelper {
 	}
 
 	public void addString(String s) {
+		addString(s, false);
+	}
+
+	public void addString(String s, boolean outline) {
 		char[] c = s.toCharArray();
 
 		int fontBegin = -1;
@@ -429,7 +448,7 @@ public class TextHelper {
 				i += charCount;
 			} else {
 				if (fontBegin != -1)
-					addPlainText(new String(c, fontBegin, i - fontBegin));
+					addPlainText(new String(c, fontBegin, i - fontBegin), outline);
 				addEmoji(emojiEntry);
 				fontBegin = -1;
 				i += emojiEntry.raw.length();
@@ -437,7 +456,7 @@ public class TextHelper {
 		}
 
 		if (fontBegin != -1)
-			addPlainText(new String(c, fontBegin, c.length - fontBegin));
+			addPlainText(new String(c, fontBegin, c.length - fontBegin), outline);
 	}
 
 	private void add(Item i) {

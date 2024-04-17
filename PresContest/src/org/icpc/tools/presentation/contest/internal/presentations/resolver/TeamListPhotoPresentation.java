@@ -19,9 +19,7 @@ import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.resolver.SelectType;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
-import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
 
@@ -33,8 +31,6 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 	private ITeam[] teams;
 	private Map<String, BufferedImage> logos = new HashMap<>();
 	private Map<String, BufferedImage> photos = new HashMap<>();
-
-	private Map<String, SelectType> selections = new HashMap<>();
 
 	private Font teamFont;
 	private Font titleFont;
@@ -69,9 +65,9 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			numRows = (numTeams + numColumns - 1) / numColumns;
 
 			tileDim = new Dimension((width - (numColumns - 1) * gap - 1) / numColumns,
-					(height - header - (numRows - 1) * gap - 1) / numRows);
+					(height - header - gap - (numRows - 1) * gap - 1) / numRows);
 
-			teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 400);
+			teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 475);
 
 			logos.clear();
 			photos.clear();
@@ -92,7 +88,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 					return;
 
 				if (contestLogo == null)
-					contestLogo = getContest().getLogoImage(tileDim.width, tileDim.height, true, true);
+					contestLogo = getContest().getLogoImage((int) (tileDim.width * 0.9), (int) (tileDim.height * 0.9), true,
+							true);
 
 				for (ITeam team : teams2) {
 					if (team != null) {
@@ -144,11 +141,11 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 		numRows = (numTeams + numColumns - 1) / numColumns;
 
 		tileDim = new Dimension((width - (numColumns - 1) * gap - 1) / numColumns,
-				(height - header - (numRows - 1) * gap - 1) / numRows);
+				(height - header - gap - (numRows - 1) * gap - 1) / numRows);
 
 		float dpi = 96;
 		float inch = height * 72f / dpi / 10f;
-		teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 400);
+		teamFont = ICPCFont.deriveFont(Font.PLAIN, inch * tileDim.height / 475);
 
 		cacheLogos();
 	}
@@ -178,8 +175,12 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 		int y = 0;
 		int size = teams.length;
 		for (int i = 0; i < size; i++) {
-			int xx = tileDim.width * x + gap * x;
-			int yy = tileDim.height * y + gap * y + header;
+			int xx = x * (tileDim.width + gap);
+			int yy = y * (tileDim.height + gap) + header + gap;
+
+			if (y == numRows - 1 && size % numColumns != 0) {
+				xx += (numColumns - size % numColumns) * (tileDim.width + gap) / 2;
+			}
 
 			ITeam t = teams[i];
 			BufferedImage photo = photos.get(t.getId());
@@ -196,28 +197,17 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				}
 			}
 
-			SelectType sel = selections.get(t.getId());
-			if (sel != null) {
-				if (sel == SelectType.FTS)
-					g.setColor(ICPCColors.FIRST_TO_SOLVE_COLOR);
-				else if (sel == SelectType.FTS_HIGHLIGHT)
-					g.setColor(ICPCColors.SOLVED_COLOR.brighter());
-				else
-					g.setColor(ICPCColors.SELECTION_COLOR);
-			} else
-				g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
-
 			TextHelper text = new TextHelper(g);
 			text = new TextHelper(g);
 			BufferedImage logo = logos.get(t.getId());
 			if (logo != null)
 				text.addImage(logo);
 			text.addSpacer(8, fm.getHeight());
-			text.addString(t.getActualDisplayName());
+			text.addString(t.getActualDisplayName(), true);
 
 			g.translate(xx + tileDim.width / 2, 0);
 			text.drawFit(-Math.min((tileDim.width - gap * 2) / 2, text.getWidth() / 2),
-					yy + tileDim.height - gap - fm.getHeight(), tileDim.width - gap * 2);
+					yy + tileDim.height - gap - Math.max(tileDim.height / 8, fm.getHeight()), tileDim.width - gap * 2);
 			g.translate(-xx - tileDim.width / 2, 0);
 
 			x++;
