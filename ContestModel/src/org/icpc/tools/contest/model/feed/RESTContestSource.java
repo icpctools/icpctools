@@ -82,7 +82,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws MalformedURLException
 	 */
 	public RESTContestSource(String url, String user, String password) throws MalformedURLException {
-		this(null, url, user, password);
+		this(null, url, user, password, null);
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws MalformedURLException
 	 */
 	public RESTContestSource(File file, String user, String password) throws MalformedURLException {
-		this(file, null, user, password);
+		this(file, null, user, password, null);
 	}
 
 	/**
@@ -106,7 +106,8 @@ public class RESTContestSource extends DiskContestSource {
 	 * already have a local contest cached and only want the ability to load absolute file
 	 * references.
 	 */
-	public RESTContestSource(File file, String url, String user, String password) throws MalformedURLException {
+	public RESTContestSource(File file, String url, String user, String password, String name)
+			throws MalformedURLException {
 		super(file, url);
 
 		if (url != null)
@@ -124,11 +125,14 @@ public class RESTContestSource extends DiskContestSource {
 			setup();
 
 		if (eventFeedFile == null) {
-			String name = System.getProperty("CDS-name");
-			if (name != null)
-				feedCacheFile = new File(cacheFolder, "events-" + name + ".log");
-			else
-				feedCacheFile = new File(cacheFolder, "events.log");
+			String name2 = name;
+			if (name == null) {
+				if (user != null)
+					name2 = user;
+				else
+					name2 = "no-auth";
+			}
+			feedCacheFile = new File(cacheFolder, "events-" + name2 + ".log");
 
 			// delete if older than 8h
 			if (feedCacheFile.exists() && feedCacheFile.lastModified() < System.currentTimeMillis() - 8 * 60 * 60 * 1000) {
