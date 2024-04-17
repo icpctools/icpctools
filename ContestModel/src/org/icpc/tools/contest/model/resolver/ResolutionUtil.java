@@ -204,12 +204,15 @@ public class ResolutionUtil {
 		public int topTeam;
 		public Map<String, SelectType> selections;
 		public boolean photos;
+		public boolean after;
 
-		public ListAwardStep(IAward award, ITeam[] teams, Map<String, SelectType> selections, boolean photos) {
+		public ListAwardStep(IAward award, ITeam[] teams, Map<String, SelectType> selections, boolean photos,
+				boolean after) {
 			this.award = award;
 			this.teams = teams;
 			this.selections = selections;
 			this.photos = photos;
+			this.after = after;
 		}
 
 		@Override
