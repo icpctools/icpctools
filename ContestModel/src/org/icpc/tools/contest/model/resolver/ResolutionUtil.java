@@ -201,7 +201,6 @@ public class ResolutionUtil {
 	public static class ListAwardStep implements ResolutionStep {
 		public IAward award;
 		public ITeam[] teams;
-		public int topTeam;
 		public Map<String, SelectType> selections;
 		public boolean photos;
 		public boolean after;
