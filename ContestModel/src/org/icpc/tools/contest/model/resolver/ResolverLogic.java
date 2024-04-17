@@ -605,9 +605,33 @@ public class ResolverLogic {
 		if (step == null)
 			return false;
 
+		IAward award = step.award;
+		String param = award.getParameter();
+		String[] teamIds = award.getTeamIds();
+		if (param != null && param.startsWith("before:")) {
+			int targetRow = -1;
+			try {
+				targetRow = Integer.parseInt(param.substring(7));
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not parse before award parameter " + step.award.getParameter());
+				return true;
+			}
+
+			// not ready if we're not done resolving the current team
+			ITeam team = contest.getOrderedTeams()[row];
+			int numProblems = contest.getNumProblems();
+			for (int i = 0; i < numProblems; i++) {
+				IResult r = contest.getResult(team, i);
+				if (r.getStatus() == Status.SUBMITTED)
+					return false;
+			}
+
+			if (row == targetRow - 1)
+				return true;
+		}
+
 		// check if all teams are resolved
 		int numProblems = contest.getNumProblems();
-		IAward award = step.award;
 		for (String teamId : award.getTeamIds()) {
 			ITeam team = contest.getTeamById(teamId);
 			if (row > contest.getOrderOf(team))
@@ -621,10 +645,10 @@ public class ResolverLogic {
 
 		// and for solution awards, wait until every team higher on the scoreboard has solved more
 		// problems
-		if (step.award.getAwardType() == IAward.SOLVED) {
+		if (award.getAwardType() == IAward.SOLVED) {
 			int numSolved = -1;
 			try {
-				numSolved = Integer.parseInt(step.award.getParameter());
+				numSolved = Integer.parseInt(param);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not parse solved award parameter " + step.award.getParameter());
 				return true;
