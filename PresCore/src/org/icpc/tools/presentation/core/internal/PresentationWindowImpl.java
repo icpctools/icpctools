@@ -49,7 +49,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 	private static final long TRANSITION_TIME = 2000;
 	private static final long DEFAULT_REPEAT_TIME = 10000;
 	private static final long PLAN_FADE_TIME = 800; // time to fade in/out when changing plan
-	private static final long MAX_FPS = 1000_000_000L / (60L + 7); // limit to 60fps max with some margin
+	private static final long MAX_FPS = 1000_000_000L / (60L + 7); // limit to 60fps max with some
+																						// margin
 
 	private boolean lightMode;
 
@@ -90,13 +91,15 @@ public class PresentationWindowImpl extends PresentationWindow {
 		protected PresentationSegment[] segments;
 		private Presentation[] presentations;
 		private Transition[] transitions;
+		private boolean immediate;
 
-		public PresentationPlan(Presentation[] pres, Transition[] trans) {
+		public PresentationPlan(Presentation[] pres, Transition[] trans, boolean immediate2) {
 			presentations = pres;
 			transitions = trans;
 			if (transitions == null)
 				transitions = new Transition[0];
 
+			this.immediate = immediate2;
 			build();
 		}
 
@@ -136,6 +139,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 		}
 
 		protected void build() {
+			if (immediate && segments != null)
+				return;
+
 			long time = 0;
 			List<PresentationSegment> segs = new ArrayList<>();
 			if (transitions == null || transitions.length == 0) {
@@ -147,7 +153,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 					long repeat = p.getRepeat();
 					if (repeat <= 0) {
-						if (presentations.length == 1)
+						if (presentations.length == 1 || immediate)
 							time += 1000L * 60 * 60 * 24 * 365 * 10; // 10 years
 						else
 							time += DEFAULT_REPEAT_TIME;
@@ -208,6 +214,19 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 			totalRepeatTime = time;
 			segments = segs.toArray(new PresentationSegment[0]);
+
+			if (immediate) {
+				long rTime = segments[1].startTime;
+				PresentationSegment[] segments2 = new PresentationSegment[segments.length - 2];
+				System.arraycopy(segments, 1, segments2, 0, segments.length - 2);
+				segments = segments2;
+
+				for (PresentationSegment s : segments) {
+					s.startTime -= rTime;
+				}
+				totalRepeatTime = System.currentTimeMillis() - 100;
+			}
+
 			updateEndTimes();
 		}
 
@@ -452,7 +471,17 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	@Override
+	public void setPresentation(Transition transition, Presentation p) {
+		setPresentations(0, new Presentation[] { currentPresentation, p }, new Transition[] { transition }, true);
+	}
+
+	@Override
 	public void setPresentations(long timeMs2, Presentation[] newPresentations, Transition[] newTransitions) {
+		setPresentations(timeMs2, newPresentations, newTransitions, false);
+	}
+
+	public void setPresentations(long timeMs2, Presentation[] newPresentations, Transition[] newTransitions,
+			boolean immediate) {
 		if (newPresentations == null)
 			return;
 
@@ -461,7 +490,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 			timeMs = getCurrentTimeMs();
 
 		long dt = timeMs - getCurrentTimeMs();
-		if (dt < 0)
+		if (dt <= 0)
 			Trace.trace(Trace.INFO, "New presentation plan now");
 		else
 			Trace.trace(Trace.INFO, "New presentation plan in " + dt + "ms");
@@ -486,7 +515,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 			}
 		}
 
-		PresentationPlan newPlan = createPresentationPlan(newPresentations, newTransitions);
+		PresentationPlan newPlan = createPresentationPlan(newPresentations, newTransitions, immediate);
 		if (newPlan != null)
 			newPlan.startTime = timeMs;
 		if (currentPlan != null)
@@ -509,12 +538,13 @@ public class PresentationWindowImpl extends PresentationWindow {
 		}
 	}
 
-	protected static PresentationPlan createPresentationPlan(Presentation[] presentations, Transition[] transitions) {
+	protected static PresentationPlan createPresentationPlan(Presentation[] presentations, Transition[] transitions,
+			boolean immediate) {
 		if (presentations == null || presentations.length == 0)
 			return null;
 
 		Trace.trace(Trace.INFO, "Building presentation plan");
-		return new PresentationPlan(presentations, transitions);
+		return new PresentationPlan(presentations, transitions, immediate);
 	}
 
 	@Override
@@ -909,7 +939,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		PresentationPlan plan = currentPlan;
 		if (plan != null) {
 			long start = plan.startTime;
-			if (time > start && time < start + PLAN_FADE_TIME)
+			if (time > start && time < start + PLAN_FADE_TIME && !plan.immediate)
 				g.setComposite(AlphaComposite.SrcOver.derive((time - start) / (float) PLAN_FADE_TIME));
 			paintPresentations(g, plan, time, hidden2);
 		}
@@ -951,11 +981,11 @@ public class PresentationWindowImpl extends PresentationWindow {
 				int y = d.height - fm.getDescent() - fm.getHeight() * 3 - (fm.getDescent() + 10) * i;
 
 				g.setColor(lightMode ? TRANSPARENT_WHITE : TRANSPARENT_BLACK);
-				g.fillRect(d.width - categoryTextWidth - 5, y - (fm.getDescent() + 10),
-						categoryTextWidth + 10, fm.getDescent() + 10);
+				g.fillRect(d.width - categoryTextWidth - 5, y - (fm.getDescent() + 10), categoryTextWidth + 10,
+						fm.getDescent() + 10);
 				if (showTimerSparklines) {
-					g.fillRect(frameX - 5, y - (fm.getDescent() + 10),
-							RenderPerfTimer.N_FRAMES * 5 + 10, (fm.getDescent() + 10));
+					g.fillRect(frameX - 5, y - (fm.getDescent() + 10), RenderPerfTimer.N_FRAMES * 5 + 10,
+							(fm.getDescent() + 10));
 				}
 
 				RenderPerfTimer.Counter measure = RenderPerfTimer.measure(category);
@@ -1054,7 +1084,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	@Override
 	public void clearCaches() {
-		currentPresentation.setProperty("clearCaches:true"); // TODO: clear all presentations' caches?
+		currentPresentation.setProperty("clearCaches:true"); // TODO: clear all presentations'
+																				// caches?
 	}
 
 	@Override

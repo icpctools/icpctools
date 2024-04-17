@@ -181,6 +181,15 @@ public abstract class PresentationWindow extends Frame implements IPresentationH
 	public abstract void setPresentation(Presentation presentation);
 
 	/**
+	 * Use the given transition to switch to one presentation.
+	 *
+	 * @param transition a transition, may not be null
+	 * @param presentation a presentation, may not be null
+	 */
+	@Override
+	public abstract void setPresentation(Transition transition, Presentation presentation);
+
+	/**
 	 * Show a set of presentations in the given order. The list of transitions may be null (no
 	 * transitions), a single entry (always use the same transition), or the same length as the
 	 * number of presentations (to specify a unique transition between each presentation).

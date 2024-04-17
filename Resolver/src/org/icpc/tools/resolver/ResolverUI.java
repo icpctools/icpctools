@@ -48,6 +48,9 @@ import org.icpc.tools.presentation.contest.internal.presentations.resolver.TeamL
 import org.icpc.tools.presentation.contest.internal.scoreboard.ScoreboardPresentation;
 import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
+import org.icpc.tools.presentation.core.Transition;
+import org.icpc.tools.presentation.core.transition.DirectionalTransition.Direction;
+import org.icpc.tools.presentation.core.transition.PushTransition;
 
 /**
  * A Resolver contains two types of Presentations: a "ScoreboardPresentation", which is a grid
@@ -343,9 +346,13 @@ public class ResolverUI {
 			moveTo(0);
 	}
 
-	public void setActive(boolean b) {
+	public void setActive(boolean b, int n) {
 		if (b) {
-			window.setPresentation(currentPresentation);
+			Direction dir = Direction.LEFT;
+			if (n == 0)
+				dir = Direction.RIGHT;
+			Transition trans = new PushTransition(dir);
+			window.setPresentation(trans, currentPresentation);
 			// need to wait a tiny bit - otherwise the key listener will catch the current swap key!
 			Thread t = new Thread() {
 				@Override
