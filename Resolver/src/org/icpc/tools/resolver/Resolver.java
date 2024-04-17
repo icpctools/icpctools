@@ -296,8 +296,8 @@ public class Resolver {
 								return;
 
 							Trace.trace(Trace.INFO, "Switching active UI to " + newActiveUI);
-							ui[activeUI].setActive(false);
-							ui[newActiveUI].setActive(true);
+							ui[activeUI].setActive(false, activeUI);
+							ui[newActiveUI].setActive(true, newActiveUI);
 							activeUI = newActiveUI;
 						} catch (Exception e) {
 							Trace.trace(Trace.ERROR, "Couldn't switch active UI", e);
@@ -656,7 +656,7 @@ public class Resolver {
 				if (ui.length == 1)
 					return;
 
-				ui[activeUI].setActive(false);
+				ui[activeUI].setActive(false, activeUI);
 				activeUI++;
 				if (activeUI >= ui.length)
 					activeUI = 0;
@@ -664,7 +664,7 @@ public class Resolver {
 				Trace.trace(Trace.USER, "Switching to contest " + activeUI);
 				sendActiveUI();
 
-				ui[activeUI].setActive(true);
+				ui[activeUI].setActive(true, activeUI);
 			}
 		});
 
@@ -693,7 +693,7 @@ public class Resolver {
 		// display (initialize) any secondary contests and set them inactive
 		for (int i = 1; i < ui.length; i++) {
 			ui[i].display(window);
-			ui[i].setActive(false);
+			ui[i].setActive(false, i);
 		}
 		// display the primary contest
 		ui[0].display(window);
