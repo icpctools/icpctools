@@ -1,7 +1,6 @@
 package org.icpc.tools.contest.model.resolver;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,34 +181,19 @@ public class ResolverLogic {
 					int size = teamIds.length;
 					ITeam[] teams = new ITeam[size];
 					Map<String, SelectType> selections = new HashMap<>();
-					int topTeam = finalContest.getNumTeams();
 					for (int i = 0; i < size; i++) {
 						teams[i] = finalContest.getTeamById(teamIds[i]);
-						if (award.getParameter() != null) {
-							topTeam = Math.min(topTeam, finalContest.getOrderOf(teams[i]));
-						}
 
 						// TODO figure out selections
 					}
 
 					ListAwardStep step = new ListAwardStep(award, teams, selections,
 							award.getDisplayMode() == DisplayMode.PHOTOS, "after".equals(award.getParameter()));
-					step.topTeam = topTeam;
 					teamLists.add(step);
 				}
 			}
 		}
 		Trace.trace(Trace.USER, contestAwards.length + " awards assigned");
-
-		// sort team lists
-		teamLists.sort(new Comparator<ListAwardStep>() {
-			@Override
-			public int compare(ListAwardStep t1, ListAwardStep t2) {
-				if (t1.topTeam < t2.topTeam)
-					return 1;
-				return -1;
-			}
-		});
 
 		// revert to start of the freeze
 		contest = finalContest.clone(new FreezeFilter(finalContest));
@@ -443,70 +427,71 @@ public class ResolverLogic {
 				}
 
 				boolean backToScoreboard = false;
-				if (!teamLists.isEmpty()) {
-					ListAwardStep step = teamLists.get(0);
-					if (step != null && allTeamsResolved(step, currentRow) && !step.after) {
-						Trace.trace(Trace.INFO, "Team list at row: " + currentRow + " " + step);
-						teamLists.remove(step);
+				ListAwardStep step = getListAward(currentRow, false);
+				if (step != null) {
+					Trace.trace(Trace.INFO, "Team list at row: " + currentRow + " " + step);
+					teamLists.remove(step);
 
-						steps.add(new TeamSelectionStep(step.teams));
+					steps.add(new TeamSelectionStep(step.teams));
+					steps.add(new PauseStep());
+					steps.add(new ScrollTeamListStep(true));
+					steps.add(step);
+					if (step.photos) {
+						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+					} else {
+						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
 						steps.add(new PauseStep());
-						steps.add(new ScrollTeamListStep(true));
-						steps.add(step);
-						if (step.photos) {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
-						} else {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
-							steps.add(new PauseStep());
-							steps.add(new ScrollTeamListStep(false));
-						}
-						steps.add(new PauseStep());
-						if (judgeStep != null) {
-							int size = judgeRuns.size();
-							String[] ii = new String[size];
-							for (int i = 0; i < size; i++)
-								ii[i] = judgeRuns.get(i);
-							judgeStep.submissionIds = ii; // judgeRuns.toArray(new
-																	// Integer[judgeRuns.size()]);
-							judgeStep = null;
-							judgeRuns.clear();
-						}
+						steps.add(new ScrollTeamListStep(false));
+					}
+					steps.add(new PauseStep());
+					if (judgeStep != null) {
+						int size = judgeRuns.size();
+						String[] ii = new String[size];
+						for (int i = 0; i < size; i++)
+							ii[i] = judgeRuns.get(i);
+						judgeStep.submissionIds = ii; // judgeRuns.toArray(new
+																// Integer[judgeRuns.size()]);
+						judgeStep = null;
+						judgeRuns.clear();
+					}
 
-						// check for awards we've missed
-						if (timing instanceof JudgeQueueTiming) {
-							ITeam[] teams2 = contest.getOrderedTeams();
-							for (int r = teams2.length - 1; r >= currentRow; r--) {
-								ITeam missedTeam = teams2[r];
-								String missedTeamId = missedTeam.getId();
-								List<IAward> teamAwards = awards.get(missedTeamId);
-								if (teamAwards != null && !teamAwards.isEmpty()) {
-									IOrganization org = contest.getOrganizationById(missedTeam.getOrganizationId());
-									if (org == null)
-										Trace.trace(Trace.INFO, "Catch up award at row: " + r + " " + missedTeamId);
-									else
-										Trace.trace(Trace.INFO, "Catch up award at row: " + r + " " + missedTeamId + " "
-												+ org.getActualFormalName());
+					// check for awards we've missed
+					if (timing instanceof JudgeQueueTiming) {
+						ITeam[] teams2 = contest.getOrderedTeams();
+						for (int r = teams2.length - 1; r >= currentRow; r--) {
+							ITeam missedTeam = teams2[r];
+							String missedTeamId = missedTeam.getId();
+							List<IAward> teamAwards = awards.get(missedTeamId);
+							if (teamAwards != null && !teamAwards.isEmpty()) {
+								IOrganization org = contest.getOrganizationById(missedTeam.getOrganizationId());
+								if (org == null)
+									Trace.trace(Trace.INFO, "Catch up award at row: " + r + " " + missedTeamId);
+								else
+									Trace.trace(Trace.INFO,
+											"Catch up award at row: " + r + " " + missedTeamId + " " + org.getActualFormalName());
 
-									// are we going to show this on a separate page?
-									boolean show = false;
-									for (IAward award : teamAwards) {
-										if (award.getDisplayMode() == DisplayMode.DETAIL)
-											show = true;
-									}
-
-									if (show) {
-										steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
-										steps.add(new AwardStep(missedTeamId, teamAwards));
-										steps.add(new PauseStep());
-									}
-									awards.remove(missedTeam.getId());
+								// are we going to show this on a separate page?
+								boolean show = false;
+								for (IAward award : teamAwards) {
+									if (award.getDisplayMode() == DisplayMode.DETAIL)
+										show = true;
 								}
+
+								if (show) {
+									steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
+									steps.add(new AwardStep(missedTeamId, teamAwards));
+									steps.add(new PauseStep());
+								}
+								awards.remove(missedTeam.getId());
 							}
 						}
-
-						timing = new ScoreboardTiming();
-						backToScoreboard = true;
 					}
+
+					timing = new ScoreboardTiming();
+					// backToScoreboard = true;
+
+					steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+					steps.add(new PauseStep());
 				}
 
 				if (doneWithRow) {
@@ -562,30 +547,28 @@ public class ResolverLogic {
 						}
 					}
 
-					if (!teamLists.isEmpty()) {
-						ListAwardStep step = teamLists.get(0);
-						if (step != null && allTeamsResolved(step, currentRow) && step.after) {
-							Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
-							teamLists.remove(step);
+					step = getListAward(currentRow, true);
+					if (step != null) {
+						Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
+						teamLists.remove(step);
 
-							if (backToScoreboard)
-								steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+						if (backToScoreboard)
+							steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 
-							steps.add(new TeamSelectionStep(step.teams));
+						steps.add(new TeamSelectionStep(step.teams));
+						steps.add(new PauseStep());
+						steps.add(step);
+
+						if (step.photos) {
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+						} else {
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
 							steps.add(new PauseStep());
-							steps.add(step);
-
-							if (step.photos) {
-								steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
-							} else {
-								steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
-								steps.add(new PauseStep());
-								steps.add(new ScrollTeamListStep(false));
-							}
-							steps.add(new PauseStep());
-
-							backToScoreboard = true;
+							steps.add(new ScrollTeamListStep(false));
 						}
+						steps.add(new PauseStep());
+
+						backToScoreboard = true;
 					}
 				}
 				if (backToScoreboard) {
@@ -601,14 +584,22 @@ public class ResolverLogic {
 		steps.add(new PauseStep());
 	}
 
-	protected boolean allTeamsResolved(ListAwardStep step, int row) {
+	protected ListAwardStep getListAward(int currentRow, boolean after) {
+		for (ListAwardStep step : teamLists) {
+			if (allTeamsResolved(step, currentRow, after))
+				return step;
+		}
+		return null;
+	}
+
+	protected boolean allTeamsResolved(ListAwardStep step, int row, boolean after) {
 		if (step == null)
 			return false;
 
 		IAward award = step.award;
 		String param = award.getParameter();
 		String[] teamIds = award.getTeamIds();
-		if (param != null && param.startsWith("before:")) {
+		if (param != null && param.startsWith("before:") && !after) {
 			int targetRow = -1;
 			try {
 				targetRow = Integer.parseInt(param.substring(7));
@@ -628,6 +619,19 @@ public class ResolverLogic {
 
 			if (row == targetRow - 1)
 				return true;
+		}
+
+		if (after != step.after)
+			return false;
+
+		// we've done all the teams
+		int numTeaams = teamIds.length;
+		for (int i = 0; i < numTeaams; i++) {
+			ITeam team = finalContest.getTeamById(teamIds[i]);
+			if (award.getParameter() != null) {
+				if (finalContest.getOrderOf(team) < row)
+					return false;
+			}
 		}
 
 		// check if all teams are resolved
