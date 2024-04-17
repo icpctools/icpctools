@@ -80,7 +80,7 @@ public class Resolver {
 	private String[] problemIdList;
 
 	// client/server variables
-	private PresentationClient[] client;
+	private PresentationClient client;
 	private int[] clients = new int[0];
 
 	protected static void showHelp() {
@@ -199,7 +199,6 @@ public class Resolver {
 		r.contestIds = new String[numContests];
 		r.contestSources = contestSources;
 		r.finalContest = new Contest[numContests];
-		r.client = new PresentationClient[numContests];
 
 		int i = 0;
 		for (ContestSource cs : contestSources) {
@@ -226,34 +225,37 @@ public class Resolver {
 			r.ui[i] = r.createUI(steps);
 			r.contestIds[i] = cs.getContestId();
 
-			try {
-				r.connectToCDS(i);
-			} catch (NumberFormatException e) {
-				Trace.trace(Trace.ERROR, "Could not connect to CDS");
-				System.exit(2);
-			}
 			i++;
+		}
+
+		try {
+			r.connectToCDS();
+		} catch (NumberFormatException e) {
+			Trace.trace(Trace.ERROR, "Could not connect to CDS");
+			System.exit(2);
 		}
 
 		r.launch();
 	}
 
-	private void connectToCDS(int con) {
+	private void connectToCDS() {
 		if (!isPresenter && screen == null)
 			return;
 
-		if (!(contestSources[con] instanceof RESTContestSource)) {
-			Trace.trace(Trace.ERROR, "Source argument must be a CDS");
-			System.exit(1);
-		}
+		// all of the sources need to be on a CDS, otherwise we can't switch
+		for (int i = 0; i < contestSources.length; i++)
+			if (!(contestSources[i] instanceof RESTContestSource)) {
+				Trace.trace(Trace.ERROR, "Source argument must be a CDS");
+				System.exit(1);
+			}
 
-		RESTContestSource cdsSource = (RESTContestSource) contestSources[con];
+		RESTContestSource cdsSource = (RESTContestSource) contestSources[0];
 		try {
-			String role = "blue";
+			String role = "staff";
 			if (isPresenter)
 				role = "presAdmin";
 
-			client[con] = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver" + con) {
+			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
 				@Override
 				protected void clientsChanged(Client[] cl) {
 					Trace.trace(Trace.INFO, "Client list changed: " + cl.length);
@@ -274,7 +276,7 @@ public class Resolver {
 		}
 
 		try {
-			client[con].addListener(new IPropertyListener() {
+			client.addListener(new IPropertyListener() {
 				@Override
 				public void propertyUpdated(String key, String value) {
 					Trace.trace(Trace.INFO, "New property: " + key + ": " + value);
@@ -303,7 +305,7 @@ public class Resolver {
 					}
 				}
 			});
-			client[con].connect();
+			client.connect();
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Client error", e);
 		}
@@ -312,7 +314,7 @@ public class Resolver {
 	private void sendActiveUI() {
 		try {
 			Trace.trace(Trace.INFO, "Sending active UI: " + activeUI + " " + contestIds[activeUI]);
-			client[activeUI].sendProperty(clients, DATA_RESOLVER_ACTIVE_UI, contestIds[activeUI]);
+			client.sendProperty(clients, DATA_RESOLVER_ACTIVE_UI, contestIds[activeUI]);
 		} catch (Exception ex) {
 			Trace.trace(Trace.WARNING, "Failed to send active UI", ex);
 		}
