@@ -599,7 +599,8 @@ public class ConfiguredContest {
 			contestSource = new DiskContestSource(folder);
 		} else {
 			try {
-				contestSource = new RESTContestSource(folder, ccs.getURL(), ccs.getUser(), ccs.getPassword());
+				String name = System.getProperty("CDS-name");
+				contestSource = new RESTContestSource(folder, ccs.getURL(), ccs.getUser(), ccs.getPassword(), name);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not configure contest source", e);
 				contestSource = new DiskContestSource(folder);
