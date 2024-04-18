@@ -623,7 +623,7 @@ public class AwardUtil {
 
 		Award award = new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, mode);
 		IStanding standing = contest.getStanding(teams[t]);
-		award.setParameter(standing.toString());
+		award.setParameter(standing.getNumSolved() + "");
 		contest.add(award);
 	}
 
