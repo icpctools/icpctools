@@ -46,7 +46,6 @@ import org.icpc.tools.presentation.core.Transition.TimeOverlap;
  */
 public class PresentationWindowImpl extends PresentationWindow {
 	private static final long serialVersionUID = 1L;
-	private static final long TRANSITION_TIME = 2000;
 	private static final long DEFAULT_REPEAT_TIME = 10000;
 	private static final long PLAN_FADE_TIME = 800; // time to fade in/out when changing plan
 	private static final long MAX_FPS = 1000_000_000L / (60L + 7); // limit to 60fps max with some
@@ -178,9 +177,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 				pp.startTime = time;
 				pp.p1 = pres;
 				if (lastTo == TimeOverlap.MID)
-					pp.p1time = -TRANSITION_TIME / 2;
+					pp.p1time = -lastTrans.getLength() / 2;
 				else if (lastTo == TimeOverlap.FULL)
-					pp.p1time = -TRANSITION_TIME;
+					pp.p1time = -lastTrans.getLength();
 				segs.add(pp);
 
 				Transition trans = transitions[curTrans % transitions.length];
@@ -193,9 +192,9 @@ public class PresentationWindowImpl extends PresentationWindow {
 				time += duration + pp.p1time;
 
 				if (to == TimeOverlap.MID)
-					time -= TRANSITION_TIME / 2;
+					time -= trans.getLength() / 2;
 				else if (to == TimeOverlap.FULL)
-					time -= TRANSITION_TIME;
+					time -= trans.getLength();
 
 				PresentationSegment tp = new PresentationSegment();
 				tp.startTime = time;
@@ -207,7 +206,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 				segs.add(tp);
 
 				lastTo = to;
-				time += TRANSITION_TIME;
+				time += lastTrans.getLength();
 				curPres++;
 				curTrans++;
 			}
@@ -885,23 +884,24 @@ public class PresentationWindowImpl extends PresentationWindow {
 		segment.p1.setTimeMs(time);
 		segment.p2.setTimeMs(time);
 
-		double x = repeatTime / (double) TRANSITION_TIME;
+		Transition trans = segment.trans;
+		double x = repeatTime / (double) trans.getLength();
 		timeUntilPlanChange = 0;
 
-		TimeOverlap to = segment.trans.getTimeOverlap();
+		TimeOverlap to = trans.getTimeOverlap();
 		if (to == TimeOverlap.NONE) {
 			segment.p1.setRepeatTimeMs(segment.p1time);
 			segment.p2.setRepeatTimeMs(0);
 		} else if (to == TimeOverlap.MID) {
 			if (x < 0.5) {
-				segment.p1.setRepeatTimeMs(segment.p1time - TRANSITION_TIME / 2 + repeatTime);
+				segment.p1.setRepeatTimeMs(segment.p1time - trans.getLength() / 2 + repeatTime);
 				segment.p2.setRepeatTimeMs(0);
 			} else {
 				segment.p1.setRepeatTimeMs(segment.p1time);
-				segment.p2.setRepeatTimeMs(repeatTime - TRANSITION_TIME / 2);
+				segment.p2.setRepeatTimeMs(repeatTime - trans.getLength() / 2);
 			}
 		} else {
-			segment.p1.setRepeatTimeMs(segment.p1time - TRANSITION_TIME + repeatTime);
+			segment.p1.setRepeatTimeMs(segment.p1time - trans.getLength() + repeatTime);
 			segment.p2.setRepeatTimeMs(repeatTime);
 		}
 

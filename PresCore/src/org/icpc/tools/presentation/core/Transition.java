@@ -17,6 +17,9 @@ public abstract class Transition {
 	protected int width;
 	protected int height;
 
+	// default 2s transition time
+	protected long length = 2000;
+
 	public void setSize(Dimension d) {
 		width = d.width;
 		height = d.height;
@@ -28,6 +31,14 @@ public abstract class Transition {
 
 	public TimeOverlap getTimeOverlap() {
 		return TimeOverlap.FULL;
+	}
+
+	public void setLength(long len) {
+		this.length = len;
+	}
+
+	public long getLength() {
+		return length;
 	}
 
 	/**
