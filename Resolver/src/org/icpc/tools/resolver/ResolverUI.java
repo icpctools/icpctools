@@ -237,7 +237,7 @@ public class ResolverUI {
 				else if ('j' == e.getKeyChar() || 'J' == e.getKeyChar()) {
 					// TODO should reset to what the command line is??
 					setSpeedFactorImpl(1.0);
-					setScrollSpeedFactor(1.0);
+					setScrollSpeedFactorImpl(1.0);
 				} else if ('p' == e.getKeyChar()) {
 					setScrollPauseImpl(!pauseScroll);
 				} else if ('i' == e.getKeyChar())
