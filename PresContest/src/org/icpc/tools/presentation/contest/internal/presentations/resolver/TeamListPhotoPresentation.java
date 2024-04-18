@@ -288,7 +288,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			}
 
 			g.setColor(BG_COLOR);
-			g.fillRect(xx, yy + tileDim.height - 2 * gap - Math.max(tileDim.height / 8, fm.getHeight()), tileDim.width - gap * 2, 2 * gap + Math.max(tileDim.height / 8, fm.getHeight()));
+			g.fillRect(xx, yy + tileDim.height - 2 * gap - Math.max(tileDim.height / 8, fm.getHeight()), tileDim.width, 2 * gap + Math.max(tileDim.height / 8, fm.getHeight()));
 
 			TextHelper text = new TextHelper(g);
 			text = new TextHelper(g);
