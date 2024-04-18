@@ -8,18 +8,28 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.*;
+import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
-
-import javax.imageio.ImageIO;
 
 public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 	private static final Collator collator = Collator.getInstance(Locale.US);
@@ -42,7 +52,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 	class Cache {
 		private List<String> teamIds = new ArrayList<>();
-		private IAward award;
+		private IAward award2;
 		private final Map<String, BufferedImage> teamLogos = new HashMap<>();
 		private final Map<String, BufferedImage> teamPhotos = new HashMap<>();
 	}
@@ -102,7 +112,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 						ResolutionUtil.ListAwardStep as = (ResolutionUtil.ListAwardStep) step;
 						Cache c = new Cache();
 						c.teamIds = Arrays.stream(as.teams).map(IContestObject::getId).collect(Collectors.toList());
-						c.award = as.award;
+						c.award2 = as.award;
 
 						list.add(c);
 					}
@@ -148,7 +158,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 	}
 
 	protected void loadImages(Cache c) {
-		int numTeams = c.award.getTeamIds().length;
+		int numTeams = c.award2.getTeamIds().length;
 		numColumns = (int) Math.ceil(Math.sqrt(numTeams));
 
 		numRows = (numTeams + numColumns - 1) / numColumns;
@@ -188,7 +198,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 		int index = -1;
 		for (int i = 0; i < cache.length; i++) {
 			Cache c = cache[i];
-			if (c.award.equals(award)) {
+			if (c.award2.equals(award)) {
 				index = i;
 				currentCache = c;
 			}
@@ -288,7 +298,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			}
 
 			g.setColor(BG_COLOR);
-			g.fillRect(xx, yy + tileDim.height - 2 * gap - Math.max(tileDim.height / 8, fm.getHeight()), tileDim.width, 2 * gap + Math.max(tileDim.height / 8, fm.getHeight()));
+			g.fillRect(xx, yy + tileDim.height - 2 * gap - Math.max(tileDim.height / 8, fm.getHeight()), tileDim.width,
+					2 * gap + Math.max(tileDim.height / 8, fm.getHeight()));
 
 			TextHelper text = new TextHelper(g);
 			text = new TextHelper(g);
@@ -296,11 +307,12 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			if (logo != null)
 				text.addImage(logo);
 			text.addSpacer(8, fm.getHeight());
-			text.addString(t.getActualDisplayName(), true);
+			text.addString(t.getActualDisplayName());
+			Dimension b = text.getBounds();
 
 			g.translate(xx + tileDim.width / 2, 0);
 			text.drawFit(-Math.min((tileDim.width - gap * 2) / 2, text.getWidth() / 2),
-					yy + tileDim.height - gap - Math.max(tileDim.height / 8, fm.getHeight()), tileDim.width - gap * 2);
+					yy + tileDim.height - gap - tileDim.height / 16 - b.height / 2, tileDim.width - gap * 2);
 			g.translate(-xx - tileDim.width / 2, 0);
 
 			x++;
