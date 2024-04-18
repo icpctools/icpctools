@@ -5,13 +5,13 @@
 
 <h2>Download</h2>
 <p>
-    The latest stable {{ .Get "name" }} version is {{ $stableTool.version }}, released on {{ $stableRelease.date }}.
+    The latest stable {{ .Get "name" }} version is {{ $stableTool.version }}, released on {{ $stableRelease.date }} at {{ $stableRelease.time }} from commit <code>{{ $stableRelease.commit }}</code>.
 </p>
 <p>
     <a class="btn btn-primary" href="{{ $stableTool.urls.zip }}"><i class="fas fa-download"></i> Download stable release v{{ $stableTool.version }}</a>
 </p>
 <p>
-    The latest prerelease is v{{ $prerelaseTool.version }}, built on {{ $preRelease.date }}.
+    The latest prerelease is v{{ $prerelaseTool.version }}, built on {{ $preRelease.date }} at {{ $preRelease.time }} from commit <code>{{ $preRelease.commit }}</code>.
 </p>
 <p>
     <a class="btn btn-danger" href="{{ $prerelaseTool.urls.zip }}"><i class="fas fa-download"></i> Download prerelease build v{{ $prerelaseTool.version }}</a>
