@@ -290,7 +290,7 @@ public class ResolverUI {
 			}
 		};
 		scoreboardPresentation.setScrollToRow(-1);
-		scoreboardPresentation.setShowLegend(true); // show legend initially
+		scoreboardPresentation.setShowLegend(false);
 		if (showInfo)
 			scoreboardPresentation.setShowSubmissionInfo(true);
 		scoreboardPresentation.setProperty("clockOff");
