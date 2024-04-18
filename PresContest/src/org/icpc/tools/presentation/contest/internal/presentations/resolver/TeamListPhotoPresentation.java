@@ -69,12 +69,12 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 
-		contestLogo = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.7), true, true);
+		contestLogo = getContest().getLogoImage((int) (tileDim.width * 0.8), (int) (tileDim.height * 0.7), true, true);
 		if (contestLogo == null) {
 			ClassLoader cl = getClass().getClassLoader();
 			try {
-				contestLogo = ImageScaler.scaleImage(ImageIO.read(cl.getResource("images/id.png")), (int) (width * 0.8),
-						(int) (height * 0.7));
+				contestLogo = ImageScaler.scaleImage(ImageIO.read(cl.getResource("images/id.png")),
+						(int) (tileDim.width * 0.8), (int) (tileDim.height * 0.7));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error loading images", e);
 			}
