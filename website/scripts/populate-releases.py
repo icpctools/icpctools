@@ -46,6 +46,7 @@ def release_info(release):
     assetPattern = re.compile(r'(?P<tool>.*)-(?P<version>\d+\.\d+\.\d+)\.zip\.?(?P<check>.*)?')
     info = {
         'version': release['tag_name'].replace('v', ''),
+        'commit': release['target_commitish'][0:8],
         'date': datetime.datetime.strptime(release['created_at'], "%Y-%m-%dT%H:%M:%SZ").strftime("%d %B %Y"),
         'time': datetime.datetime.strptime(release['created_at'], "%Y-%m-%dT%H:%M:%SZ").strftime("%H:%M:%S"),
         'downloads': {}
