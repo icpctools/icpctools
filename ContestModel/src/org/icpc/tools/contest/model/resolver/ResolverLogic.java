@@ -548,7 +548,7 @@ public class ResolverLogic {
 					}
 
 					step = getListAward(currentRow, true);
-					if (step != null) {
+					while (step != null) {
 						Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
 						teamLists.remove(step);
 
@@ -569,6 +569,8 @@ public class ResolverLogic {
 						steps.add(new PauseStep());
 
 						backToScoreboard = true;
+
+						step = getListAward(currentRow, true);
 					}
 				}
 				if (backToScoreboard) {
@@ -586,8 +588,9 @@ public class ResolverLogic {
 
 	protected ListAwardStep getListAward(int currentRow, boolean after) {
 		for (ListAwardStep step : teamLists) {
-			if (isListReadyToDisplay(step, currentRow, after))
+			if (isListReadyToDisplay(step, currentRow, after)) {
 				return step;
+			}
 		}
 		return null;
 	}
@@ -599,7 +602,7 @@ public class ResolverLogic {
 		IAward award = step.award;
 		String param = award.getParameter();
 		String[] teamIds = award.getTeamIds();
-		if (param != null && param.startsWith("before:") && !after) {
+		if (param != null && param.startsWith("before:") && after) {
 			int targetRow = -1;
 			try {
 				targetRow = Integer.parseInt(param.substring(7));
@@ -608,16 +611,7 @@ public class ResolverLogic {
 				return true;
 			}
 
-			// not ready if we're not done resolving the current team
-			ITeam team = contest.getOrderedTeams()[row];
-			int numProblems = contest.getNumProblems();
-			for (int i = 0; i < numProblems; i++) {
-				IResult r = contest.getResult(team, i);
-				if (r.getStatus() == Status.SUBMITTED)
-					return false;
-			}
-
-			if (row == targetRow - 1)
+			if (row <= targetRow)
 				return true;
 		}
 
@@ -650,19 +644,23 @@ public class ResolverLogic {
 		// for solution and honor awards, wait until every team higher on the scoreboard has solved
 		// more
 		// problems than the given number
-		if (award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS) {
+		if ((award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS) && param != null) {
 			int numSolved = -1;
 			try {
 				numSolved = Integer.parseInt(param);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not parse solved award parameter " + step.award.getParameter());
-				return true;
 			}
 
 			if (numSolved > 0) {
 				ITeam[] teams = contest.getOrderedTeams();
 				for (int i = 0; i < row; i++) {
 					IStanding s = contest.getStanding(teams[i]);
+					if (s.getNumSolved() <= numSolved)
+						return false;
+				}
+				if (!after) {
+					IStanding s = contest.getStanding(teams[row]);
 					if (s.getNumSolved() <= numSolved)
 						return false;
 				}
