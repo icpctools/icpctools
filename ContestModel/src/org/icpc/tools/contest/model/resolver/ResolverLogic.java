@@ -586,13 +586,13 @@ public class ResolverLogic {
 
 	protected ListAwardStep getListAward(int currentRow, boolean after) {
 		for (ListAwardStep step : teamLists) {
-			if (allTeamsResolved(step, currentRow, after))
+			if (isListReadyToDisplay(step, currentRow, after))
 				return step;
 		}
 		return null;
 	}
 
-	protected boolean allTeamsResolved(ListAwardStep step, int row, boolean after) {
+	protected boolean isListReadyToDisplay(ListAwardStep step, int row, boolean after) {
 		if (step == null)
 			return false;
 
@@ -647,9 +647,10 @@ public class ResolverLogic {
 			}
 		}
 
-		// and for solution awards, wait until every team higher on the scoreboard has solved more
-		// problems
-		if (award.getAwardType() == IAward.SOLVED) {
+		// for solution and honor awards, wait until every team higher on the scoreboard has solved
+		// more
+		// problems than the given number
+		if (award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS) {
 			int numSolved = -1;
 			try {
 				numSolved = Integer.parseInt(param);
@@ -658,11 +659,13 @@ public class ResolverLogic {
 				return true;
 			}
 
-			ITeam[] teams = contest.getOrderedTeams();
-			for (int i = 0; i < row; i++) {
-				IStanding s = contest.getStanding(teams[i]);
-				if (s.getNumSolved() <= numSolved)
-					return false;
+			if (numSolved > 0) {
+				ITeam[] teams = contest.getOrderedTeams();
+				for (int i = 0; i < row; i++) {
+					IStanding s = contest.getStanding(teams[i]);
+					if (s.getNumSolved() <= numSolved)
+						return false;
+				}
 			}
 		}
 

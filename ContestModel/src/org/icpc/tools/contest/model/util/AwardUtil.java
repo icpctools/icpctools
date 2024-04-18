@@ -621,7 +621,10 @@ public class AwardUtil {
 				citation = Messages.getString("awardHonors");
 		}
 
-		contest.add(new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, mode));
+		Award award = new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, mode);
+		IStanding standing = contest.getStanding(teams[t]);
+		award.setParameter(standing.toString());
+		contest.add(award);
 	}
 
 	public static int[] getMedalCounts(IContest contest) {
