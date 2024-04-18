@@ -336,6 +336,7 @@ public class ResolverUI {
 		};
 		teamListPhotoPresentation.setSize(window.getSize());
 		teamListPhotoPresentation.setContest(contest);
+		teamListPhotoPresentation.cacheAwards(steps);
 
 		final float dpi = 96;
 		float size = (window.getHeight() / 14f) * 36f / dpi;
