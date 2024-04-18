@@ -313,6 +313,7 @@ public class ResolverUI {
 			}
 		};
 		awardPresentation.setSize(window.getSize());
+		awardPresentation.setContest(contest);
 		awardPresentation.cacheAwards(steps);
 		awardPresentation.setShowInfo(showInfo);
 
