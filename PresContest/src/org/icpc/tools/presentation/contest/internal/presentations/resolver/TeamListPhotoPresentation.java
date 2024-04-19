@@ -172,8 +172,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				for (int j = 0; j < c.teamIds.size(); j++) {
 					String teamId = c.teamIds.get(j);
 					if (c.teamLogos.get(teamId) != null) {
-						c.teamPhotos.get(teamId).flush();
-						c.teamPhotos.remove(teamId);
+						c.teamLogos.get(teamId).flush();
+						c.teamLogos.remove(teamId);
 					}
 				}
 			}
@@ -309,7 +309,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			BufferedImage logo = c.teamLogos.get(t.getId());
 			if (logo != null)
 				text.addImage(logo);
-			text.addSpacer(8, fm.getHeight());
+			text.addSpacer(fm.getHeight() / 2, fm.getHeight());
 			text.addString(t.getActualDisplayName());
 			Dimension b = text.getBounds();
 
