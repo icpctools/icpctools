@@ -31,7 +31,7 @@ public class JudgeQueueDepthChart extends AbstractChartPresentation {
 	}
 
 	public JudgeQueueDepthChart() {
-		super(Type.LINE, Messages.judgeQueueDepth, "Time");
+		super(Type.LINE, Messages.judgeQueueDepth, Messages.time);
 		setFont(ICPCFont.getMasterFont());
 		showValueLabels = false;
 	}

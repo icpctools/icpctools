@@ -46,7 +46,7 @@ public class JudgementChart extends AbstractChartPresentation {
 	}
 
 	public JudgementChart() {
-		super(Type.BAR, Messages.judgementTimeByProblem, "Time");
+		super(Type.BAR, Messages.judgementTimeByProblem, Messages.time);
 		setFont(ICPCFont.getMasterFont());
 	}
 
