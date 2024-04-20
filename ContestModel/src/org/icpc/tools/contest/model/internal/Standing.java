@@ -59,6 +59,6 @@ public class Standing implements IStanding {
 
 	@Override
 	public String toString() {
-		return "Standing [" + rank + ", " + numSolved + ", " + penalty + ", " + lastSolution + "]";
+		return "Standing [" + rank + ", " + numSolved + ", " + penalty + ", " + lastSolution + ", " + score + "]";
 	}
 }

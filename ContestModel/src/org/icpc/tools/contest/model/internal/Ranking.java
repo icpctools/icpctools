@@ -4,6 +4,7 @@ import java.text.Collator;
 import java.util.Locale;
 
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
@@ -30,7 +31,7 @@ public class Ranking {
 		sort(contest, teams, standings, order);
 		if (scoring == Scoring.OFFICIAL)
 			sortOfficial(contest, standings, teams, order, scoring, lastBronze);
-		rank(standings, teams, order, scoring, lastBronze);
+		rank(contest, standings, teams, order, scoring, lastBronze);
 	}
 
 	/**
@@ -39,26 +40,34 @@ public class Ranking {
 	private static void sort(IContest contest, ITeam[] teams, IStanding[] standings, int[] order) {
 		int numTeams = order.length;
 
+		boolean passFail = contest.getScoreboardType() == ScoreboardType.PASS_FAIL;
 		for (int i = 0; i < numTeams - 1; i++) {
 			for (int j = i + 1; j < numTeams; j++) {
 				boolean swap = false;
 				IStanding si = standings[order[i]];
 				IStanding sj = standings[order[j]];
-				if (si.getNumSolved() < sj.getNumSolved())
-					swap = true;
-				else if (si.getNumSolved() == sj.getNumSolved()) {
-					if (si.getTime() > sj.getTime())
+				if (passFail) {
+					if (si.getNumSolved() < sj.getNumSolved())
 						swap = true;
-					else if (si.getTime() == sj.getTime()) {
-						if (si.getLastSolutionTime() > sj.getLastSolutionTime())
+					else if (si.getNumSolved() == sj.getNumSolved()) {
+						if (si.getTime() > sj.getTime())
 							swap = true;
-						else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
-							String tin = teams[order[i]].getActualDisplayName();
-							String tjn = teams[order[j]].getActualDisplayName();
-							if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
+						else if (si.getTime() == sj.getTime()) {
+							if (si.getLastSolutionTime() > sj.getLastSolutionTime())
 								swap = true;
+							else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
+								String tin = teams[order[i]].getActualDisplayName();
+								String tjn = teams[order[j]].getActualDisplayName();
+								if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
+									swap = true;
+							}
 						}
 					}
+				} else {
+					if (si.getScore() < sj.getScore())
+						swap = true;
+					// Future: some contests also use penalty as a tiebreaker, but there's no way
+					// to know this from the Contest API (yet)
 				}
 
 				if (swap)
@@ -70,12 +79,28 @@ public class Ranking {
 	/**
 	 * Rank all teams using ICPC rules.
 	 */
-	private static void rank(IStanding[] standings, ITeam[] teams, int[] order, Scoring scoring, int lastBronze) {
+	private static void rank(IContest contest, IStanding[] standings, ITeam[] teams, int[] order, Scoring scoring,
+			int lastBronze) {
 		int numTeams = order.length;
-		int median = median(standings, teams, order);
-
 		if (numTeams == 0)
 			return;
+
+		if (contest.getScoreboardType() == ScoreboardType.SCORE) {
+			IStanding lastStanding = null;
+			for (int i = 0; i < numTeams; i++) {
+				Standing standing = (Standing) standings[order[i]];
+				if (lastStanding != null && standing.getScore() == lastStanding.getScore()) {
+					standing.setRank(lastStanding.getRank());
+				} else {
+					standing.setRank((i + 1) + "");
+					lastStanding = standing;
+				}
+			}
+
+			return;
+		}
+
+		int median = median(standings, teams, order);
 
 		int n = 0;
 		IStanding standingN = standings[order[n]];
