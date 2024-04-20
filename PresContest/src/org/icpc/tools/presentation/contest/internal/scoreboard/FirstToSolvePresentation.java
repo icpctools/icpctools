@@ -152,9 +152,9 @@ public class FirstToSolvePresentation extends AbstractScoreboardPresentation {
 		int y = headerHeight - 3;
 
 		g.setFont(headerItalicsFont);
-		g.drawString("Time", BORDER + (fm.stringWidth("199") - fm2.stringWidth("Time")) / 2, y);
+		g.drawString(Messages.time, BORDER + (fm.stringWidth("199") - fm2.stringWidth(Messages.time)) / 2, y);
 		g.setFont(headerFont);
-		g.drawString("Name", BORDER + fm.stringWidth("199 ") + rowHeight, y);
+		g.drawString(Messages.name, BORDER + fm.stringWidth("199 ") + rowHeight, y);
 		g.setFont(headerFont);
 		g.drawString("Problem", width - BORDER - (fm.stringWidth("9999") + fm2.stringWidth("Problem")) / 2, y);
 	}
