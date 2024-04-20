@@ -41,7 +41,7 @@ public class SingleTeamPresentation extends AbstractScoreboardPresentation {
 
 		Graphics2D g = (Graphics2D) g2.create();
 		drawBackground(g, 0, true);
-		drawTeamAndProblemGrid(g, team);
+		drawTeamAndProblemGrid(g, contest, team);
 
 		g.translate(0, -80);
 

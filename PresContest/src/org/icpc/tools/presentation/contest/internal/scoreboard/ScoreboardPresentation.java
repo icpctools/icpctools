@@ -80,7 +80,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 			if ((y + rowHeight - scroll2) > 0 && (y - scroll2) < (height - headerHeight)) {
 				Graphics2D g2 = (Graphics2D) g.create();
 				g2.translate(0, (int) y);
-				drawTeamAndProblemGrid(g2, team);
+				drawTeamAndProblemGrid(g2, contest, team);
 				g2.dispose();
 			}
 		}

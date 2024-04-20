@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,6 +13,13 @@ public class ContestUtil {
 	private static final int RECENT_MS = 5 * 60 * 1000; // 5 minutes
 
 	private static final SimpleDateFormat SDF = new SimpleDateFormat("h:mm.ss aa MMMM dd, yyyy");
+
+	private static final NumberFormat SCORE_FORMAT = NumberFormat.getInstance();
+
+	static {
+		SCORE_FORMAT.setMinimumFractionDigits(2);
+		SCORE_FORMAT.setMaximumFractionDigits(2);
+	}
 
 	public static boolean flashPending = true;
 
@@ -193,6 +201,20 @@ public class ContestUtil {
 		if (secs > 0)
 			sb.append(secs + "s");
 		return sb.toString();
+	}
+
+	/**
+	 * Format a score. Scores that are round numbers are output without a decimal, all others are
+	 * rounded to 2 decimal places.
+	 *
+	 * @param d
+	 * @return
+	 */
+	public static String formatScore(double score) {
+		if (Math.floor(score) == score)
+			return ((int) score) + "";
+
+		return SCORE_FORMAT.format(score);
 	}
 
 	/**
