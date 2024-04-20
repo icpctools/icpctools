@@ -16,6 +16,7 @@ import java.util.Map;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IProblemSummary;
@@ -327,11 +328,16 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		g.setFont(headerFont);
 		g.drawString(Messages.name, BORDER + fm.stringWidth("199 ") + (int) rowHeight, y);
 		g.setFont(headerItalicsFont);
-		g.drawString(Messages.solved,
-				width - BORDER - fm.stringWidth(" 9999") - (fm2.stringWidth(Messages.solved) + fm.stringWidth("99")) / 2,
-				y);
-		g.setFont(headerFont);
-		g.drawString(Messages.time, width - BORDER - (fm2.stringWidth(Messages.time) + fm.stringWidth("9999")) / 2, y);
+		if (getContest().getScoreboardType() == ScoreboardType.PASS_FAIL) {
+			g.drawString(Messages.solved,
+					width - BORDER - fm.stringWidth(" 9999") - (fm2.stringWidth(Messages.solved) + fm.stringWidth("99")) / 2,
+					y);
+			g.setFont(headerFont);
+			g.drawString(Messages.time, width - BORDER - (fm2.stringWidth(Messages.time) + fm.stringWidth("9999")) / 2, y);
+		} else {
+			g.drawString(Messages.score,
+					width - BORDER - (fm2.stringWidth(Messages.score) + fm.stringWidth("9999.99")) / 2, y);
+		}
 	}
 
 	public void drawBackground(Graphics2D g, int row, boolean oddRow) {
@@ -387,7 +393,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	 * @param g - the graphics object to be used for drawing
 	 * @param team - the team whose data is to be displayed
 	 */
-	protected void drawTeamGrid(Graphics2D g, ITeam team) {
+	protected void drawTeamGrid(Graphics2D g, IContest contest, ITeam team) {
 		// make sure we have selected a team
 		if ((selectedTeams != null && selectedTeams.contains(team))
 				|| (focusOnTeamId != null && focusOnTeamId.equals(team.getId()))) {
@@ -438,25 +444,34 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 		int xx = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
 		TextHelper text = new TextHelper(g, s);
-		text.drawFit(xx, 5, (int) (width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight));
-
-		int n = standing.getNumSolved();
+		if (contest.getScoreboardType() == ScoreboardType.PASS_FAIL)
+			text.drawFit(xx, 5, (int) (width - BORDER * 2 - fm.stringWidth("199 9 9999 ") - rowHeight));
+		else
+			text.drawFit(xx, 5, (int) (width - BORDER * 2 - fm.stringWidth("199 9999.99 ") - rowHeight));
 
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowItalicsFont);
-		if (n > 0) {
-			s = n + "";
-			TextImage.drawString(g, s,
-					width - BORDER - fm.stringWidth(" 9999") - (fm.stringWidth("99") + fm.stringWidth(s)) / 2, 5);
-		}
+		if (contest.getScoreboardType() == ScoreboardType.PASS_FAIL) {
+			if (standing.getNumSolved() > 0) {
+				s = standing.getNumSolved() + "";
+				TextImage.drawString(g, s,
+						width - BORDER - fm.stringWidth(" 9999") - (fm.stringWidth("99") + fm.stringWidth(s)) / 2, 5);
+			}
 
-		long t = standing.getTime();
+			long t = standing.getTime();
 
-		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
-		g.setFont(rowFont);
-		if (t > 0) {
-			s = t + "";
-			TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
+			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
+			g.setFont(rowFont);
+			if (t > 0) {
+				s = t + "";
+				TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
+			}
+		} else {
+			if (standing.getScore() > 0) {
+				s = ContestUtil.formatScore(standing.getScore());
+
+				TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999.99") + fm.stringWidth(s)) / 2, 5);
+			}
 		}
 	}
 
@@ -467,16 +482,15 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	 * @param g - the Graphics object to use for drawing
 	 * @param team - the team to be displayed in the specified row
 	 */
-	protected void drawTeamAndProblemGrid(Graphics2D g, ITeam team) {
+	protected void drawTeamAndProblemGrid(Graphics2D g, IContest contest, ITeam team) {
 		long count = getTimeMs();
 		// draw team rank/logo/name/numSolved/points, plus white-box highlight if appropriate
-		drawTeamGrid(g, team);
+		drawTeamGrid(g, contest, team);
 
 		FontMetrics fm = g.getFontMetrics(); // row font
 
 		int indent = BORDER + fm.stringWidth("199 ") + (int) rowHeight;
 		int rowH = (int) (rowHeight * 0.6f);
-		IContest contest = getContest();
 		IProblem[] problems = contest.getProblems();
 		int numProblems = problems.length;
 
@@ -506,14 +520,21 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 				// to go in the round rectangle displaying the submission status
 				String s = "";
 				if (r.getNumSubmissions() > 0) {
-					// the team has some submissions for the current problem; add the number of
-					// submissions to the
-					// string
-					s = r.getNumSubmissions() + "";
-					if (r.getContestTime() > 0)
-						// add a dash, surrounded on both sides by a Unicode "HairSpace" (the thinnest
-						// available), followed by the time of the submission
-						s += "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+					// the team has some submissions for the current problem
+					if (contest.getScoreboardType() == ScoreboardType.PASS_FAIL) {
+						// add the number of submissions
+						s = r.getNumSubmissions() + "";
+						if (r.getContestTime() > 0)
+							// add a dash, surrounded on both sides by a Unicode "HairSpace" (the thinnest
+							// available), followed by the time of the submission
+							s += "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+					} else {
+						// add the problem score
+						if (r.getStatus() == Status.SOLVED)
+							s = ContestUtil.formatScore(r.getScore());
+						else
+							s = r.getNumSubmissions() + "";
+					}
 				}
 
 				// fill in the center of the oval with the appropriate color and string
@@ -601,7 +622,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 			if ((y + rowHeight) > 0 && y < (height - headerHeight)) {
 				Graphics2D g2 = (Graphics2D) g.create();
 				g2.translate(0, (int) y);
-				drawTeamAndProblemGrid(g2, team);
+				drawTeamAndProblemGrid(g2, contest, team);
 				g2.dispose();
 			}
 		}

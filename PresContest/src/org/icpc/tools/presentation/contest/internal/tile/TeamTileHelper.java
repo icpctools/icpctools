@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IProblemSummary;
@@ -39,6 +40,8 @@ public class TeamTileHelper {
 	private static final Color PROBLEM_BG_LIGHT = new Color(160, 160, 160);
 
 	private static double PROBLEM_TIME_SQUEEZE = 3;
+
+	private static boolean DEBUG_APPROXIMATE_RENDERING = false;
 
 	private Font rankFont;
 	private Font teamFont;
@@ -229,7 +232,6 @@ public class TeamTileHelper {
 			gg.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			text.setGraphics(gg);
 			text.drawFit(1, 2, hashWidth);
-			final boolean DEBUG_APPROXIMATE_RENDERING = false;
 			if (approximateRendering && DEBUG_APPROXIMATE_RENDERING) {
 				gg.setColor(Color.YELLOW);
 				gg.drawString("*", 7, gg.getFontMetrics().getAscent());
@@ -247,9 +249,10 @@ public class TeamTileHelper {
 		RenderPerfTimer.Counter rankAndScoreMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.RANK_AND_SCORE);
 		RenderPerfTimer.Counter nameMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.NAME);
 		RenderPerfTimer.Counter problemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM);
-		RenderPerfTimer.Counter inactiveProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM);
-		RenderPerfTimer.Counter inactive2ProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM2);
-		RenderPerfTimer.Counter inactive3ProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM3);
+		RenderPerfTimer.Counter inactiveProblemMeasure = RenderPerfTimer
+				.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM);
+		RenderPerfTimer.Counter inactive2ProblemMeasure = RenderPerfTimer
+				.measure(RenderPerfTimer.Category.INACTIVE_PROBLEM2);
 		RenderPerfTimer.Counter activeProblemMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.ACTIVE_PROBLEM);
 		RenderPerfTimer.Counter problemDrawMeasure = RenderPerfTimer.measure(RenderPerfTimer.Category.PROBLEM_DRAW);
 		rankAndScoreMeasure.startMeasure();
@@ -278,18 +281,26 @@ public class TeamTileHelper {
 		rankAndScoreMeasure.startMeasure();
 		g.setFont(teamFont);
 		FontMetrics teamFm = g.getFontMetrics();
-		if (standing.getNumSolved() > 0) {
-			s = standing.getNumSolved() + "";
-			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - teamFm.stringWidth(s),
-					(tileDim.height * 7 / 10 + teamFm.getAscent()) / 2 - 2);
-		}
+		if (contest.getScoreboardType() == ScoreboardType.PASS_FAIL) {
+			if (standing.getNumSolved() > 0) {
+				s = standing.getNumSolved() + "";
+				g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - teamFm.stringWidth(s),
+						(tileDim.height * 7 / 10 + teamFm.getAscent()) / 2 - 2);
+			}
 
-		g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
-		g.setFont(penaltyFont);
-		if (standing.getTime() > 0) {
-			s = standing.getTime() + "";
-			g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - penaltyFm.stringWidth(s),
-					tileDim.height * 17 / 20 + penaltyFm.getAscent() / 2 - 3);
+			g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+			g.setFont(penaltyFont);
+			if (standing.getTime() > 0) {
+				s = standing.getTime() + "";
+				g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - penaltyFm.stringWidth(s),
+						tileDim.height * 17 / 20 + penaltyFm.getAscent() / 2 - 3);
+			}
+		} else {
+			if (standing.getNumSolved() > 0) {
+				s = ContestUtil.formatScore(standing.getScore());
+				g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - teamFm.stringWidth(s),
+						(tileDim.height * 7 / 10 + teamFm.getAscent()) / 2 - 2);
+			}
 		}
 		rankAndScoreMeasure.stopMeasure();
 
@@ -449,14 +460,21 @@ public class TeamTileHelper {
 		String s = "";
 
 		if (r.getNumSubmissions() > 0) {
-			if (fm.stringWidth("9\u200A-\u200A999") > PROBLEM_TIME_SQUEEZE * w - 5)
-				s = r.getNumSubmissions() + "";
-			else
-				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+			if (contest.getScoreboardType() == ScoreboardType.PASS_FAIL) {
+				if (fm.stringWidth("9\u200A-\u200A999") > PROBLEM_TIME_SQUEEZE * w - 5)
+					s = r.getNumSubmissions() + "";
+				else
+					s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+			} else {
+				if (r.getStatus() == Status.SOLVED)
+					s = ContestUtil.formatScore(r.getScore());
+				else
+					s = r.getNumSubmissions() + "";
+			}
 
 			g.setFont(statusFont);
 			// g.drawString(s, x + (w - fm.stringWidth(s)) / 2 - 1, y + (h + fm.getAscent()) / 2 - 1);
-			// TODO: Use TextHelper.drawFit to fit text that does not fit in the avilable space
+			// TODO: Use TextHelper.drawFit to fit text that does not fit in the available space
 			// note: 9-999 is used to guess the space needed, but number of submissions may be above 9
 			// and not fit.
 			TextHelper text = new TextHelper(g, s);
@@ -489,10 +507,17 @@ public class TeamTileHelper {
 		String s = "";
 
 		if (r.getNumSubmissions() > 0) {
-			if (fm.stringWidth("9\u200A-\u200A999") > PROBLEM_TIME_SQUEEZE * w - 5)
-				s = r.getNumSubmissions() + "";
-			else
-				s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+			if (contest.getScoreboardType() == ScoreboardType.PASS_FAIL) {
+				if (fm.stringWidth("9\u200A-\u200A999") > PROBLEM_TIME_SQUEEZE * w - 5)
+					s = r.getNumSubmissions() + "";
+				else
+					s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
+			} else {
+				if (r.getStatus() == Status.SOLVED)
+					s = ContestUtil.formatScore(r.getScore());
+				else
+					s = r.getNumSubmissions() + "";
+			}
 
 			g.setFont(statusFont);
 			// g.drawString(s, (w - fm.stringWidth(s)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);

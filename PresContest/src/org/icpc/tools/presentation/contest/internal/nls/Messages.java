@@ -12,6 +12,7 @@ public class Messages {
 	public static String rank;
 	public static String name;
 	public static String solved;
+	public static String score;
 	public static String time;
 	public static String year;
 	public static String titleCurrentStandings;
