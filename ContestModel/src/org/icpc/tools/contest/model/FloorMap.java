@@ -164,7 +164,7 @@ public class FloorMap {
 	public void write(File folder) {
 		resetOrigin();
 
-		ContestWriter.write(contest, new File(folder, "extend-floor"));
+		ContestWriter.write(contest, new File(folder, "extend-floor"), false);
 	}
 
 	public Rectangle2D.Double getBounds() {

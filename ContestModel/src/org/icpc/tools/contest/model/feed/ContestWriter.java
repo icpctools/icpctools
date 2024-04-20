@@ -11,7 +11,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.internal.Contest;
 
 public class ContestWriter {
-	public static void write(IContest contest, File folder) {
+	public static void write(IContest contest, File folder, boolean force) {
 		if (!folder.exists())
 			folder.mkdirs();
 
@@ -22,7 +22,10 @@ public class ContestWriter {
 
 			String name = IContestObject.getTypeName(type);
 			IContestObject[] objs = ((Contest) contest).getObjects(type);
-			if (objs != null && objs.length > 0) {
+			if (objs != null && (force || objs.length > 0)) {
+				// do not write empty singletons
+				if (!force && IContestObject.isSingleton(type) && objs[0].getProperties().isEmpty())
+					continue;
 				try {
 					File f = new File(folder, name + ".json");
 					BufferedWriter bw = new BufferedWriter(new FileWriter(f));
