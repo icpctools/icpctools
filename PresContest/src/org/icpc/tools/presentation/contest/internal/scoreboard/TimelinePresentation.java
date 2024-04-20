@@ -153,7 +153,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 				// draw timeline
 				drawTimeArrow(g4, (int) (rowHeight * 3 / 4f) - 1);
 
-				drawTeamGrid(g4, team);
+				drawTeamGrid(g4, contest, team);
 
 				g4.setFont(cubeFont);
 				g4.translate(0, (int) (rowHeight * 3 / 4f) - 1);
