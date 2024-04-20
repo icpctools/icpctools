@@ -139,6 +139,24 @@ public class FloorMap {
 		createMapInfo(taw, tad, tw, td);
 	}
 
+	public void convertSpares(IContest contest2) {
+		if (contest == null || contest2 == null)
+			return;
+
+		int n = 0;
+		ITeam[] teams = contest.getTeams();
+		for (int i = 0; i < teams.length; i++) {
+			if (contest2.getTeamById(teams[i].getId()) == null) {
+				makeSpare(teams[i]);
+				n++;
+			}
+		}
+		if (n == 1)
+			System.out.println("1 team converted to spare");
+		else
+			System.out.println(n + " teams converted to spares");
+	}
+
 	public void makeSpare(int teamNum) {
 		makeSpare(contest.getTeamById(teamNum + ""));
 	}

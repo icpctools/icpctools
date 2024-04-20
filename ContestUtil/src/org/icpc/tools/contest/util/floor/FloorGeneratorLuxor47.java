@@ -4,10 +4,12 @@ import java.io.File;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
+import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
+import org.icpc.tools.contest.model.internal.MapInfo.Printer;
 
 public class FloorGeneratorLuxor47 extends FloorGenerator {
 	// team area width (in meters). ICPC standard is 3.0
@@ -107,10 +109,10 @@ public class FloorGeneratorLuxor47 extends FloorGenerator {
 			floor.createAisle(0, taw / 2 + aisle / 2, x, y + taw / 2 + aisle / 2);
 			floor.createAisle(0, -taw * 9 + aisle / 2, x, -taw * 9 + aisle / 2);
 			floor.createAisle(0, -taw * 8 + aisle / 2, a[1], -taw * 8 + aisle / 2);
-			floor.createAisle(a[6], -taw * 8 + aisle / 2, x, -taw * 8 + aisle / 2);
+			floor.createAisle(a[5], -taw * 8 + aisle / 2, x, -taw * 8 + aisle / 2);
 
 			for (int i = 0; i < 8; i++) {
-				if (i > 0 && i < 6)
+				if (i > 0 && i < 5)
 					continue;
 				floor.createAisle(a[i], -taw * 8 + aisle / 2, a[i + 1], -taw * 9 + aisle / 2);
 				floor.createAisle(a[i], -taw * 9 + aisle / 2, a[i + 1], -taw * 8 + aisle / 2);
@@ -122,33 +124,34 @@ public class FloorGeneratorLuxor47 extends FloorGenerator {
 			t = createAdjacentTeam(floor, 47104, -2, 0, -taw);
 			floor.makeSpare(t);
 
+			Printer p = floor.createPrinter(x, -taw * 9);
+
 			if (args != null && args.length > 0) {
 				File f = new File(args[0]);
 				DiskContestSource source = new DiskContestSource(f);
 				IContest contest2 = source.getContest();
 				source.waitForContest(10000);
 				IProblem[] problems = contest2.getProblems();
+				System.out.println("problems: " + problems.length);
 
-				double bx = 0;
-				double ix = 0 * 2 / (problems.length - 1);
+				double ix = (x - aisle * 2) / (problems.length - 1);
 				for (int i = 0; i < problems.length; i++)
-					floor.createBalloon(problems[i].getId(), bx + i * ix, -taw * 6.5);
+					floor.createBalloon(problems[i].getId(), aisle + i * ix, -taw * 9);
 
+				floor.convertSpares(contest2);
 				floor.write(f);
 			}
 
 			long time = System.currentTimeMillis();
-			/*ITeam t1 = floor.getTeam(10);
-			ITeam t2 = floor.getTeam(47);
-			ITeam t3 = floor.getTeam(57);
-			Path path1 = floor.getPath(t1, t2);
-			Path path2 = floor.getPath(t3, p);*/
+			ITeam t1 = floor.getTeam(47010);
+			ITeam t3 = floor.getTeam(47057);
+			IProblem pr = floor.getBalloon("C");
+			Path path1 = floor.getPath(t1, pr);
+			Path path2 = floor.getPath(t3, p);
 
 			Trace.trace(Trace.USER, "Time: " + (System.currentTimeMillis() - time));
 
-			// show(floor, 57, true, path1, path2);
-			show(floor, 46057, true, null, null);
-			// show(floor, 57, true);
+			show(floor, 57, true, path1, path2);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error generating floor map", e);
 		}
