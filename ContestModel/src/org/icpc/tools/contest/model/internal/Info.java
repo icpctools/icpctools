@@ -182,7 +182,7 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public ScoreboardType getScoreboardType() {
-		return scoreboardType;
+		return scoreboardType == null ? ScoreboardType.PASS_FAIL : scoreboardType;
 	}
 
 	public void setLogo(FileReferenceList list) {
