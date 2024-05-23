@@ -66,6 +66,16 @@ public class Ranking {
 				} else {
 					if (si.getScore() < sj.getScore())
 						swap = true;
+					else if (si.getScore() == sj.getScore()) {
+						if (si.getLastSolutionTime() > sj.getLastSolutionTime())
+							swap = true;
+						else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
+						String tin = teams[order[i]].getActualDisplayName();
+						String tjn = teams[order[j]].getActualDisplayName();
+						if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
+							swap = true;
+						}
+					}
 					// Future: some contests also use penalty as a tiebreaker, but there's no way
 					// to know this from the Contest API (yet)
 				}
@@ -89,7 +99,7 @@ public class Ranking {
 			IStanding lastStanding = null;
 			for (int i = 0; i < numTeams; i++) {
 				Standing standing = (Standing) standings[order[i]];
-				if (lastStanding != null && standing.getScore() == lastStanding.getScore()) {
+				if (lastStanding != null && standing.getScore() == lastStanding.getScore() && standing.getLastSolutionTime() == lastStanding.getLastSolutionTime()) {
 					standing.setRank(lastStanding.getRank());
 				} else {
 					standing.setRank((i + 1) + "");
