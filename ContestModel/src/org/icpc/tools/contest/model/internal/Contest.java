@@ -1013,7 +1013,7 @@ public class Contest implements IContest {
 
 						// calculate FTS
 						if (tempFTS[problemIndex] == null && !isTeamHidden(teams[teamIndex])) {
-							if (isSolved(s)) {
+							if (isSolved(s) && getScoreboardType() == ScoreboardType.PASS_FAIL) {
 								tempFTS[problemIndex] = s.getId();
 								tempResults[teamIndex][problemIndex].setFTS();
 							} else if (!isJudged(s))
