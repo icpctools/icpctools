@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal;
 
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.Status;
 
@@ -55,8 +56,25 @@ public class Result implements IResult {
 	}
 
 	protected void addSubmission(Contest contest, long submissionTime, IJudgement j, IJudgementType jt) {
-		if (status == Status.SOLVED)
+		if (status == Status.SOLVED) {
+			// Already solved. For pass-fail we do nothing. For scoring:
+			// - If we have no judgement type, it is a solve after the freeze, so reset the status
+			// - If we do have a judgement type and the score increased, update the score
+			if (contest.getScoreboardType() == ScoreboardType.SCORE) {
+				if (jt == null) {
+					numPending++;
+					status = Status.SUBMITTED;
+				} else if (jt.isSolved() && j.getScore() != null) {
+					if (j.getScore() > score) {
+						score = j.getScore();
+						numJudged++;
+						time = submissionTime;
+					}
+				}
+			}
+
 			return;
+		}
 
 		if (jt == null) {
 			numPending++;
