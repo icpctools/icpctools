@@ -530,10 +530,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 							s += "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
 					} else {
 						// add the problem score
-						if (r.getStatus() == Status.SOLVED)
-							s = ContestUtil.formatScore(r.getScore());
-						else
-							s = r.getNumSubmissions() + "";
+						s = ContestUtil.formatScore(r.getScore());
 					}
 				}
 
