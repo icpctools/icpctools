@@ -445,11 +445,11 @@ public class MultiView {
             }
         }
         if (foundPre != null) {
-            applyPresentation(foundPre.presClass, msg);
+            applyPresentation(foundPre.presClass, msg, null);
         }
     }
 
-    private void applyPresentation(String presClass, String msg) {
+    private void applyPresentation(String presClass, String msg, Map<String, String> props) {
         if (presClass.isEmpty()) {
             return;
         }
@@ -527,6 +527,9 @@ public class MultiView {
                     }
 
                     bc.sendProperty(uids, propKey, arrowMsg);
+                    for (Map.Entry<String, String> entry2 : props.entrySet()) {
+                        bc.sendProperty(uids, propKey, entry2.getKey());
+                    }
                 }
             } catch (IOException e) {
                 Trace.trace(Trace.ERROR, "Error sending property to " + urlName, e);
@@ -535,7 +538,7 @@ public class MultiView {
     }
 
     private void applyMessage(String message) {
-        applyPresentation(Preset.MESSAGE.presClass, message);
+        applyPresentation(Preset.MESSAGE.presClass, message, null);
     }
 
     private void applyComposite(String compName) {
@@ -546,7 +549,15 @@ public class MultiView {
                 for (String presClass : presClasses) {
                     Trace.trace(Trace.INFO, " - " + presClass);
                 }
-                applyPresentation(comp.getClassName(), "");
+                Map<String, String> props = new TreeMap<>();
+                for (PresentationInfo info : comp.infos) {
+                    if (info.getProperties() != null) {
+                        for (String prop : info.getProperties()) {
+                            props.put(prop, "");
+                        }
+                    }
+                }
+                applyPresentation(comp.getClassName(), "", props);
             }
         }
     }
