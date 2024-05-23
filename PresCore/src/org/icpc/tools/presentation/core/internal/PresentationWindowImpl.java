@@ -292,7 +292,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		setBounds(r);
 		setBackground(Color.black);
-		setUndecorated(true);
+		//setUndecorated(true);
 		setFocusableWindowState(true);
 		setFocusable(true);
 
@@ -413,21 +413,21 @@ public class PresentationWindowImpl extends PresentationWindow {
 						if (timeUntilPlanChange == 0)
 							delayNs = 0;
 						else if (currentPresentation != null)
-							delayNs = Math.min(timeUntilPlanChange * 1000000L,
-									currentPresentation.getDelayTimeMs() * 1000000L);
+							delayNs = Math.min(timeUntilPlanChange * 1_000_000L,
+									currentPresentation.getDelayTimeMs() * 1_000_000L);
 
 						// cap speed at our max frame rate
 						delayNs = Math.max(delayNs, MAX_FPS - (System.nanoTime() - now));
 
 						if (delayNs <= 0) {
 							// no need to delay here - do nothing
-						} else if (delayNs <= 250000000L) {
+						} else if (delayNs <= 250_000_000L) {
 							// short delay of less than 1/4s, just delay the thread
 							LockSupport.parkNanos(delayNs);
 						} else {
 							// if we aren't going to change for more than 5s,
 							// send a thumbnail and info
-							if (thumbnailListener != null && delayNs > 500000000L) {
+							if (thumbnailListener != null && delayNs > 500_000_000L) {
 								fps = 0;
 								sendThumbnail();
 							}
@@ -435,7 +435,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 							// longer/indefinite delay, so lock a monitor
 							synchronized (lock) {
 								try {
-									lock.wait(delayNs / 1000000L);
+									lock.wait(delayNs / 1_000_000L);
 								} catch (Exception e) {
 									// ignore
 								}
@@ -443,7 +443,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 						}
 
 						frameCount++;
-						if (now - startTime > 1000000000L) { // 1 second
+						if (now - startTime > 1_000_000_000L) { // 1 second
 							fps = frameCount;
 							frameCount = 0;
 							startTime = now;
@@ -714,7 +714,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		else if (dc.mode == Mode.MIDDLE)
 			setBounds(r.x + r.width / 6, r.y + r.height / 6, r.width * 2 / 3, r.height * 2 / 3);
 		else if (dc.mode == Mode.ALMOST)
-			setBounds(r.x + r.width / 12, r.y + r.height / 12, r.width * 5 / 6, r.height * 5 / 6);
+			setBounds(r.x + r.width / 12, r.y + r.height / 24, r.width * 5 / 6, r.height * 5 / 6);
 		else if (dc.mode == Mode.FULL_WINDOW)
 			setBounds(r.x, r.y, r.width, r.height);
 
@@ -822,11 +822,30 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	@Override
 	public void paint(Graphics g) {
+		if (currentBounds == null || !currentBounds.equals(getBounds())) {
+			currentBounds = getBounds();
+
+			boolean isFullScreen = getFullScreenWindow() != -1;
+			if (currentBounds.width == Toolkit.getDefaultToolkit().getScreenSize().width) {
+				if (Math.abs(currentBounds.height - Toolkit.getDefaultToolkit().getScreenSize().height) <= 50) {
+					// for mac, maximizing a JFrame puts it in fullscreen, but without any notches
+					isFullScreen = true;
+				}
+			}
+			if (isFullScreen) {
+				setDisplayRect(new Rectangle(0, 0, (int) currentBounds.getWidth(), (int) currentBounds.getHeight()));
+			} else {
+				setDisplayRect(new Rectangle(0, 25, (int) currentBounds.getWidth(), (int) currentBounds.getHeight() - 25));
+			}
+		}
+
 		// ignore, next frame update will get it
 	}
 
+	Rectangle currentBounds;
+
 	private Presentation doFinalSetup(Presentation p) {
-		Dimension d = getSize();
+		Dimension d = getPresentationSize();
 		if (!p.getSize().equals(d))
 			p.setSize(d);
 		p.aboutToShow();
