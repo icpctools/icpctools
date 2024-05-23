@@ -216,7 +216,7 @@ public class Resolver {
 				p = r.problemList[i % r.problemList.length];
 			if (r.problemIdList != null && r.problemIdList.length > 0)
 				pId = r.problemIdList[i % r.problemIdList.length];
-			r.init(steps, g, p, pId, i);
+			r.init(steps, g, p, pId, i, resolveInfo.getSingleStepRow());
 
 			Trace.trace(Trace.INFO, "Resolution steps:");
 			for (ResolutionStep step : steps)
@@ -509,13 +509,13 @@ public class Resolver {
 			finalContest[con] = finalContest[con].clone(false, new TimeFilter(finalContest[con], showHour * 3600000));
 	}
 
-	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds, int con) {
+	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds, int con, int singleStepRow) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
-		// ResolveInfo resolveInfo = new ResolveInfo();
-		// TODO setup resolveInfo.singleStepStartRow = singleStepStartRow;
+		 ResolveInfo resolveInfo = new ResolveInfo();
+		resolveInfo.setSingleStepRow(singleStepRow);
 		// resolveInfo.predeterminedSteps = predeterminedSteps;
-		// finalContest.add(resolveInfo);
+		 finalContest[con].add(resolveInfo);
 
 		if (groups != null || problems != null || problemIds != null) {
 			IAward[] fullAwards = finalContest[con].getAwards();
