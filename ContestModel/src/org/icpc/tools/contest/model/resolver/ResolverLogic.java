@@ -320,6 +320,11 @@ public class ResolverLogic {
 				timing.onStep(steps, State.SELECT_SUBMISSION);
 
 				// there may be more submissions from this team for this problem so no break
+
+				IResult newResult = contest.getResult(team, problemIndex);
+				if (newResult.getScore() > oldResult.getScore()) {
+					break;
+				}
 			}
 		}
 
