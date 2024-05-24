@@ -300,8 +300,25 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		logDevices();
 
-		setPresentation(new NoPresentation());
+		Presentation dp;
+		String defaultPresentation = System.getProperty("ICPC_DEFAULT_PRESENTATION");
+		if (defaultPresentation == null)
+			defaultPresentation = System.getenv("ICPC_DEFAULT_PRESENTATION");
+
+		if (defaultPresentation != null) {
+			try {
+				Class<?> dc = getClass().getClassLoader().loadClass(defaultPresentation);
+				dp = (Presentation) dc.getDeclaredConstructor().newInstance();
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Error loading branding", e);
+				dp = new NoPresentation();
+			}
+		} else {
+			dp = new NoPresentation();
+		}
+		setPresentation(dp);
 	}
+
 
 	protected static boolean isGlobalKey(String key) {
 		return "lightMode".equals(key) || "name".equals(key);
