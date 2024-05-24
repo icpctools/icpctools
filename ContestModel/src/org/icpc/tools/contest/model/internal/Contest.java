@@ -1039,6 +1039,16 @@ public class Contest implements IContest {
 						score += tempResults[i][j].getScore();
 						if (time > lastSolution)
 							lastSolution = time;
+					} else if (tempResults[i][j].getStatus() == Status.SUBMITTED) {
+						// For scoring contests any problem that has a score should influence the
+						// total score and the time of last submission
+						double scoreForThisProblem = tempResults[i][j].getScore();
+						if (scoreForThisProblem > 0) {
+							score += scoreForThisProblem;
+							long time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime());
+							if (time > lastSolution)
+								lastSolution = time;
+						}
 					}
 				}
 
