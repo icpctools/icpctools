@@ -488,6 +488,10 @@ public class ResolverLogic {
 					}
 
 					timing = new ScoreboardTiming();
+					if (currentRow <= singleStepStartRow) {
+						// singleStep = true;
+						timing = new PauseTiming();
+					}
 					// backToScoreboard = true;
 
 					steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
