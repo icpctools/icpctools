@@ -467,11 +467,9 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 				TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 			}
 		} else {
-			if (standing.getScore() > 0) {
-				s = ContestUtil.formatScore(standing.getScore());
+			s = ContestUtil.formatScore(standing.getScore());
 
-				TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999.99") + fm.stringWidth(s)) / 2, 5);
-			}
+			TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999.99") + fm.stringWidth(s)) / 2, 5);
 		}
 	}
 
