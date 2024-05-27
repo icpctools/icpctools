@@ -9,8 +9,8 @@ An ICPC Tool
 The _ICPC Resolver_ is a tool for graphical animation of contest results. 
 It shows the final runs submitted during a contest in an
 interesting way, and leads up to display of the award winners. 
-The Resolver concept was created by Fredrik Niemela and Mattias de Zalenski 
-at KTH Royal Technical University.
+The Resolver concept was created by Fredrik Niemelä and Mattias de Zalenski 
+at KTH - Royal Institute of Technology.
 The ICPC Tools Resolver implementation was developed by Tim deBoer.
 
 The Resolver is designed to be used in contests where the scoreboard is "frozen"
