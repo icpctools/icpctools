@@ -198,7 +198,7 @@ The following command line options control various aspects of the Resolver's ope
 either "stand-alone" or "distributed" mode. Note however that 
 when running in distributed mode most options only make sense
 for a presenter (for example, only the presenter should 
-specify _--fast_ to control the speed of the Resolver;
+specify _--speed_ to control the speed of the Resolver;
 otherwise viewer clients will operate
 at a different speed than that of the presenter). 
 
@@ -208,13 +208,13 @@ at a different speed than that of the presenter).
 Shows additional information regarding each pending run.  
          
 ```
---fast <speedFactor>
+--speed <speedFactor>
 ```
 Changes the resolving speed.
 The [speedFactor] option is a decimal percentage indicating the desired amount of change
 in the execution time for each step.  Factors between 0 and 1 speed up the resolving process;
 factors greater than 1 slow it down.  For example a speedFactor of 0.5 will double the
-speed (i.e., cut the time in half).  If --fast is specified but no speedFactor is given,
+speed (i.e., cut the time in half).  If --speed is specified but no speedFactor is given,
 the default speedFactor is 0.15.
 
 ```
@@ -346,12 +346,12 @@ Toggle additional information regarding each pending run (same as --info).
 ### Command Line Examples
 
 ```
-resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --fast 0.7
+resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --speed 0.7
   --rowDisplayOffset 4 --info
 ```
 The above command runs the Resolver in presenter mode, connected to a CDS at the specified URL 
 (IP address and port)
-using the specified server login and password credentials, and runs reducing time by 30% (--fast 0.7).
+using the specified server login and password credentials, and runs reducing time by 30% (--speed 0.7).
 Additional "presenter info" is displayed on the screen.
 
 ```
