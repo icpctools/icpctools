@@ -1013,7 +1013,7 @@ public class Contest implements IContest {
 
 						// calculate FTS
 						if (tempFTS[problemIndex] == null && !isTeamHidden(teams[teamIndex])) {
-							if (isSolved(s) && getScoreboardType() == ScoreboardType.PASS_FAIL) {
+							if (isSolved(s)) {
 								tempFTS[problemIndex] = s.getId();
 								tempResults[teamIndex][problemIndex].setFTS();
 							} else if (!isJudged(s))
@@ -1448,7 +1448,26 @@ public class Contest implements IContest {
 		if (submission == null)
 			return false;
 
-		return getStatus(submission) == Status.SOLVED;
+		if (getStatus(submission) != Status.SOLVED)
+			return false;
+
+		if (getScoreboardType() == ScoreboardType.PASS_FAIL)
+			return true;
+
+		// For scoring contests, a problem is only solved if it has the max score
+		IJudgementType jt = getJudgementType(submission);
+		if (jt == null || !jt.isSolved())
+			return false;
+
+		IJudgement j = getJudgement(submission);
+		if (j == null || j.getScore() == null)
+			return false;
+
+		IProblem p = getProblemById(submission.getProblemId());
+		if (p == null || p.getMaxScore() == null)
+			return false;
+
+		return j.getScore().equals(p.getMaxScore());
 	}
 
 	public int getSubmissionIndex(String submissionId) {
