@@ -1009,7 +1009,7 @@ public class Contest implements IContest {
 					if (problemIndex >= 0 && teamIndex >= 0) {
 						IJudgement j = getJudgement(s);
 						IJudgementType jt = getJudgementType(s);
-						tempResults[teamIndex][problemIndex].addSubmission(this, s.getContestTime(), j, jt);
+						tempResults[teamIndex][problemIndex].addSubmission(this, s, j, jt);
 
 						// calculate FTS
 						if (tempFTS[problemIndex] == null && !isTeamHidden(teams[teamIndex])) {

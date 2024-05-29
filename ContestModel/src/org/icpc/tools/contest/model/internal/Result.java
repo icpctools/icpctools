@@ -3,7 +3,9 @@ package org.icpc.tools.contest.model.internal;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IContest.ScoreboardType;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResult;
+import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Status;
 
 public class Result implements IResult {
@@ -55,20 +57,26 @@ public class Result implements IResult {
 		return score;
 	}
 
-	protected void addSubmission(Contest contest, long submissionTime, IJudgement j, IJudgementType jt) {
+	protected void addSubmission(Contest contest, ISubmission s, IJudgement j, IJudgementType jt) {
 		if (status == Status.SOLVED) {
 			// Already solved. For pass-fail we do nothing. For scoring:
 			// - If we have no judgement type, it is a solve after the freeze, so reset the status
 			// - If we do have a judgement type and the score increased, update the score
 			if (contest.getScoreboardType() == ScoreboardType.SCORE) {
 				if (jt == null) {
-					numPending++;
-					status = Status.SUBMITTED;
+					// If the score is already the max score for the problem, don't change the status
+					IProblem problem = contest.getProblemById(s.getProblemId());
+					if (problem == null)
+						return;
+					if (problem.getMaxScore() != null && score < problem.getMaxScore()) {
+						numPending++;
+						status = Status.SUBMITTED;
+					}
 				} else if (jt.isSolved() && j.getScore() != null) {
 					if (j.getScore() > score) {
 						score = j.getScore();
 						numJudged++;
-						time = submissionTime;
+						time = s.getContestTime();
 					}
 				}
 			}
@@ -96,7 +104,7 @@ public class Result implements IResult {
 			} // else compile or judgement error that doesn't count as an attempt or penalty
 		}
 
-		time = submissionTime;
+		time = s.getContestTime();
 
 	}
 
