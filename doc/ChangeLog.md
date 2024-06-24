@@ -1,6 +1,9 @@
 # ICPC Tools Changelog
 
-## V2.5 - TBD
+## V2.6 - TBD
+-----------------
+
+## V2.5 - June 2024
 -----------------
 * First release supporting the 2022-07 release of the Contest API spec.
 * Dropped Java 8 support (now Java 11 minimum, and Java 17 recommended).
