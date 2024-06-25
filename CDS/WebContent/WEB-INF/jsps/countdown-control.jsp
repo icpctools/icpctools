@@ -48,10 +48,6 @@
             <tr>
                 <td>
                     <select id="timeSelect" class="custom-select">
-                        <option value="0:00:01">1 second</option>
-                        <option value="0:00:05">5 seconds</option>
-                        <option value="0:00:15">15 seconds</option>
-                        <option value="0:00:30">30 seconds</option>
                         <option value="0:01:00" selected>1 minute</option>
                         <option value="0:05:00">5 minutes</option>
                         <option value="0:15:00">15 minutes</option>
