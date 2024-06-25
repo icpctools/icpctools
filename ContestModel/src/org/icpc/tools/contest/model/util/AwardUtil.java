@@ -139,8 +139,9 @@ public class AwardUtil {
 
 				Award groupAward = new Award(IAward.GROUP, group.getId(), null, (String) null, mode);
 				// groupAward.setCount("1");
-				contest.add(groupAward);
 				assignGroup(contest, groupAward, numPerGroup);
+				if (groupAward.getTeamIds().length > 0)
+					contest.add(groupAward);
 			}
 		} else {
 			assignGroup(contest, (Award) template, numPerGroup);
@@ -278,8 +279,9 @@ public class AwardUtil {
 		if (template.getId().equals("first-to-solve-*")) {
 			for (IProblem problem : contest.getProblems()) {
 				Award ftsAward = new Award(IAward.FIRST_TO_SOLVE, problem.getId(), null, (String) null);
-				contest.add(ftsAward);
 				assignFirstToSolve(contest, ftsAward);
+				if (ftsAward.getTeamIds().length > 0)
+					contest.add(ftsAward);
 			}
 		} else {
 			assignFirstToSolve(contest, (Award) template);
