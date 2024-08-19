@@ -32,10 +32,11 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 			"{\"id\":\"silver-medal\",\"parameter\":\"4\"}\n" + // silver medals
 			"{\"id\":\"bronze-medal\",\"parameter\":\"4\"}\n" + // bronze medals
 			"{\"id\":\"first-to-solve-*\"}\n" + // first to solve awards
-			"{\"id\":\"top-25\",\"parameter\":\"25\"}\n" + // top 25% of teams
-			"{\"id\":\"honors-mention\",\"parameter\":\"50-100\"}\n" + // honorable mention for teams
+			"{\"id\":\"highest-honors\",\"parameter\":\"0-1\"}\n" + // All medalists + all solving the same number of problems as the lowest medalist
+			"{\"id\":\"high-honors\",\"parameter\":\"1-2\"}\n" + // All teams solving one fewer than the lowest medalist
+			"{\"id\":\"honors\",\"parameter\":\"2-p50\"}\n" + // All teams not receiving highest honors or high honors solving the same or more problems than the median scoring team
+			"{\"id\":\"honors-mention\",\"parameter\":\"p50-p100\"}\n" + // honorable mention for teams
 			// scoring below 50th percentile
-			"{\"id\":\"solved-*\"}\n" + // solution awards
 			"{\"id\":\"group-winner-*\"}"; // group winners
 
 	protected Text text;

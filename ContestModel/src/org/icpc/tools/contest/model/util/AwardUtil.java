@@ -556,33 +556,73 @@ public class AwardUtil {
 	}
 
 	public static void createHonorsAwards(Contest contest, IAward template) throws IllegalArgumentException {
-		int percentileTop = 0;
-		int percentileBottom = 100;
+		int solvedTop = -1;
+		int solvedBottom = -1;
+		int percentileTop = -1;
+		int percentileBottom = -1;
 		DisplayMode mode = template.getDisplayMode();
 		if (!template.hasDisplayMode())
-			mode = IAward.DisplayMode.LIST;
-
-		try {
-			String param = template.getParameter();
-			int ind = param.indexOf("-");
-			percentileTop = Integer.parseInt(param.substring(0, ind));
-			percentileBottom = Integer.parseInt(param.substring(ind + 1, param.length()));
-
-			if (percentileTop < 0 || percentileTop > 99)
-				throw new IllegalArgumentException("Honor parameter invalid");
-			if (percentileBottom < 1 || percentileBottom > 100)
-				throw new IllegalArgumentException("Honor parameter invalid");
-			if (percentileBottom < percentileTop)
-				throw new IllegalArgumentException("Honor parameter invalid");
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse honor parameter: " + template.getParameter());
-		}
+			if (template.getId().equals("highest-honors"))
+				mode = DisplayMode.IGNORE;
+			else
+				mode = IAward.DisplayMode.LIST;
 
 		// find teams we're going to base this on
 		ITeam[] teams = contest.getOrderedTeams();
 		if (teams.length == 0)
 			return;
 
+		try {
+			String param = template.getParameter();
+			int ind = param.indexOf("-");
+			if (param.startsWith("p")) {
+				percentileTop = Integer.parseInt(param.substring(1, ind));
+			} else {
+				solvedTop = Integer.parseInt(param.substring(0, ind));
+			}
+			if (param.substring(ind + 1).startsWith("p")) {
+				percentileBottom = Integer.parseInt(param.substring(ind + 2));
+			} else {
+				solvedBottom = Integer.parseInt(param.substring(ind + 1));
+			}
+
+			if (percentileTop < 0 && solvedTop < 0)
+				throw new IllegalArgumentException("Honor solved parameter invalid");
+			if (percentileBottom < 0 && solvedBottom < 0)
+				throw new IllegalArgumentException("Honor solved parameter invalid");
+			if (percentileBottom >= 0 && percentileTop >= 0 && percentileBottom < percentileTop)
+				throw new IllegalArgumentException("Honor solved parameter invalid");
+			if (percentileTop > 99 || percentileBottom > 100)
+				throw new IllegalArgumentException("Honor solved parameter invalid");
+			if (solvedBottom >= 0 && solvedTop >= 0 && solvedBottom < solvedTop)
+				throw new IllegalArgumentException("Honor solved parameter invalid");
+			if (solvedBottom > teams.length || solvedTop > teams.length)
+				throw new IllegalArgumentException("Honor solved parameter invalid");
+
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not parse honor parameter: " + template.getParameter());
+		}
+
+		IAward[] awards = contest.getAwards();
+
+		// Determine how many problems the lowest medalist solved. We need this for the solvedTop/solvedBottom case.
+		int lowestMedalNumSolved = Integer.MAX_VALUE;
+		int numMedalists = 0;
+		for (IAward a : awards) {
+			if (a.getAwardType() == IAward.MEDAL) {
+				numMedalists += a.getTeamIds().length;
+				for (String tid : a.getTeamIds()) {
+					IStanding s = contest.getStanding(contest.getTeamById(tid));
+					if (s != null && s.getNumSolved() > 0) {
+						lowestMedalNumSolved = Math.min(lowestMedalNumSolved, s.getNumSolved());
+					}
+				}
+			}
+		}
+
+		// find teams we're going to base this on
+
+		// Find the top team
 		int n = teams.length;
 		int t = 0;
 		if (percentileTop > 0) {
@@ -593,15 +633,25 @@ public class AwardUtil {
 			while (t < n && contest.getStanding(teams[t]).getNumSolved() == numSolved) {
 				t++;
 			}
+		} else if (solvedTop > 0) {
+			// Note: if solvedTop == 0, we include all medalists
+			while (t < n && contest.getStanding(teams[t]).getNumSolved() > lowestMedalNumSolved - solvedTop) {
+				t++;
+			}
 		}
 
 		// find the bottom team
 		int b = n;
-		if (percentileBottom < 100) {
+		if (percentileBottom >= 0 && percentileBottom < 100) {
 			b = (int) Math.round(percentileBottom * n / 100.0);
 			IStanding standing = contest.getStanding(teams[b]);
 			int numSolved = standing.getNumSolved();
 			while (b < n && contest.getStanding(teams[b]).getNumSolved() == numSolved) {
+				b++;
+			}
+		} else if (solvedBottom >= 0) {
+			b = 0;
+			while (b < n && contest.getStanding(teams[b]).getNumSolved() > lowestMedalNumSolved - solvedBottom) {
 				b++;
 			}
 		}
@@ -612,8 +662,14 @@ public class AwardUtil {
 		}
 
 		String citation = template.getCitation();
-		if (citation == null || citation.trim().length() < 1) {
-			if (percentileTop > 1 && percentileBottom == 100)
+		if (citation == null || citation.trim().isEmpty()) {
+			if (template.getId().equals("highest-honors"))
+				citation = Messages.getString("awardHighestHonors");
+			else if (template.getId().equals("high-honors"))
+				citation = Messages.getString("awardHighHonors");
+			else if (template.getId().equals("honors"))
+				citation = Messages.getString("awardHonors2");
+			else if (percentileTop > 1 && percentileBottom == 100)
 				citation = Messages.getString("awardHonorableMention");
 			else
 				// TODO: this seems wrong. Entry 'awardHonors' is "{0}% Honors"
@@ -621,9 +677,17 @@ public class AwardUtil {
 				citation = Messages.getString("awardHonors");
 		}
 
-		Award award = new Award(IAward.HONORS, template.getId().substring(7), teamIds, citation, mode);
+		Award award = new Award(IAward.HONORS, template.getId(), teamIds, citation, mode);
+		// Overwrite the ID to the actual ID, since we know what we are doing
+		award.add("id", template.getId());
 		IStanding standing = contest.getStanding(teams[t]);
-		award.setParameter(standing.getNumSolved() + "");
+
+		// If the top of our list is just below the medalists or in the medalists, show it before the medalists
+		if (t <= numMedalists) {
+			award.setParameter("before:" + numMedalists);
+		} else {
+			award.setParameter(standing.getNumSolved() + "");
+		}
 		contest.add(award);
 	}
 
@@ -719,8 +783,10 @@ public class AwardUtil {
 		List<IAward> gold = new ArrayList<>();
 		List<IAward> silver = new ArrayList<>();
 		List<IAward> bronze = new ArrayList<>();
+		List<IAward> honors = new ArrayList<>();
 
 		List<IAward> solvedAwards = new ArrayList<>();
+
 
 		for (IAward award : awardTemplate) {
 			if (award.getAwardType() == IAward.WINNER) {
@@ -736,7 +802,7 @@ public class AwardUtil {
 			} else if (award.getAwardType() == IAward.EXPECTED_TO_ADVANCE) {
 				createExpectedToAdvanceAwards(contest, award);
 			} else if (award.getAwardType() == IAward.HONORS) {
-				createHonorsAwards(contest, award);
+				honors.add(award);
 			} else if (award.getAwardType() == IAward.SOLVED) {
 				solvedAwards.add(award);
 			} else if (award.getAwardType() == IAward.MEDAL) {
@@ -751,6 +817,13 @@ public class AwardUtil {
 
 		if (!gold.isEmpty() || !silver.isEmpty() || !bronze.isEmpty()) {
 			createMedalAwards(contest, gold, silver, bronze);
+		}
+
+		// We need to do this after the medals are created, because we need to know the number of solved problems for the lowest medalist
+		if (!honors.isEmpty()) {
+			for (IAward award : honors) {
+				createHonorsAwards(contest, award);
+			}
 		}
 
 		if (!solvedAwards.isEmpty()) {
