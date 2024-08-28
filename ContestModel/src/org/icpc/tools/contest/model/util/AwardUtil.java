@@ -562,10 +562,7 @@ public class AwardUtil {
 		int percentileBottom = -1;
 		DisplayMode mode = template.getDisplayMode();
 		if (!template.hasDisplayMode())
-			if (template.getId().equals("highest-honors"))
-				mode = DisplayMode.IGNORE;
-			else
-				mode = IAward.DisplayMode.LIST;
+			mode = IAward.DisplayMode.LIST;
 
 		// find teams we're going to base this on
 		ITeam[] teams = contest.getOrderedTeams();
@@ -634,10 +631,12 @@ public class AwardUtil {
 				t++;
 			}
 		} else if (solvedTop > 0) {
-			// Note: if solvedTop == 0, we include all medalists
 			while (t < n && contest.getStanding(teams[t]).getNumSolved() > lowestMedalNumSolved - solvedTop) {
 				t++;
 			}
+		} else {
+			// solvedTop == 0, start just below the medalists.
+			t = numMedalists;
 		}
 
 		// find the bottom team
