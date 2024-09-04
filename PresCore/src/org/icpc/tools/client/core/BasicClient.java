@@ -117,7 +117,7 @@ public class BasicClient {
 				if (closeReason.getCloseCode() == CloseCodes.UNEXPECTED_CONDITION
 						&& closeReason.getReasonPhrase().startsWith("CDS: ")) {
 					Trace.trace(Trace.ERROR, closeReason.getReasonPhrase().substring(4));
-					System.exit(1);
+					return;
 				}
 				Trace.trace(Trace.ERROR, "Unexpected websocket disconnect: " + closeReason.getReasonPhrase() + " ("
 						+ closeReason.getCloseCode().toString() + ")");
@@ -237,6 +237,10 @@ public class BasicClient {
 
 	public void setUID(int uid) {
 		this.uid = uid;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 	private void handleProperties(JsonObject obj) {
@@ -639,6 +643,24 @@ public class BasicClient {
 		connectionThread.setPriority(Thread.NORM_PRIORITY + 1);
 		connectionThread.setDaemon(daemon);
 		connectionThread.start();
+	}
+
+	/**
+	 * Check to see if we can successfully connect to the CDS as the current role.
+	 */
+	public boolean ping() {
+		Trace.trace(Trace.USER, name + " pinging...");
+		boolean connected = false;
+		Session s = connectImpl();
+		if (s != null && s.isOpen()) {
+			connected = true;
+			try {
+				s.close();
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+		return connected;
 	}
 
 	protected Session connectImpl() {

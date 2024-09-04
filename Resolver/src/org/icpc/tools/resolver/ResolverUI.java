@@ -434,6 +434,10 @@ public class ResolverUI {
 		}
 	}
 
+	public void setIsPresenter(boolean isPresenter) {
+		this.isPresenter = isPresenter;
+	}
+
 	private void setSpeedFactorImpl(double d) {
 		if (listener != null)
 			listener.speedFactor(d);
