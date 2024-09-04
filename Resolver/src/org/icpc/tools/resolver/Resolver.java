@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
@@ -67,7 +68,7 @@ public class Resolver {
 	private ResolverUI[] ui;
 	private String[] contestIds;
 	private boolean isPresenter;
-	private Screen screen = null;
+	private Screen screen = Screen.MAIN;
 	private String displayStr;
 	private String multiDisplayStr;
 	private boolean show_info;
@@ -126,10 +127,6 @@ public class Resolver {
 		System.out.println("         Displays version information");
 		System.out.println();
 		System.out.println("  Client options:");
-		System.out.println("     --presenter");
-		System.out.println("         connect to a CDS and control it");
-		System.out.println("     --client");
-		System.out.println("         connect to a CDS in slave (view-only) mode");
 		System.out.println("     --side");
 		System.out.println("         same as --client, but displays logos suitable for");
 		System.out.println("         a lower resolution/side display");
@@ -189,73 +186,86 @@ public class Resolver {
 		}
 		Taskbar.setTaskbarImage(iconImage);
 
-		int numContests = 0;
 		for (ContestSource cs : contestSources) {
 			cs.outputValidation();
-			numContests++;
 		}
 
-		r.ui = new ResolverUI[numContests];
-		r.contestIds = new String[numContests];
-		r.contestSources = contestSources;
-		r.finalContest = new Contest[numContests];
+		r.configure(contestSources, resolveInfo);
+	}
+
+	private void configure(ContestSource[] contestSources2, ResolveInfo resolveInfo) {
+		contestSources = contestSources2;
+		ui = new ResolverUI[contestSources.length];
+		contestIds = new String[contestSources.length];
+		finalContest = new Contest[contestSources.length];
 
 		int i = 0;
 		for (ContestSource cs : contestSources) {
 			List<ResolutionStep> steps = new ArrayList<ResolutionUtil.ResolutionStep>();
-			r.loadFromSource(i);
+			loadFromSource(i);
 
-			if (r.isPresenter)
-				r.sendSettings(resolveInfo);
 			String g = null;
 			String p = null;
 			String pId = null;
-			if (r.groupList != null && r.groupList.length > 0)
-				g = r.groupList[i % r.groupList.length];
-			if (r.problemList != null && r.problemList.length > 0)
-				p = r.problemList[i % r.problemList.length];
-			if (r.problemIdList != null && r.problemIdList.length > 0)
-				pId = r.problemIdList[i % r.problemIdList.length];
-			r.init(steps, g, p, pId, i, resolveInfo);
+			if (groupList != null && groupList.length > 0)
+				g = groupList[i % groupList.length];
+			if (problemList != null && problemList.length > 0)
+				p = problemList[i % problemList.length];
+			if (problemIdList != null && problemIdList.length > 0)
+				pId = problemIdList[i % problemIdList.length];
+			init(steps, g, p, pId, i, resolveInfo);
 
 			Trace.trace(Trace.INFO, "Resolution steps:");
 			for (ResolutionStep step : steps)
 				Trace.trace(Trace.INFO, "  " + step);
 
-			r.ui[i] = r.createUI(steps);
-			r.contestIds[i] = cs.getContestId();
+			ui[i] = createUI(steps);
+			contestIds[i] = cs.getContestId();
 
 			i++;
 		}
 
-		try {
-			r.connectToCDS();
-		} catch (NumberFormatException e) {
-			Trace.trace(Trace.ERROR, "Could not connect to CDS");
-			System.exit(2);
+		// check if we connected to a CDS
+		boolean localSources = false;
+		boolean cdsSources = false;
+		for (ContestSource cs : contestSources) {
+			if (cs instanceof RESTContestSource) {
+				RESTContestSource rc = (RESTContestSource) cs;
+				if (rc.isCDS())
+					cdsSources = true;
+				else
+					localSources = true;
+			} else
+				localSources = true;
 		}
 
-		r.launch();
+		// the sources must all be local/remote, or all on CDS, otherwise we can't switch
+		if (localSources && cdsSources) {
+			Trace.trace(Trace.ERROR, "Can't mix local and remote contests with contests on CDS");
+			System.exit(1);
+		}
+
+		if (cdsSources) {
+			try {
+				connectToCDS(resolveInfo);
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not connect to CDS");
+				System.exit(2);
+			}
+		} else
+			isPresenter = true;
+
+		for (int j = 0; j < ui.length; j++) {
+			ui[j].setIsPresenter(isPresenter);
+		}
+
+		launch();
 	}
 
-	private void connectToCDS() {
-		if (!isPresenter && screen == null)
-			return;
-
-		// all of the sources need to be on a CDS, otherwise we can't switch
-		for (int i = 0; i < contestSources.length; i++)
-			if (!(contestSources[i] instanceof RESTContestSource)) {
-				Trace.trace(Trace.ERROR, "Source argument must be a CDS");
-				System.exit(1);
-			}
-
+	private void connectToCDS(ResolveInfo resolveInfo) {
 		RESTContestSource cdsSource = (RESTContestSource) contestSources[0];
 		try {
-			String role = "staff";
-			if (isPresenter)
-				role = "presAdmin";
-
-			client = new PresentationClient(cdsSource.getUser(), role, cdsSource, "resolver") {
+			client = new PresentationClient(cdsSource.getUser(), "presAdmin", cdsSource, "resolver") {
 				@Override
 				protected void clientsChanged(Client[] cl) {
 					Trace.trace(Trace.INFO, "Client list changed: " + cl.length);
@@ -269,7 +279,6 @@ public class Resolver {
 					sendActiveUI();
 				}
 			};
-
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Trouble connecting to CDS: " + e.getMessage());
 			System.exit(1);
@@ -305,11 +314,29 @@ public class Resolver {
 					}
 				}
 			});
+
+			// ping the CDS to see if we have admin credentials
+			if (client.ping()) {
+				Trace.trace(Trace.USER, "Connecting to CDS as presenter");
+				isPresenter = true;
+				client.addListener(new IConnectionListener() {
+					@Override
+					public void connectionStateChanged(boolean connected) {
+						if (connected) {
+							sendSettings(resolveInfo);
+						}
+					}
+				});
+			} else {
+				Trace.trace(Trace.USER, "Connecting to CDS as client");
+				client.setRole(null);
+			}
+
 			client.connect();
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Client error", e);
+			Trace.trace(Trace.ERROR, "Could not connect to CDS", e);
 		}
-	} // end connectToServer
+	}
 
 	private void sendActiveUI() {
 		try {
@@ -354,20 +381,15 @@ public class Resolver {
 		} else if ("--pause".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "#:int");
 			resolveInfo.setClicks((int) options.get(0));
-		} else if ("--client".equalsIgnoreCase(option) || "--presenter".equalsIgnoreCase(option)
-				|| "--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)
+		} else if ("--team".equalsIgnoreCase(option) || "--side".equalsIgnoreCase(option)
 				|| "--org".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
-			if ("--presenter".equalsIgnoreCase(option))
-				isPresenter = true;
-			else if ("--team".equalsIgnoreCase(option))
+			if ("--team".equalsIgnoreCase(option))
 				screen = Screen.TEAM;
 			else if ("--org".equalsIgnoreCase(option))
 				screen = Screen.ORG;
 			else if ("--side".equalsIgnoreCase(option))
 				screen = Screen.SIDE;
-			else
-				screen = Screen.MAIN;
 		} else if ("--display".equalsIgnoreCase(option)) {
 			ArgumentParser.expectOptions(option, options, "display:string");
 			displayStr = (String) options.get(0);
@@ -509,10 +531,11 @@ public class Resolver {
 			finalContest[con] = finalContest[con].clone(false, new TimeFilter(finalContest[con], showHour * 3600000));
 	}
 
-	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds, int con, IResolveInfo resolveInfo) {
+	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds, int con,
+			IResolveInfo resolveInfo) {
 		Trace.trace(Trace.INFO, "Initializing resolver...");
 
-		 finalContest[con].add(resolveInfo);
+		finalContest[con].add(resolveInfo);
 
 		if (groups != null || problems != null || problemIds != null) {
 			IAward[] fullAwards = finalContest[con].getAwards();
