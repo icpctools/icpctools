@@ -36,73 +36,74 @@ public class FloorGeneratorAstana48 extends FloorGenerator {
 			floor.createAisle(ax1, y, ax2, y);
 			a[0] = y;
 			y += aisle / 2 + tad;
+			double offset = taw * 2 / 3;
 
-			floor.createTeamRow(10, 10, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 9, x + offset, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(10, 11, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 10, x + offset, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
 			a[1] = y;
 			y += aisle / 2 + tad;
 
-			floor.createTeamRow(10, 30, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 27, x + offset, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(10, 31, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 28, x + offset, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
 			a[2] = y;
 			y += aisle / 2 + tad;
 
-			floor.createTeamRow(9, 49, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 45, x + offset, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(9, 50, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 46, x + offset, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
 			a[3] = y;
 			y += aisle / 2 + tad;
 
-			floor.createTeamRow(9, 67, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 63, x, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(9, 68, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 64, x, y, FloorMap.N, false, true);
 
-			y += aisle / 2 + tad + 1;
+			y += aisle / 2 + tad + 0.5;
 			floor.createAisle(ax1, y, ax2, y);
 			a[4] = y;
-			y += aisle / 2 + tad + 1;
+			y += aisle / 2 + tad + 0.5;
 
-			floor.createTeamRow(9, 85, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 81, x, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(9, 86, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 82, x, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
 			a[5] = y;
 			y += aisle / 2 + tad;
 
-			floor.createTeamRow(9, 103, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 99, x + offset, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(9, 104, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 100, x + offset, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
 			a[6] = y;
 			y += aisle / 2 + tad;
 
-			floor.createTeamRow(10, 122, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(9, 117, x + offset, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(10, 123, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(9, 118, x + offset, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
 			a[7] = y;
 			y += aisle / 2 + tad;
 
-			floor.createTeamRow(9, 141, x, y, FloorMap.S, true, false);
+			floor.createTeamRow(8, 134, x + offset, y, FloorMap.S, true, false);
 			y += tad / 2;
-			floor.createTeamRow(9, 142, x, y, FloorMap.N, false, true);
+			floor.createTeamRow(8, 135, x + offset, y, FloorMap.N, false, true);
 
 			y += aisle / 2 + tad;
 			floor.createAisle(ax1, y, ax2, y);
@@ -112,9 +113,9 @@ public class FloorGeneratorAstana48 extends FloorGenerator {
 			floor.createAisle(ax2, a[0], ax2, a[8]);
 
 			// spares
-			ITeam t = createAdjacentTeam(floor, 113, -1, taw, 0);
+			ITeam t = createAdjacentTeam(floor, 127, -1, taw, 0, FloorMap.S);
 			floor.makeSpare(t);
-			t = createAdjacentTeam(floor, 132, -2, taw, 0);
+			t = createAdjacentTeam(floor, 142, -1, taw, 0, FloorMap.N);
 			floor.makeSpare(t);
 
 			Printer p = floor.createPrinter(ax2 + taw, a[5]);

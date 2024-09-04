@@ -17,7 +17,8 @@ import org.icpc.tools.contest.model.FloorMap.Path;
 import org.icpc.tools.contest.model.ITeam;
 
 public class FloorGenerator {
-	protected static ITeam createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy, int rot) {
+	protected static ITeam createAdjacentTeam(FloorMap floor, int teamNumber, int newId, double dx, double dy,
+			double rot) {
 		ITeam t = floor.getTeam(teamNumber);
 		return floor.createTeam(newId, t.getX() + dx, t.getY() + dy, rot);
 	}
