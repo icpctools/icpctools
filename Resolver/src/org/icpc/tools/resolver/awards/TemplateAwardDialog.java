@@ -28,14 +28,14 @@ import org.icpc.tools.contest.model.util.AwardUtil;
 
 public class TemplateAwardDialog extends AbstractAwardDialog {
 	protected String templateString = "{\"id\":\"winner\"}\n" + // champion
-			"{\"id\":\"gold-medal\",\"parameter\":\"4\"}\n" + // gold medals
-			"{\"id\":\"silver-medal\",\"parameter\":\"4\"}\n" + // silver medals
-			"{\"id\":\"bronze-medal\",\"parameter\":\"4\"}\n" + // bronze medals
+			"{\"id\":\"gold-medal\",\"parameters\":{\"numTeams\":\"4\"}}\n" + // gold medals
+			"{\"id\":\"silver-medal\",\"parameters\":{\"numTeams\":\"4\"}}\n" + // silver medals
+			"{\"id\":\"bronze-medal\",\"parameters\":{\"numTeams\":\"4\"}}\n" + // bronze medals
 			"{\"id\":\"first-to-solve-*\"}\n" + // first to solve awards
-			"{\"id\":\"highest-honors\",\"parameter\":\"0-1\"}\n" + // All medalists + all solving the same number of problems as the lowest medalist
-			"{\"id\":\"high-honors\",\"parameter\":\"1-2\"}\n" + // All teams solving one fewer than the lowest medalist
-			"{\"id\":\"honors\",\"parameter\":\"2-p50\"}\n" + // All teams not receiving highest honors or high honors solving the same or more problems than the median scoring team
-			"{\"id\":\"honors-mention\",\"parameter\":\"p50-p100\"}\n" + // honorable mention for teams
+			"{\"id\":\"highest-honors\",\"parameters\":{\"solvedTop\":\"0\",\"solvedBottom\":\"1\"}}\n" + // All medalists + all solving the same number of problems as the lowest medalist
+			"{\"id\":\"high-honors\",\"parameters\":{\"solvedTop\":\"1\",\"solvedBottom\":\"2\"}}\n" + // All teams solving one fewer than the lowest medalist
+			"{\"id\":\"honors\",\"parameters\":{\"solvedTop\":\"2\",\"percentileBottom\":\"50\"}}\n" + // All teams not receiving highest honors or high honors solving the same or more problems than the median scoring team
+			"{\"id\":\"honors-mention\",\"parameters\":{\"percentileTop\":\"50\",\"percentileBottom\":\"100\"}}\n" + // honorable mention for teams
 			// scoring below 50th percentile
 			"{\"id\":\"group-winner-*\"}"; // group winners
 

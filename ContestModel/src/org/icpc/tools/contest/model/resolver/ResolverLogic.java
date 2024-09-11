@@ -188,7 +188,7 @@ public class ResolverLogic {
 					}
 
 					ListAwardStep step = new ListAwardStep(award, teams, selections,
-							award.getDisplayMode() == DisplayMode.PHOTOS, "after".equals(award.getParameter()));
+							award.getDisplayMode() == DisplayMode.PHOTOS, award.getParameters() != null && award.getParameters().containsKey("after") && award.getParameters().get("after").equals("true"));
 					teamLists.add(step);
 				}
 			}
@@ -609,14 +609,13 @@ public class ResolverLogic {
 			return false;
 
 		IAward award = step.award;
-		String param = award.getParameter();
 		String[] teamIds = award.getTeamIds();
-		if (param != null && param.startsWith("before:") && after) {
+		if (award.getParameters() != null && award.getParameters().containsKey("before") && after) {
 			int targetRow = -1;
 			try {
-				targetRow = Integer.parseInt(param.substring(7));
+				targetRow = Integer.parseInt(award.getParameters().get("before"));
 			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Could not parse before award parameter " + step.award.getParameter());
+				Trace.trace(Trace.ERROR, "Could not parse before award parameter " + award.getParameters().get("before"));
 				return true;
 			}
 
@@ -631,7 +630,7 @@ public class ResolverLogic {
 		int numTeaams = teamIds.length;
 		for (int i = 0; i < numTeaams; i++) {
 			ITeam team = finalContest.getTeamById(teamIds[i]);
-			if (award.getParameter() != null) {
+			if (award.getParameters() != null && award.getParameters().containsKey("numSolved")) {
 				if (finalContest.getOrderOf(team) < row)
 					return false;
 			}
@@ -653,12 +652,12 @@ public class ResolverLogic {
 		// for solution and honor awards, wait until every team higher on the scoreboard has solved
 		// more
 		// problems than the given number
-		if ((award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS) && param != null) {
+		if ((award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS) && award.getParameters() != null && award.getParameters().containsKey("numSolved")) {
 			int numSolved = -1;
 			try {
-				numSolved = Integer.parseInt(param);
+				numSolved = Integer.parseInt(award.getParameters().get("numSolved"));
 			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Could not parse solved award parameter " + step.award.getParameter());
+				Trace.trace(Trace.ERROR, "Could not parse solved award parameter " + step.award.getParameters().get("numSolved"));
 			}
 
 			if (numSolved > 0) {

@@ -1,5 +1,7 @@
 package org.icpc.tools.contest.model;
 
+import java.util.Map;
+
 public interface IAward extends IContestObject {
 	class AwardType {
 		private String name;
@@ -75,11 +77,11 @@ public interface IAward extends IContestObject {
 	AwardType getAwardType();
 
 	/**
-	 * Return the awards for an award template, e.g. number of awards given.
+	 * Return the parameters for an award template, e.g. number of awards given or when to display.
 	 *
 	 * @return
 	 */
-	String getParameter();
+	Map<String, String> getParameters();
 
 	/**
 	 * Return the citation for this award.
