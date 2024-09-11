@@ -1,10 +1,15 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.JSONParser;
 
 public class Award extends ContestObject implements IAward {
@@ -12,12 +17,12 @@ public class Award extends ContestObject implements IAward {
 	public static final String TEAM_IDS = "team_ids";
 	public static final String SHOW = "show";
 	public static final String DISPLAY_MODE = "display_mode";
-	public static final String PARAMETER = "parameter";
+	public static final String PARAMETERS = "parameters";
 
 	private String[] teamIds;
 	private DisplayMode mode;
 	private String citation;
-	private String parameter;
+	private Map<String, String> parameters = new HashMap<>();
 
 	public Award() {
 		// create an empty award
@@ -82,8 +87,12 @@ public class Award extends ContestObject implements IAward {
 		this.citation = citation;
 	}
 
-	public void setParameter(String parameter) {
-		this.parameter = parameter;
+	public void setParameter(String parameter, String value) {
+		this.parameters.put(parameter, value);
+	}
+
+	public void clearParameter(String parameter) {
+		this.parameters.remove(parameter);
 	}
 
 	@Override
@@ -103,8 +112,8 @@ public class Award extends ContestObject implements IAward {
 	}
 
 	@Override
-	public String getParameter() {
-		return parameter;
+	public Map<String, String> getParameters() {
+		return parameters;
 	}
 
 	@Override
@@ -141,8 +150,13 @@ public class Award extends ContestObject implements IAward {
 				mode = DisplayMode.IGNORE;
 
 			return true;
-		} else if (name.equals(PARAMETER)) {
-			parameter = (String) value;
+		} else if (name.equals(PARAMETERS)) {
+			if (value instanceof JSONParser.JsonObject) {
+				parameters.clear();
+				for (String key : ((JSONParser.JsonObject) value).props.keySet())
+					parameters.put(key, ((JSONParser.JsonObject) value).getString(key));
+			}
+
 			return true;
 		}
 
@@ -156,7 +170,19 @@ public class Award extends ContestObject implements IAward {
 		props.addString(CITATION, citation);
 		if (mode != null && mode != DisplayMode.DETAIL)
 			props.addLiteralString(DISPLAY_MODE, mode.name().toLowerCase());
-		props.addLiteralString(PARAMETER, parameter);
+		props.add(PARAMETERS, getEncodedParameters());
+	}
+
+	private String getEncodedParameters() {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		PrintWriter pw = new PrintWriter(bout);
+		JSONEncoder je = new JSONEncoder(pw);
+		je.open();
+		for (String key : parameters.keySet())
+			je.encode(key, parameters.get(key));
+		je.close();
+		pw.flush();
+		return bout.toString();
 	}
 
 	@Override

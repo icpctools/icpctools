@@ -113,20 +113,20 @@ public class AwardUtil {
 
 	public static void createGroupAwards(Contest contest, int numPerGroup) {
 		Award group = new Award(IAward.GROUP, "*", null, (String) null);
-		group.setParameter(numPerGroup + "");
+		group.setParameter("numPerGroup", numPerGroup + "");
 		createGroupAwards(contest, group);
 	}
 
 	public static void createGroupAwards(Contest contest, IAward template) {
 		int numPerGroup = 1;
 		try {
-			if (template.getParameter() != null)
-				numPerGroup = Integer.parseInt(template.getParameter());
+			if (template.getParameters() != null && template.getParameters().containsKey("numPerGroup"))
+				numPerGroup = Integer.parseInt(template.getParameters().get("numPerGroup"));
 
 			if (numPerGroup < 1)
 				throw new IllegalArgumentException("Cannot assign group awards to less than one team");
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse group parameter: " + template.getParameter());
+			throw new IllegalArgumentException("Could not parse group parameter numPerGroup: " + template.getParameters().get("numPerGroup"));
 		}
 
 		DisplayMode mode = template.getDisplayMode();
@@ -165,7 +165,7 @@ public class AwardUtil {
 
 		List<String> teamIdsNumMedalsSolved = new ArrayList<>();
 
-		if (template.getParameter() != null && template.getParameter().equals("less-than-medals")) {
+		if (template.getParameters() != null && template.getParameters().containsKey("mode") && template.getParameters().get("mode").equals("less-than-medals")) {
 			int lowestMedalNumSolved = Integer.MAX_VALUE;
 			for (IAward a : awards) {
 				if (a.getAwardType() == IAward.MEDAL) {
@@ -233,7 +233,7 @@ public class AwardUtil {
 
 			Award solutionAward = new Award(IAward.SOLVED, "solved-" + ns, teamIds, citation.replace("{0}", ns + ""),
 					mode);
-			solutionAward.setParameter(ns.toString());
+			solutionAward.setParameter("numSolved", ns + "");
 			contest.add(solutionAward);
 		}
 	}
@@ -333,16 +333,17 @@ public class AwardUtil {
 
 	public static void createRankAwards(Contest contest, int num) {
 		Award rank = new Award(IAward.RANK, "*", null);
-		rank.setParameter(num + "");
+		rank.setParameter("numTeams", num + "");
 		createRankAwards(contest, rank);
 	}
 
 	public static void createRankAwards(Contest contest, IAward template) {
 		int numTeams = 0;
 		try {
-			numTeams = Integer.parseInt(template.getParameter());
+			if (template.getParameters() != null && template.getParameters().containsKey("numTeams"))
+				numTeams = Integer.parseInt(template.getParameters().get("numTeams"));
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse rank parameter: " + template.getParameter());
+			throw new IllegalArgumentException("Could not parse rank parameter: " + template.getParameters().get("numTeams"));
 		}
 
 		if (numTeams < 1)
@@ -434,13 +435,13 @@ public class AwardUtil {
 
 		int numTeams = 1;
 		try {
-			if (award.getParameter() != null)
-				numTeams = Integer.parseInt(award.getParameter());
+			if (award.getParameters() != null && award.getParameters().containsKey("numTeams"))
+				numTeams = Integer.parseInt(award.getParameters().get("numTeams"));
 
 			if (numTeams < 1)
 				throw new IllegalArgumentException("Cannot assign medals to less than one team");
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse medal parameter: " + award.getParameter());
+			throw new IllegalArgumentException("Could not parse medal parameter: " + award.getParameters().get("numTeams"));
 		}
 
 		numTeams = Math.min(numTeams, teams.length - firstTeamIndex);
@@ -456,7 +457,7 @@ public class AwardUtil {
 		((Award) award).setTeamIds(teamIds);
 		if (award.getCitation() == null)
 			((Award) award).setCitation(citation);
-		((Award) award).setParameter(null);
+		((Award) award).clearParameter("numTeams");
 
 		return firstTeamIndex + numTeams;
 	}
@@ -511,16 +512,17 @@ public class AwardUtil {
 
 	public static void createTopAwards(Contest contest, int percent) {
 		Award rank = new Award(IAward.TOP, "*", null);
-		rank.setParameter(percent + "");
+		rank.setParameter("percent", percent + "");
 		createTopAwards(contest, rank);
 	}
 
 	public static void createTopAwards(Contest contest, IAward template) {
 		int percent = 0;
 		try {
-			percent = Integer.parseInt(template.getParameter());
+			if (template.getParameters() != null && template.getParameters().containsKey("percent"))
+				percent = Integer.parseInt(template.getParameters().get("percent"));
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse top parameter: " + template.getParameter());
+			throw new IllegalArgumentException("Could not parse top parameter: " + template.getParameters().get("percent"));
 		}
 		if (percent < 1 || percent > 100)
 			throw new IllegalArgumentException(percent + " is not a valid top percentage");
@@ -549,12 +551,6 @@ public class AwardUtil {
 		contest.add(new Award(IAward.TOP, template.getId().substring(4), teamIds, citation, mode));
 	}
 
-	public static void createHonorsAwards(Contest contest, int percentile) {
-		Award rank = new Award(IAward.HONORS, "*", null);
-		rank.setParameter(percentile + "");
-		createTopAwards(contest, rank);
-	}
-
 	public static void createHonorsAwards(Contest contest, IAward template) throws IllegalArgumentException {
 		int solvedTop = -1;
 		int solvedBottom = -1;
@@ -570,17 +566,15 @@ public class AwardUtil {
 			return;
 
 		try {
-			String param = template.getParameter();
-			int ind = param.indexOf("-");
-			if (param.startsWith("p")) {
-				percentileTop = Integer.parseInt(param.substring(1, ind));
-			} else {
-				solvedTop = Integer.parseInt(param.substring(0, ind));
-			}
-			if (param.substring(ind + 1).startsWith("p")) {
-				percentileBottom = Integer.parseInt(param.substring(ind + 2));
-			} else {
-				solvedBottom = Integer.parseInt(param.substring(ind + 1));
+			if (template.getParameters() != null) {
+				if (template.getParameters().containsKey("solvedTop"))
+					solvedTop = Integer.parseInt(template.getParameters().get("solvedTop"));
+				if (template.getParameters().containsKey("solvedBottom"))
+					solvedBottom = Integer.parseInt(template.getParameters().get("solvedBottom"));
+				if (template.getParameters().containsKey("percentileTop"))
+					percentileTop = Integer.parseInt(template.getParameters().get("percentileTop"));
+				if (template.getParameters().containsKey("percentileBottom"))
+					percentileBottom = Integer.parseInt(template.getParameters().get("percentileBottom"));
 			}
 
 			if (percentileTop < 0 && solvedTop < 0)
@@ -597,7 +591,7 @@ public class AwardUtil {
 				throw new IllegalArgumentException("Honor solved parameter invalid");
 
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse honor parameter: " + template.getParameter());
+			throw new IllegalArgumentException("Could not parse honor parameters: " + template.getParameters());
 		}
 
 		IAward[] awards = contest.getAwards();
@@ -683,9 +677,9 @@ public class AwardUtil {
 
 		// If the top of our list is just below the medalists or in the medalists, show it before the medalists
 		if (t <= numMedalists) {
-			award.setParameter("before:" + numMedalists);
+			award.setParameter("before", numMedalists + "");
 		} else {
-			award.setParameter(standing.getNumSolved() + "");
+			award.setParameter("numSolved", standing.getNumSolved() + "");
 		}
 		contest.add(award);
 	}
@@ -740,20 +734,20 @@ public class AwardUtil {
 
 	public static void createExpectedToAdvanceAwards(Contest contest, int numTeams) {
 		Award expectedToAdvance = new Award(IAward.EXPECTED_TO_ADVANCE, "", null, (String) null);
-		expectedToAdvance.setParameter(numTeams + "");
+		expectedToAdvance.setParameter("numTeams", numTeams + "");
 		createExpectedToAdvanceAwards(contest, expectedToAdvance);
 	}
 
 	public static void createExpectedToAdvanceAwards(Contest contest, IAward template) {
 		int numTeams = 3;
 		try {
-			if (template.getParameter() != null)
-				numTeams = Integer.parseInt(template.getParameter());
+			if (template.getParameters() != null && template.getParameters().containsKey("numTeams"))
+				numTeams = Integer.parseInt(template.getParameters().get("numTeams"));
 
 			if (numTeams < 1)
 				throw new IllegalArgumentException("Cannot assign expected to advance awards to less than one team");
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse numTeams parameter: " + template.getParameter());
+			throw new IllegalArgumentException("Could not parse numTeams parameter: " + template.getParameters().get("numTeams"));
 		}
 
 		assignExpectedToAdvance(contest, (Award) template, numTeams);
@@ -762,16 +756,16 @@ public class AwardUtil {
 
 	public static void createDefaultAwards(Contest contest) {
 		Award gold = new Award(IAward.MEDAL, "gold", null, (String) null);
-		gold.setParameter("4");
+		gold.setParameter("numTeams", "4");
 		Award silver = new Award(IAward.MEDAL, "silver", null, (String) null);
-		silver.setParameter("4");
+		silver.setParameter("numTeams", "4");
 		Award bronze = new Award(IAward.MEDAL, "bronze", null, (String) null);
-		bronze.setParameter("4");
+		bronze.setParameter("numTeams", "4");
 		createMedalAwards(contest, Collections.singletonList(gold), Collections.singletonList(silver),
 				Collections.singletonList(bronze));
 
 		Award group = new Award(IAward.GROUP, "*", null, (String) null);
-		group.setParameter("1");
+		group.setParameter("numPerGroup", "1");
 		createGroupAwards(contest, group);
 
 		Award fts = new Award(IAward.FIRST_TO_SOLVE, "*", null, (String) null);
