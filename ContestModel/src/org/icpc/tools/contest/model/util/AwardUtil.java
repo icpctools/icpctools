@@ -1,10 +1,6 @@
 package org.icpc.tools.contest.model.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -754,6 +750,44 @@ public class AwardUtil {
 		contest.add(template);
 	}
 
+	public static void createGroupWinnersAward(Contest contest, IAward template) throws IllegalArgumentException {
+		DisplayMode mode = template.getDisplayMode();
+		if (!template.hasDisplayMode())
+			mode = DisplayMode.PHOTOS;
+
+		IAward[] awards = contest.getAwards();
+
+		// Determine the position of the lowest medalist, which we need to display this award corrrectly
+		// Also keep track of all teams that have a group award
+		Set<String> groupWinners = new HashSet<>();
+		Set<String> medalWinners = new HashSet<>();
+		int numMedalists = 0;
+		for (IAward a : awards) {
+			if (a.getAwardType() == IAward.MEDAL) {
+				numMedalists += a.getTeamIds().length;
+				medalWinners.addAll(Arrays.asList(a.getTeamIds()));
+			} else if (a.getAwardType() == IAward.GROUP) {
+				groupWinners.addAll(Arrays.asList(a.getTeamIds()));
+			}
+		}
+
+		String citation = template.getCitation();
+		if (citation == null || citation.trim().isEmpty()) {
+			citation = Messages.getString("awardGroupWinners");
+		}
+
+		// Remove medal winners since they will be announced separately
+		groupWinners.removeAll(medalWinners);
+
+		String[] teamIds = groupWinners.toArray(new String[0]);
+
+		Award award = new Award(IAward.GROUP_WINNERS, template.getId(), teamIds, citation, mode);
+
+		award.setParameter("before", numMedalists + "");
+		award.setParameter("showGroupName",  "true");
+		contest.add(award);
+	}
+
 	public static void createDefaultAwards(Contest contest) {
 		Award gold = new Award(IAward.MEDAL, "gold", null, (String) null);
 		gold.setParameter("numTeams", "4");
@@ -780,6 +814,7 @@ public class AwardUtil {
 
 		List<IAward> solvedAwards = new ArrayList<>();
 
+		IAward groupWinnersAward = null;
 
 		for (IAward award : awardTemplate) {
 			if (award.getAwardType() == IAward.WINNER) {
@@ -805,7 +840,8 @@ public class AwardUtil {
 					silver.add(award);
 				else if (award.getId().contains("bronze"))
 					bronze.add(award);
-			}
+			} else if (award.getAwardType() == IAward.GROUP_WINNERS)
+				groupWinnersAward = award;
 		}
 
 		if (!gold.isEmpty() || !silver.isEmpty() || !bronze.isEmpty()) {
@@ -817,6 +853,11 @@ public class AwardUtil {
 			for (IAward award : honors) {
 				createHonorsAwards(contest, award);
 			}
+		}
+
+		// We need to do this after both the medals are created and the individual group winners are known
+		if (groupWinnersAward != null) {
+			createGroupWinnersAward(contest, groupWinnersAward);
 		}
 
 		if (!solvedAwards.isEmpty()) {
