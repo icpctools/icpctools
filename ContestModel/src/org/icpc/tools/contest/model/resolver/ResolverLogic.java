@@ -611,7 +611,9 @@ public class ResolverLogic {
 
 		IAward award = step.award;
 		String[] teamIds = award.getTeamIds();
-		if (award.getParameters() != null && award.getParameters().containsKey("before") && after) {
+		if (award.getParameters() != null && award.getParameters().containsKey("before")) {
+			if (!after)
+				return false;
 			int targetRow = -1;
 			try {
 				targetRow = Integer.parseInt(award.getParameters().get("before"));
