@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Purpose: to run a standalone resolver
 #   or to connect to a CDS and control the resolution

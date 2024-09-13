@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 libdir=`dirname "$0"`/lib
 
