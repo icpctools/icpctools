@@ -566,6 +566,7 @@ public class ResolverLogic {
 
 						steps.add(new TeamSelectionStep(step.teams));
 						steps.add(new PauseStep());
+						steps.add(new ScrollTeamListStep(true));
 						steps.add(step);
 
 						if (step.photos) {
