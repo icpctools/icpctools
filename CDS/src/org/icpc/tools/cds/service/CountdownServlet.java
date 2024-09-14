@@ -1,16 +1,19 @@
 package org.icpc.tools.cds.service;
 
-import org.icpc.tools.cds.CDSAuth;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.icpc.tools.cds.CDSAuth;
 
 @WebServlet(urlPatterns = "/countdown", asyncSupported = true)
 public class CountdownServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!CDSAuth.isAdmin(request)) {
