@@ -160,31 +160,51 @@ public class Award extends ContestObject implements IAward {
 
 			return true;
 		} else if (name.equals(LEGACY_PARAMETER)) {
+			String param = (String) value;
 			if (getAwardType() == IAward.RANK) {
-				parameters.put("numTeams", (String) value);
+				parameters.put("numTeams", param);
 			} else if (getAwardType() == IAward.MEDAL) {
-				parameters.put("numTeams", (String) value);
+				parameters.put("numTeams", param);
 			} else if (getAwardType() == IAward.GROUP) {
-				parameters.put("numPerGroup", (String) value);
+				parameters.put("numPerGroup", param);
 			} else if (getAwardType() == IAward.SOLVED) {
 				if (value.equals("less-than-medals")) {
 					parameters.put("mode", "less-than-medals");
 				} else {
-					parameters.put("numSolved", (String) value);
+					parameters.put("numSolved", param);
 				}
 			} else if (getAwardType() == IAward.TOP) {
-				parameters.put("percent", (String) value);
+				parameters.put("percent", param);
 			} else if (getAwardType() == IAward.HONORS) {
-				String param = (String) value;
-				int ind = param.indexOf("-");
-				if (param.startsWith("p"))
-					parameters.put("percentileTop", param.substring(1, ind));
-				else
-					parameters.put("solvedTop", param.substring(0, ind));
-				if (param.substring(ind + 1).startsWith("p"))
-					parameters.put("percentileBottom", param.substring(ind + 2));
-				else
-					parameters.put("solvedBottom", param.substring(ind + 1));
+				if (param.contains("-")) {
+					int ind = param.indexOf("-");
+					if (param.startsWith("p"))
+						parameters.put("percentileTop", param.substring(1, ind));
+					else
+						parameters.put("solvedTop", param.substring(0, ind));
+					if (param.substring(ind + 1).startsWith("p"))
+						parameters.put("percentileBottom", param.substring(ind + 2));
+					else
+						parameters.put("solvedBottom", param.substring(ind + 1));
+				} else if (param.startsWith("before:")) {
+					String before = param.substring(7);
+					parameters.put("before", before);
+				} else {
+					parameters.put("numSolved", param);
+				}
+			} else {
+				// Fall back to trying to parse before: / numSolved
+				if (param.startsWith("before:")) {
+					String before = param.substring(7);
+					parameters.put("before", before);
+				} else {
+					try {
+						int numSolved = Integer.parseInt(param);
+						parameters.put("numSolved", numSolved + "");
+					} catch (NumberFormatException e) {
+						// Ignore
+					}
+				}
 			}
 		}
 
