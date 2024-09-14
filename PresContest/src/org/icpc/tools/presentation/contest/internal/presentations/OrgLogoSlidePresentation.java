@@ -78,6 +78,9 @@ public class OrgLogoSlidePresentation extends AbstractICPCPresentation {
 		for (int row = 0; row < 4; row++) {
 			int y = dy + row * size;
 			for (int col = 0; col <= numW + 1; col++) {
+				if (numInRow[row] == 0)
+					continue;
+
 				double x = col * size;
 				int num = 0;
 				if (row % 2 == 0) {
