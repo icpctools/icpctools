@@ -4,8 +4,8 @@
 - username: presAdmin
   password: padm1n
   type: presAdmin
-- username: blue
-  password: bl3u
+- username: staff
+  password: st4ff
   type: staff
 - username: balloon
   password: balloonPr1nter
