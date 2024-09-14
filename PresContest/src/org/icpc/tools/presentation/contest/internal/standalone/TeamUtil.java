@@ -27,15 +27,20 @@ public class TeamUtil {
 	 */
 	public static String getTeamId(IContest contest) {
 		String teamId = System.getenv("TEAM_ID");
-		if (teamId != null)
+		if (teamId != null) {
+			Trace.trace(Trace.INFO, "Team id found via environment variable: " + teamId);
 			return teamId;
+		}
 
 		teamId = System.getProperty("TEAM_ID");
-		if (teamId != null)
+		if (teamId != null) {
+			Trace.trace(Trace.INFO, "Team id found via system property: " + teamId);
 			return teamId;
+		}
 
 		String teamLabel = System.getenv("TEAM_LABEL");
 		if (teamLabel != null) {
+			Trace.trace(Trace.INFO, "Team label found via environment variable: " + teamId);
 			teamId = getTeamIdByLabel(contest, teamLabel);
 			if (teamId != null)
 				return teamId;
@@ -43,6 +48,7 @@ public class TeamUtil {
 
 		teamLabel = System.getProperty("TEAM_LABEL");
 		if (teamLabel != null) {
+			Trace.trace(Trace.INFO, "Team label found via system property: " + teamId);
 			teamId = getTeamIdByLabel(contest, teamLabel);
 			if (teamId != null)
 				return teamId;
@@ -50,26 +56,37 @@ public class TeamUtil {
 
 		try {
 			String num = getNumber(NetworkUtil.getHostName());
-			if (doesTeamExist(contest, num))
+			Trace.trace(Trace.INFO, "Hostname: " + num);
+			if (doesTeamExist(contest, num)) {
+				Trace.trace(Trace.INFO, "Team id found via hostname: " + num);
 				return num;
+			}
 			num = getTeamIdByLabel(contest, num);
-			if (num != null)
+			if (num != null) {
+				Trace.trace(Trace.INFO, "Team label found via hostname: " + num);
 				return num;
+			}
 		} catch (Exception e) {
-			Trace.trace(Trace.WARNING, "Could not determine host", e);
+			Trace.trace(Trace.WARNING, "Could not determine hostname", e);
 		}
 
 		try {
 			String num = getNumber(NetworkUtil.getLocalAddress());
-			if (doesTeamExist(contest, num))
+			Trace.trace(Trace.INFO, "Local address: " + num);
+			if (doesTeamExist(contest, num)) {
+				Trace.trace(Trace.INFO, "Team id found via local address: " + num);
 				return num;
+			}
 			num = getTeamIdByLabel(contest, num);
-			if (num != null)
+			if (num != null) {
+				Trace.trace(Trace.INFO, "Team label found via local address: " + num);
 				return num;
+			}
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Could not determine host", e);
 		}
 
+		Trace.trace(Trace.WARNING, "Could not determine team id");
 		return null;
 	}
 
@@ -141,7 +158,7 @@ public class TeamUtil {
 			return false;
 
 		for (ITeam t : contest.getTeams()) {
-			if (teamId.equals(t.getLabel()))
+			if (teamId.equals(t.getId()))
 				return true;
 		}
 
