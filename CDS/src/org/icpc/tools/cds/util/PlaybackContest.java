@@ -151,16 +151,13 @@ public class PlaybackContest extends Contest {
 			Info i = (Info) obj;
 			downloadMissingFiles(src, obj, LOGO, i.getLogo());
 			downloadMissingFiles(src, obj, BANNER, i.getBanner());
-			src.attachLocalResources(i);
 		} else if (obj instanceof Problem) {
 			Problem p = (Problem) obj;
 			downloadMissingFiles(src, obj, PACKAGE, p.getPackage());
 			downloadMissingFiles(src, obj, STATEMENT, p.getStatement());
-			src.attachLocalResources(p);
 		} else if (obj instanceof Group) {
 			Group g = (Group) obj;
 			downloadMissingFiles(src, obj, LOGO, g.getLogo());
-			src.attachLocalResources(g);
 		} else if (obj instanceof Team) {
 			Team t = (Team) obj;
 			downloadMissingFiles(src, obj, PHOTO, t.getPhoto());
@@ -168,21 +165,17 @@ public class PlaybackContest extends Contest {
 			downloadMissingFiles(src, obj, BACKUP, t.getBackup());
 			downloadMissingFiles(src, obj, KEY_LOG, t.getKeyLog());
 			downloadMissingFiles(src, obj, TOOL_DATA, t.getToolData());
-			src.attachLocalResources(t);
 		} else if (obj instanceof Person) {
 			Person tm = (Person) obj;
 			downloadMissingFiles(src, obj, PHOTO, tm.getPhoto());
-			src.attachLocalResources(tm);
 		} else if (obj instanceof Organization) {
 			Organization o = (Organization) obj;
 			downloadMissingFiles(src, obj, LOGO, o.getLogo());
 			downloadMissingFiles(src, obj, COUNTRY_FLAG, o.getCountryFlag());
-			src.attachLocalResources(o);
 		} else if (obj instanceof Submission) {
 			Submission s = (Submission) obj;
 			downloadMissingFiles(src, obj, FILES, s.getFiles());
 			downloadMissingFiles(src, obj, REACTION, s.getReaction());
-			src.attachLocalResources(s);
 		}
 	}
 

@@ -577,9 +577,56 @@ public class DiskContestSource extends ContestSource {
 
 			cache.put(folder.getAbsolutePath(), currentList);
 		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error getting file ref", e);
+			Trace.trace(Trace.ERROR, "Error getting file cache", e);
 		}
 		return currentList;
+	}
+
+	private void updateCache(ContestType type, String id) {
+		String typeName = IContestObject.getTypeName(type);
+		File folder = new File(root, typeName + File.separator + id);
+		List<FileReference> list = cache.get(folder.getAbsolutePath());
+		if (list == null) {
+			try {
+				list = readCache(folder);
+			} catch (Exception e) {
+				list = new ArrayList<>(5);
+			}
+		}
+
+		// verify cache
+		List<FileReference> currentList = new ArrayList<>();
+		try {
+			File[] files = folder.listFiles();
+			boolean diff = false;
+			if (files != null) {
+				for (File f : files) {
+					if (f == null || f.isDirectory() || f.getName().startsWith("."))
+						continue;
+
+					boolean found = false;
+					for (FileReference ref : list) {
+						if (f.equals(ref.file)) {
+							if (ref.lastModified == f.lastModified()) {
+								found = true;
+								currentList.add(ref);
+							}
+						}
+					}
+
+					if (!found) {
+						currentList.add(readMetadata(f));
+						diff = true;
+					}
+				}
+			}
+			if (diff || list.size() != currentList.size())
+				writeCache(folder, currentList);
+
+			cache.put(folder.getAbsolutePath(), currentList);
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error updating file cache", e);
+		}
 	}
 
 	private void writeCache(File folder, List<FileReference> list) {
@@ -744,7 +791,6 @@ public class DiskContestSource extends ContestSource {
 				Info info2 = (Info) obj;
 				info2.setId(contestId);
 			}
-			// attachLocalResources(contest, obj);
 		});
 		IContestModifier mod = (contest2, obj) -> attachLocalResources(obj);
 		contest.addModifier(mod);
@@ -801,23 +847,143 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void setExecutor(ScheduledExecutorService executor) {
-		executor.scheduleWithFixedDelay(() -> scanForNewResources(), 30L, 30L, TimeUnit.SECONDS);
+		executor.scheduleWithFixedDelay(() -> scanForResourceChanges(), 15L, 15L, TimeUnit.SECONDS);
 	}
 
-	protected void scanForNewResources() {
-		Trace.trace(Trace.INFO, "Rescanning " + this.contestId);
-		// re-add existing objects to the contest. This will trigger the notifier to scan for
-		// resources on disk. If there's no change the add should be ignored; if there are new
-		// resources the object should be added
-		IOrganization[] orgs = contest.getOrganizations();
-		for (IOrganization org : orgs) {
-			contest.add(org);
+	private static boolean hasChange(FileReferenceList list, FileReferenceList foundList) {
+		if (list != null) {
+			for (FileReference ref : list) {
+				if (ref.isDeletedOrChanged()) {
+					// existing file has been deleted or modified
+					return true;
+				}
+			}
 		}
 
-		ITeam[] teams = contest.getTeams();
-		for (ITeam team : teams) {
-			contest.add(team);
+		for (FileReference foundRef : foundList) {
+			boolean found = false;
+			if (list != null) {
+				for (FileReference ref : list) {
+					if (foundRef.file.equals(ref.file)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				// new file
+				return true;
+			}
 		}
+		return false;
+	}
+
+	private static FileReferenceList deleteAndMergeFiles(FileReferenceList list, FileReferenceList foundList) {
+		if (list == null)
+			return foundList;
+
+		FileReferenceList newList = new FileReferenceList();
+		for (FileReference ref : list) {
+			if (!ref.isDeletedOrChanged()) {
+				newList.add(ref);
+			} else {
+				Trace.trace(Trace.INFO, "Removing deleted file: " + ref.file);
+			}
+		}
+
+		for (FileReference foundRef : foundList) {
+			boolean found = false;
+			for (FileReference ref : list) {
+				if (foundRef.file.equals(ref.file)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				Trace.trace(Trace.INFO, "Adding new file: " + foundRef.file);
+				newList.add(foundRef);
+			}
+		}
+
+		return newList;
+	}
+
+	/**
+	 * Scan for resource changes on disk. If there is a change, re-add the object to the contest to
+	 * trigger an event.
+	 */
+	protected void scanForResourceChanges() {
+		long time = System.currentTimeMillis();
+		try {
+			IOrganization[] orgs = contest.getOrganizations();
+			for (IOrganization org : orgs) {
+				Organization newOrg = (Organization) ((Organization) org).clone();
+
+				// reset the file cache
+				updateCache(ContestType.ORGANIZATION, org.getId());
+
+				boolean changed = false;
+				FileReferenceList refsOnDisk = getFilesWithPattern(newOrg, LOGO);
+				if (hasChange(org.getLogo(), refsOnDisk)) {
+					newOrg.setLogo(deleteAndMergeFiles(org.getLogo(), refsOnDisk));
+					changed = true;
+				}
+				refsOnDisk = getFilesWithPattern(newOrg, COUNTRY_FLAG);
+				if (hasChange(org.getCountryFlag(), refsOnDisk)) {
+					newOrg.setCountryFlag(deleteAndMergeFiles(org.getCountryFlag(), refsOnDisk));
+					changed = true;
+				}
+
+				if (changed)
+					contest.add(newOrg);
+			}
+
+			ITeam[] teams = contest.getTeams();
+			for (ITeam team : teams) {
+				Team newTeam = (Team) ((Team) team).clone();
+
+				// reset the file cache
+				updateCache(ContestType.TEAM, team.getId());
+
+				boolean changed = false;
+				FileReferenceList refsOnDisk = getFilesWithPattern(newTeam, PHOTO);
+				if (hasChange(team.getPhoto(), refsOnDisk)) {
+					newTeam.setPhoto(deleteAndMergeFiles(team.getPhoto(), refsOnDisk));
+					changed = true;
+				}
+
+				refsOnDisk = getFilesWithPattern(newTeam, VIDEO);
+				if (hasChange(team.getVideo(), refsOnDisk)) {
+					newTeam.setVideo(deleteAndMergeFiles(team.getVideo(), refsOnDisk));
+					changed = true;
+				}
+
+				refsOnDisk = getFilesWithPattern(newTeam, BACKUP);
+				if (hasChange(team.getBackup(), refsOnDisk)) {
+					newTeam.setBackup(deleteAndMergeFiles(team.getBackup(), refsOnDisk));
+					changed = true;
+				}
+
+				refsOnDisk = getFilesWithPattern(newTeam, KEY_LOG);
+				if (hasChange(team.getKeyLog(), refsOnDisk)) {
+					newTeam.setBackup(deleteAndMergeFiles(team.getKeyLog(), refsOnDisk));
+					changed = true;
+				}
+
+				refsOnDisk = getFilesWithPattern(newTeam, TOOL_DATA);
+				if (hasChange(team.getToolData(), refsOnDisk)) {
+					newTeam.setToolData(deleteAndMergeFiles(team.getToolData(), refsOnDisk));
+					changed = true;
+				}
+
+				if (changed)
+					contest.add(newTeam);
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Scanning failed", e);
+		}
+		Trace.trace(Trace.INFO, "Finished scanning " + this.contestId + " for changed resources in "
+				+ (System.currentTimeMillis() - time) + "ms");
 	}
 
 	@Override
@@ -993,6 +1159,7 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void attachLocalResources(IContestObject obj) {
+		updateCache(obj.getType(), obj.getId());
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
 			info.setLogo(mergeRefs(info.getLogo(), getFilesWithPattern(obj, LOGO)));

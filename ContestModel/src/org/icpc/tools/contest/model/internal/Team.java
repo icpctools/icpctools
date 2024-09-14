@@ -118,6 +118,7 @@ public class Team extends ContestObject implements ITeam {
 		return rotation;
 	}
 
+	@Override
 	public FileReferenceList getPhoto() {
 		return photo;
 	}
@@ -141,6 +142,7 @@ public class Team extends ContestObject implements ITeam {
 		return getRefImage(PHOTO, photo, width, height, forceLoad, resizeToFit);
 	}
 
+	@Override
 	public FileReferenceList getVideo() {
 		return video;
 	}
@@ -155,6 +157,7 @@ public class Team extends ContestObject implements ITeam {
 		return getFiles(video, VIDEO, force);
 	}
 
+	@Override
 	public FileReferenceList getBackup() {
 		return backup;
 	}
@@ -173,6 +176,7 @@ public class Team extends ContestObject implements ITeam {
 		backup = list;
 	}
 
+	@Override
 	public FileReferenceList getKeyLog() {
 		return keylog;
 	}
@@ -191,6 +195,7 @@ public class Team extends ContestObject implements ITeam {
 		keylog = list;
 	}
 
+	@Override
 	public FileReferenceList getToolData() {
 		return tooldata;
 	}
