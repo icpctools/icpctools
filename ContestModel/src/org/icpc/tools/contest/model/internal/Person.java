@@ -357,9 +357,14 @@ public class Person extends ContestObject implements IPerson {
 	public List<String> validate(IContest c) {
 		List<String> errors = new ArrayList<>();
 
-		if ("contestant".equals(role)) {
-			if (teamIds == null || teamIds.length != 1 || c.getTeamById(teamIds[0]) == null)
-				errors.add("Invalid contestant team");
+		if ("contestant".equals(role) || "coach".equals(role)) {
+			if (teamIds != null && teamIds.length > 0) {
+				for (String teamId : teamIds) {
+					if (c.getTeamById(teamId) == null) {
+						errors.add("Invalid team " + teamId);
+					}
+				}
+			}
 		}
 
 		if (getName() == null || getName().isEmpty())
