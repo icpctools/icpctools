@@ -114,7 +114,7 @@ public class ImagesGenerator {
 		generator.generateOrganizationLogos();
 
 		Trace.trace(Trace.USER, "----- Generating team desktop & overlays -----");
-		// TODO generator.generateTeamDesktop();
+		generator.generateTeamDesktop();
 
 		Trace.trace(Trace.USER, "----- Generating team photos -----");
 		// TODO generator.generateTeamPhotos();
@@ -128,14 +128,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-
+		
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
