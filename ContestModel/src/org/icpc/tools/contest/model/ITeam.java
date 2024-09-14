@@ -3,6 +3,8 @@ package org.icpc.tools.contest.model;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
+import org.icpc.tools.contest.model.internal.FileReferenceList;
+
 /**
  * A team. The id is typically a short label like the team number.
  */
@@ -65,6 +67,13 @@ public interface ITeam extends IContestObject, IPosition {
 	double getRotation();
 
 	/**
+	 * The registration photos.
+	 *
+	 * @return the photo files
+	 */
+	FileReferenceList getPhoto();
+
+	/**
 	 * The registration photo.
 	 *
 	 * @return the photo file
@@ -88,6 +97,13 @@ public interface ITeam extends IContestObject, IPosition {
 	/**
 	 * The registration video.
 	 *
+	 * @return the video files
+	 */
+	FileReferenceList getVideo();
+
+	/**
+	 * The registration video.
+	 *
 	 * @return the video file
 	 */
 	File getVideo(boolean force);
@@ -98,6 +114,13 @@ public interface ITeam extends IContestObject, IPosition {
 	 * @return the video file
 	 */
 	File[] getVideos(boolean force);
+
+	/**
+	 * The disk backup.
+	 *
+	 * @return the backup files
+	 */
+	FileReferenceList getBackup();
 
 	/**
 	 * The disk backup.
@@ -114,6 +137,13 @@ public interface ITeam extends IContestObject, IPosition {
 	File[] getBackups(boolean force);
 
 	/**
+	 * The key log
+	 *
+	 * @return the key log files
+	 */
+	FileReferenceList getKeyLog();
+
+	/**
 	 * The key log.
 	 *
 	 * @return the key log file
@@ -126,6 +156,13 @@ public interface ITeam extends IContestObject, IPosition {
 	 * @return the key log files
 	 */
 	File[] getKeylogs(boolean force);
+
+	/**
+	 * The tool usage data.
+	 *
+	 * @return the tool usage data files
+	 */
+	FileReferenceList getToolData();
 
 	/**
 	 * The tool usage data.

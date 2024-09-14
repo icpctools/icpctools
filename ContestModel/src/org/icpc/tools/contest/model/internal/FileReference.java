@@ -88,6 +88,19 @@ public class FileReference {
 		return true;
 	}
 
+	public boolean isDeletedOrChanged() {
+		if (file == null) // external link, assume it exists
+			return false;
+
+		if (!file.exists())
+			return true;
+
+		if (lastModified > 0 && file.lastModified() != lastModified)
+			return true;
+
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		if (file != null)
