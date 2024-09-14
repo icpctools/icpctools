@@ -356,7 +356,7 @@ public class TeamTileHelper {
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
 				String backHash = r.getStatus().name() + " " + (int) w + " flash " + k;
 				BufferedImage backImg = getCacheOrRender(backHash, problemImages, (int) w, h, (gg) -> {
-					paintResultBackground(gg, k, r, 0, 0, (int) w, h, arc);
+					paintRecentResultBackground(gg, k, r, 0, 0, (int) w, h, arc);
 				});
 				// TODO: only cache up to the natural string width
 				String resultTextOnlyHash = hash + " TEXT";
@@ -432,24 +432,22 @@ public class TeamTileHelper {
 		g.drawString(label, (w - fm.stringWidth(label)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
 	}
 
-	private void paintResultBackground(Graphics2D g, int kk, IResult r, int x, int y, int w, int h, int arc) {
+	private void paintRecentResultBackground(Graphics2D g, int kk, IResult r, int x, int y, int w, int h, int arc) {
 		Color c = null;
-		if (ContestUtil.isRecent(contest, r)) {
-			int k = kk;
-			// flash more than once per second
-			if (k > (ICPCColors.COUNT2 - 1))
-				k = (ICPCColors.COUNT2 * 2 - 1) - k;
+		int k = kk;
+		// flash more than once per second
+		if (k > (ICPCColors.COUNT2 - 1))
+			k = (ICPCColors.COUNT2 * 2 - 1) - k;
 
-			if (r.getStatus() == Status.SOLVED) {
-				if (r.isFirstToSolve())
-					c = ICPCColors.FIRST_TO_SOLVE3[k];
-				else
-					c = ICPCColors.SOLVED3[k];
-			} else if (r.getStatus() == Status.FAILED)
-				c = ICPCColors.FAILED3[k];
-			else if (r.getStatus() == Status.SUBMITTED)
-				c = ICPCColors.PENDING3[k];
-		}
+		if (r.getStatus() == Status.SOLVED) {
+			if (r.isFirstToSolve())
+				c = ICPCColors.FIRST_TO_SOLVE3[k];
+			else
+				c = ICPCColors.SOLVED3[k];
+		} else if (r.getStatus() == Status.FAILED)
+			c = ICPCColors.FAILED3[k];
+		else if (r.getStatus() == Status.SUBMITTED)
+			c = ICPCColors.PENDING3[k];
 
 		g.setColor(c);
 		g.fillRoundRect(x, y, w - 3, h - 1, arc, arc);
