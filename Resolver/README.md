@@ -172,26 +172,23 @@ Note that some command line parameters are mutually exclusive.
 The following command line options are used to operate the Resolver in "distributed mode", 
 where it connects to a Contest Data Server (see above) to obtain its input data and also uses
 the CDS to control multiple clients.
+
+When running the resolver connecting to a CDS, you must connect one client with an admin
+account type. This client is the presenter and runs identically to standalone mode.
+
+You may also connect any number of clients with staff account types. These clients act as
+viewers - they update when the presenter changes and cannot be controlled locally.
+
+You cannot connect clients with any other account type, since they do not have access to
+submission results during the contest freeze.
+
+Command line options that affect resolving (e.g. singleStep or judgeQueue) must be the same on
+all clients. Options that affect the display may be different (e.g. presenter may show more info
+than shown to an audience, each client could use a different monitor, etc).
+
 Note that these options are only available though the Contest Data Server and not when using
 a generic Contest API Server.
-Note also that  "--presenter" and "--client" are mutually exclusive.
 
-```
---presenter
-```
-Starts a Resolver in "presenter" mode. A Resolver running
-in presenter mode has control over the Resolver operation, and its control commands are
-forwarded to the server for distribution to viewer clients. The user running the presenter
-must have the admin role.
-
-```
---client
-```
-Starts a Resolver in "viewer" mode, instructing it to connect to a server at the specified
-URL. A Resolver running
-in viewer mode updates itself based on commands received via the server from a presenter, but has
-no control over the resolving process (for example, cannot "click to continue"). The user used to
-start the client must have the blue access role.
 
 ##### Control Commands
 The following command line options control various aspects of the Resolver's operation; they may be used in
@@ -346,7 +343,7 @@ Toggle additional information regarding each pending run (same as --info).
 ### Command Line Examples
 
 ```
-resolver.bat https://169.254.80.194:8443 admin adm1n --presenter --speed 0.7
+resolver.bat https://169.254.80.194:8443 admin adm1n --speed 0.7
   --rowDisplayOffset 4 --info
 ```
 The above command runs the Resolver in presenter mode, connected to a CDS at the specified URL 
@@ -355,7 +352,7 @@ using the specified server login and password credentials, and runs reducing tim
 Additional "presenter info" is displayed on the screen.
 
 ```
-resolver.bat https://169.254.80.194:8443 client cl1ent --connect
+resolver.bat https://169.254.80.194:8443 client cl1ent
 ```
 The above command runs the Resolver in "client" mode, connecting to a CDS
 at the specified URL using the specified server login and password credentials.
