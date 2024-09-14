@@ -750,7 +750,7 @@ public class AwardUtil {
 		contest.add(template);
 	}
 
-	public static void createGroupWinnersAward(Contest contest, IAward template) throws IllegalArgumentException {
+	public static void createAllGroupWinnersAward(Contest contest, IAward template) throws IllegalArgumentException {
 		DisplayMode mode = template.getDisplayMode();
 		if (!template.hasDisplayMode())
 			mode = DisplayMode.PHOTOS;
@@ -781,7 +781,7 @@ public class AwardUtil {
 
 		String[] teamIds = groupWinners.toArray(new String[0]);
 
-		Award award = new Award(IAward.GROUP_WINNERS, template.getId(), teamIds, citation, mode);
+		Award award = new Award(IAward.ALL_GROUP_WINNERS, template.getId(), teamIds, citation, mode);
 
 		award.setParameter("before", numMedalists + "");
 		award.setParameter("showGroupName",  "true");
@@ -840,7 +840,7 @@ public class AwardUtil {
 					silver.add(award);
 				else if (award.getId().contains("bronze"))
 					bronze.add(award);
-			} else if (award.getAwardType() == IAward.GROUP_WINNERS)
+			} else if (award.getAwardType() == IAward.ALL_GROUP_WINNERS)
 				groupWinnersAward = award;
 		}
 
@@ -857,7 +857,7 @@ public class AwardUtil {
 
 		// We need to do this after both the medals are created and the individual group winners are known
 		if (groupWinnersAward != null) {
-			createGroupWinnersAward(contest, groupWinnersAward);
+			createAllGroupWinnersAward(contest, groupWinnersAward);
 		}
 
 		if (!solvedAwards.isEmpty()) {

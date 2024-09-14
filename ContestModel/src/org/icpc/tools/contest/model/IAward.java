@@ -50,7 +50,7 @@ public interface IAward extends IContestObject {
 	AwardType MEDAL = new AwardType("Medal", ".*-medal");
 	AwardType FIRST_TO_SOLVE = new AwardType("First to Solve", "first-to-solve-.*");
 	AwardType GROUP = new AwardType("Group Winner", "group-winner-.*");
-	AwardType GROUP_WINNERS = new AwardType("Group Winners", "group-winners");
+	AwardType ALL_GROUP_WINNERS = new AwardType("All Group Winners", "group-winners");
 	AwardType ORGANIZATION = new AwardType("Organization Winner", "organization-winner-.*");
 	AwardType GROUP_HIGHLIGHT = new AwardType("Group Highlight", "group-highlight-.*");
 	AwardType SOLVED = new AwardType("Solved", "solved-.*");
@@ -62,7 +62,7 @@ public interface IAward extends IContestObject {
 
 	// Note: GROUP_WINNERS need to be added after HONORS to display awards in the correct order in the resolver
 	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP, ORGANIZATION,
-			GROUP_HIGHLIGHT, SOLVED, TOP, HONORS, EXPECTED_TO_ADVANCE, OTHER, GROUP_WINNERS };
+			GROUP_HIGHLIGHT, SOLVED, TOP, HONORS, EXPECTED_TO_ADVANCE, ALL_GROUP_WINNERS, OTHER };
 
 	/**
 	 * Returns the ids of the teams that this award is for.
