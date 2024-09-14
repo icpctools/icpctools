@@ -57,8 +57,8 @@ public class Admin {
 		try {
 			URL url2 = new URL(url);
 			if (url2.getPath() != null && url2.getPath().length() > 1) {
-				Trace.trace(Trace.ERROR, "URL should not contain a path");
-				return;
+				url = url.substring(0, url.length() - url2.getPath().length());
+				Trace.trace(Trace.WARNING, "CDS URL should not contain a path, trying " + url + " instead");
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not parse URL");
