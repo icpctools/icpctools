@@ -6,6 +6,7 @@ import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -21,6 +22,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 	protected static final int TILE_V_GAP = 3;
 
 	protected int rows = DEFAULT_ROWS;
+	protected boolean orphanAdjustRows = true;
 	protected int columns = DEFAULT_COLUMNS;
 
 	protected TeamTileHelper tileHelper;
@@ -197,6 +199,26 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 		}
 	}
 
+	protected void orphanAdjustRows() {
+		IContest contest = getContest();
+		if (contest == null || !orphanAdjustRows)
+			return;
+		ITeam[] teams = contest.getOrderedTeams();
+		// add one additional row for paintTileStats() in TileScoreboardPresentation
+		int length = teams.length + 1;
+		if (length % rows > 0 && length % rows <= 3) {
+			// consider 3 or fewer teams on the last screen orphans
+			// and attempt to adjust the number of rows to avoid them
+			// ( https://en.wikipedia.org/wiki/Widows_and_orphans )
+			// for 14 rows, adding a single row fixes the issue for a wide range of number of teams (32-182)
+			if (length % (rows + 1) == 0 || length % (rows + 1) > length % rows) {
+				Trace.trace(Trace.INFO, "Orphan-adjust to " + length + "%" + (length % (rows + 1)));
+				rows++;
+				setSize(getSize());
+			}
+		}
+	}
+
 	/**
 	 * Default implementation, will typically be overridden by subclasses.
 	 */
@@ -206,6 +228,7 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 			return;
 
 		ITeam[] teams = contest.getOrderedTeams();
+		orphanAdjustRows();
 		for (int i = teams.length - 1; i >= 0; i--) {
 			TileAnimator anim = teamMap.get(teams[i].getId());
 			if (anim != null) {
@@ -261,6 +284,11 @@ public abstract class AbstractTileScoreboardPresentation extends AbstractICPCPre
 		if (value.startsWith("rows:")) {
 			try {
 				rows = Integer.parseInt(value.substring(5));
+				orphanAdjustRows = false;
+				if (rows <= 0) {
+					rows = DEFAULT_ROWS;
+					orphanAdjustRows = true;
+				}
 				setSize(getSize());
 			} catch (Exception e) {
 				// ignore

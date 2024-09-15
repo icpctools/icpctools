@@ -226,6 +226,7 @@ public abstract class ScrollingTileScoreboardPresentation extends AbstractTileSc
 
 	@Override
 	protected void paintImpl(Graphics2D g) {
+		orphanAdjustRows();
 		Graphics2D gg = (Graphics2D) g.create();
 		if (header == Header.LEFT)
 			gg.translate(margin, 0);
