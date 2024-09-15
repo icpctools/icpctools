@@ -107,8 +107,8 @@ public class Resolver {
 		System.out.println("     --info");
 		System.out.println("         Shows additional info, typically for presenters");
 		System.out.println("     --speed speedFactor");
-		System.out.println("         Resolution delay multiplier. e.g. 0.5 will be twice");
-		System.out.println("         as fast, 2 will be twice as slow");
+		System.out.println("         Resolution speed multiplier. e.g. 2 will be twice");
+		System.out.println("         as fast, 0.5 will be twice as slow");
 		System.out.println("     --rowDisplayOffset numRows");
 		System.out.println("         Move the display up the screen by some number of");
 		System.out.println("         rows (default 4)");
@@ -363,7 +363,7 @@ public class Resolver {
 				// illegal value; ignore and use default
 				Trace.trace(Trace.ERROR, "Illegal --fast value ignored (must be positive)");
 			} else
-				resolveInfo.setSpeedFactor(fastVal);
+				resolveInfo.setSpeedFactor(1.0 / fastVal);
 		} else if ("--singlestep".equalsIgnoreCase(option)) {
 			// --singleStep option: indicate row where single-stepping should start
 			ArgumentParser.expectOptions(option, options, "startRow:int");
