@@ -16,6 +16,11 @@
   <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.min.js"></script>
   <script src="${pageContext.request.contextPath}/js/adminlte.min.js"></script>
   <script src="${pageContext.request.contextPath}/js/theme.js"></script>
+  <style>
+    .show-password {
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">
@@ -40,7 +45,7 @@
           <input type="password" class="form-control" placeholder="Password" name="password">
           <div class="input-group-append">
             <div class="input-group-text">
-              <span class="fas fa-lock"></span>
+              <span class="fas fa-lock show-password"></span>
             </div>
           </div>
         </div>
@@ -66,5 +71,19 @@
 </div>
 <!-- /.login-box -->
 
+<script type="text/javascript">
+  $(function() {
+    $('.show-password').on('click', function() {
+      const $passwordField = $('[name=password]');
+      if ($passwordField.attr('type') === 'password') {
+        $passwordField.attr('type', 'text');
+        $(this).removeClass('fa-lock').addClass('fa-unlock');
+      } else {
+        $passwordField.attr('type', 'password');
+        $(this).removeClass('fa-unlock').addClass('fa-lock');
+      }
+    });
+  });
+</script>
 </body>
 </html>
