@@ -505,8 +505,7 @@ public class Resolver {
 			}
 
 			if (finalContest[con].isDoneUpdating() && isPresenter && contestSources[con] instanceof RESTContestSource) {
-				Trace.trace(Trace.ERROR, "Contest is already resolved, nothing to do");
-				System.exit(1);
+				Trace.trace(Trace.WARNING, "Contest is already resolved/public");
 			}
 
 			validateContest(finalContest[con]);
