@@ -158,7 +158,7 @@ public class BasicClient {
 	private String auth;
 	private String[] contestIds;
 	private String role;
-	protected long nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
+	protected long nanoTimeDelta = System.currentTimeMillis() * 1_000_000L - System.nanoTime();
 
 	private List<IPropertyListener> listeners;
 	private List<IConnectionListener> listeners2;
@@ -754,7 +754,7 @@ public class BasicClient {
 			case PING: {
 				if (obj.containsKey("time_delta")) {
 					long timeDeltaMs = obj.getLong("time_delta");
-					nanoTimeDelta = (System.currentTimeMillis() + timeDeltaMs) * 1000000L - System.nanoTime();
+					nanoTimeDelta = (System.currentTimeMillis() + timeDeltaMs) * 1_000_000L - System.nanoTime();
 					handleTime();
 				}
 				handlePing();

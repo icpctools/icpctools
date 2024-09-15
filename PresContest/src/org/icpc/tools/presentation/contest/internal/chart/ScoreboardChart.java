@@ -63,7 +63,7 @@ public class ScoreboardChart extends AbstractChartPresentation {
 			tIds[i] = teams[i].getId();
 
 		for (int i = 0; i < numValues; i++) {
-			IContest c = ((Contest) contest).clone(new TimeFilter(contest, i * MIN_PER_STEP * 60000000));
+			IContest c = ((Contest) contest).clone(new TimeFilter(contest, i * MIN_PER_STEP * 60_000_000));
 
 			for (int j = 0; j < NUM_TEAMS; j++) {
 				ITeam t = c.getTeamById(tIds[j]);

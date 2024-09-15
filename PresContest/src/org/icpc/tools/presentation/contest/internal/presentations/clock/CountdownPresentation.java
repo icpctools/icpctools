@@ -9,7 +9,7 @@ import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 
 public class CountdownPresentation extends ClockPresentation {
-	private static final Movement TIME_ANIM = new Movement(35000, 8000000);
+	private static final Movement TIME_ANIM = new Movement(35000, 8_000_000);
 	private static final Color EOC_COLOR = ICPCColors.RED.brighter().brighter().brighter();
 
 	protected static long targetTime;

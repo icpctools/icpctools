@@ -32,7 +32,7 @@ public class ProjectionScoreboardService {
 		ITeam[] teams = contest.getOrderedTeams();
 		int numProblems = contest.getNumProblems();
 		long contestTimeMs = contest.getContestTimeOfLastEvent();
-		// contestTimeMs -= 12000000;
+		// contestTimeMs -= 12_000_000;
 
 		pw.write("{");
 		IContestObject obj = contest.getLastTimedObject();
@@ -182,9 +182,9 @@ public class ProjectionScoreboardService {
 		IStanding nextS = contest.getStanding(order[i + 1]);
 		if (nextS.getNumSolved() == s.getNumSolved())
 			return Math.min((contestTimeMs - contestTimeMs2) + (nextS.getTime() - s.getTime()),
-					(contest.getDuration() - contestTimeMs2) / 60000);
+					(contest.getDuration() - contestTimeMs2) / 60_000);
 
-		return (contest.getDuration() - contestTimeMs2) / 60000;
+		return (contest.getDuration() - contestTimeMs2) / 60_000;
 	}
 
 	private static Submission solveAProblem(Contest contest, ITeam team, IProblem problem, long contestTimeMs,

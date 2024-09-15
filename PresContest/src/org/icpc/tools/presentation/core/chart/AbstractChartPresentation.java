@@ -413,7 +413,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 		int size = series.getLength();
 
 		long time = getRepeatTimeMs();
-		if (time > 500000)
+		if (time > 500_000)
 			time = time - initialTime;
 
 		int[] p = new int[size];
@@ -449,7 +449,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 		int[] p = getPoints(series, false);
 
 		long growTime = getRepeatTimeMs();
-		if (growTime > 500000)
+		if (growTime > 500_000)
 			growTime = growTime - initialTime;
 
 		if (growTime < INITIAL_DELAY)
@@ -650,7 +650,7 @@ public abstract class AbstractChartPresentation extends Presentation {
 		g2.dispose();
 
 		long time = getRepeatTimeMs();
-		if (time > 500000)
+		if (time > 500_000)
 			time = time - initialTime;
 		if (time < 6000) {
 			Graphics2D g3 = (Graphics2D) g.create();

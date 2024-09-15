@@ -466,7 +466,7 @@ public class BalloonPrinter {
 		int by = yy + w / 2;
 		try {
 			g.setFont(font);
-			UPCa upc = new UPCa(b.getId() + 100000);
+			UPCa upc = new UPCa(b.getId() + 100_000);
 			upc.draw(g, new Rectangle(r.width - w - r.width / 50, yy + r.width / 60, w, w * 2 / 5));
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error drawing UPC", e);
