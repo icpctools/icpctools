@@ -582,7 +582,7 @@ public class DiskContestSource extends ContestSource {
 		return currentList;
 	}
 
-	private void updateCache(ContestType type, String id) {
+	public void updateCache(ContestType type, String id) {
 		String typeName = IContestObject.getTypeName(type);
 		File folder = new File(root, typeName + File.separator + id);
 		List<FileReference> list = cache.get(folder.getAbsolutePath());
@@ -853,9 +853,12 @@ public class DiskContestSource extends ContestSource {
 	private static boolean hasChange(FileReferenceList list, FileReferenceList foundList) {
 		if (list != null) {
 			for (FileReference ref : list) {
-				if (ref.isDeletedOrChanged()) {
+				if (ref.isDeleted()) {
 					// existing file has been deleted or modified
 					return true;
+				} else if (ref.isChanged()) {
+					Trace.trace(Trace.INFO, "Updated file: " + ref.file);
+					ref.lastModified = ref.file.lastModified();
 				}
 			}
 		}
@@ -884,7 +887,7 @@ public class DiskContestSource extends ContestSource {
 
 		FileReferenceList newList = new FileReferenceList();
 		for (FileReference ref : list) {
-			if (!ref.isDeletedOrChanged()) {
+			if (!ref.isDeleted()) {
 				newList.add(ref);
 			} else {
 				Trace.trace(Trace.INFO, "Removing deleted file: " + ref.file);

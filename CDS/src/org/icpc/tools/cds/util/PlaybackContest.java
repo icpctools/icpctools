@@ -147,6 +147,7 @@ public class PlaybackContest extends Contest {
 		if (src == null)
 			return;
 
+		src.updateCache(obj.getType(), obj.getId());
 		if (obj instanceof Info) {
 			Info i = (Info) obj;
 			downloadMissingFiles(src, obj, LOGO, i.getLogo());

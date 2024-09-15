@@ -400,8 +400,10 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		Object ext = obj.resolveFileReference(url);
-		if (ext == null)
-			return false;
+		if (ext == null) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not resolve");
+			return true;
+		}
 
 		if (ext instanceof File) {
 			cc.incrementDownload();
