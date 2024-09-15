@@ -366,15 +366,19 @@ public class Resolver {
 				resolveInfo.setSpeedFactor(fastVal);
 		} else if ("--singlestep".equalsIgnoreCase(option)) {
 			// --singleStep option: indicate row where single-stepping should start
-			ArgumentParser.expectOptions(option, options, "startRow:int");
+			if (options.isEmpty())
+				resolveInfo.setSingleStepRow(Integer.MAX_VALUE);
+			else {
+				ArgumentParser.expectOptions(option, options, "startRow:int");
 
-			// check if arguments specify a specific row on which to start single-stepping
-			// get the row on which single-stepping should start; subtract 1 for zero-base
-			int singleStepStartRow = (int) options.get(0) - 1;
-			if (singleStepStartRow <= 0)
-				Trace.trace(Trace.ERROR, "Illegal --singleStep value ignored");
-			else
-				resolveInfo.setSingleStepRow(singleStepStartRow);
+				// check if arguments specify a specific row on which to start single-stepping
+				// get the row on which single-stepping should start; subtract 1 for zero-base
+				int singleStepStartRow = (int) options.get(0) - 1;
+				if (singleStepStartRow <= 0)
+					Trace.trace(Trace.ERROR, "Illegal --singleStep value ignored");
+				else
+					resolveInfo.setSingleStepRow(singleStepStartRow);
+			}
 		} else if ("--info".equalsIgnoreCase(option)) {
 			ArgumentParser.expectNoOptions(option, options);
 			// --info option: display extra commentary information visible only on the Presenter
