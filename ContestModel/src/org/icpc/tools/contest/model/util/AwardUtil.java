@@ -104,6 +104,8 @@ public class AwardUtil {
 			a.setTeamIds(teamIds.toArray(new String[0]));
 			if (a.getCitation() == null)
 				a.setCitation(getGroupCitation(contest, group.getName(), 1));
+			else
+				a.setCitation(a.getCitation().replace("{0}", group.getName()));
 		}
 	}
 
