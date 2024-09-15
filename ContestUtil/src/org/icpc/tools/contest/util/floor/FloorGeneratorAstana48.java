@@ -126,11 +126,13 @@ public class FloorGeneratorAstana48 extends FloorGenerator {
 				IContest contest2 = source.getContest();
 				source.waitForContest(10000);
 				IProblem[] problems = contest2.getProblems();
-				System.out.println("problems: " + problems.length);
+				System.out.println(problems.length + " problems found");
 
 				double ix = (a[7] - a[1]) / (problems.length - 1);
 				for (int i = 0; i < problems.length; i++)
 					floor.createBalloon(problems[i].getId(), ax2 + taw / 2, a[1] + i * ix);
+
+				floor.rotate(270);
 
 				floor.convertSpares(contest2);
 				floor.write(f);
