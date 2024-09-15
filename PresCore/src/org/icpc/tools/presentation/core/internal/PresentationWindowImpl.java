@@ -61,7 +61,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	private static final int DEFAULT_THUMBNAIL_HEIGHT = 180;
-	private static final long DEFAULT_THUMBNAIL_DELAY = 2000000000L;
+	private static final long DEFAULT_THUMBNAIL_DELAY = 2_000_000_000L;
 
 	static class PresentationSegment {
 		protected long startTime;
@@ -253,7 +253,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	protected PresentationPlan currentPlan;
 
-	private long nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
+	private long nanoTimeDelta = System.currentTimeMillis() * 1_000_000L - System.nanoTime();
 
 	protected Rectangle displayRect;
 
@@ -404,7 +404,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 						// check if the window is visible
 						if (!isVisible()) {
 							// we're in the background, just delay by 500ms to slow things down
-							LockSupport.parkNanos(500 * 1000000L);
+							LockSupport.parkNanos(500_000_000L);
 						}
 
 						long now = System.nanoTime();
@@ -573,7 +573,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	protected long getCurrentTimeMs() {
-		return (System.nanoTime() + nanoTimeDelta) / 1000000L;
+		return (System.nanoTime() + nanoTimeDelta) / 1_000_000L;
 	}
 
 	public void setDisplayRect(Rectangle r) {
@@ -834,7 +834,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	 * Set the delay between triggering thumbnails, in ms.
 	 */
 	public void setThumbnailDelay(long delayMs) {
-		thumbnailDelay = delayMs * 1000000L;
+		thumbnailDelay = delayMs * 1_000_000L;
 	}
 
 	@Override

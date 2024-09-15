@@ -222,7 +222,7 @@ public class ResolutionControl {
 	 * @param type - the type of pause to take
 	 */
 	private void wait(long[] startTime, int type) {
-		long delay = Math.round(ResolutionUtil.DELAY_TIMES[type] * speedFactor * 1000000000.0);
+		long delay = Math.round(ResolutionUtil.DELAY_TIMES[type] * speedFactor * 1_000_000_000.0);
 		startTime[0] += delay;
 		LockSupport.parkNanos(startTime[0] - System.nanoTime());
 	}

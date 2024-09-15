@@ -11,7 +11,7 @@ import org.icpc.tools.contest.model.internal.State;
 
 public class Scoreboard {
 	private static double round(double d) {
-		return Math.round(d * 100000.0) / 100000.0;
+		return Math.round(d * 100_000.0) / 100_000.0;
 	}
 
 	/**

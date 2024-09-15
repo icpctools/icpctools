@@ -109,7 +109,7 @@ public class BalloonUtility {
 	protected List<String> filter; // null = all, empty = none
 	protected BalloonPrinter balloonPrinter = new BalloonPrinter();
 	protected MenuItem printSummary;
-	protected long nanoTimeDelta = System.currentTimeMillis() * 1000000L - System.nanoTime();
+	protected long nanoTimeDelta = System.currentTimeMillis() * 1_000_000L - System.nanoTime();
 
 	protected Table balloonTable;
 	protected int sortColumn;
@@ -172,8 +172,8 @@ public class BalloonUtility {
 				String s = sb.toString();
 				try {
 					int n = Integer.parseInt(s);
-					if (n > 1000000)
-						n = Integer.parseInt(s.substring(0, s.length() - 1)) - 100000;
+					if (n > 1_000_000)
+						n = Integer.parseInt(s.substring(0, s.length() - 1)) - 100_000;
 
 					boolean found = false;
 					TableItem[] tis = balloonTable.getItems();
@@ -1412,7 +1412,7 @@ public class BalloonUtility {
 	}
 
 	protected long getTimeMs() {
-		return (System.nanoTime() + nanoTimeDelta) / 1000000L;
+		return (System.nanoTime() + nanoTimeDelta) / 1_000_000L;
 	}
 
 	/**

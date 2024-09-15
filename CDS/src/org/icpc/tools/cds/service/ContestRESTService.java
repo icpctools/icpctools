@@ -1079,7 +1079,7 @@ public class ContestRESTService extends HttpServlet {
 		if (cc.isTesting()) {
 			// when in test mode just accept object and assign dummy id
 			if (obj.get("id") == null)
-				obj.put("id", "test-" + (int) (Math.random() * 1000000.0));
+				obj.put("id", "test-" + (int) (Math.random() * 1_000_000.0));
 			if (type == ContestType.CLARIFICATION || type == ContestType.COMMENTARY) {
 				obj.put("time", Timestamp.now());
 				obj.put("contest_time", "0:00:10");

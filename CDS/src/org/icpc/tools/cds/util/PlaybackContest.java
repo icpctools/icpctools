@@ -112,7 +112,7 @@ public class PlaybackContest extends Contest {
 			Trace.trace(Trace.USER, "Sleeping for " + (int) (dt / 100) / 10f + " seconds.");
 
 		try {
-			LockSupport.parkNanos(dt * 1000000);
+			LockSupport.parkNanos(dt * 1_000_000);
 		} catch (Exception e) {
 			// ignore
 		}
@@ -452,7 +452,7 @@ public class PlaybackContest extends Contest {
 				while (dt > 2500) {
 					// wait for 2s
 					try {
-						LockSupport.parkNanos(2000 * 1000000);
+						LockSupport.parkNanos(2000 * 1_000_000);
 					} catch (Exception e) {
 						// ignore
 					}

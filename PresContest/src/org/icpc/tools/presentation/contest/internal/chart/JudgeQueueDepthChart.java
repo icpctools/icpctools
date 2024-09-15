@@ -47,10 +47,10 @@ public class JudgeQueueDepthChart extends AbstractChartPresentation {
 			numPoints = 1;
 
 		String[] labels = new String[numPoints];
-		if (3600000 / INTERVAL < numPoints)
-			labels[3600000 / INTERVAL] = "1 hour";
+		if (3_600_000 / INTERVAL < numPoints)
+			labels[3_600_000 / INTERVAL] = "1 hour";
 		int count = 2;
-		for (int i = 7200000 / INTERVAL; i < numPoints; i += 3600000 / INTERVAL)
+		for (int i = 7_200_000 / INTERVAL; i < numPoints; i += 3_600_000 / INTERVAL)
 			labels[i] = count++ + " hours";
 
 		setHorizontalLabels(labels);

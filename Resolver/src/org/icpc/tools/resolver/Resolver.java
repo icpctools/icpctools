@@ -532,7 +532,7 @@ public class Resolver {
 		}
 
 		if (showHour > 0)
-			finalContest[con] = finalContest[con].clone(false, new TimeFilter(finalContest[con], showHour * 3600000));
+			finalContest[con] = finalContest[con].clone(false, new TimeFilter(finalContest[con], showHour * 3_600_000));
 	}
 
 	private void init(List<ResolutionStep> steps, String groups, String problems, String problemIds, int con,
