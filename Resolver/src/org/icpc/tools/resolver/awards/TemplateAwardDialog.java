@@ -116,7 +116,7 @@ public class TemplateAwardDialog extends AbstractAwardDialog {
 	@Override
 	protected AwardType[] getAwardTypes() {
 		return new AwardType[] { IAward.WINNER, IAward.FIRST_TO_SOLVE, IAward.GROUP, IAward.MEDAL, IAward.TOP,
-				IAward.HONORS, IAward.EXPECTED_TO_ADVANCE, IAward.SOLVED };
+				IAward.HONORS, IAward.EXPECTED_TO_ADVANCE, IAward.SOLVED, IAward.ALL_GROUP_WINNERS };
 	}
 
 	protected Award parseAward(JsonObject data) {

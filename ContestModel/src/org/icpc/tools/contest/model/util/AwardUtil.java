@@ -135,7 +135,7 @@ public class AwardUtil {
 				if (group.isHidden())
 					continue;
 
-				Award groupAward = new Award(IAward.GROUP, group.getId(), null, (String) null, mode);
+				Award groupAward = new Award(IAward.GROUP, group.getId(), null, template.getCitation(), mode);
 				// groupAward.setCount("1");
 				contest.add(groupAward);
 				assignGroup(contest, groupAward, numPerGroup);
