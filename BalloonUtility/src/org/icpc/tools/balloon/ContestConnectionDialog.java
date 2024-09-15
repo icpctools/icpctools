@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
@@ -35,13 +36,14 @@ public class ContestConnectionDialog extends Dialog {
 	private static final String PREF_URL = "rest.url";
 	private static final String PREF_USER = "rest.user";
 	private static final String PREF_PASSWORD = "rest.password";
+	private static final String PREF_FOLDER = "disk.folder";
 	private static final String PREF_FILE = "disk.file";
 
 	enum ConnectMethod {
-		RECENT, REST, DISK
+		RECENT, CONTEST_API, CONTEST_PACKAGE, EVENT_FEED
 	}
 
-	protected ConnectMethod method = ConnectMethod.REST;
+	protected ConnectMethod method = ConnectMethod.CONTEST_API;
 
 	protected boolean hasRecent;
 
@@ -50,6 +52,8 @@ public class ContestConnectionDialog extends Dialog {
 	protected String url;
 	protected String user;
 	protected String password;
+
+	protected String folder;
 
 	protected String file;
 
@@ -63,7 +67,7 @@ public class ContestConnectionDialog extends Dialog {
 	public int open() {
 		Shell parent = getParent();
 		Shell s = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
-		s.setText("Connect to Contest");
+		s.setText("Contest Connection");
 		s.setImage(parent.getImage());
 		createUI(s);
 
@@ -80,16 +84,20 @@ public class ContestConnectionDialog extends Dialog {
 	}
 
 	public ContestSource getContestSource() throws IOException {
-		if (method == ConnectMethod.REST)
+		if (method == ConnectMethod.CONTEST_API)
 			return new RESTContestSource(url, user, password);
-		else if (method == ConnectMethod.DISK)
+		else if (method == ConnectMethod.CONTEST_PACKAGE)
+			return new DiskContestSource(folder);
+		else if (method == ConnectMethod.EVENT_FEED)
 			return new DiskContestSource(file);
 		else if (method == ConnectMethod.RECENT) {
 			String[] vals = recent;
 			if ("REST".equals(vals[1]))
 				return new RESTContestSource(vals[2], vals[3], vals[4]);
+			else if ("FOLDER".equals(vals[1]))
+				return new DiskContestSource(vals[2]);
 			else if ("DISK".equals(vals[1]))
-				return new DiskContestSource(file);
+				return new DiskContestSource(vals[2]);
 		}
 		return null;
 	}
@@ -97,9 +105,11 @@ public class ContestConnectionDialog extends Dialog {
 	private String getContestSourceString() {
 		if (method == ConnectMethod.RECENT)
 			return String.join("`", recent);
-		else if (method == ConnectMethod.REST)
+		else if (method == ConnectMethod.CONTEST_API)
 			return user + " @ " + url + "`REST`" + url + "`" + user + "`" + password;
-		else if (method == ConnectMethod.DISK)
+		else if (method == ConnectMethod.CONTEST_PACKAGE)
+			return file + "`FOLDER`" + file;
+		else if (method == ConnectMethod.EVENT_FEED)
 			return file + "`DISK`" + file;
 		return null;
 	}
@@ -109,10 +119,13 @@ public class ContestConnectionDialog extends Dialog {
 		if (method == ConnectMethod.RECENT) {
 			if (recent == null)
 				valid = false;
-		} else if (method == ConnectMethod.REST) {
+		} else if (method == ConnectMethod.CONTEST_API) {
 			if (url == null || url.isEmpty())
 				valid = false;
-		} else if (method == ConnectMethod.DISK) {
+		} else if (method == ConnectMethod.CONTEST_PACKAGE) {
+			if (folder == null || folder.length() < 5)
+				valid = false;
+		} else if (method == ConnectMethod.EVENT_FEED) {
 			if (file == null || file.length() < 5)
 				valid = false;
 		}
@@ -122,27 +135,31 @@ public class ContestConnectionDialog extends Dialog {
 
 	protected Composite createRecentTab(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout(2, false);
+		GridLayout layout = new GridLayout(1, false);
 		layout.marginWidth = 15;
 		layout.marginHeight = 15;
 		composite.setLayout(layout);
 
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Load a previous contest.");
+		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		label.setLayoutData(data);
+
 		Table recentTable = new Table(composite,
 				SWT.FULL_SELECTION | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
-		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.widthHint = 400;
 		data.heightHint = 100;
 		data.verticalSpan = 5;
-		data.horizontalSpan = 2;
+		data.verticalIndent = 10;
 		recentTable.setLayoutData(data);
 		recentTable.setHeaderVisible(false);
-		recentTable.setLinesVisible(true);
+		recentTable.setLinesVisible(false);
 
 		TableColumn column = new TableColumn(recentTable, SWT.NONE);
 		column.setWidth(400);
 		column.setAlignment(SWT.LEFT);
 
-		// prefs.remove(PREF_RECENT);
 		String recentPref = prefs.get(PREF_RECENT, null);
 		if (recentPref != null) {
 			String[] recents = recentPref.split("\\^");
@@ -161,7 +178,10 @@ public class ContestConnectionDialog extends Dialog {
 		recentTable.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
-				recent = (String[]) recentTable.getSelection()[0].getData();
+				if (recentTable.getSelectionCount() == 0)
+					recent = null;
+				else
+					recent = (String[]) recentTable.getSelection()[0].getData();
 				validate();
 			}
 		});
@@ -172,21 +192,29 @@ public class ContestConnectionDialog extends Dialog {
 		return composite;
 	}
 
-	protected Composite createRESTTab(Composite parent) {
+	protected Composite createContestAPITab(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(2, false);
 		layout.marginWidth = 15;
 		layout.marginHeight = 15;
 		composite.setLayout(layout);
 
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Connect to a remote Contest API.");
+		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data.horizontalSpan = 2;
+		label.setLayoutData(data);
+
 		Label urlLabel = new Label(composite, SWT.NONE);
 		urlLabel.setText("&URL:");
-		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data.verticalIndent = 10;
 		urlLabel.setLayoutData(data);
 
 		Text urlText = new Text(composite, SWT.BORDER);
 		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
 		data.widthHint = 250;
+		data.verticalIndent = 10;
 		urlText.setLayoutData(data);
 		urlText.addModifyListener(new ModifyListener() {
 			@Override
@@ -215,7 +243,7 @@ public class ContestConnectionDialog extends Dialog {
 		userText.setText(prefs.get(PREF_USER, "balloon"));
 
 		Label passLabel = new Label(composite, SWT.NONE);
-		passLabel.setText("&Password:");
+		passLabel.setText("Pa&ssword:");
 		data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 		passLabel.setLayoutData(data);
 
@@ -234,20 +262,29 @@ public class ContestConnectionDialog extends Dialog {
 		return composite;
 	}
 
-	protected Composite createDiskTab(Composite parent) {
+	protected Composite createEventFeedTab(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout(3, false);
 		layout.marginWidth = 15;
 		layout.marginHeight = 15;
 		composite.setLayout(layout);
 
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Read contest data from a standalone event feed.");
+		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data.horizontalSpan = 3;
+		label.setLayoutData(data);
+
 		Label fileLabel = new Label(composite, SWT.NONE);
 		fileLabel.setText("&File:");
-		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data.verticalIndent = 10;
 		fileLabel.setLayoutData(data);
 
 		Text fileText = new Text(composite, SWT.BORDER);
-		fileText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		data.verticalIndent = 10;
+		fileText.setLayoutData(data);
 		fileText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
@@ -261,17 +298,71 @@ public class ContestConnectionDialog extends Dialog {
 		fileBrowse.setText("&Browse...");
 		data = new GridData(SWT.END, SWT.CENTER, false, false);
 		data.widthHint = SWTUtil.getButtonWidthHint(fileBrowse);
+		data.verticalIndent = 10;
 		fileBrowse.setLayoutData(data);
 		fileBrowse.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent event) {
 				FileDialog dialog = new FileDialog(fileBrowse.getShell(), SWT.OPEN);
 				dialog.setFileName(fileText.getText());
-				dialog.setText("Select JSON or XML event feed");
-				dialog.setFilterExtensions(new String[] { "*.ndjson;*.json;*.xml", "*.*" });
+				dialog.setText("Select JSON event feed");
+				dialog.setFilterExtensions(new String[] { "*.ndjson;*.json", "*.*" });
 				String f = dialog.open();
 				if (f != null) {
 					fileText.setText(f);
+				}
+			}
+		});
+
+		return composite;
+	}
+
+	protected Composite createContestPackageTab(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout(3, false);
+		layout.marginWidth = 15;
+		layout.marginHeight = 15;
+		composite.setLayout(layout);
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText("Read contest data from a local contest package.");
+		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data.horizontalSpan = 3;
+		label.setLayoutData(data);
+
+		Label fileLabel = new Label(composite, SWT.NONE);
+		fileLabel.setText("Pa&th:");
+		data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+		data.verticalIndent = 10;
+		fileLabel.setLayoutData(data);
+
+		Text folderText = new Text(composite, SWT.BORDER);
+		data = new GridData(SWT.FILL, SWT.CENTER, true, false);
+		data.verticalIndent = 10;
+		folderText.setLayoutData(data);
+		folderText.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent event) {
+				folder = folderText.getText();
+				validate();
+			}
+		});
+		folderText.setText(prefs.get(PREF_FOLDER, ""));
+
+		Button folderBrowse = new Button(composite, SWT.PUSH);
+		folderBrowse.setText("&Browse...");
+		data = new GridData(SWT.END, SWT.CENTER, false, false);
+		data.widthHint = SWTUtil.getButtonWidthHint(folderBrowse);
+		data.verticalIndent = 10;
+		folderBrowse.setLayoutData(data);
+		folderBrowse.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event) {
+				DirectoryDialog dialog = new DirectoryDialog(folderBrowse.getShell());
+				dialog.setText("Select Contest Package folder");
+				String f = dialog.open();
+				if (f != null) {
+					folderText.setText(f);
 				}
 			}
 		});
@@ -286,7 +377,7 @@ public class ContestConnectionDialog extends Dialog {
 		connectGroup.setLayout(layout);
 
 		Label label = new Label(connectGroup, SWT.NONE);
-		label.setText("How do you want to connect to a contest?");
+		label.setText("Select the method and details to load a contest.");
 		GridData data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 		data.horizontalSpan = 2;
 		label.setLayoutData(data);
@@ -294,6 +385,7 @@ public class ContestConnectionDialog extends Dialog {
 		TabFolder tabFolder = new TabFolder(connectGroup, SWT.NONE);
 		data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.horizontalSpan = 2;
+		data.verticalIndent = 8;
 		tabFolder.setLayoutData(data);
 
 		TabItem recentTab = new TabItem(tabFolder, SWT.NONE);
@@ -302,17 +394,23 @@ public class ContestConnectionDialog extends Dialog {
 		recentTab.setControl(createRecentTab(tabFolder));
 		recentTab.setData(ConnectMethod.RECENT);
 
-		TabItem restTab = new TabItem(tabFolder, SWT.NONE);
-		restTab.setText("&REST");
-		restTab.setToolTipText("Connect via REST");
-		restTab.setControl(createRESTTab(tabFolder));
-		restTab.setData(ConnectMethod.REST);
+		TabItem contestAPITab = new TabItem(tabFolder, SWT.NONE);
+		contestAPITab.setText("Contest &API");
+		contestAPITab.setToolTipText("Connect to a remote Contest API");
+		contestAPITab.setControl(createContestAPITab(tabFolder));
+		contestAPITab.setData(ConnectMethod.CONTEST_API);
 
-		TabItem diskTab = new TabItem(tabFolder, SWT.NONE);
-		diskTab.setText("&Disk");
-		diskTab.setToolTipText("Load from disk");
-		diskTab.setControl(createDiskTab(tabFolder));
-		diskTab.setData(ConnectMethod.DISK);
+		TabItem contestPackageTab = new TabItem(tabFolder, SWT.NONE);
+		contestPackageTab.setText("Contest &Package");
+		contestPackageTab.setToolTipText("Load a local Contest Package");
+		contestPackageTab.setControl(createContestPackageTab(tabFolder));
+		contestPackageTab.setData(ConnectMethod.CONTEST_PACKAGE);
+
+		TabItem eventFeedTab = new TabItem(tabFolder, SWT.NONE);
+		eventFeedTab.setText("Event &Feed");
+		eventFeedTab.setToolTipText("Load a local event feed");
+		eventFeedTab.setControl(createEventFeedTab(tabFolder));
+		eventFeedTab.setData(ConnectMethod.EVENT_FEED);
 
 		tabFolder.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -334,7 +432,7 @@ public class ContestConnectionDialog extends Dialog {
 		buttonBar.setLayout(layout);
 
 		connect = new Button(buttonBar, SWT.PUSH);
-		connect.setText("&Connect");
+		connect.setText("&Load");
 		data = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		data.widthHint = SWTUtil.getButtonWidthHint(connect);
 		connect.setLayoutData(data);
@@ -372,7 +470,7 @@ public class ContestConnectionDialog extends Dialog {
 			method = ConnectMethod.RECENT;
 			tabFolder.setSelection(recentTab);
 		} else
-			tabFolder.setSelection(restTab);
+			tabFolder.setSelection(contestAPITab);
 
 		connect.setFocus();
 		connectGroup.getShell().setDefaultButton(connect);
@@ -409,16 +507,15 @@ public class ContestConnectionDialog extends Dialog {
 			}
 
 			prefs.put(PREF_RECENT, String.join(RECENT_SEP, recents));
-			// prefs.put(PREF_RECENT, srcStr);
 		} catch (Exception e) {
 			e.printStackTrace();
 			// ignore
 		}
-		// System.out.println(prefs.get(PREF_RECENT, null));
 
 		prefs.put(PREF_URL, url);
 		prefs.put(PREF_USER, user);
 		prefs.put(PREF_PASSWORD, password);
+		prefs.put(PREF_FOLDER, folder);
 		prefs.put(PREF_FILE, file);
 		try {
 			prefs.sync();
