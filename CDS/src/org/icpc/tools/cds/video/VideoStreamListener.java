@@ -6,12 +6,12 @@ import java.io.OutputStream;
 public class VideoStreamListener {
 	private OutputStream out;
 	private long startTime;
-	private boolean analyst;
+	private boolean staff;
 	private boolean done;
 
-	public VideoStreamListener(OutputStream out, boolean analyst) {
+	public VideoStreamListener(OutputStream out, boolean staff) {
 		this.out = out;
-		this.analyst = analyst;
+		this.staff = staff;
 		startTime = System.currentTimeMillis();
 	}
 
@@ -23,8 +23,8 @@ public class VideoStreamListener {
 		return done;
 	}
 
-	public boolean isAnalyst() {
-		return analyst;
+	public boolean isStaff() {
+		return staff;
 	}
 
 	public void write(byte[] b) throws IOException {
