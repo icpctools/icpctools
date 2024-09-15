@@ -272,7 +272,7 @@ public class VideoStream implements IStore {
 		// TODO sync lock issue List<VideoStreamListener>
 		synchronized (listeners) {
 			for (VideoStreamListener vsl : listeners) {
-				if (!vsl.isAnalyst()) {
+				if (!vsl.isStaff()) {
 					removeListener(vsl);
 				}
 			}
