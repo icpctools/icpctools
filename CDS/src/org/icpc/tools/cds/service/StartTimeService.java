@@ -55,7 +55,15 @@ public class StartTimeService {
 		Trace.trace(Trace.USER, "Start time command: " + command);
 		try {
 			if (command.startsWith("set:")) {
-				setStartTime(cc, -RelativeTime.parse(command.substring(4).trim()));
+				if (errorIfContestNotPaused(currentStart, response))
+					return;
+
+				long time = -RelativeTime.parse(command.substring(4).trim());
+				if (time > -30000) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Can't set contest to less than 30s countdown");
+					return;
+				}
+				setStartTime(cc, time);
 			} else if (command.startsWith("add:")) {
 				if (errorIfContestNotPaused(currentStart, response))
 					return;
@@ -71,7 +79,7 @@ public class StartTimeService {
 					return;
 
 				long time = RelativeTime.parse(command.substring(7).trim());
-				if (time <= 0 || time > -currentStart) {
+				if (time <= 0 || time > -currentStart - 30000) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid remove time");
 					return;
 				}
@@ -79,6 +87,11 @@ public class StartTimeService {
 			} else if (command.equals("pause")) {
 				if (errorIfContestNotCountingDown(currentStart, response))
 					return;
+
+				if (currentStart - now < 30000) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Can't pause in the last 30s");
+					return;
+				}
 				setStartTimeInSeconds(cc, now - currentStart);
 			} else if (command.equals("resume")) {
 				if (errorIfContestNotPaused(currentStart, response))
