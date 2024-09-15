@@ -353,7 +353,7 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 
 			BufferedImage img = sr.logo;
 			BufferedImage smImg = sr.smLogo;
-			if (img != null) {
+			if (img != null && smImg != null) {
 				if (sr.fullAge < 3000) {
 					g2.drawImage(img, (int) (x - img.getWidth() / 2.0), (int) (y - img.getHeight() / 2.0), null);
 					yy = img.getHeight() / 2 + 4;
@@ -366,7 +366,6 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 					g2.drawImage(smImg, (int) (x - smImg.getWidth() / 2.0), (int) (y - smImg.getHeight() / 2.0), null);
 					yy = smImg.getHeight() / 2 + 4;
 				}
-
 			}
 
 			String s = sr.org.getName();
