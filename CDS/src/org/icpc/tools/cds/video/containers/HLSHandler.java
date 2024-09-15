@@ -169,19 +169,20 @@ public class HLSHandler extends VideoServingHandler {
 	private static void cleanCaches() {
 		VideoAggregator va = VideoAggregator.getInstance();
 		int numStreams = va.getNumStreams();
-		long cacheSize = 0;
+		// long cacheSize = 0;
 		for (int i = 0; i < numStreams; i++) {
 			VideoStream vs = va.getStream(i);
 			if (vs != null) {
 				Object obj = vs.getObject();
 				if (obj != null && obj instanceof HLSFileCache) {
 					HLSFileCache fileCache = (HLSFileCache) obj;
-					cacheSize += fileCache.cleanCache();
+					// cacheSize +=
+					fileCache.cleanCache();
 				}
 			}
 		}
 
-		System.out.println("Cleaned cache, remaining size: " + cacheSize + " bytes");
+		// System.out.println("Cleaned cache, remaining size: " + cacheSize + " bytes");
 	}
 
 	protected static void startBackgroundCleanup() {
