@@ -437,7 +437,8 @@ public class ResolverLogic {
 					Trace.trace(Trace.INFO, "Team list at row: " + currentRow + " " + step);
 					teamLists.remove(step);
 
-					steps.add(new TeamSelectionStep(step.teams));
+					if (step.shouldHighlight())
+						steps.add(new TeamSelectionStep(step.teams));
 					steps.add(new PauseStep());
 					steps.add(new ScrollTeamListStep(true));
 					steps.add(step);
@@ -564,7 +565,8 @@ public class ResolverLogic {
 						if (backToScoreboard)
 							steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 
-						steps.add(new TeamSelectionStep(step.teams));
+						if (step.shouldHighlight())
+							steps.add(new TeamSelectionStep(step.teams));
 						steps.add(new PauseStep());
 						steps.add(new ScrollTeamListStep(true));
 						steps.add(step);

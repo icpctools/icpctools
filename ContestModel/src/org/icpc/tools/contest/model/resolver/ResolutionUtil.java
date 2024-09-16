@@ -218,6 +218,12 @@ public class ResolutionUtil {
 		public String toString() {
 			return "Team List " + award.getId();
 		}
+
+		public boolean shouldHighlight() {
+			if (award.getParameters() != null && award.getParameters().containsKey("highlight"))
+				return Boolean.parseBoolean(award.getParameters().get("highlight"));
+			return true;
+		}
 	}
 
 	public static class ScrollStep implements ResolutionStep {

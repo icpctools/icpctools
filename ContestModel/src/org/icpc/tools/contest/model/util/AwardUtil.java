@@ -787,6 +787,7 @@ public class AwardUtil {
 
 		award.setParameter("before", numMedalists + "");
 		award.setParameter("showGroupName",  "true");
+		award.setParameter("highlight",  "false");
 		contest.add(award);
 	}
 
