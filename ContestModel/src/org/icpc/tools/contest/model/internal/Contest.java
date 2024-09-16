@@ -133,11 +133,11 @@ public class Contest implements IContest {
 		}
 	}
 
-	public void addDirect(IContestObject obj) {
-		add(obj);
+	public void add(IContestObject obj) {
+		addDirect(obj);
 	}
 
-	public void add(IContestObject obj) {
+	public void addDirect(IContestObject obj) {
 		if (obj == null)
 			return;
 
