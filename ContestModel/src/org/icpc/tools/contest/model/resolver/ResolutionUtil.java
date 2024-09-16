@@ -219,6 +219,13 @@ public class ResolutionUtil {
 			return "Team List " + award.getId();
 		}
 
+		public boolean showScoreboardBefore() {
+			if (award.getParameters() != null && award.getParameters().containsKey("showScoreboardBefore")) {
+				return Boolean.parseBoolean(award.getParameters().get("showScoreboardBefore"));
+			}
+			return true;
+		}
+
 		public boolean shouldHighlight() {
 			if (award.getParameters() != null && award.getParameters().containsKey("highlight"))
 				return Boolean.parseBoolean(award.getParameters().get("highlight"));
@@ -295,3 +302,4 @@ public class ResolutionUtil {
 		}
 	}
 }
+
