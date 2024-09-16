@@ -482,11 +482,12 @@ public class AwardUtil {
 			}
 			int nextTeam = 0;
 			nextTeam = assignMedal(gold, nextTeam, teams, Messages.getString("awardMedalGold"));
-			contest.add(gold);
 			nextTeam = assignMedal(silver, nextTeam, teams, Messages.getString("awardMedalSilver"));
-			contest.add(silver);
 			assignMedal(bronze, nextTeam, teams, Messages.getString("awardMedalBronze"));
+			// Add them in reverse order, so we can display them in the correct order in the resolver
 			contest.add(bronze);
+			contest.add(silver);
+			contest.add(gold);
 		}
 	}
 
@@ -596,10 +597,10 @@ public class AwardUtil {
 
 		// Determine how many problems the lowest medalist solved. We need this for the solvedTop/solvedBottom case.
 		int lowestMedalNumSolved = Integer.MAX_VALUE;
-		int numMedalists = 0;
+		Set<String> medalTeams = new HashSet<>();
 		for (IAward a : awards) {
 			if (a.getAwardType() == IAward.MEDAL) {
-				numMedalists += a.getTeamIds().length;
+				medalTeams.addAll(Arrays.asList(a.getTeamIds()));
 				for (String tid : a.getTeamIds()) {
 					IStanding s = contest.getStanding(contest.getTeamById(tid));
 					if (s != null && s.getNumSolved() > 0) {
@@ -608,6 +609,7 @@ public class AwardUtil {
 				}
 			}
 		}
+		int numMedalists = medalTeams.size();
 
 		// find teams we're going to base this on
 
@@ -763,15 +765,14 @@ public class AwardUtil {
 		// Also keep track of all teams that have a group award
 		Set<String> groupWinners = new HashSet<>();
 		Set<String> medalWinners = new HashSet<>();
-		int numMedalists = 0;
 		for (IAward a : awards) {
 			if (a.getAwardType() == IAward.MEDAL) {
-				numMedalists += a.getTeamIds().length;
 				medalWinners.addAll(Arrays.asList(a.getTeamIds()));
 			} else if (a.getAwardType() == IAward.GROUP) {
 				groupWinners.addAll(Arrays.asList(a.getTeamIds()));
 			}
 		}
+		int numMedalists = medalWinners.size();
 
 		String citation = template.getCitation();
 		if (citation == null || citation.trim().isEmpty()) {
