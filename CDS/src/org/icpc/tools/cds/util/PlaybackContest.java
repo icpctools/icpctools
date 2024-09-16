@@ -147,43 +147,45 @@ public class PlaybackContest extends Contest {
 		if (src == null)
 			return;
 
-		src.updateCache(obj.getType(), obj.getId());
 		if (obj instanceof Info) {
 			Info i = (Info) obj;
-			downloadMissingFiles(src, obj, LOGO, i.getLogo());
-			downloadMissingFiles(src, obj, BANNER, i.getBanner());
+			i.setLogo(downloadMissingFiles(src, obj, LOGO, i.getLogo()));
+			i.setBanner(downloadMissingFiles(src, obj, BANNER, i.getBanner()));
 		} else if (obj instanceof Problem) {
 			Problem p = (Problem) obj;
-			downloadMissingFiles(src, obj, PACKAGE, p.getPackage());
-			downloadMissingFiles(src, obj, STATEMENT, p.getStatement());
+			p.setPackage(downloadMissingFiles(src, obj, PACKAGE, p.getPackage()));
+			p.setStatement(downloadMissingFiles(src, obj, STATEMENT, p.getStatement()));
 		} else if (obj instanceof Group) {
 			Group g = (Group) obj;
-			downloadMissingFiles(src, obj, LOGO, g.getLogo());
+			g.setLogo(downloadMissingFiles(src, obj, LOGO, g.getLogo()));
 		} else if (obj instanceof Team) {
 			Team t = (Team) obj;
-			downloadMissingFiles(src, obj, PHOTO, t.getPhoto());
-			downloadMissingFiles(src, obj, VIDEO, t.getVideo());
-			downloadMissingFiles(src, obj, BACKUP, t.getBackup());
-			downloadMissingFiles(src, obj, KEY_LOG, t.getKeyLog());
-			downloadMissingFiles(src, obj, TOOL_DATA, t.getToolData());
+			t.setPhoto(downloadMissingFiles(src, obj, PHOTO, t.getPhoto()));
+			t.setVideo(downloadMissingFiles(src, obj, VIDEO, t.getVideo()));
+			t.setBackup(downloadMissingFiles(src, obj, BACKUP, t.getBackup()));
+			t.setKeyLog(downloadMissingFiles(src, obj, KEY_LOG, t.getKeyLog()));
+			t.setToolData(downloadMissingFiles(src, obj, TOOL_DATA, t.getToolData()));
 		} else if (obj instanceof Person) {
-			Person tm = (Person) obj;
-			downloadMissingFiles(src, obj, PHOTO, tm.getPhoto());
+			Person p = (Person) obj;
+			p.setPhoto(downloadMissingFiles(src, obj, PHOTO, p.getPhoto()));
 		} else if (obj instanceof Organization) {
 			Organization o = (Organization) obj;
-			downloadMissingFiles(src, obj, LOGO, o.getLogo());
-			downloadMissingFiles(src, obj, COUNTRY_FLAG, o.getCountryFlag());
+			o.setLogo(downloadMissingFiles(src, obj, LOGO, o.getLogo()));
+			o.setCountryFlag(downloadMissingFiles(src, obj, COUNTRY_FLAG, o.getCountryFlag()));
 		} else if (obj instanceof Submission) {
 			Submission s = (Submission) obj;
-			downloadMissingFiles(src, obj, FILES, s.getFiles());
-			downloadMissingFiles(src, obj, REACTION, s.getReaction());
+			s.setFiles(downloadMissingFiles(src, obj, FILES, s.getFiles()));
+			s.setReaction(downloadMissingFiles(src, obj, REACTION, s.getReaction()));
 		}
 	}
 
-	protected boolean downloadMissingFiles(RESTContestSource src, IContestObject obj, String property,
+	protected FileReferenceList downloadMissingFiles(RESTContestSource src, IContestObject obj, String property,
 			FileReferenceList sourceFiles) {
 		if (src == null || sourceFiles == null || sourceFiles.isEmpty())
-			return false;
+			return sourceFiles;
+
+		// make sure the cache is up to date and find local files
+		src.updateCache(obj.getType(), obj.getId());
 		FileReferenceList localFiles = src.getFilesWithPattern(obj, property);
 
 		// if we don't have any files and there is at least one at the source, download everything
@@ -195,34 +197,41 @@ public class PlaybackContest extends Contest {
 					Trace.trace(Trace.ERROR, "Error downloading file: " + obj.getType() + ": " + obj.getId(), e);
 				}
 			}
-
-			return true;
-		}
-
-		// more complex matching
-		// for now, only download new images that have a different width & height or mime type than
-		// local images
-		for (FileReference sourceFile : sourceFiles) {
-			if (sourceFile.height <= 0 || sourceFile.width <= 0)
-				continue;
-
-			boolean found = false;
-			for (FileReference currentRef : localFiles) {
-				if (currentRef.height == sourceFile.height && currentRef.width == sourceFile.width
-						&& (currentRef.mime == null || currentRef.mime.equals(sourceFile.mime))) {
-					found = true;
+		} else {
+			// more complex matching
+			// for now, only download new images that have a different width & height or mime type
+			// than
+			// local images
+			for (FileReference sourceFile : sourceFiles) {
+				if (sourceFile.height <= 0 || sourceFile.width <= 0)
 					continue;
+
+				boolean found = false;
+				for (FileReference currentRef : localFiles) {
+					if (currentRef.height == sourceFile.height && currentRef.width == sourceFile.width
+							&& (currentRef.mime == null || currentRef.mime.equals(sourceFile.mime))) {
+						found = true;
+						continue;
+					}
+				}
+
+				try {
+					if (!found)
+						src.downloadFile(obj, sourceFile, property);
+				} catch (Exception e) {
+					Trace.trace(Trace.ERROR, "Error downloading file: " + obj.getType() + ": " + obj.getId(), e);
 				}
 			}
-
-			try {
-				if (!found)
-					src.downloadFile(obj, sourceFile, property);
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Error downloading file: " + obj.getType() + ": " + obj.getId(), e);
-			}
 		}
-		return false;
+
+		// strip everything that's not remote - attachLocalResources will pick up everything local
+		FileReferenceList newList = new FileReferenceList();
+		for (FileReference ref : sourceFiles) {
+			if (ref.href.startsWith("http"))
+				newList.add(ref);
+		}
+
+		return newList;
 	}
 
 	private static FileReferenceList getMediaList(List<Integer> in) {

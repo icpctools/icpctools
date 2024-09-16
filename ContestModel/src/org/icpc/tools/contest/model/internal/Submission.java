@@ -60,10 +60,12 @@ public class Submission extends TimedEvent implements ISubmission {
 		return getFile(files.first(), FILES, force);
 	}
 
+	@Override
 	public FileReferenceList getFiles() {
 		return files;
 	}
 
+	@Override
 	public FileReferenceList getReaction() {
 		return reaction;
 	}

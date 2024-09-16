@@ -31,6 +31,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.TSVImporter;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
@@ -922,7 +923,7 @@ public class DiskContestSource extends ContestSource {
 			for (IOrganization org : orgs) {
 				Organization newOrg = (Organization) ((Organization) org).clone();
 
-				// reset the file cache
+				// update the file cache
 				updateCache(ContestType.ORGANIZATION, org.getId());
 
 				boolean changed = false;
@@ -945,7 +946,7 @@ public class DiskContestSource extends ContestSource {
 			for (ITeam team : teams) {
 				Team newTeam = (Team) ((Team) team).clone();
 
-				// reset the file cache
+				// update the file cache
 				updateCache(ContestType.TEAM, team.getId());
 
 				boolean changed = false;
@@ -981,6 +982,29 @@ public class DiskContestSource extends ContestSource {
 
 				if (changed)
 					contest.add(newTeam);
+			}
+
+			ISubmission[] subs = contest.getSubmissions();
+			for (ISubmission sub : subs) {
+				Submission newOrg = (Submission) ((Submission) sub).clone();
+
+				// update the file cache
+				updateCache(ContestType.SUBMISSION, sub.getId());
+
+				boolean changed = false;
+				FileReferenceList refsOnDisk = getFilesWithPattern(newOrg, FILES);
+				if (hasChange(sub.getFiles(), refsOnDisk)) {
+					newOrg.setFiles(deleteAndMergeFiles(sub.getFiles(), refsOnDisk));
+					changed = true;
+				}
+				refsOnDisk = getFilesWithPattern(newOrg, REACTION);
+				if (hasChange(sub.getReaction(), refsOnDisk)) {
+					newOrg.setReaction(deleteAndMergeFiles(sub.getReaction(), refsOnDisk));
+					changed = true;
+				}
+
+				if (changed)
+					contest.add(newOrg);
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Scanning failed", e);
