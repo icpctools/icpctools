@@ -92,8 +92,13 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 			c.numRows = (numTeams + c.numColumns - 1) / c.numColumns;
 
-			c.tileDim = new Dimension((width - (c.numColumns - 1) * gap - 1) / c.numColumns,
-					(height - header - gap - (c.numRows - 1) * gap - 1) / c.numRows);
+			// Special case for 2 teams in 1 row: don't use full height
+			if (c.numRows == 1 && c.numColumns == 2)
+				c.tileDim = new Dimension((width - gap - 1) / c.numColumns,
+						(height - header - 2 * gap - 1) / 2);
+			else
+				c.tileDim = new Dimension((width - (c.numColumns - 1) * gap - 1) / c.numColumns,
+						(height - header - gap - (c.numRows - 1) * gap - 1) / c.numRows);
 
 			float dpi = 96;
 			float inch = height * 72f / dpi / 10f;
@@ -284,10 +289,15 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 		int x = 0;
 		int y = 0;
+		int yOffset = 0;
+		// Special case for 2 teams in 1 row: center them vertically
+ 		if (c.numColumns == 2 && c.numRows == 1) {
+			yOffset = (c.tileDim.height + gap) / 2;
+		}
 		int size = teams.length;
 		for (int i = 0; i < size; i++) {
 			int xx = x * (c.tileDim.width + gap);
-			int yy = y * (c.tileDim.height + gap) + header + gap;
+			int yy = y * (c.tileDim.height + gap) + header + gap + yOffset;
 
 			if (y == c.numRows - 1 && size % c.numColumns != 0) {
 				xx += (c.numColumns - size % c.numColumns) * (c.tileDim.width + gap) / 2;
