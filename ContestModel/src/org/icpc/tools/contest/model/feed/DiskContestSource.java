@@ -939,7 +939,7 @@ public class DiskContestSource extends ContestSource {
 				}
 
 				if (changed)
-					contest.add(newOrg);
+					contest.addDirect(newOrg);
 			}
 
 			ITeam[] teams = contest.getTeams();
@@ -981,7 +981,7 @@ public class DiskContestSource extends ContestSource {
 				}
 
 				if (changed)
-					contest.add(newTeam);
+					contest.addDirect(newTeam);
 			}
 
 			ISubmission[] subs = contest.getSubmissions();
@@ -1004,7 +1004,7 @@ public class DiskContestSource extends ContestSource {
 				}
 
 				if (changed)
-					contest.add(newOrg);
+					contest.addDirect(newOrg);
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Scanning failed", e);
