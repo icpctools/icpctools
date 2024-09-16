@@ -269,12 +269,15 @@ public class VideoStream implements IStore {
 	}
 
 	public void dropUntrustedListeners() {
-		// TODO sync lock issue List<VideoStreamListener>
 		synchronized (listeners) {
+			List<VideoStreamListener> remove = new ArrayList<>();
 			for (VideoStreamListener vsl : listeners) {
 				if (!vsl.isStaff()) {
-					removeListener(vsl);
+					remove.add(vsl);
 				}
+			}
+			for (VideoStreamListener vsl : remove) {
+				removeListener(vsl);
 			}
 		}
 	}
