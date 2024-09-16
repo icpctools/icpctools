@@ -2,6 +2,8 @@ package org.icpc.tools.contest.model;
 
 import java.io.File;
 
+import org.icpc.tools.contest.model.internal.FileReferenceList;
+
 /**
  * A problem submission by a team in the contest. The id is typically a small number.
  */
@@ -46,7 +48,21 @@ public interface ISubmission extends IContestObject {
 	 *
 	 * @return a zip of the files
 	 */
+	FileReferenceList getFiles();
+
+	/**
+	 * Returns a zip of the files submitted in this submission.
+	 *
+	 * @return a zip of the files
+	 */
 	File getFiles(boolean force);
+
+	/**
+	 * Returns the reaction video.
+	 *
+	 * @return the reaction video
+	 */
+	FileReferenceList getReaction();
 
 	/**
 	 * Returns the reaction video.
