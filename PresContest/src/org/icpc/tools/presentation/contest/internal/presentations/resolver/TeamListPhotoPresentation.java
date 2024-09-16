@@ -346,7 +346,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				b = text.getBounds();
 				g.translate(xx + c.tileDim.width / 2, 0);
 				text.drawFit(-Math.min((c.tileDim.width - gap * 2) / 2, text.getWidth() / 2),
-						yy + b.height / 2 + gap, c.tileDim.width - gap * 2);
+						yy + b.height / 2 - gap, c.tileDim.width - gap * 2);
 				g.translate(-xx - c.tileDim.width / 2, 0);
 			}
 
