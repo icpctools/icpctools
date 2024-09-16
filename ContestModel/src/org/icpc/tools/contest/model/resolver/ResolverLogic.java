@@ -562,12 +562,15 @@ public class ResolverLogic {
 						Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
 						teamLists.remove(step);
 
-						if (backToScoreboard)
+						if (step.showScoreboardBefore() && backToScoreboard)
 							steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 
 						if (step.shouldHighlight())
 							steps.add(new TeamSelectionStep(step.teams));
-						steps.add(new PauseStep());
+						// Note: if this ever is false for an award that doesn't happen AFTER another list award, we'll
+						// need to change the logic here to pause before showing the list award
+						if (step.showScoreboardBefore())
+							steps.add(new PauseStep());
 						steps.add(new ScrollTeamListStep(true));
 						steps.add(step);
 
