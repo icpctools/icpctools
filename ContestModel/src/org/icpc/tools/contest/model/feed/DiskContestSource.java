@@ -810,7 +810,6 @@ public class DiskContestSource extends ContestSource {
 		if (!feedFile.exists()) {
 			if (eventFeedFile != null || root != null)
 				Trace.trace(Trace.WARNING, "No local event feed found");
-			contest.removeModifier(mod);
 			return;
 		}
 
@@ -841,7 +840,6 @@ public class DiskContestSource extends ContestSource {
 			} catch (Exception e) {
 				// ignore
 			}
-			contest.removeModifier(mod);
 		}
 
 		Trace.trace(Trace.INFO, "Time to load EF: " + (System.currentTimeMillis() - time) + "ms");
