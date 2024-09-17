@@ -849,14 +849,14 @@ public class DiskContestSource extends ContestSource {
 		executor.scheduleWithFixedDelay(() -> scanForResourceChanges(), 15L, 15L, TimeUnit.SECONDS);
 	}
 
-	private static boolean hasChange(FileReferenceList list, FileReferenceList foundList) {
+	private static boolean hasChange(FileReferenceList list, FileReferenceList foundList, List<File> changed) {
 		if (list != null) {
 			for (FileReference ref : list) {
 				if (ref.isDeleted()) {
 					// existing file has been deleted or modified
 					return true;
 				} else if (ref.isChanged()) {
-					Trace.trace(Trace.INFO, "Updated file: " + ref.file);
+					changed.add(ref.file);
 					ref.lastModified = ref.file.lastModified();
 				}
 			}
@@ -880,7 +880,8 @@ public class DiskContestSource extends ContestSource {
 		return false;
 	}
 
-	private static FileReferenceList deleteAndMergeFiles(FileReferenceList list, FileReferenceList foundList) {
+	private static FileReferenceList deleteAndMergeFiles(FileReferenceList list, FileReferenceList foundList,
+			List<File> added, List<File> removed) {
 		if (list == null)
 			return foundList;
 
@@ -889,7 +890,7 @@ public class DiskContestSource extends ContestSource {
 			if (!ref.isDeleted()) {
 				newList.add(ref);
 			} else {
-				Trace.trace(Trace.INFO, "Removing deleted file: " + ref.file);
+				removed.add(ref.file);
 			}
 		}
 
@@ -902,7 +903,7 @@ public class DiskContestSource extends ContestSource {
 				}
 			}
 			if (!found) {
-				Trace.trace(Trace.INFO, "Adding new file: " + foundRef.file);
+				added.add(foundRef.file);
 				newList.add(foundRef);
 			}
 		}
@@ -917,6 +918,9 @@ public class DiskContestSource extends ContestSource {
 	protected void scanForResourceChanges() {
 		long time = System.currentTimeMillis();
 		try {
+			List<File> modifiedFiles = new ArrayList<>();
+			List<File> addedFiles = new ArrayList<>();
+			List<File> removedFiles = new ArrayList<>();
 			IOrganization[] orgs = contest.getOrganizations();
 			for (IOrganization org : orgs) {
 				Organization newOrg = (Organization) ((Organization) org).clone();
@@ -926,13 +930,13 @@ public class DiskContestSource extends ContestSource {
 
 				boolean changed = false;
 				FileReferenceList refsOnDisk = getFilesWithPattern(newOrg, LOGO);
-				if (hasChange(org.getLogo(), refsOnDisk)) {
-					newOrg.setLogo(deleteAndMergeFiles(org.getLogo(), refsOnDisk));
+				if (hasChange(org.getLogo(), refsOnDisk, modifiedFiles)) {
+					newOrg.setLogo(deleteAndMergeFiles(org.getLogo(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 				refsOnDisk = getFilesWithPattern(newOrg, COUNTRY_FLAG);
-				if (hasChange(org.getCountryFlag(), refsOnDisk)) {
-					newOrg.setCountryFlag(deleteAndMergeFiles(org.getCountryFlag(), refsOnDisk));
+				if (hasChange(org.getCountryFlag(), refsOnDisk, modifiedFiles)) {
+					newOrg.setCountryFlag(deleteAndMergeFiles(org.getCountryFlag(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
@@ -949,32 +953,32 @@ public class DiskContestSource extends ContestSource {
 
 				boolean changed = false;
 				FileReferenceList refsOnDisk = getFilesWithPattern(newTeam, PHOTO);
-				if (hasChange(team.getPhoto(), refsOnDisk)) {
-					newTeam.setPhoto(deleteAndMergeFiles(team.getPhoto(), refsOnDisk));
+				if (hasChange(team.getPhoto(), refsOnDisk, modifiedFiles)) {
+					newTeam.setPhoto(deleteAndMergeFiles(team.getPhoto(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
 				refsOnDisk = getFilesWithPattern(newTeam, VIDEO);
-				if (hasChange(team.getVideo(), refsOnDisk)) {
-					newTeam.setVideo(deleteAndMergeFiles(team.getVideo(), refsOnDisk));
+				if (hasChange(team.getVideo(), refsOnDisk, modifiedFiles)) {
+					newTeam.setVideo(deleteAndMergeFiles(team.getVideo(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
 				refsOnDisk = getFilesWithPattern(newTeam, BACKUP);
-				if (hasChange(team.getBackup(), refsOnDisk)) {
-					newTeam.setBackup(deleteAndMergeFiles(team.getBackup(), refsOnDisk));
+				if (hasChange(team.getBackup(), refsOnDisk, modifiedFiles)) {
+					newTeam.setBackup(deleteAndMergeFiles(team.getBackup(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
 				refsOnDisk = getFilesWithPattern(newTeam, KEY_LOG);
-				if (hasChange(team.getKeyLog(), refsOnDisk)) {
-					newTeam.setBackup(deleteAndMergeFiles(team.getKeyLog(), refsOnDisk));
+				if (hasChange(team.getKeyLog(), refsOnDisk, modifiedFiles)) {
+					newTeam.setBackup(deleteAndMergeFiles(team.getKeyLog(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
 				refsOnDisk = getFilesWithPattern(newTeam, TOOL_DATA);
-				if (hasChange(team.getToolData(), refsOnDisk)) {
-					newTeam.setToolData(deleteAndMergeFiles(team.getToolData(), refsOnDisk));
+				if (hasChange(team.getToolData(), refsOnDisk, modifiedFiles)) {
+					newTeam.setToolData(deleteAndMergeFiles(team.getToolData(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
@@ -991,18 +995,34 @@ public class DiskContestSource extends ContestSource {
 
 				boolean changed = false;
 				FileReferenceList refsOnDisk = getFilesWithPattern(newOrg, FILES);
-				if (hasChange(sub.getFiles(), refsOnDisk)) {
-					newOrg.setFiles(deleteAndMergeFiles(sub.getFiles(), refsOnDisk));
+				if (hasChange(sub.getFiles(), refsOnDisk, modifiedFiles)) {
+					newOrg.setFiles(deleteAndMergeFiles(sub.getFiles(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 				refsOnDisk = getFilesWithPattern(newOrg, REACTION);
-				if (hasChange(sub.getReaction(), refsOnDisk)) {
-					newOrg.setReaction(deleteAndMergeFiles(sub.getReaction(), refsOnDisk));
+				if (hasChange(sub.getReaction(), refsOnDisk, modifiedFiles)) {
+					newOrg.setReaction(deleteAndMergeFiles(sub.getReaction(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
 
 				if (changed)
 					contest.addDirect(newOrg);
+			}
+
+			long numChanged = addedFiles.size() + modifiedFiles.size() + removedFiles.size();
+			if (numChanged < 10) {
+				for (File f : addedFiles) {
+					Trace.trace(Trace.INFO, "New file: " + f);
+				}
+				for (File f : modifiedFiles) {
+					Trace.trace(Trace.INFO, "Updated file: " + f);
+				}
+				for (File f : removedFiles) {
+					Trace.trace(Trace.INFO, "Deleted file: " + f);
+				}
+			} else {
+				Trace.trace(Trace.INFO, numChanged + " file changes (" + addedFiles.size() + " new, " + modifiedFiles.size()
+						+ " updated, " + removedFiles.size() + " deleted)");
 			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Scanning failed", e);
