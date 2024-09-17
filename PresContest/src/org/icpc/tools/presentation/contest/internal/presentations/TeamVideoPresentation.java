@@ -2,10 +2,11 @@ package org.icpc.tools.presentation.contest.internal.presentations;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import org.icpc.tools.presentation.core.Presentation;
+import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -16,7 +17,7 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCall
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat;
 
-public class TeamVideoPresentation extends Presentation {
+public class TeamVideoPresentation extends AbstractICPCPresentation {
 	private MediaPlayerFactory mediaPlayerFactory;
 	private EmbeddedMediaPlayer mediaPlayer;
 	private BufferedImage snapshot;
@@ -52,6 +53,13 @@ public class TeamVideoPresentation extends Presentation {
 		};
 		mediaPlayer.videoSurface()
 				.set(mediaPlayerFactory.videoSurfaces().newVideoSurface(callbackAdapter, renderCallback, true));
+
+		mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+			@Override
+			public void finished(MediaPlayer player) {
+				snapshot = null;
+			}
+		});
 	}
 
 	@Override
@@ -59,15 +67,13 @@ public class TeamVideoPresentation extends Presentation {
 		return 50;
 	}
 
+	private void play(String url) {
+		mediaPlayer.media().play(url);
+	}
+
 	@Override
 	public void aboutToShow() {
-		mediaPlayer.media().play("http://localhost:8080");
-		mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-			@Override
-			public void finished(MediaPlayer player) {
-				snapshot = null;
-			}
-		});
+		play("http://localhost:8080");
 	}
 
 	@Override
@@ -79,5 +85,29 @@ public class TeamVideoPresentation extends Presentation {
 	public void paint(Graphics2D g) {
 		if (snapshot != null)
 			g.drawImage(snapshot, (width - snapshot.getWidth()) / 2, (height - snapshot.getHeight()) / 2, null);
+	}
+
+	@Override
+	public void setProperty(String value) {
+		try {
+			URL url = new URL(value);
+			play(url.toExternalForm());
+		} catch (Exception e) {
+			// ignore
+		}
+		if (value.startsWith("webcam:")) {
+			try {
+				play(getContest().getTeamById(value.substring(7)).getWebcamURL());
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+		if (value.startsWith("desktop:")) {
+			try {
+				play(getContest().getTeamById(value.substring(8)).getDesktopURL());
+			} catch (Exception e) {
+				// ignore
+			}
+		}
 	}
 }
