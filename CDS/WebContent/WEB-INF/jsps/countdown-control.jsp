@@ -110,9 +110,9 @@
     	<form onsubmit="teamDetail($('#input-team-id').val());return false">
         <div class="box-body">
           <div class="form-group">
-            <label for="input-type" class="col-sm-2 control-label">Team Id or Label</label>
+            <label for="input-team-id" class="col-sm-2 control-label">Team Id or Label</label>
             <div class="col-sm-12">
-              <input class="form-control" id="input-team-id" placeholder="e.g. '57'">
+              <input class="form-control" id="input-team-id" autocomplete="off" data-1p-ignore placeholder="e.g. '57'">
             </div>
           </div>
         </div>
@@ -200,6 +200,31 @@
         xmlhttp.open("PUT", "/presentation/admin/property/org.icpc.tools.presentation.contest.internal.presentations.TeamDetailPresentation=" + cmd, true);
         xmlhttp.send();
     }
+
+    $(function() {
+        if (typeof contest !== 'undefined') {
+            let teamMapping = [];
+            contest.loadTeams().then(function(data) {
+                for (let team of data) {
+                    teamMapping[team.id] = team.display_name;
+                }
+            });
+
+            $('#input-team-id').on('keyup', function (e) {
+                // Ignore enter
+                if (e.keyCode === 13) {
+                    return;
+                }
+                const teamId = $(this).val();
+                if (teamMapping[teamId]) {
+                    const team = teamMapping[teamId];
+                    $('#detail-status').text('Team: ' + team);
+                } else {
+                    $('#detail-status').text('Team not found');
+                }
+            })
+        }
+    });
 
     var contests = {
         <% for (IContest countdownContest : countdownContests) { %>
