@@ -1,7 +1,6 @@
 package org.icpc.tools.cds.presentations;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -109,6 +108,11 @@ public class PropertyServlet extends HttpServlet {
 		en.closeArray();
 	}
 
+	private static String getPresentationKey(String className) {
+		int ind = className.lastIndexOf(".");
+		return "property[" + className.substring(ind + 1) + "|" + className.hashCode() + "]";
+	}
+
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (!CDSAuth.isPresAdmin(request) && !CDSAuth.isAdmin(request)) {
@@ -120,15 +124,31 @@ public class PropertyServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		if ("/property".equals(path)) {
-			BufferedReader br = request.getReader();
-			String key = br.readLine();
-			String value = br.readLine();
+		if (path.startsWith("/property")) {
+			String val = path.substring(10);
+			int ind = val.indexOf("=");
+			String key = val;
+			String value = null;
+			if (ind > 0) {
+				key = getPresentationKey(val.substring(0, ind));
+				value = val.substring(ind + 1);
+			}
 
-			// TODO
-			PresentationServer.getInstance().setProperty(null, key, value);
-		}
-		if (path.startsWith("/present/")) {
+			PresentationServer ps = PresentationServer.getInstance();
+			List<Client> clients = ps.getClients();
+
+			List<Integer> uidList = new ArrayList<>();
+			for (Client c : clients) {
+				if (!c.isAdmin())
+					uidList.add(c.getUID());
+			}
+
+			int[] uids = new int[uidList.size()];
+			for (int i = 0; i < uids.length; i++)
+				uids[i] = uidList.get(i);
+
+			PresentationServer.getInstance().setProperty(uids, key, value);
+		} else if (path.startsWith("/present/")) {
 			String presId = path.substring(9);
 
 			PresentationServer ps = PresentationServer.getInstance();
