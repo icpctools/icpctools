@@ -8,8 +8,6 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,39 +122,11 @@ public class ReactionVideoRecorder {
 
 		VideoHandler handler = VideoAggregator.handler;
 		String extension = handler.getFileExtension();
-		File file = new File(submissionDir, "reaction." + extension);
-		if (file.exists()) { // recordings already exist, just return the files
-			FileReferenceList list = new FileReferenceList();
-			File[] files = submissionDir.listFiles((dir,
-					name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith("." + extension)));
 
-			if (files != null) {
-				// sort files
-				Arrays.sort(files, new Comparator<File>() {
-					@Override
-					public int compare(File f1, File f2) {
-						// sort webcam first
-						if (f1.getName().contains(WEBCAM) && !f2.getName().contains(WEBCAM))
-							return -1;
-						else if (!f1.getName().contains(WEBCAM) && f2.getName().contains(WEBCAM))
-							return 1;
-						return f1.getName().compareTo(f2.getName());
-					}
-				});
-
-				// add references
-				for (File f : files) {
-					FileReference ref = new FileReference();
-					ref.filename = f.getName();
-					String name = f.getName().substring(0, f.getName().length() - extension.length() - 1);
-					ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
-					ref.mime = handler.getMimeType();
-					ref.file = f;
-					list.add(ref);
-				}
-			}
-
-			((Submission) submission).setReaction(list);
+		File[] files = submissionDir.listFiles(
+				(dir, name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith("." + extension)));
+		if (files != null && files.length > 0) {
+			// recordings already exist, just return (and attachLocal will add them)
 			return;
 		}
 
