@@ -191,7 +191,8 @@
 
     $(function() {
         $('#team-detail-form').on('submit', function() {
-            let cmd = $('#input-team-id').val();
+            const $teamIdInput = $('#input-team-id')
+            let cmd = $teamIdInput.val();
             if (cmd === '') {
                 return false;
             }
@@ -213,6 +214,10 @@
             };
             xmlhttp.open("PUT", "/presentation/admin/property/org.icpc.tools.presentation.contest.internal.presentations.TeamDetailPresentation=" + cmd, true);
             xmlhttp.send();
+
+            // Clear the field again and set focus to keep going
+            $teamIdInput.val('');
+            $teamIdInput.focus();
 
             return false;
         });
