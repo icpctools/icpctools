@@ -37,16 +37,11 @@ references that the feed refers to. If your CCS correctly supports the event fee
 work even if the rest of the API is not implemented. The one exception to this is the CDS' and contest utility support
 for comparing scoreboards - to compare a scoreboard, the CCS must have one, of course!
 
-The CDS also retains support for the deprecated [XML Event Feed](https://clics.ecs.baylor.edu/index.php?title=Event_Feed_2016), [Mirror](https://web.archive.org/web/20160601232618/https://clics.ecs.baylor.edu/index.php/Event_Feed_2016).
-If your CCS supports this feed as specified then the tools should still work with a CDS in the middle, albeit with some missing function.
-
 The most popular CCSs that have been tested and successfully used at multiple contests with the ICPC Tools are listed here:
 
-Compatible CCS | Mechanism
-| --- | ---
-| [DOMjudge](https://www.domjudge.org) | Contest API
-| [Kattis](https://www.kattis.com) | Contest API
-| [PC^2](https://pc2.ecs.csus.edu) | XML event feed
+* [DOMjudge](https://www.domjudge.org)
+* [Kattis](https://www.kattis.com)
+* [PC^2](https://pc2ccs.github.io)
 
 ## Contributing
 
