@@ -102,6 +102,26 @@
             </tbody>
         </table>
     </div>
+    <div class="card-header">
+        <h3 class="card-title">Team Detail</h3>
+    </div>
+    <div class="card-body">
+    	<p>Set the team for the team detail presentation.</p>
+    	<form onsubmit="teamDetail($('#input-team-id').val());return false">
+        <div class="box-body">
+          <div class="form-group">
+            <label for="input-type" class="col-sm-2 control-label">Team Id or Label</label>
+            <div class="col-sm-12">
+              <input class="form-control" id="input-team-id" placeholder="e.g. '57'">
+            </div>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-danger pull-right">Set</button>
+          <span id="detail-status">&nbsp;</span>
+        </div>
+        </form>
+    </div>
 </div>
 <script>
     var requestsDone = 0;
@@ -161,6 +181,24 @@
         <% for (IContest countdownContest : countdownContests) { %>
         sendCommandForContest(id, "<%= countdownContest.getId() %>", command);
         <% } %>
+    }
+
+    function teamDetail(cmd) {
+    	if (cmd == null)
+    		return;
+    	
+    	console.log("Team detail: " + cmd);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4) {
+                if (xmlhttp.status == 200) {
+                    document.getElementById("detail-status").innerHTML = "Success";
+                } else
+                    document.getElementById("detail-status").innerHTML = xmlhttp.responseText;
+            }
+        };
+        xmlhttp.open("PUT", "/presentation/admin/property/org.icpc.tools.presentation.contest.internal.presentations.TeamDetailPresentation=" + cmd, true);
+        xmlhttp.send();
     }
 
     var contests = {
