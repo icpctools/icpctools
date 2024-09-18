@@ -193,9 +193,6 @@
         $('#team-detail-form').on('submit', function() {
             const $teamIdInput = $('#input-team-id')
             let cmd = $teamIdInput.val();
-            if (cmd === '') {
-                return false;
-            }
 
             const $prefixField = $('#input-prefix');
             if ($prefixField.val()) {
