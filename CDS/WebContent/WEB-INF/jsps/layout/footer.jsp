@@ -24,5 +24,24 @@
 </div>
 <!-- ./wrapper -->
 
+<% ConfiguredContest ccForLogout = (ConfiguredContest) request.getAttribute("cc"); %>
+<% if (request.getRemoteUser() != null && ccForLogout != null) { %>
+<script>
+  $(function() {
+    const accountUrl = '/api/contests/<%=ccForLogout.getId()%>/account';
+    const checkLoginStatus = function() {
+      $.ajax({
+        url: accountUrl,
+        error: function() {
+          console.warn('Not logged in anymore, sending to log in page')
+          window.location = '/login';
+        }
+      })
+    };
+
+    setInterval(checkLoginStatus, 30000);
+  });
+</script>
+<% } %>
 </body>
 </html>
