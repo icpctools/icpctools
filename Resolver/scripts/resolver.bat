@@ -17,4 +17,4 @@ goto :loop
 
 :continue
 
-java -Xmx1024m -cp "%LIBDIR%\*" org.icpc.tools.resolver.Resolver %params%
+java -Xmx4096m -cp "%LIBDIR%\*" org.icpc.tools.resolver.Resolver %params%

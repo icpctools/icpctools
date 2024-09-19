@@ -7,7 +7,7 @@ export ROOTDIR=$( dirname "${BASH_SOURCE}[0]" )
 cd $ROOTDIR
 
 while true; do
-  java -Xmx1024m -cp "lib/*" org.icpc.tools.presentation.contest.internal.ClientLauncher "$@"
+  java -Xmx4096m -cp "lib/*" org.icpc.tools.presentation.contest.internal.ClientLauncher "$@"
   result=$?
   if [ $result = 254 ]
   then
