@@ -106,8 +106,7 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void setProperty(String value) {
-		if (value == null || value.trim().length() == 0) {
-			setTeam(null);
+		if (value == null) {
 			return;
 		}
 		if (value.startsWith("prefix:")) {
@@ -120,6 +119,10 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 			if (!value.startsWith(prefix + ":"))
 				return;
 			val = value.substring(prefix.length() + 1);
+		}
+		if (val.trim().isEmpty()) {
+			setTeam(null);
+			return;
 		}
 		ITeam newTeam = getContest().getTeamById(val);
 		if (newTeam != null) {
