@@ -782,11 +782,6 @@ public class ConfiguredContest {
 		incrementTotal();
 	}
 
-	public void incrementXMLFeed() {
-		metrics[6]++;
-		incrementTotal();
-	}
-
 	public void incrementDesktop() {
 		metrics[7]++;
 		incrementTotal();

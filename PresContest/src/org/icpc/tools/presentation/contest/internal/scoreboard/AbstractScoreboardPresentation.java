@@ -84,8 +84,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		final float dpi = 96;
 
 		float size = (int) (height * 72.0 * 0.028 / dpi);
-		headerFont = ICPCFont.deriveFont(Font.BOLD, size);
-		headerItalicsFont = ICPCFont.deriveFont(Font.BOLD, size);
+		float headerFontSize = size;
 
 		headerHeight = (int) (height / 50.0);
 
@@ -112,6 +111,10 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 				newCubeWidth -= 2;
 		}
 		cubeWidth = newCubeWidth;
+
+		headerFontSize = Math.min(headerFontSize, size * 0.85f);
+		headerFont = ICPCFont.deriveFont(Font.BOLD, headerFontSize);
+		headerItalicsFont = ICPCFont.deriveFont(Font.BOLD, headerFontSize);
 
 		super.setup();
 	}

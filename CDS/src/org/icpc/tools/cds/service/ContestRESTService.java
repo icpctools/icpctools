@@ -73,6 +73,10 @@ public class ContestRESTService extends HttpServlet {
 			sendAPIInfo(response);
 			return;
 		}
+		if (path.equals("/metrics")) {
+			MetricsService.write(request, response);
+			return;
+		}
 		if (!path.startsWith("/contests")) {
 			request.getRequestDispatcher("/WEB-INF/jsps/contestAPI.jsp").forward(request, response);
 			return;

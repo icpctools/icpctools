@@ -1,6 +1,8 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.Locale;
 
 import org.icpc.tools.contest.model.IContest;
@@ -10,7 +12,7 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 
 public class Ranking {
-	private static final Collator collator = Collator.getInstance(Locale.US);
+	private static Collator collator;
 
 	public enum Scoring {
 		LIVE, // scoring applied during a contest, no groups and full details shown
@@ -21,6 +23,17 @@ public class Ranking {
 	private Ranking() {
 		// do not call
 	}
+
+	static {
+		// Java ignores spaces by default in collation rules, so we need to add a rule for it
+		RuleBasedCollator englishCollator = (RuleBasedCollator)Collator.getInstance(Locale.US);
+		String rules = englishCollator.getRules();
+		try {
+			collator = new RuleBasedCollator(rules.replaceAll("<'_'", "<' '<'_'"));
+		} catch (ParseException e) {
+			collator = englishCollator;
+		}
+    }
 
 	protected static void rankIt(IContest contest, ITeam[] teams, IStanding[] standings, int[] order) {
 		rankIt(contest, teams, standings, Scoring.LIVE, order, 12);
@@ -186,10 +199,9 @@ public class Ranking {
 			// sort alpha-numerically within group
 			for (int i = n; i < next - 1; i++) {
 				for (int j = i + 1; j < next; j++) {
-					IOrganization org1 = contest.getOrganizationById(teams[order[i]].getOrganizationId());
-					IOrganization org2 = contest.getOrganizationById(teams[order[j]].getOrganizationId());
-					if (org1 != null && org2 != null
-							&& collator.compare(org1.getActualFormalName(), org2.getActualFormalName()) > 0) {
+					String tin = teams[order[i]].getActualDisplayName();
+					String tjn = teams[order[j]].getActualDisplayName();
+					if (tin != null && tjn != null && collator.compare(tin, tjn) > 0) {
 						swapOrder(order, i, j);
 					}
 				}

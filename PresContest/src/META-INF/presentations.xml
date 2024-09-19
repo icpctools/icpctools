@@ -136,6 +136,13 @@
       category="ICPC"
       description="Displays contest commentary."
       class="org.icpc.tools.presentation.contest.internal.presentations.CommentaryPresentation"/>
+    <presentation
+      id="org.icpc.tools.presentation.contest.team.detail"
+      name="Team Detail"
+      category="ICPC"
+      description="Highlight a team. Shows the team logo and name."
+      properties="teamId,teamLabel"
+      class="org.icpc.tools.presentation.contest.internal.presentations.TeamDetailPresentation"/>
 
    <!-- Fun -->
 
@@ -494,6 +501,7 @@
       name="Video test"
       category="Team"
       description="A tool to verify video."
+      properties="&lt;url&gt;,webcam:&lt;team-id&gt;,desktop:&lt;team-id&gt;"
       class="org.icpc.tools.presentation.contest.internal.presentations.TeamVideoPresentation"/>
    <presentation
       id="org.icpc.tools.presentation.contest.icpc.team.wave"

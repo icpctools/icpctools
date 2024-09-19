@@ -15,16 +15,16 @@ import java.util.HashMap;
  * Utility class from drawing text.
  */
 public class TextImage {
-	private static HashMap<Integer, Image> map = new HashMap<>();
+	private static HashMap<String, Image> map = new HashMap<>();
 
 	public static void drawString(Graphics2D g, String s, int x, int y) {
 		Color c = g.getColor();
 		Font f = g.getFont();
-		int key = f.hashCode();
+		String key = f.hashCode() + "";
 		if (s != null)
-			key = key * 31 + s.hashCode();
+			key = key + '-' + s.hashCode();
 		if (c != null)
-			key = key * 31 + c.hashCode();
+			key = key + '-' + c.hashCode();
 
 		Image image = map.get(key);
 		if (image == null) {
