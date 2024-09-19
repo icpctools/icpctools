@@ -15,4 +15,4 @@ goto :loop
 
 :continue
 
-java -Xmx1024m -cp "%LIBDIR%\*" org.icpc.tools.presentation.contest.internal.standalone.StandaloneLauncher %params% 
+java -Xmx4096m -cp "%LIBDIR%\*" org.icpc.tools.presentation.contest.internal.standalone.StandaloneLauncher %params% 

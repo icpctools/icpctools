@@ -10,4 +10,4 @@ set -e
 export LIBDIR=$( dirname "${BASH_SOURCE}[0]" )/lib
 UNAME=$( uname  -s )
 
-java -Xmx1024m -cp "$LIBDIR/*" org.icpc.tools.resolver.Resolver "$@"
+java -Xmx4096m -cp "$LIBDIR/*" org.icpc.tools.resolver.Resolver "$@"

@@ -22,7 +22,7 @@ robocopy "%ROOTDIR%\update" "%ROOTDIR%\" /e /move
 
 :restart
 
-java -Xmx1024m -cp "%LIBDIR%\*" org.icpc.tools.presentation.contest.internal.ClientLauncher %params%  
+java -Xmx4096m -cp "%LIBDIR%\*" org.icpc.tools.presentation.contest.internal.ClientLauncher %params%  
 
 if errorlevel 255 goto :restart
 if errorlevel 254 goto :update
