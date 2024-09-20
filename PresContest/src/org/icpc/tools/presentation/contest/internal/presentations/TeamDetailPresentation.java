@@ -57,7 +57,19 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 		}
 		newInfo.id = team.getId();
 		newInfo.name = team.getLabel() + " – " + team.getActualDisplayName();
+
+		TeamInfo oldInfo = info;
 		info = newInfo;
+		if (oldInfo != null) {
+			synchronized (oldInfo) {
+				if (oldInfo.logo != null) {
+					oldInfo.logo.flush();
+				}
+				if (oldInfo.photo != null) {
+					oldInfo.photo.flush();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -82,21 +94,23 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 
 		TeamInfo ti = info;
 		if (ti != null) {
-			if (ti.photo != null)
-				g.drawImage(ti.photo, (width - ti.photo.getWidth()) / 2, (height - ti.photo.getHeight()) / 2, null);
-			if (ti.logo != null)
-				g.drawImage(ti.logo, (width + ti.photo.getWidth() - ti.logo.getWidth()) / 2,
-						(height - ti.photo.getHeight() - ti.logo.getHeight()) / 2, null);
+			synchronized (ti) {
+				if (ti.photo != null)
+					g.drawImage(ti.photo, (width - ti.photo.getWidth()) / 2, (height - ti.photo.getHeight()) / 2, null);
+				if (ti.logo != null)
+					g.drawImage(ti.logo, (width + ti.photo.getWidth() - ti.logo.getWidth()) / 2,
+							(height - ti.photo.getHeight() - ti.logo.getHeight()) / 2, null);
 
-			g.setColor(Color.WHITE);
-			g.setFont(font);
-			FontMetrics fm = g.getFontMetrics();
+				g.setColor(Color.WHITE);
+				g.setFont(font);
+				FontMetrics fm = g.getFontMetrics();
 
-			if (ti.name != null) {
-				String[] s = splitString(g, ti.name, width - MARGIN * 2);
-				for (int i = 0; i < s.length; i++) {
-					TextHelper.drawString(g, s[i], (width - fm.stringWidth(s[i])) / 2,
-							height - fm.getDescent() - MARGIN - (s.length - i - 1) * fm.getHeight());
+				if (ti.name != null) {
+					String[] s = splitString(g, ti.name, width - MARGIN * 2);
+					for (int i = 0; i < s.length; i++) {
+						TextHelper.drawString(g, s[i], (width - fm.stringWidth(s[i])) / 2,
+								height - fm.getDescent() - MARGIN - (s.length - i - 1) * fm.getHeight());
+					}
 				}
 			}
 		} else if (contestImage != null)
