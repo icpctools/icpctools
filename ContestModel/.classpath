@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/xmlgraphics-commons-2.11.jar"/>
 	<classpathentry kind="lib" path="lib/batik-all-1.19.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/sentry-opentelemetry-agent-8.12.0.jar"/>
+	<classpathentry kind="lib" path="lib/qrcodegen-1.8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
