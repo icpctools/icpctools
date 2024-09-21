@@ -696,6 +696,9 @@ public class ClientsControl extends Canvas {
 				case LIGHT:
 					back = new Color(getDisplay(), 239, 239, 239);
 					break;
+				case SYSTEM:
+					// ignore
+					break;
 			}
 		}
 		gc.setBackground(back);
@@ -788,6 +791,9 @@ public class ClientsControl extends Canvas {
 								break;
 							case LIGHT:
 								fore = getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY);
+								break;
+							case SYSTEM:
+								// ignore
 								break;
 						}
 					}

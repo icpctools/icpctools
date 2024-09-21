@@ -3,11 +3,8 @@ package org.icpc.tools.presentation.contest.internal.tile;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -85,8 +82,8 @@ public class TileScoreboardPresentation extends ScrollingTileScoreboardPresentat
 	}
 
 	/**
-	 * Pre-render random appearances of the first two columns at random column sizes, so that
-	 * all versions eventually get rendered, so that the whole column animation gets smooth.
+	 * Pre-render random appearances of the first two columns at random column sizes, so that all
+	 * versions eventually get rendered, so that the whole column animation gets smooth.
 	 *
 	 * @param g2 graphics to drow visible graphics on, only used for DEBUG_SHOW_PRERENDER.
 	 */

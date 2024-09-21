@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContest.ScoreboardType;
-import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 
@@ -26,14 +25,14 @@ public class Ranking {
 
 	static {
 		// Java ignores spaces by default in collation rules, so we need to add a rule for it
-		RuleBasedCollator englishCollator = (RuleBasedCollator)Collator.getInstance(Locale.US);
+		RuleBasedCollator englishCollator = (RuleBasedCollator) Collator.getInstance(Locale.US);
 		String rules = englishCollator.getRules();
 		try {
 			collator = new RuleBasedCollator(rules.replaceAll("<'_'", "<' '<'_'"));
 		} catch (ParseException e) {
 			collator = englishCollator;
 		}
-    }
+	}
 
 	protected static void rankIt(IContest contest, ITeam[] teams, IStanding[] standings, int[] order) {
 		rankIt(contest, teams, standings, Scoring.LIVE, order, 12);
@@ -83,10 +82,10 @@ public class Ranking {
 						if (si.getLastSolutionTime() > sj.getLastSolutionTime())
 							swap = true;
 						else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
-						String tin = teams[order[i]].getActualDisplayName();
-						String tjn = teams[order[j]].getActualDisplayName();
-						if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
-							swap = true;
+							String tin = teams[order[i]].getActualDisplayName();
+							String tjn = teams[order[j]].getActualDisplayName();
+							if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
+								swap = true;
 						}
 					}
 					// Future: some contests also use penalty as a tiebreaker, but there's no way
@@ -112,7 +111,8 @@ public class Ranking {
 			IStanding lastStanding = null;
 			for (int i = 0; i < numTeams; i++) {
 				Standing standing = (Standing) standings[order[i]];
-				if (lastStanding != null && standing.getScore() == lastStanding.getScore() && standing.getLastSolutionTime() == lastStanding.getLastSolutionTime()) {
+				if (lastStanding != null && standing.getScore() == lastStanding.getScore()
+						&& standing.getLastSolutionTime() == lastStanding.getLastSolutionTime()) {
 					standing.setRank(lastStanding.getRank());
 				} else {
 					standing.setRank((i + 1) + "");
