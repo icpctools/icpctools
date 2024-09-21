@@ -11,7 +11,7 @@
 			<accessrule kind="accessible" pattern="sun/net/www/protocol/https/*"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/snakeyaml-1.33.jar">
+	<classpathentry kind="lib" path="lib/snakeyaml-2.3.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.dependency" value="../"/>
 		</attributes>
