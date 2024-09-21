@@ -908,8 +908,8 @@ public class View {
 		});
 
 		// Note: Dark themes does not seem to be supported by SWT on Windows,
-		//       but works on mac by default, for example.
-		//       This adds an option to force dark mode by manually overriding background colors.
+		// but works on mac by default, for example.
+		// This adds an option to force dark mode by manually overriding background colors.
 		final MenuItem forceDarkMenu = new MenuItem(submenu, SWT.CHECK);
 		forceDarkMenu.setText("Force &Dark mode");
 		forceDarkMenu.addSelectionListener(new SelectionAdapter() {
@@ -1135,9 +1135,7 @@ public class View {
 	}
 
 	public static enum ForceTheme {
-		LIGHT,
-		DARK,
-		SYSTEM
+		LIGHT, DARK, SYSTEM
 	}
 
 	private void setBackground(ForceTheme forceTheme) {
@@ -1149,6 +1147,9 @@ public class View {
 					break;
 				case LIGHT:
 					back = new Color(partControl.getDisplay(), 223, 223, 223);
+					break;
+				case SYSTEM:
+					// ignore
 					break;
 			}
 		}

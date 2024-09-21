@@ -432,7 +432,8 @@ public class TeamTileHelper {
 		g.drawString(label, (w - fm.stringWidth(label)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
 	}
 
-	private void paintRecentResultBackground(Graphics2D g, int kk, IResult r, int x, int y, int w, int h, int arc) {
+	private static void paintRecentResultBackground(Graphics2D g, int kk, IResult r, int x, int y, int w, int h,
+			int arc) {
 		Color c = null;
 		int k = kk;
 		// flash more than once per second
