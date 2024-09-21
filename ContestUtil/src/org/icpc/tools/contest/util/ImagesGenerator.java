@@ -35,18 +35,14 @@ import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 
 /**
- * Converts logos and other images from raw source (typically from the CMS attachments) to usable
- * contest data.
+ * Helps convert logos and other images from raw source (from the CMS export or hand-built contest
+ * folder) to usable contest data. Copies are made when an image is found but doesn't have the
+ * correct name, warnings are output when an image has issues, and smaller versions of photos and
+ * logos are created to reduce network load / improve performance.
  *
- * Arguments: cmsLocation contestRoot
- *
- * cmsLocation - the folder containing raw images (typically downloaded directly from CMS as
- * Attachments and unzipped)
- *
- * contestRoot - a contest location, i.e. CDP/CAF root folder
+ * Arguments: contestRoot - a contest location, i.e. CDP/CAF root folder
  */
 public class ImagesGenerator {
-	private static final int MAX_IMAGE_SIZE = 1080;
 	private static final int MIN_SIZE = 250;
 	private static final int HD_MARGIN = 15;
 	private static final int HD_TOP = 30;
@@ -117,7 +113,7 @@ public class ImagesGenerator {
 		generator.generateTeamDesktop();
 
 		Trace.trace(Trace.USER, "----- Generating team photos -----");
-		// TODO generator.generateTeamPhotos();
+		generator.generateTeamPhotos();
 
 		// temp - rename logo files
 		/*try {
@@ -128,14 +124,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-		
+
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -187,70 +183,8 @@ public class ImagesGenerator {
 	}
 
 	public void generateTeamPhotos() {
-		File sourceRoot = new File(contestRoot, "images" + File.separator + "teamSource");
-		if (!sourceRoot.exists()) {
-			Trace.trace(Trace.ERROR, "Couldn't find images/teamSource folder. Exiting");
-			return;
-		}
-
-		ImageType[] types = new ImageType[] { new ImageType("teams") };
-		File teamsFolder = new File(contestRoot, "teams");
-
-		// generate files
-		File[] files2 = sourceRoot.listFiles();
-		for (File f : files2) {
-			if (f.getName().startsWith("."))
-				continue;
-			File imgFile = f;
-
-			int teamId = getTeamNum2(f.getName());
-			String toFileName = teamId + File.separator + "photo.jpg";
-
-			try {
-				for (int i = 0; i < types.length; i++) {
-					ImageType it = types[i];
-					File file = new File(teamsFolder, toFileName);
-					File folder = file.getParentFile();
-					folder.mkdirs();
-					it.files.add(file);
-					if (file.exists()) {
-						if (imgFile.lastModified() != file.lastModified())
-							file.delete();
-						else
-							file = null;
-					}
-
-					if (file != null) {
-						Trace.trace(Trace.USER, "Generating: " + file);
-						BufferedImage img = ImageIO.read(imgFile);
-						createTeam(img, file);
-						file.setLastModified(imgFile.lastModified());
-					}
-				}
-			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Error generating image", e);
-			}
-		}
-
-		/*for (ImageType it : types) {
-			cleanupFolder(it.folder, it.files);
-		}*/
-
-		// check output
-		/*File[] files = teamsFolder.listFiles();
-		List<Integer> list = new ArrayList<>();
-		int max = 0;
-		for (File f : files) {
-			String s = f.getName().substring(0, f.getName().indexOf("."));
-			int num = Integer.parseInt(s);
-			max = Math.max(max, num);
-			list.add(num);
-		}
-		Trace.trace(Trace.USER, list.size() + " images found for " + max + " teams");
-		for (int i = 1; i <= max; i++) {
-			if (!list.contains(i))
-				Trace.trace(Trace.USER, "   Team " + i + " missing image");
-		}*/
+		ImageSpec[] spec = new ImageSpec[] { new ImageSpec(DESKTOP, false) };
+		generateImages("teams", "photo", "jpg", spec);
 	}
 
 	private static BufferedImage removeBorders(BufferedImage img) throws Exception {
@@ -458,10 +392,6 @@ public class ImagesGenerator {
 				writeImage(property, scImg, folder, mod, true, preferredExtension);
 			}
 		}
-		if (img.getWidth() > MAX_IMAGE_SIZE || img.getHeight() > MAX_IMAGE_SIZE) {
-			BufferedImage scImg = ImageScaler.scaleImage(img, MAX_IMAGE_SIZE, MAX_IMAGE_SIZE);
-			writeImage(property, scImg, folder, mod, true, preferredExtension);
-		}
 	}
 
 	public void generateImages(String objectName, String property, String preferredExtension, ImageSpec[] spec) {
@@ -470,6 +400,8 @@ public class ImagesGenerator {
 			Trace.trace(Trace.ERROR, "Couldn't find /" + objectName + " folder. Exiting");
 			return;
 		}
+
+		boolean transparency = "png".equals(preferredExtension);
 
 		int numWarnings = 0;
 
@@ -505,7 +437,7 @@ public class ImagesGenerator {
 							ff.delete();
 					}
 
-					numWarnings = checkForWarnings(folderName, img, numWarnings);
+					numWarnings = checkForWarnings(folderName, img, numWarnings, transparency);
 
 					String name = imgFile.getName().toLowerCase();
 					if (!name.equals(property + "." + preferredExtension)) {
@@ -642,9 +574,10 @@ public class ImagesGenerator {
 		file.setLastModified(mod);
 	}
 
-	private static int checkForWarnings(String name, BufferedImage img, int numWarnings) {
+	private static int checkForWarnings(String name, BufferedImage img, int numWarnings, boolean transparency) {
 		int warn = numWarnings;
-		if ((img.getTransparency() != Transparency.TRANSLUCENT && img.getTransparency() != Transparency.BITMASK)) {
+		if (transparency
+				&& (img.getTransparency() != Transparency.TRANSLUCENT && img.getTransparency() != Transparency.BITMASK)) {
 			warn(name, "no transparency");
 			warn++;
 		}
@@ -660,10 +593,6 @@ public class ImagesGenerator {
 			warn++;
 		}
 		return warn;
-	}
-
-	private static void createTeam(BufferedImage img, File file) throws IOException {
-		ImageIO.write(ImageScaler.scaleImage(img, 1920, 1080), "jpg", file);
 	}
 
 	protected static void warn(String name, String s) {
@@ -757,18 +686,6 @@ public class ImagesGenerator {
 
 		g.dispose();
 		ImageIO.write(newImg, "png", file);
-	}
-
-	private static int getTeamNum2(String s) {
-		StringBuilder sb = new StringBuilder();
-		int len = s.length();
-		for (int i = 0; i < len; i++) {
-			char c = s.charAt(i);
-			if (Character.isDigit(c))
-				sb.append(c);
-		}
-
-		return Integer.parseInt(sb.toString());
 	}
 
 	protected void createRibbon() throws IOException {
