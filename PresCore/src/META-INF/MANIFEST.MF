@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Class-Path: tyrus-standalone-client-1.17.jar
+Class-Path: tyrus-standalone-client-2.2.0.jar
