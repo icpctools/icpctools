@@ -44,6 +44,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedParser;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.util.QRCode;
 
 public class BalloonPrinter {
 	public static final String[] DEFAULT_MESSAGES = new String[] { "First balloon in contest!",
@@ -462,15 +463,8 @@ public class BalloonPrinter {
 		if (iy > yy)
 			yy = iy;
 
-		int w = (int) (r.width * 0.25);
-		int by = yy + w / 2;
-		try {
-			g.setFont(font);
-			UPCa upc = new UPCa(b.getId() + 100_000);
-			upc.draw(g, new Rectangle(r.width - w - r.width / 50, yy + r.width / 60, w, w * 2 / 5));
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error drawing UPC", e);
-		}
+		int w = (int) (r.width * 0.1);
+		QRCode.drawQRCode(g, "icpc-balloon-" + b.getId(), r.width - w - r.width / 50, yy + r.width / 60, w);
 
 		// draw messages
 		if (messages != null && messages.length == 4) {
@@ -487,9 +481,6 @@ public class BalloonPrinter {
 			if (b.isFirstForTeam())
 				yy = addMessage(g, yy, gap, subs(messages[3], groupName, problem.getLabel(), problem.getColor()));
 		}
-
-		if (yy < by)
-			yy = by;
 
 		// draw banner and contest name at the bottom
 		g.setColor(Color.BLACK);

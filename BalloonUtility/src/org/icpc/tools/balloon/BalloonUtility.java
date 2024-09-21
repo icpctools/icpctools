@@ -158,24 +158,18 @@ public class BalloonUtility {
 				updateLabel.setText("");
 				char c = event.character;
 				if (c != '\n' && c != '\r') {
-					try {
-						Integer.parseInt(c + "");
-						sb.append(c);
-					} catch (NumberFormatException nfe) {
-						// ignore
-						sb = new StringBuilder();
-					}
-
+					sb.append(c);
 					return;
 				}
 
-				String s = sb.toString();
-				try {
-					int n = Integer.parseInt(s);
-					if (n > 1_000_000)
-						n = Integer.parseInt(s.substring(0, s.length() - 1)) - 100_000;
+				String s = sb.toString().toLowerCase();
+				sb = new StringBuilder();
+				if (!s.startsWith("icpc-balloon-"))
+					return;
 
-					boolean found = false;
+				try {
+					int n = Integer.parseInt(s.substring(13));
+
 					TableItem[] tis = balloonTable.getItems();
 					for (TableItem ti : tis) {
 						Balloon b = (Balloon) ti.getData();
@@ -188,16 +182,14 @@ public class BalloonUtility {
 								updateLabel.setText("Delivered: " + n);
 							} else
 								updateLabel.setText("Redelivered: " + n);
-							found = true;
+							return;
 						}
 					}
 
-					if (!found)
-						updateLabel.setText("Not found: " + s);
+					updateLabel.setText("Not found: " + s);
 				} catch (Exception e) {
 					updateLabel.setText("Error: \"" + s + "\"");
 				}
-				sb = new StringBuilder();
 			}
 		};
 
