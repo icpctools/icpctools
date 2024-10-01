@@ -12,15 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoServingHandler;
 import org.icpc.tools.cds.video.VideoStream;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * HLS handler. https://localhost:8443/stream/11?_HLS_msn=10&_HLS_part=3&_HLS_skip=YES

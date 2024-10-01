@@ -12,14 +12,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
-import javax.websocket.Session;
-
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.CDSConfig.Domain;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+
+import jakarta.websocket.Session;
 
 public class PresentationServer {
 	private static final String PREF_ID = "org.icpc.tools.cds";
@@ -733,7 +733,7 @@ public class PresentationServer {
 		int nextEventTime = Integer.MAX_VALUE;
 		for (TimedEvent event : events)
 			nextEventTime = (int) Math.min(event.contestTimeMs, nextEventTime);
-		
+
 		// leave if there are no scheduled events
 		if (nextEventTime == Integer.MAX_VALUE)
 			return;*/

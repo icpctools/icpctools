@@ -6,8 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.model.IContest;
@@ -28,6 +26,9 @@ import com.lowagie.text.pdf.PdfGState;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public class BalloonPDFService {
 	public static void generate(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc)

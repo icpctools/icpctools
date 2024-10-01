@@ -3,12 +3,12 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="javax.servlet-api-4.0.1.jar">
+	<classpathentry kind="lib" path="io.openliberty.jakarta.servlet.6.0_1.0.93.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="javax.servlet.jsp-api-2.3.3.jar">
+	<classpathentry kind="lib" path="io.openliberty.jakarta.pages.3.1_1.0.93.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
@@ -19,17 +19,22 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="javax.websocket-api-1.1.jar">
+	<classpathentry kind="lib" path="io.openliberty.jakarta.websocket.2.1_1.0.93.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="cdi-api-2.0.jar">
+	<classpathentry kind="lib" path="io.openliberty.jakarta.websocket.client.2.1_1.0.93.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="javaee-web-api-8.0.jar">
+	<classpathentry kind="lib" path="io.openliberty.jakarta.cdi.4.0_1.0.93.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="io.openliberty.jakarta.security.3.0_1.0.93.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>

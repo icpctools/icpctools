@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
@@ -19,6 +17,8 @@ import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.util.AwardUtil;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public class FinalizeService {
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {

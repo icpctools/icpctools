@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.CDSConfig.Auth;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Very first attempt at an /access service, only provides a couple capabilities for now, no

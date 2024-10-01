@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public class HLSFileCache {
 	private static final long CACHE_TIME = 10 * 1000L; // 10s

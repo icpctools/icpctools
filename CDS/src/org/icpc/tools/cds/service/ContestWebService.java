@@ -13,13 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.RSSWriter;
@@ -46,6 +39,13 @@ import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.contest.model.util.ContestComparator;
 import org.icpc.tools.contest.model.util.ScoreboardData;
 import org.icpc.tools.contest.model.util.ScoreboardUtil;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(urlPatterns = { "/contests", "/contests/*" }, asyncSupported = true)
 public class ContestWebService extends HttpServlet {

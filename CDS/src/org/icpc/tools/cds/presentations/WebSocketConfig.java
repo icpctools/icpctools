@@ -2,12 +2,12 @@ package org.icpc.tools.cds.presentations;
 
 import java.security.Principal;
 
-import javax.websocket.HandshakeResponse;
-import javax.websocket.server.HandshakeRequest;
-import javax.websocket.server.ServerEndpointConfig;
-
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.contest.model.IAccount;
+
+import jakarta.websocket.HandshakeResponse;
+import jakarta.websocket.server.HandshakeRequest;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 public class WebSocketConfig extends ServerEndpointConfig.Configurator {
 	public static class UserInfo {
