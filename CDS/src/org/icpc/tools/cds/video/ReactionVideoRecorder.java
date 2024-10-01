@@ -15,10 +15,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
@@ -30,6 +26,10 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.FileReferenceList;
 import org.icpc.tools.contest.model.internal.Submission;
+
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Reaction video recorder. Will record webcam and desktop video from when a submission is received

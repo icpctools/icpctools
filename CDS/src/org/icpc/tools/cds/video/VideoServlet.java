@@ -3,14 +3,6 @@ package org.icpc.tools.cds.video;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.AsyncEvent;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
@@ -22,6 +14,14 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
+
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.AsyncEvent;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 // stream/x - stream x
 // stream/x?reset - reset stream x

@@ -3,16 +3,16 @@ package org.icpc.tools.cds.service;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.presentations.PresentationServer;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.contest.Trace;
+
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 
 @WebListener
 public class ExecutorListener implements ServletContextListener {

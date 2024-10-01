@@ -2,12 +2,6 @@ package org.icpc.tools.cds.service.test;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.CDSAuth;
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.contest.model.IContest;
@@ -15,6 +9,12 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(urlPatterns = "/test/scoring")
 public class ScoringTestService extends HttpServlet {

@@ -11,10 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.websocket.Session;
-
 import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -45,6 +41,10 @@ import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.w3c.dom.Element;
+
+import jakarta.servlet.AsyncContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.websocket.Session;
 
 public class ConfiguredContest {
 	private static final IAccount PUBLIC_ACCOUNT = new Account();

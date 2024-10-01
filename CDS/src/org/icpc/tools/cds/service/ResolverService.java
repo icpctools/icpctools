@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
@@ -28,6 +26,8 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 public class ResolverService {
 	protected static List<ResolutionStep> steps;
