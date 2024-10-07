@@ -1,11 +1,11 @@
 <server description="ICPC contest data server">
     <featureManager>
-       <feature>jsp-2.3</feature>
+       <feature>pages-3.1</feature>
        <feature>jndi-1.0</feature>
-       <feature>websocket-1.1</feature>
-       <feature>appSecurity-3.0</feature>
-       <feature>servlet-4.0</feature>
-       <feature>cdi-2.0</feature>
+       <feature>websocket-2.1</feature>
+       <feature>appSecurity-5.0</feature>
+       <feature>servlet-6.0</feature>
+       <feature>cdi-4.0</feature>
     </featureManager>
 
     <!-- If you have root access, change port numbers to httpPort="80" httpsPort="443" -->
