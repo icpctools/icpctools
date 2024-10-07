@@ -32,13 +32,17 @@ public class ErrorService extends HttpServlet {
 			return;
 		}
 
+		// get error message
+		Object errMsg = request.getAttribute("javax.servlet.error.message");
+		String errorMessage = (errMsg != null) ? errMsg.toString() : "Unknown error";
+
 		// if client accepts json or it's an API call, return json
 		if ((accept != null && accept.contains("json")) || request.getRequestURI().startsWith("/api")) {
 			response.setContentType("application/json");
 
 			JsonObject obj = new JsonObject();
 			obj.put("code", response.getStatus());
-			obj.put("message", request.getAttribute("javax.servlet.error.message"));
+			obj.put("message", errorMessage);
 
 			JSONWriter jw = new JSONWriter(response.getWriter());
 			jw.writeObject(obj);
@@ -48,7 +52,7 @@ public class ErrorService extends HttpServlet {
 
 		// otherwise, send plain text
 		PrintWriter pw = response.getWriter();
-		pw.write(request.getAttribute("javax.servlet.error.message") + " (" + response.getStatus() + ")");
+		pw.write(errorMessage + " (" + response.getStatus() + ")");
 		pw.flush();
 	}
 }
