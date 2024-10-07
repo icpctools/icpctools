@@ -12,6 +12,12 @@
     	webroot = request.getContextPath() + "/contests/" + cc.getId();
     	apiRoot = request.getContextPath() + "/api/contests/" + cc.getId();
     }
+    Object requestURIObj = request.getAttribute("javax.servlet.forward.request_uri");
+    String requestURI = requestURIObj != null ? requestURIObj.toString() : "?";
+    
+    Object titleObj = request.getAttribute("title");
+    String title = titleObj != null ? titleObj.toString() : "";
+    
     String cdsName = System.getProperty("CDS-name");
     String[] menuPages = {"", "/details", "/registration", "/clarifications", "/submissions", "/scoreboard", "/commentary", "/reports", "/video", "/admin"};
     String[] menuTitles = {"Overview", "Details", "Registration", "Clarifications", "Submissions", "Scoreboard", "Commentary", "Reports", "Video", "Admin"};
@@ -159,7 +165,7 @@ function logout() {
                    if ((i > 0 && i < 6) || (CDSAuth.isStaff(request) && i < 8) || CDSAuth.isAdmin(request)) { %>
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/contests/<%= cc3.getId() %><%= menuPages[i] %>"
-                    class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").equals(webroot3 + menuPages[i])) { %> active<% } %>">
+                    class="nav-link<% if (requestURI.equals(webroot3 + menuPages[i])) { %> active<% } %>">
                     <i class="far <%= menuIcons[i] %> nav-icon"></i>
                     <p><%= menuTitles[i] %></p>
                   </a>
@@ -172,7 +178,7 @@ function logout() {
             <% if (CDSAuth.isAdmin(request)) { %>
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/countdown"
-                 class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("countdown")) { %> active<% } %>">
+                 class="nav-link<% if (requestURI.contains("countdown")) { %> active<% } %>">
                 <i class="nav-icon fas fa-clock"></i>
                 <p>Countdown Control</p>
               </a>
@@ -182,7 +188,7 @@ function logout() {
             <% if (CDSAuth.isPresAdmin(request)) { %>
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/presentation/admin/web"
-                class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("presentation/admin/web")) { %> active<% } %>">
+                class="nav-link<% if (requestURI.contains("presentation/admin/web")) { %> active<% } %>">
                 <i class="nav-icon fas fa-address-card"></i>
                 <p>Presentation Admin</p>
               </a>
@@ -190,8 +196,8 @@ function logout() {
             <% } %>
 
             <% if (CDSAuth.isAdmin(request)) { %>
-            <li class="nav-item has-treeview menu-<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
-              <a href="#" class="nav-link <% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/")) { %>active<% } %>">
+            <li class="nav-item has-treeview menu-<% if (requestURI.contains("/video/control/")) { %>open<% } else { %>closed<% } %>">
+              <a href="#" class="nav-link <% if (requestURI.contains("/video/control/")) { %>active<% } %>">
                 <i class="nav-icon fas fa-video"></i>
                 <p>
                   Video Channels
@@ -203,7 +209,7 @@ function logout() {
                 <% for (int v = 1; v < 4; v++) { %>
                 <li class="nav-item">
                   <a href="${pageContext.request.contextPath}/video/control/<%= v %>"
-                    class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/video/control/" + v)) { %> active<% } %>">
+                    class="nav-link<% if (requestURI.contains("/video/control/" + v)) { %> active<% } %>">
                     <i class="far fa-circle nav-icon"></i>
                     <p>Channel <%= v %></p>
                   </a>
@@ -215,7 +221,7 @@ function logout() {
 
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/about"
-                class="nav-link<% if (request.getAttribute("javax.servlet.forward.request_uri").toString().contains("/about")) { %> active<% } %>">
+                class="nav-link<% if (requestURI.contains("/about")) { %> active<% } %>">
                 <i class="nav-icon fas fa-info"></i>
                 <p>About</p>
               </a>
@@ -237,7 +243,7 @@ function logout() {
               <% String contestName = "";
                if (contest != null && contest.getName() != null)
                    contestName = contest.getName() + " "; %>
-              <h1 class="m-0"><%= HttpHelper.sanitizeHTML(contestName) %><%= request.getAttribute("title") %></h1>
+              <h1 class="m-0"><%= HttpHelper.sanitizeHTML(contestName) %><%= title %></h1>
             </div><!-- /.col -->
             <div class="col-sm-2">
             	<div id="contest-time" class="text-right"></div>
