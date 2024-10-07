@@ -349,14 +349,9 @@ public class Resolver {
 	}
 
 	private boolean processOption(String option, List<Object> options, ResolveInfo resolveInfo) {
-		if ("--fast".equalsIgnoreCase(option) || "--speed".equalsIgnoreCase(option)) {
+		if ("--speed".equalsIgnoreCase(option)) {
 			// --fast varies the speed at which the resolving process should run (useful for
-			// previewing results).
-			// This option allows for an float parameter following --fast that is used as the
-			// speed multiplier; SpeedFactor values greater than zero but less than one
-			// INCREASE
-			// the resolution speed; values greater than one DECREASE the speed; values <= zero are
-			// ignored.
+			// previewing results). A parameter <1 slows it down and >1 speeds it up
 			ArgumentParser.expectOptions(option, options, "speed:float");
 			float fastVal = (float) options.get(0);
 			if (fastVal <= 0) {

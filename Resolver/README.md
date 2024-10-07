@@ -209,10 +209,8 @@ Shows additional information regarding each pending run.
 ```
 Changes the resolving speed.
 The [speedFactor] option is a decimal percentage indicating the desired amount of change
-in the execution time for each step.  Factors between 0 and 1 speed up the resolving process;
-factors greater than 1 slow it down.  For example a speedFactor of 0.5 will double the
-speed (i.e., cut the time in half).  If --speed is specified but no speedFactor is given,
-the default speedFactor is 0.15.
+in the execution time for each step.  Factors between 0 and 1 slow down the resolving process;
+factors greater than 1 speed it up.  For example a speedFactor of 2 will resolve twice as fast.
 
 ```
 --singleStep <startRow>
@@ -343,12 +341,12 @@ Toggle additional information regarding each pending run (same as --info).
 ### Command Line Examples
 
 ```
-resolver.bat https://169.254.80.194:8443 admin adm1n --speed 0.7
+resolver.bat https://169.254.80.194:8443 admin adm1n --speed 1.3
   --rowDisplayOffset 4 --info
 ```
 The above command runs the Resolver in presenter mode, connected to a CDS at the specified URL 
 (IP address and port)
-using the specified server login and password credentials, and runs reducing time by 30% (--speed 0.7).
+using the specified server login and password credentials, and runs 30% faster (--speed 1.3).
 Additional "presenter info" is displayed on the screen.
 
 ```
