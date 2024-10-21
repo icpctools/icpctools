@@ -1,5 +1,5 @@
 FROM openjdk:17-bullseye
-LABEL maintainer="Tim deBoer"
+LABEL maintainer="ICPC Tools Team"
 LABEL org.opencontainers.image.description="ICPC Tools code builder"
 LABEL org.opencontainers.image.source=https://github.com/icpctools/icpctools
 
