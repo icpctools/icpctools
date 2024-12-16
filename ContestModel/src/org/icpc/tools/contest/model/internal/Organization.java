@@ -12,24 +12,28 @@ public class Organization extends ContestObject implements IOrganization {
 	private static final String ICPC_ID = "icpc_id";
 	private static final String NAME = "name";
 	private static final String FORMAL_NAME = "formal_name";
-	private static final String COUNTRY = "country";
 	private static final String URL = "url";
 	private static final String HASHTAG = "twitter_hashtag";
 	private static final String ACCOUNT = "twitter_account";
 	private static final String LOCATION = "location";
 	private static final String LOGO = "logo";
+	private static final String COUNTRY = "country";
 	private static final String COUNTRY_FLAG = "country_flag";
+	private static final String COUNTRY_SUBDIVISION = "country_subdivison";
+	private static final String COUNTRY_SUBDIVISION_FLAG = "country_subdivision_flag";
 
 	private String icpcId;
 	private String name;
 	private String formalName;
-	private String country;
 	private String url;
 	private String hashtag;
 	private String account;
 	private Location location;
 	private FileReferenceList logo;
+	private String country;
 	private FileReferenceList countryFlag;
+	private String countrySubdivision;
+	private FileReferenceList countrySubdivisionFlag;
 
 	@Override
 	public ContestType getType() {
@@ -61,6 +65,11 @@ public class Organization extends ContestObject implements IOrganization {
 	@Override
 	public String getCountry() {
 		return country;
+	}
+
+	@Override
+	public String getCountrySubdivision() {
+		return countrySubdivision;
 	}
 
 	@Override
@@ -131,6 +140,26 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
+	public File getCountrySubdivisionFlag(int width, int height, boolean force) {
+		return getFile(getBestFileReference(countrySubdivisionFlag, new ImageSizeFit(width, height)),
+				COUNTRY_SUBDIVISION_FLAG, force);
+	}
+
+	@Override
+	public BufferedImage getCountrySubdivisionFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
+		return getRefImage(COUNTRY_SUBDIVISION_FLAG, countrySubdivisionFlag, width, height, forceLoad, resizeToFit);
+	}
+
+	@Override
+	public FileReferenceList getCountrySubdivisionFlag() {
+		return countrySubdivisionFlag;
+	}
+
+	public void setCountrySubdivisionFlag(FileReferenceList list) {
+		countrySubdivisionFlag = list;
+	}
+
+	@Override
 	public Object resolveFileReference(String url2) {
 		return FileReferenceList.resolve(url2, logo, countryFlag);
 	}
@@ -152,6 +181,10 @@ public class Organization extends ContestObject implements IOrganization {
 			}
 			case COUNTRY: {
 				country = (String) value;
+				return true;
+			}
+			case COUNTRY_SUBDIVISION: {
+				countrySubdivision = (String) value;
 				return true;
 			}
 			case URL: {
@@ -178,6 +211,10 @@ public class Organization extends ContestObject implements IOrganization {
 				countryFlag = parseFileReference(value);
 				return true;
 			}
+			case COUNTRY_SUBDIVISION_FLAG: {
+				countrySubdivisionFlag = parseFileReference(value);
+				return true;
+			}
 		}
 
 		return false;
@@ -193,6 +230,8 @@ public class Organization extends ContestObject implements IOrganization {
 		o.formalName = formalName;
 		o.country = country;
 		o.countryFlag = countryFlag;
+		o.countrySubdivision = countrySubdivision;
+		o.countrySubdivisionFlag = countrySubdivisionFlag;
 		o.url = url;
 		o.hashtag = hashtag;
 		o.account = account;
@@ -208,6 +247,8 @@ public class Organization extends ContestObject implements IOrganization {
 		props.addString(FORMAL_NAME, formalName);
 		props.addString(COUNTRY, country);
 		props.addFileRef(COUNTRY_FLAG, countryFlag);
+		props.addString(COUNTRY_SUBDIVISION, countrySubdivision);
+		props.addFileRef(COUNTRY_SUBDIVISION_FLAG, countrySubdivisionFlag);
 		props.addString(URL, url);
 		props.addString(HASHTAG, hashtag);
 		props.addString(ACCOUNT, account);

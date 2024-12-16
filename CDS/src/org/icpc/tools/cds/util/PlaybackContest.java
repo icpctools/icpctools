@@ -47,6 +47,7 @@ public class PlaybackContest extends Contest {
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
 	private static final String COUNTRY_FLAG = "country_flag";
+	private static final String COUNTRY_SUBDIVISION_FLAG = "country_subdivison_flag";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
 	private static final String BACKUP = "backup";
@@ -172,6 +173,8 @@ public class PlaybackContest extends Contest {
 			Organization o = (Organization) obj;
 			o.setLogo(downloadMissingFiles(src, obj, LOGO, o.getLogo()));
 			o.setCountryFlag(downloadMissingFiles(src, obj, COUNTRY_FLAG, o.getCountryFlag()));
+			o.setCountrySubdivisionFlag(
+					downloadMissingFiles(src, obj, COUNTRY_SUBDIVISION_FLAG, o.getCountrySubdivisionFlag()));
 		} else if (obj instanceof Submission) {
 			Submission s = (Submission) obj;
 			s.setFiles(downloadMissingFiles(src, obj, FILES, s.getFiles()));
