@@ -315,6 +315,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 			Organization o = (Organization) ((Organization) org).clone();
 			o.add("country", null);
 			o.setCountryFlag(null);
+			o.setCountrySubdivisionFlag(null);
 			return o;
 		}
 

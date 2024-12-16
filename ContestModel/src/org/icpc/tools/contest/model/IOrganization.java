@@ -38,9 +38,9 @@ public interface IOrganization extends IContestObject {
 	String getActualFormalName();
 
 	/**
-	 * The nationality of the organization.
+	 * The country of the organization.
 	 *
-	 * @return the nationality
+	 * @return the country
 	 */
 	String getCountry();
 
@@ -65,6 +65,35 @@ public interface IOrganization extends IContestObject {
 	 * @return the country flag
 	 */
 	BufferedImage getCountryFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+
+	/**
+	 * The country subdivision of the organization.
+	 *
+	 * @return the country subdivision
+	 */
+	String getCountrySubdivision();
+
+	/**
+	 * The file references for the country subdivision flag, which clients can use to see exactly
+	 * what resolutions of country subdivision flags are available.
+	 *
+	 * @return the file reference list
+	 */
+	FileReferenceList getCountrySubdivisionFlag();
+
+	/**
+	 * The country subdivision flag of the organization.
+	 *
+	 * @return the country flag
+	 */
+	File getCountrySubdivisionFlag(int width, int height, boolean force);
+
+	/**
+	 * The country subdivision flag of the organization.
+	 *
+	 * @return the country flag
+	 */
+	BufferedImage getCountrySubdivisionFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit);
 
 	/**
 	 * The url of the organization.

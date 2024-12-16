@@ -69,6 +69,7 @@ public class DiskContestSource extends ContestSource {
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
 	private static final String COUNTRY_FLAG = "country_flag";
+	private static final String COUNTRY_SUBDIVISON_FLAG = "country_subdivision_flag";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
 
@@ -939,6 +940,12 @@ public class DiskContestSource extends ContestSource {
 					newOrg.setCountryFlag(deleteAndMergeFiles(org.getCountryFlag(), refsOnDisk, addedFiles, removedFiles));
 					changed = true;
 				}
+				refsOnDisk = getFilesWithPattern(newOrg, COUNTRY_SUBDIVISON_FLAG);
+				if (hasChange(org.getCountrySubdivisionFlag(), refsOnDisk, modifiedFiles)) {
+					newOrg.setCountrySubdivisionFlag(
+							deleteAndMergeFiles(org.getCountrySubdivisionFlag(), refsOnDisk, addedFiles, removedFiles));
+					changed = true;
+				}
 
 				if (changed)
 					contest.addDirect(newOrg);
@@ -1131,6 +1138,8 @@ public class DiskContestSource extends ContestSource {
 				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
 			if (COUNTRY_FLAG.equals(property))
 				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
+			if (COUNTRY_SUBDIVISON_FLAG.equals(property))
+				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
 		} else if (type == ContestType.SUBMISSION) {
 			if (FILES.equals(property))
 				return new FilePattern(type, id, property, "zip");
@@ -1213,6 +1222,8 @@ public class DiskContestSource extends ContestSource {
 			Organization org = (Organization) obj;
 			org.setLogo(mergeRefs(org.getLogo(), getFilesWithPattern(obj, LOGO)));
 			org.setCountryFlag(mergeRefs(org.getCountryFlag(), getFilesWithPattern(obj, COUNTRY_FLAG)));
+			org.setCountrySubdivisionFlag(
+					mergeRefs(org.getCountrySubdivisionFlag(), getFilesWithPattern(obj, COUNTRY_SUBDIVISON_FLAG)));
 		} else if (obj instanceof Team) {
 			Team team = (Team) obj;
 			team.setPhoto(mergeRefs(team.getPhoto(), getFilesWithPattern(obj, PHOTO), defaultTeam.getPhoto()));
