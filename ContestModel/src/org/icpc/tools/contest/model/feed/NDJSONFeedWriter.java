@@ -12,7 +12,6 @@ import org.icpc.tools.contest.model.internal.Deletion;
 public class NDJSONFeedWriter {
 	protected PrintWriter pw;
 	protected JSONEncoder je;
-	protected boolean isOldFeed = "true".equals(System.getProperty("ICPC_OLD_FEED"));
 
 	public NDJSONFeedWriter(PrintWriter pw) {
 		this.pw = pw;
@@ -34,46 +33,25 @@ public class NDJSONFeedWriter {
 		je.open();
 
 		String type = IContestObject.getTypeName(obj.getType());
-		// New feed format uses single contest type
-		if (!isOldFeed && type.equals("contests")) {
+		// feed format uses single contest type
+		if (type.equals("contests")) {
 			type = "contest";
 		}
 		je.encode("type", type);
 
-		if (isOldFeed) {
-			if (token != null)
-				je.encode("id", token);
+		if (!IContestObject.isSingleton(obj.getType()))
+			je.encode("id", obj.getId());
 
-			if (d == Delta.DELETE) {
-				je.encode("op", "delete");
-				je.openChild("data");
-				je.encode("id", obj.getId());
-				je.close();
-			} else {
-				if (d == Delta.UPDATE)
-					je.encode("op", "update");
-				else
-					je.encode("op", "create");
-
-				je.openChild("data");
-				((ContestObject) obj).writeBody(je);
-				je.close();
-			}
-		} else {
-			if (!IContestObject.isSingleton(obj.getType()))
-				je.encode("id", obj.getId());
-
-			if (obj instanceof Deletion)
-				je.encode("data", (String) null);
-			else {
-				je.openChild("data");
-				((ContestObject) obj).writeBody(je);
-				je.close();
-			}
-
-			if (token != null)
-				je.encode("token", token);
+		if (obj instanceof Deletion)
+			je.encode("data", (String) null);
+		else {
+			je.openChild("data");
+			((ContestObject) obj).writeBody(je);
+			je.close();
 		}
+
+		if (token != null)
+			je.encode("token", token);
 
 		je.close();
 		je.reset();
