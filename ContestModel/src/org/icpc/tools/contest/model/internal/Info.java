@@ -252,11 +252,16 @@ public class Info extends ContestObject implements IInfo {
 			return true;
 		} else if (name2.equals(PENALTY_TIME)) {
 			try {
+				// parse as integer
 				penalty = parseInt(value) * (60 * 1000L);
-				// TODO future relative time
-				// penalty = parseRelativeTime(value);
 			} catch (Exception e) {
-				return false;
+				try {
+					// parse as REL_TIME
+					penalty = parseRelativeTime(value);
+					return true;
+				} catch (Exception ex) {
+					return false;
+				}
 			}
 			return true;
 		} else if (name2.equals(TIME_MULTIPLIER)) {
