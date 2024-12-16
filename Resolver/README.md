@@ -140,7 +140,7 @@ convenient location.
 The Resolver itself is a collection of Java programs (components).
 The distribution is a self-contained package which contains
 all the Java libraries and other components necessary to run the Resolver.
-(Note however, that Java Version 1.8 or higher must be installed on the machine.)
+(Note however, that Java Version 11 or higher must be installed on the machine.)
 
 #### Operation
 

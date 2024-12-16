@@ -29,7 +29,7 @@ To install the Balloon Utility, download its distribution package from the [ICPC
 and unzip it to any convenient location. 
 The BU is a Java program. The distribution is a self-contained package which contains 
 all the Java libraries and other components necessary to run the Balloon Utility.
-(Note that Java, Version 1.8 or higher, must also be installed on the machine.)
+(Note that Java, Version 11 or higher, must also be installed on the machine.)
 
 ### Execution
 
