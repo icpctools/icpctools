@@ -182,9 +182,9 @@ public class ProjectionScoreboardService {
 		IStanding nextS = contest.getStanding(order[i + 1]);
 		if (nextS.getNumSolved() == s.getNumSolved())
 			return Math.min((contestTimeMs - contestTimeMs2) + (nextS.getTime() - s.getTime()),
-					(contest.getDuration() - contestTimeMs2) / 60_000);
+					(contest.getDuration() - contestTimeMs2));
 
-		return (contest.getDuration() - contestTimeMs2) / 60_000;
+		return (contest.getDuration() - contestTimeMs2);
 	}
 
 	private static Submission solveAProblem(Contest contest, ITeam team, IProblem problem, long contestTimeMs,

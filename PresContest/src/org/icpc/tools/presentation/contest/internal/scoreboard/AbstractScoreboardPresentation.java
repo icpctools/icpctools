@@ -466,7 +466,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 			g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 			g.setFont(rowFont);
 			if (t > 0) {
-				s = t + "";
+				s = ContestUtil.getTime(t);
 				TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 			}
 		} else {

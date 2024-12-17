@@ -1049,14 +1049,14 @@ public class Contest implements IContest {
 						double scoreForThisProblem = tempResults[i][j].getScore();
 						if (scoreForThisProblem > 0) {
 							score += scoreForThisProblem;
-							long time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime());
+							long time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime()) * 60 * 1000L;
 							if (time > lastSolution)
 								lastSolution = time;
 						}
 					}
 				}
 
-				tempStandings[i].init(numSolved, (int) (penalty / (60 * 1000L)), score, lastSolution);
+				tempStandings[i].init(numSolved, penalty, score, lastSolution);
 			}
 
 			for (int i = 0; i < numTeams; i++) {

@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IAward.AwardType;
 import org.icpc.tools.contest.model.IAward.DisplayMode;
@@ -376,7 +377,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			g.drawString(s, width - fm.stringWidth(s) - BORDER, height - h - BORDER - fm.getHeight() * 3);
 			s = "Solved: " + st.getNumSolved();
 			g.drawString(s, width - fm.stringWidth(s) - BORDER, height - h - BORDER - fm.getHeight() * 2);
-			s = "Time: " + st.getTime();
+			s = "Time: " + ContestUtil.getTime(st.getTime());
 			g.drawString(s, width - fm.stringWidth(s) - BORDER, height - h - BORDER - fm.getHeight());
 		}
 	}
@@ -423,7 +424,8 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		String[] teamIds = new String[] { currentCache.teamId };
 		int numFTS = fts.size();
 		if (numFTS == 1) {
-			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), teamIds, Messages.getString("awardFTSOne").replace("{0}", fts.get(0)), mode));
+			list.add(new Award(IAward.FIRST_TO_SOLVE, fts.get(0), teamIds,
+					Messages.getString("awardFTSOne").replace("{0}", fts.get(0)), mode));
 		} else if (numFTS >= 2) {
 			fts.sort((s1, s2) -> s1.compareTo(s2));
 			fts.set(numFTS - 1, Messages.getString("and") + " " + fts.get(numFTS - 1));

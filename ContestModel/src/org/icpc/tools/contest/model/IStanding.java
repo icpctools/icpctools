@@ -19,14 +19,14 @@ public interface IStanding {
 	double getScore();
 
 	/**
-	 * Return the total time this team has (sum of solution times + penalty), in minutes.
+	 * Return the total time this team has (sum of solution times + penalty), in ms.
 	 *
 	 * @return the total time of this team
 	 */
 	long getTime();
 
 	/**
-	 * Returns the time of the last (most recent) solution, in minutes.
+	 * Returns the time of the last (most recent) solution, in ms.
 	 *
 	 * @return the time of last solution
 	 */

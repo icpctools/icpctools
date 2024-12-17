@@ -256,8 +256,8 @@ public class EventFeedUtil {
 			for (int i = 0; i < num; i++) {
 				ITeam team = teams[i];
 				IStanding standing = contest.getStanding(team);
-				Trace.trace(Trace.USER,
-						"  " + standing.getRank() + " " + standing.getNumSolved() + " " + standing.getTime());
+				Trace.trace(Trace.USER, "  " + standing.getRank() + " " + standing.getNumSolved() + " "
+						+ ContestUtil.getTime(standing.getTime()));
 				Trace.trace(Trace.USER, "    " + team.getLabel() + ": " + team.getActualDisplayName() + " ("
 						+ getGroupLabel(contest, team) + ")");
 			}
@@ -382,7 +382,7 @@ public class EventFeedUtil {
 		IStanding standing = contest.getStanding(team);
 		Trace.trace(Trace.USER, "Rank: " + standing.getRank());
 		Trace.trace(Trace.USER, "Solved: " + standing.getNumSolved());
-		Trace.trace(Trace.USER, "Total time: " + standing.getTime());
+		Trace.trace(Trace.USER, "Total time: " + ContestUtil.getTime(standing.getTime()));
 		Trace.trace(Trace.USER, "");
 
 		Trace.trace(Trace.USER, "Problem Summary:");
@@ -393,9 +393,9 @@ public class EventFeedUtil {
 			if (r.getStatus() != Status.UNATTEMPTED) {
 				s += " (submissions: " + r.getNumSubmissions();
 				if (r.getStatus() == Status.SOLVED) {
-					s += ", time: " + ContestUtil.getTimeInMin(r.getContestTime());
+					s += ", time: " + ContestUtil.getTime(r.getContestTime());
 					if (r.getPenaltyTime() > 0)
-						s += ", penalty: " + ContestUtil.getTimeInMin(r.getPenaltyTime()) + "";
+						s += ", penalty: " + ContestUtil.getTime(r.getPenaltyTime());
 					s += ")";
 				}
 			}

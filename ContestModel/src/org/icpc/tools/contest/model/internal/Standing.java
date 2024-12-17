@@ -1,9 +1,10 @@
 package org.icpc.tools.contest.model.internal;
 
 import org.icpc.tools.contest.model.IStanding;
+import org.icpc.tools.contest.model.feed.RelativeTime;
 
 public class Standing implements IStanding {
-	private int penalty;
+	private long penalty;
 	private int numSolved;
 	private long lastSolution;
 	private String rank;
@@ -13,14 +14,14 @@ public class Standing implements IStanding {
 		// do nothing
 	}
 
-	public void init(int numSolved2, int penalty2, double score2, long lastSolution2) {
+	public void init(int numSolved2, long penalty2, double score2, long lastSolution2) {
 		this.numSolved = numSolved2;
 		this.penalty = penalty2;
 		this.score = score2;
 		this.lastSolution = lastSolution2;
 	}
 
-	public void setPenalty(int penalty) {
+	public void setPenalty(long penalty) {
 		this.penalty = penalty;
 	}
 
@@ -59,6 +60,7 @@ public class Standing implements IStanding {
 
 	@Override
 	public String toString() {
-		return "Standing [" + rank + ", " + numSolved + ", " + penalty + ", " + lastSolution + ", " + score + "]";
+		return "Standing [" + rank + ", " + numSolved + ", " + RelativeTime.format(penalty) + ", "
+				+ RelativeTime.format(lastSolution) + ", " + score + "]";
 	}
 }

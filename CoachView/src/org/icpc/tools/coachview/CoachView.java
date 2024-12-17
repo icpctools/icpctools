@@ -362,7 +362,7 @@ public class CoachView extends Panel {
 		s = standing.getNumSolved() + "";
 		int col2 = d.width - BORDER - fm.stringWidth(" 1999") - fm.stringWidth("99") / 2;
 		g.drawString(s, col2 - fm.stringWidth(s) / 2, d.height - BORDER);
-		s = standing.getTime() + "";
+		s = ContestUtil.getTime(standing.getTime());
 		int col3 = d.width - BORDER - fm.stringWidth("1999") / 2;
 		g.drawString(s, col3 - fm.stringWidth(s) / 2, d.height - BORDER);
 

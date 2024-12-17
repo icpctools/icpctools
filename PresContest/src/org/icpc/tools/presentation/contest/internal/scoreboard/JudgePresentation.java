@@ -345,7 +345,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 		long t = standing.getTime();
 		g.setFont(rowFont);
 		if (t > 0) {
-			String s = t + "";
+			String s = ContestUtil.getTime(t);
 			TextImage.drawString(g, s, width - BORDER - (fm.stringWidth("9999") + fm.stringWidth(s)) / 2, 5);
 		}
 
