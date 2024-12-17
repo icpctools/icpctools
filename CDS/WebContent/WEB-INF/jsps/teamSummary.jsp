@@ -123,7 +123,7 @@
                                     <%= st.getNumSolved() %>
                                 </td>
                                 <td class="text-right">
-                                    <%= st.getTime() %>
+                                    <%= ContestUtil.getTime(st.getTime()) %>
                                 </td>
                             </tr>
                         </tbody>

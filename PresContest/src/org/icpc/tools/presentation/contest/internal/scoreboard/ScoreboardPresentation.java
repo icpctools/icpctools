@@ -254,7 +254,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 
 		int jj = 0;
 		for (int i = numRunsBefore; i < numRuns - skipAfter; i++) {
-			String s = ContestUtil.getTime(submissions2[i].getContestTime()) + "";
+			String s = ContestUtil.getTime(submissions2[i].getContestTime());
 
 			ShadedRectangle.drawRoundRect(g2, xx, y, cubeWidth, cubeHeight, contest, submissions2[i], 0, s);
 
@@ -265,7 +265,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 					s = "# " + standing.getRank();
 					g2.drawString(s, xx + (cubeWidth - fm.stringWidth(s)) / 2, yy);
 					yy += fm.getHeight() + GAP;
-					s = standing.getNumSolved() + " - " + standing.getTime();
+					s = standing.getNumSolved() + " - " + ContestUtil.getTime(standing.getTime());
 					g2.drawString(s, xx + (cubeWidth - fm.stringWidth(s)) / 2, yy);
 				}
 
@@ -274,7 +274,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 					s = "# " + standing.getRank();
 					yy += fm.getHeight() + GAP;
 					g2.drawString(s, xx + (cubeWidth - fm.stringWidth(s)) / 2, yy);
-					s = standing.getNumSolved() + " - " + standing.getTime();
+					s = standing.getNumSolved() + " - " + ContestUtil.getTime(standing.getTime());
 					yy += fm.getHeight() + GAP;
 					g2.drawString(s, xx + (cubeWidth - fm.stringWidth(s)) / 2, yy);
 				}
