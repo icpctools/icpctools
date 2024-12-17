@@ -20,6 +20,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	private static final String END_TIME = "end_time";
 	private static final String MAX_RUN_TIME = "max_run_time";
 	private static final String SCORE = "score";
+	private static final String CURRENT = "current";
 
 	private String submissionId;
 	private String judgementTypeId;
@@ -29,6 +30,7 @@ public class Judgement extends ContestObject implements IJudgement {
 	protected Long endTime;
 	protected int maxRunTime;
 	protected Double score;
+	protected Boolean current;
 
 	public Judgement() {
 		// default constructor
@@ -94,6 +96,16 @@ public class Judgement extends ContestObject implements IJudgement {
 	}
 
 	@Override
+	public Boolean getCurrent() {
+		return current;
+	}
+
+	@Override
+	public boolean isCurrent() {
+		return current == null || current;
+	}
+
+	@Override
 	protected boolean addImpl(String name, Object value) throws Exception {
 		if (SUBMISSION_ID.equals(name)) {
 			submissionId = (String) value;
@@ -119,6 +131,9 @@ public class Judgement extends ContestObject implements IJudgement {
 		} else if (SCORE.equals(name)) {
 			score = Double.parseDouble((String) value);
 			return true;
+		} else if (CURRENT.equals(name)) {
+			current = Boolean.parseBoolean((String) value);
+			return true;
 		}
 		return super.addImpl(name, value);
 	}
@@ -135,6 +150,7 @@ public class Judgement extends ContestObject implements IJudgement {
 		j.endContestTime = endContestTime;
 		j.endTime = endTime;
 		j.score = score;
+		j.current = current;
 		return j;
 	}
 
@@ -166,7 +182,9 @@ public class Judgement extends ContestObject implements IJudgement {
 			Trace.trace(Trace.WARNING, "Invalid time: " + endContestTime + " / " + endTime, e);
 		}
 		if (score != null)
-			props.add(SCORE, round(score)); // TODO
+			props.add(SCORE, round(score));
+		if (current != null)
+			props.add(CURRENT, current.toString());
 	}
 
 	@Override

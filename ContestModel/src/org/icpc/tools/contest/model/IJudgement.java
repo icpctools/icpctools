@@ -59,4 +59,18 @@ public interface IJudgement extends IContestObject {
 	 * @return the score
 	 */
 	Double getScore();
+
+	/**
+	 * Returns the current property, or null if current is not set.
+	 *
+	 * @return the current
+	 */
+	Boolean getCurrent();
+
+	/**
+	 * Returns true if this the current judgement for the submission.
+	 *
+	 * @return true if this the current judgement
+	 */
+	boolean isCurrent();
 }

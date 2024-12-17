@@ -1504,7 +1504,7 @@ public class Contest implements IContest {
 		getJudgements();
 		for (IJudgement sj : judgements) {
 			IJudgementType jt = getJudgementTypeById(sj.getJudgementTypeId());
-			if (jt != null) {
+			if (jt != null && sj.isCurrent()) {
 				int sInd2 = getSubmissionIndex(sj.getSubmissionId());
 				if (sInd2 >= 0) {
 					tempJudgements[sInd2] = sj;
