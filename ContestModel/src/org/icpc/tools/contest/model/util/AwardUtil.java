@@ -1,6 +1,13 @@
 package org.icpc.tools.contest.model.util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
@@ -124,7 +131,8 @@ public class AwardUtil {
 			if (numPerGroup < 1)
 				throw new IllegalArgumentException("Cannot assign group awards to less than one team");
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse group parameter numPerGroup: " + template.getParameters().get("numPerGroup"));
+			throw new IllegalArgumentException(
+					"Could not parse group parameter numPerGroup: " + template.getParameters().get("numPerGroup"));
 		}
 
 		DisplayMode mode = template.getDisplayMode();
@@ -163,7 +171,8 @@ public class AwardUtil {
 
 		List<String> teamIdsNumMedalsSolved = new ArrayList<>();
 
-		if (template.getParameters() != null && template.getParameters().containsKey("mode") && template.getParameters().get("mode").equals("less-than-medals")) {
+		if (template.getParameters() != null && template.getParameters().containsKey("mode")
+				&& template.getParameters().get("mode").equals("less-than-medals")) {
 			int lowestMedalNumSolved = Integer.MAX_VALUE;
 			for (IAward a : awards) {
 				if (a.getAwardType() == IAward.MEDAL) {
@@ -341,7 +350,8 @@ public class AwardUtil {
 			if (template.getParameters() != null && template.getParameters().containsKey("numTeams"))
 				numTeams = Integer.parseInt(template.getParameters().get("numTeams"));
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse rank parameter: " + template.getParameters().get("numTeams"));
+			throw new IllegalArgumentException(
+					"Could not parse rank parameter: " + template.getParameters().get("numTeams"));
 		}
 
 		if (numTeams < 1)
@@ -439,7 +449,8 @@ public class AwardUtil {
 			if (numTeams < 1)
 				throw new IllegalArgumentException("Cannot assign medals to less than one team");
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse medal parameter: " + award.getParameters().get("numTeams"));
+			throw new IllegalArgumentException(
+					"Could not parse medal parameter: " + award.getParameters().get("numTeams"));
 		}
 
 		numTeams = Math.min(numTeams, teams.length - firstTeamIndex);
@@ -521,7 +532,8 @@ public class AwardUtil {
 			if (template.getParameters() != null && template.getParameters().containsKey("percent"))
 				percent = Integer.parseInt(template.getParameters().get("percent"));
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse top parameter: " + template.getParameters().get("percent"));
+			throw new IllegalArgumentException(
+					"Could not parse top parameter: " + template.getParameters().get("percent"));
 		}
 		if (percent < 1 || percent > 100)
 			throw new IllegalArgumentException(percent + " is not a valid top percentage");
@@ -595,7 +607,8 @@ public class AwardUtil {
 
 		IAward[] awards = contest.getAwards();
 
-		// Determine how many problems the lowest medalist solved. We need this for the solvedTop/solvedBottom case.
+		// Determine how many problems the lowest medalist solved. We need this for the
+		// solvedTop/solvedBottom case.
 		int lowestMedalNumSolved = Integer.MAX_VALUE;
 		Set<String> medalTeams = new HashSet<>();
 		for (IAward a : awards) {
@@ -675,7 +688,8 @@ public class AwardUtil {
 		award.add("id", template.getId());
 		IStanding standing = contest.getStanding(teams[t]);
 
-		// If the top of our list is just below the medalists or in the medalists, show it before the medalists
+		// If the top of our list is just below the medalists or in the medalists, show it before the
+		// medalists
 		if (t <= numMedalists) {
 			award.setParameter("before", numMedalists + "");
 		} else {
@@ -747,7 +761,8 @@ public class AwardUtil {
 			if (numTeams < 1)
 				throw new IllegalArgumentException("Cannot assign expected to advance awards to less than one team");
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not parse numTeams parameter: " + template.getParameters().get("numTeams"));
+			throw new IllegalArgumentException(
+					"Could not parse numTeams parameter: " + template.getParameters().get("numTeams"));
 		}
 
 		assignExpectedToAdvance(contest, (Award) template, numTeams);
@@ -761,7 +776,8 @@ public class AwardUtil {
 
 		IAward[] awards = contest.getAwards();
 
-		// Determine the position of the lowest medalist, which we need to display this award corrrectly
+		// Determine the position of the lowest medalist, which we need to display this award
+		// corrrectly
 		// Also keep track of all teams that have a group award
 		Set<String> groupWinners = new HashSet<>();
 		Set<String> medalWinners = new HashSet<>();
@@ -787,9 +803,9 @@ public class AwardUtil {
 		Award award = new Award(IAward.ALL_GROUP_WINNERS, template.getId(), teamIds, citation, mode);
 
 		award.setParameter("before", numMedalists + "");
-		award.setParameter("showGroupName",  "true");
-		award.setParameter("highlight",  "false");
-		award.setParameter("showScoreboardBefore",  "false");
+		award.setParameter("showGroupName", "true");
+		award.setParameter("highlight", "false");
+		award.setParameter("showScoreboardBefore", "false");
 		contest.add(award);
 	}
 
@@ -853,14 +869,16 @@ public class AwardUtil {
 			createMedalAwards(contest, gold, silver, bronze);
 		}
 
-		// We need to do this after the medals are created, because we need to know the number of solved problems for the lowest medalist
+		// We need to do this after the medals are created, because we need to know the number of
+		// solved problems for the lowest medalist
 		if (!honors.isEmpty()) {
 			for (IAward award : honors) {
 				createHonorsAwards(contest, award);
 			}
 		}
 
-		// We need to do this after both the medals are created and the individual group winners are known
+		// We need to do this after both the medals are created and the individual group winners are
+		// known
 		if (groupWinnersAward != null) {
 			createAllGroupWinnersAward(contest, groupWinnersAward);
 		}
@@ -945,7 +963,7 @@ public class AwardUtil {
 		IStanding standing = contest.getStanding(team);
 		if (hasMedal) {
 			String s = Messages.getString("awardSolving").replace("{0}", sb.toString())
-					.replace("{1}", standing.getNumSolved() + "").replace("{2}", standing.getTime() + "");
+					.replace("{1}", standing.getNumSolved() + "").replace("{2}", ContestUtil.getTime(standing.getTime()));
 			sb = new StringBuilder(s);
 		}
 

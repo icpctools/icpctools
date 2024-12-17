@@ -291,7 +291,7 @@ public class TeamTileHelper {
 			g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 			g.setFont(penaltyFont);
 			if (standing.getTime() > 0) {
-				s = standing.getTime() + "";
+				s = ContestUtil.getTime(standing.getTime());
 				g.drawString(s, tileDim.width - IN_TILE_GAP * 2 - penaltyFm.stringWidth(s),
 						tileDim.height * 17 / 20 + penaltyFm.getAscent() / 2 - 3);
 			}

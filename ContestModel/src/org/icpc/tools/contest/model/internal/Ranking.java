@@ -134,6 +134,7 @@ public class Ranking {
 				standingNext = standings[order[next]];
 
 			// find a group
+			// round last solution time to minutes for ICPC rules?
 			while (next < numTeams && ((standingN.getNumSolved() == standingNext.getNumSolved()
 					&& standingN.getTime() == standingNext.getTime()
 					&& standingN.getLastSolutionTime() == standingNext.getLastSolutionTime())

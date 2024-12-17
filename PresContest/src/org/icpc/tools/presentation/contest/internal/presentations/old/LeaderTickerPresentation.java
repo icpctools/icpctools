@@ -7,6 +7,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.geom.Dimension2D;
 
+import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
@@ -56,7 +57,7 @@ public class LeaderTickerPresentation extends AbstractTickerPresentation {
 			g.setColor(Color.WHITE);
 			Utility.drawString3D(g, solved + "", cube * 3f / 4 - fm.stringWidth(solved + "") / 2f,
 					height3 - BORDER2 - fm.getDescent() - 1);
-			g.drawString(penalty + "", cube * 3f / 2 + 7, height3 - BORDER2 - fm.getDescent() - 1);
+			g.drawString(ContestUtil.getTime(penalty), cube * 3f / 2 + 7, height3 - BORDER2 - fm.getDescent() - 1);
 			g.translate(-x, 0);
 		}
 
