@@ -93,7 +93,7 @@ public class Resolver {
 		System.out.println("     --singleStep startRow");
 		System.out.println("         Require a click for each step starting at a specific");
 		System.out.println("         row, or for entire contest if no row specified");
-		System.out.println("     --groups");
+		System.out.println("     --groups idRegex");
 		System.out.println("         Resolve only the groups in the given regex pattern for ids");
 		System.out.println("         If multiple groups are given, each is resolved separately");
 		System.out.println("     --judgeQueue");
