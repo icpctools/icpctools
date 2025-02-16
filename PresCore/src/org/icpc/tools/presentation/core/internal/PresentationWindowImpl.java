@@ -1174,8 +1174,10 @@ public class PresentationWindowImpl extends PresentationWindow {
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gd = ge.getDefaultScreenDevice();
 		GraphicsConfiguration gc = gd.getDefaultConfiguration();
-		BufferedImage image = gc.createCompatibleImage(d.width, d.height, Transparency.TRANSLUCENT);
-		// im = alphaMultiply(im, 0.0);*/
+		BufferedImage image = gc.createCompatibleImage(
+				// Never pass in a cursor size smaller than 1x1.
+				Math.max(1, d.width), Math.max(1, d.height),
+				Transparency.TRANSLUCENT);
 		return t.createCustomCursor(image, new Point(0, 0), "no cursor");
 	}
 
