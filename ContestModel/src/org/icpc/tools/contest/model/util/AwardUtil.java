@@ -662,6 +662,9 @@ public class AwardUtil {
 			}
 		}
 
+		if (t >= b)
+			return;
+
 		String[] teamIds = new String[b - t];
 		for (int i = 0; i < b - t; i++) {
 			teamIds[i] = teams[t + i].getId();
