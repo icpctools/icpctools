@@ -10,7 +10,7 @@ import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.State;
 
 public class Scoreboard {
-	private static final boolean is202306 = "2023-06".equals(System.getProperty("ICPC_CONTEST_API"));
+	private static final boolean isDraftSpec = "draft".equals(System.getProperty("ICPC_CONTEST_API"));
 
 	private static double round(double d) {
 		return Math.round(d * 100_000.0) / 100_000.0;
@@ -64,18 +64,18 @@ public class Scoreboard {
 			pw.write("\"score\":{");
 			if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
 				pw.write("\"num_solved\":" + s.getNumSolved() + ",");
-				if (is202306) {
-					pw.write("\"total_time\":" + ContestUtil.getTime(s.getTime()) + "},\n");
-				} else {
+				if (!isDraftSpec) {
 					pw.write("\"total_time\":\"" + RelativeTime.format(s.getTime()) + "\"},\n");
+				} else {
+					pw.write("\"total_time\":" + ContestUtil.getTime(s.getTime()) + "},\n");
 				}
 			} else if (ScoreboardType.SCORE.equals(scoreboardType)) {
 				pw.write("\"score\":" + round(s.getScore()));
 				if (s.getLastSolutionTime() >= 0) {
-					if (is202306) {
-						pw.write(",\"time\":" + ContestUtil.getTime(s.getLastSolutionTime()) + "},\n");
-					} else {
+					if (isDraftSpec) {
 						pw.write(",\"time\":\"" + RelativeTime.format(s.getLastSolutionTime()) + "\"},\n");
+					} else {
+						pw.write(",\"time\":" + ContestUtil.getTime(s.getLastSolutionTime()) + "},\n");
 					}
 				} else
 					pw.write("},\n");
@@ -101,10 +101,10 @@ public class Scoreboard {
 								pw.write(",\"first_to_solve\":true");
 						} else if (ScoreboardType.SCORE.equals(scoreboardType))
 							pw.write("\"score\":" + round(r.getScore()));
-						if (is202306) {
-							pw.write(",\"time\":" + ContestUtil.getTime(r.getContestTime()));
-						} else {
+						if (isDraftSpec) {
 							pw.write(",\"time\":\"" + RelativeTime.format(r.getContestTime()) + "\"");
+						} else {
+							pw.write(",\"time\":" + ContestUtil.getTime(r.getContestTime()));
 						}
 					} else
 						pw.write("\"solved\":false");

@@ -151,6 +151,12 @@ public class CDSConfig {
 		lastModified = file.lastModified();
 		try {
 			Element e = readElement(file);
+
+			if (e.hasAttribute("contest-api")) {
+				String spec = getString(e, "contest-api");
+				System.setProperty("ICPC_CONTEST_API", spec);
+			}
+
 			loadContests(e);
 			loadOtherConfig(e);
 
