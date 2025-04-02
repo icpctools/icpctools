@@ -53,6 +53,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @WebServlet(urlPatterns = { "/api", "/api/", "/api/*" }, asyncSupported = true)
 public class ContestRESTService extends HttpServlet {
+	private static final boolean isDraftSpec = "draft".equals(System.getProperty("ICPC_CONTEST_API"));
 	private static final long serialVersionUID = 1L;
 
 	static class EndpointInfo {
@@ -274,8 +275,13 @@ public class ContestRESTService extends HttpServlet {
 		je.encode("name", "Contest Data Server");
 		je.encodePrimitive("logo", "[{\"href\":\"/cdsIcon.png\",\"filename\":\"logo.png\","
 				+ "\"mime\":\"image/png\",\"width\":512,\"height\":512}]");
-		je.encode("version", "2025-draft");
-		je.encode("version_url", "https://ccs-specs.icpc.io/draft/contest_api");
+		if (isDraftSpec) {
+			je.encode("version", "2025-draft");
+			je.encode("version_url", "https://ccs-specs.icpc.io/draft/contest_api");
+		} else {
+			je.encode("version", "2023-06");
+			je.encode("version_url", "https://ccs-specs.icpc.io/2023-06/contest_api");
+		}
 		je.close();
 	}
 
