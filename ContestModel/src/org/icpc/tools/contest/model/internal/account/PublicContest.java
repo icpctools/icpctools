@@ -259,7 +259,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 	 */
 	protected IProblem filterProblem(IProblem problem) {
 		Problem p = (Problem) ((Problem) problem).clone();
-		p.add("test_data_count", null);
+		p.clearTestDataCount();
 		p.setPackage(null);
 		return p;
 	}
