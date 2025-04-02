@@ -134,6 +134,10 @@ public class Problem extends ContestObject implements IProblem {
 		return testDataCount;
 	}
 
+	public void clearTestDataCount() {
+		testDataCount = Integer.MIN_VALUE;
+	}
+
 	@Override
 	public int getTimeLimit() {
 		return timeLimit;
