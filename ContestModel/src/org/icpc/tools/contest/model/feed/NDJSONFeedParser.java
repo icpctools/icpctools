@@ -95,8 +95,7 @@ public class NDJSONFeedParser implements Closeable {
 		if ("delete".equals(op)) {
 			String id = data.getString("id");
 			IContestObject.ContestType cType = IContestObject.getTypeByName(type);
-			Deletion d = new Deletion(id, cType);
-			contest.add(d);
+			contest.add(new Deletion(id, cType));
 		} else {
 			IContestObject.ContestType cType = IContestObject.getTypeByName(type);
 			if (cType == null) {
@@ -140,6 +139,9 @@ public class NDJSONFeedParser implements Closeable {
 					Trace.trace(Trace.ERROR, "Could not add event to contest: " + s, e);
 				}
 			} else {
+				// get the current objects
+				IContestObject[] allObjs = contest.getObjects(cType);
+
 				// add/replace set
 				Object[] objs = (Object[]) data;
 				List<String> ids = new ArrayList<>();
@@ -154,11 +156,9 @@ public class NDJSONFeedParser implements Closeable {
 				}
 
 				// delete any objects not included
-				IContestObject[] allObjs = contest.getObjects(cType);
 				for (IContestObject co : allObjs) {
 					if (!ids.contains(co.getId())) {
-						Deletion d = new Deletion(co.getId(), cType);
-						contest.add(d);
+						contest.add(new Deletion(co.getId(), cType));
 					}
 				}
 			}
