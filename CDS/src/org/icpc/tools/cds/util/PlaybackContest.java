@@ -17,6 +17,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
+import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
@@ -521,6 +522,10 @@ public class PlaybackContest extends Contest {
 	}
 
 	private void applyDefaults(IContestObject obj) {
+		// don't apply defaults to objects being deleted
+		if (obj instanceof IDelete)
+			return;
+
 		IContestObject.ContestType type = obj.getType();
 		IContestObject def = null;
 		if (IContestObject.isSingleton(type)) {

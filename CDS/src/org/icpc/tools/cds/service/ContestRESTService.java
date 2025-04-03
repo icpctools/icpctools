@@ -1125,13 +1125,12 @@ public class ContestRESTService extends HttpServlet {
 
 		try {
 			Trace.trace(Trace.USER, "Deleting contest object: " + ei.type + "/" + ei.id);
-			Deletion d = new Deletion(ei.id, ei.cType);
 			Contest contest = ei.cc.getContest();
 			if (contest.getObjectByTypeAndId(ei.cType, ei.id) == null) {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Object does not exist");
 				return;
 			}
-			contest.add(d);
+			contest.add(new Deletion(ei.id, ei.cType));
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Could not remove object");
 			Trace.trace(Trace.ERROR, "Could not remove from contest! " + ei.id, e);
