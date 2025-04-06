@@ -574,21 +574,32 @@ public class ImagesGenerator {
 		file.setLastModified(mod);
 	}
 
+	private static boolean checkForTransparency(BufferedImage img) {
+		return img.getTransparency() != Transparency.TRANSLUCENT && img.getTransparency() != Transparency.BITMASK;
+	}
+
+	private static boolean checkForSmallSize(BufferedImage img) {
+		return img.getWidth() < MIN_SIZE || img.getHeight() < MIN_SIZE;
+	}
+
+	private static boolean checkForBadRatio(BufferedImage img) {
+		double scale = (double) img.getWidth() / (double) img.getHeight();
+		return (scale < 0.333 || scale > 3.0);
+	}
+
 	private static int checkForWarnings(String name, BufferedImage img, int numWarnings, boolean transparency) {
 		int warn = numWarnings;
-		if (transparency
-				&& (img.getTransparency() != Transparency.TRANSLUCENT && img.getTransparency() != Transparency.BITMASK)) {
+		if (transparency && checkForTransparency(img)) {
 			warn(name, "no transparency");
 			warn++;
 		}
 
-		if (img.getWidth() < MIN_SIZE || img.getHeight() < MIN_SIZE) {
+		if (checkForSmallSize(img)) {
 			warn(name, "small image (" + img.getWidth() + "x" + img.getHeight() + ")");
 			warn++;
 		}
 
-		double scale = (double) img.getWidth() / (double) img.getHeight();
-		if (scale < 0.333 || scale > 3.0) {
+		if (checkForBadRatio(img))  {
 			warn(name, "bad aspect ratio (" + img.getWidth() + "x" + img.getHeight() + ")");
 			warn++;
 		}
@@ -889,8 +900,20 @@ public class ImagesGenerator {
 				if (org.getLogo() == null || org.getLogo().isEmpty()) {
 					s[3] = "X";
 				} else {
-					// check sizes/transparency
-					// s[3] = "?";
+					s[3] = "";
+					BufferedImage logo = ImageIO.read(org.getLogo().first().file);
+					if (checkForTransparency(logo)) {
+						s[3] += "T";
+					}
+					if (checkForSmallSize(logo)) {
+						s[3] += "S";
+					}
+					if (checkForBadRatio(logo)) {
+						s[3] += "R";
+					}
+					if (s[3].isEmpty()) {
+						s[3] = null;
+					}
 				}
 
 				if (Double.isNaN(org.getLongitude()) || Double.isNaN(org.getLatitude())) {
