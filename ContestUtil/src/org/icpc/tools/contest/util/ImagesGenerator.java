@@ -700,13 +700,13 @@ public class ImagesGenerator {
 	}
 
 	protected void createRibbon() throws IOException {
-		IOrganization[] orgs = contest.getOrganizations();
-		int numOrgs = orgs.length;
-		if (numOrgs == 0)
+		IOrganization[] organizations = contest.getOrganizations();
+		int numOrganizations = organizations.length;
+		if (numOrganizations == 0)
 			return;
 
 		int teamGap = 6;
-		BufferedImage img = new BufferedImage(numOrgs * 48 + 12, 24, BufferedImage.TYPE_INT_BGR);
+		BufferedImage img = new BufferedImage(numOrganizations * 48 + 12, 24, BufferedImage.TYPE_INT_BGR);
 
 		int gap = 4;
 		Graphics2D g = (Graphics2D) img.getGraphics();
@@ -717,19 +717,19 @@ public class ImagesGenerator {
 		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, numOrgs * 48 + 12, 24);
+		g.fillRect(0, 0, numOrganizations * 48 + 12, 24);
 		g.setColor(new Color(200, 200, 200));
 		Font font = masterFont.deriveFont(Font.BOLD, 12f);
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 		int baseline = 12 + fm.getAscent() / 2;
 		int x = teamGap;
-		for (int i = 0; i < numOrgs; i++) {
+		for (int i = 0; i < numOrganizations; i++) {
 			String s = (i + 1) + "";
 			g.drawString(s, x, baseline);
 			x += fm.stringWidth(s) + gap;
 
-			BufferedImage bImg = orgs[i].getLogoImage(24, 24, true, true);
+			BufferedImage bImg = organizations[i].getLogoImage(24, 24, true, true);
 			if (bImg != null)
 				g.drawImage(bImg, x, 12 - bImg.getHeight() / 2, null);
 
@@ -763,8 +763,8 @@ public class ImagesGenerator {
 
 	private void createPreview() throws IOException {
 		int sq = 200;
-		IOrganization[] orgs = contest.getOrganizations();
-		Arrays.sort(orgs, new Comparator<IOrganization>() {
+		IOrganization[] organizations = contest.getOrganizations();
+		Arrays.sort(organizations, new Comparator<IOrganization>() {
 			@Override
 			public int compare(IOrganization o1, IOrganization o2) {
 				try {
@@ -777,13 +777,13 @@ public class ImagesGenerator {
 				return o1.getId().compareTo(o2.getId());
 			}
 		});
-		int numOrgs = orgs.length;
-		if (numOrgs == 0)
+		int numOrganizations = organizations.length;
+		if (numOrganizations == 0)
 			return;
 
 		int pad = 3;
 		int th = 25;
-		int w = (sq + pad * 2) * numOrgs;
+		int w = (sq + pad * 2) * numOrganizations;
 		int h = (sq + pad * 2) * 3 + th * 2;
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
 
@@ -807,14 +807,14 @@ public class ImagesGenerator {
 		int baseline = (th + fm.getAscent()) / 2;
 		int baseline2 = (th + fm.getAscent()) / 2 + (sq + pad * 2) * 3 + th;
 		int x = 0;
-		for (int i = 0; i < numOrgs; i++) {
+		for (int i = 0; i < numOrganizations; i++) {
 			String s = (i + 1) + "";
 			x += pad;
 			g.drawString(s, x + (sq - fm.stringWidth(s)) / 2, baseline);
-			s = orgs[i].getId();
+			s = organizations[i].getId();
 			g.drawString(s, x + (sq - fm.stringWidth(s)) / 2, baseline2);
 
-			BufferedImage logoImg = orgs[i].getLogoImage(sq, sq, true, true);
+			BufferedImage logoImg = organizations[i].getLogoImage(sq, sq, true, true);
 			if (logoImg != null) {
 				for (int j = 0; j < 3; j++)
 					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
