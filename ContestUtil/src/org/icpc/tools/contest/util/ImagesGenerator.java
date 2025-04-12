@@ -509,14 +509,14 @@ public class ImagesGenerator {
 		g.dispose();
 
 		final ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
-		FileImageOutputStream fout = new FileImageOutputStream(file);
-		writer.setOutput(fout);
+		FileImageOutputStream fileOut = new FileImageOutputStream(file);
+		writer.setOutput(fileOut);
 
 		JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
 		jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		jpegParams.setCompressionQuality(0.975f);
 		writer.write(null, new IIOImage(newImg, null, null), jpegParams);
-		fout.close();
+		fileOut.close();
 
 		// ImageIO.write(newImg, "jpg", hdFile);
 	}
@@ -751,14 +751,14 @@ public class ImagesGenerator {
 
 		// ImageIO.write(img, "jpg", file);
 		final ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
-		FileImageOutputStream fout = new FileImageOutputStream(file);
-		writer.setOutput(fout);
+		FileImageOutputStream fileOut = new FileImageOutputStream(file);
+		writer.setOutput(fileOut);
 
 		JPEGImageWriteParam jpegParams = new JPEGImageWriteParam(null);
 		jpegParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
 		jpegParams.setCompressionQuality(0.975f);
 		writer.write(null, new IIOImage(img, null, null), jpegParams);
-		fout.close();
+		fileOut.close();
 	}
 
 	private void createPreview() throws IOException {
