@@ -141,7 +141,10 @@ public class ImagesGenerator {
 
 		File file = new File(contestRoot, "images");
 		if (!file.exists())
-			file.mkdir();
+			if (!file.mkdir()) {
+				System.err.println("Failed to create 'images' directory");
+				System.exit(2);
+			}
 
 		// reload contest to pick up all images we just generated
 		generator.reload();
@@ -270,11 +273,17 @@ public class ImagesGenerator {
 	public void generateTeamDesktop() {
 		File desktopFolder = new File(contestRoot, "images" + File.separator + "desktop");
 		if (!desktopFolder.exists())
-			desktopFolder.mkdirs();
+			if (!desktopFolder.mkdirs()) {
+				System.err.println("Failed to create 'images/desktop' directory");
+				System.exit(2);
+			}
 
 		File overlayFolder = new File(contestRoot, "images" + File.separator + "overlay");
 		if (!overlayFolder.exists())
-			overlayFolder.mkdir();
+			if (!overlayFolder.mkdir()) {
+				System.err.println("Failed to create 'images/overlay' directory");
+				System.exit(2);
+			}
 
 		File orgRootFolder = new File(contestRoot, "organizations");
 
@@ -309,14 +318,16 @@ public class ImagesGenerator {
 				File file = new File(desktopFolder, teamLabel + ".jpg");
 				if (!file.exists() || file.lastModified() != mod) {
 					createDesktop(logoImg, name, fonts, file);
-					file.setLastModified(mod);
+					if (!file.setLastModified(mod))
+						Trace.trace(Trace.WARNING, "Failed to set last modified date");
 				}
 
 				// generate overlay
 				file = new File(overlayFolder, teamLabel + ".png");
 				if (!file.exists() || file.lastModified() != mod) {
 					createOverlay(logoImg, name, fonts, file);
-					file.setLastModified(mod);
+					if (!file.setLastModified(mod))
+						Trace.trace(Trace.WARNING, "Failed to set last modified date");
 				}
 			} catch (Exception e) {
 				Trace.trace(Trace.USER, "Error generating desktop for " + team.getActualDisplayName(), e);
@@ -434,7 +445,11 @@ public class ImagesGenerator {
 					for (File ff : files2) {
 						if (ff.getName().startsWith(property + ".") && hasExtension(ff.getName(), IMAGE_EXTENSIONS)
 								&& ff.lastModified() != mod)
-							ff.delete();
+							if (!ff.delete()) {
+								System.err.println("Failed to remove old files");
+								System.exit(2);
+							}
+
 					}
 
 					numWarnings = checkForWarnings(folderName, img, numWarnings, transparency);
@@ -571,7 +586,8 @@ public class ImagesGenerator {
 			return;
 
 		ImageIO.write(img, extension, file);
-		file.setLastModified(mod);
+		if (!file.setLastModified(mod))
+			Trace.trace(Trace.WARNING, "Failed to set last modified date");
 	}
 
 	private static boolean checkForTransparency(BufferedImage img) {
@@ -942,9 +958,10 @@ public class ImagesGenerator {
 			e.printStackTrace();
 		}
 
-		if (count == 0)
-			f.delete();
-		else
+		if (count == 0) {
+			if (!f.delete())
+				Trace.trace(Trace.WARNING, "Failed to remove missing-data.tsv");
+		} else
 			System.out.println(count + " organizations with missing data logged to missing-data.tsv");
 	}
 }
