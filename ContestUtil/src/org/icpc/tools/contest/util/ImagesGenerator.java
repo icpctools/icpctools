@@ -71,17 +71,6 @@ public class ImagesGenerator {
 		}
 	}
 
-	class ImageType {
-		File folder;
-		List<File> files = new ArrayList<>();
-
-		public ImageType(String folderName) {
-			folder = new File(contestRoot, "images" + File.separator + folderName);
-			if (!folder.exists())
-				folder.mkdir();
-		}
-	}
-
 	private final File contestRoot;
 	private Contest contest;
 	private Font masterFont;
