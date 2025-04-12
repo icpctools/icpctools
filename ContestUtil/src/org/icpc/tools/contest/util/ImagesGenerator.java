@@ -191,6 +191,20 @@ public class ImagesGenerator {
 		generateImages("teams", "photo", "jpg", spec);
 	}
 
+	public static Graphics2D createBasicGraphic(BufferedImage img, boolean text) {
+		Graphics2D g = (Graphics2D) img.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		if (text) {
+			g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			g.setColor(Color.BLACK);
+		}
+		return g;
+	}
+
 	private static BufferedImage removeBorders(BufferedImage img) throws Exception {
 		if (img == null)
 			return null;
@@ -659,12 +673,7 @@ public class ImagesGenerator {
 
 	private static void createOverlay(BufferedImage img, String name, Font[] fonts, File file) throws IOException {
 		BufferedImage newImg = new BufferedImage(1920, 1080, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = (Graphics2D) newImg.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		Graphics2D g = createBasicGraphic(newImg, false);
 
 		// new boxes
 		if (DEBUG) {
@@ -717,14 +726,7 @@ public class ImagesGenerator {
 		BufferedImage img = new BufferedImage(numOrganizations * 48 + 12, 24, BufferedImage.TYPE_INT_BGR);
 
 		int gap = 4;
-		Graphics2D g = (Graphics2D) img.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.BLACK);
+		Graphics2D g = createBasicGraphic(img, true);
 		g.fillRect(0, 0, numOrganizations * 48 + 12, 24);
 		g.setColor(new Color(200, 200, 200));
 		Font font = masterFont.deriveFont(Font.BOLD, 12f);
@@ -786,15 +788,7 @@ public class ImagesGenerator {
 		int w = (sq + pad * 2) * numOrganizations;
 		int h = (sq + pad * 2) * 3 + th * 2;
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
-
-		Graphics2D g = (Graphics2D) img.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.BLACK);
+		Graphics2D g = createBasicGraphic(img, true);
 		g.fillRect(0, 0, w, sq + pad * 2 + th * 2);
 		g.setColor(Color.GRAY);
 		g.fillRect(0, th + sq + pad * 2, w, sq + pad * 2);
@@ -844,15 +838,7 @@ public class ImagesGenerator {
 			w += bImg.getWidth();
 		int h = (sq + pad * 2) * 3;
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
-
-		Graphics2D g = (Graphics2D) img.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-		g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g.setColor(Color.BLACK);
+		Graphics2D g = createBasicGraphic(img, true);
 		g.fillRect(0, 0, w, sq + pad * 2);
 		g.setColor(Color.GRAY);
 		g.fillRect(0, sq + pad * 2, w, sq + pad * 2);
