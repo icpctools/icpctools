@@ -377,8 +377,11 @@ public class ImagesGenerator {
 				return f;
 		}
 
-		File imgFile = null;
 		File[] files = folder.listFiles();
+		if (files == null) {
+			Trace.trace(Trace.WARNING, "Failed to read " + folder.getAbsolutePath() + ", might be empty.");
+			return null;
+		}
 		for (File ff : files) {
 			// skip generated files
 			String name = ff.getName();
@@ -386,9 +389,9 @@ public class ImagesGenerator {
 				// skip over generated logos (should really use regex to look for logo.<w>x<h>.)
 				continue;
 			}
-			imgFile = ff;
+			return ff;
 		}
-		return imgFile;
+		return null;
 	}
 
 	public void generateOrganizationLogos() {
@@ -429,6 +432,10 @@ public class ImagesGenerator {
 		int numWarnings = 0;
 
 		File[] folders = rootFolder.listFiles();
+		if (folders == null) {
+			Trace.trace(Trace.ERROR, "Warning: no organization folders found.");
+			return;
+		}
 		for (File folder : folders) {
 			if (folder.isDirectory()) {
 				String folderName = folder.getName();
