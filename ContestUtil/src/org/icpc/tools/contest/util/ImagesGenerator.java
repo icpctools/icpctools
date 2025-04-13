@@ -191,6 +191,43 @@ public class ImagesGenerator {
 		generateImages("teams", "photo", "jpg", spec);
 	}
 
+	public static int shrinkDirectionEnd(int left, int w, int h, int[] pix, boolean horizontal) throws Exception {
+		// Implemented as right to left, but works the same for bottom to top.
+		int right = w - 1;
+		boolean clear = true;
+		while (clear && right > left) {
+			for (int i = 0; i < h; i++) {
+				int pixelId = horizontal ? (right + i * w) : (right * h + i);
+				if (pix[pixelId] != 0) {
+					clear = false;
+					break;
+				}
+			}
+			right--;
+		}
+		if (left == right)
+			throw new Exception("No image left after removing borders");
+		return right;
+	}
+
+	public static int shrinkDirectionBegin(int w, int h, int[] pix, boolean horizontal) {
+		// Implemented as left to right, but works the same for top to bottom.
+		int left = 0;
+		boolean clear = true;
+		int pixelId = 0;
+		while (clear && left < w) {
+			for (int i = 0; i < h; i++) {
+				pixelId = (horizontal) ? (left + i * w) : (left * h + i);
+				if (pix[pixelId] != 0) {
+					clear = false;
+					break;
+				}
+			}
+			left++;
+		}
+		return left;
+	}
+
 	public static Graphics2D createBasicGraphic(BufferedImage img, boolean text) {
 		Graphics2D g = (Graphics2D) img.getGraphics();
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -221,51 +258,11 @@ public class ImagesGenerator {
 
 		int[] pix = raster.getPixels(0, 0, w, h, (int[]) null);
 
-		int left = 0;
-		boolean clear = true;
-		while (clear && left < w) {
-			for (int i = 0; i < h; i++)
-				if (pix[left + i * w] != 0) {
-					clear = false;
-					break;
-				}
-			left++;
-		}
+		int left = shrinkDirectionBegin(w, h, pix, true);
+		int right = shrinkDirectionEnd(left, w, h, pix, true);
 
-		clear = true;
-		int right = w - 1;
-		while (clear && right > left) {
-			for (int i = 0; i < h; i++)
-				if (pix[right + i * w] != 0) {
-					clear = false;
-					break;
-				}
-			right--;
-		}
-		if (left == right)
-			throw new Exception("No image left after removing borders");
-
-		int top = 0;
-		clear = true;
-		while (clear && top < h) {
-			for (int i = 0; i < w; i++)
-				if (pix[top * w + i] != 0) {
-					clear = false;
-					break;
-				}
-			top++;
-		}
-
-		clear = true;
-		int bottom = h - 1;
-		while (clear && bottom > top) {
-			for (int i = 0; i < w; i++)
-				if (pix[bottom * w + i] != 0) {
-					clear = false;
-					break;
-				}
-			bottom--;
-		}
+		int top = shrinkDirectionBegin(h, w, pix, false);
+		int bottom = shrinkDirectionEnd(top, h, w, pix, false);
 
 		Rectangle r = new Rectangle(left, top, right - left, bottom - top);
 		if (r.width == w && r.height == h)
