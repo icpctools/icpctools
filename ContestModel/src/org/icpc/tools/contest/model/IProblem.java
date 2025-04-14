@@ -57,7 +57,7 @@ public interface IProblem extends IContestObject, IPosition {
 	Color getColorVal();
 
 	/**
-	 * Return the number of testcases for this problem.
+	 * Return the number of testcases for this problem, or Integer.MIN_VALUE if unset.
 	 *
 	 * @return
 	 */
@@ -69,6 +69,27 @@ public interface IProblem extends IContestObject, IPosition {
 	 * @return the time limit
 	 */
 	int getTimeLimit();
+
+	/**
+	 * Returns the memory limit in MiB, or Integer.MIN_VALUE if unset.
+	 *
+	 * @return the memory limit
+	 */
+	int getMemoryLimit();
+
+	/**
+	 * Returns the output limit in MiB, or Integer.MIN_VALUE if unset.
+	 *
+	 * @return the output limit
+	 */
+	int getOutputLimit();
+
+	/**
+	 * Returns the code limit in KiB, or Integer.MIN_VALUE if unset.
+	 *
+	 * @return the code limit
+	 */
+	int getCodeLimit();
 
 	/**
 	 * Returns the maximum expected score for scoring contests.

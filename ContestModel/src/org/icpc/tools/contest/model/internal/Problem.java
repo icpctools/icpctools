@@ -25,6 +25,9 @@ public class Problem extends ContestObject implements IProblem {
 	private static final String X = "x";
 	private static final String Y = "y";
 	private static final String TIME_LIMIT = "time_limit";
+	private static final String MEMORY_LIMIT = "memory_limit";
+	private static final String OUTPUT_LIMIT = "output_limit";
+	private static final String CODE_LIMIT = "code_limit";
 	private static final String MAX_SCORE = "max_score";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
@@ -40,6 +43,9 @@ public class Problem extends ContestObject implements IProblem {
 	private double x = Double.NaN;
 	private double y = Double.NaN;
 	private int timeLimit;
+	private int memoryLimit = Integer.MIN_VALUE;
+	private int outputLimit = Integer.MIN_VALUE;
+	private int codeLimit = Integer.MIN_VALUE;
 	private Double maxScore;
 	private FileReferenceList package_;
 	private FileReferenceList statement;
@@ -144,6 +150,21 @@ public class Problem extends ContestObject implements IProblem {
 	}
 
 	@Override
+	public int getMemoryLimit() {
+		return memoryLimit;
+	}
+
+	@Override
+	public int getOutputLimit() {
+		return outputLimit;
+	}
+
+	@Override
+	public int getCodeLimit() {
+		return codeLimit;
+	}
+
+	@Override
 	public Double getMaxScore() {
 		return maxScore;
 	}
@@ -210,6 +231,18 @@ public class Problem extends ContestObject implements IProblem {
 				timeLimit = Decimal.parse((String) value);
 				return true;
 			}
+			case MEMORY_LIMIT: {
+				memoryLimit = parseInt(value);
+				return true;
+			}
+			case OUTPUT_LIMIT: {
+				outputLimit = parseInt(value);
+				return true;
+			}
+			case CODE_LIMIT: {
+				codeLimit = parseInt(value);
+				return true;
+			}
 			case MAX_SCORE: {
 				maxScore = parseDouble(value);
 				return true;
@@ -248,6 +281,9 @@ public class Problem extends ContestObject implements IProblem {
 		p.x = x;
 		p.y = y;
 		p.timeLimit = timeLimit;
+		p.memoryLimit = memoryLimit;
+		p.outputLimit = outputLimit;
+		p.codeLimit = codeLimit;
 		p.maxScore = maxScore;
 
 		p.package_ = package_;
@@ -269,6 +305,12 @@ public class Problem extends ContestObject implements IProblem {
 			props.addInt(TEST_DATA_COUNT, testDataCount);
 		if (timeLimit > 0)
 			props.add(TIME_LIMIT, Decimal.format(timeLimit));
+		if (memoryLimit != Integer.MIN_VALUE)
+			props.addInt(MEMORY_LIMIT, memoryLimit);
+		if (outputLimit != Integer.MIN_VALUE)
+			props.addInt(OUTPUT_LIMIT, outputLimit);
+		if (codeLimit != Integer.MIN_VALUE)
+			props.addInt(CODE_LIMIT, codeLimit);
 		if (maxScore != null)
 			props.addDouble(MAX_SCORE, round(maxScore));
 
