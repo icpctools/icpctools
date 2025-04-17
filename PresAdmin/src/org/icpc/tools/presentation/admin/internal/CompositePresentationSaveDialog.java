@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class CompositePresentationSaveDialog extends Dialog {
+public class CompositePresentationSaveDialog /* extends Dialog */ {
 	protected Shell shell;
 	protected Button save;
 
@@ -25,6 +25,9 @@ public class CompositePresentationSaveDialog extends Dialog {
 	protected String category;
 
 	public CompositePresentationSaveDialog(Shell parent) {
+		this.shell = parent;
+	}
+	/*public CompositePresentationSaveDialog(Shell parent) {
 		super(parent);
 	}
 
@@ -50,7 +53,7 @@ public class CompositePresentationSaveDialog extends Dialog {
 				display.sleep();
 		}
 		return saveOk;
-	}
+	}*/
 
 	protected void createUI(Composite comp) {
 		GridLayout layout = new GridLayout(2, false);
@@ -109,18 +112,24 @@ public class CompositePresentationSaveDialog extends Dialog {
 				setOkEnablement();
 			}
 		});
+	}
 
+	protected void createButtons(Composite comp) {
 		Composite buttonComp = new Composite(comp, SWT.NONE);
-		data = new GridData(GridData.END, GridData.CENTER, false, false);
+		GridData data = new GridData(GridData.END, GridData.CENTER, false, false);
 		data.horizontalSpan = 2;
 		buttonComp.setLayoutData(data);
 
-		layout = new GridLayout(2, true);
+		GridLayout layout = new GridLayout(3, true);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		layout.horizontalSpacing = 5;
 		layout.verticalSpacing = 0;
 		buttonComp.setLayout(layout);
+
+		Label status = new Label(buttonComp, SWT.PUSH);
+		status.setForeground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		status.setText("Add, Name, Category");
 
 		save = new Button(buttonComp, SWT.PUSH);
 		save.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
