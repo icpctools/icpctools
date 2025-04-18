@@ -545,7 +545,7 @@ public class ImagesGenerator {
 
 		g.dispose();
 
-		writeJPEGImage(img, file);
+		writeJPEGImage(newImg, file);
 		// ImageIO.write(newImg, "jpg", hdFile);
 	}
 
