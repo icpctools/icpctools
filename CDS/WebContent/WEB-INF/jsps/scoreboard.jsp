@@ -106,7 +106,7 @@ function getRow(scr, type) {
                     obj.scoreClass = 'table-danger';
                 obj.num = prob.num_judged + prob.num_pending;
                 obj.solved = prob.solved;
-                obj.time = prob.time;
+                obj.time = formatTimeInMin(parseIntegerOrRelTime(prob.time));
                 obj.score = prob.score;
             }
         }
@@ -118,12 +118,12 @@ function getRow(scr, type) {
     obj = { };
     if (scr.score.num_solved > 0)
     	obj.numSolved = scr.score.num_solved;
-    if (scr.score.total_time > 0)
-    	obj.totalTime = scr.score.total_time;
+    if (scr.score.total_time)
+    	obj.totalTime = formatTimeInMin(parseIntegerOrRelTime(scr.score.total_time));
     if (scr.score.score != 0)
     	obj.score = scr.score.score;
     if (scr.score.time > 0)
-    	obj.time = scr.score.time;
+    	obj.time = formatTimeInMin(parseIntegerOrRelTime(scr.score.time));
     if ("score" == type)
     	row.append(toHtml("row-end-score", obj));
     else
