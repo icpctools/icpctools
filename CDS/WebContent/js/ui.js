@@ -241,6 +241,28 @@ function formatTime(time2) {
 	return sb.join("");
 }
 
+function formatTimeInMin(time2) {
+	if (time2 >= 0 && time2 < 1000)
+		return "0";
+
+	var sb = [];
+	if (time2 < 0) {
+		sb.push("-");
+		time2 = -time2;
+	}
+	time = Math.floor(time2 / 1000);
+
+	days = Math.floor(time / 86400.0);
+	if (days > 0)
+		sb.push(days + "d");
+
+	mins = Math.floor(time / 60.0);
+	if (mins > 0)
+		sb.push(mins);
+
+	return sb.join("");
+}
+
 function formatContestTime(time, floor) {
 	var sb = [];
 	if (time < 0)
