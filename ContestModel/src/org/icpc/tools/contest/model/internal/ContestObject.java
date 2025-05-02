@@ -499,6 +499,12 @@ public abstract class ContestObject implements IContestObject {
 		}
 	}
 
+	public static BufferedImage readSVG2BufferedImage(File svgFile) throws Exception {
+		SVGDocument svg = loadSVG(svgFile);
+		BufferedImage image = resizeSVG(svg, 10000, 10000);
+		return image;
+	}
+
 	private static SVGDocument loadSVG(File svgFile) throws Exception {
 		String parser = XMLResourceDescriptor.getXMLParserClassName();
 		SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
@@ -507,13 +513,22 @@ public abstract class ContestObject implements IContestObject {
 
 	private static BufferedImage resizeSVG(SVGDocument svg, int width, int height) {
 		try {
+			String ws;
+			String hs;
 			String viewBox = svg.getDocumentElement().getAttribute("viewBox");
 			String[] viewBoxValues = viewBox.split(" ");
-			if (viewBoxValues.length < 4)
-				return null;
+			if (viewBoxValues.length == 4) {
+				ws = viewBoxValues[2];
+				hs = viewBoxValues[3];
+			} else {
+				ws = svg.getDocumentElement().getAttribute("width");
+				hs = svg.getDocumentElement().getAttribute("height");
+				if (ws.isBlank() || hs.isBlank())
+					return null;
+			}
 
-			float w = Float.parseFloat(viewBoxValues[2]);
-			float h = Float.parseFloat(viewBoxValues[3]);
+			float w = Float.parseFloat(ws);
+			float h = Float.parseFloat(hs);
 			float scale = Math.min(width / w, height / h);
 
 			BufferedImageTranscoder imageTranscoder = new BufferedImageTranscoder();
