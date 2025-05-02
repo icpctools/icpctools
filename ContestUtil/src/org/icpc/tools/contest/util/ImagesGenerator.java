@@ -456,7 +456,7 @@ public class ImagesGenerator {
 					long mod = imgFile.lastModified();
 					BufferedImage img = ImageIO.read(imgFile);
 					if (img == null) {
-						Trace.trace(Trace.WARNING, "Couldn't read image");
+						Trace.trace(Trace.WARNING, "Couldn't read image:" + imgFile.getAbsolutePath());
 						continue;
 					}
 
