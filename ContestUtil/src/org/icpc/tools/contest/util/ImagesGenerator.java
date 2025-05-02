@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ContestObject;
 
 /**
  * Helps convert logos and other images from raw source (from the CMS export or hand-built contest
@@ -454,7 +455,16 @@ public class ImagesGenerator {
 					Trace.trace(Trace.USER, "Updating " + objectName + " " + property + ": " + folderName);
 
 					long mod = imgFile.lastModified();
-					BufferedImage img = ImageIO.read(imgFile);
+
+					BufferedImage img;
+					if (imgFile.getName().endsWith(".svg")) {
+						img = ContestObject.readSVG2BufferedImage(imgFile);
+						if (img == null)
+							Trace.trace(Trace.ERROR, "Warning: couldn't resize SVG: " + imgFile.getAbsolutePath());
+					} else {
+						img = ImageIO.read(imgFile);
+					}
+
 					if (img == null) {
 						Trace.trace(Trace.WARNING, "Couldn't read image:" + imgFile.getAbsolutePath());
 						continue;

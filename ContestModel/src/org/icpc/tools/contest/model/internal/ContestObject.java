@@ -499,6 +499,12 @@ public abstract class ContestObject implements IContestObject {
 		}
 	}
 
+	public static BufferedImage readSVG2BufferedImage(File svgFile) throws Exception {
+		SVGDocument svg = loadSVG(svgFile);
+		BufferedImage image = resizeSVG(svg, 10000, 10000);
+		return image;
+	}
+
 	private static SVGDocument loadSVG(File svgFile) throws Exception {
 		String parser = XMLResourceDescriptor.getXMLParserClassName();
 		SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
