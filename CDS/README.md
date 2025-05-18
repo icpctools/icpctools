@@ -375,6 +375,12 @@ folder and are shown in their Linux form; replace the "/" characters with "\" on
 | /bin/server status cds | Displays the current status of the CDS
 | /bin/server list | List the servers which WLP knows about
 
+### Sending errors to Sentry
+
+To ship exceptions to sentry for easier debugging:
+
+* Enable the `<ssl id="defaultSSLConfig>` in `server.xml`
+* Set the `DSN` in `wlp/usr/servers/cds/{server.env,sentry.properties}` or the command line. 
 
 ## Accessing CDS Services
 

@@ -17,6 +17,7 @@
     <httpSession invalidationTimeout="8h" idReuse="true"/>
 
     <keyStore id="defaultKeyStore" password="{xor}FhwPHAswMDMs" />
+    <!--<ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustDefaultCerts="true" />-->
 
     <jndiEntry jndiName="icpc.cds.config" value="${server.config.dir}/config"/>
 

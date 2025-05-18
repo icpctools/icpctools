@@ -1,5 +1,7 @@
 package org.icpc.tools.cds.service;
 
+import io.sentry.Sentry;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,6 +63,16 @@ public class ContestRESTService extends HttpServlet {
 		String type;
 		ContestType cType;
 		String id;
+	}
+
+	@Override
+	public void init() throws ServletException {
+		super.init();
+		try {
+			Sentry.init();
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Sentry init failed,");
+		}
 	}
 
 	@Override
@@ -128,6 +140,7 @@ public class ContestRESTService extends HttpServlet {
 			contest.getInfo();
 		} catch (Exception e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Contest not configured");
+			Sentry.captureException(e);
 		}
 
 		if (segments.length == 2) {
@@ -881,6 +894,7 @@ public class ContestRESTService extends HttpServlet {
 				rObj = restSource.postSubmission(obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting to CCS: " + e.getMessage());
+				Sentry.captureException(e);
 				return null;
 			}
 		}
@@ -1030,6 +1044,7 @@ public class ContestRESTService extends HttpServlet {
 				restSource.patch(ContestType.AWARD, obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
+				Sentry.captureException(e);
 				return;
 			}
 		}
@@ -1062,6 +1077,7 @@ public class ContestRESTService extends HttpServlet {
 				restSource.delete(ContestType.AWARD, id);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error submitting award to CCS: " + e.getMessage());
+				Sentry.captureException(e);
 				return;
 			}
 		}
@@ -1108,6 +1124,7 @@ public class ContestRESTService extends HttpServlet {
 				return restSource.post(type, obj);
 			} catch (Exception e) {
 				response.sendError(HttpServletResponse.SC_BAD_GATEWAY, "Error POSTing to CCS: " + e.getMessage());
+				Sentry.captureException(e);
 				return null;
 			}
 		}
