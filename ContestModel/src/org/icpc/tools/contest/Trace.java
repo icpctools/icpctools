@@ -1,5 +1,7 @@
 package org.icpc.tools.contest;
 
+import io.sentry.Sentry;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -201,6 +203,12 @@ public class Trace {
 					writer.print(s + " ");
 				writer.println();
 			}
+			try {
+				Sentry.init();
+			} catch (Exception e) {
+				// Sentry config might be empty.
+			}
+			writer.println("Sentry: " + (Sentry.isEnabled()? "Enabled" : "Disabled"));
 			writer.println("Log started " + sdf.format(new Date()));
 			writer.println();
 			writer.flush();
@@ -235,8 +243,11 @@ public class Trace {
 						// ignore
 					}
 				}
-			} else
+			} else {
+				Sentry.setExtra("trace_debug", s);
+				Sentry.captureException(t);
 				previousErrors.add(hash);
+			}
 		}
 		if (type != INFO || writer == null) {
 			if (type == ERROR)
