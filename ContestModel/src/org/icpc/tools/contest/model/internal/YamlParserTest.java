@@ -79,7 +79,7 @@ public class YamlParserTest {
 		parseTime("5:00");
 	}
 
-	private int parseTime(String s) throws ParseException {
+	private long parseTime(String s) throws ParseException {
 		return RelativeTime.parse(s);
 	}
 }
