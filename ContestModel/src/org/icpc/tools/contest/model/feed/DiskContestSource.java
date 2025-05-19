@@ -1092,6 +1092,7 @@ public class DiskContestSource extends ContestSource {
 			folder = new File(root, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
+		ArrayList<String> urlList = new ArrayList<>();
 		for (String ext : pattern.extensions) {
 			File[] files = folder.listFiles(
 					(dir, name) -> (name.toLowerCase().startsWith(pattern.name) && name.toLowerCase().endsWith("." + ext)));
@@ -1101,8 +1102,12 @@ public class DiskContestSource extends ContestSource {
 					String diff = file.getName();
 					diff = diff.substring(pattern.name.length(), diff.length() - ext.length() - 1);
 					FileReference ref = getMetadata(pattern.url + diff, file);
-					if (ref != null)
+					if (ref != null) {
+						if (urlList.contains(ref.href))
+							Trace.trace(Trace.WARNING, "Found multiple files with same CDS href: " + ref.href + ", " + file);
 						refList.add(ref);
+						urlList.add(ref.href);
+					}
 					// TODO future: url currently would not be able to handle logo2.svg and logo2.png
 				}
 			}
