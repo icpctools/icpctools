@@ -1101,7 +1101,7 @@ public class DiskContestSource extends ContestSource {
 				for (File file : files) {
 					String diff = file.getName();
 					diff = diff.substring(pattern.name.length(), diff.length() - ext.length() - 1);
-					FileReference ref = getMetadata(pattern.url+file.getName(), file);
+					FileReference ref = getMetadata(pattern.url+diff+'.'+ext, file);
 					if (ref != null) {
 						if (urlList.contains(ref.href))
 							Trace.trace(Trace.WARNING, "Found multiple files with same CDS href: " + ref.href + ", " + file);
