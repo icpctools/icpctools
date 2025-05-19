@@ -673,17 +673,17 @@ public class DiskContestSource extends ContestSource {
 		}
 	}
 
-	protected FileReference getMetadata(String href, File file) {
+	protected FileReference getMetadata(File file) {
 		FileReference ref = getFileRef(file);
 		if (ref == null) {
-			Trace.trace(Trace.ERROR, "Null file ref! " + href + " - " + file + " - " + file.exists());
+			Trace.trace(Trace.ERROR, "Null file ref! " + file + " - " + file.exists());
 			ref = getFileRef(file);
 			if (ref == null) {
 				Trace.trace(Trace.ERROR, "Not found second pass");
 				return null;
 			}
 		}
-		ref.href = "contests/" + contestId + "/" + href;
+		ref.href = "contests/" + contestId + "/" + ref.filename;
 		return ref;
 	}
 
@@ -1101,7 +1101,7 @@ public class DiskContestSource extends ContestSource {
 				for (File file : files) {
 					String diff = file.getName();
 					diff = diff.substring(pattern.name.length(), diff.length() - ext.length() - 1);
-					FileReference ref = getMetadata(pattern.url+file.getName(), file);
+					FileReference ref = getMetadata(file);
 					if (ref != null) {
 						if (urlList.contains(ref.href))
 							Trace.trace(Trace.WARNING, "Found multiple files with same CDS href: " + ref.href + ", " + file);
