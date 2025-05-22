@@ -1092,7 +1092,7 @@ public class DiskContestSource extends ContestSource {
 			folder = new File(root, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
-		ArrayList<String> urlList = new ArrayList<>();
+		List<String> urlList = new ArrayList<>();
 		for (String ext : pattern.extensions) {
 			File[] files = folder.listFiles(
 					(dir, name) -> (name.toLowerCase().startsWith(pattern.name) && name.toLowerCase().endsWith("." + ext)));
