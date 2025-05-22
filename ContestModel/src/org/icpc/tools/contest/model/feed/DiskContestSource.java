@@ -1092,6 +1092,7 @@ public class DiskContestSource extends ContestSource {
 			folder = new File(root, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
+		List<String> hrefs = new ArrayList<>();
 		for (String ext : pattern.extensions) {
 			File[] files = folder.listFiles(
 					(dir, name) -> (name.toLowerCase().startsWith(pattern.name) && name.toLowerCase().endsWith("." + ext)));
@@ -1101,9 +1102,15 @@ public class DiskContestSource extends ContestSource {
 					String diff = file.getName();
 					diff = diff.substring(pattern.name.length(), diff.length() - ext.length() - 1);
 					FileReference ref = getMetadata(pattern.url + diff, file);
-					if (ref != null)
+					if (ref != null) {
+						// update the href if it is already in use (e.g. for logo.svg and logo.png)
+						int count = 2;
+						while (hrefs.contains(ref.href)) {
+							ref.href = "contests/" + contestId + "/" + pattern.url + diff + count;
+						}
 						refList.add(ref);
-					// TODO future: url currently would not be able to handle logo2.svg and logo2.png
+						hrefs.add(ref.href);
+					}
 				}
 			}
 		}
