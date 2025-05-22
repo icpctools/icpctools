@@ -853,7 +853,8 @@ public class CoachView extends Panel {
 
 		RenderCallback renderCallback = new RenderCallback() {
 			@Override
-			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat,
+					int displayWidth, int displayHeight) {
 				IntBuffer ib = nativeBuffers[0].asIntBuffer();
 
 				if (mode == VideoMode.DESKTOP) {
@@ -871,6 +872,16 @@ public class CoachView extends Panel {
 				}
 
 				mainPanel.repaint();
+			}
+
+			@Override
+			public void lock(MediaPlayer player) {
+				// do nothing
+			}
+
+			@Override
+			public void unlock(MediaPlayer player) {
+				// do nothing
 			}
 		};
 
