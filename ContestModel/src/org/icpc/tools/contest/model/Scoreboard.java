@@ -64,7 +64,7 @@ public class Scoreboard {
 			pw.write("\"score\":{");
 			if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
 				pw.write("\"num_solved\":" + s.getNumSolved() + ",");
-				if (!isDraftSpec) {
+				if (isDraftSpec) {
 					pw.write("\"total_time\":\"" + RelativeTime.format(s.getTime()) + "\"},\n");
 				} else {
 					pw.write("\"total_time\":" + ContestUtil.getTime(s.getTime()) + "},\n");
