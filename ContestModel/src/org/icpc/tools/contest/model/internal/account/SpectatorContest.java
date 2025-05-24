@@ -3,7 +3,9 @@ package org.icpc.tools.contest.model.internal.account;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IDelete;
+import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.internal.Problem;
 
@@ -35,6 +37,37 @@ public class SpectatorContest extends PublicContest {
 		switch (cType) {
 			case COMMENTARY: {
 				addIt(obj);
+				return;
+			}
+			case RUN: { // TODO - access block for live
+				IRun run = (IRun) obj;
+
+				IJudgement j = getJudgementById(run.getJudgementId());
+				if (j == null)
+					return;
+
+				if (isJudgementHidden(j))
+					return;
+
+				ISubmission s = getSubmissionById(j.getSubmissionId());
+				if (s == null)
+					return;
+
+				// hide runs for submissions outside the contest time
+				long time = s.getContestTime();
+				if (time < 0 || time >= getDuration())
+					return;
+
+				// hide runs for submissions after freeze
+				if (getFreezeDuration() != null) {
+					long freezeTime = getDuration() - getFreezeDuration();
+					if (s.getContestTime() >= freezeTime && getState().getThawed() == null) {
+						freeze.add(run);
+						return;
+					}
+				}
+
+				addIt(run);
 				return;
 			}
 			default: {
