@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.FloorMap;
@@ -20,6 +21,7 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ClientLauncher;
@@ -73,6 +75,15 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 
 	@Override
 	public void init() {
+		IContest myContest = getContest();
+		for (int i = 0; i < 12 && myContest!=null; i++) {
+            try {
+                TimeUnit.SECONDS.sleep(5);
+				myContest = getContest();
+            } catch (InterruptedException e) {
+				// TODO: we delay here as p100 fails
+            }
+        }
 		setTeam(TeamUtil.getTeamId(getContest()), TeamUtil.getTeamMember());
 	}
 
