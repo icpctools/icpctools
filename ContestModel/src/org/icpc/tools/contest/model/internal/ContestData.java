@@ -332,8 +332,6 @@ public class ContestData implements Iterable<IContestObject> {
 			IContestObject obj2 = objs[num][arr];
 			if (obj2 != null && rtc[obj2.getType().ordinal()].contains(obj2.getId())) {
 				objs[num][arr] = null;
-				if (!keepHistory)
-					break;
 			}
 		}
 
