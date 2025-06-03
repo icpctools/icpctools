@@ -304,7 +304,7 @@ public class BalloonPrinter {
 		try {
 			IOrganization org = c.getOrganizationById(team.getOrganizationId());
 			if (org != null) {
-				BufferedImage logo = org.getLogoImage(fm.getHeight(), fm.getHeight(), true, true);
+				BufferedImage logo = org.getLogoImage(fm.getHeight() * 2, fm.getHeight(), true, true);
 				int h = fm.getHeight();
 				int w = (logo.getWidth() * h) / logo.getHeight();
 				g.drawImage(logo, px + gap, 0, w, h, null);
