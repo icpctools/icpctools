@@ -2,10 +2,8 @@ package org.icpc.tools.contest.model.internal.account;
 
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IPerson;
-import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.internal.Person;
 
