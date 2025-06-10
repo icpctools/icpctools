@@ -383,7 +383,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				return true;
 			}
 			case SUBMISSION: {
-				if (property.startsWith("language_id") || property.startsWith("entry_point") || property.startsWith("files")
+				if (property.startsWith("entry_point") || property.startsWith("files")
 						|| property.startsWith("reaction"))
 					return false;
 				return true;
