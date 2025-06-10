@@ -6,9 +6,9 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jna-jpms-5.14.0.jar"/>
-	<classpathentry kind="lib" path="lib/jna-platform-jpms-5.14.0.jar"/>
-	<classpathentry kind="lib" path="lib/vlcj-4.8.3.jar"/>
+	<classpathentry kind="lib" path="lib/jna-jpms-5.17.0.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform-jpms-5.17.0.jar"/>
+	<classpathentry kind="lib" path="lib/vlcj-4.11.0.jar"/>
 	<classpathentry kind="lib" path="lib/vlcj-natives-4.8.3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ContestModel"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PresCore"/>

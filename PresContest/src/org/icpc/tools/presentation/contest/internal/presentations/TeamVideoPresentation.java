@@ -44,11 +44,22 @@ public class TeamVideoPresentation extends AbstractICPCPresentation {
 
 		RenderCallback renderCallback = new RenderCallback() {
 			@Override
-			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+			public void display(MediaPlayer player, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat,
+					int displayWidth, int displayHeight) {
 				IntBuffer ib = nativeBuffers[0].asIntBuffer();
 				ib.get(rgbBuffer);
 
 				snapshot.setRGB(0, 0, width, height, rgbBuffer, 0, width);
+			}
+
+			@Override
+			public void lock(MediaPlayer player) {
+				// do nothing
+			}
+
+			@Override
+			public void unlock(MediaPlayer player) {
+				// do nothing
 			}
 		};
 		mediaPlayer.videoSurface()
