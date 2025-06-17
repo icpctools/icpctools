@@ -2,6 +2,7 @@ package org.icpc.tools.contest.model.internal;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.ref.SoftReference;
 import java.text.ParseException;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -439,13 +440,13 @@ public abstract class ContestObject implements IContestObject {
 		if (ref == null)
 			return null;
 
-		if (ref.data != null)
-			data = ref.data;
+		if (ref.data != null && ref.data.get() != null)
+			data = ref.data.get();
 		else if (forceLoad) {
 			data = loadImage(getFile(ref, property, true));
 			if (data == null)
 				data = MISSING_IMAGE;
-			ref.data = data;
+			ref.data = new SoftReference<Object>(data);
 		}
 
 		if (data == MISSING_IMAGE)

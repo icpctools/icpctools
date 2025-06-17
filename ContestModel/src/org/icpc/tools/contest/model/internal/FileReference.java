@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.model.internal;
 
 import java.io.File;
+import java.lang.ref.SoftReference;
 
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
@@ -13,7 +14,7 @@ public class FileReference {
 	public String etag;
 	public int width = -1;
 	public int height = -1;
-	public Object data;
+	public SoftReference<Object> data;
 
 	public FileReference() {
 		// do nothing
