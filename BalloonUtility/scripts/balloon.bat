@@ -22,7 +22,7 @@ robocopy "%ROOTDIR%\update" "%ROOTDIR%\" /e /move
 
 :restart
 
-java -jar "%LIBDIR%\swtLauncher.jar" balloonUtil.jar org.icpc.tools.balloon.BalloonUtility %params%
+java -cp "%LIBDIR%\*" org.icpc.tools.balloon.BalloonUtility %params%
 
 if errorlevel 255 goto :restart
 if errorlevel 254 goto :update

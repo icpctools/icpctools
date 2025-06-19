@@ -18,7 +18,7 @@ LC_ALL=$LC_PAPER
 fi
 
 while true; do
-  java $vmoptions -jar lib/swtLauncher.jar balloonUtil.jar org.icpc.tools.balloon.BalloonUtility "$@"
+  java $vmoptions -cp "lib/*" org.icpc.tools.balloon.BalloonUtility "$@"
   result=$?
   if [ $result = 254 ]
   then
