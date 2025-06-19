@@ -15,4 +15,4 @@ goto :loop
 
 :continue
 
-java -jar "%LIBDIR%\swtLauncher.jar" problemSet.jar,snakeyaml-2.3.jar org.icpc.tools.contest.util.problemset.ProblemSetEditor %params% 
+java -cp "%LIBDIR%\*" org.icpc.tools.contest.util.problemset.ProblemSetEditor %params% 
