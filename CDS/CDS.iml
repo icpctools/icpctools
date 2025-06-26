@@ -23,7 +23,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/WebContent/WEB-INF/lib/openpdf-1.3.27.jar!/" />
+          <root url="jar://$MODULE_DIR$/WebContent/WEB-INF/lib/openpdf-2.2.4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

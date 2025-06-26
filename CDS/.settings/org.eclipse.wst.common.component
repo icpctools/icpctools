@@ -8,7 +8,19 @@
         <dependent-module archiveName="snakeyaml-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/snakeyaml-2.4.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="batik-all-1.19.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/batik-all-1.19.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="xml-apis-ext-1.3.04.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/xml-apis-ext-1.3.04.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="xmlgraphics-commons-2.11.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/xmlgraphics-commons-2.11.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <dependent-module archiveName="sentry-opentelemetry-agent-8.12.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/sentry-opentelemetry-agent-8.12.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="qrcodegen-1.8.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/qrcodegen-1.8.0.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/CDS/WebContent/WEB-INF/classes"/>
