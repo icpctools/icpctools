@@ -24,12 +24,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.transcoder.SVGAbstractTranscoder;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ICPCColors;
 import org.icpc.tools.contest.model.IClarification;
@@ -41,7 +35,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.w3c.dom.Document;
+import org.icpc.tools.contest.model.internal.SVGUtil;
 import org.w3c.dom.svg.SVGDocument;
 
 /**
@@ -690,23 +684,7 @@ public class TextHelper {
 		int size = fm.getHeight() - 2;
 
 		try {
-			String viewBox = emoji.svg.getDocumentElement().getAttribute("viewBox");
-			String[] viewBoxValues = viewBox.split(" ");
-			if (viewBoxValues.length < 4)
-				return;
-
-			float w = Float.parseFloat(viewBoxValues[2]);
-			float h = Float.parseFloat(viewBoxValues[3]);
-			float scale = Math.min(size * 1.5f / w, size / h);
-
-			BufferedImageTranscoder imageTranscoder = new BufferedImageTranscoder();
-			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, w * scale);
-			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, h * scale);
-
-			TranscoderInput input = new TranscoderInput(emoji.svg);
-			imageTranscoder.transcode(input, null);
-
-			BufferedImage img = imageTranscoder.getBufferedImage();
+			BufferedImage img = SVGUtil.convertSVG(emoji.svg, (int) (size * 1.5), size);
 			addImage(img);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Invalid emoji", e);
@@ -787,7 +765,7 @@ public class TextHelper {
 	private static final class EmojiEntry {
 		protected final String hex;
 		protected final String raw;
-		protected Document svg;
+		protected SVGDocument svg;
 
 		public EmojiEntry(String hex, String raw) {
 			this.hex = hex;
@@ -839,33 +817,11 @@ public class TextHelper {
 		}
 	}
 
-	class BufferedImageTranscoder extends ImageTranscoder {
-		private BufferedImage img = null;
-
-		@Override
-		public BufferedImage createImage(int w, int h) {
-			return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		}
-
-		@Override
-		public void writeImage(BufferedImage img2, TranscoderOutput output) {
-			this.img = img2;
-		}
-
-		public BufferedImage getBufferedImage() {
-			return img;
-		}
-	}
-
 	private static SVGDocument loadEmojiFromFile(String hex) {
 		String filename = "font/twemoji/" + hex + ".svg";
 
-		SAXSVGDocumentFactory factory = null;
-		String parser = XMLResourceDescriptor.getXMLParserClassName();
-		factory = new SAXSVGDocumentFactory(parser);
-
 		try (InputStream in = ICPCFont.class.getClassLoader().getResourceAsStream(filename)) {
-			return factory.createSVGDocument(filename, in);
+			return SVGUtil.loadSVG(filename, in);
 		} catch (Exception ex) {
 			return null;
 		}

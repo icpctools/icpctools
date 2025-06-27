@@ -35,7 +35,8 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
-import org.icpc.tools.contest.model.internal.ContestObject;
+import org.icpc.tools.contest.model.internal.SVGUtil;
+import org.w3c.dom.svg.SVGDocument;
 
 /**
  * Helps convert logos and other images from raw source (from the CMS export or hand-built contest
@@ -391,7 +392,7 @@ public class ImagesGenerator {
 		for (File ff : files) {
 			// skip generated files
 			Matcher matcher = pattern.matcher(ff.getName());
-			if(!matcher.find()) {
+			if (!matcher.find()) {
 				return ff;
 			}
 		}
@@ -458,9 +459,11 @@ public class ImagesGenerator {
 
 					BufferedImage img;
 					if (imgFile.getName().endsWith(".svg")) {
-						img = ContestObject.readSVG2BufferedImage(imgFile);
+						SVGDocument svg = SVGUtil.loadSVG(imgFile);
+						// convert to 4k image, no need for more at the moment
+						img = SVGUtil.convertSVG(svg, 3840, 1920);
 						if (img == null)
-							Trace.trace(Trace.ERROR, "Warning: couldn't resize SVG: " + imgFile.getAbsolutePath());
+							Trace.trace(Trace.ERROR, "Warning: couldn't read SVG: " + imgFile.getAbsolutePath());
 					} else {
 						img = ImageIO.read(imgFile);
 					}
@@ -638,7 +641,7 @@ public class ImagesGenerator {
 			warn++;
 		}
 
-		if (checkForBadRatio(img))  {
+		if (checkForBadRatio(img)) {
 			warn(name, "bad aspect ratio (" + img.getWidth() + "x" + img.getHeight() + ")");
 			warn++;
 		}
@@ -904,14 +907,14 @@ public class ImagesGenerator {
 					s[3] = "X";
 				} else {
 					s[3] = "";
-					BufferedImage logo = ImageIO.read(org.getLogo().first().file);
-					if (checkForTransparency(logo)) {
+					BufferedImage logo2 = ImageIO.read(org.getLogo().first().file);
+					if (checkForTransparency(logo2)) {
 						s[3] += "T";
 					}
-					if (checkForSmallSize(logo)) {
+					if (checkForSmallSize(logo2)) {
 						s[3] += "S";
 					}
-					if (checkForBadRatio(logo)) {
+					if (checkForBadRatio(logo2)) {
 						s[3] += "R";
 					}
 					if (s[3].isEmpty()) {
