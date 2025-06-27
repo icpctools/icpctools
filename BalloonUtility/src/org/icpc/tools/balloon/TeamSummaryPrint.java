@@ -61,13 +61,13 @@ public class TeamSummaryPrint {
 			@Override
 			public int compare(ITeam t1, ITeam t2) {
 				try {
-					Integer in1 = Integer.parseInt(t1.getId());
-					Integer in2 = Integer.parseInt(t2.getId());
+					Integer in1 = Integer.parseInt(t1.getLabel());
+					Integer in2 = Integer.parseInt(t2.getLabel());
 					return in1.compareTo(in2);
 				} catch (Exception e) {
 					// ignore
 				}
-				return t1.getId().compareTo(t2.getId());
+				return t1.getLabel().compareTo(t2.getLabel());
 			}
 		});
 
