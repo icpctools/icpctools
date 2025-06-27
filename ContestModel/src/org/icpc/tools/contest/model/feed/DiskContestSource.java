@@ -1034,8 +1034,8 @@ public class DiskContestSource extends ContestSource {
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Scanning failed", e);
 		}
-		Trace.trace(Trace.INFO, "Finished scanning " + this.contestId + " for changed resources in "
-				+ (System.currentTimeMillis() - time) + "ms");
+		Trace.trace(Trace.INFO,
+				"Scanned " + this.contestId + " for changes in " + (System.currentTimeMillis() - time) + "ms");
 	}
 
 	@Override
