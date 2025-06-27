@@ -307,10 +307,13 @@ public class ConfiguredContest {
 		// but by then some data could be accessible to clients
 		if (id == null && path != null) {
 			try {
-				Info info = YamlParser.importContestInfo(new File(path, "contest.yaml"), false);
-				id = info.getId();
+				File f = new File(path, "contest.yaml");
+				if (f.exists()) {
+					Info info = YamlParser.importContestInfo(f, false);
+					id = info.getId();
+				}
 			} catch (Exception ex) {
-				Trace.trace(Trace.ERROR, "Could not read default contest id from contest yaml", ex);
+				Trace.trace(Trace.WARNING, "Could not read default contest id from contest yaml", ex);
 			}
 		}
 
