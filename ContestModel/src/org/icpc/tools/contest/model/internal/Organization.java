@@ -160,7 +160,7 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
-	public Object resolveFileReference(String url2) {
+	public File resolveFileReference(String url2) {
 		return FileReferenceList.resolve(url2, logo, countryFlag);
 	}
 

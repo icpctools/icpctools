@@ -220,7 +220,7 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	@Override
-	public Object resolveFileReference(String url) {
+	public File resolveFileReference(String url) {
 		return FileReferenceList.resolve(url, logo, banner);
 	}
 

@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -126,7 +127,7 @@ public interface IContestObject {
 	 */
 	List<String> validate(IContest contest);
 
-	default Object resolveFileReference(String url) {
+	default File resolveFileReference(String url) {
 		return null;
 	}
 }

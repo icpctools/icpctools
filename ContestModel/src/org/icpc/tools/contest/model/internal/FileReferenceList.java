@@ -1,5 +1,6 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -81,13 +82,11 @@ public class FileReferenceList implements Iterable<FileReference> {
 		return refs.iterator();
 	}
 
-	public Object resolve(String url) {
+	public File resolve(String url) {
 		for (FileReference ref : refs) {
 			if (ref.getURL().endsWith(url)) {
 				if (ref.file != null && ref.file.exists())
 					return ref.file;
-
-				return ref.data;
 			}
 		}
 		return null;
@@ -111,12 +110,12 @@ public class FileReferenceList implements Iterable<FileReference> {
 		return s;
 	}
 
-	public static Object resolve(String url, FileReferenceList... lists) {
+	public static File resolve(String url, FileReferenceList... lists) {
 		for (FileReferenceList list : lists) {
 			if (list != null) {
-				Object obj = list.resolve(url);
-				if (obj != null)
-					return obj;
+				File f = list.resolve(url);
+				if (f != null)
+					return f;
 			}
 		}
 		return null;

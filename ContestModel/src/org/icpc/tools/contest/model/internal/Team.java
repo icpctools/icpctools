@@ -296,7 +296,7 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
-	public Object resolveFileReference(String url) {
+	public File resolveFileReference(String url) {
 		return FileReferenceList.resolve(url, photo, video, backup, desktop, webcam, audio, keylog, tooldata);
 	}
 

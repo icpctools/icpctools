@@ -1,12 +1,9 @@
 package org.icpc.tools.cds.video;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +23,6 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.FileReferenceList;
 import org.icpc.tools.contest.model.internal.Submission;
-
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Reaction video recorder. Will record webcam and desktop video from when a submission is received
@@ -287,114 +280,5 @@ public class ReactionVideoRecorder {
 				}
 			}
 		}, time, TimeUnit.SECONDS);
-	}
-
-	public static void streamReaction(ConfiguredContest cc, ISubmission submission, HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
-		String rootFolder = cc.getPath();
-		if (rootFolder == null) {
-			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
-
-		if (submission == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-
-		// security - reject after freeze
-		final IContest contest = cc.getContest();
-		if (!cc.isStaff(request) && !contest.isBeforeFreeze(submission)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			return;
-		}
-
-		VideoHandler handler = VideoAggregator.handler;
-		String extension = handler.getFileExtension();
-		File submissionDir = new File(rootFolder, "submissions" + File.separator + submission.getId());
-		File file = new File(submissionDir, "reaction" + "." + extension); // TODO 3 per team
-		if (!file.exists()) {
-			if (cc.isTesting())
-				file = new File(CDSConfig.getFolder(), "test" + File.separator + "reaction." + extension);
-
-			// otherwise, fail
-			if (!file.exists()) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND);
-				return;
-			}
-		}
-
-		response.setContentType(handler.getMimeType());
-		response.setHeader("Content-Disposition",
-				"inline; filename=\"reaction" + submission.getId() + "." + extension + "\"");
-
-		final File tempFile = new File(submissionDir, file.getName() + "-temp");
-		if (!tempFile.exists()) {
-			long lastModified = file.lastModified() / 1000 * 1000;
-			try {
-				long ifModifiedSince = request.getDateHeader("If-Modified-Since");
-				if (ifModifiedSince != -1 && ifModifiedSince >= lastModified) {
-					response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-					return;
-				}
-			} catch (Exception e) {
-				// ignore, send anyway
-			}
-
-			response.setContentLength((int) file.length());
-			response.setDateHeader("Last-Modified", lastModified);
-		}
-
-		ServletOutputStream out = response.getOutputStream();
-		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
-		byte[] b = new byte[8096];
-
-		try {
-			if (!tempFile.exists()) {
-				int n = bin.read(b);
-				while (n != -1) {
-					out.write(b, 0, n);
-					n = bin.read(b);
-				}
-			} else {
-				// still recording - stream the file instead
-				long start = System.currentTimeMillis();
-				boolean recording = true;
-				while (recording) {
-					int n = bin.read(b);
-					while (n != -1) {
-						out.write(b, 0, n);
-						out.flush();
-						n = bin.read(b);
-					}
-
-					try {
-						Thread.sleep(400);
-					} catch (Exception e) {
-						// ignore
-					}
-
-					if (!tempFile.exists()) {
-						// try one last time
-						n = bin.read(b);
-						while (n != -1) {
-							out.write(b, 0, n);
-							n = bin.read(b);
-						}
-						recording = false;
-					}
-
-					// give up after 240s
-					if (start + 240000L < System.currentTimeMillis())
-						recording = false;
-				}
-			}
-		} finally {
-			try {
-				bin.close();
-			} catch (Exception e) {
-				// ignore
-			}
-		}
 	}
 }

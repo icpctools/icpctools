@@ -54,21 +54,11 @@ public class HttpHelper {
 			// ignore, send anyway
 		}
 
-		String name = f.getName();
-		if (name.endsWith(".jpg") || name.endsWith(".jpeg"))
-			response.setContentType("image/jpeg");
-		else if (name.endsWith(".txt") || name.endsWith(".tsv") || name.endsWith(".yaml") || name.endsWith(".xml"))
-			response.setContentType("text/plain");
-		else if (name.endsWith(".png"))
-			response.setContentType("image/png");
-		else if (name.endsWith(".svg"))
-			response.setContentType("image/svg+xml");
+		setCommonHeaders(f.getName(), response);
 
 		response.setContentLength((int) f.length());
 		response.setDateHeader("Last-Modified", lastModified);
 		response.setHeader("ETag", "e" + lastModified);
-		response.setHeader("Cache-Control", "max-age=1800"); // 30 minutes
-		response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
 
 		ServletOutputStream out = response.getOutputStream();
 		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(f));
@@ -81,6 +71,66 @@ public class HttpHelper {
 
 		bin.close();
 		out.flush();
+	}
+
+	public static void streamFile(HttpServletRequest request, HttpServletResponse response, File f) throws IOException {
+		if (f == null || !f.exists()) {
+			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		File tempFile = new File(f.getParentFile(), f.getName() + "-temp");
+		if (!tempFile.exists()) {
+			// not streaming anymore, we can just send the file
+			sendFile(request, response, f);
+			return;
+		}
+
+		setCommonHeaders(f.getName(), response);
+
+		long start = System.currentTimeMillis();
+		boolean streaming = true;
+
+		ServletOutputStream out = response.getOutputStream();
+		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(f));
+		byte[] b = new byte[1024 * 8];
+		while (streaming) {
+			if (!tempFile.exists()) {
+				streaming = false;
+				try {
+					Thread.sleep(400);
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+
+			int n = bin.read(b);
+			while (n != -1) {
+				out.write(b, 0, n);
+				n = bin.read(b);
+			}
+
+			// give up after 240s
+			if (start + 240000L < System.currentTimeMillis())
+				streaming = false;
+		}
+
+		bin.close();
+		out.flush();
+	}
+
+	private static void setCommonHeaders(String name, HttpServletResponse response) {
+		if (name.endsWith(".jpg") || name.endsWith(".jpeg"))
+			response.setContentType("image/jpeg");
+		else if (name.endsWith(".txt") || name.endsWith(".tsv") || name.endsWith(".yaml") || name.endsWith(".xml"))
+			response.setContentType("text/plain");
+		else if (name.endsWith(".png"))
+			response.setContentType("image/png");
+		else if (name.endsWith(".svg"))
+			response.setContentType("image/svg+xml");
+
+		response.setHeader("Cache-Control", "max-age=1800"); // 30 minutes
+		response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
 	}
 
 	/**
