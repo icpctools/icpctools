@@ -1,7 +1,5 @@
 package org.icpc.tools.cds.service;
 
-import io.sentry.Sentry;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +18,6 @@ import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.CDSConfig.Auth;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.util.HttpHelper;
-import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContest;
@@ -47,6 +44,7 @@ import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.account.IFilteredContest;
 
+import io.sentry.Sentry;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -422,29 +420,18 @@ public class ContestRESTService extends HttpServlet {
 			}
 		}
 
-		Object ext = obj.resolveFileReference(url);
-		if (ext == null) {
+		File f = obj.resolveFileReference(url);
+		if (f == null) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not resolve");
 			return true;
 		}
 
-		if (ext instanceof File) {
-			cc.incrementDownload();
-			HttpHelper.sendFile(request, response, (File) ext);
-			return true;
-		} else if (ext instanceof String) {
-			String s = (String) ext;
-			if ("reaction".equals(s) && obj instanceof ISubmission) {
-				ISubmission sub = (ISubmission) obj;
-				cc.incrementDownload();
-				ReactionVideoRecorder.streamReaction(cc, sub, request, response);
-				return true;
-			}
-
-			return false;
+		cc.incrementDownload();
+		if (obj instanceof ISubmission && url != null && url.contains("reaction")) {
+			HttpHelper.streamFile(request, response, f);
+		} else {
+			HttpHelper.sendFile(request, response, f);
 		}
-
-		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		return true;
 	}
 

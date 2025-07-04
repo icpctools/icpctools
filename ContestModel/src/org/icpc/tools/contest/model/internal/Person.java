@@ -122,7 +122,7 @@ public class Person extends ContestObject implements IPerson {
 	}
 
 	@Override
-	public Object resolveFileReference(String url) {
+	public File resolveFileReference(String url) {
 		return FileReferenceList.resolve(url, photo);
 	}
 
