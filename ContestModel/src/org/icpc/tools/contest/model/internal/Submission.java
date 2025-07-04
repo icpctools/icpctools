@@ -97,7 +97,7 @@ public class Submission extends TimedEvent implements ISubmission {
 	}
 
 	@Override
-	public Object resolveFileReference(String url) {
+	public File resolveFileReference(String url) {
 		return FileReferenceList.resolve(url, files, reaction);
 	}
 
