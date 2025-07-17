@@ -37,7 +37,6 @@ class Contest {
 
 	loadObject(type, ok) {
 		console.log("Loading contest " + type);
-		var deferred = new $.Deferred();
 		this.start = Date.now();
 		return $.ajax({
 			url: this.getURL(type),
@@ -285,7 +284,7 @@ class Contest {
 		    contentType: "application/json; charset=utf-8",
 		    data: body,
 		    success: success,
-		    error: function(result, ajaxOptions, thrownError) {
+		    error: function(result, _ajaxOptions, _thrownError) {
 		       var obj = jQuery.parseJSON(result.responseText);
 		       if (obj != null && obj.message != null) {
 		          error(obj.message)
