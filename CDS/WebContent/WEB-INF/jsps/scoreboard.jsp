@@ -41,7 +41,7 @@
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/html" id="header-start">
-  <th class="text-right">Rank</th><th></th><th>Team</th>
+  <th class="text-right">Rank</th><th class="logo_table_header"></th><th>Team</th>
 </script>
 <script type="text/html" id="header-end">
   <th class="text-right">Solved</th><th class="text-right">Time</th>
