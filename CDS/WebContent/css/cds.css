@@ -28,3 +28,16 @@ body.dark-mode .table-danger {
 body.dark-mode .table-warning {
     background-color: #f39c12 !important;
 }
+
+:root {
+    --logo-size: 20px;
+}
+
+.scoreboard_logo {
+    max-height: var(--logo-size);
+    max-width: var(--logo-size);
+}
+
+.logo_table_header {
+    width: var(--logo-size)
+}

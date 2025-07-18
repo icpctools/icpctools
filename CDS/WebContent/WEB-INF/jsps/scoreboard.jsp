@@ -41,7 +41,7 @@
 <script src="${pageContext.request.contextPath}/js/types.js"></script>
 <script src="${pageContext.request.contextPath}/js/mustache.min.js"></script>
 <script type="text/html" id="header-start">
-  <th class="text-right">Rank</th><th></th><th>Team</th>
+  <th class="text-right">Rank</th><th class="logo_table_header"></th><th>Team</th>
 </script>
 <script type="text/html" id="header-end">
   <th class="text-right">Solved</th><th class="text-right">Time</th>
@@ -53,7 +53,7 @@
 <th class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></th>
 </script>
 <script type="text/html" id="row-start">
-  <td class="text-right">{{rank}}</td><td class="text-center"><img src="{{logo}}" width="20" height="20"/></td><td>{{team}}</td>
+  <td class="text-right">{{rank}}</td><td class="text-center"><img src="{{logo}}" class="scoreboard_logo"/></td><td>{{team}}</td>
 </script>
 <script type="text/html" id="row-end">
   <td class="text-right">{{numSolved}}</td><td class="text-right">{{totalTime}}</td>
