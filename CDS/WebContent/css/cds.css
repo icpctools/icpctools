@@ -41,3 +41,20 @@ body.dark-mode .table-warning {
 .logo_table_header {
     width: var(--logo-size)
 }
+
+.logo_table_cell {
+    position: relative;
+}
+
+.boundary_scoreboard_logo {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: var(--logo-size)
+}

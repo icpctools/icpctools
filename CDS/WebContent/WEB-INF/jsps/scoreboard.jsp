@@ -53,7 +53,7 @@
 <th class="text-center"><span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span></th>
 </script>
 <script type="text/html" id="row-start">
-  <td class="text-right">{{rank}}</td><td class="text-center"><img src="{{logo}}" class="scoreboard_logo"/></td><td>{{team}}</td>
+  <td class="text-right">{{rank}}</td><td class="text-center logo_table_cell"><div class="boundary_scoreboard_logo"><img src="{{logo}}" class="scoreboard_logo"/></div></td><td>{{team}}</td>
 </script>
 <script type="text/html" id="row-end">
   <td class="text-right">{{numSolved}}</td><td class="text-right">{{totalTime}}</td>
