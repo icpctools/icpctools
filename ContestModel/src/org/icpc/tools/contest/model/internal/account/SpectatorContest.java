@@ -116,7 +116,7 @@ public class SpectatorContest extends PublicContest {
 				return super.canAccessProperty(type, property);
 			}
 			case SUBMISSION: {
-				if (property.startsWith("language_id") || property.startsWith("reaction")) {
+				if (property.startsWith("reaction")) {
 					return true;
 				}
 				return super.canAccessProperty(type, property);
