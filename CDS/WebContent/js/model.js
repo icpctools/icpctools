@@ -46,7 +46,7 @@ function bestSquareLogo(logos, size) {
       continue;
     if (best == null)
       best = ref;
-    else if (best != null) {
+    else {
       if (best.width < size && best.height < size) {
         // current best image is too small - is this one better (larger than current)?
         if (ref.width > best.width || ref.height > best.height)
