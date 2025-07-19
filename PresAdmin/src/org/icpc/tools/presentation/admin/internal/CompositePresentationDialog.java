@@ -31,7 +31,7 @@ public class CompositePresentationDialog extends Dialog {
 	private PresentationInfoListControl transitionList;
 	private PresentationInfoListControl buildList;
 
-	protected Button ok;
+	//protected Button ok;
 	protected boolean save;
 	protected String name, description, category;
 
@@ -100,8 +100,17 @@ public class CompositePresentationDialog extends Dialog {
 		createTransitionSection(comp);
 		createDisplayPlanSection(comp);
 
+		// save panel
+		Composite saveSection = new Composite(comp, SWT.HORIZONTAL);
+		GridLayout saveLayout = new GridLayout(2, false);
+		saveSection.setLayout(saveLayout);
+		CompositePresentationSaveDialog saveDialog = new CompositePresentationSaveDialog(comp.getShell());
+		Composite saveInput = new Composite(saveSection, SWT.NONE);
+		saveDialog.createUI(saveInput);
+
 		// buttons
-		Composite buttonBar = new Composite(comp, SWT.NONE);
+		saveDialog.createButtons(comp);
+		/*Composite buttonBar = new Composite(comp, SWT.NONE);
 		GridData data = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		data.verticalIndent = 15;
 		buttonBar.setLayoutData(data);
@@ -152,6 +161,7 @@ public class CompositePresentationDialog extends Dialog {
 
 		// TODO contestText.setFocus();
 		comp.getShell().setDefaultButton(cancel);
+		 */
 	}
 
 	private void createPresentationSection(Composite parent2) {
@@ -240,7 +250,8 @@ public class CompositePresentationDialog extends Dialog {
 	}
 
 	protected void enableOk() {
-		ok.setEnabled(!buildList.getPresentationInfos().isEmpty());
+		// TODO enable save when plan is not empty and category and name are set, with user feedback
+		//ok.setEnabled(!buildList.getPresentationInfos().isEmpty());
 	}
 
 	private static Button createButton(Composite parent, String text, String tooltip) {
