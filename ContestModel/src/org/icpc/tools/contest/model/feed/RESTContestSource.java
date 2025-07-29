@@ -44,6 +44,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
+import org.icpc.tools.contest.model.internal.FileReferenceList;
 
 /**
  * A REST contest source for loading a contest over HTTP. The contest may be backed by data in a
@@ -399,6 +400,14 @@ public class RESTContestSource extends DiskContestSource {
 		String size = nf.format(temp.length() / 1024.0);
 		sb.append(" (" + size + "kb in " + time + "ms)");
 		Trace.trace(Trace.INFO, sb.toString());
+
+		// check if the newly downloaded file matches an existing local one
+		// (this can only happen if the server had missing or incorrect file reference data)
+		FileReference newRef = readMetadata(temp);
+		FileReferenceList localFiles = new FileReferenceList(getCache(localFile.getParentFile()));
+		if (localFiles.containsFile(newRef)) {
+			Trace.trace(Trace.WARNING, href + " matches existing local file " + newRef);
+		}
 
 		if (!localFile.exists() || mod == 0 || localFile.lastModified() != mod) {
 			try {

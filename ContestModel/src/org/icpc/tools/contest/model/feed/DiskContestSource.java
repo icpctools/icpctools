@@ -538,7 +538,7 @@ public class DiskContestSource extends ContestSource {
 		return list;
 	}
 
-	private List<FileReference> getCache(File folder) {
+	protected List<FileReference> getCache(File folder) {
 		List<FileReference> list = cache.get(folder.getAbsolutePath());
 		if (list != null)
 			return list;

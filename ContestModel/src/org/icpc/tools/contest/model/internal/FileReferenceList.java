@@ -121,6 +121,20 @@ public class FileReferenceList implements Iterable<FileReference> {
 		return null;
 	}
 
+	/**
+	 * Returns true if the source file matches a file in this list - i.e. has the same height,
+	 * width, and mime type.
+	 */
+	public boolean containsFile(FileReference sourceFile) {
+		for (FileReference ref : refs) {
+			if (ref.height == sourceFile.height && ref.width == sourceFile.width
+					&& (ref.mime == null || ref.mime.equals(sourceFile.mime))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		return "File Reference List [" + refs.size() + "]";
