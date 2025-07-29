@@ -204,24 +204,15 @@ public class PlaybackContest extends Contest {
 		} else {
 			// more complex matching
 			// for now, only download new images that have a different width & height or mime type
-			// than
-			// local images
+			// than local images
 			for (FileReference sourceFile : sourceFiles) {
 				if (sourceFile.height <= 0 || sourceFile.width <= 0)
 					continue;
 
-				boolean found = false;
-				for (FileReference currentRef : localFiles) {
-					if (currentRef.height == sourceFile.height && currentRef.width == sourceFile.width
-							&& (currentRef.mime == null || currentRef.mime.equals(sourceFile.mime))) {
-						found = true;
-						continue;
-					}
-				}
-
 				try {
-					if (!found)
+					if (!localFiles.containsFile(sourceFile)) {
 						src.downloadFile(obj, sourceFile, property);
+					}
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error downloading file: " + obj.getType() + ": " + obj.getId(), e);
 				}
