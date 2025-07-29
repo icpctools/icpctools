@@ -161,15 +161,20 @@
                                         IJudgementType jt = contest.getJudgementTypeById(j.getJudgementTypeId());
                                         if (jt != null) {
                                             judgeStr += jt.getName();
-                                            if (jt.isSolved())
+                                            if (jt.isSolved()) {
                                                 judgeClass = "table-success";
-                                            else if (jt.isPenalty())
+                                                
+                                                if (j.getScore() != null) {
+                                                	judgeStr += " " + ContestUtil.formatScore(j.getScore());
+                                                }
+                                            } else if (jt.isPenalty())
                                                 judgeClass = "table-danger";
                                         } else {
                                             judgeClass = "table-warning";
                                             judgeStr += "...";
                                         }
-                                        judgeStr += " (<a href=\"" + apiRoot + "/judgements/" + j.getId() + "\">" + j.getId() + "</a>) ";
+                                        judgeStr += " (<a href=\"" + apiRoot + "/judgements/" + j.getId() + "\">" + j.getId() + "</a>)";
+                                        
            /*IRun[] runs = contest.getRunsByJudgementId(j.getId());
            if (runs != null) {
               //judgeStr += runs.length;
