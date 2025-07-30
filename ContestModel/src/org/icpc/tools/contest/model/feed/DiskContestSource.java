@@ -85,8 +85,8 @@ public class DiskContestSource extends ContestSource {
 	private Validation configValidation = new Validation();
 	private Map<String, List<FileReference>> cache = new HashMap<>();
 
-	private static Team defaultTeam = new Team();
-	private static Person defaultPerson = new Person();
+	private Team defaultTeam = new Team();
+	private Person defaultPerson = new Person();
 
 	static class FilePattern {
 		// the folder containing the file
@@ -183,8 +183,12 @@ public class DiskContestSource extends ContestSource {
 
 		cleanUpTempDir();
 
-		defaultTeam.setPhoto(getDefaultFilesWithPattern(defaultTeam, PHOTO));
-		defaultPerson.setPhoto(getDefaultFilesWithPattern(defaultPerson, PHOTO));
+		FileReferenceList list = getDefaultFilesWithPattern(defaultTeam, PHOTO);
+		if (list != null && !list.isEmpty())
+			defaultTeam.setPhoto(list);
+		list = getDefaultFilesWithPattern(defaultPerson, PHOTO);
+		if (list != null && !list.isEmpty())
+			defaultPerson.setPhoto(list);
 
 		instance = this;
 	}
@@ -1210,6 +1214,9 @@ public class DiskContestSource extends ContestSource {
 	 */
 	private static FileReferenceList mergeRefs(FileReferenceList curList, FileReferenceList localList,
 			FileReferenceList defaultList) {
+		if (defaultList == null || defaultList.isEmpty())
+			return mergeRefs(curList, localList);
+
 		FileReferenceList list = mergeRefs(curList, localList);
 		if (curList == defaultList)
 			list = localList;
