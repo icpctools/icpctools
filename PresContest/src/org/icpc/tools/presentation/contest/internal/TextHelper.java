@@ -427,6 +427,9 @@ public class TextHelper {
 	}
 
 	public void addString(String s, boolean outline) {
+		if (s == null)
+			return;
+
 		char[] c = s.toCharArray();
 
 		int fontBegin = -1;
