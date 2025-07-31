@@ -83,7 +83,7 @@ and unzip it to any convenient location.
 The Presentation Admin itself is a collection of Java programs (components).
 The distribution is a self-contained package which contains 
 all the Java libraries and other components necessary to run the Presentation Admin
-(Java version 1.8 or higher must also be installed on the machine).
+(Java version 17 or higher must also be installed on the machine).
 
 ### Configuration
 

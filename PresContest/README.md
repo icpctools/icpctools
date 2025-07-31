@@ -69,8 +69,7 @@ distribution package to any convenient location.
 The Presentation Client itself is a collection of Java programs (components).
 The distribution is a self-contained package which contains 
 all the Java libraries and other components necessary to run the Presentation Client.
-(Note however that Java itself, version 1.8 or higher, must be installed on the
-machine.)
+(Note however that Java version 17 or higher must be installed on the machine.)
 
 ### Operation
 

@@ -140,7 +140,7 @@ convenient location.
 The Resolver itself is a collection of Java programs (components).
 The distribution is a self-contained package which contains
 all the Java libraries and other components necessary to run the Resolver.
-(Note however, that Java Version 11 or higher must be installed on the machine.)
+(Note however, that Java version 17 or higher must be installed on the machine.)
 
 #### Operation
 
@@ -720,7 +720,7 @@ available from the [ICPCTools website](https://tools.icpc.global) for further in
 
 ### Additional Notes
 
-The Resolver and Award Generator tools are written in Java and will run on any platform supporting Java Version 11 or greater.
+The Resolver and Award Generator tools will run on any platform supporting Java.
 However, the Resolver makes heavy use of screen-level graphics and is therefore heavily dependent on the 
 graphics drivers on the platform.
 In our experience, Linux graphics drivers are substantially less robust than others;
