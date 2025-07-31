@@ -120,10 +120,13 @@
      <div class="col-5">
         <div class="card">
            <div class="card-header">
-             <h3 class="card-title">Balloon Printout</h3>
+             <h3 class="card-title">Printouts</h3>
            </div>
         <div class="card-body">
-            <p>Click <a href="<%= webroot %>/balloon">Letter</a> or <a href="<%= webroot %>/balloonA4">A4</a> for a PDF containing balloon labels and colours. Print only the pages you need.</p>
+            <p>Click <a href="<%= webroot %>/balloon">Letter</a> or <a href="<%= webroot %>/balloonA4">A4</a> PDF containing balloon labels and colours. Print only the pages you need.</p>
+        </div>
+        <div class="card-body">
+            <p>Click <a href="<%= webroot %>/teams">Letter</a> or <a href="<%= webroot %>/team-pdfA4">A4</a> PDF containing a team list with QR codes.</p>
         </div>
         </div>
      
