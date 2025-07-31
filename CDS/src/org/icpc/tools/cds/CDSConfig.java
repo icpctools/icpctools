@@ -279,7 +279,7 @@ public class CDSConfig {
 					}
 				}
 				if (!stillInUse) {
-					Trace.trace(Trace.USER, "Removing " + oldHashes[i]);
+					Trace.trace(Trace.USER, "Removing " + oldContests[i].getId());
 					oldContests[i].close();
 				}
 			}

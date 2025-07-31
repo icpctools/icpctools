@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -87,6 +88,8 @@ public class DiskContestSource extends ContestSource {
 
 	private Team defaultTeam = new Team();
 	private Person defaultPerson = new Person();
+
+	private ScheduledFuture<?> backgroundScanningTask;
 
 	static class FilePattern {
 		// the folder containing the file
@@ -851,7 +854,8 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void setExecutor(ScheduledExecutorService executor) {
-		executor.scheduleWithFixedDelay(() -> scanForResourceChanges(), 15L, 15L, TimeUnit.SECONDS);
+		backgroundScanningTask = executor.scheduleWithFixedDelay(() -> scanForResourceChanges(), 15L, 15L,
+				TimeUnit.SECONDS);
 	}
 
 	private static boolean hasChange(FileReferenceList list, FileReferenceList foundList, List<File> changed) {
@@ -1046,6 +1050,9 @@ public class DiskContestSource extends ContestSource {
 	public void close() throws Exception {
 		if (parser != null)
 			parser.close();
+
+		if (backgroundScanningTask != null)
+			backgroundScanningTask.cancel(false);
 	}
 
 	/**
