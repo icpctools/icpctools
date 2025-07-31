@@ -23,6 +23,7 @@ import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoStream;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.cds.web.BalloonPDFService;
+import org.icpc.tools.cds.web.TeamPDFService;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
@@ -420,6 +421,9 @@ public class ContestWebService extends HttpServlet {
 				return;
 			} else if (segments[1].startsWith("balloon") && isStaff) {
 				BalloonPDFService.generate(request, response, cc);
+				return;
+			} else if (segments[1].startsWith("teams") && isStaff) {
+				TeamPDFService.generate(request, response, cc);
 				return;
 			} else if (segments[1].equals("resolver") && isAdmin) {
 				ResolverService.doGet(response, cc);
