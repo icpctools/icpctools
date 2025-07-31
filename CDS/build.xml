@@ -25,7 +25,7 @@
   	<pathelement location="io.openliberty.jakarta.websocket.client.2.1_1.0.93.jar"/>
   	<pathelement location="io.openliberty.jakarta.cdi.4.0_1.0.93.jar"/>
   	<pathelement location="io.openliberty.jakarta.security.3.0_1.0.93.jar"/>
-  	<pathelement location="WebContent/WEB-INF/lib/openpdf-2.2.4.jar"/>
+  	<pathelement location="WebContent/WEB-INF/lib/openpdf-2.0.5.jar"/>
     <pathelement location="${contest.model}/bin"/>
   	<pathelement location="${contest.model}/lib/sentry-opentelemetry-agent-8.12.0.jar"/>
   	<pathelement location="${contest.model}/lib/snakeyaml-2.4.jar"/>
