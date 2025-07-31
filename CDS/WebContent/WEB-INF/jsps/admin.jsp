@@ -126,7 +126,7 @@
             <p>Click <a href="<%= webroot %>/balloon">Letter</a> or <a href="<%= webroot %>/balloonA4">A4</a> PDF containing balloon labels and colours. Print only the pages you need.</p>
         </div>
         <div class="card-body">
-            <p>Click <a href="<%= webroot %>/teams">Letter</a> or <a href="<%= webroot %>/team-pdfA4">A4</a> PDF containing a team list with QR codes.</p>
+            <p>Click <a href="<%= webroot %>/teams">Letter</a> or <a href="<%= webroot %>/teamsA4">A4</a> PDF containing a team list with QR codes.</p>
         </div>
         </div>
      
