@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
 import java.util.Base64;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -404,7 +405,10 @@ public class RESTContestSource extends DiskContestSource {
 		// check if the newly downloaded file matches an existing local one
 		// (this can only happen if the server had missing or incorrect file reference data)
 		FileReference newRef = readMetadata(temp);
-		FileReferenceList localFiles = new FileReferenceList(getCache(localFile.getParentFile()));
+		List<FileReference> localCache = getCache(localFile.getParentFile());
+		FileReferenceList localFiles = new FileReferenceList();
+		for (FileReference ref : localCache)
+			localFiles.add(ref);
 		if (localFiles.containsFile(newRef)) {
 			Trace.trace(Trace.WARNING, href + " matches existing local file " + newRef);
 		}
