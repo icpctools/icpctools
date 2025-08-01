@@ -9,10 +9,12 @@ public class JudgementType extends ContestObject implements IJudgementType {
 	private static final String NAME = "name";
 	private static final String PENALTY = "penalty";
 	private static final String SOLVED = "solved";
+	private static final String SIMPLIFIED_JUDGEMENT_TYPE_ID = "simplified_judgement_type_id";
 
 	private String name;
 	private boolean penalty;
 	private boolean solved;
+	private String simplifiedJudgementTypeId;
 
 	@Override
 	public ContestType getType() {
@@ -35,6 +37,11 @@ public class JudgementType extends ContestObject implements IJudgementType {
 	}
 
 	@Override
+	public String getSimplifiedJudgementTypeId() {
+		return simplifiedJudgementTypeId;
+	}
+
+	@Override
 	protected boolean addImpl(String name2, Object value) throws Exception {
 		if (NAME.equals(name2)) {
 			name = (String) value;
@@ -44,6 +51,9 @@ public class JudgementType extends ContestObject implements IJudgementType {
 			return true;
 		} else if (SOLVED.equals(name2)) {
 			solved = parseBoolean(value);
+			return true;
+		} else if (SIMPLIFIED_JUDGEMENT_TYPE_ID.equals(name2)) {
+			simplifiedJudgementTypeId = (String) value;
 			return true;
 		}
 
@@ -56,6 +66,7 @@ public class JudgementType extends ContestObject implements IJudgementType {
 		props.addString(NAME, name);
 		props.add(PENALTY, penalty);
 		props.add(SOLVED, solved);
+		props.addLiteralString(SIMPLIFIED_JUDGEMENT_TYPE_ID, simplifiedJudgementTypeId);
 	}
 
 	@Override

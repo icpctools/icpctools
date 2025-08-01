@@ -11,6 +11,7 @@ import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
@@ -344,6 +345,12 @@ public class PublicContest extends Contest implements IFilteredContest {
 	protected IJudgement filterJudgement(IJudgement jud) {
 		Judgement j = (Judgement) ((Judgement) jud).clone();
 		j.add("max_run_time", null);
+
+		// use simplified judgement type (if it exists)
+		IJudgementType jt = getJudgementTypeById(j.getJudgementTypeId());
+		if (jt != null && jt.getSimplifiedJudgementTypeId() != null) {
+			j.setJudgementTypeId(jt.getSimplifiedJudgementTypeId());
+		}
 		return j;
 	}
 
