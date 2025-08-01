@@ -11,7 +11,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.MapInfo.Printer;
 
-public class FloorGeneratorLuxor47 extends FloorGenerator {
+public class FloorGenerator47Luxor extends FloorGenerator {
 	// team area width (in meters). ICPC standard is 3.0
 	private static final float taw = 3.0f;
 
