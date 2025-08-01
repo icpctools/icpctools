@@ -7,6 +7,7 @@ import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
+import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.Problem;
 
 /**
@@ -81,6 +82,16 @@ public class SpectatorContest extends PublicContest {
 		Problem p = (Problem) ((Problem) problem).clone();
 		p.setPackage(null);
 		return p;
+	}
+
+	@Override
+	protected IJudgement filterJudgement(IJudgement jud) {
+		Judgement j = (Judgement) ((Judgement) jud).clone();
+		j.add("max_run_time", null);
+
+		// doesn't filter simplified judgement types
+
+		return j;
 	}
 
 	@Override

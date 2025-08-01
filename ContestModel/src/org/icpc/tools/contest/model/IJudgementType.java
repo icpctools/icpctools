@@ -24,4 +24,11 @@ public interface IJudgementType extends IContestObject {
 	 * @return if this judgement represents a correct solution
 	 */
 	boolean isSolved();
+
+	/**
+	 * Returns the simplified judgement type id.
+	 *
+	 * @return the simplified judgement type id
+	 */
+	String getSimplifiedJudgementTypeId();
 }
