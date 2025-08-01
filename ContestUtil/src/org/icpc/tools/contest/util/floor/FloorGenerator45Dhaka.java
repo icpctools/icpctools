@@ -16,7 +16,7 @@ import org.icpc.tools.contest.model.feed.DiskContestSource;
 /**
  * team area: 8' x 6', desk: 6' x 2.5'
  */
-public class FloorGeneratorDhaka extends FloorGenerator {
+public class FloorGenerator45Dhaka extends FloorGenerator {
 	// team area width (in meters). ICPC standard is 3.0
 	private static final float taw = 2.44f;
 
