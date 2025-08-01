@@ -1118,6 +1118,7 @@ public class DiskContestSource extends ContestSource {
 						int count = 2;
 						while (hrefs.contains(ref.href)) {
 							ref.href = "contests/" + contestId + "/" + pattern.url + diff + count;
+							count += 1;
 						}
 						refList.add(ref);
 						hrefs.add(ref.href);
