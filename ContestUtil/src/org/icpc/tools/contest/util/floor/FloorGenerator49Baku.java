@@ -153,10 +153,13 @@ public class FloorGenerator49Baku extends FloorGenerator {
 			floor.createAisle(raisle, 0, raisle, y);
 			floor.createAisle(laisle, 0, laisle, y);
 
-			IPrinter p = floor.createPrinter(0, y);
+			IPrinter p = floor.createPrinter(-aisle, 1);
 
 			// convert spares
-			// floor.makeSpare(0);
+			floor.makeSpare(6);
+			floor.makeSpare(7);
+			floor.makeSpare(138);
+			floor.makeSpare(139);
 
 			IProblem pp = null;
 
@@ -167,11 +170,10 @@ public class FloorGenerator49Baku extends FloorGenerator {
 				source.waitForContest(10000);
 				IProblem[] problems = contest2.getProblems();
 
-				// TODO
-				double b0 = -1 * (problems.length - 1);
+				double b0 = y / 2 + (tad * 6 + aisle * 4) / 2;
+				double bs = (tad * 6 + aisle * 4) / (problems.length - 1);
 				for (int i = 0; i < problems.length; i++) {
-					floor.createBalloon(problems[i].getId(), b0 + i * 2, -1);
-					floor.createAisle(b0 + i * 2, -2, b0 + i * 2, 0);
+					floor.createBalloon(problems[i].getId(), laisle - aisle, b0 - i * bs);
 				}
 
 				floor.write(f);
@@ -180,14 +182,16 @@ public class FloorGenerator49Baku extends FloorGenerator {
 			}
 
 			long time = System.currentTimeMillis();
-			ITeam t1 = floor.getTeam(10);
-			ITeam t2 = floor.getTeam(107);
+			ITeam t1 = floor.getTeam(142);
+			ITeam t2 = floor.getTeam(122);
 			ITeam t3 = floor.getTeam(22);
 			Path path1 = floor.getPath(t1, t2);
-			Path path2 = floor.getPath(t3, pp);
+			Path path2 = null;
 			Path path3 = null;
-			if (pp != null)
+			if (pp != null) {
+				path2 = floor.getPath(t3, pp);
 				path3 = floor.getPath(p, pp);
+			}
 
 			Trace.trace(Trace.USER, "Time: " + (System.currentTimeMillis() - time));
 
