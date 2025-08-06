@@ -39,7 +39,7 @@ public class SVGUtil {
 	public static SVGDocument loadSVG(File svgFile) throws Exception {
 		String parser = XMLResourceDescriptor.getXMLParserClassName();
 		SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
-		return factory.createSVGDocument(svgFile.getAbsolutePath());
+		return factory.createSVGDocument(svgFile.toURI().toString());
 	}
 
 	public static SVGDocument loadSVG(String svgFile, InputStream in) throws Exception {
