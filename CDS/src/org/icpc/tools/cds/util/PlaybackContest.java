@@ -306,8 +306,19 @@ public class PlaybackContest extends Contest {
 				Clarification clar = (Clarification) obj;
 				if (clar.getFromTeamId() != null && getTeamById(clar.getFromTeamId()) == null)
 					return;
-				if (clar.getToTeamId() != null && getTeamById(clar.getToTeamId()) == null)
-					return;
+
+				if (clar.getToTeamIds() != null) {
+					for (String teamId : clar.getToTeamIds()) {
+						if (getTeamById(teamId) == null)
+							return;
+					}
+				}
+				if (clar.getToGroupIds() != null) {
+					for (String groupId : clar.getToGroupIds()) {
+						if (getGroupById(groupId) == null)
+							return;
+					}
+				}
 				if (clar.getProblemId() != null && getProblemById(clar.getProblemId()) == null)
 					return;
 			}
