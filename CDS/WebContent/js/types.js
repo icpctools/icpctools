@@ -66,6 +66,9 @@ function problemsTd(problem) {
 }
 
 function groupsTd(group) {
+	if (group == null)
+		return null;
+
 	var hidden = "";
     if (group.hidden != null)
         hidden = "true";
@@ -74,7 +77,7 @@ function groupsTd(group) {
     var logo2 = bestSquareLogo(group.logo, 20);
     if (logo2 != null)
         logoSrc = '/api/' + logo2.href;
-    return { icpc_id: group.icpc_id, name: group.name, type: group.type, hidden: hidden, logo: logoSrc };
+    return { id: group.id, icpc_id: group.icpc_id, name: group.name, type: group.type, hidden: hidden, logo: logoSrc };
 }
 
 function organizationsTd(org) {
@@ -227,8 +230,25 @@ function clarificationsTd(clar) {
         }
     }
     c.fromTeam = teamsTd(findById(contest.getTeams(), clar.from_team_id));
-    c.toTeam = teamsTd(findById(contest.getTeams(), clar.to_team_id));
-    c.replyTo = clar.reply_to_id;
+	c.toTeams = [];
+	if (clar.to_team_ids) {
+	    for (var j = 0; j < clar.to_team_ids.length; j++) {
+	    	c.toTeams.push(teamsTd(findById(contest.getTeams(), clar.to_team_ids[j])));
+		}
+	} else if (clar.to_team_id) {
+		c.toTeams.push(teamsTd(findById(contest.getTeams(), clar.to_team_id)));
+	}
+	c.toTeams = addSeparators(c.toTeams);
+
+	c.toGroups = [];
+    if (clar.to_group_ids) {
+		for (var j = 0; j < clar.to_group_ids.length; j++) {
+			c.toGroups.push(groupsTd(findById(contest.getGroups(), clar.to_group_ids[j])));
+		}
+		c.toGroups = addSeparators(c.toGroups);
+    }
+	
+	c.replyTo = clar.reply_to_id;
     return c;
 }
 
@@ -260,7 +280,7 @@ function awardsTd(award) {
             teamsStr += "<br>";
         teamsStr += getDisplayStr(award.team_ids[j]);
     }
-    return { citation: award.citation, teamsStr: teamsStr };
+    return { citation: award.citation, teams: teamsStr };
 }
 
 function startstatusTd(startStatus) {
@@ -272,4 +292,19 @@ function startstatusTd(startStatus) {
 	else if (startStatus.status == 2)
 		s.c = 'success';
 	return s;
+}
+
+function addSeparators(arr) {
+    var arr2 = [];
+    for (var j = 0; j < arr.length; j++) {
+        if (j > 0)
+            arr2.push({ br: 'true' });
+		if (arr[j]) {
+			arr[j].item = 'true';
+	        arr2.push(arr[j]);
+		} else {
+			arr2.push({ item: 'true' });
+		}
+    }
+    return arr2;
 }

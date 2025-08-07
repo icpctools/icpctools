@@ -115,6 +115,9 @@ function fillContestObjectTable(name, objs) {
 
 	// load row template
 	var template = $('#' + name + '-template').html();
+	
+	template = template.replaceAll('{{#array}}', '{{#br}}<br/>{{/br}}{{#item}}');
+	template = template.replaceAll('{{/array}}', '{{/item}}');
 
 	// walk through all the current objects and add or replace rows as necessary
     for (var i = 0; i < objs.length; i++) {
