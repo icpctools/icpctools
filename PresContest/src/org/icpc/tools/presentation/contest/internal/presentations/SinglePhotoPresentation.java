@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
@@ -32,7 +31,7 @@ public class SinglePhotoPresentation extends Presentation {
 			File f = ContestSource.getInstance().getFile("/presentation/photo.jpg");
 			if (f != null && f.exists())
 				image = ImageScaler.scaleImage(ImageIO.read(f), width, height);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading image", e);
 		}
 		return image;

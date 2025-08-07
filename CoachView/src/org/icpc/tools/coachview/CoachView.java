@@ -31,6 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -792,7 +793,7 @@ public class CoachView extends Panel {
 			return null;
 
 		try {
-			URL url = new URL(urlStr);
+			URL url = new URI(urlStr).toURL();
 			StringBuilder sb = new StringBuilder(url.getProtocol());
 			sb.append("://");
 			if (user != null)

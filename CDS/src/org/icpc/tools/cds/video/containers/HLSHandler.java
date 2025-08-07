@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,9 +113,9 @@ public class HLSHandler extends VideoServingHandler {
 		try {
 			URLConnection conn = null;
 			if (query != null)
-				conn = HTTPSSecurity.createURLConnection(new URL(url + "/stream.m3u8?" + query), null, null);
+				conn = HTTPSSecurity.createURLConnection(new URI(url + "/stream.m3u8?" + query).toURL(), null, null);
 			else
-				conn = HTTPSSecurity.createURLConnection(new URL(url + "/stream.m3u8"), null, null);
+				conn = HTTPSSecurity.createURLConnection(new URI(url + "/stream.m3u8").toURL(), null, null);
 
 			conn.setConnectTimeout(15000);
 			conn.setReadTimeout(10000);

@@ -79,9 +79,9 @@ public abstract class ContestSource {
 	 * @return
 	 * @throws IOException
 	 */
-	public static ContestSource parseSource(String source, String user, String password) throws IOException {
+	public static ContestSource parseSource(String source, String user, String password) throws Exception {
 		if (source == null)
-			throw new IOException("No contest source");
+			throw new Exception("No contest source");
 
 		if (source.startsWith("http")) {
 			String source2 = ContestAPIHelper.validateContestURL(source, user, password);
@@ -92,7 +92,7 @@ public abstract class ContestSource {
 		if (f.exists())
 			return new RESTContestSource(f, user, password);
 
-		throw new IOException("Could not parse or resolve contest source");
+		throw new Exception("Could not parse or resolve contest source");
 	}
 
 	public String getContestId() {
@@ -106,7 +106,7 @@ public abstract class ContestSource {
 	 * @return
 	 * @throws IOException
 	 */
-	public File getFile(String path) throws IOException {
+	public File getFile(String path) throws Exception {
 		return null;
 	}
 
@@ -117,14 +117,14 @@ public abstract class ContestSource {
 	 * @return
 	 * @throws IOException
 	 */
-	public File getFile(IContestObject obj, FileReference ref, String property) throws IOException {
+	public File getFile(IContestObject obj, FileReference ref, String property) throws Exception {
 		return null;
 	}
 
 	/**
 	 * @throws IOException
 	 */
-	public String[] getDirectory(String path) throws IOException {
+	public String[] getDirectory(String path) throws Exception {
 		return null;
 	}
 

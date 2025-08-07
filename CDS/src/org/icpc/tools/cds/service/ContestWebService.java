@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +159,7 @@ public class ContestWebService extends HttpServlet {
 
 	private static InputStream getHTTPInputStream(String url, String user, String password) throws Exception {
 		try {
-			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url), user, password);
+			HttpURLConnection conn = HTTPSSecurity.createConnection(new URI(url).toURL(), user, password);
 			conn.setReadTimeout(15 * 1000); // 15s timeout
 			return new BufferedInputStream(conn.getInputStream());
 		} catch (Exception e) {
