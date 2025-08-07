@@ -17,6 +17,7 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -83,7 +84,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @param password
 	 * @throws MalformedURLException
 	 */
-	public RESTContestSource(String url, String user, String password) throws MalformedURLException {
+	public RESTContestSource(String url, String user, String password) throws Exception {
 		this(null, url, user, password, null);
 	}
 
@@ -96,7 +97,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @param password
 	 * @throws MalformedURLException
 	 */
-	public RESTContestSource(File file, String user, String password) throws MalformedURLException {
+	public RESTContestSource(File file, String user, String password) throws Exception {
 		this(file, null, user, password, null);
 	}
 
@@ -108,12 +109,11 @@ public class RESTContestSource extends DiskContestSource {
 	 * already have a local contest cached and only want the ability to load absolute file
 	 * references.
 	 */
-	public RESTContestSource(File file, String url, String user, String password, String name)
-			throws MalformedURLException {
+	public RESTContestSource(File file, String url, String user, String password, String name) throws Exception {
 		super(file, url);
 
 		if (url != null)
-			this.url = new URL(url);
+			this.url = new URI(url).toURL();
 
 		if (user != null && user.trim().length() > 0)
 			this.user = user;
@@ -212,12 +212,12 @@ public class RESTContestSource extends DiskContestSource {
 		return url;
 	}
 
-	private URL getChildURL(String path) throws MalformedURLException {
+	private URL getChildURL(String path) throws Exception {
 		String u = url.toExternalForm();
 		if (u.endsWith("/"))
-			return new URL(u + path);
+			return new URI(u + path).toURL();
 
-		return new URL(u + "/" + path);
+		return new URI(u + "/" + path).toURL();
 	}
 
 	public String getUser() {
@@ -231,11 +231,10 @@ public class RESTContestSource extends DiskContestSource {
 	/**
 	 *
 	 * @param partialURL
-	 * @param baseURL true for base url relative, false for contest url relative
 	 * @return
 	 * @throws IOException
 	 */
-	private HttpURLConnection createConnection(String partialURL) throws IOException {
+	private HttpURLConnection createConnection(String partialURL) throws Exception {
 		return createConnection(getChildURL(partialURL));
 	}
 
@@ -250,7 +249,7 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	@Override
-	public File getFile(String path) throws IOException {
+	public File getFile(String path) throws Exception {
 		File localFile = super.getFile(path);
 		if (localFile.exists() && !super.isCache())
 			return localFile;
@@ -260,13 +259,13 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	@Override
-	public File getFile(IContestObject obj, FileReference ref, String property) throws IOException {
+	public File getFile(IContestObject obj, FileReference ref, String property) throws Exception {
 		File file = super.getFile(obj, ref, property);
 
 		return downloadIfNecessary(ref, file);
 	}
 
-	public File downloadFile(IContestObject obj, FileReference ref, String property) throws IOException {
+	public File downloadFile(IContestObject obj, FileReference ref, String property) throws Exception {
 		if (obj == null)
 			return null;
 
@@ -277,25 +276,25 @@ public class RESTContestSource extends DiskContestSource {
 		return downloadIfNecessary(ref, file);
 	}
 
-	private URL getResolvedURL(String href) throws MalformedURLException {
+	private URL getResolvedURL(String href) throws Exception {
 		if (href.startsWith("http"))
-			return new URL(href);
+			return new URI(href).toURL();
 
 		if (feedFile != null)
 			return null;
 
 		// if href starts with / it means from the root
 		if (href.startsWith("/"))
-			return new URL(url.getProtocol() + "://" + url.getAuthority() + href);
+			return new URI(url.getProtocol() + "://" + url.getAuthority() + href).toURL();
 
 		// otherwise, it's relative to the API, so determine that
 		if (baseUrl == null)
 			return null;
 
-		return new URL(baseUrl + href);
+		return new URI(baseUrl + href).toURL();
 	}
 
-	private File downloadIfNecessary(FileReference ref, File localFile) throws IOException {
+	private File downloadIfNecessary(FileReference ref, File localFile) throws Exception {
 		if (localFile == null)
 			return null;
 
@@ -303,7 +302,7 @@ public class RESTContestSource extends DiskContestSource {
 		return localFile;
 	}
 
-	private void downloadIfNecessary(String href, File localFile) throws IOException {
+	private void downloadIfNecessary(String href, File localFile) throws Exception {
 		try {
 			downloadIfNecessaryImpl(href, localFile);
 		} catch (Exception e) {
@@ -331,7 +330,7 @@ public class RESTContestSource extends DiskContestSource {
 		return responseCode >= 200 && responseCode < 300;
 	}
 
-	private void downloadIfNecessaryImpl(String href, File localFile) throws IOException {
+	private void downloadIfNecessaryImpl(String href, File localFile) throws Exception {
 		URL url2 = getResolvedURL(href);
 		if (url2 == null)
 			return;
@@ -361,7 +360,7 @@ public class RESTContestSource extends DiskContestSource {
 		}
 
 		if (hasMoved(status)) {
-			conn = createConnection(new URL(conn.getHeaderField("Location")));
+			conn = createConnection(new URI(conn.getHeaderField("Location")).toURL());
 			conn.setReadTimeout(10000);
 			if (localFile.exists())
 				conn.setIfModifiedSince(localTime);
@@ -446,7 +445,7 @@ public class RESTContestSource extends DiskContestSource {
 
 			int status = conn.getResponseCode();
 			if (hasMoved(status)) {
-				conn = createConnection(new URL(conn.getHeaderField("Location")));
+				conn = createConnection(new URI(conn.getHeaderField("Location")).toURL());
 			} else if (status == HttpURLConnection.HTTP_UNAUTHORIZED)
 				throw new IOException("Not authorized (HTTP response code 401)");
 			else if (status == HttpURLConnection.HTTP_BAD_REQUEST)
@@ -1138,19 +1137,19 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
-	public ITeam getTeam(String teamId) throws IOException {
+	public ITeam getTeam(String teamId) throws Exception {
 		return (ITeam) parseContestObject("teams/" + teamId, ContestType.TEAM);
 	}
 
-	public IOrganization getOrganization(String orgId) throws IOException {
+	public IOrganization getOrganization(String orgId) throws Exception {
 		return (IOrganization) parseContestObject("organizations/" + orgId, ContestType.ORGANIZATION);
 	}
 
-	public JsonObject getAccess() throws IOException {
-		return getJsonObject("acccess");
+	public JsonObject getAccess() throws Exception {
+		return getJsonObject("access");
 	}
 
-	private JsonObject getJsonObject(String partialURL) throws IOException {
+	private JsonObject getJsonObject(String partialURL) throws Exception {
 		try {
 			Trace.trace(Trace.INFO, "Getting contest object: " + partialURL);
 			HttpURLConnection conn = createConnection(partialURL);
@@ -1168,7 +1167,7 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
-	private IContestObject parseContestObject(String partialURL, ContestType type) throws IOException {
+	private IContestObject parseContestObject(String partialURL, ContestType type) throws Exception {
 		try {
 			JsonObject obj = getJsonObject(partialURL);
 			ContestObject co = (ContestObject) IContestObject.createByType(type);

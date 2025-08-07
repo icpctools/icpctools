@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
@@ -298,7 +298,7 @@ public class EventFeedUtil {
 			url2 += "/";
 		url2 += "event-feed";
 		try {
-			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url2), user, password);
+			HttpURLConnection conn = HTTPSSecurity.createConnection(new URI(url2).toURL(), user, password);
 			conn.setReadTimeout(15 * 1000); // 15s timeout
 			BufferedInputStream in = new BufferedInputStream(conn.getInputStream());
 			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("events.json"));
@@ -329,7 +329,7 @@ public class EventFeedUtil {
 
 		long last = 0;
 		try {
-			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url2), user, password);
+			HttpURLConnection conn = HTTPSSecurity.createConnection(new URI(url2).toURL(), user, password);
 			conn.setReadTimeout(180 * 1000); // 3 min timeout
 			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 

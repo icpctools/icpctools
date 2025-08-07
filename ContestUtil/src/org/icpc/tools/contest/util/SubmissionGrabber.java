@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
@@ -33,7 +33,7 @@ public class SubmissionGrabber {
 
 	private HttpURLConnection createConnection(int run) throws IOException {
 		try {
-			return HTTPSSecurity.createConnection(new URL(url + run), user, password);
+			return HTTPSSecurity.createConnection(new URI(url + run).toURL(), user, password);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {

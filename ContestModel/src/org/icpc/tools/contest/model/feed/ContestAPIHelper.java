@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.icpc.tools.contest.Trace;
@@ -31,12 +31,12 @@ public class ContestAPIHelper {
 				+ ContestUtil.formatStartTime(info.getStartTime());
 	}
 
-	private static URL getChildURL(URL url, String path) throws MalformedURLException {
+	private static URL getChildURL(URL url, String path) throws Exception {
 		String u = url.toExternalForm();
 		if (u.endsWith("/"))
-			return new URL(u + path);
+			return new URI(u + path).toURL();
 
-		return new URL(u + "/" + path);
+		return new URI(u + "/" + path).toURL();
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class ContestAPIHelper {
 	public static String validateContestURL(String url2, String user, String password) throws IllegalArgumentException {
 		URL url = null;
 		try {
-			url = new URL(url2);
+			url = new URI(url2).toURL();
 			Result result = getContent(url, user, password, 0);
 			String content = result.content;
 			url = result.url;
@@ -116,7 +116,7 @@ public class ContestAPIHelper {
 			try {
 				URL testURL = null;
 				if (path.startsWith("/"))
-					testURL = new URL(url.getProtocol() + "://" + url.getAuthority() + path);
+					testURL = new URI(url.getProtocol() + "://" + url.getAuthority() + path).toURL();
 				else
 					testURL = getChildURL(url, path);
 				String content = getContent(testURL, user, password, 0).content;
@@ -160,7 +160,7 @@ public class ContestAPIHelper {
 		else if (RESTContestSource.hasMoved(response)) {
 			if (redirects > 3)
 				throw new IllegalArgumentException("Too many URL redirects");
-			URL newURL = new URL(conn.getHeaderField("Location"));
+			URL newURL = new URI(conn.getHeaderField("Location")).toURL();
 			return getContent(newURL, user, password, redirects + 1);
 		} else if (response == HttpURLConnection.HTTP_NOT_FOUND) {
 			throw new IllegalArgumentException("Invalid, URL not found (404)");

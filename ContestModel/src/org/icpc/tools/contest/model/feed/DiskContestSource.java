@@ -310,7 +310,7 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	@Override
-	public File getFile(IContestObject obj, FileReference ref, String property) throws IOException {
+	public File getFile(IContestObject obj, FileReference ref, String property) throws Exception {
 		if (obj == null)
 			return null;
 
@@ -394,7 +394,7 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	@Override
-	public File getFile(String path) throws IOException {
+	public File getFile(String path) throws Exception {
 		String path2 = path;
 		if (path.endsWith("/"))
 			path2 += "listing.dir";
@@ -406,7 +406,7 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	@Override
-	public String[] getDirectory(String path) throws IOException {
+	public String[] getDirectory(String path) throws Exception {
 		File f = null;
 		if (root != null)
 			f = new File(root, path);

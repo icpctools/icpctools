@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -114,7 +115,7 @@ public class CDSUtil {
 			throw new IOException("Invalid url");
 
 		try {
-			HttpURLConnection conn = HTTPSSecurity.createConnection(new URL(url), user, password);
+			HttpURLConnection conn = HTTPSSecurity.createConnection(new URI(url).toURL(), user, password);
 			int response = conn.getResponseCode();
 			if ("CDS".equals(conn.getHeaderField("ICPC-Tools")))
 				return;
@@ -132,9 +133,9 @@ public class CDSUtil {
 
 	private HttpURLConnection createConnection(String href) throws IOException {
 		try {
-			URL url3 = new URL(url);
+			URL url3 = new URI(url).toURL();
 			String url2 = url3.getProtocol() + "://" + url3.getAuthority() + href;
-			return HTTPSSecurity.createConnection(new URL(url2), user, password);
+			return HTTPSSecurity.createConnection(new URI(url2).toURL(), user, password);
 		} catch (IOException e) {
 			throw e;
 		} catch (Exception e) {

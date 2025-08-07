@@ -1,6 +1,5 @@
 package org.icpc.tools.balloon;
 
-import java.io.IOException;
 import java.util.prefs.Preferences;
 
 import org.eclipse.swt.SWT;
@@ -83,7 +82,7 @@ public class ContestConnectionDialog extends Dialog {
 		return rc;
 	}
 
-	public ContestSource getContestSource() throws IOException {
+	public ContestSource getContestSource() throws Exception {
 		if (method == ConnectMethod.CONTEST_API)
 			return new RESTContestSource(url, user, password);
 		else if (method == ConnectMethod.CONTEST_PACKAGE)

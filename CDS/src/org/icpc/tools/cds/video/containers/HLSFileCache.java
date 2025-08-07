@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,7 +118,7 @@ public class HLSFileCache {
 
 			long time = System.currentTimeMillis();
 			try {
-				URLConnection conn = HTTPSSecurity.createURLConnection(new URL(url + "/" + name), null, null);
+				URLConnection conn = HTTPSSecurity.createURLConnection(new URI(url + "/" + name).toURL(), null, null);
 				conn.setConnectTimeout(15000);
 				conn.setReadTimeout(10000);
 				conn.setRequestProperty("Content-Type", "video/mp4");

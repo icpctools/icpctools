@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -43,7 +43,11 @@ public class VideoStream implements IStore {
 	private ReadThread thread;
 	private List<VideoStreamListener> listeners = new ArrayList<>(3);
 
-	public VideoStream(String name, String url, StreamType type, String teamId, String... handlerType) {
+	public VideoStream(String name, String url, StreamType type, String teamId) {
+		this(name, url, type, teamId, null);
+	}
+
+	public VideoStream(String name, String url, StreamType type, String teamId, String handlerType) {
 		if (handlerType != null) {
 			for (VideoHandler vh : VideoAggregator.HANDLERS) {
 				if (vh.getName().equals(handlerType)) {
@@ -300,8 +304,8 @@ public class VideoStream implements IStore {
 
 		URL url2 = null;
 		try {
-			url2 = new URL(url);
-		} catch (MalformedURLException e) {
+			url2 = new URI(url).toURL();
+		} catch (Exception e) {
 			try {
 				File sample = new File(url);
 				if (sample.exists())
