@@ -747,9 +747,20 @@ public class ConfiguredContest {
 			ITeam team = contest.getTeamById(clar.getFromTeamId());
 			if (contest.isTeamHidden(team))
 				return null;
-			team = contest.getTeamById(clar.getToTeamId());
-			if (contest.isTeamHidden(team))
-				return null;
+			if (clar.getToTeamIds() != null) {
+				for (String teamId : clar.getToTeamIds()) {
+					team = contest.getTeamById(teamId);
+					if (contest.isTeamHidden(team))
+						return null;
+				}
+			}
+			if (clar.getToGroupIds() != null) {
+				for (String groupId : clar.getToGroupIds()) {
+					IGroup group = contest.getGroupById(groupId);
+					if (group != null && group.isHidden())
+						return null;
+				}
+			}
 		}
 
 		return obj;

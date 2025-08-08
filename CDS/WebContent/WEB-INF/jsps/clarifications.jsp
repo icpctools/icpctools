@@ -23,7 +23,8 @@
 			                    <th class="text-center">Time</th>
 			                    <th class="text-center">Problem</th>
 			                    <th>From Team</th>
-			                    <th>To Team</th>
+			                    <th>To Teams</th>
+			                    <th>To Groups</th>
 			                    <th>Text</th>
 			                </tr>
 			            </thead>
@@ -66,7 +67,8 @@
   <td class="text-center">{{{time}}}</td>
   <td class="text-center">{{#label}}<span class="badge" style="background-color:{{rgb}}; width:25px; border:1px solid {{border}}"><font color={{fg}}>{{label}}</font></span>{{/label}}</td>
   <td>{{#fromTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/fromTeam}}</td>
-  <td>{{#toTeam}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/toTeam}}</td>
+  <td>{{#toTeams}}{{#array}}{{#logo}}<img src="{{{logo}}}" width="20" height="20"/> {{/logo}}{{label}}: {{name}}{{/array}}{{/toTeams}}</td>
+  <td>{{#toGroups}}{{#array}}{{name}}{{/array}}{{/toGroups}}</td>
   <td class="pre-line">{{{text}}}</td>
 </script>
 <script type="text/javascript">
@@ -75,7 +77,7 @@ registerContestObjectTable("clarifications");
 
 function clarificationsRefresh() {
 	contest.clear();
-	$.when(contest.loadClarifications(), contest.loadTeams(), contest.loadOrganizations(), contest.loadProblems()).done(function () {
+	$.when(contest.loadClarifications(), contest.loadTeams(), contest.loadGroups(), contest.loadOrganizations(), contest.loadProblems()).done(function () {
         fillContestObjectTable("clarifications", contest.getClarifications());
         
         var problems = contest.getProblems();

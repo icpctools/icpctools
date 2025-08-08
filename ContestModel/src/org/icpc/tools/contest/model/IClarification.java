@@ -12,19 +12,25 @@ public interface IClarification extends IContestObject {
 	String getReplyToId();
 
 	/**
-	 * The id of the team asking this question, may be null if sent from staff.
+	 * The id of the team making the clarification, may be null if sent from staff.
 	 *
 	 * @return the id
 	 */
 	String getFromTeamId();
 
 	/**
-	 * The id of the team receiving this reply, may be null if sent to staff. If both from and to
-	 * are null, this is a broadcast from staff to all teams.
+	 * The id of the team(s) receiving this reply, may be null.
 	 *
-	 * @return the id
+	 * @return the ids
 	 */
-	String getToTeamId();
+	String[] getToTeamIds();
+
+	/**
+	 * The id of the group(s) receiving this reply, may be null.
+	 *
+	 * @return the ids
+	 */
+	String[] getToGroupIds();
 
 	/**
 	 * The id of the associated problem, may be null.
@@ -39,6 +45,13 @@ public interface IClarification extends IContestObject {
 	 * @return the text
 	 */
 	String getText();
+
+	/**
+	 * Returns true if this is a broadcast (sent to everyone)
+	 *
+	 * @return true if this is a broadcast
+	 */
+	boolean isBroadcast();
 
 	/**
 	 * Returns the contest time relative to the start of the contest, in ms.

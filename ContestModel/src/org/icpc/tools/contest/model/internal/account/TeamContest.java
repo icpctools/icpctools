@@ -86,14 +86,39 @@ public class TeamContest extends PublicContest {
 			case CLARIFICATION: {
 				IClarification clar = (IClarification) obj;
 
-				// teams see messages to or from them
+				boolean isVisible = false;
+
+				// teams see clarifications they've sent
 				if (clar.getFromTeamId() != null && teamId.equals(clar.getFromTeamId())) {
-					clar = filterClarification(clar);
-					addIt(clar);
-					return;
+					isVisible = true;
 				}
 
-				if (clar.getToTeamId() != null && teamId.equals(clar.getToTeamId())) {
+				// ones sent to them
+				if (!isVisible && clar.getToTeamIds() != null) {
+					for (String clarTeamId : clar.getToTeamIds()) {
+						if (teamId.equals(clarTeamId)) {
+							isVisible = true;
+							continue;
+						}
+					}
+				}
+
+				// and ones sent to a group they are in
+				if (!isVisible && clar.getToGroupIds() != null) {
+					ITeam team = getTeamById(teamId);
+					String[] groupIds = team.getGroupIds();
+
+					for (String groupa : clar.getToGroupIds()) {
+						for (String groupb : groupIds) {
+							if (groupa != null && groupa.equals(groupb)) {
+								isVisible = true;
+								continue;
+							}
+						}
+					}
+				}
+
+				if (isVisible) {
 					clar = filterClarification(clar);
 					addIt(clar);
 					return;
