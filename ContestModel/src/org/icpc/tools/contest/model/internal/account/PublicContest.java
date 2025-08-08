@@ -212,7 +212,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				IClarification clar = (IClarification) obj;
 
 				// everyone sees broadcasts
-				if (clar.getFromTeamId() == null && clar.getToTeamId() == null) {
+				if (clar.isBroadcast()) {
 					clar = filterClarification(clar);
 					super.add(clar);
 				}

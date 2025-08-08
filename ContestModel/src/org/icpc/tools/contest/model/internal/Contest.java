@@ -1809,7 +1809,10 @@ public class Contest implements IContest {
 				remove.add(clar);
 				foundClar = true;
 			}
-			teamId = clar.getToTeamId();
+
+			// For now, assume that clarifications to hidden teams are only
+			// sent to hidden teams. (i.e. no complex groups or hidden+non-hidden teams)
+			teamId = (clar.getToTeamIds() != null && clar.getToTeamIds().length > 0) ? clar.getToTeamIds()[0] : null;
 			if (!foundClar && teamId != null && teamIds.contains(teamId)) {
 				remove.add(clar);
 			}
