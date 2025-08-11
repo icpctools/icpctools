@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -113,11 +114,8 @@ public class ReactionVideoRecorder {
 		if (!submissionDir.exists())
 			submissionDir.mkdirs();
 
-		VideoHandler handler = VideoAggregator.handler;
-		String extension = handler.getFileExtension();
-
-		File[] files = submissionDir.listFiles(
-				(dir, name) -> (name.toLowerCase().startsWith("reaction") && name.toLowerCase().endsWith("." + extension)));
+		File[] files = submissionDir
+				.listFiles((dir, name) -> (name.toLowerCase().startsWith("reaction") && name.indexOf(".") >= 0));
 		if (files != null && files.length > 0) {
 			// recordings already exist, just return (and attachLocal will add them)
 			return;
@@ -146,19 +144,18 @@ public class ReactionVideoRecorder {
 		info.out = new OutputStream[numStreams];
 		info.tempFile = new File[numStreams];
 
-		VideoHandler handler = VideoAggregator.handler;
-		String extension = handler.getFileExtension();
-
 		String rootFolder = cc.getPath();
 		String submissionId = submission.getId();
 		File submissionDir = new File(rootFolder, "submissions" + File.separator + submissionId);
 
 		// setup all the streams we're going to save and the filenames we'll save them to
 		int count = 0;
+		VideoAggregator va = VideoAggregator.getInstance();
 		if (streamsWebcam != null) {
 			int numWebcam = streamsWebcam.size();
 			for (int i = 0; i < numWebcam; i++) {
 				info.stream[count] = streamsWebcam.get(i);
+				String extension = va.getStream(info.stream[count]).getFileExtension();
 				if (numWebcam > 1)
 					info.file[count] = new File(submissionDir, "reaction-" + WEBCAM + (i + 1) + "." + extension);
 				else
@@ -171,6 +168,7 @@ public class ReactionVideoRecorder {
 			int numDesktop = streamsDesktop.size();
 			for (int i = 0; i < numDesktop; i++) {
 				info.stream[count] = streamsDesktop.get(i);
+				String extension = va.getStream(info.stream[count]).getFileExtension();
 				if (numDesktop > 1)
 					info.file[count] = new File(submissionDir, "reaction-" + DESKTOP + (i + 1) + "." + extension);
 				else
@@ -180,6 +178,7 @@ public class ReactionVideoRecorder {
 		}
 
 		FileReferenceList list = new FileReferenceList();
+		List<String> hrefs = new ArrayList<>();
 		for (int i = 0; i < numStreams; i++) {
 			// create marker file
 			info.tempFile[i] = new File(submissionDir, info.file[i].getName() + "-temp");
@@ -225,8 +224,17 @@ public class ReactionVideoRecorder {
 
 			VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[0]);
 			FileReference ref = new FileReference();
-			String name = info.file[i].getName().substring(0, info.file[i].getName().length() - extension.length() - 1);
+			String name = info.file[i].getName().substring(0,
+					info.file[i].getName().length() - stream.getHandler().getFileExtension().length() - 1);
 			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
+
+			int count2 = 2;
+			while (hrefs.contains(ref.href)) {
+				ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + count2;
+				count2 += 1;
+			}
+			hrefs.add(ref.href);
+
 			ref.mime = stream.getMimeType();
 			ref.file = info.file[i];
 			list.add(ref);

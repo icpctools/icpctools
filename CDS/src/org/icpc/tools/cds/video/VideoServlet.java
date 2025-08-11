@@ -166,8 +166,8 @@ public class VideoServlet extends HttpServlet {
 			}
 		}
 
-		if (VideoAggregator.handler instanceof VideoServingHandler) {
-			((VideoServingHandler) VideoAggregator.handler).doGet(request, response, stream, vs, subpath);
+		if (vs.getHandler() instanceof VideoServingHandler) {
+			((VideoServingHandler) vs.getHandler()).doGet(request, response, stream, vs, subpath);
 		} else {
 			streamVideo(request, response, stream, vs, channel, isStaff);
 		}

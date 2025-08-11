@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.icpc.tools.cds.service.ExecutorListener;
@@ -373,14 +374,25 @@ public class ConfiguredContest {
 		map.put(type, in);
 
 		String name = type.name() + " " + teamId;
-		String url = urlPattern.replace("{0}", teamId);
-		if (!hosts.isEmpty() && url.contains("{host}")) {
-			for (String host : hosts) {
-				String url2 = url.replace("{host}", host);
-				in.add(va.addReservation(name + " " + host, url2, mode, type, teamId));
+		StringTokenizer st = new StringTokenizer(urlPattern, ",");
+		while (st.hasMoreTokens()) {
+			String urlPattern2 = st.nextToken();
+			String handler = null;
+			int index = urlPattern.indexOf('|');
+			if (index > 0) {
+				handler = urlPattern2.substring(0, index);
+				urlPattern2 = urlPattern2.substring(index + 1);
 			}
-		} else
-			in.add(va.addReservation(name, url, mode, type, teamId));
+
+			String url = urlPattern2.replace("{0}", teamId);
+			if (!hosts.isEmpty() && url.contains("{host}")) {
+				for (String host : hosts) {
+					String url2 = url.replace("{host}", host);
+					in.add(va.addReservation(name + " " + host, url2, mode, type, teamId, handler));
+				}
+			} else
+				in.add(va.addReservation(name, url, mode, type, teamId, handler));
+		}
 	}
 
 	private void setupTeamStreams(String teamId) {
