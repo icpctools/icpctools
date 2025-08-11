@@ -80,17 +80,14 @@ public class VideoAggregator {
 	protected static VideoHandler[] HANDLERS = { new HLSHandler(), new MPEGTSHandler(), new OggHandler(),
 			new FLVHandler() };
 
-	protected static VideoHandler handler;
+	protected static VideoHandler defaultHandler = HANDLERS[1];
 
 	static {
-		if ("hls".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
-			handler = HANDLERS[0];
-		else if ("ogg".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
-			handler = HANDLERS[2];
-		else if ("mpeg".equalsIgnoreCase(System.getProperty("ICPC_VIDEO")))
-			handler = HANDLERS[1];
-		else
-			handler = HANDLERS[1];
+		String defaultStr = System.getProperty("ICPC_VIDEO");
+		if (defaultStr != null && defaultStr.length() > 0) {
+			defaultHandler = getHandler(defaultStr);
+			Trace.trace(Trace.USER, "Default video handler: " + defaultHandler.getName());
+		}
 	}
 
 	protected static VideoAggregator instance = new VideoAggregator();
@@ -106,7 +103,7 @@ public class VideoAggregator {
 
 	private ThreadPoolExecutor executor = null;
 
-	public VideoAggregator() {
+	private VideoAggregator() {
 		super();
 
 		for (int i = 0; i < MAX_CHANNELS; i++)
@@ -129,11 +126,23 @@ public class VideoAggregator {
 			if (executor != null)
 				return executor;
 
-			// we only need a big thread pool when streaming video
+			// we only need a big thread pool when streaming video (not when serving)
 			int size = 10;
-			if (handler instanceof VideoStreamHandler)
-				size = MAX_STREAMS + 2;
-			System.out.println("Creating thread pool: " + size);
+			boolean isStreaming = false;
+			if (defaultHandler instanceof VideoStreamHandler) {
+				isStreaming = true;
+			} else {
+				// lets check all the streams directly as well
+				for (VideoStream stream : videoStreams) {
+					if (stream.getHandler() instanceof VideoStreamHandler) {
+						isStreaming = true;
+						break;
+					}
+				}
+			}
+			if (isStreaming)
+				size = MAX_STREAMS;
+			Trace.trace(Trace.INFO, "Creating thread pool: " + size);
 			executor = new ThreadPoolExecutor(size, size, 15L, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(size),
 					new ThreadFactory() {
 						@Override
@@ -148,8 +157,19 @@ public class VideoAggregator {
 		return executor;
 	}
 
-	public void execute(Runnable r) {
+	protected void execute(Runnable r) {
 		getExecutor().execute(r);
+	}
+
+	private static VideoHandler getHandler(String name) {
+		if (name == null)
+			return defaultHandler;
+
+		for (VideoHandler vh : HANDLERS) {
+			if (vh.getName().toLowerCase().equals(name.toLowerCase()))
+				return vh;
+		}
+		return defaultHandler;
 	}
 
 	public List<VideoStream> getVideoInfo() {
@@ -157,20 +177,23 @@ public class VideoAggregator {
 	}
 
 	public int addReservation(String name, String url, StreamType type, ConnectionMode mode) {
-		return addReservation(name, url, mode, type, null);
+		return addReservation(name, url, mode, type, null, null);
 	}
 
-	public int addReservation(String name, String url, ConnectionMode mode, StreamType type, String teamId) {
+	public int addReservation(String name, String url, ConnectionMode mode, StreamType type, String teamId,
+			String videoHandler) {
 		if (name == null)
 			throw new IllegalArgumentException();
 
-		VideoStream stream = new VideoStream(name, url, type, teamId);
+		VideoHandler handler = getHandler(videoHandler);
+		VideoStream stream = new VideoStream(name, url, type, teamId, handler);
 		stream.setConnectionMode(mode);
 
 		int numReserved = videoStreams.size();
 		videoStreams.add(stream);
 
-		Trace.trace(Trace.INFO, "Video reservation for " + name + " at " + url + " on stream " + numReserved);
+		Trace.trace(Trace.INFO,
+				"Video reservation for " + name + " (" + handler.getName() + ") at " + url + " on stream " + numReserved);
 
 		return numReserved;
 	}

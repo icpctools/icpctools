@@ -43,22 +43,8 @@ public class VideoStream implements IStore {
 	private ReadThread thread;
 	private List<VideoStreamListener> listeners = new ArrayList<>(3);
 
-	public VideoStream(String name, String url, StreamType type, String teamId) {
-		this(name, url, type, teamId, null);
-	}
-
-	public VideoStream(String name, String url, StreamType type, String teamId, String handlerType) {
-		if (handlerType != null) {
-			for (VideoHandler vh : VideoAggregator.HANDLERS) {
-				if (vh.getName().equals(handlerType)) {
-					this.handler = vh;
-					break;
-				}
-			}
-		}
-		if (this.handler == null)
-			this.handler = VideoAggregator.HANDLERS[0];
-		this.handler = VideoAggregator.handler;
+	protected VideoStream(String name, String url, StreamType type, String teamId, VideoHandler handler) {
+		this.handler = handler;
 		this.name = name;
 		this.url = url;
 		this.type = type;
@@ -91,6 +77,10 @@ public class VideoStream implements IStore {
 
 	public ConnectionMode getMode() {
 		return mode;
+	}
+
+	public VideoHandler getHandler() {
+		return handler;
 	}
 
 	public int getConnections() {
