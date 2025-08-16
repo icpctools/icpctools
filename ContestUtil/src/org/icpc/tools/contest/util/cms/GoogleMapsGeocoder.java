@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 
 import org.icpc.tools.contest.Trace;
@@ -63,7 +64,7 @@ public class GoogleMapsGeocoder {
 			String address = URLEncoder.encode(address2, "UTF-8");
 			String fullUrl = "https://maps.googleapis.com/maps/api/geocode/json?address=" + address + "&key=" + apiKey;
 
-			HttpURLConnection conn = (HttpURLConnection) (new URL(fullUrl)).openConnection();
+			HttpURLConnection conn = (HttpURLConnection) (new URI(fullUrl).toURL()).openConnection();
 			conn.setRequestProperty("Accept", "application/json");
 			conn.setRequestMethod("GET");
 
@@ -85,7 +86,7 @@ public class GoogleMapsGeocoder {
 				return null;
 
 			return json.getArray("results");
-		} catch (IOException | IllegalArgumentException e) {
+		} catch (IOException | URISyntaxException e) {
 			Trace.trace(Trace.ERROR, "Geocoder error", e);
 			return null;
 		}

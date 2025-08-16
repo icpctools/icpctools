@@ -1,5 +1,6 @@
 package org.icpc.tools.presentation.admin.internal;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class Admin {
 		String url = source.src[0];
 
 		try {
-			URL url2 = new URL(url);
+			URL url2 = new URI(url).toURL();
 			if (url2.getPath() != null && url2.getPath().length() > 1) {
 				url = url.substring(0, url.length() - url2.getPath().length());
 				Trace.trace(Trace.WARNING, "CDS URL should not contain a path, trying " + url + " instead");
