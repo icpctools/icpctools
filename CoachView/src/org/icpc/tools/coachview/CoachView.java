@@ -86,7 +86,7 @@ public class CoachView extends Panel {
 		String[] countries = Locale.getISOCountries();
 		localeMap = new HashMap<String, Locale>(countries.length);
 		for (String country : countries) {
-			Locale locale = new Locale("", country);
+			Locale locale = new Locale.Builder().setRegion(country.toUpperCase()).build();
 			localeMap.put(locale.getISO3Country().toUpperCase(), locale);
 		}
 	}
