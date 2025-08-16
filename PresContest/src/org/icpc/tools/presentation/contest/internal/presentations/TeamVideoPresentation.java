@@ -2,6 +2,7 @@ package org.icpc.tools.presentation.contest.internal.presentations;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -101,7 +102,7 @@ public class TeamVideoPresentation extends AbstractICPCPresentation {
 	@Override
 	public void setProperty(String value) {
 		try {
-			URL url = new URL(value);
+			URL url = new URI(value).toURL();
 			play(url.toExternalForm());
 		} catch (Exception e) {
 			// ignore
