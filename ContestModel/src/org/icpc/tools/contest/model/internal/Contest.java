@@ -614,6 +614,26 @@ public class Contest implements IContest {
 	}
 
 	/**
+	 * Returns the logo file.
+	 *
+	 * @return
+	 */
+	@Override
+	public File getLogoLightMode(int width, int height, boolean force, String mode) {
+		return info.getLogoLightMode(width, height, force, mode);
+	}
+
+	/**
+	 * Returns the logo image.
+	 *
+	 * @return
+	 */
+	@Override
+	public BufferedImage getLogoLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode) {
+		return info.getLogoLightModeImage(width, height, forceLoad, resizeToFit, mode);
+	}
+
+	/**
 	 * Returns the banner file.
 	 *
 	 * @return
@@ -631,6 +651,26 @@ public class Contest implements IContest {
 	@Override
 	public BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
 		return info.getBannerImage(width, height, forceLoad, resizeToFit);
+	}
+
+	/**
+	 * Returns the banner file.
+	 *
+	 * @return
+	 */
+	@Override
+	public File getBannerLightMode(int width, int height, boolean force, String mode) {
+		return info.getBannerLightMode(width, height, force, mode);
+	}
+
+	/**
+	 * Returns the contest banner image.
+	 *
+	 * @return
+	 */
+	@Override
+	public BufferedImage getBannerLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode) {
+		return info.getBannerLightModeImage(width, height, forceLoad, resizeToFit, mode);
 	}
 
 	@Override
