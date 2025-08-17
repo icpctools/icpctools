@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
@@ -487,5 +488,14 @@ public abstract class ContestObject implements IContestObject {
 		sb.deleteCharAt(sb.length() - 1);
 
 		return sb.toString();
+	}
+
+	public FileReferenceList filterListLightMode(FileReferenceList list, String mode) {
+		FileReferenceList tmpList = new FileReferenceList();
+		for (FileReference file : list) {
+			if (!Objects.equals(mode, file.mode))
+				tmpList.add(file);
+		}
+		return tmpList;
 	}
 }

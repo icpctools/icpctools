@@ -24,7 +24,9 @@ public class Info extends ContestObject implements IInfo {
 	private static final String SCOREBOARD_FREEZE_DURATION = "scoreboard_freeze_duration";
 	private static final String PENALTY_TIME = "penalty_time";
 	private static final String LOGO = "logo";
+	private static final String LOGO_BACKGROUNDMODE = "deprecated_logo_backgroundmode";
 	private static final String BANNER = "banner";
+	private static final String BANNER_BACKGROUNDMODE = "deprecated_banner_backgroundmode";
 	private static final String TIME_MULTIPLIER = "time_multiplier";
 	private static final String COUNTDOWN_PAUSE_TIME = "countdown_pause_time";
 	private static final String LOCATION = "location";
@@ -43,8 +45,10 @@ public class Info extends ContestObject implements IInfo {
 	private ScoreboardType scoreboardType;
 	private double timeMultiplier = Double.NaN;
 	private Location location;
-	private FileReferenceList banner;
 	private FileReferenceList logo;
+	private FileReferenceList logoLightMode;
+	private FileReferenceList banner;
+	private FileReferenceList bannerLightMode;
 	private String rgb;
 	private Color colorVal;
 
@@ -203,6 +207,26 @@ public class Info extends ContestObject implements IInfo {
 		return getRefImage(LOGO, logo, width, height, forceLoad, resizeToFit);
 	}
 
+	public void setLogoLightMode(FileReferenceList list) {
+		logoLightMode = list;
+	}
+
+	public FileReferenceList getLogoLightMode() {
+		return logoLightMode;
+	}
+
+	public FileReferenceList getLogoLightMode(String mode) {
+		return filterListLightMode(logoLightMode, mode);
+	}
+
+	public File getLogoLightMode(int width, int height, boolean force, String mode) {
+		return getFile(getBestFileReference(filterListLightMode(logoLightMode, mode), new ImageSizeFit(width, height)), LOGO, force);
+	}
+
+	public BufferedImage getLogoLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode) {
+		return getRefImage(LOGO, filterListLightMode(logoLightMode, mode), width, height, forceLoad, resizeToFit);
+	}
+
 	public void setBanner(FileReferenceList list) {
 		banner = list;
 	}
@@ -217,6 +241,26 @@ public class Info extends ContestObject implements IInfo {
 
 	public BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
 		return getRefImage(BANNER, banner, width, height, forceLoad, resizeToFit);
+	}
+
+	public void setBannerLightMode(FileReferenceList list) {
+		bannerLightMode = list;
+	}
+
+	public FileReferenceList getBannerLightMode() {
+		return bannerLightMode;
+	}
+
+	public FileReferenceList getBannerLightMode(String mode) {
+		return filterListLightMode(bannerLightMode, mode);
+	}
+
+	public File getBannerLightMode(int width, int height, boolean force, String mode) {
+		return getFile(getBestFileReference(filterListLightMode(bannerLightMode, mode), new ImageSizeFit(width, height)), BANNER_BACKGROUNDMODE, force);
+	}
+
+	public BufferedImage getBannerLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode) {
+		return getRefImage(BANNER_BACKGROUNDMODE, filterListLightMode(bannerLightMode, mode), width, height, forceLoad, resizeToFit);
 	}
 
 	@Override
@@ -356,7 +400,9 @@ public class Info extends ContestObject implements IInfo {
 		props.addLiteralString(RGB, rgb);
 
 		props.addFileRef(LOGO, logo);
+		props.addFileRef(LOGO_BACKGROUNDMODE, logoLightMode);
 		props.addFileRef(BANNER, banner);
+		props.addFileRef(BANNER_BACKGROUNDMODE, bannerLightMode);
 	}
 
 	@Override
