@@ -159,6 +159,20 @@ public interface IContest {
 	BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
 
 	/**
+	 * Returns the logo file.
+	 *
+	 * @return
+	 */
+	File getLogoLightMode(int width, int height, boolean force, String mode);
+
+	/**
+	 * Returns the logo image.
+	 *
+	 * @return
+	 */
+	BufferedImage getLogoLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode);
+
+	/**
 	 * Returns the banner file.
 	 *
 	 * @return
@@ -171,6 +185,20 @@ public interface IContest {
 	 * @return
 	 */
 	BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+
+	/**
+	 * Returns the banner file.
+	 *
+	 * @return
+	 */
+	File getBannerLightMode(int width, int height, boolean force, String mode);
+
+	/**
+	 * Returns the contest banner image.
+	 *
+	 * @return
+	 */
+	BufferedImage getBannerLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode);
 
 	/**
 	 * Return the contest state.
