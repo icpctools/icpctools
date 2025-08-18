@@ -782,15 +782,21 @@ public class View {
 		registerAction(createButton(comp, "Edit...", "Edit a composite presentation"), new RemoteAction() {
 			@Override
 			public boolean isEnabled() {
-				return false; // !presentations.isEmpty(); // TODO and custom
+				return getSelectedPresentation() instanceof CompositePresentationInfo;
 			}
 
 			@Override
 			public void run() throws Exception {
+				CompositePresentationInfo oldInfo = (CompositePresentationInfo) getSelectedPresentation();
 				CompositePresentationDialog dialog = new CompositePresentationDialog(parent.getShell(), presentations,
-						transitions);
+						transitions, oldInfo);
 				if (dialog.open()) {
 					CompositePresentationInfo newInfo = dialog.getPresentation();
+					if (oldInfo.getName().equals(newInfo.getName())) {
+						// overwrite with same name, duplicate with new name
+						composites.remove(oldInfo);
+						presentationList.remove(oldInfo);
+					}
 					presentationList.add(newInfo);
 					composites.add(newInfo);
 					try {
