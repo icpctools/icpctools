@@ -31,6 +31,7 @@ public class CompositePresentationDialog extends Dialog {
 	private PresentationInfoListControl buildList;
 
 	protected String name, description, category;
+	protected CompositePresentationInfo info;
 	protected CompositePresentationSaveDialog saveDialog;
 
 	public CompositePresentationDialog(Shell parent, List<PresentationInfo> presentations,
@@ -44,8 +45,8 @@ public class CompositePresentationDialog extends Dialog {
 	public CompositePresentationDialog(Shell parent, List<PresentationInfo> presentations,
 			List<PresentationInfo> transitions, CompositePresentationInfo info) {
 		this(parent, presentations, transitions);
-		// TODO - for edit
-
+		// for edit
+		this.info = info;
 	}
 
 	public CompositePresentationInfo getPresentation() {
@@ -110,7 +111,7 @@ public class CompositePresentationDialog extends Dialog {
 		GridLayout saveLayout = new GridLayout(1, false);
 		saveSection.setLayout(saveLayout);
 
-		saveDialog = new CompositePresentationSaveDialog(comp.getShell());
+		saveDialog = new CompositePresentationSaveDialog(comp.getShell(), info);
 		Composite saveInput = new Composite(saveSection, SWT.NONE);
 		saveInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		saveDialog.createUI(saveInput);
@@ -168,6 +169,38 @@ public class CompositePresentationDialog extends Dialog {
 		// TODO contestText.setFocus();
 		comp.getShell().setDefaultButton(cancel);
 		 */
+
+		if (info != null) {
+			buildListFromInfo();
+		}
+	}
+
+	private void buildListFromInfo() {
+		for (PresentationInfo part : info.infos) {
+			PresentationInfo found = null;
+			for (PresentationInfo pres : presentations) {
+				if (pres.equals(part)) {
+					found = pres;
+					break;
+				}
+			}
+			if (found == null) {
+				for (PresentationInfo trans : transitions) {
+					if (trans.equals(part)) {
+						found = trans;
+						break;
+					}
+				}
+			}
+
+			if (found != null) {
+				String data = null;
+				if (part.getData() != null) {
+					data = String.join(",", part.getData());
+				}
+				addToBuild(found, data);
+			}
+		}
 	}
 
 	private void createPresentationSection(Composite parent2) {

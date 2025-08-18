@@ -31,18 +31,17 @@ public class CompositePresentationSaveDialog {
 	public CompositePresentationSaveDialog(Shell parent) {
 		this.shell = parent;
 	}
-	/*public CompositePresentationSaveDialog(Shell parent) {
-		super(parent);
-	}
 
 	public CompositePresentationSaveDialog(Shell parent, CompositePresentationInfo info) {
-		super(parent);
-		name = info.getName();
-		description = info.getDescription();
-		category = info.getCategory();
+		this(parent);
+		if (info != null) {
+			name = info.getName();
+			description = info.getDescription();
+			category = info.getCategory();
+		}
 	}
 
-	public boolean open() {
+	/*public boolean open() {
 		shell = new Shell(getParent());
 		shell.setImage(getParent().getImage());
 		shell.setText("Save Presentation");
