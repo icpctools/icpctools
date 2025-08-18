@@ -61,9 +61,11 @@ public class DiskContestSource extends ContestSource {
 	private static final String CACHE_VERSION = "ICPC Tools Cache v1.1";
 
 	private static final String LOGO = "logo";
+	private static final String LOGO_BACKGROUNDMODE = "-logo";
 	private static final String PHOTO = "photo";
 	private static final String VIDEO = "video";
 	private static final String BANNER = "banner";
+	private static final String BANNER_BACKGROUNDMODE = "-banner";
 	private static final String BACKUP = "backup";
 	private static final String KEY_LOG = "key_log";
 	private static final String TOOL_DATA = "tool_data";
@@ -1146,7 +1148,11 @@ public class DiskContestSource extends ContestSource {
 		if (type == ContestType.CONTEST) {
 			if (LOGO.equals(property))
 				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
+			if (LOGO_BACKGROUNDMODE.equals(property))
+				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
 			if (BANNER.equals(property))
+				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
+			if (BANNER_BACKGROUNDMODE.equals(property))
 				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
 		} else if (type == ContestType.TEAM) {
 			if (PHOTO.equals(property))
@@ -1249,7 +1255,9 @@ public class DiskContestSource extends ContestSource {
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
 			info.setLogo(mergeRefs(info.getLogo(), getFilesWithPattern(obj, LOGO)));
+			info.setLogoLightMode(mergeRefs(info.getLogoLightMode(), getFilesWithPattern(obj, LOGO_BACKGROUNDMODE)));
 			info.setBanner(mergeRefs(info.getBanner(), getFilesWithPattern(obj, BANNER)));
+			info.setBannerLightMode(mergeRefs(info.getBannerLightMode(), getFilesWithPattern(obj, BANNER_BACKGROUNDMODE)));
 		} else if (obj instanceof Organization) {
 			Organization org = (Organization) obj;
 			org.setLogo(mergeRefs(org.getLogo(), getFilesWithPattern(obj, LOGO)));
