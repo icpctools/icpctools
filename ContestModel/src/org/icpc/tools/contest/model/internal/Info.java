@@ -260,12 +260,14 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public BufferedImage getBannerLightModeImage(int width, int height, boolean forceLoad, boolean resizeToFit, String mode) {
+		FileReferenceList a = filterListLightMode(bannerLightMode, mode);
+		BufferedImage b = getRefImage(BANNER_BACKGROUNDMODE, a, width, height, forceLoad, resizeToFit);
 		return getRefImage(BANNER_BACKGROUNDMODE, filterListLightMode(bannerLightMode, mode), width, height, forceLoad, resizeToFit);
 	}
 
 	@Override
 	public File resolveFileReference(String url) {
-		return FileReferenceList.resolve(url, logo, banner);
+		return FileReferenceList.resolve(url, logo, banner, bannerLightMode, logoLightMode);
 	}
 
 	@Override
@@ -329,6 +331,12 @@ public class Info extends ContestObject implements IInfo {
 			return true;
 		} else if (name2.equals(BANNER)) {
 			banner = parseFileReference(value);
+			return true;
+		} else if (name2.equals(LOGO_BACKGROUNDMODE)) {
+			logoLightMode = parseFileReference(value);
+			return true;
+		} else if (name2.equals(BANNER_BACKGROUNDMODE)) {
+			bannerLightMode = parseFileReference(value);
 			return true;
 		}
 

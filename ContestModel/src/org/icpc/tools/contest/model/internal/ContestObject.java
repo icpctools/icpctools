@@ -198,6 +198,8 @@ public abstract class ContestObject implements IContestObject {
 			return;
 		}
 
+		ContestType a = getType();
+		String b = IContestObject.getTypeName(getType());
 		String message = "Unknown property ignored: " + IContestObject.getTypeName(getType()) + "/" + name;
 		if (ignoredProps.contains(message))
 			return;

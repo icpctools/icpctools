@@ -328,6 +328,7 @@ public class CoachView extends Panel {
 		try {
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 
+			footerImage = contest.getBannerImage(d.width, d.height / 10, true, true);
 			footerImage = contest.getBannerLightModeImage(d.width, d.height / 10, true, true, "light");
 			if (footerImage == null)
 				footerImage = contest.getBannerImage(d.width, d.height / 10, true, true);
@@ -430,8 +431,8 @@ public class CoachView extends Panel {
 			y = drawLine(g, y, "URL", org.getURL());
 			y = drawLine(g, y, "Hashtag", org.getTwitterHashtag());
 
-			if (logoImg != null)
-				g.drawImage(logoImg, d.width - logoImg.getWidth() - BORDER, BORDER, null);
+			/*if (logoImg != null)
+				g.drawImage(logoImg, d.width - logoImg.getWidth() - BORDER, BORDER, null);*/
 		}
 
 		IPerson[] persons = contest.getPersonsByTeamId(team.getId());
@@ -780,7 +781,7 @@ public class CoachView extends Panel {
 					IOrganization org = contest.getOrganizationById(currentTeam.getOrganizationId());
 					if (org != null) {
 						Dimension d = getSize();
-						logoImg = org.getLogoImage(d.height / 3, d.height / 3, true, true);
+						/*logoImg = org.getLogoImage(d.height / 3, d.height / 3, true, true);*/
 					}
 				} catch (Throwable t) {
 					Trace.trace(Trace.ERROR, "Error playing media", t);
