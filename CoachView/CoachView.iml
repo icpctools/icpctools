@@ -19,5 +19,8 @@
         <jarDirectory url="file://$MODULE_DIR$/lib" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="PresCore" />
+    <orderEntry type="module" module-name="SWTLauncher" />
+    <orderEntry type="module" module-name="ContestModel" />
   </component>
 </module>

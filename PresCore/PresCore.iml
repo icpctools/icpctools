@@ -18,5 +18,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="ContestModel" />
+    <orderEntry type="module" module-name="SWTLauncher" />
+    <orderEntry type="module" module-name="ContestModel" />
   </component>
 </module>
