@@ -160,7 +160,7 @@ public class DiskContestSource extends ContestSource {
 	protected DiskContestSource(File file, String hash) {
 		// if file is null we're just locally caching
 		// if file exists and is a file, it's an event feed
-		// if is doesn't exist, assume a directory
+		// if it doesn't exist, assume a directory
 		if (file != null) {
 			if (hash != null) {
 				cacheFolder = createTempDir(getSafeHash(hash) + "-" + getSafeHash(file.getAbsolutePath()));
@@ -365,7 +365,7 @@ public class DiskContestSource extends ContestSource {
 				} else
 					name = fileRef.filename;
 			} else {
-				// otherwise, add size if is exists
+				// otherwise, add size if it exists
 				if (fileRef.width > 0) {
 					name = pattern.name + fileRef.width;
 					if (fileRef.height > 0)
@@ -640,13 +640,13 @@ public class DiskContestSource extends ContestSource {
 
 	private void writeCache(File folder, List<FileReference> list) {
 		BufferedWriter bw = null;
-		FileOutputStream fout = null;
+		FileOutputStream fileOut = null;
 
 		try {
 			File f = getCacheForFolder(folder);
-			fout = new FileOutputStream(f);
+			fileOut = new FileOutputStream(f);
 
-			bw = new BufferedWriter(new OutputStreamWriter(fout));
+			bw = new BufferedWriter(new OutputStreamWriter(fileOut));
 			bw.write(CACHE_VERSION);
 			bw.newLine();
 
@@ -673,7 +673,7 @@ public class DiskContestSource extends ContestSource {
 				// ignore
 			}
 			try {
-				fout.getFD().sync();
+				fileOut.getFD().sync();
 			} catch (Exception ex) {
 				// ignore
 			}
