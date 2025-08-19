@@ -327,7 +327,10 @@ public class CoachView extends Panel {
 
 		try {
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-			footerImage = contest.getBannerImage(d.width, d.height / 10, true, true);
+
+			footerImage = contest.getBannerLightModeImage(d.width, d.height / 10, true, true, "light");
+			if (footerImage == null)
+				footerImage = contest.getBannerImage(d.width, d.height / 10, true, true);
 
 			if (footerImage != null) {
 				Canvas footerPanel = new Canvas() {
