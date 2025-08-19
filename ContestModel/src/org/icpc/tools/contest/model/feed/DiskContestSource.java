@@ -58,7 +58,7 @@ import org.icpc.tools.contest.model.internal.YamlParser;
 public class DiskContestSource extends ContestSource {
 	private static final String CACHE_PREFIX = "org.icpc.tools.cache.";
 	private static final String CACHE_FILE = ".cache";
-	private static final String CACHE_VERSION = "ICPC Tools Cache v1.0";
+	private static final String CACHE_VERSION = "ICPC Tools Cache v1.1";
 
 	private static final String LOGO = "logo";
 	private static final String PHOTO = "photo";
@@ -661,7 +661,7 @@ public class DiskContestSource extends ContestSource {
 				if (ref.etag != null)
 					etag = ref.etag;
 				bw.write(String.join("\t", name, href, ref.mime, ref.lastModified + "", etag, ref.width + "",
-						ref.height + ""));
+						ref.height + "", ref.mode));
 				bw.newLine();
 			}
 		} catch (Exception e) {
@@ -787,6 +787,16 @@ public class DiskContestSource extends ContestSource {
 		ref.mime = getMimeType(file.getName());
 		ref.file = file;
 		ref.lastModified = file.lastModified();
+		String tmpFilename = file.getName().split("\\.")[0];
+		if (tmpFilename.contains("-")) {
+			String[] parts = tmpFilename.split("-");
+			if (parts.length > 1) {
+				String mode = parts[parts.length - 1];
+				if (List.of("light", "dark").contains(mode)) {
+					ref.mode = mode;
+				}
+			}
+		}
 		readImageSize(ref);
 		return ref;
 	}
