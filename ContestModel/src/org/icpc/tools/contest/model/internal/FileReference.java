@@ -15,6 +15,7 @@ public class FileReference {
 	public int width = -1;
 	public int height = -1;
 	public SoftReference<Object> data;
+	public String mode = null;
 
 	public FileReference() {
 		// do nothing
@@ -26,6 +27,7 @@ public class FileReference {
 		height = obj.getInt("height");
 		width = obj.getInt("width");
 		filename = obj.getString("filename");
+		mode = obj.getString("mode");
 	}
 
 	public String getURL() {
@@ -50,6 +52,8 @@ public class FileReference {
 			sb.append(",\"width\":").append(width);
 		if (height > 0)
 			sb.append(",\"height\":").append(height);
+		if (mode != null)
+			sb.append(",\"mode\":\"").append(mode).append("\"");
 		sb.append("}");
 		return sb.toString();
 	}
@@ -82,6 +86,8 @@ public class FileReference {
 		if (width != ref.width)
 			return false;
 		if (height != ref.height)
+			return false;
+		if ((mode == null && ref.mode != null) || (mode != null && !mode.equals(ref.mode)))
 			return false;
 
 		return true;
