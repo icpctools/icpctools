@@ -374,11 +374,11 @@ public class ConfiguredContest {
 		map.put(type, in);
 
 		String name = type.name() + " " + teamId;
-		StringTokenizer st = new StringTokenizer(urlPattern, ",");
+		StringTokenizer st = new StringTokenizer(urlPattern, "|");
 		while (st.hasMoreTokens()) {
 			String urlPattern2 = st.nextToken();
 			String handler = null;
-			int index = urlPattern.indexOf('|');
+			int index = urlPattern.indexOf('>');
 			if (index > 0) {
 				handler = urlPattern2.substring(0, index);
 				urlPattern2 = urlPattern2.substring(index + 1);
