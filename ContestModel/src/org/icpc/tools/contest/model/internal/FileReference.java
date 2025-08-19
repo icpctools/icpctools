@@ -43,13 +43,13 @@ public class FileReference {
 	protected String getJSON() {
 		StringBuilder sb = new StringBuilder("{\"href\":\"" + href + "\"");
 		if (filename != null)
-			sb.append(",\"filename\":\"" + filename + "\"");
+			sb.append(",\"filename\":\"").append(filename).append("\"");
 		if (mime != null)
-			sb.append(",\"mime\":\"" + mime + "\"");
+			sb.append(",\"mime\":\"").append(mime).append("\"");
 		if (width > 0)
-			sb.append(",\"width\":" + width);
+			sb.append(",\"width\":").append(width);
 		if (height > 0)
-			sb.append(",\"height\":" + height);
+			sb.append(",\"height\":").append(height);
 		sb.append("}");
 		return sb.toString();
 	}
@@ -67,10 +67,9 @@ public class FileReference {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof FileReference))
+		if (!(o instanceof FileReference ref))
 			return false;
 
-		FileReference ref = (FileReference) o;
 		if ((file == null && ref.file != null) || (file != null && !file.equals(ref.file)))
 			return false;
 		if ((filename == null && ref.filename != null) || (filename != null && !filename.equals(ref.filename)))
