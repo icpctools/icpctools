@@ -433,8 +433,19 @@ public abstract class ContestObject implements IContestObject {
 		return list.first();
 	}
 
-	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height, boolean forceLoad,
-			boolean resizeToFit) {
+	/*protected FileReference getBestFileReference(FileReferenceList list, ReferenceMatcher fit, String mode) {
+		return getBestFileReference(filterListLightMode(list, mode), fit);
+	}*/
+
+	/*public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height,
+									 boolean forceLoad, boolean resizeToFit, String mode
+	) {
+		return getRefImage(property, filterListLightMode(list, mode), width, height, forceLoad, resizeToFit);
+	}*/
+
+	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height,
+									 boolean forceLoad, boolean resizeToFit
+	) {
 		Object data = null;
 
 		FileReference ref = getBestFileReference(list, new ImageSizeFit(width, height));
