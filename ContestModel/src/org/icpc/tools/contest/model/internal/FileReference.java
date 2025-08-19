@@ -41,8 +41,6 @@ public class FileReference {
 	}
 
 	protected String getJSON() {
-		// if (file == null)
-		// return "{\"href\":\"" + href + "\"}";
 		StringBuilder sb = new StringBuilder("{\"href\":\"" + href + "\"");
 		if (filename != null)
 			sb.append(",\"filename\":\"" + filename + "\"");
