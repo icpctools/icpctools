@@ -149,7 +149,7 @@ public class CDSUtil {
 			if (!path2.endsWith("/"))
 				path2 += "/";
 			File file = download(path2);
-			if (!file.exists())
+			if (file == null || !file.exists())
 				return null;
 
 			return LinkParser.parse(file);

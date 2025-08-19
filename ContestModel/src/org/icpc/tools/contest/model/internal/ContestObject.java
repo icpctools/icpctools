@@ -506,7 +506,9 @@ public abstract class ContestObject implements IContestObject {
 	public FileReferenceList filterListLightMode(FileReferenceList list, String mode) {
 		FileReferenceList tmpList = new FileReferenceList();
 		for (FileReference file : list) {
-			if (!Objects.equals(mode, file.mode))
+			if (mode == null && file.mode == null)
+				tmpList.add(file);
+			else if (mode != null && mode.equals(file.mode))
 				tmpList.add(file);
 		}
 		return tmpList;
