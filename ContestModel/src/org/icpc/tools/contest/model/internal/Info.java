@@ -24,9 +24,9 @@ public class Info extends ContestObject implements IInfo {
 	private static final String SCOREBOARD_FREEZE_DURATION = "scoreboard_freeze_duration";
 	private static final String PENALTY_TIME = "penalty_time";
 	private static final String LOGO = "logo";
-	private static final String LOGO_BACKGROUNDMODE = "deprecated_logo_backgroundmode";
+	private static final String LOGO_BACKGROUNDMODE = "prlogo";
 	private static final String BANNER = "banner";
-	private static final String BANNER_BACKGROUNDMODE = "deprecated_banner_backgroundmode";
+	private static final String BANNER_BACKGROUNDMODE = "prbanner";
 	private static final String TIME_MULTIPLIER = "time_multiplier";
 	private static final String COUNTDOWN_PAUSE_TIME = "countdown_pause_time";
 	private static final String LOCATION = "location";
