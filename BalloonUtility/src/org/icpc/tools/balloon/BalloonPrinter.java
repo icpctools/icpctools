@@ -72,7 +72,9 @@ public class BalloonPrinter {
 			Trace.trace(Trace.ERROR, "Couldn't load balloon image", e);
 		}
 
-		bannerImage = ContestSource.getInstance().getContest().getInfo().getBannerImage(1920, 300, true, true);
+		bannerImage = ContestSource.getInstance().getContest().getInfo().getBannerLightModeImage(1920, 300, true, true, "light");
+		if (bannerImage == null)
+			bannerImage = ContestSource.getInstance().getContest().getInfo().getBannerImage(1920, 300, true, true);
 	}
 
 	/**

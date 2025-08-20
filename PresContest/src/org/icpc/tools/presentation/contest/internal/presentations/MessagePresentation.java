@@ -23,6 +23,7 @@ public class MessagePresentation extends AbstractICPCPresentation {
 
 		final float dpi = 96;
 		font = ICPCFont.deriveFont(Font.BOLD, height * 36f / 3f / dpi);
+		// TODO: Handle the lightmode option for the presentationclient
 		image = getContest().getBannerLightModeImage((int) (width * 0.8), (int) (height * 0.25), true, true, "dark");
 		if (image == null)
 			image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.25), true, true);

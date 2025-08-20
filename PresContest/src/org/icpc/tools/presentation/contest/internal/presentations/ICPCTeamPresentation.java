@@ -21,7 +21,10 @@ public class ICPCTeamPresentation extends AbstractICPCPresentation {
 		super.setSize(d);
 
 		font = ICPCFont.deriveFont(Font.BOLD, height * 0.8f);
-		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.3), true, true);
+		// TODO: Handle the lightmode option for the presentationclient
+		image = getContest().getBannerLightModeImage((int) (width * 0.8), (int) (height * 0.3), true, true, "dark");
+		if (image == null)
+			image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.3), true, true);
 	}
 
 	@Override

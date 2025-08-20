@@ -65,7 +65,10 @@ public class BalloonPDFService {
 			images[i] = Image.getInstance(bout.toByteArray());
 		}
 
-		BufferedImage img = contest.getBannerImage(3840, 1080, true, false);
+		BufferedImage img = contest.getBannerLightModeImage(3840, 1080, true, false, "light");
+		if (img == null)
+			img = contest.getBannerImage(3840, 1080, true, false);
+
 		Image banner = null;
 		if (img != null) {
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
