@@ -61,11 +61,11 @@ public class DiskContestSource extends ContestSource {
 	private static final String CACHE_VERSION = "ICPC Tools Cache v1.1";
 
 	private static final String LOGO = "logo";
-	private static final String LOGO_BACKGROUNDMODE = "-logo";
+	private static final String LOGO_BACKGROUNDMODE = "prlogo";
 	private static final String PHOTO = "photo";
 	private static final String VIDEO = "video";
 	private static final String BANNER = "banner";
-	private static final String BANNER_BACKGROUNDMODE = "-banner";
+	private static final String BANNER_BACKGROUNDMODE = "prbanner";
 	private static final String BACKUP = "backup";
 	private static final String KEY_LOG = "key_log";
 	private static final String TOOL_DATA = "tool_data";
