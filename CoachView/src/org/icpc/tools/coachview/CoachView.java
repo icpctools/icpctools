@@ -414,12 +414,12 @@ public class CoachView extends Panel {
 
 			y = drawLine(g, y, "Organization", org.getActualFormalName());
 			y = drawLine(g, y, null, "(" + org.getName() + ")");
-			// No country shown at World Finals
+			/* No country shown at World Finals
 			String country = null;
 			if (org.getCountry() != null)
 				country = localeMap.get(org.getCountry()).getDisplayCountry();
 			if (country != null)
-				y = drawLine(g, y, "Country", country);
+				y = drawLine(g, y, "Country", country);*/
 			String[] groupIds = team.getGroupIds();
 			if (groupIds != null && groupIds.length > 0) {
 				IGroup group = contest.getGroupById(groupIds[0]);
