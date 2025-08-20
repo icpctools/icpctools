@@ -67,9 +67,10 @@ public class FileReference {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof FileReference ref))
+		if (!(o instanceof FileReference))
 			return false;
 
+		FileReference ref = (FileReference) o;
 		if ((file == null && ref.file != null) || (file != null && !file.equals(ref.file)))
 			return false;
 		if ((filename == null && ref.filename != null) || (filename != null && !filename.equals(ref.filename)))
