@@ -13,7 +13,6 @@
   <property name="timestamp.english" value="${date.english} ${time.english}"/>
   <property environment="env"/>
   <property name="zip.prefix" value="CDS"/>
-  <property name="presentation.contest" value="../PresContest"/>
   <property name="debuglevel" value="source,lines,vars"/>
   <property name="release" value="17"/>
   <property name="cds.zip" value="/cds.zip"/>
