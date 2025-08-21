@@ -1,6 +1,6 @@
 # The ICPC Contest Data Server (CDS)
 
-![](docs/cdsIcon.png){width=50}
+![](docs/cdsIcon.png)
 
 An ICPC Tool
 
