@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE project>
 <project basedir="." default="dist" name="CDS">
+  <property name="contest.model" value="../ContestModel"/>
+  <import file="${contest.model}/common.xml"/>
   <property file="../version.properties"/>
   <property name="title" value="ICPC Contest Data Server"/>
   <tstamp>
@@ -11,7 +13,6 @@
   <property name="timestamp.english" value="${date.english} ${time.english}"/>
   <property environment="env"/>
   <property name="zip.prefix" value="CDS"/>
-  <property name="contest.model" value="../ContestModel"/>
   <property name="presentation.contest" value="../PresContest"/>
   <property name="debuglevel" value="source,lines,vars"/>
   <property name="release" value="17"/>
