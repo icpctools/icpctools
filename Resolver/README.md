@@ -1,6 +1,6 @@
 # The ICPC Resolver 
 
-![](docs/resolverIcon.png){width=50}
+![](docs/resolverIcon.png)
 
 An ICPC Tool
 

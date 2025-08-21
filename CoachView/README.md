@@ -1,6 +1,6 @@
 # The ICPC Coach View
 
-![](docs/coachViewIcon.png){width=50}
+![](docs/coachViewIcon.png)
 
 An ICPC Tool
 

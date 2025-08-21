@@ -1,6 +1,6 @@
 # Contest Utilities
 
-![](docs/contestUtilsIcon.png){width=50}
+![](docs/contestUtilsIcon.png)
 
 An ICPC Tool
 
