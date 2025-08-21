@@ -430,6 +430,10 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		}
 
 		text.addString(pos.label);
+		if (text.getWidth() > width - 2 * border) {
+			text = new TextHelper(g);
+			text.addString(pos.label);
+		}
 		int h = Math.max(border, height / 12) + border;
 		int y = height - border - h;
 
