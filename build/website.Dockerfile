@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM docker.io/ubuntu:22.04
 LABEL maintainer="Tim deBoer"
 LABEL org.opencontainers.image.description="ICPC Tools website builder"
 LABEL org.opencontainers.image.source=https://github.com/icpctools/icpctools
