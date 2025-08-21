@@ -3,17 +3,8 @@
 <project basedir="." default="dist" name="CDS">
   <property name="contest.model" value="../ContestModel"/>
   <import file="${contest.model}/common.xml"/>
-  <property file="../version.properties"/>
   <property name="title" value="ICPC Contest Data Server"/>
-  <tstamp>
-    <format property="date" pattern="yyyyMMdd" timezone="UTC"/>
-    <format property="date.english" pattern="EEEE, MMMM d yyyy" timezone="UTC"/>
-    <format property="time.english" pattern="HH:mm z" timezone="UTC"/>
-  </tstamp>
-  <property name="timestamp.english" value="${date.english} ${time.english}"/>
-  <property environment="env"/>
   <property name="zip.prefix" value="CDS"/>
-  <property name="debuglevel" value="source,lines,vars"/>
   <property name="cds.zip" value="/cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
   <path id="CDS.classpath">
