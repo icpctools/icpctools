@@ -19,6 +19,7 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ItemEvent;
@@ -64,7 +65,6 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
-import org.icpc.tools.contest.model.util.Taskbar;
 
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -967,7 +967,7 @@ public class CoachView extends Panel {
 		try {
 			BufferedImage image = ImageIO.read(CoachView.class.getClassLoader().getResource("images/coachViewIcon.png"));
 			frame.setIconImage(image);
-			Taskbar.setTaskbarImage(image);
+			Taskbar.getTaskbar().setIconImage(image);
 		} catch (Exception e) {
 			// could not set icon
 		}

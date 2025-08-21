@@ -1,5 +1,7 @@
 package org.icpc.tools.resolver.awards;
 
+import java.awt.Taskbar;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.Collator;
@@ -10,6 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
+
+import javax.imageio.ImageIO;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -47,7 +51,6 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.AwardUtil;
-import org.icpc.tools.contest.model.util.Taskbar;
 
 public class AwardUI {
 	private static final String PREF_ID = "org.icpc.tools.award";
@@ -730,7 +733,12 @@ public class AwardUI {
 		}
 
 		Display.setAppName("Award Utility");
-		Taskbar.setTaskbarImage(AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
+		try {
+			BufferedImage image = ImageIO.read(AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
+			Taskbar.getTaskbar().setIconImage(image);
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Couldn't set taskbar icon");
+		}
 
 		Display display = new Display();
 

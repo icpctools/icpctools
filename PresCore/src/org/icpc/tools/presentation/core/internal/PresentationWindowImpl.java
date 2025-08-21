@@ -17,6 +17,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
@@ -32,7 +33,6 @@ import java.util.Locale;
 import java.util.concurrent.locks.LockSupport;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.util.Taskbar;
 import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.DisplayConfig.Mode;
 import org.icpc.tools.presentation.core.Presentation;
@@ -288,7 +288,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		this.title = title;
 
 		setIconImage(iconImage);
-		Taskbar.setTaskbarImage(iconImage);
+		Taskbar.getTaskbar().setIconImage(iconImage);
 
 		setBounds(r);
 		setBackground(Color.black);
@@ -318,7 +318,6 @@ public class PresentationWindowImpl extends PresentationWindow {
 		}
 		setPresentation(dp);
 	}
-
 
 	protected static boolean isGlobalKey(String key) {
 		return "lightMode".equals(key) || "name".equals(key);
@@ -1176,8 +1175,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		GraphicsConfiguration gc = gd.getDefaultConfiguration();
 		BufferedImage image = gc.createCompatibleImage(
 				// Never pass in a cursor size smaller than 1x1.
-				Math.max(1, d.width), Math.max(1, d.height),
-				Transparency.TRANSLUCENT);
+				Math.max(1, d.width), Math.max(1, d.height), Transparency.TRANSLUCENT);
 		return t.createCustomCursor(image, new Point(0, 0), "no cursor");
 	}
 

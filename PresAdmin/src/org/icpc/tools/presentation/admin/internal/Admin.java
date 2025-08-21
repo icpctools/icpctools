@@ -1,8 +1,12 @@
 package org.icpc.tools.presentation.admin.internal;
 
+import java.awt.Taskbar;
+import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -19,7 +23,6 @@ import org.icpc.tools.contest.model.feed.CDSUtil;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.Source;
-import org.icpc.tools.contest.model.util.Taskbar;
 
 public class Admin {
 	protected static void showHelp() {
@@ -79,7 +82,12 @@ public class Admin {
 		View v = new View(url, source.user, source.password);
 
 		Display.setAppName("Presentation Admin");
-		Taskbar.setTaskbarImage(Admin.class.getClassLoader().getResourceAsStream("images/adminIcon.png"));
+		try {
+			BufferedImage image = ImageIO.read(Admin.class.getResourceAsStream("/images/adminIcon.png"));
+			Taskbar.getTaskbar().setIconImage(image);
+		} catch (Exception e) {
+			Trace.trace(Trace.INFO, "Couldn't set taskbar icon", e);
+		}
 
 		final Display display = new Display();
 		ImageResource.initializeImageRegistry(v.getClass(), display);

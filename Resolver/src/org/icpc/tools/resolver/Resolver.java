@@ -1,5 +1,6 @@
 package org.icpc.tools.resolver;
 
+import java.awt.Taskbar;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -34,7 +35,6 @@ import org.icpc.tools.contest.model.resolver.ResolverLogic;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.AwardUtil;
-import org.icpc.tools.contest.model.util.Taskbar;
 import org.icpc.tools.contest.model.util.TeamDisplay;
 import org.icpc.tools.presentation.contest.internal.PresentationClient;
 import org.icpc.tools.presentation.core.DisplayConfig;
@@ -185,7 +185,7 @@ public class Resolver {
 		} catch (Exception e) {
 			// could not set title or icon
 		}
-		Taskbar.setTaskbarImage(iconImage);
+		Taskbar.getTaskbar().setIconImage(iconImage);
 
 		for (ContestSource cs : contestSources) {
 			cs.outputValidation();

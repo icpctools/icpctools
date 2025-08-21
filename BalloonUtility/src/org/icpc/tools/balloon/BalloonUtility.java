@@ -1,5 +1,7 @@
 package org.icpc.tools.balloon;
 
+import java.awt.Taskbar;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.prefs.Preferences;
 
+import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -67,7 +70,6 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
-import org.icpc.tools.contest.model.util.Taskbar;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -1083,7 +1085,12 @@ public class BalloonUtility {
 		});
 
 		Display.setAppName("Balloon Utility");
-		Taskbar.setTaskbarImage(BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
+		try {
+			BufferedImage image = ImageIO.read(BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
+			Taskbar.getTaskbar().setIconImage(image);
+		} catch (Exception e) {
+			Trace.trace(Trace.INFO, "Couldn't set taskbar icon", e);
+		}
 
 		Display display = new Display();
 		final Shell shell = new Shell(display);
