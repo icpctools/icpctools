@@ -1,4 +1,4 @@
-FROM openjdk:17-bullseye
+FROM docker.io/openjdk:17-bullseye
 LABEL maintainer="ICPC Tools Team"
 LABEL org.opencontainers.image.description="ICPC Tools code builder"
 LABEL org.opencontainers.image.source=https://github.com/icpctools/icpctools
