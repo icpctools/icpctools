@@ -9,8 +9,7 @@
    <property name="timestamp.english" value="${date.english} ${time.english}"/>
    <property environment="env"/>
    <property name="debuglevel" value="source,lines,vars"/>
-   <property name="target" value="1.9"/>
-   <property name="source" value="1.9"/>
+   <property name="release" value="17"/>
    <property file="../version.properties"/>
    <target name="clean">
       <delete dir="bin"/>
@@ -28,7 +27,7 @@
             <exclude name="**/BUILD" />
          </fileset>
       </copy>
-      <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" source="${source}" target="${target}">
+      <javac debug="true" debuglevel="${debuglevel}" destdir="bin" encoding="UTF-8" includeantruntime="false" release="${release}">
 	 <src path="src"/>
 	 <exclude name="**/*Test.java"/>
          <classpath>
