@@ -47,13 +47,6 @@
     </condition>
     <property name="build.number" value="${git.count}"/>
   </target>
-  <target name="clean">
-    <delete dir="bin"/>
-    <delete dir="staging"/>
-    <delete>
-      <fileset dir="." includes="*.pdf*"/>
-    </delete>
-  </target>
   <target name="doc">
     <exec dir="." executable="/bin/bash">
       <arg value="${contest.model}/doc.sh"/>
