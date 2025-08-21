@@ -342,7 +342,7 @@ public class CoachView extends Panel {
 					}
 				};
 				footerPanel.setPreferredSize(new Dimension(footerImage.getWidth(), footerImage.getHeight() + 5));
-				footerPanel.setBackground(Color.WHITE);
+				footerPanel.setBackground(Color.BLACK);
 				add(footerPanel, BorderLayout.SOUTH);
 			}
 		} catch (Exception e) {
