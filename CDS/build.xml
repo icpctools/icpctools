@@ -14,7 +14,6 @@
   <property environment="env"/>
   <property name="zip.prefix" value="CDS"/>
   <property name="debuglevel" value="source,lines,vars"/>
-  <property name="release" value="17"/>
   <property name="cds.zip" value="/cds.zip"/>
   <available file="${cds.zip}" type="file" property="wlp.present"/>
   <path id="CDS.classpath">
