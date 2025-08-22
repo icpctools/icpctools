@@ -82,6 +82,9 @@ public class CoachView extends Panel {
 
 	private static Map<String, Locale> localeMap;
 
+	private static boolean lightMode = false;
+
+
 	static {
 		String[] countries = Locale.getISOCountries();
 		localeMap = new HashMap<String, Locale>(countries.length);
@@ -197,17 +200,17 @@ public class CoachView extends Panel {
 					g.fillRect((d.width - nw) / 2, (d.height - nh) / 2, nw, nh);
 				}
 
-				g.setColor(Color.LIGHT_GRAY);
+				g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 				g.drawRect((d.width - nw) / 2 - 1, (d.height - nh) / 2 - 1, nw + 1, nh + 1);
 
 				if (contest.getState().isFrozen() && contest.getState().getEnded() == null) {
-					g.setColor(Color.WHITE);
+					g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 					g.setFont(sansSerifBig);
 					FontMetrics fm = g.getFontMetrics();
 					String s = "Contest is frozen";
 					g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height / 2 + fm.getAscent() / 2);
 				} else if (contest.getState().getEnded() != null) {
-					g.setColor(Color.WHITE);
+					g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 					g.setFont(sansSerifBig);
 					FontMetrics fm = g.getFontMetrics();
 					String s = "Contest is over";
@@ -233,12 +236,12 @@ public class CoachView extends Panel {
 				Graphics2D g = (Graphics2D) gg;
 
 				Dimension d = getSize();
-				g.setColor(Color.BLACK);
+				g.setColor(lightMode ? Color.WHITE : Color.BLACK);
 				g.fillRect(0, 0, d.width, d.height);
 				g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 				if (currentTeam == null) {
-					g.setColor(Color.WHITE);
+					g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 					g.setFont(sansSerifBig);
 					FontMetrics fm = g.getFontMetrics();
 
@@ -291,7 +294,7 @@ public class CoachView extends Panel {
 					paintOverlay(g, currentTeam, d);
 			}
 		};
-		mainPanel.setBackground(Color.BLACK);
+		mainPanel.setBackground(lightMode ? Color.WHITE : Color.BLACK);
 		mainPanel.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -342,7 +345,7 @@ public class CoachView extends Panel {
 					}
 				};
 				footerPanel.setPreferredSize(new Dimension(footerImage.getWidth(), footerImage.getHeight() + 5));
-				footerPanel.setBackground(Color.BLACK);
+				footerPanel.setBackground(lightMode ? Color.WHITE : Color.BLACK);
 				add(footerPanel, BorderLayout.SOUTH);
 			}
 		} catch (Exception e) {
@@ -351,7 +354,7 @@ public class CoachView extends Panel {
 	}
 
 	protected void paintOverlay(Graphics2D g, ITeam team, Dimension d) {
-		g.setColor(Color.WHITE);
+		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		g.setFont(sansSerifBig);
 		FontMetrics fm = g.getFontMetrics();
 
@@ -371,7 +374,7 @@ public class CoachView extends Panel {
 		g.setFont(problemFont);
 		fm = g.getFontMetrics();
 
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		s = "Rank";
 		g.drawString(s, col1 - fm.stringWidth(s) / 2, h);
 		s = "Solved";
@@ -468,7 +471,7 @@ public class CoachView extends Panel {
 	}
 
 	private int drawLine(Graphics2D g, int y, String label, String[] values) {
-		g.setColor(Color.WHITE);
+		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 		g.setFont(sansSerifBig);
 		FontMetrics fm = g.getFontMetrics();
 		int x = fm.stringWidth("99999");
@@ -476,7 +479,7 @@ public class CoachView extends Panel {
 		for (int i = 0; i < values.length; i++)
 			g.drawString(values[i], x, y + fm.getAscent() + i * h);
 
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY);
 		g.setFont(problemFont);
 		fm = g.getFontMetrics();
 		if (label != null)
@@ -925,6 +928,8 @@ public class CoachView extends Panel {
 		System.out.println("     --display #");
 		System.out.println("         Use the specified display");
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
+		System.out.println("     --light");
+		System.out.println("         Use light mode");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -935,12 +940,17 @@ public class CoachView extends Panel {
 		Trace.init("ICPC Coach View", "coachView", args);
 
 		String[] displayStr2 = new String[1];
+		//boolean[] lightMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
 				if ("--display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "#:string");
 					displayStr2[0] = (String) options.get(0);
+					return true;
+				} else if ("--light".equals(option)) {
+					//lightMode[0] = true;
+					lightMode = true;
 					return true;
 				}
 				return false;
