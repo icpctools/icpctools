@@ -338,9 +338,13 @@ public class Team extends ContestObject implements ITeam {
 			}
 			case LOCATION: {
 				JsonObject obj = JSONParser.getOrReadObject(value);
-				x = obj.getDouble(X);
-				y = obj.getDouble(Y);
-				rotation = obj.getDouble(ROTATION);
+				if (obj != null) {
+					x = obj.getDouble(X);
+					y = obj.getDouble(Y);
+					rotation = obj.getDouble(ROTATION);
+				}
+				// We return true when either location: null or set
+				// Otherwise we would wrongly list it as unknown property
 				return true;
 			}
 			case PHOTO: {
