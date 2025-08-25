@@ -116,14 +116,14 @@ public class TextHelper {
 			}
 
 			if (outline) {
-				g.setColor(Color.BLACK);
+				g.setColor(lightMode ? Color.WHITE : Color.BLACK);
 				g.drawString(s, -1, -1);
 				g.drawString(s, -1, +1);
 				g.drawString(s, +1, -1);
 				g.drawString(s, +1, +1);
 			}
 
-			g.setColor(Color.WHITE);
+			g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 			g.drawString(s, 0, 0);
 			g.setTransform(at);
 
@@ -315,6 +315,7 @@ public class TextHelper {
 	private Dimension bounds = new Dimension(0, 0);
 	private List<Item> list = new ArrayList<>(4);
 	private boolean autoLayout = true;
+	private boolean lightMode = false;
 
 	/**
 	 * Create the simplest text helper that will render a single-line string containing text or
@@ -351,6 +352,8 @@ public class TextHelper {
 		this.fm = g.getFontMetrics();
 		this.autoLayout = autoLayout;
 	}
+
+ 	public void setLightMode(boolean lm) { this.lightMode = lm; }
 
 	public void setGraphics(Graphics2D g) {
 		this.g = g;
