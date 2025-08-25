@@ -10,9 +10,13 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 import org.icpc.tools.contest.model.util.TeamDisplay;
+import org.icpc.tools.presentation.contest.internal.standalone.PresentationHelper;
+import org.icpc.tools.presentation.contest.internal.standalone.StandaloneLauncher;
 import org.icpc.tools.presentation.contest.internal.standalone.TeamUtil;
 import org.icpc.tools.presentation.core.DisplayConfig;
+import org.icpc.tools.presentation.core.Presentation;
 import org.icpc.tools.presentation.core.PresentationWindow;
+import org.icpc.tools.presentation.core.internal.PresentationInfo;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 public class ClientLauncher {
@@ -37,6 +41,10 @@ public class ClientLauncher {
 		System.out.println("     --multi-display p@wxh");
 		System.out.println("         Stretch the presentation across multiple clients. Use \"2@3x2\"");
 		System.out.println("         to indicate this client is position 2 (top middle) in a 3x2 grid");
+		System.out.println("     -p pres1");
+		System.out.println("     --presentation pres1");
+		System.out.println("         Set a default presentation. This presentation will take effect until");
+		System.out.println("         overriden by the server");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
 		System.out.println("     --help");
@@ -52,6 +60,7 @@ public class ClientLauncher {
 		String[] nameStr = new String[1];
 		String[] displayStr = new String[2];
 		String[] displayName = new String[1];
+		String[] presStr = new String[1];
 		boolean[] lightMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
@@ -67,6 +76,10 @@ public class ClientLauncher {
 				} else if ("--multi-display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "p@wxh:string");
 					displayStr[1] = (String) options.get(0);
+					return true;
+				} else if ("-p".equals(option) || "--presentation".equals(option)) {
+					ArgumentParser.expectOptions(option, options, "presentation:string");
+					presStr[0] = (String) options.get(0);
 					return true;
 				} else if ("--light".equals(option)) {
 					lightMode[0] = true;
@@ -110,8 +123,39 @@ public class ClientLauncher {
 			client = new PresentationClient(name, "!admin", cdsSource);
 		instance = client;
 
+		// load default presentation
+		Presentation presentation = null;
+		if (presStr[0] != null) {
+			Trace.trace(Trace.INFO, "Default presentation: " + presStr[0]);
+			List<PresentationInfo> presentations = PresentationHelper.getPresentations();
+			if (presentations.isEmpty()) {
+				Trace.trace(Trace.USER, "No presentations found");
+				System.exit(0);
+			}
+
+			PresentationInfo pi = StandaloneLauncher.findPresentation(presentations, presStr[0]);
+			if (pi == null)
+				System.exit(0);
+
+			try {
+				String className = pi.getClassName();
+				Class<?> c = pi.getClass().getClassLoader().loadClass(className);
+				presentation = (Presentation) c.getDeclaredConstructor().newInstance();
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not load presentation");
+				return;
+			}
+		}
+
 		// open window
 		createWindow(client, true);
+		PresentationWindowImpl windowImpl = (PresentationWindowImpl) client.window;
+		if (lightMode[0])
+			windowImpl.setLightMode(true);
+		if (presentation != null) {
+			windowImpl.setPresentation(presentation);
+		}
+
 		Trace.trace(Trace.INFO, client + " connecting to " + cdsSource);
 		final PresentationClient client2 = client;
 
@@ -120,7 +164,7 @@ public class ClientLauncher {
 			public void connectionStateChanged(boolean connected) {
 				if (!connected)
 					return;
-				PresentationWindowImpl windowImpl = (PresentationWindowImpl) client2.window;
+
 				if (client2.getUID() != -1)
 					windowImpl.reduceThumbnails();
 				if (connected && !windowImpl.isVisible()) {
@@ -128,8 +172,6 @@ public class ClientLauncher {
 					windowImpl.openIt();
 					client2.writeInfo();
 					windowImpl.setClientName(client2.getClientId());
-					if (lightMode[0])
-						windowImpl.setLightMode(true);
 				}
 			}
 		});
