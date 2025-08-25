@@ -44,7 +44,7 @@ public class FloorPresentation extends AbstractICPCPresentation {
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		g.setColor(Color.WHITE);
+		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(font);
 		FontMetrics fm = g.getFontMetrics();
 		String s = "Team Activity";
@@ -60,7 +60,7 @@ public class FloorPresentation extends AbstractICPCPresentation {
 		int h = fm.getHeight() + 20;
 		g.setFont(tableFont);
 
-		floor.drawFloor(g, new Rectangle(0, h, width, height - h), new FloorMap.ScreenColors() {
+		floor.drawFloor(g, new Rectangle(0, h, width, height - h), new FloorMap.ScreenColors(isLightMode()) {
 			@Override
 			public Color getDeskFillColor(String teamId) {
 				// find last run by this team
@@ -81,7 +81,7 @@ public class FloorPresentation extends AbstractICPCPresentation {
 						return ICPCColors.getStatusColor(status, getTimeMs() * 16 + teamId.hashCode() * 9);
 					}
 				}
-				return Color.BLACK;
+				return (isLightMode() ? Color.WHITE : Color.BLACK);
 			}
 		});
 	}
