@@ -788,7 +788,7 @@ public class BetterFireworksPresentation extends Presentation {
 			a = 0;
 		if (a > 255)
 			a = 255;
-		bg.setColor(new Color(0, 0, 0, a));
+		bg.setColor(isLightmode ? new Color(0, 0, 0, a), new Color(255, 255, 255, a));
 		bg.fillRect(0, 0, width, height);
 		for (Particle p : particles) {
 			p.paintBackground(bg);
