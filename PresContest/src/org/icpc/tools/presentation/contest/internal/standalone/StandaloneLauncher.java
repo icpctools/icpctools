@@ -253,7 +253,7 @@ public class StandaloneLauncher {
 		}
 	}
 
-	protected static PresentationInfo findPresentation(List<PresentationInfo> presentations, String s) {
+	public static PresentationInfo findPresentation(List<PresentationInfo> presentations, String s) {
 		try {
 			int num = Integer.parseInt(s);
 			List<PresentationInfo> list = PresentationHelper.getPresentations();
