@@ -8,6 +8,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
@@ -197,6 +198,8 @@ public abstract class ContestObject implements IContestObject {
 			return;
 		}
 
+		ContestType a = getType();
+		String b = IContestObject.getTypeName(getType());
 		String message = "Unknown property ignored: " + IContestObject.getTypeName(getType()) + "/" + name;
 		if (ignoredProps.contains(message))
 			return;
@@ -432,8 +435,19 @@ public abstract class ContestObject implements IContestObject {
 		return list.first();
 	}
 
-	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height, boolean forceLoad,
-			boolean resizeToFit) {
+	/*protected FileReference getBestFileReference(FileReferenceList list, ReferenceMatcher fit, String mode) {
+		return getBestFileReference(filterListLightMode(list, mode), fit);
+	}*/
+
+	/*public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height,
+									 boolean forceLoad, boolean resizeToFit, String mode
+	) {
+		return getRefImage(property, filterListLightMode(list, mode), width, height, forceLoad, resizeToFit);
+	}*/
+
+	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height,
+									 boolean forceLoad, boolean resizeToFit
+	) {
 		Object data = null;
 
 		FileReference ref = getBestFileReference(list, new ImageSizeFit(width, height));
@@ -487,5 +501,16 @@ public abstract class ContestObject implements IContestObject {
 		sb.deleteCharAt(sb.length() - 1);
 
 		return sb.toString();
+	}
+
+	public FileReferenceList filterListLightMode(FileReferenceList list, String mode) {
+		FileReferenceList tmpList = new FileReferenceList();
+		for (FileReference file : list) {
+			if (mode == null && file.mode == null)
+				tmpList.add(file);
+			else if (mode != null && mode.equals(file.mode))
+				tmpList.add(file);
+		}
+		return tmpList;
 	}
 }

@@ -58,12 +58,14 @@ import org.icpc.tools.contest.model.internal.YamlParser;
 public class DiskContestSource extends ContestSource {
 	private static final String CACHE_PREFIX = "org.icpc.tools.cache.";
 	private static final String CACHE_FILE = ".cache";
-	private static final String CACHE_VERSION = "ICPC Tools Cache v1.0";
+	private static final String CACHE_VERSION = "ICPC Tools Cache v1.1";
 
 	private static final String LOGO = "logo";
+	private static final String LOGO_BACKGROUNDMODE = "prlogo";
 	private static final String PHOTO = "photo";
 	private static final String VIDEO = "video";
 	private static final String BANNER = "banner";
+	private static final String BANNER_BACKGROUNDMODE = "prbanner";
 	private static final String BACKUP = "backup";
 	private static final String KEY_LOG = "key_log";
 	private static final String TOOL_DATA = "tool_data";
@@ -160,7 +162,7 @@ public class DiskContestSource extends ContestSource {
 	protected DiskContestSource(File file, String hash) {
 		// if file is null we're just locally caching
 		// if file exists and is a file, it's an event feed
-		// if is doesn't exist, assume a directory
+		// if it doesn't exist, assume a directory
 		if (file != null) {
 			if (hash != null) {
 				cacheFolder = createTempDir(getSafeHash(hash) + "-" + getSafeHash(file.getAbsolutePath()));
@@ -365,7 +367,7 @@ public class DiskContestSource extends ContestSource {
 				} else
 					name = fileRef.filename;
 			} else {
-				// otherwise, add size if is exists
+				// otherwise, add size if it exists
 				if (fileRef.width > 0) {
 					name = pattern.name + fileRef.width;
 					if (fileRef.height > 0)
@@ -640,13 +642,13 @@ public class DiskContestSource extends ContestSource {
 
 	private void writeCache(File folder, List<FileReference> list) {
 		BufferedWriter bw = null;
-		FileOutputStream fout = null;
+		FileOutputStream fileOut = null;
 
 		try {
 			File f = getCacheForFolder(folder);
-			fout = new FileOutputStream(f);
+			fileOut = new FileOutputStream(f);
 
-			bw = new BufferedWriter(new OutputStreamWriter(fout));
+			bw = new BufferedWriter(new OutputStreamWriter(fileOut));
 			bw.write(CACHE_VERSION);
 			bw.newLine();
 
@@ -661,7 +663,7 @@ public class DiskContestSource extends ContestSource {
 				if (ref.etag != null)
 					etag = ref.etag;
 				bw.write(String.join("\t", name, href, ref.mime, ref.lastModified + "", etag, ref.width + "",
-						ref.height + ""));
+						ref.height + "", ref.mode));
 				bw.newLine();
 			}
 		} catch (Exception e) {
@@ -673,7 +675,7 @@ public class DiskContestSource extends ContestSource {
 				// ignore
 			}
 			try {
-				fout.getFD().sync();
+				fileOut.getFD().sync();
 			} catch (Exception ex) {
 				// ignore
 			}
@@ -787,6 +789,16 @@ public class DiskContestSource extends ContestSource {
 		ref.mime = getMimeType(file.getName());
 		ref.file = file;
 		ref.lastModified = file.lastModified();
+		String tmpFilename = file.getName().split("\\.")[0];
+		if (tmpFilename.contains("-")) {
+			String[] parts = tmpFilename.split("-");
+			if (parts.length > 1) {
+				String mode = parts[parts.length - 1];
+				if (List.of("light", "dark").contains(mode)) {
+					ref.mode = mode;
+				}
+			}
+		}
 		readImageSize(ref);
 		return ref;
 	}
@@ -1136,7 +1148,11 @@ public class DiskContestSource extends ContestSource {
 		if (type == ContestType.CONTEST) {
 			if (LOGO.equals(property))
 				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
+			if (LOGO_BACKGROUNDMODE.equals(property))
+				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
 			if (BANNER.equals(property))
+				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
+			if (BANNER_BACKGROUNDMODE.equals(property))
 				return new FilePattern(null, id, property, LOGO_EXTENSIONS);
 		} else if (type == ContestType.TEAM) {
 			if (PHOTO.equals(property))
@@ -1239,7 +1255,9 @@ public class DiskContestSource extends ContestSource {
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
 			info.setLogo(mergeRefs(info.getLogo(), getFilesWithPattern(obj, LOGO)));
+			info.setLogoLightMode(mergeRefs(info.getLogoLightMode(), getFilesWithPattern(obj, LOGO_BACKGROUNDMODE)));
 			info.setBanner(mergeRefs(info.getBanner(), getFilesWithPattern(obj, BANNER)));
+			info.setBannerLightMode(mergeRefs(info.getBannerLightMode(), getFilesWithPattern(obj, BANNER_BACKGROUNDMODE)));
 		} else if (obj instanceof Organization) {
 			Organization org = (Organization) obj;
 			org.setLogo(mergeRefs(org.getLogo(), getFilesWithPattern(obj, LOGO)));
