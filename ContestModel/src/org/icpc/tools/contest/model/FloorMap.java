@@ -34,12 +34,14 @@ public class FloorMap {
 
 	// default colors for printing
 	public static class FloorColors {
+		protected boolean lightMode = false;
+
 		public Color getTeamAreaFillColor() {
 			return null;
 		}
 
 		public Color getTeamAreaOutlineColor() {
-			return Color.LIGHT_GRAY;
+			return lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY;
 		}
 
 		public Color getSeatFillColor() {
@@ -47,7 +49,7 @@ public class FloorMap {
 		}
 
 		public Color getSeatOutlineColor() {
-			return Color.LIGHT_GRAY;
+			return lightMode ? Color.DARK_GRAY : Color.LIGHT_GRAY;
 		}
 
 		public BufferedImage getTeamLogo(String id) {
@@ -55,22 +57,32 @@ public class FloorMap {
 		}
 
 		public Color getDeskOutlineColor(String id) {
-			return Color.BLACK;
+			return lightMode ? Color.WHITE : Color.BLACK;
 		}
 
 		public Color getDeskFillColor(String id) {
-			return Color.WHITE;
+			return lightMode ? Color.BLACK : Color.WHITE;
 		}
 
 		public Color getTextColor() {
-			return Color.BLACK;
+			return lightMode ? Color.WHITE : Color.BLACK;
 		}
 	}
 
 	public static class ScreenColors extends FloorColors {
+		public ScreenColors(boolean lightMode) {
+			super();
+			this.lightMode = lightMode;
+        }
+
+		public ScreenColors() {
+			super();
+			this.lightMode = false;
+		}
+
 		@Override
 		public Color getTeamAreaFillColor() {
-			return Color.DARK_GRAY;
+			return lightMode ? Color.LIGHT_GRAY : Color.DARK_GRAY;
 		}
 
 		@Override
@@ -80,27 +92,27 @@ public class FloorMap {
 
 		@Override
 		public Color getSeatFillColor() {
-			return Color.DARK_GRAY;
+			return (lightMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 		}
 
 		@Override
 		public Color getSeatOutlineColor() {
-			return Color.DARK_GRAY;
+			return (lightMode ? Color.LIGHT_GRAY : Color.DARK_GRAY);
 		}
 
 		@Override
 		public Color getDeskOutlineColor(String id) {
-			return Color.WHITE;
+			return lightMode ? Color.BLACK : Color.WHITE;
 		}
 
 		@Override
 		public Color getDeskFillColor(String id) {
-			return Color.BLACK;
+			return lightMode ? Color.WHITE : Color.BLACK;
 		}
 
 		@Override
 		public Color getTextColor() {
-			return Color.WHITE;
+			return lightMode ? Color.BLACK : Color.WHITE;
 		}
 	}
 

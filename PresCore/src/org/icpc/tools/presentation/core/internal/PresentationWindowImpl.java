@@ -288,7 +288,8 @@ public class PresentationWindowImpl extends PresentationWindow {
 		this.title = title;
 
 		setIconImage(iconImage);
-		Taskbar.getTaskbar().setIconImage(iconImage);
+		if (Taskbar.isTaskbarSupported())
+			Taskbar.getTaskbar().setIconImage(iconImage);
 
 		setBounds(r);
 		setBackground(Color.black);
