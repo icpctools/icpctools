@@ -23,8 +23,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * HLS handler. https://localhost:8443/stream/11?_HLS_msn=10&_HLS_part=3&_HLS_skip=YES
- * https://localhost:8443/stream/11?_HLS_msn=10&_HLS_part=4&_HLS_skip=YES
+ * HLS handler.
+ *
+ * https://datatracker.ietf.org/doc/html/draft-pantos-hls-rfc8216bis
  */
 // TODO - cache HLS m3u8
 // TODO - handle HLS query params
@@ -111,12 +112,17 @@ public class HLSHandler extends VideoServingHandler {
 		long time = System.currentTimeMillis();
 		InputStream in = null;
 		try {
-			URLConnection conn = null;
+			String baseURL = url;
+			if (!baseURL.endsWith(".m3u8")) {
+				baseURL += "/stream.m3u8";
+			}
+			URI uri = null;
 			if (query != null)
-				conn = HTTPSSecurity.createURLConnection(new URI(url + "/stream.m3u8?" + query).toURL(), null, null);
+				uri = new URI(baseURL + "?" + query);
 			else
-				conn = HTTPSSecurity.createURLConnection(new URI(url + "/stream.m3u8").toURL(), null, null);
+				uri = new URI(baseURL);
 
+			URLConnection conn = HTTPSSecurity.createURLConnection(uri.toURL(), null, null);
 			conn.setConnectTimeout(15000);
 			conn.setReadTimeout(10000);
 			// conn.setRequestProperty("Content-Type", "application/vnd.apple.mpegurl");
@@ -130,8 +136,7 @@ public class HLSHandler extends VideoServingHandler {
 					throw new IOException("Not authorized (HTTP response code 401)");
 			}
 
-			HLSParser parser = new HLSParser();
-			parser.setURLPrefix(stream + "/");
+			HLSParser parser = new HLSParser(uri, stream + "/");
 
 			in = conn.getInputStream();
 			parser.read(in);
@@ -142,19 +147,16 @@ public class HLSHandler extends VideoServingHandler {
 			// System.out.println(" m3u8 time " + (System.currentTimeMillis() - time) + "ms");
 
 			if (fileCache == null) {
-				fileCache = new HLSFileCache();
+				fileCache = new HLSFileCache(parser);
 				store.setObject(fileCache);
 			}
 
 			// cache files - segments + parts
-			for (String s : parser.filesToDownload()) {
-				fileCache.addToCache(url, s);
-			}
+			parser.prefillCache(fileCache);
 
 			for (String s : parser.getPreload()) {
 				fileCache.addPreload(s);
 			}
-			fileCache.setParser(parser);
 			// System.out.println(" cache time " + (System.currentTimeMillis() - time) + "ms");
 
 			BufferedOutputStream bout = new BufferedOutputStream(response.getOutputStream());
@@ -189,6 +191,25 @@ public class HLSHandler extends VideoServingHandler {
 		ExecutorListener.getExecutor().scheduleAtFixedRate(() -> cleanCaches(), 20, 5, TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Parses a string byterange in the HTTP form "bytes=start-end" into a byte array, e.g.
+	 * "bytes=512-1024" returns [512, 1024].
+	 *
+	 * @param s an HTTP byte range
+	 * @return the integer start and end values of the range
+	 */
+	protected static int[] parseRange(String ss) {
+		String s = ss;
+		if (s.startsWith("bytes="))
+			s = ss.substring(6);
+
+		int ind = s.indexOf("-");
+		if (ind < 0)
+			return null;
+
+		return new int[] { Integer.parseInt(s.substring(0, ind)), Integer.parseInt(s.substring(ind + 1)) };
+	}
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response, int stream, IStore store, String path)
 			throws IOException {
@@ -203,25 +224,41 @@ public class HLSHandler extends VideoServingHandler {
 			return;
 		}
 
-		if (!fileCache.contains(name)) {
+		int[] httpByterange = null;
+		int[] hlsByterange = null;
+		String range = request.getHeader("Range");
+		if (range != null && range.length() > 0) {
+			httpByterange = parseRange(range);
+
+			// convert from HTTP byte range [start, end] to HLS byte range [length, start]
+			hlsByterange = new int[2];
+			hlsByterange[0] = httpByterange[1] - httpByterange[0] + 1;
+			hlsByterange[1] = httpByterange[0];
+		}
+		if (!fileCache.contains(name, hlsByterange)) {
 			if (fileCache.hasPreload(name)) {
 				try {
-					VideoStream vs = (VideoStream) store;
-					String url = vs.getURL();
-					fileCache.preloadIt(url, name, response);
+					fileCache.preloadIt(name, response);
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error preloading HLS video", e);
 				}
 
 				return;
 			}
-			Trace.trace(Trace.ERROR, "Request to stream an invalid file: " + name);
+			Trace.trace(Trace.ERROR, "Request to stream an invalid file: " + name + " / " + range);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
 		try {
-			fileCache.stream(name, response.getOutputStream());
+			if (httpByterange != null) {
+				response.setStatus(206);
+				response.setHeader("Content-Range", "bytes " + httpByterange[0] + "-" + httpByterange[1] + "/*");
+				// int len = byterange[1] - byterange[0];
+				response.setContentLength(hlsByterange[0]);
+			}
+			// response.setContentLength(jj);
+			fileCache.stream(name, response.getOutputStream(), hlsByterange);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error streaming HLS video from cache", e);
 		}

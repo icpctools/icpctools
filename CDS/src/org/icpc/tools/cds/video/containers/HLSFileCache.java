@@ -10,9 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
@@ -27,46 +25,62 @@ public class HLSFileCache {
 		public byte[] b;
 		public long storeTime;
 		public long lastAccessTime;
+		public int[] byterange;
 	}
 
 	private HLSParser parser;
 
-	private Map<String, CachedFile> map = new HashMap<>();
+	private List<CachedFile> list = new ArrayList<>();
 	private List<String> preload = new ArrayList<>();
 	// private List<String> lazyload = new ArrayList<>();
 
-	public HLSFileCache() {
-		// create
+	public HLSFileCache(HLSParser parser) {
+		this.parser = parser;
+	}
+
+	public int getSize() {
+		return list.size();
 	}
 
 	public long cleanCache() {
-		List<String> remove = new ArrayList<>(100);
+		List<CachedFile> remove = new ArrayList<>(20);
 		long size = 0;
 
 		long now = System.currentTimeMillis();
-		synchronized (map) {
-			for (String s : map.keySet()) {
-				CachedFile cf = map.get(s);
+		synchronized (list) {
+			for (CachedFile cf : list) {
 				// remove anything older than the cache time
 				if (cf.storeTime < now - CACHE_TIME)
-					remove.add(s);
+					remove.add(cf);
 				else
 					size += cf.b.length;
 			}
 		}
 
-		for (String s : remove)
-			map.remove(s);
+		for (CachedFile s : remove)
+			list.remove(s);
 
 		return size;
 	}
 
-	public boolean contains(String name) {
-		return map.containsKey(name);
+	private CachedFile getFromCache(String name, int[] byterange) {
+		if (name == null)
+			return null;
+
+		for (CachedFile cf : list) {
+			if (cf.name.equals(name) && ((cf.byterange == null && byterange == null) || (cf.byterange != null
+					&& byterange != null && cf.byterange[0] == byterange[0] && cf.byterange[1] == byterange[1])))
+				return cf;
+		}
+		return null;
+	}
+
+	public boolean contains(String name, int[] byterange) {
+		return getFromCache(name, byterange) != null;
 	}
 
 	public void addPreload(String name) {
-		if (map.containsKey(name) || preload.contains(name))
+		if (contains(name, null) || preload.contains(name))
 			return;
 		preload.add(name);
 	}
@@ -75,7 +89,7 @@ public class HLSFileCache {
 		return preload.contains(name);
 	}
 
-	private void cacheImpl(String name, InputStream in) throws IOException {
+	private void cacheImpl(String name, InputStream in, int[] byterange) throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		BufferedInputStream bin = new BufferedInputStream(in);
 		byte[] b = new byte[1024 * 8];
@@ -92,11 +106,12 @@ public class HLSFileCache {
 		cf.name = name;
 		cf.b = bout.toByteArray();
 		cf.storeTime = System.currentTimeMillis();
-		map.put(name, cf);
+		cf.byterange = byterange;
+		list.add(cf);
 	}
 
-	public void stream(String name, OutputStream out) throws IOException {
-		CachedFile cf = map.get(name);
+	public void stream(String name, OutputStream out, int[] byterange) throws IOException {
+		CachedFile cf = getFromCache(name, byterange);
 		if (cf == null)
 			throw new IOException("File does not exist");
 
@@ -107,37 +122,47 @@ public class HLSFileCache {
 		bout.close();
 	}
 
-	public boolean addToCache(String url, String name) {
+	public boolean addToCache(String name, int[] byterange) {
 		// already cached, don't grab them again
-		if (contains(name))
+		if (contains(name, byterange))
 			return true;
 
 		synchronized (this) {
-			if (contains(name))
+			if (contains(name, byterange))
 				return true;
 
 			long time = System.currentTimeMillis();
+			String range = "";
 			try {
-				URLConnection conn = HTTPSSecurity.createURLConnection(new URI(url + "/" + name).toURL(), null, null);
+				URI uri = parser.getURI().resolve(name);
+				URLConnection conn = HTTPSSecurity.createURLConnection(uri.toURL(), null, null);
 				conn.setConnectTimeout(15000);
 				conn.setReadTimeout(10000);
 				conn.setRequestProperty("Content-Type", "video/mp4");
+
+				if (byterange != null) {
+					// convert from HLS to HTTP byte range
+					range = byterange[1] + "-" + (byterange[0] + byterange[1] - 1);
+					conn.setRequestProperty("Range", "bytes=" + range);
+				}
 
 				if (conn instanceof HttpURLConnection) {
 					HttpURLConnection httpConn = (HttpURLConnection) conn;
 					int httpStatus = httpConn.getResponseCode();
 					if (httpStatus == HttpURLConnection.HTTP_NOT_FOUND)
-						throw new IOException("404 Not found (" + url + ")");
+						throw new IOException("404 Not found (" + name + ")");
 					else if (httpStatus == HttpURLConnection.HTTP_UNAUTHORIZED)
 						throw new IOException("Not authorized (HTTP response code 401)");
 				}
 
-				cacheImpl(name, new BufferedInputStream(conn.getInputStream()));
-				System.out.println("  Cache success: " + name + " (" + (System.currentTimeMillis() - time) + "ms)");
+				cacheImpl(name, new BufferedInputStream(conn.getInputStream()), byterange);
+				System.out.println(
+						"  Cache success: " + name + " " + range + " (" + (System.currentTimeMillis() - time) + "ms)");
 				return true;
 			} catch (Exception e) {
-				System.err.println("  Cache fail: " + name + " (" + (System.currentTimeMillis() - time) + "ms)");
-				Trace.trace(Trace.ERROR, "Could not cache HLS " + url + "/" + name, e);
+				System.err
+						.println("  Cache fail: " + name + " " + range + " (" + (System.currentTimeMillis() - time) + "ms)");
+				Trace.trace(Trace.ERROR, "Could not cache HLS " + name, e);
 				return false;
 			}
 		}
@@ -147,18 +172,14 @@ public class HLSFileCache {
 		return parser;
 	}
 
-	public void setParser(HLSParser parser) {
-		this.parser = parser;
-	}
-
 	// treat preloads like lazy loads
-	protected void preloadIt(String url, String name, HttpServletResponse response) throws IOException {
+	protected void preloadIt(String name, HttpServletResponse response) throws IOException {
 		System.out.println("  Preload: " + name);
-		if (!addToCache(url, name)) {
+		if (!addToCache(name, null)) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		stream(name, response.getOutputStream());
+		stream(name, response.getOutputStream(), null);
 	}
 }
