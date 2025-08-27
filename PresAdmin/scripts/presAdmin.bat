@@ -22,7 +22,7 @@ robocopy "%ROOTDIR%\update" "%ROOTDIR%\" /e /move
 
 :restart
 
-java -jar "%LIBDIR%\swtLauncher.jar" presentationAdmin.jar,tyrus-standalone-client-2.2.0.jar org.icpc.tools.presentation.admin.internal.Admin %params%
+java -jar "%LIBDIR%\swtLauncher.jar" presentationAdmin.jar,tyrus-standalone-client-2.2.0.jar,sentry-opentelemetry-agent-8.12.0.jar org.icpc.tools.presentation.admin.internal.Admin %params%
 
 if errorlevel 255 goto :restart
 if errorlevel 254 goto :update
