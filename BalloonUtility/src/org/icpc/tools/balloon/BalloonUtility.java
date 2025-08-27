@@ -1085,11 +1085,13 @@ public class BalloonUtility {
 		});
 
 		Display.setAppName("Balloon Utility");
-		try {
-			BufferedImage image = ImageIO.read(BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
-			Taskbar.getTaskbar().setIconImage(image);
-		} catch (Exception e) {
-			Trace.trace(Trace.INFO, "Couldn't set taskbar icon", e);
+		if (Taskbar.isTaskbarSupported()) {
+			try {
+				BufferedImage image = ImageIO.read(BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
+				Taskbar.getTaskbar().setIconImage(image);
+			} catch (Exception e) {
+				Trace.trace(Trace.INFO, "Couldn't set taskbar icon", e);
+			}
 		}
 
 		Display display = new Display();

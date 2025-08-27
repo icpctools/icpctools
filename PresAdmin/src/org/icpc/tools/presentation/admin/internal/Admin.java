@@ -82,11 +82,13 @@ public class Admin {
 		View v = new View(url, source.user, source.password);
 
 		Display.setAppName("Presentation Admin");
-		try {
-			BufferedImage image = ImageIO.read(Admin.class.getResourceAsStream("/images/adminIcon.png"));
-			Taskbar.getTaskbar().setIconImage(image);
-		} catch (Exception e) {
-			Trace.trace(Trace.INFO, "Couldn't set taskbar icon", e);
+		if (Taskbar.isTaskbarSupported()) {
+			try {
+				BufferedImage image = ImageIO.read(Admin.class.getResourceAsStream("/images/adminIcon.png"));
+				Taskbar.getTaskbar().setIconImage(image);
+			} catch (Exception e) {
+				Trace.trace(Trace.INFO, "Couldn't set taskbar icon", e);
+			}
 		}
 
 		final Display display = new Display();

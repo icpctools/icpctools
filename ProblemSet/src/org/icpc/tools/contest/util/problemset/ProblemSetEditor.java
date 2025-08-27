@@ -537,11 +537,14 @@ public class ProblemSetEditor {
 		}
 
 		Display.setAppName("Problem Set Editor");
-		try {
-			BufferedImage image = ImageIO.read(ProblemSetEditor.class.getResourceAsStream("/images/problemSetIcon.png"));
-			Taskbar.getTaskbar().setIconImage(image);
-		} catch (Exception e) {
-			// could not set icon
+		if (Taskbar.isTaskbarSupported()) {
+			try {
+				BufferedImage image = ImageIO
+						.read(ProblemSetEditor.class.getResourceAsStream("/images/problemSetIcon.png"));
+				Taskbar.getTaskbar().setIconImage(image);
+			} catch (Exception e) {
+				// could not set icon
+			}
 		}
 
 		Display display = new Display();
