@@ -84,7 +84,6 @@ public class CoachView extends Panel {
 
 	private static boolean lightMode = false;
 
-
 	static {
 		String[] countries = Locale.getISOCountries();
 		localeMap = new HashMap<String, Locale>(countries.length);
@@ -940,7 +939,7 @@ public class CoachView extends Panel {
 		Trace.init("ICPC Coach View", "coachView", args);
 
 		String[] displayStr2 = new String[1];
-		//boolean[] lightMode = new boolean[1];
+		// boolean[] lightMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
@@ -949,7 +948,7 @@ public class CoachView extends Panel {
 					displayStr2[0] = (String) options.get(0);
 					return true;
 				} else if ("--light".equals(option)) {
-					//lightMode[0] = true;
+					// lightMode[0] = true;
 					lightMode = true;
 					return true;
 				}
@@ -977,7 +976,8 @@ public class CoachView extends Panel {
 		try {
 			BufferedImage image = ImageIO.read(CoachView.class.getClassLoader().getResource("images/coachViewIcon.png"));
 			frame.setIconImage(image);
-			Taskbar.getTaskbar().setIconImage(image);
+			if (Taskbar.isTaskbarSupported())
+				Taskbar.getTaskbar().setIconImage(image);
 		} catch (Exception e) {
 			// could not set icon
 		}

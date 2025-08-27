@@ -733,11 +733,13 @@ public class AwardUI {
 		}
 
 		Display.setAppName("Award Utility");
-		try {
-			BufferedImage image = ImageIO.read(AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
-			Taskbar.getTaskbar().setIconImage(image);
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Couldn't set taskbar icon");
+		if (Taskbar.isTaskbarSupported()) {
+			try {
+				BufferedImage image = ImageIO.read(AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
+				Taskbar.getTaskbar().setIconImage(image);
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Couldn't set taskbar icon");
+			}
 		}
 
 		Display display = new Display();
