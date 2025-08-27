@@ -412,11 +412,26 @@ public class CompositePresentationDialog extends Dialog {
 				enableOk();
 			}
 		});
+		final Label props = new Label(buildComp, SWT.NONE);
+		props.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+
 		buildList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				remove.setEnabled(buildList.getSelection() != null);
 				removeAll.setEnabled(!buildList.getPresentationInfos().isEmpty());
+				if (buildList.getSelection() != null) {
+					PresentationInfo info = buildList.getSelection();
+					if (info.getData() != null) {
+						String text = String.join(", ", info.getData());
+						props.setText(text);
+					} else {
+						props.setText("-");
+					}
+				} else {
+					props.setText("");
+				}
+				buildComp.layout();
 				enableOk();
 			}
 		});
