@@ -18,6 +18,10 @@ public abstract class VideoHandler {
 
 	protected abstract String getFileExtension();
 
+	protected String getFileName() {
+		return null;
+	}
+
 	protected abstract String getMimeType();
 
 	/**

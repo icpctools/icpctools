@@ -59,6 +59,11 @@ public class HLSHandler extends VideoServingHandler {
 	}
 
 	@Override
+	protected String getFileName() {
+		return "index.m3u8";
+	}
+
+	@Override
 	protected String getMimeType() {
 		return "application/vnd.apple.mpegurl";
 	}
@@ -136,7 +141,7 @@ public class HLSHandler extends VideoServingHandler {
 					throw new IOException("Not authorized (HTTP response code 401)");
 			}
 
-			HLSParser parser = new HLSParser(uri, stream + "/");
+			HLSParser parser = new HLSParser(uri, "");// stream + "/");
 
 			in = conn.getInputStream();
 			parser.read(in);
@@ -213,7 +218,7 @@ public class HLSHandler extends VideoServingHandler {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response, int stream, IStore store, String path)
 			throws IOException {
-		if (path == null) {
+		if (path == null || path.equals("index.m3u8")) {
 			handleIndex(request, response, stream, store);
 			return;
 		}

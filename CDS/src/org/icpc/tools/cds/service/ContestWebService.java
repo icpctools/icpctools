@@ -19,6 +19,7 @@ import org.icpc.tools.cds.RSSWriter;
 import org.icpc.tools.cds.presentations.PresentationFilesServlet;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.video.VideoAggregator;
+import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoAggregator.Stats;
 import org.icpc.tools.cds.video.VideoStream;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
@@ -361,6 +362,14 @@ public class ContestWebService extends HttpServlet {
 								je.open();
 								je.encode("id", in);
 								VideoStream stream = va.getStream(in);
+								if (ConnectionMode.DIRECT.equals(stream.getMode())) {
+									je.encode("url", stream.getURL());
+								} else {
+									String file = stream.getFileName();
+									if (file != null)
+										file = "/" + file;
+									je.encode("url", "/stream/" + in + file);
+								}
 								je.encode("mode", stream.getMode().name().toLowerCase());
 								je.encode("status", stream.getStatus().name().toLowerCase());
 								Stats stats = stream.getStats();

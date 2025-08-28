@@ -91,6 +91,10 @@ public class VideoStream implements IStore {
 		return handler.getFileExtension();
 	}
 
+	public String getFileName() {
+		return handler.getFileName();
+	}
+
 	public String getMimeType() {
 		return handler.getMimeType();
 	}

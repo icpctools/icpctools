@@ -168,13 +168,12 @@ function updateStreams(base, type) {
    		if (j > 0)
    			link += "&nbsp;";
    		var stream = streams[j];
-		var id = stream.id;
    		var cl = "text-info";
    		if (stream.status == "active")
    			cl = "text-success";
    		else if (stream.status == "failed")
    			cl = "text-danger";
-   		link += "<a href='/stream/" + id + "' class="+ cl+">" + id + "</a>";
+   		link += "<a href='" + stream.url + "' class="+ cl+">" + stream.id + "</a>";
    	}
   	d.innerHTML =link;
     

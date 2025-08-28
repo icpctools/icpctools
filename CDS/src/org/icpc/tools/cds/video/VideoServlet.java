@@ -210,20 +210,30 @@ public class VideoServlet extends HttpServlet {
 		je.open();
 		je.openChildArray("streams");
 		int c = 0;
-		for (VideoStream vi : va.getVideoInfo()) {
+		for (VideoStream vs : va.getVideoInfo()) {
 			je.open();
-			je.encode("id", c++ + "");
-			je.encode("name", vi.getName());
-			je.encode("type", vi.getType().name());
-			je.encode("team_id", vi.getTeamId());
-			je.encode("mode", vi.getMode().name());
-			je.encode("status", vi.getStatus().name());
-			Stats s = vi.getStats();
+			je.encode("id", c + "");
+			je.encode("name", vs.getName());
+			je.encode("type", vs.getType().name());
+			je.encode("team_id", vs.getTeamId());
+			je.encode("mode", vs.getMode().name());
+
+			if (ConnectionMode.DIRECT.equals(vs.getMode())) {
+				je.encode("url", vs.getURL());
+			} else {
+				String file = vs.getFileName();
+				if (file != null)
+					file = "/" + file;
+				je.encode("url", "/stream/" + c + file);
+			}
+			je.encode("status", vs.getStatus().name());
+			Stats s = vs.getStats();
 			je.encode("current", s.currentListeners);
 			je.encode("max_current", s.maxConcurrentListeners);
 			je.encode("total_listeners", s.totalListeners);
 			je.encode("total_time", ContestUtil.formatTime(s.totalTime));
 			je.close();
+			c++;
 		}
 		je.closeArray();
 
