@@ -16,6 +16,7 @@ import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoServingHandler;
 import org.icpc.tools.cds.video.VideoStream;
+import org.icpc.tools.cds.video.containers.HLSFileCache.CachedFile;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
@@ -240,7 +241,10 @@ public class HLSHandler extends VideoServingHandler {
 			hlsByterange[0] = httpByterange[1] - httpByterange[0] + 1;
 			hlsByterange[1] = httpByterange[0];
 		}
-		if (!fileCache.contains(name, hlsByterange)) {
+
+		// files must already be cached, or preload
+		CachedFile cf = fileCache.getFromCache(name, hlsByterange);
+		if (cf == null) {
 			if (fileCache.hasPreload(name)) {
 				try {
 					fileCache.preloadIt(name, response);
@@ -250,22 +254,34 @@ public class HLSHandler extends VideoServingHandler {
 
 				return;
 			}
+		}
+
+		// or in the index (but not cached yet)
+		if (fileCache.getParser().isValidFile(name, hlsByterange)) {
+			if (cf == null) {
+				Trace.trace(Trace.USER, "Streaming: " + name + " " + range);
+			}
+		} else {
 			Trace.trace(Trace.ERROR, "Request to stream an invalid file: " + name + " / " + range);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		try {
-			if (httpByterange != null) {
-				response.setStatus(206);
-				response.setHeader("Content-Range", "bytes " + httpByterange[0] + "-" + httpByterange[1] + "/*");
-				// int len = byterange[1] - byterange[0];
-				response.setContentLength(hlsByterange[0]);
-			}
-			// response.setContentLength(jj);
-			fileCache.stream(name, response.getOutputStream(), hlsByterange);
-		} catch (Exception e) {
-			Trace.trace(Trace.ERROR, "Error streaming HLS video from cache", e);
+		if (cf != null) {
+			response.setContentLength(hlsByterange[0]);
+		}
+		if (httpByterange != null) {
+			response.setStatus(206);
+			response.setHeader("Content-Range", "bytes " + httpByterange[0] + "-" + httpByterange[1] + "/*");
+			response.setContentLength(hlsByterange[0]);
+		} else if (cf != null) {
+			response.setContentLength(cf.b.length);
+		}
+
+		if (cf != null) {
+			fileCache.stream(cf, response.getOutputStream());
+		} else {
+			fileCache.streamAndCache(name, hlsByterange, response.getOutputStream());
 		}
 	}
 

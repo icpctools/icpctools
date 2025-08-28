@@ -63,13 +63,12 @@ public class HLSFileCache {
 		return size;
 	}
 
-	private CachedFile getFromCache(String name, int[] byterange) {
+	protected CachedFile getFromCache(String name, int[] byterange) {
 		if (name == null)
 			return null;
 
 		for (CachedFile cf : list) {
-			if (cf.name.equals(name) && ((cf.byterange == null && byterange == null) || (cf.byterange != null
-					&& byterange != null && cf.byterange[0] == byterange[0] && cf.byterange[1] == byterange[1])))
+			if (cf.name.equals(name) && HLSParser.byterangeMatches(cf.byterange, byterange))
 				return cf;
 		}
 		return null;
@@ -89,47 +88,85 @@ public class HLSFileCache {
 		return preload.contains(name);
 	}
 
-	private void cacheImpl(String name, InputStream in, int[] byterange) throws IOException {
+	private static byte[] cacheImpl(InputStream in, OutputStream out) throws IOException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		BufferedInputStream bin = new BufferedInputStream(in);
 		byte[] b = new byte[1024 * 8];
 		int n = bin.read(b);
 		while (n != -1) {
 			bout.write(b, 0, n);
+			if (out != null) {
+				try {
+					out.write(b, 0, n);
+				} catch (Exception e) {
+					// ignore
+				}
+			}
 			n = bin.read(b);
 		}
 
 		bin.close();
 		bout.close();
 
-		CachedFile cf = new CachedFile();
-		cf.name = name;
-		cf.b = bout.toByteArray();
-		cf.storeTime = System.currentTimeMillis();
-		cf.byterange = byterange;
-		list.add(cf);
+		return bout.toByteArray();
 	}
 
-	public void stream(String name, OutputStream out, int[] byterange) throws IOException {
-		CachedFile cf = getFromCache(name, byterange);
-		if (cf == null)
-			throw new IOException("File does not exist");
+	// Optimized caching when we know the size of the file in advance
+	private static byte[] cacheImpl(InputStream in, OutputStream out, int length) throws IOException {
+		byte[] cache = new byte[length];
+		BufferedInputStream bin = new BufferedInputStream(in);
+		int n = bin.read(cache, 0, length);
+		int i = 0;
+		while (n != -1) {
+			if (out != null) {
+				try {
+					out.write(cache, i, n);
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+			i += n;
+			if (i == length)
+				break;
 
-		cf.lastAccessTime = System.currentTimeMillis();
+			n = bin.read(cache, i, length - i);
+		}
 
-		BufferedOutputStream bout = new BufferedOutputStream(out);
-		bout.write(cf.b, 0, cf.b.length);
-		bout.close();
+		bin.close();
+
+		return cache;
+	}
+
+	public void stream(CachedFile cf, OutputStream out) {
+		try {
+			cf.lastAccessTime = System.currentTimeMillis();
+
+			BufferedOutputStream bout = new BufferedOutputStream(out);
+			bout.write(cf.b, 0, cf.b.length);
+			bout.close();
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Error streaming HLS video from cache", e);
+		}
 	}
 
 	public boolean addToCache(String name, int[] byterange) {
-		// already cached, don't grab them again
-		if (contains(name, byterange))
+		return streamAndCache(name, byterange, null);
+	}
+
+	public boolean streamAndCache(String name, int[] byterange, OutputStream out) {
+		CachedFile cf = getFromCache(name, byterange);
+		if (cf != null) {
+			// already cached, just send it
+			stream(cf, out);
 			return true;
+		}
 
 		synchronized (this) {
-			if (contains(name, byterange))
+			cf = getFromCache(name, byterange);
+			if (cf != null) {
+				stream(cf, out);
 				return true;
+			}
 
 			long time = System.currentTimeMillis();
 			String range = "";
@@ -155,14 +192,25 @@ public class HLSFileCache {
 						throw new IOException("Not authorized (HTTP response code 401)");
 				}
 
-				cacheImpl(name, new BufferedInputStream(conn.getInputStream()), byterange);
-				System.out.println(
+				int length = conn.getContentLength();
+
+				cf = new CachedFile();
+				cf.name = name;
+				if (length > 0 || byterange != null) {
+					cf.b = cacheImpl(conn.getInputStream(), out, length > 0 ? length : byterange[0]);
+				} else {
+					cf.b = cacheImpl(conn.getInputStream(), out);
+				}
+				cf.storeTime = System.currentTimeMillis();
+				cf.byterange = byterange;
+				list.add(cf);
+
+				Trace.trace(Trace.INFO,
 						"  Cache success: " + name + " " + range + " (" + (System.currentTimeMillis() - time) + "ms)");
 				return true;
 			} catch (Exception e) {
-				System.err
-						.println("  Cache fail: " + name + " " + range + " (" + (System.currentTimeMillis() - time) + "ms)");
-				Trace.trace(Trace.ERROR, "Could not cache HLS " + name, e);
+				Trace.trace(Trace.ERROR,
+						"  Cache fail: " + name + " " + range + " (" + (System.currentTimeMillis() - time) + "ms)");
 				return false;
 			}
 		}
@@ -180,6 +228,8 @@ public class HLSFileCache {
 			return;
 		}
 
-		stream(name, response.getOutputStream(), null);
+		CachedFile cf = getFromCache(name, null);
+		if (cf != null)
+			stream(cf, response.getOutputStream());
 	}
 }

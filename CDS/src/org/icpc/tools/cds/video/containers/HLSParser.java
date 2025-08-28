@@ -210,7 +210,7 @@ public class HLSParser {
 			// so prefilling the entire cache is unnecessary and causes a huge
 			// delay. For now, only cache up to 10 files at a time: works fine
 			// for streaming, only loads ~60s for samples
-			if (fileCache.getSize() > 10)
+			if (fileCache.getSize() > 2)
 				return;
 		}
 
@@ -219,6 +219,41 @@ public class HLSParser {
 				fileCache.addToCache(ss, null);
 			}
 		}
+	}
+
+	protected static boolean byterangeMatches(int[] a, int[] b) {
+		return ((a == null && b == null) || (a != null && b != null && a[0] == b[0] && a[1] == b[1]));
+	}
+
+	public boolean isValidFile(String name, int[] byterange) {
+		if (name == null)
+			return false;
+
+		if (map != null && map.file.equals(name) && byterangeMatches(map.byterange, byterange)) {
+			return true;
+		}
+
+		for (HLSSegment s : playlist) {
+			if (s.gap)
+				continue;
+
+			if (s.file.equals(name) && byterangeMatches(s.byterange, byterange)) {
+				return true;
+			}
+
+			for (String ss : s.parts) {
+				if (name.equals(ss))
+					return true;
+			}
+		}
+
+		if (footerParts != null && footerParts.length > 0) {
+			for (String ss : footerParts) {
+				if (name.equals(ss))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public List<String> getPreload() {
