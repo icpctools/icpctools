@@ -237,10 +237,14 @@ public class PlaybackContest extends Contest {
 		for (Integer i : in) {
 			FileReference ref = new FileReference();
 			VideoStream vs = VideoAggregator.getInstance().getStream(i);
-			if (ConnectionMode.DIRECT.equals(vs.getMode()))
+			if (ConnectionMode.DIRECT.equals(vs.getMode())) {
 				ref.href = vs.getURL();
-			else
-				ref.href = "<host>/stream/" + i;
+			} else {
+				String file = vs.getFileName();
+				if (file != null)
+					file = "/" + file;
+				ref.href = "<host>/stream/" + i + file;
+			}
 			ref.mime = vs.getMimeType();
 			list.add(ref);
 		}
