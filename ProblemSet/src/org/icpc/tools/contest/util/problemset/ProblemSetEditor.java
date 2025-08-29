@@ -1,6 +1,7 @@
 package org.icpc.tools.contest.util.problemset;
 
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -537,7 +538,7 @@ public class ProblemSetEditor {
 		}
 
 		Display.setAppName("Problem Set Editor");
-		if (Taskbar.isTaskbarSupported()) {
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
 			try {
 				BufferedImage image = ImageIO
 						.read(ProblemSetEditor.class.getResourceAsStream("/images/problemSetIcon.png"));

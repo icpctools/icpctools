@@ -1,6 +1,7 @@
 package org.icpc.tools.resolver.awards;
 
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -733,7 +734,7 @@ public class AwardUI {
 		}
 
 		Display.setAppName("Award Utility");
-		if (Taskbar.isTaskbarSupported()) {
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
 			try {
 				BufferedImage image = ImageIO.read(AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
 				Taskbar.getTaskbar().setIconImage(image);

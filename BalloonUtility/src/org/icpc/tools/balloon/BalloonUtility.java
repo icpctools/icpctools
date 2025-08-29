@@ -1,6 +1,7 @@
 package org.icpc.tools.balloon;
 
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -1085,7 +1086,7 @@ public class BalloonUtility {
 		});
 
 		Display.setAppName("Balloon Utility");
-		if (Taskbar.isTaskbarSupported()) {
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
 			try {
 				BufferedImage image = ImageIO.read(BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
 				Taskbar.getTaskbar().setIconImage(image);
