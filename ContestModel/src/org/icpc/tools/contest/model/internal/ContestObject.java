@@ -426,6 +426,13 @@ public abstract class ContestObject implements IContestObject {
 		if (list.size() == 1)
 			return list.first();
 
+		// look for svgs first
+		for (FileReference ref : list) {
+			if ("image/svg+xml".equals(ref.mime))
+				return ref;
+		}
+
+		// otherwise find best size
 		if (fit != null)
 			return fit.getBestMatch(list);
 
