@@ -120,6 +120,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 			FontMetrics fm = g.getFontMetrics();
 			int hh = fm.getHeight() + 10;
 			TextHelper text = new TextHelper(g);
+			text.setLightMode( isLightMode());
 			IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 			if (org != null) {
 				BufferedImage img = org.getLogoImage(hh, hh, true, true);
