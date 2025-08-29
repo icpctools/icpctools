@@ -18,6 +18,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.image.BufferStrategy;
@@ -288,7 +289,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		this.title = title;
 
 		setIconImage(iconImage);
-		if (Taskbar.isTaskbarSupported())
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE))
 			Taskbar.getTaskbar().setIconImage(iconImage);
 
 		setBounds(r);

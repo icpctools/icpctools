@@ -1,6 +1,7 @@
 package org.icpc.tools.presentation.admin.internal;
 
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.image.BufferedImage;
 import java.net.URI;
 import java.net.URL;
@@ -82,7 +83,7 @@ public class Admin {
 		View v = new View(url, source.user, source.password);
 
 		Display.setAppName("Presentation Admin");
-		if (Taskbar.isTaskbarSupported()) {
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE)) {
 			try {
 				BufferedImage image = ImageIO.read(Admin.class.getResourceAsStream("/images/adminIcon.png"));
 				Taskbar.getTaskbar().setIconImage(image);

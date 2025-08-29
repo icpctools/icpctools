@@ -20,6 +20,7 @@ import java.awt.Panel;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ItemEvent;
@@ -976,7 +977,7 @@ public class CoachView extends Panel {
 		try {
 			BufferedImage image = ImageIO.read(CoachView.class.getClassLoader().getResource("images/coachViewIcon.png"));
 			frame.setIconImage(image);
-			if (Taskbar.isTaskbarSupported())
+			if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE))
 				Taskbar.getTaskbar().setIconImage(image);
 		} catch (Exception e) {
 			// could not set icon
