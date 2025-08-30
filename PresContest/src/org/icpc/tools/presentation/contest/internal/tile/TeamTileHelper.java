@@ -29,6 +29,7 @@ import org.icpc.tools.contest.model.internal.Recent;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
+import org.icpc.tools.presentation.contest.internal.Utility;
 import org.icpc.tools.presentation.core.RenderPerfTimer;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
@@ -153,7 +154,7 @@ public class TeamTileHelper {
 			String logoHash = team.getOrganizationId() + "@" + logoWidth + "x" + logoHeight;
 			BufferedImage logoImg = logoImages.get(logoHash);
 			if (logoImg == null) {
-				Trace.trace(Trace.INFO, "logo cache miss " + logoHash);
+				Trace.trace(Trace.INFO, "Logo cache miss " + logoHash);
 				logoImg = org.getLogoImage(logoWidth, logoHeight, true, true);
 				logoImages.put(logoHash, logoImg);
 				logoImg = cacheMiss(logoImg);
@@ -353,10 +354,11 @@ public class TeamTileHelper {
 				problemDrawMeasure.stopMeasure();
 			} else if (ContestUtil.isRecent(contest, r)) {
 				activeProblemMeasure.startMeasure();
+				IProblem problem = problems[i];
 				int k = (int) ((timeMs * 45.0 / 1000.0) % (ICPCColors.COUNT2 * 2));
 				String backHash = r.getStatus().name() + " " + (int) w + " flash " + k;
 				BufferedImage backImg = getCacheOrRender(backHash, problemImages, (int) w, h, (gg) -> {
-					paintRecentResultBackground(gg, k, r, 0, 0, (int) w, h, arc);
+					paintRecentResultBackground(gg, k, r, problem, 0, 0, (int) w, h, arc);
 				});
 				// TODO: only cache up to the natural string width
 				String resultTextOnlyHash = hash + " TEXT";
@@ -386,7 +388,7 @@ public class TeamTileHelper {
 					gg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 					gg.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 					gg.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-					paintResult(gg, r, (int) w, h, arc, statusFm);
+					paintResult(gg, r, problems[i], (int) w, h, arc, statusFm);
 					gg.dispose();
 					resultImages.put(hash, new SoftReference<BufferedImage>(img));
 					img = cacheMiss(img);
@@ -432,8 +434,8 @@ public class TeamTileHelper {
 		g.drawString(label, (w - fm.stringWidth(label)) / 2 - 1, (h + fm.getAscent()) / 2 - 1);
 	}
 
-	private static void paintRecentResultBackground(Graphics2D g, int kk, IResult r, int x, int y, int w, int h,
-			int arc) {
+	private void paintRecentResultBackground(Graphics2D g, int kk, IResult r, IProblem problem, int x, int y, int w,
+			int h, int arc) {
 		Color c = null;
 		int k = kk;
 		// flash more than once per second
@@ -441,10 +443,17 @@ public class TeamTileHelper {
 			k = (ICPCColors.COUNT2 * 2 - 1) - k;
 
 		if (r.getStatus() == Status.SOLVED) {
-			if (r.isFirstToSolve())
+			if (r.isFirstToSolve()) {
 				c = ICPCColors.FIRST_TO_SOLVE3[k];
-			else
-				c = ICPCColors.SOLVED3[k];
+			} else {
+				if (contest.getScoreboardType() == ScoreboardType.SCORE && problem.getMaxScore() != null) {
+					float percent = (float) Math.min(r.getScore() / problem.getMaxScore(), 1);
+					c = Utility.getColorBetween(ICPCColors.FAILED_COLOR, ICPCColors.SCORING_MID_COLOR,
+							ICPCColors.SOLVED_COLOR, percent);
+				} else {
+					c = ICPCColors.SOLVED3[k];
+				}
+			}
 		} else if (r.getStatus() == Status.FAILED)
 			c = ICPCColors.FAILED3[k];
 		else if (r.getStatus() == Status.SUBMITTED)
@@ -488,13 +497,20 @@ public class TeamTileHelper {
 	}
 
 	// TODO: remove the duplicate implementations
-	private void paintResult(Graphics2D g, IResult r, int w, int h, int arc, FontMetrics fm) {
+	private void paintResult(Graphics2D g, IResult r, IProblem problem, int w, int h, int arc, FontMetrics fm) {
 		Color c = null;
 		if (r.getStatus() == Status.SOLVED) {
 			if (r.isFirstToSolve())
 				c = ICPCColors.FIRST_TO_SOLVE[5];
-			else
-				c = ICPCColors.SOLVED[5];
+			else {
+				if (contest.getScoreboardType() == ScoreboardType.SCORE && problem.getMaxScore() != null) {
+					float percent = (float) Math.min(r.getScore() / problem.getMaxScore(), 1);
+					c = Utility.getColorBetween(ICPCColors.FAILED_COLOR, ICPCColors.SCORING_MID_COLOR,
+							ICPCColors.SOLVED_COLOR, percent);
+				} else {
+					c = ICPCColors.SOLVED[5];
+				}
+			}
 		} else if (r.getStatus() == Status.FAILED)
 			c = ICPCColors.FAILED[5];
 		else if (r.getStatus() == Status.SUBMITTED)
@@ -513,7 +529,7 @@ public class TeamTileHelper {
 					s = r.getNumSubmissions() + "\u200A-\u200A" + ContestUtil.getTime(r.getContestTime());
 			} else {
 				if (r.getStatus() == Status.SOLVED)
-					s = ContestUtil.formatScore(r.getScore());
+					s = ContestUtil.formatScore(r.getScore()) + "\u200A-\u200A" + r.getNumSubmissions();
 				else
 					s = r.getNumSubmissions() + "";
 			}

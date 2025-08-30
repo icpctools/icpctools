@@ -398,7 +398,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 
 		s = fs.time + "";
 		ShadedRectangle.drawRoundRect(g, BORDER + col1 + (int) rowHeight, (int) rowHeight / 2 + CUBE_INSET / 2 + 3,
-				(int) (cubeWidth * 1.5), cubeHeight, contest, result, 0, s);
+				(int) (cubeWidth * 1.5), cubeHeight, contest, result, null, 0, s);
 
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowFont);
