@@ -241,9 +241,11 @@ public class PlaybackContest extends Contest {
 				ref.href = vs.getURL();
 			} else {
 				String file = vs.getFileName();
-				if (file != null)
-					file = "/" + file;
-				ref.href = "<host>/stream/" + i + file;
+				if (file != null) {
+					ref.href = "<host>/stream/" + i + "/" + file;
+				} else {
+					ref.href = "<host>/stream/" + i;
+				}
 			}
 			ref.mime = vs.getMimeType();
 			list.add(ref);
