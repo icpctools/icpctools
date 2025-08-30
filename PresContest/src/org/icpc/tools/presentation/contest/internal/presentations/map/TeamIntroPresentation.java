@@ -430,6 +430,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		}
 
 		text.addString(pos.label);
+
 		int h = Math.max(border, height / 12) + border;
 		int y = height - border - h;
 
@@ -438,6 +439,20 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		g.fillRect(0, y, width, h);
 		g.setComposite(AlphaComposite.SrcOver.derive(1f));
 		g.setColor(Color.WHITE);
-		text.drawFit(Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2, width - border * 2);
+		if ((text.getWidth() + border * 2) <= width) {
+			text.drawFit(Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2, width - border * 2);
+		} else {
+			TextHelper textImage = new TextHelper(g);
+			if (pos.smImage != null) {
+				textImage.addImage(pos.smImage);
+				textImage.addSpacer(border);
+			}
+
+			text = new TextHelper(g);
+			text.addString(pos.label);
+
+			textImage.draw(0, y + (h - textImage.getHeight()) / 2);
+			text.drawFit(pos.smImage.getWidth() + Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2, width - border * 2 - pos.smImage.getWidth());
+		}
 	}
 }
