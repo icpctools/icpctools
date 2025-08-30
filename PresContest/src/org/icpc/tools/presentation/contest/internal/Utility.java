@@ -7,6 +7,17 @@ import java.awt.Graphics2D;
  * Utility class for common graphics functions.
  */
 public class Utility {
+	public static Color getColorBetween(Color c1, Color c2, float percent) {
+		float[] c1rgb = c1.getRGBComponents(null);
+		float[] c2rgb = c2.getRGBComponents(null);
+
+		float[] f = new float[4];
+		for (int j = 0; j < 4; j++) {
+			f[j] = c1rgb[j] * (1f - percent) + c2rgb[j] * percent;
+		}
+		return new Color(f[0], f[1], f[2], f[3]);
+	}
+
 	public static Color[] getColorsBetween(Color c1, Color c2, int steps) {
 		Color[] colors = new Color[steps];
 		float[] c1rgb = c1.getRGBComponents(null);

@@ -537,7 +537,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 				// fill in the center of the oval with the appropriate color and string
 				ShadedRectangle.drawRoundRect(g, xx, rowH + CUBE_INSET / 2 - 1, cubeWidth, cubeHeight, contest, r,
-						getTimeMs(), s);
+						problems[curProblem], getTimeMs(), s);
 			} else {
 				// the team has no result for the current problem;
 				// draw a round rectangle containing the problem identifier string
