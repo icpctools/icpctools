@@ -52,7 +52,7 @@ public class FloorGenerator49Baku extends FloorGenerator {
 			float laisle = -aisle * 2 - taw * 8;
 			float raisle = aisle * 2 + taw * 9;
 
-			floor.createAisle(laisle, y, 0, y);
+			floor.createAisle(laisle, y, raisle - 2, y);
 			y -= tad / 4;
 
 			y -= (aisle + tad) / 2;
@@ -153,13 +153,14 @@ public class FloorGenerator49Baku extends FloorGenerator {
 			floor.createAisle(raisle, 0, raisle, y);
 			floor.createAisle(laisle, 0, laisle, y);
 
-			IPrinter p = floor.createPrinter(-aisle, 1);
+			IPrinter p = floor.createPrinter(0, 0);
 
 			// convert spares
 			floor.makeSpare(6);
 			floor.makeSpare(7);
 			floor.makeSpare(138);
 			floor.makeSpare(139);
+			floor.makeSpare(92);
 
 			IProblem pp = null;
 
@@ -170,10 +171,12 @@ public class FloorGenerator49Baku extends FloorGenerator {
 				source.waitForContest(10000);
 				IProblem[] problems = contest2.getProblems();
 
-				double b0 = y / 2 + (tad * 6 + aisle * 4) / 2;
-				double bs = (tad * 6 + aisle * 4) / (problems.length - 1);
+				Trace.trace(Trace.USER, "Problems found: " + problems.length);
+
+				double b0 = -(tad * 10 + aisle * 4) / 2;
+				double bs = (tad * 10 + aisle * 4) / (problems.length - 1);
 				for (int i = 0; i < problems.length; i++) {
-					floor.createBalloon(problems[i].getId(), laisle - aisle, b0 - i * bs);
+					floor.createBalloon(problems[i].getId(), b0 + i * bs, 0.9);
 				}
 
 				floor.write(f);
