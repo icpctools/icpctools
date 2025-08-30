@@ -222,9 +222,11 @@ public class VideoServlet extends HttpServlet {
 				je.encode("url", vs.getURL());
 			} else {
 				String file = vs.getFileName();
-				if (file != null)
-					file = "/" + file;
-				je.encode("url", "/stream/" + c + file);
+				if (file != null) {
+					je.encode("url", "/stream/" + c + "/" + file);
+				} else {
+					je.encode("url", "/stream/" + c);
+				}
 			}
 			je.encode("status", vs.getStatus().name());
 			Stats s = vs.getStats();

@@ -366,9 +366,11 @@ public class ContestWebService extends HttpServlet {
 									je.encode("url", stream.getURL());
 								} else {
 									String file = stream.getFileName();
-									if (file != null)
-										file = "/" + file;
-									je.encode("url", "/stream/" + in + file);
+									if (file != null) {
+										je.encode("url", "/stream/" + in + "/" + file);
+									} else {
+										je.encode("url", "/stream/" + in);
+									}
 								}
 								je.encode("mode", stream.getMode().name().toLowerCase());
 								je.encode("status", stream.getStatus().name().toLowerCase());
