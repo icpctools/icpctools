@@ -1,6 +1,5 @@
 package org.icpc.tools.presentation.core;
 
-import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -15,13 +14,14 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 
 /**
  * A window capable of displaying presentations.
  */
-public abstract class PresentationWindow extends Frame implements IPresentationHandler {
+public abstract class PresentationWindow extends JFrame implements IPresentationHandler {
 	private static final long serialVersionUID = 1L;
 
 	protected Presentation currentPresentation = null;

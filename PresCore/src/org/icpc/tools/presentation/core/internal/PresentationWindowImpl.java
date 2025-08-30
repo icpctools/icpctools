@@ -294,7 +294,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 		setBounds(r);
 		setBackground(Color.black);
-		setUndecorated(true);
+		//setUndecorated(true);
 		setFocusableWindowState(true);
 		setFocusable(true);
 
@@ -732,7 +732,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 		else if (dc.mode == Mode.MIDDLE)
 			setBounds(r.x + r.width / 6, r.y + r.height / 6, r.width * 2 / 3, r.height * 2 / 3);
 		else if (dc.mode == Mode.ALMOST)
-			setBounds(r.x + r.width / 12, r.y + r.height / 12, r.width * 5 / 6, r.height * 5 / 6);
+			setBounds(r.x + r.width / 12, r.y + r.height / 24, r.width * 5 / 6, r.height * 5 / 6);
 		else if (dc.mode == Mode.FULL_WINDOW)
 			setBounds(r.x, r.y, r.width, r.height);
 
@@ -840,11 +840,30 @@ public class PresentationWindowImpl extends PresentationWindow {
 
 	@Override
 	public void paint(Graphics g) {
+		if (currentBounds == null || !currentBounds.equals(getBounds())) {
+			currentBounds = getBounds();
+
+			boolean isFullScreen = getFullScreenWindow() != -1;
+			if (currentBounds.width == Toolkit.getDefaultToolkit().getScreenSize().width) {
+				if (Math.abs(currentBounds.height - Toolkit.getDefaultToolkit().getScreenSize().height) <= 50) {
+					// for mac, maximizing a JFrame puts it in fullscreen, but without any notches
+					isFullScreen = true;
+				}
+			}
+			if (isFullScreen) {
+				setDisplayRect(new Rectangle(0, 0, (int) currentBounds.getWidth(), (int) currentBounds.getHeight()));
+			} else {
+				setDisplayRect(new Rectangle(0, 25, (int) currentBounds.getWidth(), (int) currentBounds.getHeight() - 25));
+			}
+		}
+
 		// ignore, next frame update will get it
 	}
 
+	Rectangle currentBounds;
+
 	private Presentation doFinalSetup(Presentation p) {
-		Dimension d = getSize();
+		Dimension d = getPresentationSize();
 		if (!p.getSize().equals(d))
 			p.setSize(d);
 		p.aboutToShow();
