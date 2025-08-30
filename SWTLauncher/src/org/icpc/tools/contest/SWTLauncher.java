@@ -1,6 +1,7 @@
 package org.icpc.tools.contest;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -40,10 +41,15 @@ public class SWTLauncher {
 			URL swtURL = findSWTJar();
 			urls.add(swtURL);
 
-			String jarArg = args[0];
-			String[] jars = jarArg.split(",");
-			for (String jar : jars) {
-				urls.add(new File("lib" + File.separator + jar).toURI().toURL());
+			File libFolder = new File("lib");
+			File[] libs = libFolder.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File ff) {
+					return !ff.getName().startsWith("swt-") && ff.getName().endsWith(".jar");
+				}
+			});
+			for (File lib : libs) {
+				urls.add(lib.toURI().toURL());
 			}
 
 			URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
