@@ -46,7 +46,6 @@ $(document).ready(function () {
             $("#info-freeze").html(formatTime(parseTime(info.scoreboard_freeze_duration)));
         
         var logo = bestSquareLogo(info.logo, 50);
-        console.log(info.name + " - " + info.logo + " -> " + logo);
         if (logo != null) {
             var elem = document.createElement("img");
             elem.setAttribute("src", "/api/" + logo.href);
@@ -54,7 +53,6 @@ $(document).ready(function () {
             document.getElementById("logo").appendChild(elem);
         }
         var banner = bestLogo(info.banner, 100, 50);
-        console.log(info.name + " - " + info.banner + " -> " + banner);
         if (banner != null) {
             var elem = document.createElement("img");
             elem.setAttribute("src", "/api/" + banner.href);

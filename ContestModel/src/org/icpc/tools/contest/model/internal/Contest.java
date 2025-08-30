@@ -1328,6 +1328,9 @@ public class Contest implements IContest {
 		if (s == null)
 			return false;
 
+		if (info.getFreezeDuration() == null)
+			return true;
+
 		return s.getContestTime() < (info.getDuration() - info.getFreezeDuration());
 	}
 
