@@ -94,7 +94,7 @@ public class HLSHandler extends VideoServingHandler {
 	protected void handleIndex(HttpServletRequest request, HttpServletResponse response, int stream, IStore store) {
 		String query = request.getQueryString();
 
-		System.out.println("HLS index: " + request.getRequestURL() + " " + query);
+		Trace.trace(Trace.INFO, "HLS index: " + request.getRequestURL() + " " + query);
 		/*String media = request.getParameter(PARAM_MEDIA);
 		String part = request.getParameter(PARAM_PART);
 		String skip = request.getParameter(PARAM_SKIP);
@@ -148,7 +148,7 @@ public class HLSHandler extends VideoServingHandler {
 			parser.read(in);
 			response.setContentType(getMimeType());
 
-			System.out.println("  Index success (" + (System.currentTimeMillis() - time) + "ms)");
+			Trace.trace(Trace.INFO, "  Index success (" + (System.currentTimeMillis() - time) + "ms)");
 
 			// System.out.println(" m3u8 time " + (System.currentTimeMillis() - time) + "ms");
 
@@ -157,13 +157,8 @@ public class HLSHandler extends VideoServingHandler {
 				store.setObject(fileCache);
 			}
 
-			// cache files - segments + parts
+			// cache files - segments, parts, preloads
 			parser.prefillCache(fileCache);
-
-			for (String s : parser.getPreload()) {
-				fileCache.addPreload(s);
-			}
-			// System.out.println(" cache time " + (System.currentTimeMillis() - time) + "ms");
 
 			BufferedOutputStream bout = new BufferedOutputStream(response.getOutputStream());
 			parser.write(bout);
@@ -242,47 +237,26 @@ public class HLSHandler extends VideoServingHandler {
 			hlsByterange[1] = httpByterange[0];
 		}
 
-		// files must already be cached, or preload
+		// any valid file should already be in the cache list
 		CachedFile cf = fileCache.getFromCache(name, hlsByterange);
 		if (cf == null) {
-			if (fileCache.hasPreload(name)) {
-				try {
-					fileCache.preloadIt(name, response);
-				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Error preloading HLS video", e);
-				}
-
-				return;
-			}
-		}
-
-		// or in the index (but not cached yet)
-		if (fileCache.getParser().isValidFile(name, hlsByterange)) {
-			if (cf == null) {
-				Trace.trace(Trace.USER, "Streaming: " + name + " " + range);
-			}
-		} else {
 			Trace.trace(Trace.ERROR, "Request to stream an invalid file: " + name + " / " + range);
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 			return;
 		}
 
-		if (cf != null) {
-			response.setContentLength(hlsByterange[0]);
-		}
-		if (httpByterange != null) {
+		if (cf.byterange != null) {
 			response.setStatus(206);
-			response.setHeader("Content-Range", "bytes " + httpByterange[0] + "-" + httpByterange[1] + "/*");
-			response.setContentLength(hlsByterange[0]);
-		} else if (cf != null) {
+			response.setHeader("Content-Range", "bytes " + cf.byterange[0] + "-" + cf.byterange[1] + "/*");
+		}
+
+		if (cf.byterange != null) {
+			response.setContentLength(cf.byterange[0]);
+		} else if (cf.b != null) {
 			response.setContentLength(cf.b.length);
 		}
 
-		if (cf != null) {
-			fileCache.stream(cf, response.getOutputStream());
-		} else {
-			fileCache.streamAndCache(name, hlsByterange, response.getOutputStream());
-		}
+		fileCache.serveFile(cf, response.getOutputStream());
 	}
 
 	private static void streamIndex(HLSFileCache fileCache, HttpServletResponse response) {

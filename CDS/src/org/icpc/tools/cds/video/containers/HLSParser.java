@@ -11,12 +11,15 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.icpc.tools.cds.video.containers.HLSFileCache.CachedFile;
 import org.icpc.tools.contest.Trace;
 
 /**
  * An HLS parser that is able to separate individual segments (files), provide a full list of
  * references files, output the identical file again, and do URL rewriting by adding prefixes to
  * relative URLs.
+ *
+ * https://datatracker.ietf.org/doc/html/draft-pantos-hls-rfc8216bis
  */
 public class HLSParser {
 	private static final String EXT = "#EXT";
@@ -194,70 +197,37 @@ public class HLSParser {
 	}
 
 	public void prefillCache(HLSFileCache fileCache) {
-		if (map != null)
-			fileCache.addToCache(map.file, map.byterange);
+		// add all files to the cache list, but download only the map, footer, and up to 2 files
+		if (map != null) {
+			CachedFile cf = fileCache.addToCache(map.file, map.byterange, true);
+			cf.keep = true;
+		}
 
+		boolean first = true;
 		for (HLSSegment s : playlist) {
 			if (s.gap)
 				continue;
 
-			fileCache.addToCache(s.file, s.byterange);
+			fileCache.addToCache(s.file, s.byterange, first);
+			first = false;
 			for (String ss : s.parts) {
-				fileCache.addToCache(ss, null);
+				fileCache.addToCache(ss, null, false);
 			}
-
-			// TODO: samples tend to have the entire video in the index to start,
-			// so prefilling the entire cache is unnecessary and causes a huge
-			// delay. For now, only cache up to 10 files at a time: works fine
-			// for streaming, only loads ~60s for samples
-			if (fileCache.getSize() > 2)
-				return;
 		}
 
 		if (footerParts != null && footerParts.length > 0) {
 			for (String ss : footerParts) {
-				fileCache.addToCache(ss, null);
+				fileCache.addToCache(ss, null, false);
 			}
+		}
+
+		for (String s : preload) {
+			fileCache.addToCache(s, null, false);
 		}
 	}
 
 	protected static boolean byterangeMatches(int[] a, int[] b) {
 		return ((a == null && b == null) || (a != null && b != null && a[0] == b[0] && a[1] == b[1]));
-	}
-
-	public boolean isValidFile(String name, int[] byterange) {
-		if (name == null)
-			return false;
-
-		if (map != null && map.file.equals(name) && byterangeMatches(map.byterange, byterange)) {
-			return true;
-		}
-
-		for (HLSSegment s : playlist) {
-			if (s.gap)
-				continue;
-
-			if (s.file.equals(name) && byterangeMatches(s.byterange, byterange)) {
-				return true;
-			}
-
-			for (String ss : s.parts) {
-				if (name.equals(ss))
-					return true;
-			}
-		}
-
-		if (footerParts != null && footerParts.length > 0) {
-			for (String ss : footerParts) {
-				if (name.equals(ss))
-					return true;
-			}
-		}
-		return false;
-	}
-
-	public List<String> getPreload() {
-		return preload;
 	}
 
 	public void write(OutputStream out) {
