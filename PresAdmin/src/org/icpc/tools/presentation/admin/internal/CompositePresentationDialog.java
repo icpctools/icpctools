@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.icpc.tools.contest.Trace;
 import org.icpc.tools.presentation.admin.internal.PresentationInfoListControl.DisplayStyle;
 import org.icpc.tools.presentation.core.internal.PresentationInfo;
 
@@ -31,9 +30,9 @@ public class CompositePresentationDialog extends Dialog {
 	private PresentationInfoListControl transitionList;
 	private PresentationInfoListControl buildList;
 
-	protected Button ok;
-	protected boolean save;
 	protected String name, description, category;
+	protected CompositePresentationInfo info;
+	protected CompositePresentationSaveDialog saveDialog;
 
 	public CompositePresentationDialog(Shell parent, List<PresentationInfo> presentations,
 			List<PresentationInfo> transitions) {
@@ -46,8 +45,8 @@ public class CompositePresentationDialog extends Dialog {
 	public CompositePresentationDialog(Shell parent, List<PresentationInfo> presentations,
 			List<PresentationInfo> transitions, CompositePresentationInfo info) {
 		this(parent, presentations, transitions);
-		// TODO - for edit
-
+		// for edit
+		this.info = info;
 	}
 
 	public CompositePresentationInfo getPresentation() {
@@ -87,6 +86,12 @@ public class CompositePresentationDialog extends Dialog {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
+
+		boolean save = saveDialog.isSaveOk();
+		name = saveDialog.getName();
+		description = saveDialog.getDescription();
+		category = saveDialog.getCategory();
+
 		return save;
 	}
 
@@ -100,8 +105,19 @@ public class CompositePresentationDialog extends Dialog {
 		createTransitionSection(comp);
 		createDisplayPlanSection(comp);
 
-		// buttons
-		Composite buttonBar = new Composite(comp, SWT.NONE);
+		// save panel
+		Composite saveSection = new Composite(comp, SWT.NONE);
+		saveSection.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		GridLayout saveLayout = new GridLayout(1, false);
+		saveSection.setLayout(saveLayout);
+
+		saveDialog = new CompositePresentationSaveDialog(comp.getShell(), info);
+		Composite saveInput = new Composite(saveSection, SWT.NONE);
+		saveInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		saveDialog.createUI(saveInput);
+		saveDialog.createButtons(saveSection);
+
+		/*Composite buttonBar = new Composite(comp, SWT.NONE);
 		GridData data = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		data.verticalIndent = 15;
 		buttonBar.setLayoutData(data);
@@ -152,6 +168,39 @@ public class CompositePresentationDialog extends Dialog {
 
 		// TODO contestText.setFocus();
 		comp.getShell().setDefaultButton(cancel);
+		 */
+
+		if (info != null) {
+			buildListFromInfo();
+		}
+	}
+
+	private void buildListFromInfo() {
+		for (PresentationInfo part : info.infos) {
+			PresentationInfo found = null;
+			for (PresentationInfo pres : presentations) {
+				if (pres.equals(part)) {
+					found = pres;
+					break;
+				}
+			}
+			if (found == null) {
+				for (PresentationInfo trans : transitions) {
+					if (trans.equals(part)) {
+						found = trans;
+						break;
+					}
+				}
+			}
+
+			if (found != null) {
+				String data = null;
+				if (part.getData() != null) {
+					data = String.join(",", part.getData());
+				}
+				addToBuild(found, data);
+			}
+		}
 	}
 
 	private void createPresentationSection(Composite parent2) {
@@ -237,10 +286,12 @@ public class CompositePresentationDialog extends Dialog {
 		if (properties != null && properties.length() > 0)
 			newInfo.setData(properties);
 		buildList.add(newInfo);
+		enableOk();
 	}
 
 	protected void enableOk() {
-		ok.setEnabled(!buildList.getPresentationInfos().isEmpty());
+		boolean hasPresentations = !buildList.getPresentationInfos().isEmpty();
+		saveDialog.setPresentationsOk(hasPresentations);
 	}
 
 	private static Button createButton(Composite parent, String text, String tooltip) {
@@ -358,13 +409,29 @@ public class CompositePresentationDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				buildList.clear();
+				enableOk();
 			}
 		});
+		final Label props = new Label(buildComp, SWT.NONE);
+		props.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+
 		buildList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				remove.setEnabled(buildList.getSelection() != null);
 				removeAll.setEnabled(!buildList.getPresentationInfos().isEmpty());
+				if (buildList.getSelection() != null) {
+					PresentationInfo info = buildList.getSelection();
+					if (info.getData() != null) {
+						String text = String.join(", ", info.getData());
+						props.setText(text);
+					} else {
+						props.setText("-");
+					}
+				} else {
+					props.setText("");
+				}
+				buildComp.layout();
 				enableOk();
 			}
 		});
