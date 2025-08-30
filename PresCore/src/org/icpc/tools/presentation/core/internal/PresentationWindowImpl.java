@@ -844,7 +844,7 @@ public class PresentationWindowImpl extends PresentationWindow {
 	}
 
 	private Presentation doFinalSetup(Presentation p) {
-		Dimension d = getSize();
+		Dimension d = getDisplaySize();
 		if (!p.getSize().equals(d))
 			p.setSize(d);
 		p.aboutToShow();
