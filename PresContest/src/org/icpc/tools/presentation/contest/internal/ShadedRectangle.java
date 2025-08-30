@@ -15,6 +15,8 @@ import java.util.HashMap;
 
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Status;
@@ -46,6 +48,10 @@ public class ShadedRectangle {
 	}
 
 	private static Paint getPaint(int h, Status status, boolean recent, boolean fts, long time) {
+		return getPaint(h, status, recent, fts, time, null);
+	}
+
+	private static Paint getPaint(int h, Status status, boolean recent, boolean fts, long time, Float percent) {
 		Color c = null;
 		int i = -1;
 
@@ -67,7 +73,13 @@ public class ShadedRectangle {
 				c = ICPCColors.FIRST_TO_SOLVE[k];
 			} else {
 				i = 110 + k;
-				c = ICPCColors.SOLVED[k];
+
+				if (percent != null) {
+					c = Utility.getColorBetween(ICPCColors.FAILED_COLOR, ICPCColors.SCORING_MID_COLOR,
+							ICPCColors.SOLVED_COLOR, percent);
+				} else {
+					c = ICPCColors.SOLVED[k];
+				}
 			}
 		} else if (status == Status.FAILED) {
 			i = 140 + k;
@@ -81,9 +93,13 @@ public class ShadedRectangle {
 	}
 
 	public static void drawRoundRect(Graphics2D g, int x, int y, int w, int h, IContest contest, IResult result,
-			long time, String s) {
+			IProblem problem, long time, String s) {
+		Float percent = null;
+		if (contest.getScoreboardType() == ScoreboardType.SCORE && problem.getMaxScore() != null) {
+			percent = (float) Math.min(result.getScore() / problem.getMaxScore(), 1);
+		}
 		Paint paint = getPaint(h, result.getStatus(), ContestUtil.isRecent(contest, result), result.isFirstToSolve(),
-				time);
+				time, percent);
 		Color outline = null;
 		if (result.isFirstToSolve())
 			outline = ICPCColors.SOLVED_COLOR;

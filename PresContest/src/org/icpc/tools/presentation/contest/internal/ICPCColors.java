@@ -9,6 +9,8 @@ public class ICPCColors {
 	public static final Color YELLOW = new Color(255, 223, 54);
 	public static final Color RED = new Color(196, 58, 36);
 
+	public static final Color SCORING_MID_COLOR = new Color(230, 230, 0).darker();
+
 	public static final Color PENDING_COLOR = new Color(66, 114, 245);
 	public static final Color SOLVED_COLOR = new Color(0, 230, 0);
 	public static final Color FIRST_TO_SOLVE_COLOR = new Color(0, 100, 0);
