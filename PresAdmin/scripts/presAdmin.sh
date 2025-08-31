@@ -13,7 +13,7 @@ if [ "$UNAME" == "Darwin" ]; then
 fi
 
 while true; do
-  java $vmoptions -jar lib/swtLauncher.jar org.icpc.tools.presentation.admin.internal.Admin "$@"
+  java $vmoptions -cp lib/swtLauncher.jar org.icpc.tools.contest.SWTLauncher org.icpc.tools.presentation.admin.internal.Admin "$@"
   result=$?
   if [ $result = 254 ]
   then

@@ -47,7 +47,7 @@
       </exec>
    </target>
    <target name="jar" depends="build,version">
-      <jar destfile="staging/${jar.name}.jar" basedir="bin" manifest="src/META-INF/MANIFEST.MF">
+      <jar destfile="staging/${jar.name}.jar" basedir="bin">
          <manifest>
             <attribute name="Specification-Version" value="${version}"/>
             <attribute name="Implementation-Title" value="${title}"/>

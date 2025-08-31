@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: org.icpc.tools.presentation.contest.internal.CDSPresentationClient
-Class-Path: contestModel.jar presentCore.jar

@@ -15,4 +15,4 @@ goto :loop
 
 :continue
 
-java -jar "%LIBDIR%\swtLauncher.jar" org.icpc.tools.contest.util.problemset.ProblemSetEditor %params% 
+java -cp "%LIBDIR%\swtLauncher.jar" org.icpc.tools.contest.SWTLauncher org.icpc.tools.contest.util.problemset.ProblemSetEditor %params% 
