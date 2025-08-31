@@ -119,20 +119,22 @@ public class TeamPDFService {
 		Image logoImg = null;
 		if (org != null) {
 			BufferedImage image = org.getLogoImage(1024, 1024, true, false);
-			logoImg = Image.getInstance(image, null);
-			float scale = (float) (72f * r.getHeight() / 2f / Math.max(logoImg.getWidth(), logoImg.getHeight()));
-			logoImg.scalePercent(scale);
-			logoImg.setAbsolutePosition((float) r.getMinX(), (float) r.getMinY());
-			cb.addImage(logoImg);
+			if (image != null) {
+				logoImg = Image.getInstance(image, null);
+				float scale = (float) (72f * r.getHeight() / 2f / Math.max(logoImg.getWidth(), logoImg.getHeight()));
+				logoImg.scalePercent(scale);
+				logoImg.setAbsolutePosition((float) (r.getMinX() + r.getWidth() * 0.1f), (float) r.getMinY());
+				cb.addImage(logoImg);
+			}
 		}
 
 		cb.beginText();
-		cb.setFontAndSize(font, 14);
-		String[] s = splitText(team.getActualDisplayName(), cb, r.getWidth());
-		float y = (float) (r.getMaxY() - r.getHeight() / 4f);
+		cb.setFontAndSize(font, 20);
+		String[] s = splitText(team.getActualDisplayName(), cb, r.getWidth() * 0.92);
+		float y = (float) (r.getMaxY() - r.getHeight() / 4.5f);
 		for (String ss : s) {
 			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, ss, (float) (r.getX() + r.getWidth() / 2f), y, 0);
-			y -= r.getHeight() / 8;
+			y -= r.getHeight() / 7;
 		}
 
 		cb.setFontAndSize(font, 32);
@@ -146,9 +148,10 @@ public class TeamPDFService {
 		QRCode.drawQRCode(g, team.getLabel(), 0, 0, 500);
 		g.dispose();
 		Image qrImg = Image.getInstance(image, null);
-		float scale = (float) (72f * r.getHeight() / 2f / qrImg.getWidth());
+		float scale = (float) (72f * r.getHeight() / 2f / qrImg.getWidth() * 0.7f);
 		qrImg.scalePercent(scale);
-		qrImg.setAbsolutePosition((float) (r.getMaxX() - qrImg.getScaledWidth()), (float) r.getMinY());
+		qrImg.setAbsolutePosition((float) (r.getMaxX() - qrImg.getScaledWidth() - r.getWidth() * 0.1f),
+				(float) r.getMinY());
 		cb.addImage(qrImg);
 	}
 
@@ -168,10 +171,10 @@ public class TeamPDFService {
 			if (cb.getEffectiveStringWidth(sb.toString() + word, true) > width) {
 				if (sb.length() == 0) {
 					// just a really long word, add anyway
-					list.add(sb.toString() + word);
+					list.add((sb.toString() + word).trim());
 					sb = new StringBuilder();
 				} else {
-					list.add(sb.toString());
+					list.add(sb.toString().trim());
 					sb = new StringBuilder(word);
 				}
 			} else {
@@ -179,7 +182,7 @@ public class TeamPDFService {
 			}
 		}
 
-		list.add(sb.toString());
+		list.add(sb.toString().trim());
 
 		return list.toArray(new String[0]);
 	}
