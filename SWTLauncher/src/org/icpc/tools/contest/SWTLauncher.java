@@ -30,7 +30,7 @@ public class SWTLauncher {
 	}
 
 	public static void main(String[] args) {
-		if (args == null || args.length < 2) {
+		if (args == null || args.length < 1) {
 			System.err.println("Error: Missing SWT launcher arguments");
 			return;
 		}
