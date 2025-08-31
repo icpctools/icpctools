@@ -105,8 +105,8 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 				if (ti.logo != null) {
 					if (ti.photo != null) {
 						// if there's a photo, put the logo on the top right
-						g.drawImage(ti.logo, (width + ti.photo.getWidth() - ti.logo.getWidth()) / 2,
-								(height - ti.photo.getHeight() - ti.logo.getHeight()) / 2, null);
+						int y = Math.max(0, (height - ti.photo.getHeight() - ti.logo.getHeight()) / 2);
+						g.drawImage(ti.logo, (width + ti.photo.getWidth() - ti.logo.getWidth()) / 2, y, null);
 					} else {
 						// otherwise, center it on the screen
 						g.drawImage(ti.logo, (width - ti.logo.getWidth()) / 2, (height - ti.logo.getHeight()) / 2, null);
