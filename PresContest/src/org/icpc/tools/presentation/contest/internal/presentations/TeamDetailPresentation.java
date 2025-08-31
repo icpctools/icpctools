@@ -53,7 +53,12 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 		String orgId = team.getOrganizationId();
 		IOrganization org = getContest().getOrganizationById(orgId);
 		if (org != null) {
-			newInfo.logo = org.getLogoImage((int) (width * 0.32), (int) ((height - MARGIN * 2) * 0.32), true, true);
+			double scale = 0.32;
+			if (newInfo.photo == null) {
+				// if there's no photo, load a larger logo
+				scale = 0.7;
+			}
+			newInfo.logo = org.getLogoImage((int) (width * scale), (int) ((height - MARGIN * 2) * scale), true, true);
 		}
 		newInfo.id = team.getId();
 		newInfo.name = team.getLabel() + " – " + team.getActualDisplayName();
@@ -97,9 +102,16 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 			synchronized (ti) {
 				if (ti.photo != null)
 					g.drawImage(ti.photo, (width - ti.photo.getWidth()) / 2, (height - ti.photo.getHeight()) / 2, null);
-				if (ti.logo != null)
-					g.drawImage(ti.logo, (width + ti.photo.getWidth() - ti.logo.getWidth()) / 2,
-							(height - ti.photo.getHeight() - ti.logo.getHeight()) / 2, null);
+				if (ti.logo != null) {
+					if (ti.photo != null) {
+						// if there's a photo, put the logo on the top right
+						g.drawImage(ti.logo, (width + ti.photo.getWidth() - ti.logo.getWidth()) / 2,
+								(height - ti.photo.getHeight() - ti.logo.getHeight()) / 2, null);
+					} else {
+						// otherwise, center it on the screen
+						g.drawImage(ti.logo, (width - ti.logo.getWidth()) / 2, (height - ti.logo.getHeight()) / 2, null);
+					}
+				}
 
 				g.setColor(Color.WHITE);
 				g.setFont(font);
