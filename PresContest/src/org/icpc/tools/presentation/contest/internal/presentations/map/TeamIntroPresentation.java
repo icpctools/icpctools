@@ -155,7 +155,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 	private static IGroup[] nonEmptyGroups(IContest contest) {
 		HashSet<String> groupIdsWithTeams = new HashSet<>();
 		for (ITeam t : contest.getTeams()) {
-			if (contest.isTeamHidden(t)) {
+			if (contest.isTeamHidden(t) || t.getGroupIds() == null) {
 				continue;
 			}
 			groupIdsWithTeams.addAll(Arrays.asList(t.getGroupIds()));
@@ -440,7 +440,8 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		g.setComposite(AlphaComposite.SrcOver.derive(1f));
 		g.setColor(Color.WHITE);
 		if ((text.getWidth() + border * 2) <= width) {
-			text.drawFit(Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2, width - border * 2);
+			text.drawFit(Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2,
+					width - border * 2);
 		} else {
 			TextHelper textImage = new TextHelper(g);
 			if (pos.smImage != null) {
@@ -452,7 +453,8 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 			text.addString(pos.label);
 
 			textImage.draw(0, y + (h - textImage.getHeight()) / 2);
-			text.drawFit(pos.smImage.getWidth() + Math.max(border, width - text.getWidth()) / 2, y + (h - text.getHeight()) / 2, width - border * 2 - pos.smImage.getWidth());
+			text.drawFit(pos.smImage.getWidth() + Math.max(border, width - text.getWidth()) / 2,
+					y + (h - text.getHeight()) / 2, width - border * 2 - pos.smImage.getWidth());
 		}
 	}
 }
