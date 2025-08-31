@@ -11,4 +11,5 @@
 2021	Seoul National University	11
 2022	University of Oxford	6
 2023	Tokyo Institute of Technology	10
-2024	?	-1
+2024	University of Zagreb	7
+2025	?	-1
