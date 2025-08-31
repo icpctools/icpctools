@@ -53,12 +53,12 @@ public class SWTLauncher {
 			}
 
 			URLClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
-			Class<?> c = cl.loadClass(args[1]);
+			Class<?> c = cl.loadClass(args[0]);
 			Method m = c.getMethod("main", String[].class);
 
 			int size = args.length;
-			String[] newAgs = new String[size - 2];
-			System.arraycopy(args, 2, newAgs, 0, size - 2);
+			String[] newAgs = new String[size - 1];
+			System.arraycopy(args, 1, newAgs, 0, size - 1);
 			m.invoke(null, (Object) newAgs);
 			cl.close();
 		} catch (Exception e) {
