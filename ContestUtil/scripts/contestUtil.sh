@@ -2,5 +2,5 @@
 
 libdir=`dirname "$0"`/lib
 
-java -jar "$libdir/contestUtil.jar" "$@"
+java -cp "$libdir/contestUtil.jar" org.icpc.tools.contest.SWTLauncher org.icpc.tools.contest.util.Launcher "$@"
 exit 0

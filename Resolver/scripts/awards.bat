@@ -15,4 +15,4 @@ goto :loop
 
 :continue
 
-java -jar "%LIBDIR%\swtLauncher.jar" org.icpc.tools.resolver.awards.Awards %params%
+java -cp "%LIBDIR%\swtLauncher.jar" org.icpc.tools.contest.SWTLauncher org.icpc.tools.resolver.awards.Awards %params%

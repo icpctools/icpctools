@@ -2,4 +2,4 @@
 
 set LIBDIR=%~dp0\lib
 
-java -jar "%LIBDIR%\contestUtil.jar" %1 %2 %3 %4 %5
+java -cp "%LIBDIR%\contestUtil.jar" org.icpc.tools.contest.SWTLauncher org.icpc.tools.contest.util.Launcher %1 %2 %3 %4 %5
