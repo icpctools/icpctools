@@ -20,13 +20,10 @@ import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAccount;
-import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
-import org.icpc.tools.contest.model.IPerson;
-import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
@@ -645,8 +642,6 @@ public class ConfiguredContest {
 			source.addListener(new ContestSourceListener() {
 				@Override
 				public void stateChanged(ConnectionState state2) {
-					if (ContestSource.ConnectionState.CONNECTED.equals(state2))
-						pc.setConfigurationLoaded();
 					if (ContestSource.ConnectionState.CONNECTING.equals(state2))
 						Trace.trace(Trace.USER, "Reading contest: " + id);
 					else if (ContestSource.ConnectionState.COMPLETE.equals(state2))
@@ -724,58 +719,6 @@ public class ConfiguredContest {
 
 		ITeam team = contest.getTeamById(sub.getTeamId());
 		return contest.isTeamHidden(team);
-	}
-
-	protected IContestObject filterHidden(IContestObject obj) {
-		if (obj instanceof IGroup) {
-			IGroup group = (IGroup) obj;
-			if (group.isHidden())
-				return null;
-		} else if (obj instanceof ITeam) {
-			ITeam team = (ITeam) obj;
-			if (contest.isTeamHidden(team))
-				return null;
-		} else if (obj instanceof IPerson) {
-			IPerson person = (IPerson) obj;
-			ITeam team = contest.getTeamById(person.getTeamId());
-			if (contest.isTeamHidden(team))
-				return null;
-		} else if (obj instanceof ISubmission) {
-			ISubmission sub = (ISubmission) obj;
-			ITeam team = contest.getTeamById(sub.getTeamId());
-			if (contest.isTeamHidden(team))
-				return null;
-		} else if (obj instanceof IRun) {
-			IRun run = (IRun) obj;
-			IJudgement j = contest.getJudgementById(run.getJudgementId());
-			if (isJudgementHidden(j))
-				return null;
-		} else if (obj instanceof IJudgement) {
-			IJudgement j = (IJudgement) obj;
-			if (isJudgementHidden(j))
-				return null;
-		} else if (obj instanceof IClarification) {
-			IClarification clar = (IClarification) obj;
-			ITeam team = contest.getTeamById(clar.getFromTeamId());
-			if (contest.isTeamHidden(team))
-				return null;
-			if (clar.getToTeamIds() != null) {
-				for (String teamId : clar.getToTeamIds()) {
-					team = contest.getTeamById(teamId);
-					if (contest.isTeamHidden(team))
-						return null;
-				}
-			}
-			if (clar.getToGroupIds() != null) {
-				for (String groupId : clar.getToGroupIds()) {
-					IGroup group = contest.getGroupById(groupId);
-					if (group != null && group.isHidden())
-						return null;
-				}
-			}
-		}
-
-		return obj;
 	}
 
 	public void incrementRest() {

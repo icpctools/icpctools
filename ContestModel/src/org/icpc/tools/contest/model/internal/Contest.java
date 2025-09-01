@@ -165,6 +165,10 @@ public class Contest implements IContest {
 		addKnownProperty(obj.getType(), obj.getProperties());
 	}
 
+	public void setConfigurationLoaded() {
+		// do nothing
+	}
+
 	public void addKnownProperty(IContestObject.ContestType type, Map<String, Object> props) {
 		if (type == null || props == null)
 			return;

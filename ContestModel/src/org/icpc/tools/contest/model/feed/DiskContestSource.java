@@ -805,6 +805,7 @@ public class DiskContestSource extends ContestSource {
 		contest.addModifier(mod);
 
 		loadConfigFiles();
+		contest.setConfigurationLoaded();
 
 		// load event feed
 		File feedFile = eventFeedFile;
