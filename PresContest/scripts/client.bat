@@ -20,9 +20,15 @@ echo "Update downloaded, applying"
 rmdir "%LIBDIR%" /s /q
 robocopy "%ROOTDIR%\update" "%ROOTDIR%\" /e /move
 
+:cache
+echo "Clearing cache"
+powershell.exe -Command "& {rm -force -r $env:TEMP/org.icpc.*}"
+rem for /D %G in (""%TMP%\org.icpc.tools.cache*") do rd /s /q "%~G"
+
 :restart
 
 java -Xmx4096m -cp "%LIBDIR%\*" org.icpc.tools.presentation.contest.internal.ClientLauncher %params%  
 
 if errorlevel 255 goto :restart
 if errorlevel 254 goto :update
+if errorlevel 253 goto :cache

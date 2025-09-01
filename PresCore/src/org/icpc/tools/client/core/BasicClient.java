@@ -309,6 +309,8 @@ public class BasicClient {
 			System.exit(0);
 		else if ("restart".equals(action))
 			System.exit(255);
+		else if ("cache".equals(action))
+			System.exit(253);
 
 		if (!obj.containsKey("source"))
 			return;
@@ -426,6 +428,10 @@ public class BasicClient {
 
 	public void sendRestart(int[] clientUIDs) throws IOException {
 		sendCommand(clientUIDs, "restart");
+	}
+
+	public void sendCacheRestart(int[] clientUIDs) throws IOException {
+		sendCommand(clientUIDs, "cache");
 	}
 
 	public void sendLogRequest(int[] clientUIDs) throws IOException {
