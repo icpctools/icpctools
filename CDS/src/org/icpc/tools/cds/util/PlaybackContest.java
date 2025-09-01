@@ -422,19 +422,12 @@ public class PlaybackContest extends Contest {
 		}
 
 		ContestType type = obj.getType();
-		boolean configType = true;
 		if (type == ContestType.CONTEST || type == ContestType.PROBLEM || type == ContestType.GROUP
 				|| type == ContestType.LANGUAGE || type == ContestType.JUDGEMENT_TYPE || type == ContestType.TEAM
 				|| type == ContestType.PERSON || type == ContestType.ORGANIZATION) {
 			applyDefaults(obj);
-			configType = true;
-		}
 
-		if (!configurationLoaded) {
-			if (!configType)
-				configurationLoaded = true;
-			else {
-				applyDefaults(obj);
+			if (!configurationLoaded) {
 				defaultConfig.add(obj);
 			}
 		}
@@ -525,6 +518,7 @@ public class PlaybackContest extends Contest {
 		super.add(obj);
 	}
 
+	@Override
 	public void setConfigurationLoaded() {
 		configurationLoaded = true;
 	}
