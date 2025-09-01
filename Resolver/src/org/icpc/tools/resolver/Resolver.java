@@ -1,6 +1,7 @@
 package org.icpc.tools.resolver;
 
 import java.awt.Taskbar;
+import java.awt.Taskbar.Feature;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
@@ -185,7 +186,8 @@ public class Resolver {
 		} catch (Exception e) {
 			// could not set title or icon
 		}
-		Taskbar.getTaskbar().setIconImage(iconImage);
+		if (Taskbar.isTaskbarSupported() && Taskbar.getTaskbar().isSupported(Feature.ICON_IMAGE))
+			Taskbar.getTaskbar().setIconImage(iconImage);
 
 		for (ContestSource cs : contestSources) {
 			cs.outputValidation();
@@ -473,7 +475,7 @@ public class Resolver {
 				TeamDisplay.overrideDisplayName(finalContest[con], displayName);
 
 			if (test) {
-				contestSources[con].waitForContest(15000);
+				contestSources[con].waitForContest(25000);
 				if (finalContest[con].getState().isFinal()) {
 					Trace.trace(Trace.ERROR, "Test mode cannot be used on contests that are finalized.");
 					System.exit(1);
@@ -481,7 +483,7 @@ public class Resolver {
 				Trace.trace(Trace.INFO, "Test mode active");
 			} else {
 				// not test mode
-				if (!contestSources[con].waitForContest(20000))
+				if (!contestSources[con].waitForContest(30000))
 					Trace.trace(Trace.ERROR, "Could not load complete contest");
 			}
 
