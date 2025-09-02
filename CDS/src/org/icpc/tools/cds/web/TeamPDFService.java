@@ -85,7 +85,7 @@ public class TeamPDFService {
 		});
 
 		PdfContentByte cb = writer.getDirectContent();
-		BaseFont font2 = BaseFont.createFont(BaseFont.HELVETICA, "UTF-8", false);
+		BaseFont font2 = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, false);
 
 		Rectangle r = document.getPageSize();
 		int w = (int) ((r.getWidth() - H_MARGIN * 2) / NUM_COLS);
@@ -156,7 +156,11 @@ public class TeamPDFService {
 	}
 
 	private static String[] splitText(String src, PdfContentByte cb, double width) {
-		if (src == null || cb.getEffectiveStringWidth(src, true) < width || src.length() < 6)
+		if (src == null) {
+			return new String[] {};
+		}
+
+		if (cb.getEffectiveStringWidth(src, true) < width || src.length() < 6)
 			return new String[] { src };
 
 		Matcher m = Pattern.compile(".+?[ \\t]|.+?(?:\n)|.+?$").matcher(src);
