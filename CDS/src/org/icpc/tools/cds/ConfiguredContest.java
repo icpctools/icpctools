@@ -570,6 +570,10 @@ public class ConfiguredContest {
 				}
 				count++;
 			}
+			if (count == 20) {
+				Trace.trace(Trace.WARNING,
+						"Configuration was not loaded after 2s, allowing account access to " + account.getId());
+			}
 
 			IContestObject[] objs = contest.getObjects();
 			for (IContestObject co : objs)
