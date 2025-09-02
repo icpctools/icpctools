@@ -351,46 +351,52 @@ public class ClientsControl extends Canvas {
 		ImageLoader il = new ImageLoader();
 		ImageData[] id2 = il.load(new ByteArrayInputStream(b));
 
-		Device device = getDisplay();
-		Image img = new Image(device, id2[0]);
-
 		// rescale if necessary
-		Dimension d = IMG_DIM;
+		Dimension dd = IMG_DIM;
 		synchronized (uiLock) {
 			ClientInfo ci = clientStates.get(id);
 			if (ci != null && ci.displayConfig != null && ci.displayConfig.id != -1) {
 				DisplayConfig dc = ci.displayConfig;
-				d = new Dimension(IMG_DIM.width / dc.ww, IMG_DIM.height / dc.hh);
+				dd = new Dimension(IMG_DIM.width / dc.ww, IMG_DIM.height / dc.hh);
 			}
 		}
+		final Dimension d = dd;
 
-		Rectangle r = img.getBounds();
-		double scale = Math.min((float) d.width / (float) r.width, (float) d.height / (float) r.height);
-		if (scale != 1.0) {
-			Point p = new Point((int) (r.width * scale), (int) (r.height * scale));
+		// rescale thumbnails on SWT thread
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				Device device = getDisplay();
+				Image img = new Image(device, id2[0]);
+				Rectangle r = img.getBounds();
+				double scale = Math.min((float) d.width / (float) r.width, (float) d.height / (float) r.height);
+				if (scale != 1.0) {
+					Point p = new Point((int) (r.width * scale), (int) (r.height * scale));
 
-			Image img2 = new Image(device, p.x, p.y);
-			GC gc = new GC(img2);
-			gc.drawImage(img, 0, 0, r.width, r.height, 0, 0, p.x, p.y);
-			gc.dispose();
+					Image img2 = new Image(device, p.x, p.y);
+					GC gc = new GC(img2);
+					gc.drawImage(img, 0, 0, r.width, r.height, 0, 0, p.x, p.y);
+					gc.dispose();
 
-			img.dispose();
-			img = img2;
-		}
+					img.dispose();
+					img = img2;
+				}
 
-		Image oldImg = null;
-		synchronized (uiLock) {
-			ClientInfo ci = clientStates.get(id);
-			if (ci == null)
-				ci = new ClientInfo();
-			oldImg = ci.thumbnail;
-			ci.thumbnail = img;
-			clientStates.put(id, ci);
-			if (oldImg != null)
-				oldImg.dispose();
-		}
+				Image oldImg = null;
+				synchronized (uiLock) {
+					ClientInfo ci = clientStates.get(id);
+					if (ci == null)
+						ci = new ClientInfo();
+					oldImg = ci.thumbnail;
+					ci.thumbnail = img;
+					clientStates.put(id, ci);
+					if (oldImg != null)
+						oldImg.dispose();
+				}
 
-		doRedraw();
+				doRedraw();
+			}
+		});
 	}
 
 	private String getNameFromUID(int uid) {
