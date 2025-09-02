@@ -561,6 +561,16 @@ public class ConfiguredContest {
 			ac = AccountHelper.createAccountContest(account);
 			ac.setHashCode(contest.hashCode());
 
+			int count = 0;
+			while (!contest.isConfigurationLoaded() && count < 20) {
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+					// ignore
+				}
+				count++;
+			}
+
 			IContestObject[] objs = contest.getObjects();
 			for (IContestObject co : objs)
 				ac.add(co);

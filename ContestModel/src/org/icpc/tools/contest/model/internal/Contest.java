@@ -85,6 +85,7 @@ public class Contest implements IContest {
 	private long lastEventTime;
 	private IContestObject lastTimedEvent;
 	private int lastTimedEventIndex;
+	private boolean isConfigLoaded;
 
 	// map of known properties for each contest type
 	@SuppressWarnings("unchecked")
@@ -165,8 +166,12 @@ public class Contest implements IContest {
 		addKnownProperty(obj.getType(), obj.getProperties());
 	}
 
+	public boolean isConfigurationLoaded() {
+		return isConfigLoaded;
+	}
+
 	public void setConfigurationLoaded() {
-		// do nothing
+		isConfigLoaded = true;
 	}
 
 	public void addKnownProperty(IContestObject.ContestType type, Map<String, Object> props) {
