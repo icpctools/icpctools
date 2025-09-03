@@ -276,7 +276,9 @@ public class AwardUtil {
 				a.setTeamIds(new String[] { team.getId() });
 				if (a.getCitation() == null)
 					a.setCitation(Messages.getString("awardFTSOne").replace("{0}", p.getLabel()));
-				a.setDisplayMode(mode);
+				if (a.getDisplayMode() == null) {
+					a.setDisplayMode(mode);
+				}
 			}
 		}
 	}
@@ -285,6 +287,9 @@ public class AwardUtil {
 		if (template.getId().equals("first-to-solve-*")) {
 			for (IProblem problem : contest.getProblems()) {
 				Award ftsAward = new Award(IAward.FIRST_TO_SOLVE, problem.getId(), null, (String) null);
+				if (template.getDisplayMode() != null) {
+					ftsAward.setDisplayMode(template.getDisplayMode());
+				}
 				contest.add(ftsAward);
 				assignFirstToSolve(contest, ftsAward);
 			}
