@@ -568,6 +568,10 @@ public class ResolverLogic {
 							steps.add(new AwardStep(team.getId(), teamAwards));
 							steps.add(new PauseStep());
 
+							for (IAward award : teamAwards) {
+								checkAfterAwards(award.getId());
+							}
+
 							// go back to the scoreboard presentation
 							backToScoreboard = true;
 						}
