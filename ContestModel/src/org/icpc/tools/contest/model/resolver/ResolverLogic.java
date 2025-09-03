@@ -46,6 +46,7 @@ import org.icpc.tools.contest.model.util.AwardUtil;
 public class ResolverLogic {
 	private static final String AFTER = "after";
 	private static final String AFTER_ID = "afterId";
+	private static final String SHOW_SCOREBOARD = "showScoreboard";
 
 	enum State {
 		SELECT_TEAM, SELECT_PROBLEM, SOLVED_MOVE, SOLVED_STAY, FAILED, DESELECT, SELECT_SUBMISSION
@@ -639,6 +640,10 @@ public class ResolverLogic {
 		IAward award = afterAwards.get(id);
 		Trace.trace(Trace.INFO, "Checking after award: " + id + " " + (award != null));
 		if (award != null) {
+			if ("true".equals(award.getParameters().get(SHOW_SCOREBOARD))) {
+				steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+				steps.add(new PauseStep());
+			}
 			String[] teamIds = award.getTeamIds();
 			int size = teamIds.length;
 
