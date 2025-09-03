@@ -62,7 +62,6 @@ public class PlaybackContest extends Contest {
 	protected double timeMultiplier = Double.NaN;
 	protected Long startTime;
 	private Contest defaultConfig = new Contest(false);
-	protected boolean configurationLoaded;
 
 	public PlaybackContest(ConfiguredContest cc) {
 		contestId = cc.getId();
@@ -427,7 +426,7 @@ public class PlaybackContest extends Contest {
 				|| type == ContestType.PERSON || type == ContestType.ORGANIZATION) {
 			applyDefaults(obj);
 
-			if (!configurationLoaded) {
+			if (!isConfigurationLoaded()) {
 				defaultConfig.add(obj);
 			}
 		}
@@ -516,11 +515,6 @@ public class PlaybackContest extends Contest {
 		}
 
 		super.add(obj);
-	}
-
-	@Override
-	public void setConfigurationLoaded() {
-		configurationLoaded = true;
 	}
 
 	private void applyDefaults(IContestObject obj) {
