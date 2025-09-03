@@ -20,7 +20,12 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.*;
+import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContestObject;
+import org.icpc.tools.contest.model.IGroup;
+import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
@@ -94,8 +99,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 
 			// Special case for 2 teams in 1 row: don't use full height
 			if (c.numRows == 1 && c.numColumns == 2)
-				c.tileDim = new Dimension((width - gap - 1) / c.numColumns,
-						(height - header - 2 * gap - 1) / 2);
+				c.tileDim = new Dimension((width - gap - 1) / c.numColumns, (height - header - 2 * gap - 1) / 2);
 			else
 				c.tileDim = new Dimension((width - (c.numColumns - 1) * gap - 1) / c.numColumns,
 						(height - header - gap - (c.numRows - 1) * gap - 1) / c.numRows);
@@ -189,7 +193,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			if (team == null)
 				return;
 
-			if (c.teamPhotos.get(teamId) == null)
+			if (c.teamPhotos.get(teamId) == null && team.getPhoto() != null && !team.getPhoto().isEmpty())
 				c.teamPhotos.put(teamId, team.getPhotoImage(c.tileDim.width, c.tileDim.height, true, true));
 
 			IContest contest = getContest();
@@ -197,7 +201,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			if (org == null)
 				return;
 
-			if (c.teamLogos.get(teamId) == null)
+			if (c.teamLogos.get(teamId) == null && org.getLogo() != null && !org.getLogo().isEmpty())
 				c.teamLogos.put(teamId, org.getLogoImage(c.tileDim.height / 8, c.tileDim.height / 8, true, true));
 		}
 	}
@@ -233,7 +237,7 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			teams[i] = getContest().getTeamById(teamIds[i]);
 			String[] groupNames = new String[teams[i].getGroupIds().length];
 			for (int j = 0; j < teams[i].getGroupIds().length; j++) {
-				IGroup group =  getContest().getGroupById(teams[i].getGroupIds()[j]);
+				IGroup group = getContest().getGroupById(teams[i].getGroupIds()[j]);
 				groupNames[j] = group.getName();
 			}
 
@@ -285,13 +289,14 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		fm = g.getFontMetrics();
 
-		boolean showGroupName = award.getParameters() != null && award.getParameters().containsKey("showGroupName") && award.getParameters().get("showGroupName").equals("true");
+		boolean showGroupName = award.getParameters() != null && award.getParameters().containsKey("showGroupName")
+				&& award.getParameters().get("showGroupName").equals("true");
 
 		int x = 0;
 		int y = 0;
 		int yOffset = 0;
 		// Special case for 2 teams in 1 row: center them vertically
- 		if (c.numColumns == 2 && c.numRows == 1) {
+		if (c.numColumns == 2 && c.numRows == 1) {
 			yOffset = (c.tileDim.height + gap) / 2;
 		}
 		int size = teams.length;
@@ -345,8 +350,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				text.addString(groupNamesPerTeam.get(t.getId()));
 				b = text.getBounds();
 				g.translate(xx + c.tileDim.width / 2, 0);
-				text.drawFit(-Math.min((c.tileDim.width - gap * 2) / 2, text.getWidth() / 2),
-						yy + gap, c.tileDim.width - gap * 2);
+				text.drawFit(-Math.min((c.tileDim.width - gap * 2) / 2, text.getWidth() / 2), yy + gap,
+						c.tileDim.width - gap * 2);
 				g.translate(-xx - c.tileDim.width / 2, 0);
 			}
 
