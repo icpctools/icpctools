@@ -562,7 +562,7 @@ public class ConfiguredContest {
 			ac.setHashCode(contest.hashCode());
 
 			int count = 0;
-			while (!contest.isConfigurationLoaded() && count < 20) {
+			while (!contest.isConfigurationLoaded() && count < 40) {
 				try {
 					Thread.sleep(100);
 				} catch (Exception e) {
@@ -572,7 +572,7 @@ public class ConfiguredContest {
 			}
 			if (count == 20) {
 				Trace.trace(Trace.WARNING,
-						"Configuration was not loaded after 2s, allowing account access to " + account.getId());
+						"Configuration was not loaded after 4s, allowing account access to " + account.getId());
 			}
 
 			contest.addListenerFromStart((contest2, obj, d) -> {
