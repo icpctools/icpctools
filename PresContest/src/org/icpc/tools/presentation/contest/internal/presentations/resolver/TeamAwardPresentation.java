@@ -108,6 +108,19 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 				for (ResolutionStep step : steps) {
 					if (step instanceof AwardStep) {
 						AwardStep as = (AwardStep) step;
+
+						// if this award screen was already shown, just reuse the previous
+						// cache (same photo, awards).
+						boolean alreadyCached = false;
+						for (Cache cc : list) {
+							if (cc.teamId.equals(as.teamId)) {
+								alreadyCached = true;
+								break;
+							}
+						}
+						if (alreadyCached)
+							continue;
+
 						Cache c = new Cache();
 						c.teamId = as.teamId;
 
