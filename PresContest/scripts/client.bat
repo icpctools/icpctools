@@ -19,11 +19,12 @@ goto :loop
 echo "Update downloaded, applying"
 rmdir "%LIBDIR%" /s /q
 robocopy "%ROOTDIR%\update" "%ROOTDIR%\" /e /move
+goto :restart
 
 :cache
 echo "Clearing cache"
 powershell.exe -Command "& {rm -force -r $env:TEMP/org.icpc.*}"
-rem for /D %G in (""%TMP%\org.icpc.tools.cache*") do rd /s /q "%~G"
+goto :restart
 
 :restart
 
