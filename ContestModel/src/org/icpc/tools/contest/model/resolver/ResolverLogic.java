@@ -44,6 +44,9 @@ import org.icpc.tools.contest.model.util.AwardUtil;
  * the resolution will take.
  */
 public class ResolverLogic {
+	private static final String AFTER = "after";
+	private static final String AFTER_ID = "afterId";
+
 	enum State {
 		SELECT_TEAM, SELECT_PROBLEM, SOLVED_MOVE, SOLVED_STAY, FAILED, DESELECT, SELECT_SUBMISSION
 	}
@@ -108,6 +111,7 @@ public class ResolverLogic {
 	// map from all the teamIds getting an award to the list of awards they're getting
 	private Map<String, List<IAward>> awards = new HashMap<>();
 	private List<ListAwardStep> teamLists = new ArrayList<>();
+	private Map<String, IAward> afterAwards = new HashMap<>();
 
 	private List<ResolutionStep> steps = new ArrayList<>();
 
@@ -166,7 +170,15 @@ public class ResolverLogic {
 		for (IAward award : contestAwards) {
 			String[] teamIds = award.getTeamIds();
 			if (teamIds != null) {
-				if (award.getDisplayMode() == DisplayMode.IGNORE || teamIds.length == 0) {
+				if (award.getParameters() != null && award.getParameters().containsKey(AFTER_ID)) {
+					String afterId = award.getParameters().get(AFTER_ID);
+					IAward aw = afterAwards.get(afterId);
+					if (aw != null) {
+						Trace.trace(Trace.ERROR, afterId + " is duplicated, chain awards instead");
+						System.exit(0);
+					}
+					afterAwards.put(afterId, award);
+				} else if (award.getDisplayMode() == DisplayMode.IGNORE || teamIds.length == 0) {
 					// requested to ignore, or no/empty award
 				} else if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
 					for (String teamId : teamIds) {
@@ -188,7 +200,9 @@ public class ResolverLogic {
 					}
 
 					ListAwardStep step = new ListAwardStep(award, teams, selections,
-							award.getDisplayMode() == DisplayMode.PHOTOS, award.getParameters() != null && award.getParameters().containsKey("after") && award.getParameters().get("after").equals("true"));
+							award.getDisplayMode() == DisplayMode.PHOTOS,
+							award.getParameters() != null && award.getParameters().containsKey(AFTER)
+									&& award.getParameters().get(AFTER).equals("true"));
 					teamLists.add(step);
 				}
 			}
@@ -450,6 +464,7 @@ public class ResolverLogic {
 						steps.add(new ScrollTeamListStep(false));
 					}
 					steps.add(new PauseStep());
+					checkAfterAwards(step.award.getId());
 					if (judgeStep != null) {
 						int size = judgeRuns.size();
 						String[] ii = new String[size];
@@ -491,6 +506,7 @@ public class ResolverLogic {
 								awards.remove(missedTeam.getId());
 							}
 						}
+						checkAfterAwards("judge-queue");
 					}
 
 					timing = new ScoreboardTiming();
@@ -557,6 +573,9 @@ public class ResolverLogic {
 						}
 					}
 
+					if (checkAfterAwards(currentRow + ""))
+						steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+
 					step = getListAward(currentRow, true);
 					while (step != null) {
 						Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
@@ -567,7 +586,8 @@ public class ResolverLogic {
 
 						if (step.shouldHighlight())
 							steps.add(new TeamSelectionStep(step.teams));
-						// Note: if this ever is false for an award that doesn't happen AFTER another list award, we'll
+						// Note: if this ever is false for an award that doesn't happen AFTER another
+						// list award, we'll
 						// need to change the logic here to pause before showing the list award
 						if (step.showScoreboardBefore())
 							steps.add(new PauseStep());
@@ -582,6 +602,7 @@ public class ResolverLogic {
 							steps.add(new ScrollTeamListStep(false));
 						}
 						steps.add(new PauseStep());
+						checkAfterAwards(step.award.getId());
 
 						backToScoreboard = true;
 
@@ -608,6 +629,48 @@ public class ResolverLogic {
 			}
 		}
 		return null;
+	}
+
+	protected boolean checkAfterAwards(String id) {
+		IAward award = afterAwards.get(id);
+		Trace.trace(Trace.INFO, "Checking after award: " + id + " " + (award != null));
+		if (award != null) {
+			String[] teamIds = award.getTeamIds();
+			int size = teamIds.length;
+
+			if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
+				steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
+				List<IAward> list = new ArrayList<>();
+				list.add(award);
+				steps.add(new AwardStep(teamIds[0], list));
+			} else {
+				ITeam[] teams = new ITeam[size];
+				Map<String, SelectType> selections = new HashMap<>();
+				for (int i = 0; i < size; i++) {
+					teams[i] = finalContest.getTeamById(teamIds[i]);
+					// TODO figure out selections
+				}
+				ListAwardStep step = new ListAwardStep(award, teams, selections,
+						award.getDisplayMode() == DisplayMode.PHOTOS, false);
+				teamLists.add(step);
+				steps.add(step);
+
+				if (award.getDisplayMode() == DisplayMode.PHOTOS) {
+					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+				} else {
+					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
+					steps.add(new PauseStep());
+					steps.add(new ScrollTeamListStep(false));
+				}
+			}
+			steps.add(new PauseStep());
+			if (!id.equals(award.getId())) {
+				checkAfterAwards(award.getId());
+			}
+			afterAwards.remove(id);
+			return true;
+		}
+		return false;
 	}
 
 	protected boolean isListReadyToDisplay(ListAwardStep step, int row, boolean after) {
@@ -660,12 +723,14 @@ public class ResolverLogic {
 		// for solution and honor awards, wait until every team higher on the scoreboard has solved
 		// more
 		// problems than the given number
-		if ((award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS) && award.getParameters() != null && award.getParameters().containsKey("numSolved")) {
+		if ((award.getAwardType() == IAward.SOLVED || award.getAwardType() == IAward.HONORS)
+				&& award.getParameters() != null && award.getParameters().containsKey("numSolved")) {
 			int numSolved = -1;
 			try {
 				numSolved = Integer.parseInt(award.getParameters().get("numSolved"));
 			} catch (Exception e) {
-				Trace.trace(Trace.ERROR, "Could not parse solved award parameter " + step.award.getParameters().get("numSolved"));
+				Trace.trace(Trace.ERROR,
+						"Could not parse solved award parameter " + step.award.getParameters().get("numSolved"));
 			}
 
 			if (numSolved > 0) {
