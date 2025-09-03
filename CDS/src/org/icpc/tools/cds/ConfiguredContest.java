@@ -575,9 +575,9 @@ public class ConfiguredContest {
 						"Configuration was not loaded after 2s, allowing account access to " + account.getId());
 			}
 
-			IContestObject[] objs = contest.getObjects();
-			for (IContestObject co : objs)
-				ac.add(co);
+			contest.addListenerFromStart((contest2, obj, d) -> {
+				contest.add(obj);
+			});
 
 			accountContests.put(key, ac);
 		}
@@ -684,12 +684,6 @@ public class ConfiguredContest {
 			State[] currentState = new State[1];
 			currentState[0] = new State();
 			contest.addListenerFromStart((contest2, obj, d) -> {
-				synchronized (accountContests) {
-					for (Contest ac : accountContests.values()) {
-						ac.add(obj);
-					}
-				}
-
 				if (obj instanceof ITeam) {
 					ITeam team = (ITeam) obj;
 					if (videos != null && streamMap.get(team.getId()) == null && isTeamOrSpare(contest, team)) {
