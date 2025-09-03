@@ -650,11 +650,11 @@ public class ResolverLogic {
 					teams[i] = finalContest.getTeamById(teamIds[i]);
 					// TODO figure out selections
 				}
+
 				ListAwardStep step = new ListAwardStep(award, teams, selections,
 						award.getDisplayMode() == DisplayMode.PHOTOS, false);
-				teamLists.add(step);
+				steps.add(new ScrollTeamListStep(true));
 				steps.add(step);
-
 				if (award.getDisplayMode() == DisplayMode.PHOTOS) {
 					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
 				} else {
