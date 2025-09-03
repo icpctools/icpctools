@@ -570,13 +570,14 @@ public class ConfiguredContest {
 				}
 				count++;
 			}
-			if (count == 20) {
+			if (count == 40) {
 				Trace.trace(Trace.WARNING,
 						"Configuration was not loaded after 4s, allowing account access to " + account.getId());
 			}
 
+			final Contest acc = ac;
 			contest.addListenerFromStart((contest2, obj, d) -> {
-				contest.add(obj);
+				acc.add(obj);
 			});
 
 			accountContests.put(key, ac);
