@@ -26,6 +26,11 @@ while true; do
     rm -rf lib
     mv -f update/* .
     continue
+  elif [ $result = 253 ]
+  then
+    echo Clearing cache and restarting
+    rm -rf "${TMPDIR:-/tmp}/org.icpc.tools.cache"*
+    continue
   fi
   [[ $result = 255 ]] || break
 done

@@ -19,6 +19,12 @@ goto :loop
 echo "Update downloaded, applying"
 rmdir "%LIBDIR%" /s /q
 robocopy "%ROOTDIR%\update" "%ROOTDIR%\" /e /move
+goto :restart
+
+:cache
+echo "Clearing cache"
+powershell.exe -Command "& {rm -force -r $env:TEMP/org.icpc.*}"
+goto :restart
 
 :restart
 
@@ -26,3 +32,4 @@ java -Xmx1024m -cp "%LIBDIR%\*" org.icpc.tools.coachview.CoachView %params%
 
 if errorlevel 255 goto :restart
 if errorlevel 254 goto :update
+if errorlevel 253 goto :cache
