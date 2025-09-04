@@ -147,6 +147,8 @@ public class Award extends ContestObject implements IAward {
 				mode = DisplayMode.LIST;
 			else if ("photos".equals(value))
 				mode = DisplayMode.PHOTOS;
+			else if ("message".equals(value))
+				mode = DisplayMode.MESSAGE;
 			else if ("ignore".equals(value))
 				mode = DisplayMode.IGNORE;
 

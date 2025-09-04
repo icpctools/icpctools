@@ -23,6 +23,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListen
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -259,14 +260,15 @@ public class ResolverUI {
 			}
 		});
 
+		messagePresentation = new MessagePresentation();
+		messagePresentation.setContest(contest);
+
 		if (screen == Screen.TEAM || screen == Screen.SIDE || screen == Screen.ORG) {
 			logoPresentation = new StaticLogoPresentation();
 			splashPresentation = logoPresentation;
 
 			if (screen == Screen.SIDE) {
 				teamLogoPresentation = new TeamLogoPresentation();
-
-				messagePresentation = new MessagePresentation();
 			}
 			if (screen == Screen.ORG) {
 				orgPresentation = new OrgsPresentation();
@@ -533,12 +535,16 @@ public class ResolverUI {
 			awardPresentation.setTeam(award.teamId);
 			if (teamLogoPresentation != null)
 				teamLogoPresentation.setTeam(award.teamId);
+		} else if (step instanceof MessageStep) {
+			MessageStep mStep = (MessageStep) step;
+			messagePresentation.setMessage(mStep.text);
+			setPresentation(messagePresentation);
 		} else if (step instanceof ListAwardStep) {
 			ListAwardStep teamList = (ListAwardStep) step;
 			teamListPresentation.setAward(teamList.award);
 			teamListPhotoPresentation.setAward(teamList.award);
 			if (messagePresentation != null)
-				messagePresentation.setProperty(teamList.award.getCitation());
+				messagePresentation.setMessage(teamList.award.getCitation());
 		} else if (step instanceof ScrollTeamListStep) {
 			ScrollTeamListStep scroll = (ScrollTeamListStep) step;
 			teamListPresentation.scrollIt(scroll.top);
