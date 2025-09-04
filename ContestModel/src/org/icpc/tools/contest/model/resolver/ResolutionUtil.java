@@ -26,7 +26,7 @@ public class ResolutionUtil {
 
 	public static class PresentationStep implements ResolutionStep {
 		public enum Presentations {
-			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST, TEAM_LIST_PHOTO
+			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST, TEAM_LIST_PHOTO, MESSAGE
 		}
 
 		public Presentations p;
@@ -64,6 +64,19 @@ public class ResolutionUtil {
 		@Override
 		public String toString() {
 			return "Delay " + type.name();
+		}
+	}
+
+	public static class MessageStep implements ResolutionStep {
+		public String text;
+
+		public MessageStep(String text) {
+			this.text = text;
+		}
+
+		@Override
+		public String toString() {
+			return "Message " + text;
 		}
 	}
 

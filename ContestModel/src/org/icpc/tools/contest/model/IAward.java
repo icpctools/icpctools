@@ -42,7 +42,7 @@ public interface IAward extends IContestObject {
 	// 'Photos' is the same as list, but will show photos instead of a list.
 	// 'Ignore' will skip award (but will be listed if you stop for detail for another award).
 	public enum DisplayMode {
-		DETAIL, PAUSE, LIST, PHOTOS, IGNORE
+		DETAIL, PAUSE, LIST, PHOTOS, MESSAGE, IGNORE
 	}
 
 	AwardType WINNER = new AwardType("Winner", "winner");
@@ -60,7 +60,8 @@ public interface IAward extends IContestObject {
 	AwardType EXPECTED_TO_ADVANCE = new AwardType("Expected to Advance", "expected-to-advance");
 	AwardType OTHER = new AwardType("Other", ".*");
 
-	// Note: GROUP_WINNERS need to be added after HONORS to display awards in the correct order in the resolver
+	// Note: GROUP_WINNERS need to be added after HONORS to display awards in the correct order in
+	// the resolver
 	AwardType[] KNOWN_TYPES = new AwardType[] { WINNER, RANK, MEDAL, FIRST_TO_SOLVE, GROUP, ORGANIZATION,
 			GROUP_HIGHLIGHT, SOLVED, TOP, HONORS, EXPECTED_TO_ADVANCE, ALL_GROUP_WINNERS, OTHER };
 

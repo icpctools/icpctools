@@ -64,15 +64,19 @@ public class MessagePresentation extends AbstractICPCPresentation {
 		curText.draw((int) (width * 0.05), y);
 	}
 
+	public void setMessage(String value) {
+		synchronized (this) {
+			message = value;
+			text = null;
+		}
+	}
+
 	@Override
 	public void setProperty(String value) {
 		super.setProperty(value);
 		if (value == null || value.startsWith("lightMode:"))
 			return;
 
-		synchronized (this) {
-			message = value;
-			text = null;
-		}
+		setMessage(value);
 	}
 }

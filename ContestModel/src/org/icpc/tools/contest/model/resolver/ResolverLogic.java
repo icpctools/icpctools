@@ -27,6 +27,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -647,7 +648,10 @@ public class ResolverLogic {
 			String[] teamIds = award.getTeamIds();
 			int size = teamIds.length;
 
-			if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
+			if (award.getDisplayMode() == DisplayMode.MESSAGE) {
+				steps.add(new MessageStep(award.getCitation()));
+				steps.add(new PresentationStep(PresentationStep.Presentations.MESSAGE));
+			} else if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
 				steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
 				List<IAward> list = new ArrayList<>();
 				list.add(award);
