@@ -395,13 +395,13 @@ public class View {
 					}
 				});
 
-		registerAction(createButton(buttonComp, "Cache",
+		registerAction(createButton(buttonComp, "Clear Cache",
 				"Clear the cache and restart the presentation process on the selected clients"), new ClientAction() {
 					@Override
 					public void run() throws Exception {
 						MessageBox mb = new MessageBox(buttonComp.getShell(), SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
 						mb.setText("Presentation Admin");
-						mb.setMessage("Are you sure you want to restart the client(s)?");
+						mb.setMessage("Are you sure you want to clear the cache and restart the client(s)?");
 						if (mb.open() == SWT.OK)
 							client.sendCacheRestart(getSelectedClients());
 					}
