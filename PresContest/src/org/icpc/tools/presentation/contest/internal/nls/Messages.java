@@ -14,7 +14,7 @@ public class Messages {
 	public static String solved;
 	public static String score;
 	public static String time;
-	public static String year;
+	public static String contest;
 	public static String titleCurrentStandings;
 	public static String firstToSolve;
 	public static String solvedProblem;

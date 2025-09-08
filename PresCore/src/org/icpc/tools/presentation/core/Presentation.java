@@ -248,7 +248,9 @@ public abstract class Presentation {
 		g.setFont(f);
 		FontMetrics fm = g.getFontMetrics();
 		for (int i = 0; i < message.length; i++) {
-			String s = message[i].replace("{0}", subs);
+			String s = message[i];
+			if (subs != null)
+				s = s.replace("{0}", subs);
 			g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height / 2 + (i - message.length / 2) * fm.getHeight());
 		}
 	}

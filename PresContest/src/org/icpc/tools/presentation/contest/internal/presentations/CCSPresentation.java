@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
-import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class CCSPresentation extends Presentation {
@@ -32,24 +31,15 @@ public class CCSPresentation extends Presentation {
 			return;
 
 		try {
-			primaryImage = ImageHelper.loadImage("/presentation/ccs/primary.png");
+			primaryImage = ImageHelper.loadImage("/presentation/ccs/primary.png", width * 0.4, height * 0.7);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error loading primary image", e);
 		}
 
 		try {
-			shadowImage = ImageHelper.loadImage("/presentation/ccs/shadow.png");
+			shadowImage = ImageHelper.loadImage("/presentation/ccs/shadow.png", width * 0.4, height * 0.7);
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Error loading shadow image", e);
-		}
-
-		if (primaryImage != null) {
-			if (shadowImage == null) {
-				primaryImage = ImageScaler.scaleImage(primaryImage, width * 0.8, height * 0.7);
-			} else {
-				primaryImage = ImageScaler.scaleImage(primaryImage, width * 0.4, height * 0.7);
-				shadowImage = ImageScaler.scaleImage(shadowImage, width * 0.4, height * 0.7);
-			}
 		}
 
 		final float dpi = 96;

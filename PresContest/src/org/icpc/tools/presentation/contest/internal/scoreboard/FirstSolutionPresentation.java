@@ -7,8 +7,9 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,17 +22,22 @@ import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
+import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.internal.Result;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
-import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.TextImage;
 import org.icpc.tools.presentation.contest.internal.nls.Messages;
 
 public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
-	private static final String FIRSTSOLUTIONS_TXT = "firstsolutions.txt";
+	private static final String[] HELP = new String[] { "This presentation shows the first solution in past contests.",
+			"Place a solutions.txt and corresponding png or jpg images on the CDS",
+			"under {icpc.cds.config}/present/first-solution/" };
+
+	private static final String FOLDER = "first-solution";
+	private static final String SOLUTIONS = "solutions.txt";
 
 	private static final long TIME_TO_KEEP_SOLVED = 8000;
 
@@ -40,7 +46,6 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		String name;
 		int time;
 		BufferedImage logo;
-		BufferedImage smLogo;
 	}
 
 	class SubmissionRecord {
@@ -73,29 +78,21 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		teamsPerScreen = 10;
 
 		historical = readData();
-
-		execute(new Runnable() {
-			@Override
-			public void run() {
-				for (FirstSolution fs2 : historical) {
-					if (fs2.time < 0)
-						return;
-
-					try {
-						fs2.logo = ImageHelper.loadImage("/presentation/fts/" + fs2.year + ".png");
-					} catch (Exception e) {
-						// ignore - no image
-					}
-				}
-				loadTeamLogos();
-			}
-		});
 	}
 
 	private static List<FirstSolution> readData() {
+		File f = null;
+		try {
+			f = ContestSource.getInstance().getFile("/presentation/" + FOLDER + "/" + SOLUTIONS);
+			if (f == null) {
+				throw new IOException("No data found");
+			}
+		} catch (Exception e) {
+			//
+		}
+
 		List<FirstSolution> list = new ArrayList<FirstSolution>();
-		try (BufferedReader br = new BufferedReader(new InputStreamReader(
-				Thread.currentThread().getContextClassLoader().getResourceAsStream("data/" + FIRSTSOLUTIONS_TXT)))) {
+		try (BufferedReader br = new BufferedReader(new FileReader(f))) {
 			String line = br.readLine();
 			while (line != null) {
 				String[] values = line.split("\\t");
@@ -107,13 +104,13 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 						fs.time = Integer.parseInt(values[2]);
 						list.add(fs);
 					} catch (Exception e) {
-						Trace.trace(Trace.ERROR, "Problem processing " + FIRSTSOLUTIONS_TXT + ": " + e.getMessage());
+						Trace.trace(Trace.ERROR, "Problem processing " + SOLUTIONS + ": " + e.getMessage());
 					}
 				}
 				line = br.readLine();
 			}
 		} catch (IOException e) {
-			Trace.trace(Trace.ERROR, "Problem processing " + FIRSTSOLUTIONS_TXT + ": " + e.getMessage());
+			Trace.trace(Trace.ERROR, "Problem processing " + SOLUTIONS + ": " + e.getMessage());
 		}
 		return list;
 	}
@@ -148,9 +145,36 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		}
 		updateRecords(1, true);
 
+		int size = (int) (rowHeight - 10);
+
 		for (FirstSolution fs : historical) {
-			fs.smLogo = null;
+			if (fs.time < 0)
+				continue;
+
+			if (fs.logo == null || (fs.logo.getWidth() != size && fs.logo.getHeight() != size)) {
+				if (fs.logo != null) {
+					fs.logo.flush();
+					fs.logo = null;
+				}
+
+				try {
+					fs.logo = ImageHelper.loadImage("/presentation/" + FOLDER + "/" + fs.year + ".svg", size, size);
+				} catch (Exception e) {
+					try {
+						fs.logo = ImageHelper.loadImage("/presentation/" + FOLDER + "/" + fs.year + ".png", size, size);
+					} catch (Exception ex) {
+						// ignore - no image
+					}
+				}
+			}
 		}
+
+		execute(new Runnable() {
+			@Override
+			public void run() {
+				loadTeamLogos();
+			}
+		});
 	}
 
 	protected void checkForFirst() {
@@ -218,7 +242,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		int y = headerHeight - 3;
 
 		g.setFont(headerItalicsFont);
-		g.drawString(Messages.year, BORDER + (fm.stringWidth("2999") - fm2.stringWidth(Messages.year)) / 2, y);
+		g.drawString(Messages.contest, BORDER + (fm.stringWidth("2999") - fm2.stringWidth(Messages.contest)) / 2, y);
 		g.setFont(headerFont);
 		g.drawString(Messages.name, BORDER + fm.stringWidth("29999 ") + rowHeight, y);
 		g.setFont(headerFont);
@@ -228,6 +252,15 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 	@Override
 	protected String getTitle() {
 		return Messages.titleFirstSolutionInContest;
+	}
+
+	@Override
+	public void paint(Graphics2D g) {
+		if (historical == null || historical.isEmpty()) {
+			paintHelp(g, HELP, null);
+			return;
+		}
+		super.paint(g);
 	}
 
 	@Override
@@ -348,11 +381,7 @@ public class FirstSolutionPresentation extends AbstractScoreboardPresentation {
 		IContest contest = getContest();
 
 		int col1 = fm.stringWidth("29999: ");
-		BufferedImage img = fs.smLogo;
-		if (img == null && fs.logo != null) {
-			fs.smLogo = ImageScaler.scaleImage(fs.logo, rowHeight - 10, rowHeight - 10);
-			img = fs.smLogo;
-		}
+		BufferedImage img = fs.logo;
 		if (img != null) {
 			int nx = (int) ((rowHeight - img.getWidth()) / 2f);
 			int ny = (int) ((rowHeight - img.getHeight()) / 2f);

@@ -8,7 +8,6 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
-import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class PromoPresentation extends Presentation {
@@ -39,9 +38,9 @@ public class PromoPresentation extends Presentation {
 					try {
 						if (s.startsWith("."))
 							continue;
-						BufferedImage img = ImageHelper.loadImage("/presentation/promo/" + s);
+						BufferedImage img = ImageHelper.loadImage("/presentation/promo/" + s, width, height);
 						if (img != null) {
-							list.add(ImageScaler.scaleImage(img, width, height));
+							list.add(img);
 						}
 					} catch (Exception e) {
 						Trace.trace(Trace.ERROR, "Could not load image " + s + ": " + e.getMessage());
