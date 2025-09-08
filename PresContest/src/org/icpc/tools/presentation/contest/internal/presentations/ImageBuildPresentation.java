@@ -12,7 +12,6 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.presentation.contest.internal.ImageHelper;
-import org.icpc.tools.presentation.contest.internal.ImageScaler;
 import org.icpc.tools.presentation.core.Presentation;
 
 public class ImageBuildPresentation extends Presentation {
@@ -93,9 +92,9 @@ public class ImageBuildPresentation extends Presentation {
 		List<BufferedImage> list = new ArrayList<>();
 		for (String s : filteredFiles) {
 			try {
-				BufferedImage img = ImageHelper.loadImage("/presentation/build/" + s);
+				BufferedImage img = ImageHelper.loadImage("/presentation/build/" + s, width * 0.9, height * 0.9);
 				if (img != null)
-					list.add(ImageScaler.scaleImage(img, width * 0.9, height * 0.9));
+					list.add(img);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Could not load " + s + ": " + e.getMessage());
 			}
