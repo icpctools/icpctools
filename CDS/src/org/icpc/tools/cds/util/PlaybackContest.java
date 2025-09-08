@@ -416,7 +416,7 @@ public class PlaybackContest extends Contest {
 
 		if (obj instanceof State) {
 			State state = (State) obj;
-			if (state.isFrozen() && state.isRunning())
+			if (state.isFrozen() && state.isRunning() && VideoAggregator.isRunning())
 				VideoAggregator.getInstance().dropUntrustedListeners();
 		}
 
