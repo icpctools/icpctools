@@ -926,7 +926,6 @@ public class DiskContestSource extends ContestSource {
 	 * trigger an event.
 	 */
 	protected void scanForResourceChanges() {
-		long time = System.currentTimeMillis();
 		try {
 			List<File> modifiedFiles = new ArrayList<>();
 			List<File> addedFiles = new ArrayList<>();
@@ -1043,8 +1042,6 @@ public class DiskContestSource extends ContestSource {
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Scanning failed", e);
 		}
-		Trace.trace(Trace.INFO,
-				"Scanned " + this.contestId + " for changes in " + (System.currentTimeMillis() - time) + "ms");
 	}
 
 	@Override
