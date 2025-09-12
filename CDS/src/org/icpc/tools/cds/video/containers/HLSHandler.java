@@ -214,6 +214,8 @@ public class HLSHandler extends VideoServingHandler {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response, int stream, IStore store, String path)
 			throws IOException {
+		response.setHeader("Access-Control-Allow-Origin", "*");
+
 		if (path == null || path.equals("index.m3u8")) {
 			handleIndex(request, response, stream, store);
 			return;
