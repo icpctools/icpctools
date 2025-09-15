@@ -310,15 +310,15 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	@Override
-	public File getFile(IContestObject obj, FileReference ref, String property) throws Exception {
-		if (obj == null)
+	public File getFile(ContestType type, String id, FileReference ref, String property) throws Exception {
+		if (type == null || id == null)
 			return null;
 
 		if (ref.file != null)
 			return ref.file;
 
 		// use the pattern to find the right folder
-		FilePattern pattern = getLocalPattern(obj.getType(), obj.getId(), property);
+		FilePattern pattern = getLocalPattern(type, id, property);
 
 		File folder = root;
 		if (pattern.folder != null)
@@ -336,7 +336,7 @@ public class DiskContestSource extends ContestSource {
 		}
 
 		// otherwise, assume the default file name or try a new one if that is taken
-		return getNewFile(obj.getType(), obj.getId(), property, ref);
+		return getNewFile(type, id, property, ref);
 	}
 
 	/**
@@ -514,8 +514,18 @@ public class DiskContestSource extends ContestSource {
 				FileReference ref = new FileReference();
 				String name = st[0];
 				ref.filename = name;
-				if (name != null && name.length() > 0)
+				if (name != null && name.length() > 0) {
 					ref.file = new File(folder, name);
+
+					List<String> tags = new ArrayList<>(FileReference.KNOWN_TAGS.length);
+					for (String t : FileReference.KNOWN_TAGS) {
+						if (name.contains(t))
+							tags.add(t);
+					}
+
+					if (!list.isEmpty())
+						ref.tags = tags.toArray(new String[0]);
+				}
 				if (st[1] != null && !st[1].isEmpty())
 					ref.href = st[1];
 				ref.mime = st[2];

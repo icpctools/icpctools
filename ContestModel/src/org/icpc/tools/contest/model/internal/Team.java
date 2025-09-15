@@ -125,7 +125,7 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public File getPhoto(int width, int height, boolean force) {
-		return getFile(getBestFileReference(photo, new ImageSizeFit(width, height)), PHOTO, force);
+		return getFile(PHOTO, photo, width, height, null, force);
 	}
 
 	public void setPhoto(FileReferenceList list) {
@@ -134,7 +134,7 @@ public class Team extends ContestObject implements ITeam {
 
 	@Override
 	public BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(PHOTO, photo, width, height, forceLoad, resizeToFit);
+		return getRefImage(PHOTO, photo, width, height, null, forceLoad, resizeToFit);
 	}
 
 	@Override

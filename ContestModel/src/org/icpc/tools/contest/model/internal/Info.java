@@ -196,11 +196,13 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public File getLogo(int width, int height, boolean force) {
-		return getFile(getBestFileReference(logo, new ImageSizeFit(width, height)), LOGO, force);
+		String tag = null;
+		return getFile(LOGO, logo, width, height, tag, force);
 	}
 
 	public BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(LOGO, logo, width, height, forceLoad, resizeToFit);
+		String tag = null;
+		return getRefImage(LOGO, logo, width, height, tag, forceLoad, resizeToFit);
 	}
 
 	public void setBanner(FileReferenceList list) {
@@ -212,11 +214,13 @@ public class Info extends ContestObject implements IInfo {
 	}
 
 	public File getBanner(int width, int height, boolean force) {
-		return getFile(getBestFileReference(banner, new ImageSizeFit(width, height)), BANNER, force);
+		String tag = null;
+		return getFile(BANNER, banner, width, height, tag, force);
 	}
 
 	public BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(BANNER, banner, width, height, forceLoad, resizeToFit);
+		String tag = null;
+		return getRefImage(BANNER, banner, width, height, tag, forceLoad, resizeToFit);
 	}
 
 	@Override

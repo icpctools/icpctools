@@ -84,14 +84,6 @@ public class Submission extends TimedEvent implements ISubmission {
 	}
 
 	@Override
-	public String[] getReactionURLs() {
-		if (reaction == null || reaction.isEmpty())
-			return null;
-
-		return reaction.getHrefs();
-	}
-
-	@Override
 	public File resolveFileReference(String url) {
 		return FileReferenceList.resolve(url, files, reaction);
 	}

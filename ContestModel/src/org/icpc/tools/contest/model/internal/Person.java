@@ -109,12 +109,12 @@ public class Person extends ContestObject implements IPerson {
 
 	@Override
 	public File getPhoto(int width, int height, boolean force) {
-		return getFile(getBestFileReference(photo, new ImageSizeFit(width, height)), PHOTO, force);
+		return getFile(PHOTO, photo, width, height, null, force);
 	}
 
 	@Override
 	public BufferedImage getPhotoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(PHOTO, photo, width, height, forceLoad, resizeToFit);
+		return getRefImage(PHOTO, photo, width, height, null, forceLoad, resizeToFit);
 	}
 
 	public void setPhoto(FileReferenceList list) {

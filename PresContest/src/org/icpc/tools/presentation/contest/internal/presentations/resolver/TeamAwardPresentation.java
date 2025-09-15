@@ -30,6 +30,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Award;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.util.Messages;
@@ -251,7 +252,8 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			if (hasGroupAward && groupIds != null && groupIds.length == 1) {
 				IGroup g = contest.getGroupById(groupIds[0]);
 				if (g != null) {
-					c.groupLogo = g.getLogoImage(height / 5, height / 5, true, true);
+					c.groupLogo = g.getLogoImage(height / 5, height / 5,
+							isLightMode() ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 				}
 			}
 		}
