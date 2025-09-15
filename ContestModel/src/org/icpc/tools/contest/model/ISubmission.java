@@ -72,13 +72,6 @@ public interface ISubmission extends IContestObject {
 	File getReaction(boolean force);
 
 	/**
-	 * Returns the reaction video.
-	 *
-	 * @return the reaction video
-	 */
-	File[] getReactions(boolean force);
-
-	/**
 	 * Return the URL to the reaction video
 	 *
 	 * @return

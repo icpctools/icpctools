@@ -362,15 +362,6 @@ public abstract class ContestObject implements IContestObject {
 		}
 	}
 
-	protected File[] getFiles(FileReferenceList list, String property, boolean force) {
-		int size = list.size();
-		File[] files = new File[size];
-		for (int i = 0; i < size; i++) {
-			files[i] = getFile(list.get(i), property, force);
-		}
-		return files;
-	}
-
 	public interface ReferenceMatcher {
 		public FileReference getBestMatch(FileReferenceList list);
 	}

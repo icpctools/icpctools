@@ -81,13 +81,6 @@ public interface ITeam extends IContestObject, IPosition {
 	File getPhoto(int width, int height, boolean force);
 
 	/**
-	 * The registration photos.
-	 *
-	 * @return the photo files
-	 */
-	File[] getPhotos(boolean force);
-
-	/**
 	 * The registration photo.
 	 *
 	 * @return the photo
@@ -109,13 +102,6 @@ public interface ITeam extends IContestObject, IPosition {
 	File getVideo(boolean force);
 
 	/**
-	 * The registration video.
-	 *
-	 * @return the video file
-	 */
-	File[] getVideos(boolean force);
-
-	/**
 	 * The disk backup.
 	 *
 	 * @return the backup files
@@ -128,13 +114,6 @@ public interface ITeam extends IContestObject, IPosition {
 	 * @return the backup file
 	 */
 	File getBackup(boolean force);
-
-	/**
-	 * The disk backup.
-	 *
-	 * @return the backup files
-	 */
-	File[] getBackups(boolean force);
 
 	/**
 	 * The key log
@@ -151,13 +130,6 @@ public interface ITeam extends IContestObject, IPosition {
 	File getKeyLog(boolean force);
 
 	/**
-	 * The key log.
-	 *
-	 * @return the key log files
-	 */
-	File[] getKeylogs(boolean force);
-
-	/**
 	 * The tool usage data.
 	 *
 	 * @return the tool usage data files
@@ -170,13 +142,6 @@ public interface ITeam extends IContestObject, IPosition {
 	 * @return the tool usage data file
 	 */
 	File getToolData(boolean force);
-
-	/**
-	 * The tool usage data.
-	 *
-	 * @return the tool usage data files
-	 */
-	File[] getToolDatas(boolean force);
 
 	/**
 	 * The desktop stream.

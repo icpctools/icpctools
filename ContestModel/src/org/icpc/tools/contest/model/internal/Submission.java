@@ -76,11 +76,6 @@ public class Submission extends TimedEvent implements ISubmission {
 	}
 
 	@Override
-	public File[] getReactions(boolean force) {
-		return getFiles(reaction, REACTION, force);
-	}
-
-	@Override
 	public String getReactionURL() {
 		if (reaction == null || reaction.isEmpty())
 			return null;
