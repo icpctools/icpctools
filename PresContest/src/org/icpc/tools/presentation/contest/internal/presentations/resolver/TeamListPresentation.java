@@ -102,7 +102,7 @@ public class TeamListPresentation extends AbstractICPCPresentation {
 					if (team != null) {
 						IOrganization org = getContest().getOrganizationById(team.getOrganizationId());
 						if (org != null) {
-							BufferedImage img = org.getLogoImage(rowHeight, rowHeight, true, true);
+							BufferedImage img = org.getLogoImage(rowHeight, rowHeight, getModeTag(), true, true);
 							if (img != null)
 								logos.put(team.getId(), img);
 						}

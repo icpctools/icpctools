@@ -102,14 +102,12 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
-	public File getLogo(int width, int height, boolean force) {
-		String tag = null;
+	public File getLogo(int width, int height, String tag, boolean force) {
 		return getFile(LOGO, logo, width, height, tag, force);
 	}
 
 	@Override
-	public BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		String tag = null;
+	public BufferedImage getLogoImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit) {
 		return getRefImage(LOGO, logo, width, height, tag, forceLoad, resizeToFit);
 	}
 

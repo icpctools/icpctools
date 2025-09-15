@@ -25,6 +25,7 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.Recent;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -155,7 +156,8 @@ public class TeamTileHelper {
 			BufferedImage logoImg = logoImages.get(logoHash);
 			if (logoImg == null) {
 				Trace.trace(Trace.INFO, "Logo cache miss " + logoHash);
-				logoImg = org.getLogoImage(logoWidth, logoHeight, true, true);
+				logoImg = org.getLogoImage(logoWidth, logoHeight,
+						lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 				logoImages.put(logoHash, logoImg);
 				logoImg = cacheMiss(logoImg);
 			}

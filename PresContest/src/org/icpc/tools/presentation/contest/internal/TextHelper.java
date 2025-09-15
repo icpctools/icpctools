@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.SVGUtil;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -262,7 +263,7 @@ public class TextHelper {
 			int w = 0;
 			int fh = fm.getHeight();
 			if (org != null) {
-				img = org.getLogoImage(fh, fh, true, true);
+				img = org.getLogoImage(fh, fh, lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 				if (img != null)
 					w = img.getWidth() + fh / 10;
 			}
@@ -276,7 +277,7 @@ public class TextHelper {
 		protected OrganizationItem(IContest contest, IOrganization org) {
 			int w = 0;
 			int fh = fm.getHeight();
-			img = org.getLogoImage(fh, fh, true, true);
+			img = org.getLogoImage(fh, fh, lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 			if (img != null)
 				w = img.getWidth() + fh / 10;
 
@@ -315,6 +316,7 @@ public class TextHelper {
 	private Dimension bounds = new Dimension(0, 0);
 	private List<Item> list = new ArrayList<>(4);
 	private boolean autoLayout = true;
+	private boolean lightMode = false;
 
 	/**
 	 * Create the simplest text helper that will render a single-line string containing text or
@@ -638,11 +640,13 @@ public class TextHelper {
 			IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 			BufferedImage img = null;
 			if (org != null)
-				img = org.getLogoImage(fh, fh, true, true);
+				img = org.getLogoImage(fh, fh, lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 			add(new ImageTextItem(img, team.getActualDisplayName()));
 		} else if (obj instanceof IOrganization) {
 			IOrganization org = (IOrganization) obj;
-			add(new ImageTextItem(org.getLogoImage(fh, fh, true, true), org.getActualFormalName()));
+			add(new ImageTextItem(
+					org.getLogoImage(fh, fh, lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true),
+					org.getActualFormalName()));
 		} else if (obj instanceof IPerson) {
 			IPerson person = (IPerson) obj;
 			add(new ImageTextItem(person.getPhotoImage(fh, fh, true, true), person.getName()));

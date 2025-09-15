@@ -24,7 +24,7 @@ public class TeamLogoPresentation extends AbstractICPCPresentation {
 		if (org == null)
 			return;
 
-		logo = org.getLogoImage(width, height, true, true);
+		logo = org.getLogoImage(width, height, getModeTag(), true, true);
 	}
 
 	@Override

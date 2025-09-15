@@ -58,7 +58,8 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 				// if there's no photo, load a larger logo
 				scale = 0.7;
 			}
-			newInfo.logo = org.getLogoImage((int) (width * scale), (int) ((height - MARGIN * 2) * scale), true, true);
+			newInfo.logo = org.getLogoImage((int) (width * scale), (int) ((height - MARGIN * 2) * scale), getModeTag(),
+					true, true);
 		}
 		newInfo.id = team.getId();
 		newInfo.name = team.getLabel() + " – " + team.getActualDisplayName();

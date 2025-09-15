@@ -192,7 +192,7 @@ public class OrgsPresentation extends AbstractICPCPresentation {
 
 					if (bestRef != null) {
 						if (img == null || bestRef.width != img.getWidth() || bestRef.height != img.getHeight()) {
-							map.put(org.getId(), org.getLogoImage(bestRef.width, bestRef.height, true, false));
+							map.put(org.getId(), org.getLogoImage(bestRef.width, bestRef.height, getModeTag(), true, false));
 							if (img != null)
 								img.flush();
 						}

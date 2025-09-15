@@ -288,7 +288,7 @@ public class SitesStatusCountdownPresentation extends StatusCountdownPresentatio
 					Trace.trace(Trace.WARNING, "Site start status switch " + switchId + " does not have an organization.");
 					continue;
 				}
-				BufferedImage logo = org.getLogoImage(logoImageSize, logoImageSize, true, true);
+				BufferedImage logo = org.getLogoImage(logoImageSize, logoImageSize, getModeTag(), true, true);
 				if (logo == null) {
 					Trace.trace(Trace.WARNING, "Organization " + siteId + " without logo. A mockup image will be used.");
 				} else

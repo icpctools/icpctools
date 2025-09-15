@@ -240,7 +240,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 			return;
 
 		if (c.teamLogo == null)
-			c.teamLogo = org.getLogoImage(height / 5, height / 5, true, true);
+			c.teamLogo = org.getLogoImage(height / 5, height / 5, getModeTag(), true, true);
 
 		if (c.groupLogo == null) {
 			boolean hasGroupAward = false;

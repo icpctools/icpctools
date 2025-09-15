@@ -782,7 +782,8 @@ public class CoachView extends Panel {
 					IOrganization org = contest.getOrganizationById(currentTeam.getOrganizationId());
 					if (org != null) {
 						Dimension d = getSize();
-						logoImg = org.getLogoImage(d.height / 3, d.height / 3, true, true);
+						logoImg = org.getLogoImage(d.height / 3, d.height / 3,
+								lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 					}
 				} catch (Throwable t) {
 					Trace.trace(Trace.ERROR, "Error playing media", t);

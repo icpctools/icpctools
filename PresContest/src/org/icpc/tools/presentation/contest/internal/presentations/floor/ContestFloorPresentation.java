@@ -72,7 +72,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 					IOrganization org = contest.getOrganizationById(team2.getOrganizationId());
 					if (org == null)
 						return null;
-					return org.getLogoImage(mx, mx, true, true);
+					return org.getLogoImage(mx, mx, getModeTag(), true, true);
 				}
 				return null;
 			}
@@ -122,7 +122,7 @@ public class ContestFloorPresentation extends AbstractICPCPresentation {
 			TextHelper text = new TextHelper(g);
 			IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 			if (org != null) {
-				BufferedImage img = org.getLogoImage(hh, hh, true, true);
+				BufferedImage img = org.getLogoImage(hh, hh, getModeTag(), true, true);
 				if (img != null) {
 					text.addImage(img);
 					text.addSpacer(10);

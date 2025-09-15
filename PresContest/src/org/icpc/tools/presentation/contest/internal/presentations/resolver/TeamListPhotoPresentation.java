@@ -202,7 +202,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				return;
 
 			if (c.teamLogos.get(teamId) == null && org.getLogo() != null && !org.getLogo().isEmpty())
-				c.teamLogos.put(teamId, org.getLogoImage(c.tileDim.height / 8, c.tileDim.height / 8, true, true));
+				c.teamLogos.put(teamId,
+						org.getLogoImage(c.tileDim.height / 8, c.tileDim.height / 8, getModeTag(), true, true));
 		}
 	}
 
