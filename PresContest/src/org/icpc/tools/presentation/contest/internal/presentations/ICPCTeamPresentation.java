@@ -21,7 +21,7 @@ public class ICPCTeamPresentation extends AbstractICPCPresentation {
 		super.setSize(d);
 
 		font = ICPCFont.deriveFont(Font.BOLD, height * 0.8f);
-		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.3), true, true);
+		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.3), getModeTag(), true, true);
 	}
 
 	@Override

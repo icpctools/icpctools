@@ -149,28 +149,28 @@ public interface IContest {
 	 *
 	 * @return
 	 */
-	File getLogo(int width, int height, boolean force);
+	File getLogo(int width, int height, String tag, boolean force);
 
 	/**
 	 * Returns the logo image.
 	 *
 	 * @return
 	 */
-	BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+	BufferedImage getLogoImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit);
 
 	/**
 	 * Returns the banner file.
 	 *
 	 * @return
 	 */
-	File getBanner(int width, int height, boolean force);
+	File getBanner(int width, int height, String tag, boolean force);
 
 	/**
 	 * Returns the contest banner image.
 	 *
 	 * @return
 	 */
-	BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+	BufferedImage getBannerImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit);
 
 	/**
 	 * Return the contest state.

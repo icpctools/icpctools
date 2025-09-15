@@ -195,13 +195,11 @@ public class Info extends ContestObject implements IInfo {
 		return logo;
 	}
 
-	public File getLogo(int width, int height, boolean force) {
-		String tag = null;
+	public File getLogo(int width, int height, String tag, boolean force) {
 		return getFile(LOGO, logo, width, height, tag, force);
 	}
 
-	public BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		String tag = null;
+	public BufferedImage getLogoImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit) {
 		return getRefImage(LOGO, logo, width, height, tag, forceLoad, resizeToFit);
 	}
 
@@ -213,13 +211,11 @@ public class Info extends ContestObject implements IInfo {
 		return banner;
 	}
 
-	public File getBanner(int width, int height, boolean force) {
-		String tag = null;
+	public File getBanner(int width, int height, String tag, boolean force) {
 		return getFile(BANNER, banner, width, height, tag, force);
 	}
 
-	public BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		String tag = null;
+	public BufferedImage getBannerImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit) {
 		return getRefImage(BANNER, banner, width, height, tag, forceLoad, resizeToFit);
 	}
 

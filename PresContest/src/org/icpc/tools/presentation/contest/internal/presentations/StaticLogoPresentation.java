@@ -21,7 +21,7 @@ public class StaticLogoPresentation extends AbstractICPCPresentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		image = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.8), true, true);
+		image = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.8), getModeTag(), true, true);
 	}
 
 	@Override

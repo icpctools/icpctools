@@ -112,8 +112,8 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 			// if (c.contestLogo != null)
 			// c.contestLogo.flush();
 
-			c.contestLogo = getContest().getLogoImage((int) (c.tileDim.width * 0.8), (int) (c.tileDim.height * 0.7), true,
-					true);
+			c.contestLogo = getContest().getLogoImage((int) (c.tileDim.width * 0.8), (int) (c.tileDim.height * 0.7),
+					getModeTag(), true, true);
 			if (c.contestLogo == null) {
 				ClassLoader cl = getClass().getClassLoader();
 				try {

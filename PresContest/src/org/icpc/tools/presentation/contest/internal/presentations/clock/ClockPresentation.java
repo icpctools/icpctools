@@ -49,7 +49,7 @@ public class ClockPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 
-		image = contest.getBannerImage((int) (width * 0.7), (int) (height * 0.2), true, true);
+		image = contest.getBannerImage((int) (width * 0.7), (int) (height * 0.2), getModeTag(), true, true);
 		if (image != null)
 			verticalOffset = image.getHeight() / 2;
 	}

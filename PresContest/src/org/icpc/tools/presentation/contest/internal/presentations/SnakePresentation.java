@@ -23,7 +23,7 @@ public class SnakePresentation extends AbstractICPCPresentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.7), true, true);
+		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.7), getModeTag(), true, true);
 	}
 
 	@Override

@@ -83,7 +83,7 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return;
 
-		logo = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.7), true, true);
+		logo = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.7), getModeTag(), true, true);
 		if (logo == null) {
 			ClassLoader cl = getClass().getClassLoader();
 			try {

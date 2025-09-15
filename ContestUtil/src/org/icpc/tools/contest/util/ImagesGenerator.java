@@ -35,6 +35,7 @@ import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.SVGUtil;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -117,14 +118,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-
+		
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-
+		
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -847,15 +848,20 @@ public class ImagesGenerator {
 	private void createContestPreview() throws IOException {
 		int sq = 300;
 
-		BufferedImage lImg = contest.getLogoImage(sq * 5, sq, true, true);
-		BufferedImage bImg = contest.getBannerImage(sq * 5, sq, true, true);
+		BufferedImage[] images = new BufferedImage[4];
+
+		images[0] = contest.getLogoImage(sq * 5, sq, FileReference.TAG_LIGHT, true, true);
+		images[1] = contest.getLogoImage(sq * 5, sq, FileReference.TAG_DARK, true, true);
+		images[2] = contest.getBannerImage(sq * 5, sq, FileReference.TAG_LIGHT, true, true);
+		images[3] = contest.getBannerImage(sq * 5, sq, FileReference.TAG_DARK, true, true);
 
 		int pad = 25;
 		int w = (pad * 3);
-		if (lImg != null)
-			w += lImg.getWidth();
-		if (bImg != null)
-			w += bImg.getWidth();
+		for (BufferedImage img : images) {
+			if (img != null)
+				w += img.getWidth();
+		}
+
 		int h = (sq + pad * 2) * 3;
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
 		Graphics2D g = createBasicGraphic(img, true);
@@ -866,15 +872,13 @@ public class ImagesGenerator {
 		g.fillRect(0, sq * 2 + pad * 4, w, sq + pad * 2);
 
 		int xx = 0;
-		if (lImg != null) {
-			for (int j = 0; j < 3; j++)
-				g.drawImage(lImg, pad, pad + (sq + pad * 2) * j + (sq - lImg.getHeight()) / 2, null);
-			xx += lImg.getWidth();
+		for (BufferedImage bi : images) {
+			if (bi != null) {
+				for (int j = 0; j < 3; j++)
+					g.drawImage(bi, xx + pad, pad + (sq + pad * 2) * j + (sq - bi.getHeight()) / 2, null);
+				xx += bi.getWidth() + pad;
+			}
 		}
-
-		if (bImg != null)
-			for (int j = 0; j < 3; j++)
-				g.drawImage(bImg, xx + pad * 2, pad + (sq + pad * 2) * j + (sq - bImg.getHeight()) / 2, null);
 
 		g.dispose();
 
