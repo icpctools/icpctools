@@ -17,6 +17,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.util.QRCode;
 
 import com.lowagie.text.Document;
@@ -118,7 +119,7 @@ public class TeamPDFService {
 		IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 		Image logoImg = null;
 		if (org != null) {
-			BufferedImage image = org.getLogoImage(1024, 1024, true, false);
+			BufferedImage image = org.getLogoImage(1024, 1024, FileReference.TAG_LIGHT, true, false);
 			if (image != null) {
 				logoImg = Image.getInstance(image, null);
 				float scale = (float) (72f * r.getHeight() / 2f / Math.max(logoImg.getWidth(), logoImg.getHeight()));

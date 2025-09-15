@@ -325,7 +325,7 @@ public class ImagesGenerator {
 					if (imgFile.exists())
 						mod = imgFile.lastModified();
 
-					logoImg = org.getLogoImage(1920, 1080, true, true);
+					logoImg = org.getLogoImage(1920, 1080, FileReference.TAG_DARK, true, true);
 				}
 
 				// generate desktop
@@ -760,7 +760,7 @@ public class ImagesGenerator {
 			g.drawString(s, x, baseline);
 			x += fm.stringWidth(s) + gap;
 
-			BufferedImage bImg = organizations[i].getLogoImage(24, 24, true, true);
+			BufferedImage bImg = organizations[i].getLogoImage(24, 24, FileReference.TAG_DARK, true, true);
 			if (bImg != null)
 				g.drawImage(bImg, x, 12 - bImg.getHeight() / 2, null);
 
@@ -829,11 +829,19 @@ public class ImagesGenerator {
 			s = organizations[i].getId();
 			g.drawString(s, x + (sq - fm.stringWidth(s)) / 2, baseline2);
 
-			BufferedImage logoImg = organizations[i].getLogoImage(sq, sq, true, true);
+			BufferedImage logoImg = organizations[i].getLogoImage(sq, sq, FileReference.TAG_DARK, true, true);
 			if (logoImg != null) {
-				for (int j = 0; j < 3; j++)
+				for (int j = 0; j < 3; j++) {
 					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
 							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
+				}
+			}
+			logoImg = organizations[i].getLogoImage(sq, sq, FileReference.TAG_LIGHT, true, true);
+			if (logoImg != null) {
+				for (int j = 3; j < 3; j++) {
+					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
+							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
+				}
 			}
 			x += pad + sq;
 		}

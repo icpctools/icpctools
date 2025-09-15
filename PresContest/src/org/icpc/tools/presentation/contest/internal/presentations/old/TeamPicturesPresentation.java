@@ -98,7 +98,7 @@ public class TeamPicturesPresentation extends AbstractICPCPresentation {
 					if (team != null) {
 						IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 						if (org != null)
-							pi2.image = org.getLogoImage(width, height, true, true);
+							pi2.image = org.getLogoImage(width, height, getModeTag(), true, true);
 					}
 				} catch (Exception e) {
 					// ignore - no image

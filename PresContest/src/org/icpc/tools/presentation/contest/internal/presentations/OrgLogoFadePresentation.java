@@ -45,7 +45,7 @@ public class OrgLogoFadePresentation extends AbstractICPCPresentation {
 			public void run() {
 				int size2 = (int) (size * 0.9);
 				for (IOrganization org : orgs) {
-					map.put(org.getId(), org.getLogoImage(size2, size2, true, true));
+					map.put(org.getId(), org.getLogoImage(size2, size2, getModeTag(), true, true));
 				}
 			}
 		});

@@ -84,7 +84,8 @@ public class WorldPresentation extends AbstractICPCPresentation {
 	public void incrementTimeMs(long dt) {
 		if (drawLogos) {
 			if (worldLogos == null)
-				worldLogos = TeamIntroPresentation.setTargets(getContest(), null, logoPercentSize * height / 100);
+				worldLogos = TeamIntroPresentation.setTargets(getContest(), null, logoPercentSize * height / 100,
+						getModeTag());
 
 			BubbleOut.bubbleOut(worldLogos.instPos, worldLogos.instPos.length, width, height, 1, dt);
 		}

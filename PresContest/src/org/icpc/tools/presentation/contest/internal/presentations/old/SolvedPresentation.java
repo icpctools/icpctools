@@ -99,7 +99,7 @@ public class SolvedPresentation extends AbstractICPCPresentation {
 			return;
 
 		float maxSize = height / 5f;
-		teamLogo = org.getLogoImage((int) maxSize, (int) maxSize, true, true);
+		teamLogo = org.getLogoImage((int) maxSize, (int) maxSize, getModeTag(), true, true);
 	}
 
 	@Override

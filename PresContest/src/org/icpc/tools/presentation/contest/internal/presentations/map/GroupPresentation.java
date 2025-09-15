@@ -186,7 +186,7 @@ public class GroupPresentation extends AbstractICPCPresentation {
 							String id = inst.getId();
 							BufferedImage img = images.get(id);
 							if (img == null) {
-								img = inst.getLogoImage(logoSize, logoSize, true, true);
+								img = inst.getLogoImage(logoSize, logoSize, getModeTag(), true, true);
 								if (img != null)
 									images.put(id, img);
 							}

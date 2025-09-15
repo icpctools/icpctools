@@ -144,7 +144,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		zooms = new GroupZoom[numGroups];
 		long time = 0;
 		for (int i = 0; i < numGroups; i++) {
-			zooms[i] = setTargets(getContest(), groups[i].getId(), height, showOrganizations);
+			zooms[i] = setTargets(getContest(), groups[i].getId(), height, getModeTag(), showOrganizations);
 			zooms[i].name = groups[i].getName();
 			zooms[i].startTime = time;
 			time += TIME_PER_GROUP + zooms[i].instPos.length * TIME_PER_TEAM;
@@ -164,11 +164,12 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		return Arrays.stream(allGroups).filter(g -> groupIdsWithTeams.contains(g.getId())).toArray(IGroup[]::new);
 	}
 
-	public static GroupZoom setTargets(IContest contest, String groupId, int height) {
-		return setTargets(contest, groupId, height, false);
+	public static GroupZoom setTargets(IContest contest, String groupId, int height, String tag) {
+		return setTargets(contest, groupId, height, tag, false);
 	}
 
-	public static GroupZoom setTargets(IContest contest, String groupId, int height, boolean showOrganizations) {
+	public static GroupZoom setTargets(IContest contest, String groupId, int height, String tag,
+			boolean showOrganizations) {
 		GroupZoom zoom = new GroupZoom();
 
 		double minLat = 90;
@@ -207,7 +208,7 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 					label = org.getFormalName();
 				}
 				Position p = new Position(lon, lat, 1, label);
-				createOrgLogo(p, org, height);
+				createOrgLogo(p, org, height, tag);
 				pos.add(p);
 			}
 		}
@@ -288,11 +289,11 @@ public class TeamIntroPresentation extends AbstractICPCPresentation {
 		anim.incrementTimeMs(dt);
 	}
 
-	private static void createOrgLogo(Position p, IOrganization org, int height) {
-		int logoSize2 = height / 4;
-		p.image = org.getLogoImage(logoSize2, logoSize2, true, true);
+	private static void createOrgLogo(Position p, IOrganization org, int height2, String tag) {
+		int logoSize2 = height2 / 4;
+		p.image = org.getLogoImage(logoSize2, logoSize2, tag, true, true);
 		if (p.image != null) {
-			int logoSize = height / 12;
+			int logoSize = height2 / 12;
 			p.smImage = ImageScaler.scaleImage(p.image, logoSize, logoSize);
 		}
 	}

@@ -160,7 +160,8 @@ public class TeamJudgePresentation extends AbstractICPCPresentation {
 				if (team != null) {
 					IOrganization org = contest.getOrganizationById(team.getOrganizationId());
 					if (org != null)
-						sr.image = org.getLogoImage((int) (width * 0.85 / COLUMNS), (int) (height * 0.6 / ROWS), true, true);
+						sr.image = org.getLogoImage((int) (width * 0.85 / COLUMNS), (int) (height * 0.6 / ROWS), getModeTag(),
+								true, true);
 				}
 			}
 

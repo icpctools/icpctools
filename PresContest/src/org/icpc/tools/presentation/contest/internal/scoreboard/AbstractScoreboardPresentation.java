@@ -594,7 +594,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		if (org == null)
 			return null;
 
-		smImg = org.getLogoImage((int) rowHeight - 10, (int) rowHeight - 10, true, true);
+		smImg = org.getLogoImage((int) rowHeight - 10, (int) rowHeight - 10, getModeTag(), true, true);
 		if (smImg != null)
 			teamRowImages.put(id, smImg);
 		return smImg;

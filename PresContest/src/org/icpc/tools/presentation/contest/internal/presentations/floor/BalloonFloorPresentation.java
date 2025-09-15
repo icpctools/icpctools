@@ -180,8 +180,8 @@ public class BalloonFloorPresentation extends AbstractICPCPresentation {
 		sr.team = team;
 		sr.org = contest.getOrganizationById(team.getOrganizationId());
 		if (sr.org != null) {
-			sr.logo = sr.org.getLogoImage(height / 6, height / 6, true, true);
-			sr.smLogo = sr.org.getLogoImage(height * 4 / 6 / 10, height * 4 / 6 / 10, true, true);
+			sr.logo = sr.org.getLogoImage(height / 6, height / 6, getModeTag(), true, true);
+			sr.smLogo = sr.org.getLogoImage(height * 4 / 6 / 10, height * 4 / 6 / 10, getModeTag(), true, true);
 		}
 
 		submissions.add(sr);

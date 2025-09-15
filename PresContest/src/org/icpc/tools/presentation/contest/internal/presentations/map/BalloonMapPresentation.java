@@ -191,8 +191,8 @@ public class BalloonMapPresentation extends AbstractICPCPresentation {
 			return;
 
 		sr.org = org;
-		sr.logo = org.getLogoImage(height / 6, height / 6, true, true);
-		sr.smLogo = org.getLogoImage(height * 4 / 6 / 10, height * 4 / 6 / 10, true, true);
+		sr.logo = org.getLogoImage(height / 6, height / 6, getModeTag(), true, true);
+		sr.smLogo = org.getLogoImage(height * 4 / 6 / 10, height * 4 / 6 / 10, getModeTag(), true, true);
 		sr.lat = new double[NUM_SEGMENTS];
 		sr.lon = new double[NUM_SEGMENTS];
 		sr.lat[0] = org.getLatitude();

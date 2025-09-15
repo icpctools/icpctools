@@ -236,7 +236,8 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 
 			// load logo
 			if (image == null && org != null)
-				image = org.getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7), true, true);
+				image = org.getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7), getModeTag(), true,
+						true);
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not load team info", e);
 		}
