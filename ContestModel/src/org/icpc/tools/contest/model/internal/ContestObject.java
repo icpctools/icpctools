@@ -340,6 +340,29 @@ public abstract class ContestObject implements IContestObject {
 		return errors;
 	}
 
+	public File getFile(String property, FileReferenceList list, int width, int height, String tag, boolean force) {
+		FileReference ref = getBestFileReference(list, width, height, tag);
+		if (ref == null)
+			return null;
+
+		if (ref.file != null && ref.file.exists()) {
+			return ref.file;
+		}
+
+		if (!force)
+			return null;
+
+		try {
+			synchronized (ref) {
+				if (ref.file != null && ref.file.exists())
+					return ref.file;
+				return ContestSource.getInstance().getFile(this.getType(), this.getId(), ref, property);
+			}
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	protected File getFile(FileReference ref, String property, boolean force) {
 		if (ref == null)
 			return null;
@@ -355,89 +378,76 @@ public abstract class ContestObject implements IContestObject {
 			synchronized (ref) {
 				if (ref.file != null && ref.file.exists())
 					return ref.file;
-				return ContestSource.getInstance().getFile(this, ref, property);
+				return ContestSource.getInstance().getFile(this.getType(), this.getId(), ref, property);
 			}
 		} catch (Exception e) {
 			return null;
 		}
 	}
 
-	public interface ReferenceMatcher {
-		public FileReference getBestMatch(FileReferenceList list);
-	}
-
-	/**
-	 * Finds the best image where at least one dimension is as big as the given width and height. If
-	 * there is no image big enough, the next largest image is returned. For now, assume all images
-	 * have similar aspect ratio.
-	 */
-	protected class ImageSizeFit implements ReferenceMatcher {
-		private int width;
-		private int height;
-
-		public ImageSizeFit(int width, int height) {
-			this.width = width;
-			this.height = height;
-		}
-
-		@Override
-		public FileReference getBestMatch(FileReferenceList list) {
-			FileReference bestRef = null;
-			for (FileReference ref : list) {
-				if (bestRef == null)
-					bestRef = ref;
-				else {
-					if (bestRef.width < width && bestRef.height < height) {
-						// current best image is too small - is this one better (larger than current)?
-						if (ref.width > bestRef.width || ref.height > bestRef.height)
-							bestRef = ref;
-					} else if (bestRef.width > width && bestRef.height > height) {
-						// current image is too big - is this one better (smaller but still big enough)?
-						if (ref.width < bestRef.width || ref.height < bestRef.height) {
-							if (ref.width >= width || ref.height >= height)
-								bestRef = ref;
-						}
-					}
-				}
-			}
-			/*if (list.size() > 1) {
-				System.out.println("Wanted: " + width + "x" + height + " found: " + bestRef.width + "x" + bestRef.height);
-				for (FileReference ref : list) {
-					System.out.println("   " + ref.width + "x" + ref.height);
-				}
-			}*/
-			return bestRef;
-		}
-	}
-
-	protected FileReference getBestFileReference(FileReferenceList list, ReferenceMatcher fit) {
+	private static FileReference getBestFileReference(FileReferenceList list, int width, int height, String tag) {
 		if (list == null || list.isEmpty())
 			return null;
 
 		if (list.size() == 1)
 			return list.first();
 
+		// filter by tags if there was one given
+		FileReferenceList list2 = list;
+		if (tag != null) {
+			FileReferenceList list3 = new FileReferenceList();
+			for (FileReference ref : list2) {
+				boolean found = false;
+				if (ref.tags != null) {
+					for (String t : ref.tags) {
+						if (tag.equals(t))
+							found = true;
+					}
+				}
+				if (found) {
+					list3.add(ref);
+				}
+			}
+			// use the filtered list - unless it's empty
+			if (!list3.isEmpty())
+				list2 = list3;
+		}
+
 		// look for svgs first
-		for (FileReference ref : list) {
+		for (FileReference ref : list2) {
 			if ("image/svg+xml".equals(ref.mime))
 				return ref;
 		}
 
 		// otherwise find best size
-		if (fit != null)
-			return fit.getBestMatch(list);
-
-		return list.first();
+		FileReference bestRef = null;
+		for (FileReference ref : list2) {
+			if (bestRef == null)
+				bestRef = ref;
+			else {
+				if (bestRef.width < width && bestRef.height < height) {
+					// current best image is too small - is this one better (larger than current)?
+					if (ref.width > bestRef.width || ref.height > bestRef.height)
+						bestRef = ref;
+				} else if (bestRef.width > width && bestRef.height > height) {
+					// current image is too big - is this one better (smaller but still big enough)?
+					if (ref.width < bestRef.width || ref.height < bestRef.height) {
+						if (ref.width >= width || ref.height >= height)
+							bestRef = ref;
+					}
+				}
+			}
+		}
+		return bestRef;
 	}
 
-	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height, boolean forceLoad,
-			boolean resizeToFit) {
-		Object data = null;
-
-		FileReference ref = getBestFileReference(list, new ImageSizeFit(width, height));
+	public BufferedImage getRefImage(String property, FileReferenceList list, int width, int height, String tag,
+			boolean forceLoad, boolean resizeToFit) {
+		FileReference ref = getBestFileReference(list, width, height, tag);
 		if (ref == null)
 			return null;
 
+		Object data = null;
 		if (ref.data != null && ref.data.get() != null)
 			data = ref.data.get();
 		else if (forceLoad) {

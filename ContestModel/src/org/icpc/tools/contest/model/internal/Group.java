@@ -63,13 +63,13 @@ public class Group extends ContestObject implements IGroup {
 	}
 
 	@Override
-	public File getLogo(int width, int height, boolean force) {
-		return getFile(getBestFileReference(logo, new ImageSizeFit(width, height)), LOGO, force);
+	public File getLogo(int width, int height, String tag, boolean force) {
+		return getFile(LOGO, logo, width, height, tag, force);
 	}
 
 	@Override
-	public BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(LOGO, logo, width, height, forceLoad, resizeToFit);
+	public BufferedImage getLogoImage(int width, int height, String variant, boolean forceLoad, boolean resizeToFit) {
+		return getRefImage(LOGO, logo, width, height, variant, forceLoad, resizeToFit);
 	}
 
 	public FileReferenceList getLogo() {

@@ -117,7 +117,8 @@ public abstract class ContestSource {
 	 * @return
 	 * @throws IOException
 	 */
-	public File getFile(IContestObject obj, FileReference ref, String property) throws Exception {
+	public File getFile(IContestObject.ContestType type, String id, FileReference ref, String property)
+			throws Exception {
 		return null;
 	}
 

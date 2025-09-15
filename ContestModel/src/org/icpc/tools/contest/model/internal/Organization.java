@@ -103,12 +103,14 @@ public class Organization extends ContestObject implements IOrganization {
 
 	@Override
 	public File getLogo(int width, int height, boolean force) {
-		return getFile(getBestFileReference(logo, new ImageSizeFit(width, height)), LOGO, force);
+		String tag = null;
+		return getFile(LOGO, logo, width, height, tag, force);
 	}
 
 	@Override
 	public BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(LOGO, logo, width, height, forceLoad, resizeToFit);
+		String tag = null;
+		return getRefImage(LOGO, logo, width, height, tag, forceLoad, resizeToFit);
 	}
 
 	@Override
@@ -122,12 +124,12 @@ public class Organization extends ContestObject implements IOrganization {
 
 	@Override
 	public File getCountryFlag(int width, int height, boolean force) {
-		return getFile(getBestFileReference(countryFlag, new ImageSizeFit(width, height)), COUNTRY_FLAG, force);
+		return getFile(COUNTRY_FLAG, countryFlag, width, height, null, force);
 	}
 
 	@Override
 	public BufferedImage getCountryFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(COUNTRY_FLAG, countryFlag, width, height, forceLoad, resizeToFit);
+		return getRefImage(COUNTRY_FLAG, countryFlag, width, height, null, forceLoad, resizeToFit);
 	}
 
 	@Override
@@ -141,13 +143,12 @@ public class Organization extends ContestObject implements IOrganization {
 
 	@Override
 	public File getCountrySubdivisionFlag(int width, int height, boolean force) {
-		return getFile(getBestFileReference(countrySubdivisionFlag, new ImageSizeFit(width, height)),
-				COUNTRY_SUBDIVISION_FLAG, force);
+		return getFile(COUNTRY_SUBDIVISION_FLAG, countrySubdivisionFlag, width, height, null, force);
 	}
 
 	@Override
 	public BufferedImage getCountrySubdivisionFlagImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return getRefImage(COUNTRY_SUBDIVISION_FLAG, countrySubdivisionFlag, width, height, forceLoad, resizeToFit);
+		return getRefImage(COUNTRY_SUBDIVISION_FLAG, countrySubdivisionFlag, width, height, null, forceLoad, resizeToFit);
 	}
 
 	@Override

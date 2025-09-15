@@ -54,12 +54,12 @@ public interface IGroup extends IContestObject {
 	 *
 	 * @return the logo
 	 */
-	File getLogo(int width, int height, boolean force);
+	File getLogo(int width, int height, String tag, boolean force);
 
 	/**
 	 * The logo of the group.
 	 *
 	 * @return the logo
 	 */
-	BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit);
+	BufferedImage getLogoImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit);
 }

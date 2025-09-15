@@ -259,8 +259,8 @@ public class RESTContestSource extends DiskContestSource {
 	}
 
 	@Override
-	public File getFile(IContestObject obj, FileReference ref, String property) throws Exception {
-		File file = super.getFile(obj, ref, property);
+	public File getFile(ContestType type, String id, FileReference ref, String property) throws Exception {
+		File file = super.getFile(type, id, ref, property);
 
 		return downloadIfNecessary(ref, file);
 	}

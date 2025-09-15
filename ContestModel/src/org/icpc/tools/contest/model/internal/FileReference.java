@@ -2,10 +2,16 @@ package org.icpc.tools.contest.model.internal;
 
 import java.io.File;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 
 public class FileReference {
+	public static final String TAG_LIGHT = "light";
+	public static final String TAG_DARK = "dark";
+	public static final String[] KNOWN_TAGS = new String[] { TAG_LIGHT, TAG_DARK };
+
 	public String mime;
 	public String href = null;
 	public File file;
@@ -14,6 +20,7 @@ public class FileReference {
 	public String etag;
 	public int width = -1;
 	public int height = -1;
+	public String[] tags;
 	public SoftReference<Object> data;
 
 	public FileReference() {
@@ -26,6 +33,17 @@ public class FileReference {
 		height = obj.getInt("height");
 		width = obj.getInt("width");
 		filename = obj.getString("filename");
+
+		if (filename != null) {
+			List<String> list = new ArrayList<>(KNOWN_TAGS.length);
+			for (String t : KNOWN_TAGS) {
+				if (filename.contains(t))
+					list.add(t);
+			}
+
+			if (!list.isEmpty())
+				tags = list.toArray(new String[0]);
+		}
 	}
 
 	public String getURL() {
@@ -40,6 +58,10 @@ public class FileReference {
 		return height;
 	}
 
+	public String[] getTags() {
+		return tags;
+	}
+
 	protected String getJSON() {
 		// if (file == null)
 		// return "{\"href\":\"" + href + "\"}";
@@ -52,6 +74,18 @@ public class FileReference {
 			sb.append(",\"width\":" + width);
 		if (height > 0)
 			sb.append(",\"height\":" + height);
+		if (tags != null && tags.length > 0) {
+			StringBuilder sb2 = new StringBuilder();
+			boolean first = true;
+			for (String s : tags) {
+				if (!first)
+					sb2.append(",");
+				sb2.append("\"" + s + "\"");
+				first = false;
+
+			}
+			sb.append(",\"tags\":[" + sb2.toString() + "]");
+		}
 		sb.append("}");
 		return sb.toString();
 	}

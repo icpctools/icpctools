@@ -79,13 +79,6 @@ public interface ISubmission extends IContestObject {
 	String getReactionURL();
 
 	/**
-	 * Return the URLs to the reaction videos
-	 *
-	 * @return
-	 */
-	String[] getReactionURLs();
-
-	/**
 	 * Returns the contest time relative to the start of the contest, in ms.
 	 *
 	 * @return the contest time
