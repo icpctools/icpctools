@@ -36,7 +36,8 @@ public class PersonPresentation extends AbstractICPCPresentation {
 		nameFont = ICPCFont.deriveFont(Font.BOLD, size * 0.25f);
 		roleFont = ICPCFont.deriveFont(Font.PLAIN, size * 0.15f);
 
-		logo = getContest().getLogoImage((int) (width * 0.7), (int) ((height - BORDER * 4) * 0.7), true, true);
+		logo = getContest().getLogoImage((int) (width * 0.7), (int) ((height - BORDER * 4) * 0.7), getModeTag(), true,
+				true);
 	}
 
 	@Override

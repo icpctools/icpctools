@@ -212,7 +212,8 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 
 	protected void cacheInfo() {
 		if (contestImage == null)
-			contestImage = getContest().getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7), true, true);
+			contestImage = getContest().getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7),
+					getModeTag(), true, true);
 
 		if (teamId == null || teamId.isEmpty() || image != null)
 			return;

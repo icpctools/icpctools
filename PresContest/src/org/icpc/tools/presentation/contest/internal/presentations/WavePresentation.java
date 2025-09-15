@@ -30,7 +30,7 @@ public class WavePresentation extends AbstractICPCPresentation {
 	public void setSize(Dimension d) {
 		super.setSize(d);
 
-		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.5), true, true);
+		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.5), getModeTag(), true, true);
 	}
 
 	@Override

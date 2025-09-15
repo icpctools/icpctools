@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
+import org.icpc.tools.contest.model.internal.FileReference;
+
 /**
  * The abstract presentation (renderer) class. All presentations displayed on-screen subclass this
  * class.
@@ -58,6 +60,10 @@ public abstract class Presentation {
 	 */
 	public boolean isLightMode() {
 		return lightMode;
+	}
+
+	public String getModeTag() {
+		return lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK;
 	}
 
 	/**

@@ -37,7 +37,7 @@ public class SplashPresentation extends AbstractICPCPresentation {
 		attrFont = ICPCFont.deriveFont(Font.PLAIN, inch * 0.3f);
 		smallFont = ICPCFont.deriveFont(Font.BOLD, inch * 0.225f);
 
-		image = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.5), true, true);
+		image = getContest().getLogoImage((int) (width * 0.8), (int) (height * 0.5), getModeTag(), true, true);
 
 		if (image == null)
 			image = getIdImage();

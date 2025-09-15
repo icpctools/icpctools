@@ -44,6 +44,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.NDJSONFeedParser;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.util.QRCode;
 
 public class BalloonPrinter {
@@ -72,7 +73,8 @@ public class BalloonPrinter {
 			Trace.trace(Trace.ERROR, "Couldn't load balloon image", e);
 		}
 
-		bannerImage = ContestSource.getInstance().getContest().getInfo().getBannerImage(1920, 300, true, true);
+		bannerImage = ContestSource.getInstance().getContest().getBannerImage(1920, 300, FileReference.TAG_LIGHT, true,
+				true);
 	}
 
 	/**

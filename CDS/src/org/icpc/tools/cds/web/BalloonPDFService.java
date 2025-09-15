@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.util.Balloon;
 
 import com.lowagie.text.Document;
@@ -65,7 +66,7 @@ public class BalloonPDFService {
 			images[i] = Image.getInstance(bout.toByteArray());
 		}
 
-		BufferedImage img = contest.getBannerImage(3840, 1080, true, false);
+		BufferedImage img = contest.getBannerImage(3840, 1080, FileReference.TAG_LIGHT, true, false);
 		Image banner = null;
 		if (img != null) {
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();

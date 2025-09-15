@@ -64,6 +64,7 @@ import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.feed.ContestAPIHelper;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.util.ArgumentParser;
 import org.icpc.tools.contest.model.util.ArgumentParser.OptionParser;
 
@@ -330,7 +331,8 @@ public class CoachView extends Panel {
 
 		try {
 			Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-			footerImage = contest.getBannerImage(d.width, d.height / 10, true, true);
+			footerImage = contest.getBannerImage(d.width, d.height / 10,
+					lightMode ? FileReference.TAG_LIGHT : FileReference.TAG_DARK, true, true);
 
 			if (footerImage != null) {
 				Canvas footerPanel = new Canvas() {

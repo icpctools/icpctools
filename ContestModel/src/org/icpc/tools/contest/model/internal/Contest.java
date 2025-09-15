@@ -608,8 +608,8 @@ public class Contest implements IContest {
 	 * @return
 	 */
 	@Override
-	public File getLogo(int width, int height, boolean force) {
-		return info.getLogo(width, height, force);
+	public File getLogo(int width, int height, String tag, boolean force) {
+		return info.getLogo(width, height, tag, force);
 	}
 
 	/**
@@ -618,8 +618,8 @@ public class Contest implements IContest {
 	 * @return
 	 */
 	@Override
-	public BufferedImage getLogoImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return info.getLogoImage(width, height, forceLoad, resizeToFit);
+	public BufferedImage getLogoImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit) {
+		return info.getLogoImage(width, height, tag, forceLoad, resizeToFit);
 	}
 
 	/**
@@ -628,8 +628,8 @@ public class Contest implements IContest {
 	 * @return
 	 */
 	@Override
-	public File getBanner(int width, int height, boolean force) {
-		return info.getBanner(width, height, force);
+	public File getBanner(int width, int height, String tag, boolean force) {
+		return info.getBanner(width, height, tag, force);
 	}
 
 	/**
@@ -638,8 +638,8 @@ public class Contest implements IContest {
 	 * @return
 	 */
 	@Override
-	public BufferedImage getBannerImage(int width, int height, boolean forceLoad, boolean resizeToFit) {
-		return info.getBannerImage(width, height, forceLoad, resizeToFit);
+	public BufferedImage getBannerImage(int width, int height, String tag, boolean forceLoad, boolean resizeToFit) {
+		return info.getBannerImage(width, height, tag, forceLoad, resizeToFit);
 	}
 
 	@Override
