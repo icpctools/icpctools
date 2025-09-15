@@ -128,11 +128,6 @@ public class Team extends ContestObject implements ITeam {
 		return getFile(getBestFileReference(photo, new ImageSizeFit(width, height)), PHOTO, force);
 	}
 
-	@Override
-	public File[] getPhotos(boolean force) {
-		return getFiles(photo, PHOTO, force);
-	}
-
 	public void setPhoto(FileReferenceList list) {
 		photo = list;
 	}
@@ -153,11 +148,6 @@ public class Team extends ContestObject implements ITeam {
 	}
 
 	@Override
-	public File[] getVideos(boolean force) {
-		return getFiles(video, VIDEO, force);
-	}
-
-	@Override
 	public FileReferenceList getBackup() {
 		return backup;
 	}
@@ -165,11 +155,6 @@ public class Team extends ContestObject implements ITeam {
 	@Override
 	public File getBackup(boolean force) {
 		return getFile(backup.first(), BACKUP, force);
-	}
-
-	@Override
-	public File[] getBackups(boolean force) {
-		return getFiles(backup, BACKUP, force);
 	}
 
 	public void setBackup(FileReferenceList list) {
@@ -186,11 +171,6 @@ public class Team extends ContestObject implements ITeam {
 		return getFile(keylog.first(), KEY_LOG, force);
 	}
 
-	@Override
-	public File[] getKeylogs(boolean force) {
-		return getFiles(keylog, KEY_LOG, force);
-	}
-
 	public void setKeyLog(FileReferenceList list) {
 		keylog = list;
 	}
@@ -203,11 +183,6 @@ public class Team extends ContestObject implements ITeam {
 	@Override
 	public File getToolData(boolean force) {
 		return getFile(tooldata.first(), TOOL_DATA, force);
-	}
-
-	@Override
-	public File[] getToolDatas(boolean force) {
-		return getFiles(tooldata, TOOL_DATA, force);
 	}
 
 	public void setToolData(FileReferenceList list) {
