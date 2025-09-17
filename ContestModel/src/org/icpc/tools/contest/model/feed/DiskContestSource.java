@@ -457,8 +457,9 @@ public class DiskContestSource extends ContestSource {
 			ref.etag = etag;
 			ref.href = href;
 			ref.file = file;
-			ref.mime = getMimeType(file.getName());
+			ref.mime = getMimeType(ref.filename);
 			ref.lastModified = file.lastModified();
+			ref.updateTags();
 			readImageSize(ref);
 
 			list.add(ref);
@@ -516,15 +517,6 @@ public class DiskContestSource extends ContestSource {
 				ref.filename = name;
 				if (name != null && name.length() > 0) {
 					ref.file = new File(folder, name);
-
-					List<String> tags = new ArrayList<>(FileReference.KNOWN_TAGS.length);
-					for (String t : FileReference.KNOWN_TAGS) {
-						if (name.contains(t))
-							tags.add(t);
-					}
-
-					if (!list.isEmpty())
-						ref.tags = tags.toArray(new String[0]);
 				}
 				if (st[1] != null && !st[1].isEmpty())
 					ref.href = st[1];
@@ -534,6 +526,7 @@ public class DiskContestSource extends ContestSource {
 					ref.etag = st[4];
 				ref.width = Integer.parseInt(st[5]);
 				ref.height = Integer.parseInt(st[6]);
+				ref.updateTags();
 				list.add(ref);
 
 				s = br.readLine();
@@ -794,9 +787,10 @@ public class DiskContestSource extends ContestSource {
 	protected static FileReference readMetadata(File file) {
 		FileReference ref = new FileReference();
 		ref.filename = file.getName();
-		ref.mime = getMimeType(file.getName());
+		ref.mime = getMimeType(ref.filename);
 		ref.file = file;
 		ref.lastModified = file.lastModified();
+		ref.updateTags();
 		readImageSize(ref);
 		return ref;
 	}

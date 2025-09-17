@@ -33,16 +33,24 @@ public class FileReference {
 		height = obj.getInt("height");
 		width = obj.getInt("width");
 		filename = obj.getString("filename");
+	}
 
-		if (filename != null) {
-			List<String> list = new ArrayList<>(KNOWN_TAGS.length);
-			for (String t : KNOWN_TAGS) {
-				if (filename.contains(t))
-					list.add(t);
-			}
+	public void updateTags() {
+		if (filename == null) {
+			tags = null;
+			return;
+		}
 
-			if (!list.isEmpty())
-				tags = list.toArray(new String[0]);
+		List<String> list = new ArrayList<>(KNOWN_TAGS.length);
+		for (String t : KNOWN_TAGS) {
+			if (filename.contains(t))
+				list.add(t);
+		}
+
+		if (list.isEmpty()) {
+			tags = null;
+		} else {
+			tags = list.toArray(new String[0]);
 		}
 	}
 
