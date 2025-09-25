@@ -1015,6 +1015,12 @@ public class FloorMap {
 			((Printer) printer).setLocation(printer.getX() - ox, printer.getY() - oy);
 		}
 
+		if (mapInfo != null && mapInfo.getSpareTeams() != null) {
+			for (ITeam t : mapInfo.getSpareTeams()) {
+				((Team) t).setLocation(t.getX() - ox, t.getY() - oy, t.getRotation());
+			}
+		}
+
 		computeAisleIntersections();
 	}
 }
