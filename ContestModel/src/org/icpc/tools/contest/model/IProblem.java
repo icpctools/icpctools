@@ -111,4 +111,11 @@ public interface IProblem extends IContestObject, IPosition {
 	 * @return the statement
 	 */
 	File getStatement(boolean force);
+
+	/**
+	 * The problem attachments.
+	 *
+	 * @return the attachments
+	 */
+	File getAttachments(boolean force);
 }
