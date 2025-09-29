@@ -31,6 +31,7 @@ public class Problem extends ContestObject implements IProblem {
 	private static final String MAX_SCORE = "max_score";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
+	private static final String ATTACHMENTS = "attachments";
 
 	private int ordinal = Integer.MIN_VALUE;
 	private String label;
@@ -49,6 +50,7 @@ public class Problem extends ContestObject implements IProblem {
 	private Double maxScore;
 	private FileReferenceList package_;
 	private FileReferenceList statement;
+	private FileReferenceList attachments;
 
 	@Override
 	public ContestType getType() {
@@ -195,6 +197,19 @@ public class Problem extends ContestObject implements IProblem {
 		return getFile(statement.first(), STATEMENT, force);
 	}
 
+	public void setAttachments(FileReferenceList list) {
+		attachments = list;
+	}
+
+	public FileReferenceList getAttachments() {
+		return attachments;
+	}
+
+	@Override
+	public File getAttachments(boolean force) {
+		return getFile(attachments.first(), STATEMENT, force);
+	}
+
 	@Override
 	protected boolean addImpl(String name2, Object value) throws Exception {
 		switch (name2) {
@@ -261,6 +276,10 @@ public class Problem extends ContestObject implements IProblem {
 				statement = parseFileReference(value);
 				return true;
 			}
+			case ATTACHMENTS: {
+				attachments = parseFileReference(value);
+				return true;
+			}
 			default:
 				return false;
 		}
@@ -288,6 +307,7 @@ public class Problem extends ContestObject implements IProblem {
 
 		p.package_ = package_;
 		p.statement = statement;
+		p.attachments = attachments;
 		return p;
 	}
 
@@ -325,6 +345,7 @@ public class Problem extends ContestObject implements IProblem {
 
 		props.addFileRef(PACKAGE, package_);
 		props.addFileRef(STATEMENT, statement);
+		props.addFileRef(ATTACHMENTS, attachments);
 	}
 
 	private static double round(double d) {
@@ -351,6 +372,6 @@ public class Problem extends ContestObject implements IProblem {
 
 	@Override
 	public File resolveFileReference(String url2) {
-		return FileReferenceList.resolve(url2, statement, package_);
+		return FileReferenceList.resolve(url2, statement, package_, attachments);
 	}
 }

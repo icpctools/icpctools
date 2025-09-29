@@ -51,6 +51,7 @@ public class PlaybackContest extends Contest {
 	private static final String COUNTRY_SUBDIVISION_FLAG = "country_subdivison_flag";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
+	private static final String ATTACHMENTS = "attachments";
 	private static final String BACKUP = "backup";
 	private static final String KEY_LOG = "key_log";
 	private static final String TOOL_DATA = "tool_data";
@@ -156,6 +157,7 @@ public class PlaybackContest extends Contest {
 			Problem p = (Problem) obj;
 			p.setPackage(downloadMissingFiles(src, obj, PACKAGE, p.getPackage()));
 			p.setStatement(downloadMissingFiles(src, obj, STATEMENT, p.getStatement()));
+			p.setAttachments(downloadMissingFiles(src, obj, ATTACHMENTS, p.getAttachments()));
 		} else if (obj instanceof Group) {
 			Group g = (Group) obj;
 			g.setLogo(downloadMissingFiles(src, obj, LOGO, g.getLogo()));
