@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 import org.icpc.tools.contest.model.feed.JSONEncoder;
+import org.icpc.tools.contest.model.internal.MimeUtil;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
@@ -120,14 +121,7 @@ public class HttpHelper {
 	}
 
 	private static void setCommonHeaders(String name, HttpServletResponse response) {
-		if (name.endsWith(".jpg") || name.endsWith(".jpeg"))
-			response.setContentType("image/jpeg");
-		else if (name.endsWith(".txt") || name.endsWith(".tsv") || name.endsWith(".yaml") || name.endsWith(".xml"))
-			response.setContentType("text/plain");
-		else if (name.endsWith(".png"))
-			response.setContentType("image/png");
-		else if (name.endsWith(".svg"))
-			response.setContentType("image/svg+xml");
+		response.setContentType(MimeUtil.getMimeType(name));
 
 		response.setHeader("Cache-Control", "max-age=1800"); // 30 minutes
 		response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");

@@ -20,12 +20,12 @@ public class MPEGTSHandler extends VideoStreamHandler {
 
 	@Override
 	protected String getFileExtension() {
-		return "m2ts";
+		return "ts";
 	}
 
 	@Override
 	protected String getMimeType() {
-		return "video/m2ts";
+		return "video/mp2t";
 	}
 
 	@Override
