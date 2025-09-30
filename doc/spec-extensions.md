@@ -69,9 +69,6 @@ Additional JSON attributes of contest objects:
 | Name                 | Type          | Description
 | :------------------- | :------------ | :----------
 | time\_multiplier     | number        | The amount time is sped up, e.g. `2.5` for a contest replaying at 2.5x original speed.
-| location             | object        | JSON object as specified in the rows below.
-| location.latitude    | number        | Latitude in degrees. Required iff location is present.
-| location.longitude   | number        | Longitude in degrees. Required iff location is present.
 
 #### Examples
 
