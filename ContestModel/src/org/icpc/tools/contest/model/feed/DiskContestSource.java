@@ -43,6 +43,7 @@ import org.icpc.tools.contest.model.internal.FileReferenceList;
 import org.icpc.tools.contest.model.internal.Group;
 import org.icpc.tools.contest.model.internal.IContestModifier;
 import org.icpc.tools.contest.model.internal.Info;
+import org.icpc.tools.contest.model.internal.MimeUtil;
 import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Problem;
@@ -76,7 +77,7 @@ public class DiskContestSource extends ContestSource {
 
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
-	private static final String[] VIDEO_EXTENSIONS = new String[] { "m2ts", "ogg", "flv", };
+	private static final String[] VIDEO_EXTENSIONS = new String[] { "ts", "m2ts", "ogg", "flv" };
 
 	protected File eventFeedFile;
 	private File root;
@@ -373,7 +374,7 @@ public class DiskContestSource extends ContestSource {
 				}
 			}
 			if (ext == null && fileRef.mime != null)
-				ext = getExtension(fileRef.mime);
+				ext = MimeUtil.getExtension(fileRef.mime);
 		}
 
 		// fallback to default filename and extension as necessary
@@ -457,7 +458,7 @@ public class DiskContestSource extends ContestSource {
 			ref.etag = etag;
 			ref.href = href;
 			ref.file = file;
-			ref.mime = getMimeType(ref.filename);
+			ref.mime = MimeUtil.getMimeType(ref.filename);
 			ref.lastModified = file.lastModified();
 			ref.updateTags();
 			readImageSize(ref);
@@ -697,68 +698,6 @@ public class DiskContestSource extends ContestSource {
 		return ref;
 	}
 
-	/**
-	 * Return mime-type based on filename.
-	 *
-	 * @param name
-	 * @return
-	 */
-	private static String getMimeType(String name) {
-		String name2 = name.toLowerCase();
-		if (name2.endsWith(".zip"))
-			return "application/zip";
-		else if (name2.endsWith(".png"))
-			return "image/png";
-		else if (name2.endsWith(".jpg") || name2.endsWith(".jpeg"))
-			return "image/jpeg";
-		else if (name2.endsWith(".svg"))
-			return "image/svg+xml";
-		else if (name2.endsWith(".m2ts"))
-			return "video/m2ts";
-		else if (name2.endsWith(".ogg"))
-			return "video/ogg";
-		else if (name2.endsWith(".flv"))
-			return "video/x-flv";
-		else if (name2.endsWith(".txt"))
-			return "text/plain";
-		else if (name2.endsWith(".log"))
-			return "text/plain";
-		else if (name2.endsWith(".pdf"))
-			return "application/pdf";
-		return null;
-	}
-
-	/**
-	 * Return filename based on mime-type.
-	 *
-	 * @param mimeType
-	 * @return
-	 */
-	private static String getExtension(String mimeType) {
-		if (mimeType == null)
-			return null;
-
-		if (mimeType.equals("application/zip"))
-			return "zip";
-		else if (mimeType.equals("image/png"))
-			return "png";
-		else if (mimeType.equals("image/jpeg"))
-			return "jpg";
-		else if (mimeType.equals("image/svg+xml"))
-			return "svg";
-		else if (mimeType.equals("video/MP2T") || mimeType.equals("video/m2ts"))
-			return "m2ts";
-		else if (mimeType.equals("video/ogg"))
-			return "ogg";
-		else if (mimeType.equals("video/x-flv"))
-			return "flv";
-		else if (mimeType.equals("text/plain"))
-			return "txt";
-		else if (mimeType.equals("application/pdf"))
-			return "pdf";
-		return null;
-	}
-
 	protected static void readImageSize(FileReference ref) {
 		File file = ref.file;
 		String name = file.getName().toLowerCase();
@@ -787,7 +726,7 @@ public class DiskContestSource extends ContestSource {
 	protected static FileReference readMetadata(File file) {
 		FileReference ref = new FileReference();
 		ref.filename = file.getName();
-		ref.mime = getMimeType(ref.filename);
+		ref.mime = MimeUtil.getMimeType(ref.filename);
 		ref.file = file;
 		ref.lastModified = file.lastModified();
 		ref.updateTags();
