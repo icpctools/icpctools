@@ -157,9 +157,9 @@ public class ReactionVideoRecorder {
 				info.stream[count] = streamsWebcam.get(i);
 				String extension = va.getStream(info.stream[count]).getFileExtension();
 				if (numWebcam > 1)
-					info.file[count] = new File(submissionDir, "reaction-" + WEBCAM + (i + 1) + "." + extension);
+					info.file[count] = new File(submissionDir, "reaction." + WEBCAM + (i + 1) + "." + extension);
 				else
-					info.file[count] = new File(submissionDir, "reaction-" + WEBCAM + "." + extension);
+					info.file[count] = new File(submissionDir, "reaction." + WEBCAM + "." + extension);
 				count++;
 			}
 		}
@@ -170,9 +170,9 @@ public class ReactionVideoRecorder {
 				info.stream[count] = streamsDesktop.get(i);
 				String extension = va.getStream(info.stream[count]).getFileExtension();
 				if (numDesktop > 1)
-					info.file[count] = new File(submissionDir, "reaction-" + DESKTOP + (i + 1) + "." + extension);
+					info.file[count] = new File(submissionDir, "reaction." + DESKTOP + (i + 1) + "." + extension);
 				else
-					info.file[count] = new File(submissionDir, "reaction-" + DESKTOP + "." + extension);
+					info.file[count] = new File(submissionDir, "reaction." + DESKTOP + "." + extension);
 				count++;
 			}
 		}
