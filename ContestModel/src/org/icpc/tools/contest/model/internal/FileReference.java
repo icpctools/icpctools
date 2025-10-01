@@ -10,7 +10,9 @@ import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 public class FileReference {
 	public static final String TAG_LIGHT = "light";
 	public static final String TAG_DARK = "dark";
-	public static final String[] KNOWN_TAGS = new String[] { TAG_LIGHT, TAG_DARK };
+	public static final String TAG_WEBCAM = "webcam";
+	public static final String TAG_DESKTOP = "desktop";
+	public static final String[] KNOWN_TAGS = new String[] { TAG_LIGHT, TAG_DARK, TAG_WEBCAM, TAG_DESKTOP };
 
 	public String mime;
 	public String href = null;
