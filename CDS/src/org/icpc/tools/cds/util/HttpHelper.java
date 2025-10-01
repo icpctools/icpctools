@@ -4,8 +4,15 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Enumeration;
+import java.util.List;
 
+import org.icpc.tools.cds.CDSConfig;
+import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.internal.MimeUtil;
 
@@ -16,8 +23,62 @@ import jakarta.servlet.http.HttpServletResponse;
 public class HttpHelper {
 	private static final String OK_CHARS = new String("[]{},.~`?!@#$^&*()-_=+:|");
 
+	private static MessageDigest digest;
+
+	static {
+		try {
+			digest = MessageDigest.getInstance("SHA-256");
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Security algorithm could not be found");
+		}
+	}
+
+	public static IAccount getAccountFromRequest(HttpServletRequest request) {
+		String user = request.getRemoteUser();
+		if (user != null) {
+			List<IAccount> accounts = CDSConfig.getInstance().getAccounts();
+			for (IAccount account : accounts) {
+				if (user.equals(account.getUsername())) {
+					return account;
+				}
+			}
+		}
+
+		if (user == null) {
+			String token = request.getParameter("token");
+			if (token != null) {
+				List<IAccount> accounts = CDSConfig.getInstance().getAccounts();
+				for (IAccount account : accounts) {
+					String token2 = getAccountToken(account);
+					if (token.equals(token2)) {
+						return account;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public static String getAccountToken(IAccount account) {
+		try {
+			String token = account.getUsername() + ":" + account.getPassword();
+			byte[] byteOfTextToHash = token.getBytes(StandardCharsets.UTF_8);
+
+			byte[] hashedByteArray = digest.digest(byteOfTextToHash);
+
+			return Base64.getEncoder().encodeToString(hashedByteArray).replaceAll("[+/]", "");
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not generate account token", e);
+			return null;
+		}
+	}
+
 	public static void setThreadHost(HttpServletRequest request) {
 		JSONEncoder.setThreadHost("https://" + request.getServerName() + ":" + request.getServerPort());
+		IAccount account = getAccountFromRequest(request);
+		if (account != null) {
+			JSONEncoder.setAccountToken(getAccountToken(account));
+		}
 	}
 
 	public static void sendFile(HttpServletRequest request, HttpServletResponse response, File f) throws IOException {
