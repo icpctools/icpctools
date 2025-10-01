@@ -17,6 +17,7 @@ public class JSONEncoder {
 	}
 
 	private static final ThreadLocal<String> local = new ThreadLocal<>();
+	private static final ThreadLocal<String> local2 = new ThreadLocal<>();
 	private static String DEFAULT_HOST = "http://cds";
 	static {
 		try {
@@ -214,11 +215,25 @@ public class JSONEncoder {
 		local.set(host);
 	}
 
+	public static void setAccountToken(String token) {
+		local2.set(token);
+	}
+
 	public String replace(String s) {
 		String host = local.get();
 		if (host == null)
 			host = DEFAULT_HOST;
-		return s.replace("<host>", host);
+		String t = s.replace("<host>", host);
+
+		int ind = t.indexOf("\"href\":\"");
+		if (ind > 0) {
+			int ind2 = t.indexOf("\"", ind + 10);
+			if (ind2 > 0 && local2.get() != null) {
+				t = t.substring(0, ind2) + "?token=" + local2.get() + t.substring(ind2);
+			}
+		}
+
+		return t;
 	}
 
 	public void encodeValue(int value) {

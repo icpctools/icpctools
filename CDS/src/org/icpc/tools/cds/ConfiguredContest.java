@@ -13,6 +13,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.icpc.tools.cds.service.ExecutorListener;
+import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.cds.util.PlaybackContest;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
@@ -526,17 +527,9 @@ public class ConfiguredContest {
 		if (contest == null)
 			loadContest();
 
-		IAccount account = PUBLIC_ACCOUNT;
-		String user = request.getRemoteUser();
-		if (user != null) {
-			List<IAccount> accounts = CDSConfig.getInstance().getAccounts();
-			for (IAccount acc : accounts) {
-				if (user.equals(acc.getUsername())) {
-					account = acc;
-				}
-			}
-		}
-
+		IAccount account = HttpHelper.getAccountFromRequest(request);
+		if (account == null)
+			account = PUBLIC_ACCOUNT;
 		return getContestForAccount(account);
 	}
 
