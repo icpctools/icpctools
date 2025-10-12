@@ -74,7 +74,10 @@ public class Clarification extends TimedEvent implements IClarification {
 			fromTeamId = (String) value;
 			return true;
 		} else if (TO_TEAM_ID.equals(name)) {
-			toTeamIds = new String[] { (String) value };
+			if (value == null || "null".equals(value))
+				toTeamIds = null;
+			else
+				toTeamIds = new String[] { (String) value };
 			return true;
 		} else if (TO_TEAM_IDS.equals(name)) {
 			if (value == null || "null".equals(value))
