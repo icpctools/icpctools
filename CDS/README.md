@@ -37,7 +37,7 @@ regarding CDS services can be found on the [CLI Contest Data Package specificati
 
 Note: many of the data access functions provided by the CDS require the use of a compatible
 _Contest Control System_ (CCS) for running the contest. See the _Competitive Learning Institute_'s
-[Contest Control System specification](https://ccs-specs.icpc.io/ccs_system_requirements)
+[Contest Control System specification](https://ccs-specs.icpc.io)
 for details. See the documentation for the CCS being used by your contest to determine whether it meets the CLI CCS specification.
 
 ## Using the CDS
@@ -51,7 +51,7 @@ the entire CDS can be run using the embedded Liberty server without any other to
 
 Alternatively, the CDS can be deployed on other Application Servers
 such as [Apache Tomcat](http://tomcat.apache.org/), 
-[JBoss](http://jbossas.jboss.org/) (now [WildFly](http://wildfly.org/), or
+[WildFly](http://wildfly.org/), or
 [Jetty](http://www.eclipse.org/jetty/). However, the mechanisms and requirements for deploying web applications 
 to application servers differ between servers.
 This guide does not attempt to provide tutorial details for such alternative deployments; see the Appendices and
