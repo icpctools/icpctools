@@ -321,7 +321,7 @@ public class ImagesGenerator {
 						name = org.getActualFormalName();
 
 					File orgFolder = new File(orgRootFolder, org.getId());
-					File imgFile = getDefaultFile(orgFolder, "logo");
+					File imgFile = getDefaultFile(orgFolder, "logo", null);
 					if (imgFile.exists())
 						mod = imgFile.lastModified();
 
@@ -374,10 +374,14 @@ public class ImagesGenerator {
 		return false;
 	}
 
-	private static File getDefaultFile(File folder, String property) {
+	private static File getDefaultFile(File folder, String property, String tag) {
+		String prefix = property;
+		if (tag != null) {
+			prefix += "." + tag;
+		}
 		// first look for default names, in order of extension preference
 		for (String s : IMAGE_EXTENSIONS) {
-			File f = new File(folder, property + "." + s);
+			File f = new File(folder, prefix + "." + s);
 			if (f.exists())
 				return f;
 		}
@@ -388,12 +392,15 @@ public class ImagesGenerator {
 			return null;
 		}
 
-		String regex = "logo\\.[0-9]*x[0-9]*\\.[a-z]*";
+		String regex = "logo(\\.[a-z]+)*\\.[0-9]*x[0-9]*\\.[a-z]*";
 		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+		String tagRegex = property + "(\\.[a-z]+)*\\..*";
+		Pattern tagPattern = Pattern.compile(tagRegex, Pattern.CASE_INSENSITIVE);
 		for (File ff : files) {
 			// skip generated files
 			Matcher matcher = pattern.matcher(ff.getName());
-			if (!matcher.find()) {
+			Matcher tagMatcher = tagPattern.matcher(ff.getName());
+			if (!matcher.find() && !tagMatcher.find()) {
 				return ff;
 			}
 		}
@@ -427,6 +434,8 @@ public class ImagesGenerator {
 	}
 
 	public void generateImages(String objectName, String property, String preferredExtension, ImageSpec[] spec) {
+		String[] tags = {null, FileReference.TAG_LIGHT, FileReference.TAG_DARK};
+
 		File rootFolder = new File(contestRoot, objectName);
 		if (!rootFolder.exists()) {
 			Trace.trace(Trace.ERROR, "Couldn't find /" + objectName + " folder. Exiting");
@@ -444,61 +453,70 @@ public class ImagesGenerator {
 		}
 		for (File folder : folders) {
 			if (folder.isDirectory()) {
-				String folderName = folder.getName();
-				File imgFile = getDefaultFile(folder, property);
-
-				if (imgFile == null) {
-					Trace.trace(Trace.ERROR, "Warning: no image found (" + folder.getName() + ")");
-					numWarnings++;
-					continue;
-				}
-
-				try {
-					Trace.trace(Trace.USER, "Updating " + objectName + " " + property + ": " + folderName);
-
-					long mod = imgFile.lastModified();
-
-					BufferedImage img;
-					if (imgFile.getName().endsWith(".svg")) {
-						SVGDocument svg = SVGUtil.loadSVG(imgFile);
-						// convert to 4k image, no need for more at the moment
-						img = SVGUtil.convertSVG(svg, 3840, 1920);
-						if (img == null)
-							Trace.trace(Trace.ERROR, "Warning: couldn't read SVG: " + imgFile.getAbsolutePath());
-					} else {
-						img = ImageIO.read(imgFile);
+				for (String tag : tags) {
+					String prefix = property;
+					if (tag != null) {
+						prefix += "." + tag;
 					}
+					String folderName = folder.getName();
+					File imgFile = getDefaultFile(folder, property, tag);
 
-					if (img == null) {
-						Trace.trace(Trace.WARNING, "Couldn't read image:" + imgFile.getAbsolutePath());
+					if (imgFile == null) {
+						Trace.trace(Trace.ERROR, "Warning: no image found (" + folder.getName() + ")");
+						numWarnings++;
 						continue;
 					}
 
-					img = removeBorders(img);
+					try {
+						Trace.trace(Trace.USER, "Updating " + objectName + " " + prefix + ": " + folderName);
 
-					// clean up old generated files
-					File[] files2 = folder.listFiles();
-					for (File ff : files2) {
-						if (ff.getName().startsWith(property + ".") && hasExtension(ff.getName(), IMAGE_EXTENSIONS)
-								&& ff.lastModified() != mod)
-							if (!ff.delete()) {
-								System.err.println("Failed to remove old files");
-								System.exit(2);
-							}
+						long mod = imgFile.lastModified();
 
+						BufferedImage img;
+						if (imgFile.getName().endsWith(".svg")) {
+							SVGDocument svg = SVGUtil.loadSVG(imgFile);
+							// convert to 4k image, no need for more at the moment
+							img = SVGUtil.convertSVG(svg, 3840, 1920);
+							if (img == null)
+								Trace.trace(Trace.ERROR, "Warning: couldn't read SVG: " + imgFile.getAbsolutePath());
+						} else {
+							img = ImageIO.read(imgFile);
+						}
+
+						if (img == null) {
+							Trace.trace(Trace.WARNING, "Couldn't read image:" + imgFile.getAbsolutePath());
+							continue;
+						}
+
+						img = removeBorders(img);
+
+						String tagRegex = property + "(\\.[a-z]+)+\\.[a-z]+";
+						Pattern tagPattern = Pattern.compile(tagRegex, Pattern.CASE_INSENSITIVE);
+
+						// clean up old generated files
+						File[] files2 = folder.listFiles();
+						for (File ff : files2) {
+							if (ff.getName().startsWith(prefix + ".") && hasExtension(ff.getName(), IMAGE_EXTENSIONS)
+									&& !tagPattern.matcher(ff.getName()).find() && ff.lastModified() != mod)
+								if (!ff.delete()) {
+									System.err.println("Failed to remove old files");
+									System.exit(2);
+								}
+
+						}
+
+						numWarnings = checkForWarnings(folderName, img, numWarnings, transparency);
+
+						String name = imgFile.getName().toLowerCase();
+						if (!name.equals(prefix + "." + preferredExtension)) {
+							// there's no filename with the spec extension, create one
+							writeImage(prefix, img, folder, mod, false, preferredExtension);
+						}
+
+						generateImageSpec(img, spec, folder, prefix, preferredExtension, mod);
+					} catch (Exception e) {
+						Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
 					}
-
-					numWarnings = checkForWarnings(folderName, img, numWarnings, transparency);
-
-					String name = imgFile.getName().toLowerCase();
-					if (!name.equals(property + "." + preferredExtension)) {
-						// there's no filename with the spec extension, create one
-						writeImage(property, img, folder, mod, false, preferredExtension);
-					}
-
-					generateImageSpec(img, spec, folder, property, preferredExtension, mod);
-				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Error generating image: " + imgFile.getAbsolutePath(), e);
 				}
 			}
 		}
@@ -831,14 +849,14 @@ public class ImagesGenerator {
 
 			BufferedImage logoImg = organizations[i].getLogoImage(sq, sq, FileReference.TAG_DARK, true, true);
 			if (logoImg != null) {
-				for (int j = 0; j < 3; j++) {
+				for (int j = 0; j < 2; j++) {
 					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
 							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
 				}
 			}
 			logoImg = organizations[i].getLogoImage(sq, sq, FileReference.TAG_LIGHT, true, true);
 			if (logoImg != null) {
-				for (int j = 3; j < 3; j++) {
+				for (int j = 2; j < 3; j++) {
 					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
 							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
 				}
