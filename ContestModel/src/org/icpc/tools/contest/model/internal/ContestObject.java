@@ -395,22 +395,26 @@ public abstract class ContestObject implements IContestObject {
 		// filter by tags if there was one given
 		FileReferenceList list2 = list;
 		if (tag != null) {
-			FileReferenceList list3 = new FileReferenceList();
+			FileReferenceList listWithApplicableTag = new FileReferenceList();
+			FileReferenceList listWithoutTags = new FileReferenceList();
 			for (FileReference ref : list2) {
-				boolean found = false;
 				if (ref.tags != null) {
 					for (String t : ref.tags) {
-						if (tag.equals(t))
-							found = true;
+						if (tag.equals(t)) {
+							listWithApplicableTag.add(ref);
+							break;
+						}
 					}
-				}
-				if (found) {
-					list3.add(ref);
+				} else {
+					listWithoutTags.add(ref);
 				}
 			}
-			// use the filtered list - unless it's empty
-			if (!list3.isEmpty())
-				list2 = list3;
+			if (!listWithApplicableTag.isEmpty())
+				// If we have at least one file with the tag, use it
+				list2 = listWithApplicableTag;
+			else if (!listWithoutTags.isEmpty())
+				// Otherwise, use the list of files without any tag, if not empty
+				list2 = listWithoutTags;
 		}
 
 		// look for svgs first
