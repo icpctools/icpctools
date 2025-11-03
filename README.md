@@ -43,6 +43,21 @@ The most popular CCSs that have been tested and successfully used at multiple co
 * [Kattis](https://www.kattis.com)
 * [PC^2](https://pc2ccs.github.io)
 
+## Java and Contest API Version Compatibility
+
+The table below shows the minimum Java version supported by each release of the tools. Java is backward compatible so
+we'd generally recommend running on the latest LTS version.
+
+The Contest API is not 100% backward compatible, so you should match the Contest API supported by your CCS.
+However, the breakage is usually small and the tools attempt to read from older sources, so you may be able
+to use newer tools depending on your use.
+
+Version | Java Version | Contest API
+--- | --- | ---
+2.4 | Java 8 minimum | 2021_11
+2.5 | Java 11 minimum | 2022-07
+2.6 | Java 17 minimum | 2023-06 (+ draft support for upcoming 2025 spec)
+
 ## Contributing
 
 The ICPC Tools are developed, tested, and maintained by a group of ICPC volunteers. Bug reports, feature requests,
