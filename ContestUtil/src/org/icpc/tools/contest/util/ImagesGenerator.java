@@ -19,8 +19,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.imageio.IIOImage;
@@ -321,9 +322,9 @@ public class ImagesGenerator {
 						name = org.getActualFormalName();
 
 					File orgFolder = new File(orgRootFolder, org.getId());
-					File imgFile = getDefaultFile(orgFolder, "logo", null);
-					if (imgFile.exists())
-						mod = imgFile.lastModified();
+					Map<String, File> imgFiles = getDefaultFiles(orgFolder, "logo");
+					if (imgFiles.get(null) != null && imgFiles.get(null).exists())
+						mod = imgFiles.get(null).lastModified();
 
 					logoImg = org.getLogoImage(1920, 1080, FileReference.TAG_DARK, true, true);
 				}
@@ -374,37 +375,138 @@ public class ImagesGenerator {
 		return false;
 	}
 
-	private static File getDefaultFile(File folder, String property, String tag) {
-		String prefix = property;
-		if (tag != null) {
-			prefix += "." + tag;
-		}
-		// first look for default names, in order of extension preference
-		for (String s : IMAGE_EXTENSIONS) {
-			File f = new File(folder, prefix + "." + s);
-			if (f.exists())
-				return f;
-		}
+	/**
+	 * Find all images for a property in a folder, organized by tags.
+	 *
+	 * Scans for files matching:
+	 * - [property].[extension] - no tags (key: null)
+	 * - [property].[tag].[extension] - single tag (key: "tag")
+	 * - [property].[tag1].[tag2].[...].[tagN].[extension] - multiple tags (key: "tag1.tag2...tagN")
+	 *
+	 * Ignores generated dimension files like:
+	 * - [property].[x]x[y].[extension]
+	 * - [property].[tag1].[...].[tagN].[x]x[y].[extension]
+	 *
+	 * @param folder the folder to search
+	 * @param property the property name (e.g., "logo")
+	 * @return a map from tag string to file, where null key means no tags
+	 */
+	private static Map<String, File> getDefaultFiles(File folder, String property) {
+		Map<String, File> result = new HashMap<>();
 
 		File[] files = folder.listFiles();
 		if (files == null) {
-			Trace.trace(Trace.WARNING, "Failed to read " + folder.getAbsolutePath() + ", might be empty.");
-			return null;
+			return result;
 		}
 
-		String regex = "logo(\\.[a-z]+)*\\.[0-9]*x[0-9]*\\.[a-z]*";
-		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		String tagRegex = property + "(\\.[a-z]+)*\\..*";
-		Pattern tagPattern = Pattern.compile(tagRegex, Pattern.CASE_INSENSITIVE);
-		for (File ff : files) {
-			// skip generated files
-			Matcher matcher = pattern.matcher(ff.getName());
-			Matcher tagMatcher = tagPattern.matcher(ff.getName());
-			if (!matcher.find() && !tagMatcher.find()) {
-				return ff;
+		// Pattern to detect dimension strings like "1920x1080"
+		Pattern dimensionPattern = Pattern.compile("^[0-9]+x[0-9]+$", Pattern.CASE_INSENSITIVE);
+
+		File fallbackFile = null;
+
+		for (File file : files) {
+			String filename = file.getName();
+
+			// Check if file has a valid image extension
+			String ext = getImageExtension(filename);
+			if (ext == null) {
+				continue; // Not a valid image extension
+			}
+
+			// Remove extension from filename
+			String withoutExtension = filename.substring(0, filename.length() - ext.length() - 1);
+
+			// Check if it starts with the property name
+			if (withoutExtension.equals(property)) {
+				// Exact match: property.extension (no tags)
+				addOrUpdateFileByExtension(result, null, file);
+			} else if (withoutExtension.startsWith(property + ".")) {
+				// Extract the middle part between property and extension
+				String middle = withoutExtension.substring(property.length() + 1);
+
+				// Split by dots to get segments
+				String[] segments = middle.split("\\.");
+
+				// Check if last segment is a dimension (e.g., "1920x1080")
+				if (segments.length > 0 && dimensionPattern.matcher(segments[segments.length - 1]).matches()) {
+					// This is a generated file with dimensions, skip it
+					continue;
+				}
+
+				// All segments are tags, join them back with dots
+				String tags = middle;
+
+				addOrUpdateFileByExtension(result, tags, file);
+			} else {
+				// File doesn't follow naming convention, consider as fallback
+				if (fallbackFile == null || compareFilesByExtension(file, fallbackFile) < 0) {
+					fallbackFile = file;
+				}
+			}
+		}
+
+		// Special case: if no file without tags was found, use fallback (if it exists and doesn't match dimension patterns)
+		if (!result.containsKey(null) && fallbackFile != null) {
+			String fallbackName = fallbackFile.getName();
+			String ext = getImageExtension(fallbackName);
+			String withoutExt = fallbackName.substring(0, fallbackName.length() - ext.length() - 1);
+
+			// Check if fallback matches dimension pattern
+			String[] parts = withoutExt.split("\\.");
+			if (parts.length > 0 && !dimensionPattern.matcher(parts[parts.length - 1]).matches()) {
+				result.put(null, fallbackFile);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Get the image extension from a filename, or null if not a valid image extension.
+	 */
+	private static String getImageExtension(String filename) {
+		for (String ext : IMAGE_EXTENSIONS) {
+			if (filename.endsWith("." + ext)) {
+				return ext;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Add or update a file in the map, keeping the one with higher priority extension.
+	 */
+	private static void addOrUpdateFileByExtension(Map<String, File> map, String tags, File file) {
+		if (map.containsKey(tags)) {
+			File existing = map.get(tags);
+			if (compareFilesByExtension(file, existing) < 0) {
+				map.put(tags, file);
+			}
+		} else {
+			map.put(tags, file);
+		}
+	}
+
+	/**
+	 * Compare two files by their extension priority (based on IMAGE_EXTENSIONS order).
+	 * Returns negative if f1 has higher priority, positive if f2 has higher priority.
+	 */
+	private static int compareFilesByExtension(File f1, File f2) {
+		int priority1 = getExtensionPriority(f1.getName());
+		int priority2 = getExtensionPriority(f2.getName());
+		return priority1 - priority2; // Lower index = higher priority
+	}
+
+	/**
+	 * Get the priority index of a file's extension (lower is better).
+	 */
+	private static int getExtensionPriority(String filename) {
+		for (int i = 0; i < IMAGE_EXTENSIONS.length; i++) {
+			if (filename.endsWith("." + IMAGE_EXTENSIONS[i])) {
+				return i;
+			}
+		}
+		return IMAGE_EXTENSIONS.length; // Lowest priority for unknown extensions
 	}
 
 	public void generateOrganizationLogos() {
@@ -434,8 +536,6 @@ public class ImagesGenerator {
 	}
 
 	public void generateImages(String objectName, String property, String preferredExtension, ImageSpec[] spec) {
-		String[] tags = {null, FileReference.TAG_LIGHT, FileReference.TAG_DARK};
-
 		File rootFolder = new File(contestRoot, objectName);
 		if (!rootFolder.exists()) {
 			Trace.trace(Trace.ERROR, "Couldn't find /" + objectName + " folder. Exiting");
@@ -453,18 +553,19 @@ public class ImagesGenerator {
 		}
 		for (File folder : folders) {
 			if (folder.isDirectory()) {
-				for (String tag : tags) {
+				String folderName = folder.getName();
+				Map<String, File> imgFiles = getDefaultFiles(folder, property);
+				if (imgFiles.isEmpty()) {
+					Trace.trace(Trace.ERROR, "Warning: no image found (" + folder.getName() + ")");
+					numWarnings++;
+					continue;
+				}
+				for (String tag : imgFiles.keySet()) {
+					File imgFile = imgFiles.get(tag);
+
 					String prefix = property;
 					if (tag != null) {
 						prefix += "." + tag;
-					}
-					String folderName = folder.getName();
-					File imgFile = getDefaultFile(folder, property, tag);
-
-					if (imgFile == null) {
-						Trace.trace(Trace.ERROR, "Warning: no image found (" + folder.getName() + ")");
-						numWarnings++;
-						continue;
 					}
 
 					try {
@@ -490,14 +591,14 @@ public class ImagesGenerator {
 
 						img = removeBorders(img);
 
-						String tagRegex = property + "(\\.[a-z]+)+\\.[a-z]+";
-						Pattern tagPattern = Pattern.compile(tagRegex, Pattern.CASE_INSENSITIVE);
+						// Pattern to detect dimension files (e.g., logo.1920x1080.png or logo.dark.1920x1080.png)
+						Pattern dimensionFilePattern = Pattern.compile("\\.[0-9]+x[0-9]+\\.[a-z]+$", Pattern.CASE_INSENSITIVE);
 
 						// clean up old generated files
 						File[] files2 = folder.listFiles();
 						for (File ff : files2) {
 							if (ff.getName().startsWith(prefix + ".") && hasExtension(ff.getName(), IMAGE_EXTENSIONS)
-									&& !tagPattern.matcher(ff.getName()).find() && ff.lastModified() != mod)
+									&& dimensionFilePattern.matcher(ff.getName()).find() && ff.lastModified() != mod)
 								if (!ff.delete()) {
 									System.err.println("Failed to remove old files");
 									System.exit(2);
