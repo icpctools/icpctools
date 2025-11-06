@@ -1278,6 +1278,8 @@ public class DiskContestSource extends ContestSource {
 				if (f.exists()) {
 					contest.add(YamlParser.importContestInfo(f, true));
 					Trace.trace(Trace.INFO, "Imported contest yaml");
+				} else {
+					attachLocalResources(contest.getInfo());
 				}
 			}
 		} catch (Exception e) {

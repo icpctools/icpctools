@@ -65,6 +65,8 @@ public class ImagesGenerator {
 	private static final Dimension DOMJUDGE_ICON = new Dimension(64, 64);
 	private static final Dimension TILE = new Dimension(160, 160);
 
+	private static final String[] TAGS = new String[] { FileReference.TAG_DARK, null, FileReference.TAG_LIGHT };
+
 	private static BufferedImage icpcLogo, logo;
 
 	static class ImageSpec {
@@ -948,16 +950,9 @@ public class ImagesGenerator {
 			s = organizations[i].getId();
 			g.drawString(s, x + (sq - fm.stringWidth(s)) / 2, baseline2);
 
-			BufferedImage logoImg = organizations[i].getLogoImage(sq, sq, FileReference.TAG_DARK, true, true);
-			if (logoImg != null) {
-				for (int j = 0; j < 2; j++) {
-					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
-							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
-				}
-			}
-			logoImg = organizations[i].getLogoImage(sq, sq, FileReference.TAG_LIGHT, true, true);
-			if (logoImg != null) {
-				for (int j = 2; j < 3; j++) {
+			for (int j = 0; j < 3; j++) {
+				BufferedImage logoImg = organizations[i].getLogoImage(sq, sq, TAGS[j], true, true);
+				if (logoImg != null) {
 					g.drawImage(logoImg, x + (sq - logoImg.getWidth()) / 2,
 							th + pad + (sq + pad * 2) * j + (sq - logoImg.getHeight()) / 2, null);
 				}
@@ -975,19 +970,14 @@ public class ImagesGenerator {
 	private void createContestPreview() throws IOException {
 		int sq = 300;
 
-		BufferedImage[] images = new BufferedImage[4];
-
-		images[0] = contest.getLogoImage(sq * 5, sq, FileReference.TAG_LIGHT, true, true);
-		images[1] = contest.getLogoImage(sq * 5, sq, FileReference.TAG_DARK, true, true);
-		images[2] = contest.getBannerImage(sq * 5, sq, FileReference.TAG_LIGHT, true, true);
-		images[3] = contest.getBannerImage(sq * 5, sq, FileReference.TAG_DARK, true, true);
-
 		int pad = 25;
 		int w = (pad * 3);
-		for (BufferedImage img : images) {
-			if (img != null)
-				w += img.getWidth();
-		}
+		BufferedImage tmpImg = contest.getBannerImage(sq * 5, sq, null, true, true);
+		if (tmpImg != null)
+			w += tmpImg.getWidth();
+		tmpImg = contest.getLogoImage(sq, sq, null, true, true);
+		if (tmpImg != null)
+			w += tmpImg.getWidth();
 
 		int h = (sq + pad * 2) * 3;
 		BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_BGR);
@@ -998,12 +988,19 @@ public class ImagesGenerator {
 		g.setColor(Color.WHITE);
 		g.fillRect(0, sq * 2 + pad * 4, w, sq + pad * 2);
 
-		int xx = 0;
-		for (BufferedImage bi : images) {
-			if (bi != null) {
-				for (int j = 0; j < 3; j++)
-					g.drawImage(bi, xx + pad, pad + (sq + pad * 2) * j + (sq - bi.getHeight()) / 2, null);
-				xx += bi.getWidth() + pad;
+		int xx = pad;
+		for (int j = 0; j < 3; j++) {
+			BufferedImage image = contest.getLogoImage(sq, sq, TAGS[j], true, true);
+			if (image != null) {
+				g.drawImage(image, xx, pad + (sq + pad * 2) * j + (sq - image.getHeight()) / 2, null);
+			}
+		}
+
+		xx += tmpImg.getWidth() + pad;
+		for (int j = 0; j < 3; j++) {
+			BufferedImage image = contest.getBannerImage(sq * 5, sq, TAGS[j], true, true);
+			if (image != null) {
+				g.drawImage(image, xx, pad + (sq + pad * 2) * j + (sq - image.getHeight()) / 2, null);
 			}
 		}
 

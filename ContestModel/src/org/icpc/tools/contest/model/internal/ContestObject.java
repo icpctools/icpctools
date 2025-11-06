@@ -385,6 +385,14 @@ public abstract class ContestObject implements IContestObject {
 		}
 	}
 
+	private static String getConflictingTag(String tag) {
+		if (FileReference.TAG_LIGHT.equals(tag))
+			return FileReference.TAG_DARK;
+		else if (FileReference.TAG_DARK.equals(tag))
+			return FileReference.TAG_LIGHT;
+		return null;
+	}
+
 	private static FileReference getBestFileReference(FileReferenceList list, int width, int height, String tag) {
 		if (list == null || list.isEmpty())
 			return null;
@@ -392,29 +400,44 @@ public abstract class ContestObject implements IContestObject {
 		if (list.size() == 1)
 			return list.first();
 
-		// filter by tags if there was one given
-		FileReferenceList list2 = list;
+		// filter looking for files with matching tag
+		FileReferenceList listWithMatchingTag = new FileReferenceList();
+		FileReferenceList listWithNonConflictingTags = new FileReferenceList();
 		if (tag != null) {
-			FileReferenceList listWithApplicableTag = new FileReferenceList();
-			FileReferenceList listWithoutTags = new FileReferenceList();
-			for (FileReference ref : list2) {
+			for (FileReference ref : list) {
 				if (ref.tags != null) {
+					boolean found = true;
 					for (String t : ref.tags) {
 						if (tag.equals(t)) {
-							listWithApplicableTag.add(ref);
+							listWithMatchingTag.add(ref);
+							found = true;
+							break;
+						} else if (t.equals(getConflictingTag(tag))) {
+							found = true;
 							break;
 						}
 					}
+					if (!found) {
+						listWithNonConflictingTags.add(ref);
+					}
 				} else {
-					listWithoutTags.add(ref);
+					listWithNonConflictingTags.add(ref);
 				}
 			}
-			if (!listWithApplicableTag.isEmpty())
-				// If we have at least one file with the tag, use it
-				list2 = listWithApplicableTag;
-			else if (!listWithoutTags.isEmpty())
-				// Otherwise, use the list of files without any tag, if not empty
-				list2 = listWithoutTags;
+		} else {
+			for (FileReference ref : list) {
+				if (ref.tags == null || ref.tags.length == 0) {
+					listWithMatchingTag.add(ref);
+				}
+			}
+		}
+		FileReferenceList list2 = list;
+		if (!listWithMatchingTag.isEmpty()) {
+			// If we have at least one file with the tag, use it
+			list2 = listWithMatchingTag;
+		} else if (!listWithNonConflictingTags.isEmpty()) {
+			// Otherwise, use the list of files without any tag, if not empty
+			list2 = listWithNonConflictingTags;
 		}
 
 		// look for svgs first
