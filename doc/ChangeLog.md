@@ -1,5 +1,8 @@
 # ICPC Tools Changelog
 
+## V2.7 - ??
+-----------------
+
 ## V2.6 - November 2025
 -----------------
 * Supports the 2023-06 release of the Contest API spec.
