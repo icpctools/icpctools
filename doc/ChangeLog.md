@@ -1,7 +1,25 @@
 # ICPC Tools Changelog
 
-## V2.6 - TBD
+## V2.6 - November 2025
 -----------------
+* Supports the 2023-06 release of the Contest API spec.
+  * Includes most compatible features of the future spec.
+* Dropped Java 11 support (now Java 17 minimum, newer LTS recommended).
+* Support for scoring contests.
+* Lots of fixes from use at several regional and World Finals contests.
+* CDS:
+  * Disk scanning to keep file references in sync (detect files added or removed on disk).
+  * Improved mime types for file refs.
+  * Token authentication for file references.
+  * Ability to stream different video formats at once.
+  * Partial support for HLS video.
+* Presentations:
+  * Improved support for SVGs logos.
+  * Reduced memory use for contests with large logos (soft references).
+* Resolver:
+  * 'After awards', allowing messages to be included at any point.
+  * Reduced memory use for contests with large logos (soft references).
+  * Fixed --speed parameter and updated docs.
 
 ## V2.5 - June 2024
 -----------------
