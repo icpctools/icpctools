@@ -156,7 +156,7 @@ public class Ranking {
 				} else
 					standingI.setRank((n + 1) + "");
 
-				if (scoring != Scoring.LIVE && i > lastBronze - 1
+				if (scoring != Scoring.LIVE && i > lastBronze - 1 && lastBronze > 0
 						&& standingI.getNumSolved() < standings[order[lastBronze - 1]].getNumSolved())
 					standingI.setPenalty(-1);
 			}

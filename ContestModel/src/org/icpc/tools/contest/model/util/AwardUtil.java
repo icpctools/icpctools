@@ -513,11 +513,16 @@ public class AwardUtil {
 		if (awards != null) {
 			for (IAward a : awards)
 				if (a.getAwardType() == IAward.MEDAL && a.getId().contains("bronze")) {
-					lastBronze = 0;
+					lastBronze = 1;
 					String[] teamIds = a.getTeamIds();
 					if (teamIds != null) {
 						for (String tId : teamIds) {
-							lastBronze = Math.max(lastBronze, contest.getOrderOf(contest.getTeamById(tId)) + 1);
+							ITeam team = contest.getTeamById(tId);
+							if (team == null) {
+								Trace.trace(Trace.ERROR, "Error: Bronze medal given to team not in the contest: " + tId);
+							} else {
+								lastBronze = Math.max(lastBronze, contest.getOrderOf(team) + 1);
+							}
 						}
 					}
 				}
