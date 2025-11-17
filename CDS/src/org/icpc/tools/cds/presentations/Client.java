@@ -538,9 +538,10 @@ public class Client {
 
 	protected void disconnect() {
 		try {
-			if (session.isOpen())
-				// TODO - this appears to be hanging, and not absolutely necessary
-				session.close(new CloseReason(CloseCodes.NORMAL_CLOSURE, "Good-bye!"));
+			if (session.isOpen()) {
+				// disconnection due to communication error, make sure session is closed
+				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Good-bye!"));
+			}
 		} catch (Exception e) {
 			// ignore
 		}

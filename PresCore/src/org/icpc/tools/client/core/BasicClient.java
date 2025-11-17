@@ -114,8 +114,11 @@ public class BasicClient {
 			Trace.trace(Trace.USER, name + " disconnected");
 			fireConnectionStateEvent(false);
 			session = null;
-			if (closeReason != null && closeReason.getCloseCode() != CloseCodes.NORMAL_CLOSURE) {
-				if (closeReason.getCloseCode() == CloseCodes.UNEXPECTED_CONDITION
+			if (closeReason != null) {
+				if (closeReason.getCloseCode() == CloseCodes.NORMAL_CLOSURE)
+					return;
+
+				if (closeReason.getCloseCode() == CloseCodes.CANNOT_ACCEPT
 						&& closeReason.getReasonPhrase().startsWith("CDS: ")) {
 					Trace.trace(Trace.ERROR, closeReason.getReasonPhrase().substring(4));
 					return;
@@ -125,6 +128,7 @@ public class BasicClient {
 			}
 
 			// reconnect
+			Trace.trace(Trace.INFO, name + " reconnecting");
 			connect();
 		}
 	}
