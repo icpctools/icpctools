@@ -35,7 +35,7 @@ public class PresentationWebSocket {
 		if (name == null) {
 			try {
 				Trace.trace(Trace.INFO, "Disconnecting client with no name");
-				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client is missing required name"));
+				session.close(new CloseReason(CloseCodes.CANNOT_ACCEPT, "Client is missing required name"));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error disconnecting websocket with no name");
 			}
@@ -53,7 +53,7 @@ public class PresentationWebSocket {
 		if (uid == 0) {
 			try {
 				Trace.trace(Trace.INFO, "Disconnecting client with no uid");
-				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client is missing uid parameter"));
+				session.close(new CloseReason(CloseCodes.CANNOT_ACCEPT, "Client is missing uid parameter"));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error disconnecting websocket with invalid uid");
 			}
@@ -64,7 +64,7 @@ public class PresentationWebSocket {
 			try {
 				Trace.trace(Trace.INFO,
 						"Disconnecting, client with uid " + Integer.toHexString(uid) + " already logged in.");
-				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION, "Client is already logged in"));
+				session.close(new CloseReason(CloseCodes.CANNOT_ACCEPT, "Client is already logged in"));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error disconnecting websocket with existing uid");
 			}
@@ -77,7 +77,7 @@ public class PresentationWebSocket {
 			try {
 				Trace.trace(Trace.INFO,
 						"Disconnecting client " + Integer.toHexString(uid) + " with invalid version: " + version);
-				session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
+				session.close(new CloseReason(CloseCodes.CANNOT_ACCEPT,
 						"CDS: Client version " + version + " is incompatible with CDS"));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error disconnecting websocket with invalid version");
@@ -99,7 +99,7 @@ public class PresentationWebSocket {
 			if (isAdmin) {
 				try {
 					Trace.trace(Trace.INFO, "Disconnecting user " + user + " with incorrect admin role");
-					session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
+					session.close(new CloseReason(CloseCodes.CANNOT_ACCEPT,
 							"CDS: User cannot be an admin - try staff, analyst, or public user"));
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error disconnecting websocket with invalid role");
@@ -112,8 +112,8 @@ public class PresentationWebSocket {
 					|| (IAccount.STAFF.equals(role) && !(isAdmin || isBlue))) {
 				try {
 					Trace.trace(Trace.INFO, "Disconnecting user " + user + " with insufficient role: " + role);
-					session.close(new CloseReason(CloseCodes.UNEXPECTED_CONDITION,
-							"CDS: User does not have required role: " + role));
+					session.close(
+							new CloseReason(CloseCodes.CANNOT_ACCEPT, "CDS: User does not have required role: " + role));
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Error disconnecting websocket with invalid role");
 				}
