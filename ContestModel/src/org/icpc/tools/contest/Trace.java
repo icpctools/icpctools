@@ -1,7 +1,5 @@
 package org.icpc.tools.contest;
 
-import io.sentry.Sentry;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -21,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.icpc.tools.contest.model.internal.NetworkUtil;
+import io.sentry.Sentry;
 
 public class Trace {
 	public static final byte INFO = 0;
@@ -194,7 +192,6 @@ public class Trace {
 					+ System.getProperty("os.version") + ")");
 			writer.println("JRE: " + System.getProperty("java.vendor") + " (" + System.getProperty("java.version") + ")");
 			writer.println("Folder: " + System.getProperty("user.dir"));
-			writer.println("Host: " + NetworkUtil.getHostName() + " / " + NetworkUtil.getLocalAddress());
 			writer.println("Locale/TZ: " + Locale.getDefault().toString() + " / "
 					+ Calendar.getInstance().getTimeZone().getDisplayName());
 			if (args != null) {
@@ -208,7 +205,7 @@ public class Trace {
 			} catch (Exception e) {
 				// Sentry config might be empty.
 			}
-			writer.println("Sentry: " + (Sentry.isEnabled()? "Enabled" : "Disabled"));
+			writer.println("Sentry: " + (Sentry.isEnabled() ? "Enabled" : "Disabled"));
 			writer.println("Log started " + sdf.format(new Date()));
 			writer.println();
 			writer.flush();
