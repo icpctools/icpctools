@@ -18,14 +18,7 @@ public class JSONEncoder {
 
 	private static final ThreadLocal<String> local = new ThreadLocal<>();
 	private static final ThreadLocal<String> local2 = new ThreadLocal<>();
-	private static String DEFAULT_HOST = "http://cds";
-	static {
-		try {
-			DEFAULT_HOST = NetworkUtil.getLocalAddress();
-		} catch (Exception e) {
-			// ignore
-		}
-	}
+	private static String DEFAULT_HOST = null;
 
 	private boolean first = true;
 	private PrintWriter pw;
@@ -221,8 +214,17 @@ public class JSONEncoder {
 
 	public String replace(String s) {
 		String host = local.get();
-		if (host == null)
+		if (host == null) {
+			if (DEFAULT_HOST == null) {
+				try {
+					DEFAULT_HOST = NetworkUtil.getLocalAddress();
+				} catch (Exception e) {
+					// ignore exception
+					DEFAULT_HOST = "https://cds";
+				}
+			}
 			host = DEFAULT_HOST;
+		}
 		String t = s.replace("<host>", host);
 
 		int ind = t.indexOf("\"href\":\"");

@@ -26,6 +26,7 @@ public class NoPresentation extends Presentation {
 	private BufferedImage tools;
 	private double scale;
 	private Point origin;
+	private String hostname;
 
 	@Override
 	public void init() {
@@ -43,6 +44,13 @@ public class NoPresentation extends Presentation {
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error loading images", e);
 		}
+
+		execute(new Runnable() {
+			@Override
+			public void run() {
+				hostname = NetworkUtil.getLocalAddress();
+			}
+		});
 	}
 
 	@Override
@@ -129,8 +137,9 @@ public class NoPresentation extends Presentation {
 		g.drawString(s, (d.width - fm.stringWidth(s)) / 2, (d.height) * 7 / 8);
 
 		g.setColor(isLightMode() ? Color.LIGHT_GRAY : Color.DARK_GRAY);
-		s = NetworkUtil.getLocalAddress();
-		g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height - fm.getHeight() - 20);
+		if (hostname != null) {
+			g.drawString(hostname, (d.width - fm.stringWidth(hostname)) / 2, d.height - fm.getHeight() - 20);
+		}
 
 		s = Trace.getVersion();
 		g.drawString(s, (d.width - fm.stringWidth(s)) / 2, d.height - 20);

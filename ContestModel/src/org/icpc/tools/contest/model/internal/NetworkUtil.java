@@ -34,7 +34,7 @@ public class NetworkUtil {
 		// Try to use a socket to connect to google and find the local IP address for the socket
 		// This is the best approach but only works when there is internet
 		try (Socket socket = new Socket()) {
-			socket.connect(new InetSocketAddress("google.com", 80));
+			socket.connect(new InetSocketAddress("google.com", 80), 2000);
 			localAddress = socket.getLocalAddress().getHostAddress();
 			return localAddress;
 		} catch (Exception e) {
