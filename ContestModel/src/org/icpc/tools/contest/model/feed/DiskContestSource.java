@@ -154,8 +154,7 @@ public class DiskContestSource extends ContestSource {
 	 * that it is consistent across restarts). A hash can also be provided to distinguish between
 	 * two feeds that use the same CAF but have a different hash, for example a different CCS URL
 	 *
-	 * @param eventFeedFile - a JSON or XML event feed file
-	 * @param folder - a contest archive folder
+	 * @param file - a JSON or XML event feed file, or a contest archive folder
 	 * @param hash - any uid or hash that's consistent across restarts
 	 */
 	protected DiskContestSource(File file, String hash) {
@@ -317,6 +316,11 @@ public class DiskContestSource extends ContestSource {
 
 		if (ref.file != null)
 			return ref.file;
+
+		if (eventFeedFile != null) {
+			// only loading from a local event feed, no resources on disk
+			return null;
+		}
 
 		// use the pattern to find the right folder
 		FilePattern pattern = getLocalPattern(type, id, property);
@@ -1044,6 +1048,10 @@ public class DiskContestSource extends ContestSource {
 			folder = new File(root, pattern.folder);
 
 		FileReferenceList refList = new FileReferenceList();
+		if (!folder.exists()) {
+			return refList;
+		}
+
 		List<String> hrefs = new ArrayList<>();
 		for (String ext : pattern.extensions) {
 			File[] files = folder.listFiles(
@@ -1176,6 +1184,10 @@ public class DiskContestSource extends ContestSource {
 	}
 
 	public void attachLocalResources(IContestObject obj) {
+		if (eventFeedFile != null) {
+			// source is only reading from an event feed, no local resources
+			return;
+		}
 		updateCache(obj.getType(), obj.getId());
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
