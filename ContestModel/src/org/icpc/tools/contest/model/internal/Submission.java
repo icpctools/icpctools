@@ -12,13 +12,13 @@ public class Submission extends TimedEvent implements ISubmission {
 	private static final String PROBLEM_ID = "problem_id";
 	private static final String LANGUAGE_ID = "language_id";
 	private static final String TEAM_ID = "team_id";
-	private static final String PERSON_ID = "person_id";
+	private static final String ACCOUNT_ID = "account_id";
 	private static final String ENTRY_POINT = "entry_point";
 	private static final String FILES = "files";
 	private static final String REACTION = "reaction";
 
 	private String teamId;
-	private String personId;
+	private String accountId;
 	private String problemId;
 	private String languageId;
 	private String entryPoint;
@@ -36,8 +36,8 @@ public class Submission extends TimedEvent implements ISubmission {
 	}
 
 	@Override
-	public String getPersonId() {
-		return personId;
+	public String getAccountId() {
+		return accountId;
 	}
 
 	@Override
@@ -108,7 +108,7 @@ public class Submission extends TimedEvent implements ISubmission {
 		s.entryPoint = entryPoint;
 		s.contestTime = contestTime;
 		s.time = time;
-		s.personId = personId;
+		s.accountId = accountId;
 		return s;
 	}
 
@@ -117,8 +117,8 @@ public class Submission extends TimedEvent implements ISubmission {
 		if (TEAM_ID.equals(name)) {
 			teamId = (String) value;
 			return true;
-		} else if (PERSON_ID.equals(name)) {
-			personId = (String) value;
+		} else if (ACCOUNT_ID.equals(name)) {
+			accountId = (String) value;
 			return true;
 		} else if (PROBLEM_ID.equals(name)) {
 			problemId = (String) value;
@@ -144,7 +144,7 @@ public class Submission extends TimedEvent implements ISubmission {
 		props.addLiteralString(ID, id);
 		props.addLiteralString(PROBLEM_ID, problemId);
 		props.addLiteralString(TEAM_ID, teamId);
-		props.addLiteralString(PERSON_ID, personId);
+		props.addLiteralString(ACCOUNT_ID, accountId);
 		props.addLiteralString(LANGUAGE_ID, languageId);
 		props.addLiteralString(ENTRY_POINT, entryPoint);
 		props.addFileRef(FILES, files);
@@ -162,17 +162,22 @@ public class Submission extends TimedEvent implements ISubmission {
 		if (c.getProblemById(problemId) == null)
 			errors.add("Invalid problem " + problemId);
 
-		ITeam team = c.getTeamById(teamId);
-		if (team == null)
-			errors.add("Invalid team " + teamId);
-		else if (!c.isTeamHidden(team)) {
-			// check that the submission is after the start of the contest if it is a public team)
-			if (c.getStartTime() == null || c.getStartTime() > getTime())
-				errors.add("Submission occured before the contest started");
+		if (teamId != null) {
+			ITeam team = c.getTeamById(teamId);
+			if (team == null)
+				errors.add("Invalid team " + teamId);
+			else if (!c.isTeamHidden(team)) {
+				// check that the submission is after the start of the contest if it is a public team)
+				if (c.getStartTime() == null || c.getStartTime() > getTime())
+					errors.add("Submission occured before the contest started");
+			}
 		}
 
-		if (personId != null && c.getPersonById(personId) == null)
-			errors.add("Invalid person " + personId);
+		if (accountId != null && c.getAccountById(accountId) == null)
+			errors.add("Invalid account " + accountId);
+
+		if (teamId == null && accountId == null)
+			errors.add("Submission without team or account");
 
 		if (errors.isEmpty())
 			return null;
