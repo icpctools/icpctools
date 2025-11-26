@@ -30,11 +30,11 @@ public interface ISubmission extends IContestObject {
 	String getTeamId();
 
 	/**
-	 * Returns the id of the person that made this submission.
+	 * Returns the id of the account that made this submission.
 	 *
-	 * @return the person id
+	 * @return the account id
 	 */
-	String getPersonId();
+	String getAccountId();
 
 	/**
 	 * Returns the optional entry point this submission.
