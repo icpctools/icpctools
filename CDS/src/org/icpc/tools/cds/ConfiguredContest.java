@@ -64,6 +64,7 @@ public class ConfiguredContest {
 	private boolean recordReactions;
 	private boolean hidden;
 	private CCS ccs;
+	private CCS apiSource;
 	private List<Video> videos = new ArrayList<>(3);
 	private Test test;
 	private Boolean isTesting;
@@ -336,6 +337,11 @@ public class ConfiguredContest {
 		ee = CDSConfig.getChild(e, "view");
 		if (ee != null)
 			view = new View(ee);
+
+		ee = CDSConfig.getChild(e, "source");
+		if (ee != null) {
+			apiSource = new CCS(ee);
+		}
 	}
 
 	public static boolean isTeamOrSpare(IContest contest2, ITeam team) {
@@ -702,6 +708,21 @@ public class ConfiguredContest {
 					currentState[0] = state2;
 				}
 			});
+
+			if (apiSource != null && path != null) {
+				File folder = new File(path);
+				String name = System.getProperty("CDS-name");
+				try {
+					RESTContestSource contestSource2 = new RESTContestSource(folder, apiSource.getURL(), apiSource.getUser(),
+							apiSource.getPassword(), name != null ? name + "-source" : "source");
+					Contest contest3 = contestSource2.getContest();
+					contest3.addListenerFromStart((contest2, obj, d) -> {
+						pc.add(obj);
+					});
+				} catch (Exception e) {
+					Trace.trace(Trace.ERROR, "Could not configure second contest source", e);
+				}
+			}
 
 			// wait up to 2s to connect
 			if (contestSource instanceof RESTContestSource)
