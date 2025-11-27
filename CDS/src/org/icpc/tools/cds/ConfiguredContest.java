@@ -24,8 +24,6 @@ import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
-import org.icpc.tools.contest.model.IJudgement;
-import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
@@ -352,22 +350,14 @@ public class ConfiguredContest {
 			return true;
 
 		String[] groupIds = team.getGroupIds();
-		int hidden = 0;
 		for (String groupId : groupIds) {
 			IGroup group = contest2.getGroupById(groupId);
 			if (group != null) {
 				if (group.getId() != null && group.getId().contains("spare"))
 					return true;
-				if (group.isHidden())
-					hidden++;
 			}
 		}
-		if (hidden == 0)
-			return true;
-		if (hidden == groupIds.length)
-			return false;
 
-		// some hidden and some non-hidden groups, assume this is a public team
 		return true;
 	}
 
@@ -730,18 +720,6 @@ public class ConfiguredContest {
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error reading event feed: " + e.getMessage());
 		}
-	}
-
-	protected boolean isJudgementHidden(IJudgement j) {
-		if (j == null)
-			return false;
-
-		ISubmission sub = contest.getSubmissionById(j.getSubmissionId());
-		if (sub == null)
-			return false;
-
-		ITeam team = contest.getTeamById(sub.getTeamId());
-		return contest.isTeamHidden(team);
 	}
 
 	public void incrementRest() {

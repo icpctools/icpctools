@@ -12,14 +12,12 @@ public class Group extends ContestObject implements IGroup {
 	private static final String ICPC_ID = "icpc_id";
 	private static final String NAME = "name";
 	private static final String TYPE = "type";
-	private static final String HIDDEN = "hidden";
 	private static final String LOCATION = "location";
 	private static final String LOGO = "logo";
 
 	private String icpcId;
 	private String name;
 	private String type;
-	private boolean isHidden;
 	private Location location;
 	private FileReferenceList logo;
 
@@ -41,11 +39,6 @@ public class Group extends ContestObject implements IGroup {
 	@Override
 	public String getGroupType() {
 		return type;
-	}
-
-	@Override
-	public boolean isHidden() {
-		return isHidden;
 	}
 
 	@Override
@@ -100,10 +93,6 @@ public class Group extends ContestObject implements IGroup {
 				type = (String) value;
 				return true;
 			}
-			case HIDDEN: {
-				isHidden = parseBoolean(value);
-				return true;
-			}
 			case LOCATION: {
 				location = parseLocation(value);
 				return true;
@@ -124,7 +113,6 @@ public class Group extends ContestObject implements IGroup {
 		g.icpcId = icpcId;
 		g.name = name;
 		g.type = type;
-		g.isHidden = isHidden;
 		g.location = location;
 		g.logo = logo;
 		return g;
@@ -136,8 +124,6 @@ public class Group extends ContestObject implements IGroup {
 		props.addLiteralString(ICPC_ID, icpcId);
 		props.addString(NAME, name);
 		props.addLiteralString(TYPE, type);
-		if (isHidden)
-			props.add(HIDDEN, "true");
 		if (location != null)
 			props.add(LOCATION, location.getJSON());
 		if (logo != null)

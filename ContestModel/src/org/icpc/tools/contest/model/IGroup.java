@@ -29,13 +29,6 @@ public interface IGroup extends IContestObject {
 	String getGroupType();
 
 	/**
-	 * Returns <code>true</code> if the group is hidden.
-	 *
-	 * @return <code>true</code> if the group is hidden, <code>false</code> otherwise
-	 */
-	boolean isHidden();
-
-	/**
 	 * The latitude of the group.
 	 *
 	 * @return the latitude

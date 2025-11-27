@@ -140,9 +140,6 @@ public class AwardUtil {
 		if (template.getId().equals("group-winner-*")) {
 			// to all groups
 			for (IGroup group : contest.getGroups()) {
-				if (group.isHidden())
-					continue;
-
 				Award groupAward = new Award(IAward.GROUP, group.getId(), null, template.getCitation(), mode);
 				// groupAward.setCount("1");
 				contest.add(groupAward);
