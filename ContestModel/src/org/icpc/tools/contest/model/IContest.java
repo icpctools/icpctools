@@ -376,7 +376,7 @@ public interface IContest {
 	ITeam getTeamById(String id);
 
 	/**
-	 * Returns true if the team belongs to one or more hidden groups.
+	 * Returns true if the team is not on the default scoreboard.
 	 *
 	 * @param team
 	 * @return

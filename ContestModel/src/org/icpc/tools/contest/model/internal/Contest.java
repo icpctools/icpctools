@@ -1109,25 +1109,7 @@ public class Contest implements IContest {
 		if (team.isHidden())
 			return true;
 
-		String[] groupIds = team.getGroupIds();
-		if (groupIds == null || groupIds.length == 0)
-			return false;
-
-		int hidden = 0;
-		for (String groupId : groupIds) {
-			IGroup group = getGroupById(groupId);
-			if (group != null && group.isHidden())
-				hidden++;
-		}
-		if (hidden == 0)
-			return false;
-		if (hidden == groupIds.length)
-			return true;
-
-		// TODO some hidden and some non-hidden groups - hope this never happens!
-		// we should probably clone the team and strip the hidden groups
-		// System.err.println("Warning: team belongs to both hidden and non-hidden groups!");
-		return true;
+		return false;
 	}
 
 	public int[] getOrder() {

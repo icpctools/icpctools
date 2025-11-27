@@ -18,7 +18,6 @@ import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IDelete;
-import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
@@ -376,30 +375,6 @@ public class PlaybackContest extends Contest {
 				team.setDesktop(getMediaList(streams.get(StreamType.DESKTOP)));
 				team.setWebcam(getMediaList(streams.get(StreamType.WEBCAM)));
 				team.setAudio(getMediaList(streams.get(StreamType.AUDIO)));
-			}
-
-			if (team.getGroupIds() != null) {
-				for (String gId : team.getGroupIds()) {
-					IGroup g = getGroupById(gId);
-					if (g != null && g.isHidden())
-						team.add("hidden", "true");
-				}
-			}
-		}
-
-		if (obj instanceof Group) {
-			Group g = (Group) obj;
-			if (g.isHidden()) {
-				for (ITeam team : getTeams()) {
-					if (team.getGroupIds() != null) {
-						for (String gId : team.getGroupIds()) {
-							if (gId.equals(g.getId()) && !team.isHidden()) {
-								((Team) team).add("hidden", "true");
-								add(team);
-							}
-						}
-					}
-				}
 			}
 		}
 

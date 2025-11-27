@@ -550,7 +550,7 @@ public class Resolver {
 				for (IGroup g : cc.getGroups()) {
 					if (pattern.matcher(g.getId()).matches())
 						cc.setGroupIsHidden(g, false);
-					else if (!g.isHidden())
+					else
 						cc.setGroupIsHidden(g, true);
 				}
 
