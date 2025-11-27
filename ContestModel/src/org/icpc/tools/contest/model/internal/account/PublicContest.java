@@ -9,7 +9,6 @@ import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IDelete;
-import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IOrganization;
@@ -85,6 +84,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 			// all of these are fully public
 			case CONTEST:
 			case LANGUAGE:
+			case GROUP:
 			case MAP_INFO:
 			case RESOLVE_INFO:
 			case START_STATUS:
@@ -119,12 +119,6 @@ public class PublicContest extends Contest implements IFilteredContest {
 				if (state.getThawed() != null && !freeze.isEmpty()) {
 					thaw();
 				}
-				return;
-			}
-			case GROUP: {
-				IGroup group = (IGroup) obj;
-				if (!group.isHidden())
-					super.add(group);
 				return;
 			}
 			case TEAM: {
