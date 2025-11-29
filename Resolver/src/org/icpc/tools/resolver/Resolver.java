@@ -8,7 +8,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
@@ -545,15 +547,16 @@ public class Resolver {
 			if (groups != null) {
 				Trace.trace(Trace.INFO, "Resolving for group ids " + groups + " (Initial teams: " + cc.getNumTeams() + ")");
 
+				Set<String> visibleGroups = new HashSet<>();
+
 				// set the current group to be visible and all others hidden
 				Pattern pattern = Pattern.compile(groups.trim());
 				for (IGroup g : cc.getGroups()) {
 					if (pattern.matcher(g.getId()).matches())
-						cc.setGroupIsHidden(g, false);
-					else
-						cc.setGroupIsHidden(g, true);
+						visibleGroups.add(g.getId());
 				}
 
+				cc.updateHiddenTeams(visibleGroups);
 				cc.removeHiddenTeams();
 				Trace.trace(Trace.INFO, "Resolved for group ids. Teams left: " + cc.getNumTeams());
 			}
