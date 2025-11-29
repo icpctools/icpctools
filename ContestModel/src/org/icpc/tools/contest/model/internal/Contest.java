@@ -1284,18 +1284,6 @@ public class Contest implements IContest {
 	}
 
 	/**
-	 * Update the visibility status of the given group.
-	 */
-	public void setGroupIsHidden(IGroup group, boolean hidden) {
-		if (group == null)
-			return;
-
-		Group g = (Group) ((Group) group).clone();
-		g.add("hidden", hidden);
-		add(g);
-	}
-
-	/**
 	 * Updates the state of the submission to match the given submission.
 	 */
 	public void updateSubmissionTo(ISubmission submission, IContest contest) {
@@ -1774,6 +1762,24 @@ public class Contest implements IContest {
 		}
 
 		remove.add(s);
+	}
+
+	public void updateHiddenTeams(Set<String> visibleGroups) {
+		// Hide all teams except those that have at least one of the visible groups
+		ITeam[] teams2 = getTeams();
+		for (ITeam team : teams2) {
+			boolean hidden = true;
+			for (String groupId : team.getGroupIds()) {
+				if (visibleGroups.contains(groupId)) {
+					hidden = false;
+					break;
+				}
+			}
+
+			Team t = (Team) ((Team) team).clone();
+			t.add("hidden", hidden);
+			add(t);
+		}
 	}
 
 	public void removeHiddenTeams() {
