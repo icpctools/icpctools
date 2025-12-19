@@ -38,6 +38,20 @@ public interface IOrganization extends IContestObject {
 	String getActualFormalName();
 
 	/**
+	 * An audio recording of the university name.
+	 *
+	 * @return a file reference list
+	 */
+	FileReferenceList getAudio();
+
+	/**
+	 * The audio recording of the university name.
+	 *
+	 * @return an audio file
+	 */
+	File getAudio(boolean force);
+
+	/**
 	 * The country of the organization.
 	 *
 	 * @return the country

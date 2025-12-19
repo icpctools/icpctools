@@ -133,6 +133,27 @@ Returned data:
 [{"id":"12346","logo":[{"href":"http://example.com/api/contests/wf14/groups/12346/logo/56px","width":56,"height":56}]}]
 ```
 
+### Organizations
+
+Organizations can include an audio recording of their name, used for (e.g.) announcing the team entering
+the contest floor or receiving an award.
+
+Additional JSON attributes of organization objects:
+
+| Name           | Type            | Description
+| :------------- | :-------------- | :----------
+| audio          | array of FILE ? | An audio file recording of the organization name.
+
+Request:
+
+`GET https://example.com/api/contests/wf14/organizations`
+
+Returned data:
+
+```json
+[{"id":"12346","audio":[{"href":"http://example.com/api/contests/wf14/organizations/1236/audio","mime-type":"wav"}]}]
+```
+
 ### Award
 
 Awards have one additional attribute, used to decide how to display the award in

@@ -37,6 +37,10 @@ public class MimeUtil {
 			return "text/plain";
 		else if (ext.equals("pdf"))
 			return "application/pdf";
+		else if (ext.equals("m4a") || ext.equals("mp4"))
+			return "audio/mp4";
+		else if (ext.equals("wav"))
+			return "audio/wav";
 		return null;
 	}
 
@@ -72,6 +76,10 @@ public class MimeUtil {
 				return "txt";
 			case ("application/pdf"):
 				return "pdf";
+			case ("audio/mp4"):
+				return "mp4";
+			case ("audio/wav"):
+				return "wav";
 		}
 		return null;
 	}

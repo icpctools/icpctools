@@ -74,10 +74,12 @@ public class DiskContestSource extends ContestSource {
 	private static final String COUNTRY_SUBDIVISON_FLAG = "country_subdivision_flag";
 	private static final String PACKAGE = "package";
 	private static final String STATEMENT = "statement";
+	private static final String AUDIO = "audio";
 
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
 	private static final String[] VIDEO_EXTENSIONS = new String[] { "ts", "m2ts", "ogg", "flv" };
+	private static final String[] AUDIO_EXTENSIONS = new String[] { "mp4", "m4a", "wav" };
 
 	protected File eventFeedFile;
 	private File root;
@@ -1104,6 +1106,8 @@ public class DiskContestSource extends ContestSource {
 		} else if (type == ContestType.ORGANIZATION) {
 			if (LOGO.equals(property))
 				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
+			if (AUDIO.equals(property))
+				return new FilePattern(type, id, property, AUDIO_EXTENSIONS);
 			if (COUNTRY_FLAG.equals(property))
 				return new FilePattern(type, id, property, LOGO_EXTENSIONS);
 			if (COUNTRY_SUBDIVISON_FLAG.equals(property))
@@ -1196,6 +1200,7 @@ public class DiskContestSource extends ContestSource {
 		} else if (obj instanceof Organization) {
 			Organization org = (Organization) obj;
 			org.setLogo(mergeRefs(org.getLogo(), getFilesWithPattern(obj, LOGO)));
+			org.setAudio(mergeRefs(org.getAudio(), getFilesWithPattern(obj, AUDIO)));
 			org.setCountryFlag(mergeRefs(org.getCountryFlag(), getFilesWithPattern(obj, COUNTRY_FLAG)));
 			org.setCountrySubdivisionFlag(
 					mergeRefs(org.getCountrySubdivisionFlag(), getFilesWithPattern(obj, COUNTRY_SUBDIVISON_FLAG)));
