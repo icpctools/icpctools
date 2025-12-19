@@ -21,6 +21,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private static final String COUNTRY_FLAG = "country_flag";
 	private static final String COUNTRY_SUBDIVISION = "country_subdivison";
 	private static final String COUNTRY_SUBDIVISION_FLAG = "country_subdivision_flag";
+	private static final String AUDIO = "audio";
 
 	private String icpcId;
 	private String name;
@@ -30,6 +31,7 @@ public class Organization extends ContestObject implements IOrganization {
 	private String account;
 	private Location location;
 	private FileReferenceList logo;
+	private FileReferenceList audio;
 	private String country;
 	private FileReferenceList countryFlag;
 	private String countrySubdivision;
@@ -121,6 +123,20 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
+	public FileReferenceList getAudio() {
+		return audio;
+	}
+
+	public void setAudio(FileReferenceList list) {
+		audio = list;
+	}
+
+	@Override
+	public File getAudio(boolean force) {
+		return getFile(audio.first(), AUDIO, force);
+	}
+
+	@Override
 	public File getCountryFlag(int width, int height, boolean force) {
 		return getFile(COUNTRY_FLAG, countryFlag, width, height, null, force);
 	}
@@ -160,7 +176,7 @@ public class Organization extends ContestObject implements IOrganization {
 
 	@Override
 	public File resolveFileReference(String url2) {
-		return FileReferenceList.resolve(url2, logo, countryFlag);
+		return FileReferenceList.resolve(url2, logo, audio, countryFlag, countrySubdivisionFlag);
 	}
 
 	@Override
@@ -206,6 +222,10 @@ public class Organization extends ContestObject implements IOrganization {
 				logo = parseFileReference(value);
 				return true;
 			}
+			case AUDIO: {
+				audio = parseFileReference(value);
+				return true;
+			}
 			case COUNTRY_FLAG: {
 				countryFlag = parseFileReference(value);
 				return true;
@@ -235,6 +255,7 @@ public class Organization extends ContestObject implements IOrganization {
 		o.hashtag = hashtag;
 		o.account = account;
 		o.location = location;
+		o.audio = audio;
 		return o;
 	}
 
@@ -254,6 +275,7 @@ public class Organization extends ContestObject implements IOrganization {
 		if (location != null)
 			props.add(LOCATION, location.getJSON());
 		props.addFileRef(LOGO, logo);
+		props.addFileRef(AUDIO, audio);
 	}
 
 	@Override

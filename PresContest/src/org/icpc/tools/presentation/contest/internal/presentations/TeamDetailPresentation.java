@@ -7,6 +7,11 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IOrganization;
@@ -14,6 +19,9 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
+
+import uk.co.caprica.vlcj.player.base.MediaPlayer;
+import uk.co.caprica.vlcj.player.component.AudioPlayerComponent;
 
 public class TeamDetailPresentation extends AbstractICPCPresentation {
 	private static final int MARGIN = 15;
@@ -75,6 +83,63 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 					oldInfo.photo.flush();
 				}
 			}
+		}
+
+		// if there is an audio recording for this university, play it
+		if (org != null && org.getAudio() != null && !org.getAudio().isEmpty()) {
+			File f = org.getAudio(true);
+			if (f != null) {
+				Trace.trace(Trace.INFO, "Playing audio for org " + org.getId() + " " + f.getName());
+				if (f.getName().endsWith(".wav"))
+					playWAV(f);
+				else
+					playAudio(f);
+			}
+		}
+	}
+
+	/**
+	 * Play a wav file using Java audio.
+	 */
+	private void playWAV(File file) {
+		try {
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
+			Clip clip = AudioSystem.getClip();
+
+			clip.open(audioIn);
+			clip.start();
+
+			// clean up clip when it's done
+			execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						while (clip.isRunning()) {
+							Thread.sleep(100);
+						}
+
+						clip.close();
+						audioIn.close();
+					} catch (Exception e) {
+						// ignore
+					}
+				}
+			});
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not play wav file " + file.getAbsolutePath(), e);
+		}
+	}
+
+	/**
+	 * Use VLCj to play audio files not supported by Java audio.
+	 */
+	private static void playAudio(File file) {
+		try {
+			AudioPlayerComponent mediaPlayerComponent = new AudioPlayerComponent();
+			MediaPlayer mediaPlayer = mediaPlayerComponent.mediaPlayer();
+			mediaPlayer.media().play(file.getAbsolutePath());
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not play audio file " + file.getAbsolutePath(), e);
 		}
 	}
 
