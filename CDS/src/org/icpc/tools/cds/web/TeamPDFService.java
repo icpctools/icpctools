@@ -32,34 +32,67 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Prints pages of team labels with QR codes
+ * Prints pages of team labels with QR codes.
  *
- * Based roughly on Avery 5395.
+ * Can pass in any format, but has pre-configured support for Avery 5392 and 5393.
+ *
+ * Can print on A4 too, but these labels are for letter paper so will
  */
 public class TeamPDFService {
-	private static final int NUM_ROWS = 4;
-	private static final int NUM_COLS = 2;
+	public static class Format {
+		public final int numRows, numCols;
 
-	// pdfs use points (1/72") for measurements
-	private static final float V_MARGIN = 30;
-	private static final float H_MARGIN = 30;
-	private static final float CELL_MARGIN = 10;
+		public final float vMargin, hMargin;
+
+		public final float vSpacing, hSpacing;
+
+		public final float cellMargin;
+
+		// pdfs use points (1/72") for measurements
+		public Format(int numRows, int numCols, float vMargin, float hMargin, float vSpacing, float hSpacing,
+				float cellMargin) {
+			this.numRows = numRows;
+			this.numCols = numCols;
+			this.vMargin = vMargin;
+			this.hMargin = hMargin;
+			this.vSpacing = vSpacing;
+			this.hSpacing = hSpacing;
+			this.cellMargin = cellMargin;
+		}
+	}
+
+	// Avery 5395: 8.5x11" paper, 8 badges (2x4) that are each 3 3/8x2 1/3"
+	public static final Format Avery_5395 = new Format(4, 2, 36, 50, 14, 27, 10);
+
+	// Avery 5392: 8.5x11" paper, 6 badges (2x3) that are each 4x3"
+	public static final Format Avery_5392 = new Format(3, 2, 72, 18, 0, 0, 10);
 
 	public static void generate(HttpServletRequest request, HttpServletResponse response, ConfiguredContest cc)
 			throws IOException {
 		request.setCharacterEncoding("UTF-8");
+		boolean isA4 = "A4".equals(request.getParameter("paper"));
+
+		String template = request.getParameter("template");
+		Format format = Avery_5392;
+		if ("Avery_5395".equals(template))
+			format = Avery_5395;
+
+		generate(response, cc, isA4, format, "true".equals(request.getParameter("debug")));
+	}
+
+	public static void generate(HttpServletResponse response, ConfiguredContest cc, boolean A4, Format format,
+			boolean debug) throws IOException {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Cache-Control", "no-cache");
 		response.setHeader("ICPC-Tools", "CDS");
 		response.setContentType("application/pdf");
 
-		boolean A4 = request.getPathInfo().endsWith("A4");
 		Document document = null;
 		if (A4)
 			document = new Document(PageSize.A4);
 		else
 			document = new Document(PageSize.LETTER);
-		document.setMargins(H_MARGIN, H_MARGIN, V_MARGIN, V_MARGIN);
+		document.setMargins(format.hMargin, format.hMargin, format.vMargin, format.vMargin);
 		PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
 
 		IContest contest = cc.getContest();
@@ -89,20 +122,36 @@ public class TeamPDFService {
 		BaseFont font2 = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, false);
 
 		Rectangle r = document.getPageSize();
-		int w = (int) ((r.getWidth() - H_MARGIN * 2) / NUM_COLS);
-		int h = (int) ((r.getHeight() - V_MARGIN * 2) / NUM_ROWS);
-		int teamsPerPage = NUM_ROWS * NUM_COLS;
+		int w = (int) ((r.getWidth() - format.hMargin * 2 - (format.hSpacing * (format.numCols - 1))) / format.numCols);
+		int h = (int) ((r.getHeight() - format.vMargin * 2 - (format.vSpacing * (format.numRows - 1))) / format.numRows);
+		int teamsPerPage = format.numRows * format.numCols;
 
 		for (int i = 0; i < numTeams; i++) {
 			if (i % teamsPerPage == 0) {
 				document.newPage();
 			}
 
-			int x = i % NUM_COLS;
-			int y = NUM_ROWS - 1 - i / NUM_COLS % NUM_ROWS;
+			int x = i % format.numCols;
+			int y = format.numRows - 1 - i / format.numCols % format.numRows;
 
-			Rectangle2D rr = new Rectangle2D.Float(H_MARGIN + x * w + CELL_MARGIN, V_MARGIN + y * h + CELL_MARGIN,
-					w - CELL_MARGIN * 2, h - CELL_MARGIN * 2);
+			// size of each badge
+			Rectangle2D or = new Rectangle2D.Double(format.hMargin + x * (w + format.hSpacing),
+					format.vMargin + y * (h + format.vSpacing), w, h);
+
+			// inner size we'll print on
+			Rectangle2D rr = new Rectangle2D.Double(or.getX() + format.cellMargin, or.getY() + format.cellMargin,
+					or.getWidth() - format.cellMargin * 2, or.getHeight() - format.cellMargin * 2);
+
+			if (debug) {
+				cb.rectangle((float) or.getX(), (float) or.getY(), (float) or.getWidth(), (float) or.getHeight());
+				cb.stroke();
+
+				cb.setColorStroke(Color.BLUE);
+				cb.rectangle((float) rr.getX(), (float) rr.getY(), (float) rr.getWidth(), (float) rr.getHeight());
+				cb.stroke();
+
+				cb.setColorStroke(Color.BLACK);
+			}
 			try {
 				drawTeam(cb, contest, teams[i], font2, rr);
 			} catch (Exception e) {
@@ -130,9 +179,10 @@ public class TeamPDFService {
 		}
 
 		cb.beginText();
-		cb.setFontAndSize(font, 20);
+		int fontSize = 20;
+		cb.setFontAndSize(font, fontSize);
 		String[] s = splitText(team.getActualDisplayName(), cb, r.getWidth() * 0.92);
-		float y = (float) (r.getMaxY() - r.getHeight() / 4.5f);
+		float y = (float) (r.getMaxY() - fontSize);
 		for (String ss : s) {
 			cb.showTextAligned(PdfContentByte.ALIGN_CENTER, ss, (float) (r.getX() + r.getWidth() / 2f), y, 0);
 			y -= r.getHeight() / 7;
