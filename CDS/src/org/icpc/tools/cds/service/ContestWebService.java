@@ -433,7 +433,7 @@ public class ContestWebService extends HttpServlet {
 			} else if (segments[1].startsWith("balloon") && isStaff) {
 				BalloonPDFService.generate(request, response, cc);
 				return;
-			} else if (segments[1].startsWith("teams") && isStaff) {
+			} else if (segments[1].equals("teams") && isStaff) {
 				TeamPDFService.generate(request, response, cc);
 				return;
 			} else if (segments[1].equals("resolver") && isAdmin) {

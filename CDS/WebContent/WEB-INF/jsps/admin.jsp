@@ -123,10 +123,34 @@
              <h3 class="card-title">Printouts</h3>
            </div>
         <div class="card-body">
-            <p>Click <a href="<%= webroot %>/balloon">Letter</a> or <a href="<%= webroot %>/balloonA4">A4</a> PDF containing balloon labels and colours. Print only the pages you need.</p>
-        </div>
-        <div class="card-body">
-            <p>Click <a href="<%= webroot %>/teams">Letter</a> or <a href="<%= webroot %>/teamsA4">A4</a> PDF containing a team list with QR codes.</p>
+          <p>Generate PDFs containing balloon labels and colours (print only the pages you need) or team badges with QR codes:</p>
+        
+          <table id="pdf-table" class="table table-sm table-hover table-striped">
+            <thead>
+              <tr>
+                <th>Template</th>
+                <th>Letter</th>
+                <th>A4</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Balloon colours and labels</td>
+          	    <td><a href="<%= webroot %>/balloon">here</a></td>
+            	<td><a href="<%= webroot %>/balloonA4">here</a></td>
+              </tr>
+              <tr>
+            	<td>Avery 5392 (2x3 badges)</td>
+            	<td><a href="<%= webroot %>/teams?template=Avery_5392">here</a></td>
+            	<td><a href="<%= webroot %>/teams?template=Avery_5392&paper=A4">here</a></td>
+              </tr>
+              <tr>
+            	<td>Avery 5395 (2x4 badges)</td>
+            	<td><a href="<%= webroot %>/teams?template=Avery_5395">here</a></td>
+            	<td><a href="<%= webroot %>/teams?template=Avery_5395&paper=A4">here</a></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         </div>
      
