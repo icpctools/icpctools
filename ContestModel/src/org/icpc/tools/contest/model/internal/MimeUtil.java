@@ -41,6 +41,10 @@ public class MimeUtil {
 			return "audio/mp4";
 		else if (ext.equals("wav"))
 			return "audio/wav";
+		else if (ext.equals("mp3"))
+			return "audio/mpeg";
+		else if (ext.equals("oga"))
+			return "audio/ogg";
 		return null;
 	}
 
@@ -80,6 +84,10 @@ public class MimeUtil {
 				return "mp4";
 			case ("audio/wav"):
 				return "wav";
+			case ("audio/mpeg"):
+				return "mp3";
+			case ("audio/ogg"):
+				return "oga";
 		}
 		return null;
 	}
