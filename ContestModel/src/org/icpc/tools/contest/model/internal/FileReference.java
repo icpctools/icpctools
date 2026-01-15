@@ -12,7 +12,10 @@ public class FileReference {
 	public static final String TAG_DARK = "dark";
 	public static final String TAG_WEBCAM = "webcam";
 	public static final String TAG_DESKTOP = "desktop";
-	public static final String[] KNOWN_TAGS = new String[] { TAG_LIGHT, TAG_DARK, TAG_WEBCAM, TAG_DESKTOP };
+	public static final String TAG_MALE = "male";
+	public static final String TAG_FEMALE = "female";
+	public static final String[] KNOWN_TAGS = new String[] { TAG_LIGHT, TAG_DARK, TAG_WEBCAM, TAG_DESKTOP, TAG_MALE,
+			TAG_FEMALE };
 
 	public String mime;
 	public String href = null;

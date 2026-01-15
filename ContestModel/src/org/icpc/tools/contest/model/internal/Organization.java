@@ -132,8 +132,8 @@ public class Organization extends ContestObject implements IOrganization {
 	}
 
 	@Override
-	public File getAudio(boolean force) {
-		return getFile(audio.first(), AUDIO, force);
+	public File getAudio(String tag, boolean force) {
+		return getFile(AUDIO, audio, 0, 0, tag, force);
 	}
 
 	@Override
