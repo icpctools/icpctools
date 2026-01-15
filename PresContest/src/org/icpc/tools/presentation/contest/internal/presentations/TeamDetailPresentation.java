@@ -16,6 +16,7 @@ import javax.sound.sampled.Clip;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
@@ -39,6 +40,7 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	private BufferedImage contestImage;
 	private ITeam team;
 	private TeamInfo info;
+	private boolean voice;
 
 	@Override
 	public void setSize(Dimension d) {
@@ -87,7 +89,8 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 
 		// if there is an audio recording for this university, play it
 		if (org != null && org.getAudio() != null && !org.getAudio().isEmpty()) {
-			File f = org.getAudio(true);
+			File f = org.getAudio(voice ? FileReference.TAG_MALE : FileReference.TAG_FEMALE, true);
+			voice = !voice;
 			if (f != null) {
 				Trace.trace(Trace.INFO, "Playing audio for org " + org.getId() + " " + f.getName());
 				if (f.getName().endsWith(".wav"))

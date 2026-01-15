@@ -49,7 +49,7 @@ public interface IOrganization extends IContestObject {
 	 *
 	 * @return an audio file
 	 */
-	File getAudio(boolean force);
+	File getAudio(String tag, boolean force);
 
 	/**
 	 * The country of the organization.
