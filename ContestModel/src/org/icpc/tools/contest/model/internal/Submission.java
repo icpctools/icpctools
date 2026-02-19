@@ -147,7 +147,7 @@ public class Submission extends TimedEvent implements ISubmission {
 		props.addLiteralString(ACCOUNT_ID, accountId);
 		props.addLiteralString(LANGUAGE_ID, languageId);
 		props.addLiteralString(ENTRY_POINT, entryPoint);
-		props.addFileRef(FILES, files);
+		props.addFileRefSubs(FILES, files);
 		props.addFileRefSubs(REACTION, reaction);
 		super.getProperties(props);
 	}
