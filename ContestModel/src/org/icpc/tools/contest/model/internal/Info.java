@@ -14,8 +14,6 @@ import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
 public class Info extends ContestObject implements IInfo {
-	private static final boolean isDraftSpec = "draft".equals(System.getProperty("ICPC_CONTEST_API"));
-
 	private static final String NAME = "name";
 	private static final String FORMAL_NAME = "formal_name";
 	private static final String START_TIME = "start_time";
@@ -341,10 +339,7 @@ public class Info extends ContestObject implements IInfo {
 			props.addLiteralString(SCOREBOARD_THAW_TIME, Timestamp.format(thawTime.longValue()));
 
 		if (penalty != null) {
-			if (isDraftSpec)
-				props.addLiteralString(PENALTY_TIME, RelativeTime.format(penalty));
-			else
-				props.addInt(PENALTY_TIME, (int) (penalty.longValue() / (60 * 1000L)));
+			props.addLiteralString(PENALTY_TIME, RelativeTime.format(penalty));
 		}
 
 		if (!Double.isNaN(timeMultiplier))
