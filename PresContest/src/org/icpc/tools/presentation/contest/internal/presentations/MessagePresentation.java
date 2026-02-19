@@ -7,8 +7,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
+import org.icpc.tools.contest.Trace;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
+import org.icpc.tools.presentation.contest.internal.ImageHelper;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
 
 public class MessagePresentation extends AbstractICPCPresentation {
@@ -16,6 +18,7 @@ public class MessagePresentation extends AbstractICPCPresentation {
 	private static String message = null;
 	private TextHelper text;
 	private BufferedImage image;
+	private BufferedImage bgImage;
 
 	@Override
 	public void setSize(Dimension d) {
@@ -24,6 +27,12 @@ public class MessagePresentation extends AbstractICPCPresentation {
 		final float dpi = 96;
 		font = ICPCFont.deriveFont(Font.BOLD, height * 36f / 3f / dpi);
 		image = getContest().getBannerImage((int) (width * 0.8), (int) (height * 0.25), getModeTag(), true, true);
+
+		try {
+			bgImage = ImageHelper.loadImage("/presentation/background.png", width, height);
+		} catch (Exception e) {
+			Trace.trace(Trace.INFO, "Could not load background image", e);
+		}
 
 		text = null;
 	}
@@ -39,7 +48,11 @@ public class MessagePresentation extends AbstractICPCPresentation {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 		int h = 0;
-		if (image != null) {
+		if (bgImage != null) {
+			int ww = image.getWidth();
+			int hh = image.getHeight();
+			g.drawImage(image, (width - ww) / 2, (height - hh) / 2, null);
+		} else if (image != null) {
 			int w = image.getWidth();
 			h = image.getHeight();
 			g.drawImage(image, (width - w) / 2, height - h - 20, null);
