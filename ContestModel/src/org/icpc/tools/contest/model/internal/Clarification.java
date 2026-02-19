@@ -7,8 +7,6 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.feed.JSONParser;
 
 public class Clarification extends TimedEvent implements IClarification {
-	private static final boolean isDraftSpec = "draft".equals(System.getProperty("ICPC_CONTEST_API"));
-
 	private static final String REPLY_TO_ID = "reply_to_id";
 	private static final String FROM_TEAM_ID = "from_team_id";
 	private static final String TO_TEAM_ID = "to_team_id";
@@ -115,14 +113,8 @@ public class Clarification extends TimedEvent implements IClarification {
 		props.addLiteralString(ID, id);
 		props.addLiteralString(REPLY_TO_ID, replyToId);
 		props.addLiteralString(FROM_TEAM_ID, fromTeamId);
-		if (!isDraftSpec) {
-			if (toTeamIds != null && toTeamIds.length > 0) {
-				props.addLiteralString(TO_TEAM_ID, toTeamIds[0]);
-			}
-		} else {
-			props.addArray(TO_TEAM_IDS, toTeamIds);
-			props.addArray(TO_GROUP_IDS, toGroupIds);
-		}
+		props.addArray(TO_TEAM_IDS, toTeamIds);
+		props.addArray(TO_GROUP_IDS, toGroupIds);
 		props.addLiteralString(PROBLEM_ID, problemId);
 		props.addString(TEXT, text);
 		super.getProperties(props);
