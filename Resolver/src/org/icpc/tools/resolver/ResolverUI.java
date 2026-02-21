@@ -218,7 +218,7 @@ public class ResolverUI {
 				if (teamListPresentation == null || !isPresenter || !active)
 					return;
 
-				if ('r' == e.getKeyChar() || 'R' == e.getKeyChar() || 'b' == e.getKeyChar() || 'B' == e.getKeyChar())
+				if ('r' == e.getKeyChar() || 'R' == e.getKeyChar() || 'b' == e.getKeyChar() || 'B' == e.getKeyChar() || KeyEvent.VK_PAGE_UP == e.getKeyCode())
 					processAction(Action.REVERSE);
 				else if ('1' == e.getKeyChar())
 					processAction(Action.FAST_REVERSE);
@@ -243,7 +243,7 @@ public class ResolverUI {
 					setScrollPauseImpl(!pauseScroll);
 				} else if ('i' == e.getKeyChar())
 					scoreboardPresentation.setShowSubmissionInfo(!scoreboardPresentation.getShowSubmissionInfo());
-				else if (' ' == e.getKeyChar() || 'f' == e.getKeyChar() || 'F' == e.getKeyChar())
+				else if (' ' == e.getKeyChar() || 'f' == e.getKeyChar() || 'F' == e.getKeyChar() || KeyEvent.VK_PAGE_DOWN == e.getKeyCode())
 					processAction(Action.FORWARD);
 				else if ('s' == e.getKeyChar() && listener != null)
 					listener.swap();
