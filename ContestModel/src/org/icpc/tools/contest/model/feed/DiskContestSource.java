@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1153,7 +1154,8 @@ public class DiskContestSource extends ContestSource {
 			boolean found = false;
 			for (FileReference ref2 : localList) {
 				if (ref.height == ref2.height && ref.width == ref2.width
-						&& (ref.mime == null || ref.mime.equals(ref2.mime))) {
+						&& (ref.mime == null || ref.mime.equals(ref2.mime))
+						&& (ref.tags == null || Arrays.equals(ref.tags, ref2.tags))) {
 					found = true;
 					continue;
 				}

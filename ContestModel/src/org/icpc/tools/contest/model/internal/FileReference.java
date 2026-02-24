@@ -38,6 +38,12 @@ public class FileReference {
 		height = obj.getInt("height");
 		width = obj.getInt("width");
 		filename = obj.getString("filename");
+		Object[] tagsArray = obj.getArray("tags");
+		if (tagsArray != null) {
+			tags = new String[tagsArray.length];
+			for (int i = 0; i < tagsArray.length; i++)
+				tags[i] = (String) tagsArray[i];
+		}
 	}
 
 	public void updateTags() {
@@ -48,7 +54,7 @@ public class FileReference {
 
 		List<String> list = new ArrayList<>(KNOWN_TAGS.length);
 		for (String t : KNOWN_TAGS) {
-			if (filename.contains(t))
+			if (filename.contains("." + t + "."))
 				list.add(t);
 		}
 
