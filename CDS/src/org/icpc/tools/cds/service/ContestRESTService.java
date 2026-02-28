@@ -427,6 +427,7 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		cc.incrementDownload();
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		if (obj instanceof ISubmission && url != null && url.contains("reaction")) {
 			HttpHelper.streamFile(request, response, f);
 		} else {
@@ -448,6 +449,18 @@ public class ContestRESTService extends HttpServlet {
 			doPatch(request, response);
 		else
 			super.service(request, response);
+	}
+
+	@Override
+	protected void doOptions(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Allow", "GET, POST, PUT, DELETE, OPTIONS");
+
+		response.setStatus(HttpServletResponse.SC_OK);
 	}
 
 	// {"id":"finals","start_time":null}
