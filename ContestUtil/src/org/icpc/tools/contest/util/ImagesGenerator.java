@@ -1,5 +1,7 @@
 package org.icpc.tools.contest.util;
 
+import io.sentry.Sentry;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -87,6 +89,8 @@ public class ImagesGenerator {
 	public static void main(String[] args) {
 		Trace.init("ICPC Image Generator", "imageGenerator", args);
 
+		Sentry.init();
+
 		if (args == null || args.length != 1) {
 			Trace.trace(Trace.ERROR, "Missing argument, must point to a contest location");
 			System.exit(0);
@@ -133,6 +137,7 @@ public class ImagesGenerator {
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
 		} catch (Exception e) {
+			Sentry.captureException(e);
 			e.printStackTrace();
 		}*/
 
@@ -150,6 +155,7 @@ public class ImagesGenerator {
 		try {
 			generator.createRibbon();
 		} catch (Exception e) {
+			Sentry.captureException(e);
 			e.printStackTrace();
 		}*/
 
@@ -157,12 +163,14 @@ public class ImagesGenerator {
 		try {
 			generator.createPreview();
 		} catch (Exception e) {
+			Sentry.captureException(e);
 			e.printStackTrace();
 		}
 
 		try {
 			generator.createContestPreview();
 		} catch (Exception e) {
+			Sentry.captureException(e);
 			e.printStackTrace();
 		}
 
@@ -1073,6 +1081,7 @@ public class ImagesGenerator {
 
 			bw.close();
 		} catch (Exception e) {
+			Sentry.captureException(e);
 			e.printStackTrace();
 		}
 
