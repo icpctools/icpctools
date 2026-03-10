@@ -49,9 +49,9 @@ public class MessagePresentation extends AbstractICPCPresentation {
 
 		int h = 0;
 		if (bgImage != null) {
-			int ww = image.getWidth();
-			int hh = image.getHeight();
-			g.drawImage(image, (width - ww) / 2, (height - hh) / 2, null);
+			int ww = bgImage.getWidth();
+			int hh = bgImage.getHeight();
+			g.drawImage(bgImage, (width - ww) / 2, (height - hh) / 2, null);
 		} else if (image != null) {
 			int w = image.getWidth();
 			h = image.getHeight();
