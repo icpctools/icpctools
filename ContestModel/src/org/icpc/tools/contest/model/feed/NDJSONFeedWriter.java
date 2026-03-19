@@ -20,7 +20,7 @@ public class NDJSONFeedWriter {
 
 	public static String getContestPrefix(IContest contest) {
 		// A = 65, a = 97
-		int i = contest.hashCode() % 52;
+		int i = Math.floorMod(contest.hashCode(), 52);
 		StringBuilder sb = new StringBuilder("cd");
 		if (i < 26)
 			sb.appendCodePoint(97 + i);
