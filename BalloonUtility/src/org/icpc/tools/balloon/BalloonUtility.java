@@ -518,7 +518,7 @@ public class BalloonUtility {
 		Balloon[] balloons = bc.getBalloons();
 		for (Balloon b : balloons) {
 			ISubmission s2 = contest.getSubmissionById(b.getSubmissionId());
-			if (s2.getTeamId().equals(submission.getTeamId()) && s2.getProblemId().equals(submission.getProblemId())) {
+			if (s2 != null && s2.getTeamId().equals(submission.getTeamId()) && s2.getProblemId().equals(submission.getProblemId())) {
 				Trace.trace(Trace.INFO, "Submission for problem already solved: " + b.getSubmissionId() + ", " + sId);
 				return;
 			}
@@ -788,8 +788,16 @@ public class BalloonUtility {
 				runAsync(() -> {
 					if (ConnectionState.FAILED == state || ConnectionState.RECONNECTING == state)
 						connectionLabel.setForeground(RED);
-					else
+					else {
 						connectionLabel.setForeground(BLACK);
+						// Also refresh the table to update the table with existing balloons
+						balloonTable.getDisplay().syncExec(new Runnable() {
+							@Override
+							public void run() {
+								refreshTable();
+							}
+						});
+					}
 					connectionLabel.setText(ContestSource.getStateLabel(state));
 				});
 			}
