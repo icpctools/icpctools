@@ -325,7 +325,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 		// all file references on non-timed object, only remove if they can never be accessed
 		String[] properties = new String[] { "desktop", "webcam", "audio", "backup", "key_log", "tool_data" };
 		for (String property : properties) {
-			if (!canAccessProperty(ContestType.TEAM, property)) {
+			if (!canAccessProperty(ContestType.TEAM, property) || !allowProperty(t, property)) {
 				t.add(property, null);
 			}
 		}
