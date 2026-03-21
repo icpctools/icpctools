@@ -230,11 +230,12 @@ function updateTableImpl() {
 	var table = $("#score-table");
 	var y = table.find('tr:eq(1)').position().top;
 	
+	const type = contest.getInfo().scoreboard_type;
    	score = contest.getScoreboard();
     for (var i = 0; i < score.rows.length; i++) {
     	var scr = score.rows[i];
     	var oldRow = $('#team' + scr.team_id);
-    	var row = getRow(scr);
+    	var row = getRow(scr, type);
         
         // replace the content and class of each cell (except logo and team name, which shouldn't change)
         var numTds = row.children('td').length;
