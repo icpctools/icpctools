@@ -1,6 +1,6 @@
 # The ICPC Problem Set Editor 
 
-![](docs/problemSetIcon.png){width=50}
+<img src="docs/problemSetIcon.png" width="50">
 
 An ICPC Tool
 
@@ -8,10 +8,10 @@ An ICPC Tool
 
 The ICPC Problem Set Editor is a tool for creating and editing _problemset.yaml_ files, 
 which define the list of contest problems
-and their colors for a [CLICS-compliant](https://ccs-specs.icpc.io/ccs_system_requirements)
+and their colors for a [CLICS-compliant](https://ccs-specs.icpc.io/2026-01/ccs_system_requirements)
 Contest Control System (CCS).
 
-The following shows a screen shot of the editor in action:
+The following shows a screenshot of the editor in action:
 
 ![Problem Set editor](docs/ProblemSetScreenShot.png)
 

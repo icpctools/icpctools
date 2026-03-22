@@ -1,6 +1,6 @@
 # The ICPC Contest Data Server (CDS)
 
-![](docs/cdsIcon.png)
+<img src="docs/cdsIcon.png" width="50">
 
 An ICPC Tool
 
@@ -153,7 +153,7 @@ The attributes associated with this element are as follows:
 segment of the path (e.g. 'test' in 'C:\\icpc\\test').
 
 * path: specifies the full path to a Contest Package defining the organization of the contest
-(config files, logos, etc.). See the [Contest Package](https://ccs-specs.icpc.io/2022-07/contest_package) specification for details on how
+(config files, logos, etc.). See the [Contest Package](https://ccs-specs.icpc.io/2026-01/contest_package) specification for details on how
 to organize a Contest Package. Note that _the path attribute is required_; the CDS will not 
 operate if it does not have a folder to store contest related data, even when it is empty and getting all data from the CCS.
 

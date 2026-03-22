@@ -42,8 +42,8 @@ When a Presentation Client is started it must be told, in addition to what prese
 where to obtain its input data (images, contest events, etc.).
 This is referred to as specifying a _contest source_.
 Presentation Clients can obtain their input data from two different types of contest sources:
-a compliant [_Contest API_](https://ccs-specs.icpc.io/contest_api), or a
-a [_Contest Package_](https://ccs-specs.icpc.io/2022-07/contest_package) folder.
+a compliant [_Contest API_](https://ccs-specs.icpc.io/2026-01/contest_api), or a
+a [_Contest Package_](https://ccs-specs.icpc.io/2026-01/contest_package) folder.
 
 When connecting to a live contest via the Contest API, the Presentation Client works
 by reading the _event feed_.
@@ -52,7 +52,7 @@ compliant with the Contest API specification.
 Tools known to produce compliant event feeds include
 [Contest Data Server](https://tools.icpc.global/cds/), 
 [DOMjudge](https://www.domjudge.org),
-[PC-Squared](http://pc2.ecs.csus.edu/pc2), and 
+[PC-Squared](https://pc2ccs.github.io/), and 
 [Kattis](https://www.kattis.com); 
 other Contest Control Systems may also produce compatible event feeds and 
 hence work with the Presentation System.

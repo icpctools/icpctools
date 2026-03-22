@@ -1,6 +1,6 @@
 # The ICPC Balloon Utility 
 
-![](docs/balloonIcon.png)
+<img src="docs/balloonIcon.png" width="50">
 
 An ICPC Tool
 
@@ -55,11 +55,11 @@ screen will be unpopulated as shown above.)
 In order to use the BU once it is started, it must 
 be connected to the output of a _Contest Control System (CCS)_.
 The Balloon Utility will work with any CCS or the CDS which is 
-compliant with the [Contest API Specification](https://ccs-specs.icpc.io/contest_api).
+compliant with the [Contest API Specification](https://ccs-specs.icpc.io/2026-01/contest_api).
 Tools known to produce compliant event feeds include
 [Contest Data Server](https://tools.icpc.global/cds/), 
 [DOMjudge](https://www.domjudge.org),
-[PC-Squared](http://pc2.ecs.csus.edu/pc2), and 
+[PC-Squared](https://pc2ccs.github.io/), and 
 [Kattis](https://www.kattis.com);
 other Contest Control Systems may also produce compatible event feeds and
 hence work with the Balloon Utility.
