@@ -8,7 +8,7 @@ Welcome to the ICPC Tools!
 The ICPC Tools are a set of tools to support running programming contests. For the latest downloads, please go to the [ICPC Tools website](https://tools.icpc.global).
 
 Each of the ICPC tools can be used individually, or together in any combination. They are all designed to support
-the REST-based [Contest API](https://ccs-specs.icpc.io/2021-11/contest_api) as defined by the Competitive Learning Initiative (CLI).
+the REST-based [Contest API](https://ccs-specs.icpc.io/2026-01/contest_api) as defined by the Competitive Learning Initiative (CLI).
 Some features require extensions to the specification, and those are described [here](doc/spec-extensions.md).
 
 These tools were built to support the
@@ -30,7 +30,7 @@ Contest Utilities | A variety of useful contest-related utilities: event feed va
 
 ## Contest Control System Compatibility
 
-The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://ccs-specs.icpc.io/2021-11/contest_api).
+The ICPC Tools are built to work with any Contest Control System (CCS) that supports the REST-based [Contest API](https://ccs-specs.icpc.io/2026-01/contest_api).
 
 To be more specific, the only part of the Contest API that is strictly required is the event feed and any file
 references that the feed refers to. If your CCS correctly supports the event feed, then all of the ICPC Tools will
@@ -87,10 +87,10 @@ A [Docker image](https://ghcr.io/icpctools/cds) is provided to run the CDS witho
 The basic way to run it, is to run
 
 ```bash
-docker run --name cds --rm -it  -p 8080:8080 -p 8443:8443 -e CCS_URL=https://www.domjudge.org/demoweb/api/contests/nwerc18 -e CCS_USER=admin -e CCS_PASSWORD=admin ghcr.io/icpctools/cds:2.2.407
+docker run --name cds --rm -it  -p 8080:8080 -p 8443:8443 -e CCS_URL=https://www.domjudge.org/demoweb/api/contests/nwerc18 -e CCS_USER=admin -e CCS_PASSWORD=admin ghcr.io/icpctools/cds:2.7.1359
 ```
 
-Replace `https://www.domjudge.org/demoweb/api/contests/nwerc18` with your CCS contest API URL, `CCS_USER` with a user with admin privileges to the CCS URL, `CCS_PASSWORD` with the password for the given user and `2.2.407` with the version of the CDS you want to run.
+Replace `https://www.domjudge.org/demoweb/api/contests/nwerc18` with your CCS contest API URL, `CCS_USER` with a user with admin privileges to the CCS URL, `CCS_PASSWORD` with the password for the given user and `2.7.1359` with the version of the CDS you want to run.
 
 Now you can access the CDS at https://localhost:8443/.
 

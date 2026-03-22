@@ -29,9 +29,9 @@ of the contest, and so forth.
 
 The ICPC Presentation System will work with any
 CCS that produces an event feed which is
-compliant with the [_CLI Contest API_](https://ccs-specs.icpc.io/contest_api).
+compliant with the [_CLI Contest API_](https://ccs-specs.icpc.io/2026-01/contest_api).
 Systems known to produce compliant event feeds include
-[PC-Squared](http://pc2.ecs.csus.edu),
+[PC-Squared](https://pc2ccs.github.io),
 [Kattis](https://www.kattis.com/) and [DOMjudge](https://www.domjudge.org);
 other Contest Control Systems may also produce compatible event feeds and
 hence work with the Presentation System.

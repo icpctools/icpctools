@@ -1,6 +1,6 @@
 # The ICPC Resolver 
 
-![](docs/resolverIcon.png)
+<img src="docs/resolverIcon.png" width="50">
 
 An ICPC Tool
 
@@ -98,11 +98,11 @@ credentials are only given to trusted contest staff or not distributed until the
 ### Input Data Sources
 
 The Resolver works with any CCS or the CDS that produces an event feed which is
-compliant with the [Contest API Specification](https://ccs-specs.icpc.io/contest_api).
+compliant with the [Contest API Specification](https://ccs-specs.icpc.io/2026-01/contest_api).
 Tools known to produce compliant event feeds include
 [Contest Data Server](https://tools.icpc.global/cds/), 
 [DOMjudge](https://www.domjudge.org),
-[PC-Squared](http://pc2.ecs.csus.edu/pc2), and 
+[PC-Squared](https://pc2ccs.github.io/), and 
 [Kattis](https://www.kattis.com);
 other Contest Control Systems may also produce compatible event feeds and
 hence work with the Resolver.
@@ -112,7 +112,7 @@ three different sources: a _Contest Package_ folder, a _Contest API_ source, or 
 
 If the Resolver is started with the first argument being a path (relative or absolute)
 to a folder, it will expect the folder to contain contest data as per the
-[Contest Package](https://ccs-specs.icpc.io/2022-07/contest_package) specification.
+[Contest Package](https://ccs-specs.icpc.io/2026-01/contest_package) specification.
 If the Resolver is started with the first argument pointing to a file, it will expect
 the file to be an event feed JSON file.
 
@@ -421,7 +421,7 @@ The specification of what groups exist in a contest comes from the event feed
 The CCS used in the World Finals is configured to define six "regions" (groups):
 North America, Latin American (comprising Central and South America),
 Europe, Asia, Africa and the Middle East, and the South Pacific.  
-(See the interactive [ICPC Regional Finder map](https://icpc.baylor.edu/regionals/finder) for definitions of the
+(See the interactive [ICPC Regional Finder map](https://icpc.global/regionals/finder) for definitions of the
 precise boundaries of ICPC Regions.)
 The highest placing team at the World Finals from each of the six ICPC regions
 receives an award acknowledging their accomplishment as "Regional Champion".
