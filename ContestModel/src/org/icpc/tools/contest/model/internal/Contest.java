@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IClarification;
@@ -1046,8 +1045,8 @@ public class Contest implements IContest {
 				for (int j = 0; j < numProblems; j++) {
 					penalty += tempResults[i][j].getPenaltyTime();
 					if (tempResults[i][j].getStatus() == Status.SOLVED) {
-						long time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime());
-						penalty += time * (60 * 1000L);
+						long time = tempResults[i][j].getContestTime();
+						penalty += time;
 						numSolved++;
 						score += tempResults[i][j].getScore();
 						if (time > lastSolution)
@@ -1058,7 +1057,7 @@ public class Contest implements IContest {
 						double scoreForThisProblem = tempResults[i][j].getScore();
 						if (scoreForThisProblem > 0) {
 							score += scoreForThisProblem;
-							long time = ContestUtil.getTimeInMin(tempResults[i][j].getContestTime()) * 60 * 1000L;
+							long time = tempResults[i][j].getContestTime();
 							if (time > lastSolution)
 								lastSolution = time;
 						}

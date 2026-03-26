@@ -84,6 +84,10 @@ public class ContestUtil {
 		return timeMs / 60000L;
 	}
 
+	public static long roundTimeToMin(long timeMs) {
+		return timeMs / 60000L * 60000L;
+	}
+
 	/**
 	 * Format contest time as a string.
 	 *

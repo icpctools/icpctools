@@ -1,8 +1,9 @@
 package org.icpc.tools.contest.model.internal;
 
+import org.icpc.tools.contest.model.ContestUtil;
+import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
-import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.ISubmission;
@@ -76,7 +77,7 @@ public class Result implements IResult {
 					if (j.getScore() > score) {
 						score = j.getScore();
 						numJudged++;
-						time = s.getContestTime();
+						time = ContestUtil.roundTimeToMin(s.getContestTime());
 					}
 				}
 			}
@@ -104,7 +105,7 @@ public class Result implements IResult {
 			} // else compile or judgement error that doesn't count as an attempt or penalty
 		}
 
-		time = s.getContestTime();
+		time = ContestUtil.roundTimeToMin(s.getContestTime());
 
 	}
 
