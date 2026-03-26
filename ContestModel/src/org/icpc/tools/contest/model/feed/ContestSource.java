@@ -184,7 +184,8 @@ public abstract class ContestSource {
 					return;
 				}
 				notifyListeners(ConnectionState.INITIALZED);
-				boolean reconnect = (ContestSource.this instanceof RESTContestSource);
+				boolean reconnect = (ContestSource.this instanceof RESTContestSource)
+						&& ((RESTContestSource) ContestSource.this).getURL() != null;
 
 				final IContestListener readListener = new IContestListener() {
 					@Override
@@ -293,7 +294,7 @@ public abstract class ContestSource {
 		int last = -1;
 		int count = 0;
 		int n = getContest().getNumObjects();
-		while (count < 3 && !contest.isDoneUpdating()) {
+		while (count < 3 && !contest.isDoneUpdating() && lastState != ConnectionState.COMPLETE) {
 			if (System.currentTimeMillis() > endTime)
 				return false;
 
