@@ -79,9 +79,10 @@ public class Ranking {
 					if (si.getScore() < sj.getScore())
 						swap = true;
 					else if (si.getScore() == sj.getScore()) {
-						if (si.getLastSolutionTime() > sj.getLastSolutionTime())
+						if ((sj.getLastSolutionTime() >= 0 && si.getLastSolutionTime() < 0)
+								|| (sj.getLastSolutionTime() >= 0 && si.getLastSolutionTime() > sj.getLastSolutionTime())) {
 							swap = true;
-						else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
+						} else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
 							String tin = teams[order[i]].getActualDisplayName();
 							String tjn = teams[order[j]].getActualDisplayName();
 							if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
