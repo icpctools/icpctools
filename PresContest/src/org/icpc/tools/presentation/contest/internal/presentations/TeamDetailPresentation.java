@@ -46,6 +46,7 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	private ITeam team;
 	private TeamInfo info;
 	private boolean voice;
+	private long lastAudio;
 
 	@Override
 	public void setSize(Dimension d) {
@@ -93,9 +94,14 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 		}
 
 		// if there is an audio recording for this university, play it
+		if (lastAudio > System.currentTimeMillis() - 2000) {
+			// do not play audio if we started one within the last 2s
+			return;
+		}
 		if (org != null && org.getAudio() != null && !org.getAudio().isEmpty()) {
 			File f = org.getAudio(voice ? FileReference.TAG_MALE : FileReference.TAG_FEMALE, true);
 			voice = !voice;
+			lastAudio = System.currentTimeMillis();
 			if (f != null) {
 				Trace.trace(Trace.INFO, "Playing audio for org " + org.getId() + " " + f.getName());
 				if (f.getName().endsWith(".wav"))
