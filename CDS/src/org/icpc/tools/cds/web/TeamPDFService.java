@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -17,6 +19,7 @@ import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.util.QRCode;
 
@@ -196,7 +199,14 @@ public class TeamPDFService {
 		BufferedImage image = new BufferedImage(500, 500, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = (Graphics2D) image.getGraphics();
 		g.setColor(Color.BLACK);
-		QRCode.drawQRCode(g, team.getLabel(), 0, 0, 500);
+
+		StringWriter sw = new StringWriter();
+		JSONEncoder je = new JSONEncoder(new PrintWriter(sw));
+		je.open();
+		je.encode("team_id", team.getId());
+		je.close();
+
+		QRCode.drawQRCode(g, sw.toString(), 0, 0, 500);
 		g.dispose();
 		Image qrImg = Image.getInstance(image, null);
 		float scale = (float) (72f * r.getHeight() / 2f / qrImg.getWidth() * 0.7f);

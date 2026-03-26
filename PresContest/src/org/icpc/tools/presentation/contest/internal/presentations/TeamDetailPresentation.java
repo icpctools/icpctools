@@ -15,8 +15,12 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -105,7 +109,7 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	/**
 	 * Play a wav file using Java audio.
 	 */
-	private void playWAV(File file) {
+	private static void playWAV(File file) {
 		try {
 			AudioInputStream audioIn = AudioSystem.getAudioInputStream(file);
 			Clip clip = AudioSystem.getClip();
@@ -215,12 +219,48 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 			setTeam(null);
 			return;
 		}
-		ITeam newTeam = getContest().getTeamById(val);
+
+		// try json object containing ids
+		IContest contest = getContest();
+		try {
+			// replace fancy quotes with standard ones
+			val = val.replaceAll("[\\u201c\\u201d]", "\"");
+			JsonObject obj = JSONParser.getOrReadObject(val);
+			String teamId = obj.getString("team_id");
+
+			ITeam newTeam = null;
+			if (teamId != null) {
+				newTeam = contest.getTeamById(teamId);
+			} else {
+				String personId = obj.getString("person_id");
+				if (personId != null) {
+					IPerson p = contest.getPersonById(personId);
+					if (p != null) {
+						// person could be on more than one team, just check in order for now
+						for (String teamId2 : p.getTeamIds()) {
+							newTeam = contest.getTeamById(teamId2);
+							if (newTeam != null) {
+								break;
+							}
+						}
+					}
+				}
+			}
+			if (newTeam != null) {
+				setTeam(newTeam);
+				return;
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+
+		// try by raw team id or label
+		ITeam newTeam = contest.getTeamById(val);
 		if (newTeam != null) {
 			setTeam(newTeam);
 			return;
 		}
-		ITeam[] teams = getContest().getTeams();
+		ITeam[] teams = contest.getTeams();
 		for (ITeam t : teams) {
 			if (t.getLabel().equals(val)) {
 				setTeam(t);
