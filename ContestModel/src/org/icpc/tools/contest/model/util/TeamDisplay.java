@@ -17,6 +17,7 @@ public class TeamDisplay {
 				String name = getTeamName(c, team, template);
 				team.setDisplayName(name);
 			}
+			return true;
 		});
 	}
 

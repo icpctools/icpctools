@@ -15,6 +15,7 @@ import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.FileReference;
+import org.icpc.tools.contest.model.internal.IContestModifier;
 
 /**
  * A generic interface for sources of contest data, either file, URL, or other.
@@ -130,9 +131,15 @@ public abstract class ContestSource {
 	}
 
 	public Contest loadContest(IContestListener listener) {
+		return loadContest(listener, null);
+	}
+
+	public Contest loadContest(IContestListener listener, IContestModifier modifier) {
 		if (contest != null) {
 			if (listener != null)
 				contest.addListener(listener);
+			if (modifier != null)
+				contest.addModifier(modifier);
 			return contest;
 		}
 
@@ -140,6 +147,8 @@ public abstract class ContestSource {
 			if (contest != null) {
 				if (listener != null)
 					contest.addListener(listener);
+				if (modifier != null)
+					contest.addModifier(modifier);
 				return contest;
 			}
 
@@ -150,6 +159,8 @@ public abstract class ContestSource {
 
 			if (listener != null)
 				contest.addListener(listener);
+			if (modifier != null)
+				contest.addModifier(modifier);
 
 			loadContestInBackground();
 
