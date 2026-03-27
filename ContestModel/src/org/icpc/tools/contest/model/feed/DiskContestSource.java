@@ -750,8 +750,12 @@ public class DiskContestSource extends ContestSource {
 				Info info2 = (Info) obj;
 				info2.setId(contestId);
 			}
+			return true;
 		});
-		IContestModifier mod = (contest2, obj) -> attachLocalResources(obj);
+		IContestModifier mod = (contest2, obj) -> {
+			attachLocalResources(obj);
+			return true;
+		};
 		contest.addModifier(mod);
 
 		loadConfigFiles();

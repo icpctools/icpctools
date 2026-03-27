@@ -121,8 +121,11 @@ public class Contest implements IContest {
 		// make sure to modify all existing data
 		synchronized (data) {
 			if (data.size() > 0) {
-				for (IContestObject obj : data)
-					modifier.notify(this, obj);
+				for (IContestObject obj : data) {
+					if (!modifier.notify(this, obj)) {
+						Trace.trace(Trace.WARNING, "Modifier wanted to remove object that was already added to contest");
+					}
+				}
 			}
 		}
 	}
@@ -141,7 +144,8 @@ public class Contest implements IContest {
 		if (obj == null)
 			return;
 
-		notifyModifiers(obj);
+		if (!notifyModifiers(obj))
+			return;
 
 		Delta delta = null;
 		synchronized (data) {
@@ -468,19 +472,22 @@ public class Contest implements IContest {
 		}
 	}
 
-	private void notifyModifiers(IContestObject co) {
+	private boolean notifyModifiers(IContestObject co) {
 		IContestModifier[] list = null;
 		synchronized (modifiers) {
 			list = modifiers.toArray(new IContestModifier[0]);
 		}
 
+		IContestObject co2 = co;
 		for (IContestModifier modifier : list) {
 			try {
-				modifier.notify(this, co);
+				if (!modifier.notify(this, co2))
+					return false;
 			} catch (Throwable t) {
 				Trace.trace(Trace.ERROR, "Error notifying modifier", t);
 			}
 		}
+		return true;
 	}
 
 	public IContestObject[] getObjects() {

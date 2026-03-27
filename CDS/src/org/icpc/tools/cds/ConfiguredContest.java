@@ -639,6 +639,7 @@ public class ConfiguredContest {
 					Info info2 = (Info) obj;
 					info2.setId(id);
 				}
+				return true;
 			});
 			if (isTesting())
 				pc.setTestMode();

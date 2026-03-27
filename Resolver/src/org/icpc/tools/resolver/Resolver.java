@@ -18,19 +18,23 @@ import javax.imageio.ImageIO;
 import org.icpc.tools.client.core.IConnectionListener;
 import org.icpc.tools.client.core.IPropertyListener;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResolveInfo;
+import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.TimeFilter;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.IContestModifier;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -455,6 +459,13 @@ public class Resolver {
 		try {
 			contestSources[con].outputValidation();
 
+			IContestModifier mod = (contest2, obj) -> {
+				if (obj instanceof IRun || obj instanceof IAccount || obj instanceof IClarification) {
+					return false;
+				}
+				return true;
+			};
+
 			finalContest[con] = contestSources[con].loadContest(new IContestListener() {
 				@Override
 				public void contestChanged(IContest contest, IContestObject obj, Delta delta) {
@@ -472,7 +483,7 @@ public class Resolver {
 						}
 					}
 				}
-			});
+			}, mod);
 			if (displayName != null)
 				TeamDisplay.overrideDisplayName(finalContest[con], displayName);
 
