@@ -44,8 +44,8 @@ for details. See the documentation for the CCS being used by your contest to det
 
 ### Overview
 
-The CDS is a Java Enterprise Edition (JavaEE) web application; an instance of the CDS operates 
-by being deployed on a JavaEE application server. The ICPC Tools distribution of the CDS comes pre-packaged
+The CDS is a Jakarta Enterprise Edition (JakartaEE) web application; an instance of the CDS operates 
+by being deployed on a JakartaEE application server. The ICPC Tools distribution of the CDS comes pre-packaged
 running on [Open Liberty](https://openliberty.io/);
 the entire CDS can be run using the embedded Liberty server without any other tools.
 
@@ -54,10 +54,9 @@ such as [Apache Tomcat](http://tomcat.apache.org/),
 [WildFly](http://wildfly.org/), or
 [Jetty](http://www.eclipse.org/jetty/). However, the mechanisms and requirements for deploying web applications 
 to application servers differ between servers.
-This guide does not attempt to provide tutorial details for such alternative deployments; see the Appendices and
-the documentation for your particular application server for additional information.
+This guide does not attempt to provide details for alternative deployments.
 
-### Installing the CDS 
+### Installing the CDS
 
 To install the CDS, download a copy of the latest version from the [ICPCTools website](https://tools.icpc.global)
 and unzip it into any convenient directory. That's it!
@@ -473,20 +472,3 @@ The following VLC command is used at the World Finals to start a stream on port 
  vlc -I dummy -q screen:// --screen-fps=30 --sout
    "#transcode{venc=x264{keyint=15},vcodec=h264,vb=0}:http{mux=ts,dst=:9090/}"
 ```
-
-### Deployment Under Other Application Servers
-
-The CDS distribution comes packaged with an embedded Liberty application server.
-The CDS application component of this distribution is 
-contained in the file _CDS.war_ in the _wlp/usr/servers/cds/apps_ folder.
-
-In principle it should be relatively easy to "port" the CDS to a different application server by installing the _CDS.war_ file
-in the new application server according to that server's rules (along with configuring the new application server in ways
-analogous to the settings described earlier in this document -- for example, specifying the location of the _cdsConfig_ file
-to the new application server).
-
-However, as of this writing we have not explicitly attempted such a port. We would be very 
-interested in hearing about user experiences in porting the CDS to other application servers, especially common servers such as 
-*Tomcat*, *Jetty*, or *JBoss/WildFly*.
-
-If you have any experience in attempting such a port, please feel free to update us about it by sending mail to _icpctools-dev@ecs.csus.edu_.
