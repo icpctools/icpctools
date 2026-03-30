@@ -16,6 +16,28 @@ import org.icpc.tools.contest.model.internal.Info;
 public class ContestAPIHelper {
 	protected static boolean isCDS;
 
+	private enum Version {
+		v2023_06, v2026_01
+	}
+
+	private static final ThreadLocal<Version> local = new ThreadLocal<>();
+
+	public static void set2026_01() {
+		local.set(Version.v2026_01);
+	}
+
+	public static void set2023_06() {
+		local.set(Version.v2023_06);
+	}
+
+	public static boolean is2026_01() {
+		return local.get() == Version.v2026_01;
+	}
+
+	public static boolean is2023_06() {
+		return local.get() == Version.v2023_06;
+	}
+
 	static class Result {
 		String content;
 		URL url;

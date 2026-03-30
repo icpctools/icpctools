@@ -3,6 +3,7 @@ package org.icpc.tools.contest.model;
 import java.io.PrintWriter;
 
 import org.icpc.tools.contest.model.IContest.ScoreboardType;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
@@ -62,11 +63,19 @@ public class Scoreboard {
 			pw.write("\"score\":{");
 			if (ScoreboardType.PASS_FAIL.equals(scoreboardType)) {
 				pw.write("\"num_solved\":" + s.getNumSolved() + ",");
-				pw.write("\"total_time\":\"" + RelativeTime.format(s.getTime()) + "\"},\n");
+				if (ContestAPIHelper.is2023_06()) {
+					pw.write("\"total_time\":" + ContestUtil.getTime(s.getTime()) + "},\n");
+				} else {
+					pw.write("\"total_time\":\"" + RelativeTime.format(s.getTime()) + "\"},\n");
+				}
 			} else if (ScoreboardType.SCORE.equals(scoreboardType)) {
 				pw.write("\"score\":" + round(s.getScore()));
 				if (s.getLastSolutionTime() >= 0) {
-					pw.write(",\"time\":\"" + RelativeTime.format(s.getLastSolutionTime()) + "\"},\n");
+					if (ContestAPIHelper.is2023_06()) {
+						pw.write(",\"time\":" + ContestUtil.getTime(s.getLastSolutionTime()) + "},\n");
+					} else {
+						pw.write(",\"time\":\"" + RelativeTime.format(s.getLastSolutionTime()) + "\"},\n");
+					}
 				} else
 					pw.write("},\n");
 			}
@@ -91,7 +100,11 @@ public class Scoreboard {
 								pw.write(",\"first_to_solve\":true");
 						} else if (ScoreboardType.SCORE.equals(scoreboardType))
 							pw.write("\"score\":" + round(r.getScore()));
-						pw.write(",\"time\":\"" + RelativeTime.format(r.getContestTime()) + "\"");
+						if (ContestAPIHelper.is2023_06()) {
+							pw.write(",\"time\":" + ContestUtil.getTime(r.getContestTime()));
+						} else {
+							pw.write(",\"time\":\"" + RelativeTime.format(r.getContestTime()) + "\"");
+						}
 					} else
 						pw.write("\"solved\":false");
 					pw.write("}");
