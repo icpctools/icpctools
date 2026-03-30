@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.icpc.tools.contest.model.IClarification;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper;
 import org.icpc.tools.contest.model.feed.JSONParser;
 
 public class Clarification extends TimedEvent implements IClarification {
@@ -113,8 +114,16 @@ public class Clarification extends TimedEvent implements IClarification {
 		props.addLiteralString(ID, id);
 		props.addLiteralString(REPLY_TO_ID, replyToId);
 		props.addLiteralString(FROM_TEAM_ID, fromTeamId);
-		props.addArray(TO_TEAM_IDS, toTeamIds);
-		props.addArray(TO_GROUP_IDS, toGroupIds);
+
+		if (ContestAPIHelper.is2023_06()) {
+			if (toTeamIds != null && toTeamIds.length > 0) {
+				props.addLiteralString(TO_TEAM_ID, toTeamIds[0]);
+			}
+		} else {
+			props.addArray(TO_TEAM_IDS, toTeamIds);
+			props.addArray(TO_GROUP_IDS, toGroupIds);
+		}
+
 		props.addLiteralString(PROBLEM_ID, problemId);
 		props.addString(TEXT, text);
 		super.getProperties(props);

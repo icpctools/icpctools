@@ -10,6 +10,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContest.ScoreboardType;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IInfo;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
@@ -339,7 +340,11 @@ public class Info extends ContestObject implements IInfo {
 			props.addLiteralString(SCOREBOARD_THAW_TIME, Timestamp.format(thawTime.longValue()));
 
 		if (penalty != null) {
-			props.addLiteralString(PENALTY_TIME, RelativeTime.format(penalty));
+			if (ContestAPIHelper.is2023_06()) {
+				props.addInt(PENALTY_TIME, (int) (penalty.longValue() / (60 * 1000L)));
+			} else {
+				props.addLiteralString(PENALTY_TIME, RelativeTime.format(penalty));
+			}
 		}
 
 		if (!Double.isNaN(timeMultiplier))
