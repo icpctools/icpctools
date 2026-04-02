@@ -165,8 +165,8 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	@Override
 	public void paint(Graphics2D g) {
 		if (contestImage == null)
-			contestImage = getContest().getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7),
-					getModeTag(), true, true);
+			contestImage = getContest().getLogoImage((int) (width * 0.8), (int) ((height) * 0.8), getModeTag(), true,
+					true);
 
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
