@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
+import org.icpc.tools.contest.model.RemovedInterval;
 
 public class ScoreboardData {
 	public static class STeam {
@@ -110,6 +111,11 @@ public class ScoreboardData {
 		@Override
 		public boolean isDoneUpdating() {
 			return endOfUpdates != null;
+		}
+
+		@Override
+		public RemovedInterval[] getRemovedIntervals() {
+			return null;
 		}
 	}
 

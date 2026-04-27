@@ -29,7 +29,6 @@ import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.IMapInfo;
 import org.icpc.tools.contest.model.IOrganization;
-import org.icpc.tools.contest.model.IPause;
 import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IProblemSummary;
@@ -41,6 +40,7 @@ import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.RemovedInterval;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -68,7 +68,6 @@ public class Contest implements IContest {
 	private IStartStatus[] startStatus;
 	private IAccount[] accounts;
 	private IAward[] awards;
-	private IPause[] pauses;
 	private IMapInfo mapInfo;
 	private IResolveInfo resolveInfo;
 
@@ -234,7 +233,6 @@ public class Contest implements IContest {
 			judgementTypes = null;
 			submissions = null;
 			awards = null;
-			pauses = null;
 			startStatus = null;
 			persons = null;
 			runs = null;
@@ -344,8 +342,6 @@ public class Contest implements IContest {
 			accounts = null;
 		} else if (type == ContestType.AWARD) {
 			awards = null;
-		} else if (type == ContestType.PAUSE) {
-			pauses = null;
 		} else if (type == ContestType.RUN) {
 			runs = null;
 		} else if (type == ContestType.CLARIFICATION) {
@@ -741,7 +737,22 @@ public class Contest implements IContest {
 		if (startTime == null)
 			return null;
 
-		long contestTimeMs = timeMs - startTime;
+		// apply removed intervals
+		long removedTime = 0;
+		if (state != null && state.getRemovedIntervals() != null) {
+			for (RemovedInterval interval : state.getRemovedIntervals()) {
+				if (interval.getStart() < timeMs) {
+					// interval started before now, so it applies
+					if (interval.getEnd() == null || interval.getEnd() > timeMs) {
+						// we're in the interval
+						return interval.getContestTime();
+					}
+					removedTime += (interval.getEnd() - interval.getStart());
+				}
+			}
+		}
+
+		long contestTimeMs = timeMs - startTime - removedTime;
 		return Math.round(contestTimeMs * timeMultiplier);
 	}
 
@@ -753,21 +764,6 @@ public class Contest implements IContest {
 		info2.setStartStatus(start);
 		add(info2);
 		return info2;
-	}
-
-	@Override
-	public IPause[] getPauses() {
-		IPause[] temp = pauses;
-		if (temp != null)
-			return temp;
-
-		synchronized (data) {
-			if (pauses != null)
-				return pauses;
-
-			pauses = data.getByType(IPause.class, ContestType.PAUSE);
-			return pauses;
-		}
 	}
 
 	public boolean isDoneUpdating() {

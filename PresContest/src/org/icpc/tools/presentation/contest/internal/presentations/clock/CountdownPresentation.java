@@ -50,14 +50,14 @@ public class CountdownPresentation extends ClockPresentation {
 	private void setClockTarget() {
 		IContest contest = getContest();
 		if (contest != null) {
-			Long contestClock = contest.getContestClock();
+			Long contestClock = contest.getContestClock(getTimeMs());
 			if (contestClock == null)
 				return;
 
 			if (contest.getCountdownPauseTime() != null)
-				clock.setTarget(-getRemainingMillis(), 0);
+				clock.setTarget(getRemainingMillis(), 0);
 			else
-				clock.setTarget(-getRemainingMillis(), 1000.0 * contest.getTimeMultiplier());
+				clock.setTarget(getRemainingMillis(), 1000.0 * contest.getTimeMultiplier());
 		}
 	}
 
@@ -82,7 +82,7 @@ public class CountdownPresentation extends ClockPresentation {
 		if (contest == null)
 			return 0;
 
-		Long contestClock = contest.getContestClock();
+		Long contestClock = contest.getContestClock(getTimeMs());
 		if (contestClock == null)
 			return 0;
 
@@ -98,7 +98,7 @@ public class CountdownPresentation extends ClockPresentation {
 		if (freezeDuration != null)
 			switchPoint = duration - freezeDuration;
 
-		if ((contestClock - now) < -(switchPoint)) {
+		if (contestClock > switchPoint) {
 			clockColor = EOC_COLOR;
 			return duration - contestClock;
 		}

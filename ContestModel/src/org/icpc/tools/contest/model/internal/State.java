@@ -1,9 +1,13 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IState;
+import org.icpc.tools.contest.model.RemovedInterval;
+import org.icpc.tools.contest.model.feed.JSONParser;
+import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.Timestamp;
 
 // need initial (empty) state if contest data doesn't have one, otherwise endpoint is null
@@ -14,6 +18,7 @@ public class State extends ContestObject implements IState {
 	private static final String THAWED = "thawed";
 	private static final String FINALIZED = "finalized";
 	private static final String END_OF_UPDATES = "end_of_updates";
+	private static final String REMOVED_INTERVALS = "removed_intervals";
 
 	private Long started;
 	private Long ended;
@@ -21,6 +26,7 @@ public class State extends ContestObject implements IState {
 	private Long thawed;
 	private Long finalized;
 	private Long endOfUpdates;
+	private RemovedInterval[] removedIntervals;
 
 	@Override
 	public ContestType getType() {
@@ -60,6 +66,11 @@ public class State extends ContestObject implements IState {
 	@Override
 	public Long getEndOfUpdates() {
 		return endOfUpdates;
+	}
+
+	@Override
+	public RemovedInterval[] getRemovedIntervals() {
+		return removedIntervals;
 	}
 
 	public void setStarted(long time) {
@@ -106,6 +117,16 @@ public class State extends ContestObject implements IState {
 		} else if (END_OF_UPDATES.equals(name)) {
 			endOfUpdates = parseTimestamp(value);
 			return true;
+		} else if (REMOVED_INTERVALS.equals(name)) {
+			List<RemovedInterval> list = new ArrayList<RemovedInterval>();
+			Object[] objs = JSONParser.getOrReadArray(value);
+			if (objs != null) {
+				for (Object obj : objs) {
+					list.add(new RemovedInterval((JsonObject) obj));
+				}
+			}
+			removedIntervals = list.toArray(new RemovedInterval[0]);
+			return true;
 		}
 
 		return false;
@@ -125,6 +146,19 @@ public class State extends ContestObject implements IState {
 			props.addLiteralString(FINALIZED, Timestamp.format(finalized));
 		if (endOfUpdates != null)
 			props.addLiteralString(END_OF_UPDATES, Timestamp.format(endOfUpdates));
+		if (removedIntervals != null) {
+			StringBuilder sb = new StringBuilder("[");
+			boolean first = true;
+			for (RemovedInterval interval : removedIntervals) {
+				if (!first) {
+					sb.append(",");
+				}
+				sb.append(interval.getJSON());
+				first = false;
+			}
+			sb.append("]");
+			props.add(REMOVED_INTERVALS, sb.toString());
+		}
 	}
 
 	@Override
