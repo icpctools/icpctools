@@ -375,7 +375,7 @@ public class ContestWebService extends HttpServlet {
 								je.encode("mode", stream.getMode().name().toLowerCase());
 								je.encode("status", stream.getStatus().name().toLowerCase());
 								Stats stats = stream.getStats();
-								je.encode("time", ContestUtil.formatTime(stats.getTotalTime()));
+								je.encode("time", ContestUtil.formatRelTime(stats.getTotalTime()));
 								je.encode("current", stats.getCurrentListeners());
 								je.encode("total", stats.getTotalListeners());
 								time += stats.getTotalTime();
@@ -393,11 +393,11 @@ public class ContestWebService extends HttpServlet {
 							je.closeArray();
 							je.encode("current", current);
 							je.encode("total_listeners", listeners);
-							je.encode("total_time", ContestUtil.formatTime(time));
+							je.encode("total_time", ContestUtil.formatRelTime(time));
 							je.close();
 
 						}
-						je.encode("total_time", ContestUtil.formatTime(teamTime));
+						je.encode("total_time", ContestUtil.formatRelTime(teamTime));
 						je.close();
 					}
 
@@ -411,7 +411,7 @@ public class ContestWebService extends HttpServlet {
 						numStreams += vs.numStreams;
 						je.encode("current", vs.current);
 						je.encode("total_listeners", vs.total);
-						je.encode("total_time", ContestUtil.formatTime(vs.time));
+						je.encode("total_time", ContestUtil.formatRelTime(vs.time));
 						je.encode("mode", vs.mode);
 						je.close();
 					}
@@ -420,7 +420,7 @@ public class ContestWebService extends HttpServlet {
 					je.encode("current", va.getConcurrent());
 					je.encode("max_current", va.getMaxConcurrent());
 					je.encode("total_listeners", va.getTotal());
-					je.encode("total_time", ContestUtil.formatTime(va.getTotalTime()));
+					je.encode("total_time", ContestUtil.formatRelTime(va.getTotalTime()));
 					je.close();
 					return;
 				}

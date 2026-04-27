@@ -105,28 +105,22 @@ public class ContestUtil {
 	 * @return
 	 */
 	public static String formatStartTime(IContest contest) {
-		return formatStartTime(contest.getStartStatus());
+		IState state = contest.getState();
+		Long startTime = (state != null && state.getStarted() != null) ? state.getStarted() : contest.getStartTime();
+		return formatTime(startTime);
 	}
 
 	/**
-	 * Format contest start time as a string.
+	 * Format a wall clock time as a string.
 	 *
-	 * @param time contest start time, in seconds
+	 * @param time
 	 * @return
 	 */
-	public static String formatStartTime(Long startTime) {
-		if (startTime == null)
+	public static String formatTime(Long time) {
+		if (time == null)
 			return "undefined";
 
-		if (startTime < 0) {
-			long countdown = startTime / 1000L;
-			int hours = (int) Math.floor(-countdown / 3600);
-			int mins = (int) Math.floor(-countdown / 60) % 60;
-			int secs = (int) -countdown % 60;
-			return "Paused at " + hours + "h" + mins + "m" + secs + "s";
-		}
-
-		return SDF.format(new Date(startTime));
+		return SDF.format(new Date(time));
 	}
 
 	/**
@@ -142,7 +136,7 @@ public class ContestUtil {
 	}
 
 	/**
-	 * Format a contest duration (length) or relative time as a string.
+	 * Format a contest duration (length) as a string.
 	 *
 	 * @param duration a duration, in ms
 	 * @return
@@ -171,12 +165,12 @@ public class ContestUtil {
 	}
 
 	/**
-	 * Format a time (duration) or relative time as a string.
+	 * Format a relative time as a string.
 	 *
 	 * @param a time period, in ms
 	 * @return
 	 */
-	public static String formatTime(long time2) {
+	public static String formatRelTime(long time2) {
 		if (time2 >= 0 && time2 < 1000)
 			return "0s";
 

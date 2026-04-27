@@ -237,7 +237,7 @@ public class EventFeedUtil {
 		// IInfo info = contest.getInfo();
 		Trace.trace(Trace.USER, "");
 		Trace.trace(Trace.USER, "Name: " + contest.getName());
-		Trace.trace(Trace.USER, "Start time: " + ContestUtil.formatStartTime(contest.getStartTime()));
+		Trace.trace(Trace.USER, "Start time: " + ContestUtil.formatTime(contest.getStartTime()));
 		Trace.trace(Trace.USER, "Duration: " + ContestUtil.formatDuration(contest.getDuration()));
 		Trace.trace(Trace.USER, "Freeze duration: " + ContestUtil.formatDuration(contest.getFreezeDuration()));
 		Trace.trace(Trace.USER, "");

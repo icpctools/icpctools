@@ -194,7 +194,7 @@ public class ConfiguredContest {
 		@Override
 		public String toString() {
 			if (startTime > 0)
-				return "Playback at " + ContestUtil.formatStartTime(startTime) + " at " + getMultiplier() + "x speed";
+				return "Playback at " + ContestUtil.formatTime(startTime) + " at " + getMultiplier() + "x speed";
 			return "Playback in " + getCountdown() + "s at " + getMultiplier() + "x speed";
 		}
 	}

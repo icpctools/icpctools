@@ -50,7 +50,7 @@ public class ContestAPIHelper {
 
 	private static String listContest(URL url, Info info) {
 		return url.toExternalForm() + " - " + info.getName() + " starting at "
-				+ ContestUtil.formatStartTime(info.getStartTime());
+				+ ContestUtil.formatTime(info.getStartTime());
 	}
 
 	private static URL getChildURL(URL url, String path) throws Exception {

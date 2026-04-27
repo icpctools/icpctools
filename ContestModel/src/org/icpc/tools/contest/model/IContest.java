@@ -224,13 +224,21 @@ public interface IContest {
 	IStartStatus getStartStatusById(String id);
 
 	/**
-	 * Returns a start status for the contest time. Null indicates the contest start is not set.
-	 * Negative numbers indicate a countdown pause, in ms. Positive numbers indicate contest time,
-	 * in ms. Long.MAX_VALUE indicates the contest is over.
+	 * Returns the current contest clock (including time multiplier, if there is one), or null if
+	 * the contest is neither scheduled nor paused.
 	 *
-	 * @return
+	 * @return the clock
 	 */
-	Long getStartStatus();
+	Long getContestClock();
+
+	/**
+	 * Returns the current contest clock (including time multiplier, if there is one), or null if
+	 * the contest is neither scheduled nor paused.
+	 *
+	 * @param timeMs the current time in ms
+	 * @return the clock
+	 */
+	Long getContestClock(long timeMs);
 
 	/**
 	 * Returns the pauses.

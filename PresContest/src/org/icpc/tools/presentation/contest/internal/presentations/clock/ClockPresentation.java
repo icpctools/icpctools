@@ -22,15 +22,7 @@ public class ClockPresentation extends AbstractICPCPresentation {
 		if (contest == null)
 			return null;
 
-		Long startTime = contest.getStartStatus();
-		if (startTime == null)
-			return null;
-
-		double timeMultiplier = contest.getTimeMultiplier();
-		if (startTime < 0)
-			return Math.round(startTime * timeMultiplier);
-
-		return Math.round((getTimeMs() - startTime) * timeMultiplier);
+		return contest.getContestClock(getTimeMs());
 	}
 
 	public Color getTextBackgroundColor() {

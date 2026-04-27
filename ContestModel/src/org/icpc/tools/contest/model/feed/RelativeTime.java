@@ -30,7 +30,10 @@ public class RelativeTime {
 		return contestTime;
 	}
 
-	public static long parse(String contestTime) throws ParseException {
+	public static Long parse(String contestTime) throws ParseException {
+		if (contestTime == null || contestTime.equals("null"))
+			return null;
+
 		Matcher match = TIME_PATTERN.matcher(contestTime);
 		if (!match.matches())
 			throw new ParseException("Invalid contest time string: " + contestTime, 0);

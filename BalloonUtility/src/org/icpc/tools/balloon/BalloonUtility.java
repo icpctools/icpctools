@@ -1435,21 +1435,15 @@ public class BalloonUtility {
 		if (contest == null)
 			return "";
 
-		double timeMultiplier = contest.getTimeMultiplier();
-		Long startTime = contest.getStartStatus();
-		if (startTime == null)
-			return "";
-
-		if (startTime < 0)
-			return "Paused @ " + getTime(startTime * timeMultiplier, true);
+		Long clock = contest.getContestClock(getTimeMs());
+		if (contest.getCountdownPauseTime() != null)
+			return "Paused @ " + getTime(clock, true);
 
 		IState state = contest.getState();
-		if (state.getEnded() != null)
+		if (state != null && state.getEnded() != null)
 			return "Contest is over";
-		else if (state.getStarted() == null)
-			return getTime((getTimeMs() - contest.getStartTime()) * timeMultiplier, true);
 
-		return getTime((getTimeMs() - state.getStarted()) * timeMultiplier, true);
+		return getTime(clock, true);
 	}
 
 	private static String getTime(double ms, boolean floor) {

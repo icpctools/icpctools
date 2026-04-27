@@ -174,10 +174,10 @@ public class StatusCountdownPresentation extends CountdownPresentation {
 
 		IContest contest = getContest();
 		if (contest != null) {
-			Long contestStatus = contest.getStartStatus();
-			if (contestStatus == null)
+			Long contestClock = contest.getContestClock();
+			if (contestClock == null)
 				s = "Start time undefined";
-			else if (contestStatus < 0)
+			else if (contest.getCountdownPauseTime() != null)
 				s = "Status: Paused";
 
 			if (contest.getState() != null && contest.getState().isRunning())

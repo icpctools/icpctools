@@ -173,8 +173,6 @@ public abstract class ContestObject implements IContestObject {
 	}
 
 	protected static Long parseRelativeTime(Object value) throws ParseException {
-		if (value == null || "null".equals(value))
-			return null;
 		return RelativeTime.parse((String) value);
 	}
 
