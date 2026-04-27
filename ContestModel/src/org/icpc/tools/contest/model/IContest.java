@@ -241,13 +241,6 @@ public interface IContest {
 	Long getContestClock(long timeMs);
 
 	/**
-	 * Returns the pauses.
-	 *
-	 * @return the pauses
-	 */
-	IPause[] getPauses();
-
-	/**
 	 * Returns a list of all languages used in the contest.
 	 *
 	 * @return a list of all languages

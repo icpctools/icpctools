@@ -35,18 +35,12 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		if (state.getEnded() != null)
 			return Messages.contestOver;
 
-		double timeMultiplier = contest.getTimeMultiplier();
-		if (state.getStarted() != null)
-			return getTime((getTimeMs() - state.getStarted()) * timeMultiplier, true);
-
+		String time = getTime(contest.getContestClock(getTimeMs()).doubleValue(), false);
 		Long pauseTime = contest.getCountdownPauseTime();
 		if (pauseTime != null)
-			return NLS.bind(Messages.pausedAt, getTime(-pauseTime * timeMultiplier, false));
+			return NLS.bind(Messages.pausedAt, time);
 
-		if (contest.getStartTime() != null)
-			return getTime((getTimeMs() - contest.getStartTime()) * timeMultiplier, true);
-
-		return "";
+		return time;
 	}
 
 	/**
@@ -63,18 +57,12 @@ public abstract class AbstractICPCPresentation extends Presentation {
 		if (state.getEnded() != null)
 			return Messages.contestOver;
 
-		double timeMultiplier = contest.getTimeMultiplier();
-		if (state.getStarted() != null)
-			return getTime((state.getStarted() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
-
+		String time = getTime(contest.getDuration() - contest.getContestClock(getTimeMs()).doubleValue(), true);
 		Long pauseTime = contest.getCountdownPauseTime();
 		if (pauseTime != null)
-			return NLS.bind(Messages.pausedAt, getTime(-pauseTime * timeMultiplier, false));
+			return NLS.bind(Messages.pausedAt, time);
 
-		if (contest.getStartTime() != null)
-			return getTime((contest.getStartTime() - getTimeMs()) * timeMultiplier + contest.getDuration(), false);
-
-		return "";
+		return time;
 	}
 
 	/**

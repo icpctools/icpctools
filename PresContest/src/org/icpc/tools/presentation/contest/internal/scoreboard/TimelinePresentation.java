@@ -14,7 +14,6 @@ import java.awt.image.BufferedImage;
 
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IProblem;
-import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
@@ -129,13 +128,7 @@ public class TimelinePresentation extends AbstractScrollingScoreboardPresentatio
 
 		// draw vertical line for current time
 		g.setColor(ICPCColors.BLUE);
-		long currentTime = 0;
-		IState state = contest.getState();
-		if (state.getEnded() != null)
-			currentTime = contest.getDuration();
-		else if (state.getStarted() != null)
-			currentTime = (int) ((getTimeMs() - state.getStarted()) * contest.getTimeMultiplier());
-		int ct = getX(currentTime);
+		int ct = getX(contest.getContestClock(getTimeMs()));
 		g.drawLine(ct, 0, ct, (int) (numTeams * rowHeight));
 		g.setStroke(oldStroke);
 

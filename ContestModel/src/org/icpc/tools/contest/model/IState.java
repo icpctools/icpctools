@@ -73,4 +73,11 @@ public interface IState extends IContestObject {
 	 * @return
 	 */
 	boolean isDoneUpdating();
+
+	/**
+	 * Returns any removed intervals.
+	 *
+	 * @return
+	 */
+	RemovedInterval[] getRemovedIntervals();
 }
