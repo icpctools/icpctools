@@ -224,7 +224,7 @@
                                     <% } %>
                                 </td>
                                 <td class="text-center">
-                                    <%= ContestUtil.formatTime(sub.getContestTime()) %>
+                                    <%= ContestUtil.formatRelTime(sub.getContestTime()) %>
                                 </td>
                                 <td>
                                     <%= probStr %>

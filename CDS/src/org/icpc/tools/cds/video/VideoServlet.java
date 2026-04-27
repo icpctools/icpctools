@@ -233,7 +233,7 @@ public class VideoServlet extends HttpServlet {
 			je.encode("current", s.currentListeners);
 			je.encode("max_current", s.maxConcurrentListeners);
 			je.encode("total_listeners", s.totalListeners);
-			je.encode("total_time", ContestUtil.formatTime(s.totalTime));
+			je.encode("total_time", ContestUtil.formatRelTime(s.totalTime));
 			je.close();
 			c++;
 		}
@@ -242,7 +242,7 @@ public class VideoServlet extends HttpServlet {
 		je.encode("current", va.getConcurrent());
 		je.encode("max_current", va.getMaxConcurrent());
 		je.encode("total_listeners", va.getTotal());
-		je.encode("total_time", ContestUtil.formatTime(va.getTotalTime()));
+		je.encode("total_time", ContestUtil.formatRelTime(va.getTotalTime()));
 		je.close();
 	}
 }

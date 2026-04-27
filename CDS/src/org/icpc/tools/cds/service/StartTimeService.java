@@ -35,6 +35,18 @@ public class StartTimeService {
 		return false;
 	}
 
+	private static Long getStartStatus(IContest contest) {
+		Long startTime = contest.getStartTime();
+		if (startTime != null)
+			return startTime;
+
+		Long pause = contest.getCountdownPauseTime();
+		if (pause == null)
+			return null;
+
+		return (long) -pause;
+	}
+
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {
 		// valid commands:
 		// pause - pause the countdown
@@ -45,7 +57,7 @@ public class StartTimeService {
 		// remove:0:00:00 - remove the given time from the countdown
 
 		IContest contest = cc.getContest();
-		Long startStatus = contest.getStartStatus();
+		Long startStatus = getStartStatus(contest);
 		long currentStart = 0;
 		if (startStatus != null)
 			currentStart = startStatus.longValue();
@@ -155,7 +167,7 @@ public class StartTimeService {
 			Trace.trace(Trace.INFO, "Setting start time to paused at: " + RelativeTime.format(-time.longValue()));
 		else
 			Trace.trace(Trace.INFO,
-					"Setting start time to: " + Timestamp.format(time) + " (" + ContestUtil.formatStartTime(time) + ")");
+					"Setting start time to: " + Timestamp.format(time) + " (" + ContestUtil.formatTime(time) + ")");
 
 		Contest contest = cc.getContest();
 		long now = System.currentTimeMillis();

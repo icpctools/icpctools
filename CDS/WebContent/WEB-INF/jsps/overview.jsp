@@ -54,7 +54,7 @@
                                 <td><b>Current time:</b></td>
                                 <td><% if (state.getStarted() == null) { %>Not started
                                     <% } else if (state.getEnded() != null) { %>Finished
-                                    <% } else { %><%= ContestUtil.formatTime((long) ((System.currentTimeMillis() - state.getStarted()) * contest.getTimeMultiplier())) %><% } %>
+                                    <% } else { %><%= ContestUtil.formatRelTime(contest.getContestClock()) %><% } %>
                                 </td>
                                 <td><b>Freeze duration:</b></td>
                                 <td><%= ContestUtil.formatDuration(contest.getFreezeDuration()) %></td>
@@ -63,7 +63,7 @@
                                 <td><b>Validation:</b></td>
                                 <td><%= validation %></td>
                                 <td><b>Last event:</b></td>
-                                <td><%= ContestUtil.formatDuration(contest.getContestTimeOfLastEvent()) %></td>
+                                <td><%= ContestUtil.formatRelTime(contest.getContestTimeOfLastEvent()) %></td>
                             </tr>
                             <tr>
                                 <td><b>Connection state:</b></td>

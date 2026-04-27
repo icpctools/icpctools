@@ -724,16 +724,25 @@ public class Contest implements IContest {
 	}
 
 	@Override
-	public Long getStartStatus() {
-		Long startTime = info.getStartTime();
-		if (startTime != null)
-			return startTime;
+	public Long getContestClock() {
+		return getContestClock(System.currentTimeMillis());
+	}
 
-		Long pause = info.getCountdownPauseTime();
-		if (pause == null)
+	@Override
+	public Long getContestClock(long timeMs) {
+		double timeMultiplier = info.getTimeMultiplier();
+
+		Long pauseTime = info.getCountdownPauseTime();
+		if (pauseTime != null) {
+			return -Math.round(pauseTime * timeMultiplier);
+		}
+
+		Long startTime = (state != null && state.getStarted() != null) ? state.getStarted() : info.getStartTime();
+		if (startTime == null)
 			return null;
 
-		return (long) -pause;
+		long contestTimeMs = timeMs - startTime;
+		return Math.round(contestTimeMs * timeMultiplier);
 	}
 
 	public Info setStartStatus(Long start) {

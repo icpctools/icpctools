@@ -15,22 +15,22 @@
                     <table class="table table-sm table-hover table-striped">
                         <tr>
                             <th>Frozen:</th>
-                            <td><%= ContestUtil.formatStartTime(state.getFrozen()) %>
+                            <td><%= ContestUtil.formatTime(state.getFrozen()) %>
                             </td>
                         </tr>
                         <tr>
                             <th>Ended:</th>
-                            <td><%= ContestUtil.formatStartTime(state.getEnded()) %>
+                            <td><%= ContestUtil.formatTime(state.getEnded()) %>
                             </td>
                         </tr>
                         <tr>
                             <th>Finalized:</th>
-                            <td><%= ContestUtil.formatStartTime(state.getFinalized()) %>
+                            <td><%= ContestUtil.formatTime(state.getFinalized()) %>
                             </td>
                         </tr>
                         <tr>
                             <th>Thawed:</th>
-                            <td><%= ContestUtil.formatStartTime(state.getThawed()) %>
+                            <td><%= ContestUtil.formatTime(state.getThawed()) %>
                             </td>
                         </tr>
                     </table>
@@ -147,10 +147,10 @@
                             <tr>
                                 <td>Submission time of most recent judgement:</td>
                                 <td>
-                                    <%= s == null ? "no judgements" : ContestUtil.formatTime(s.getContestTime()) %>
+                                    <%= s == null ? "no judgements" : ContestUtil.formatRelTime(s.getContestTime()) %>
                                 </td>
                                 <td>
-                                    <%= s2 == null ? "no judgements" : ContestUtil.formatTime(s2.getContestTime()) %>
+                                    <%= s2 == null ? "no judgements" : ContestUtil.formatRelTime(s2.getContestTime()) %>
                                 </td>
                             </tr>
                         </tbody>

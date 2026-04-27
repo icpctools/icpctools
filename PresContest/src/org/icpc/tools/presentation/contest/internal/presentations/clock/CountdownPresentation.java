@@ -50,11 +50,11 @@ public class CountdownPresentation extends ClockPresentation {
 	private void setClockTarget() {
 		IContest contest = getContest();
 		if (contest != null) {
-			Long startStatus = contest.getStartStatus();
-			if (startStatus == null)
+			Long contestClock = contest.getContestClock();
+			if (contestClock == null)
 				return;
 
-			if (startStatus < 0)
+			if (contest.getCountdownPauseTime() != null)
 				clock.setTarget(-getRemainingMillis(), 0);
 			else
 				clock.setTarget(-getRemainingMillis(), 1000.0 * contest.getTimeMultiplier());
@@ -82,13 +82,12 @@ public class CountdownPresentation extends ClockPresentation {
 		if (contest == null)
 			return 0;
 
-		Long startTime = contest.getStartStatus();
-		if (startTime == null)
+		Long contestClock = contest.getContestClock();
+		if (contestClock == null)
 			return 0;
 
-		double timeMultiplier = contest.getTimeMultiplier();
-		if (startTime < 0)
-			return -Math.round(startTime * timeMultiplier);
+		if (contestClock < 0)
+			return contestClock;
 
 		// where should we switch countdown between the start and end of a contest?
 		// switch at the contest freeze, or (if there is no freeze) 2/3 of the contest
@@ -99,13 +98,13 @@ public class CountdownPresentation extends ClockPresentation {
 		if (freezeDuration != null)
 			switchPoint = duration - freezeDuration;
 
-		if ((startTime - now) < -(switchPoint / timeMultiplier)) {
+		if ((contestClock - now) < -(switchPoint)) {
 			clockColor = EOC_COLOR;
-			return Math.round((startTime - now) * timeMultiplier + duration);
+			return duration - contestClock;
 		}
 
 		clockColor = isLightMode() ? Color.BLACK : Color.WHITE;
-		return Math.round((startTime - now) * timeMultiplier);
+		return contestClock;
 	}
 
 	@Override
