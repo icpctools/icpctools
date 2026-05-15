@@ -31,7 +31,7 @@ public class CompositePresentationDialog extends Dialog {
 	private PresentationInfoListControl buildList;
 
 	protected String name, description, category;
-	protected CompositePresentationInfo info;
+	protected CompositePresentationInfo presInfo;
 	protected CompositePresentationSaveDialog saveDialog;
 
 	public CompositePresentationDialog(Shell parent, List<PresentationInfo> presentations,
@@ -46,7 +46,7 @@ public class CompositePresentationDialog extends Dialog {
 			List<PresentationInfo> transitions, CompositePresentationInfo info) {
 		this(parent, presentations, transitions);
 		// for edit
-		this.info = info;
+		this.presInfo = info;
 	}
 
 	public CompositePresentationInfo getPresentation() {
@@ -111,7 +111,7 @@ public class CompositePresentationDialog extends Dialog {
 		GridLayout saveLayout = new GridLayout(1, false);
 		saveSection.setLayout(saveLayout);
 
-		saveDialog = new CompositePresentationSaveDialog(comp.getShell(), info);
+		saveDialog = new CompositePresentationSaveDialog(comp.getShell(), presInfo);
 		Composite saveInput = new Composite(saveSection, SWT.NONE);
 		saveInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		saveDialog.createUI(saveInput);
@@ -121,11 +121,11 @@ public class CompositePresentationDialog extends Dialog {
 		GridData data = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
 		data.verticalIndent = 15;
 		buttonBar.setLayoutData(data);
-
+		
 		layout = new GridLayout(2, true);
 		layout.marginWidth = 0;
 		buttonBar.setLayout(layout);
-
+		
 		ok = new Button(buttonBar, SWT.PUSH);
 		ok.setText("&Ok");
 		ok.setEnabled(false);
@@ -149,7 +149,7 @@ public class CompositePresentationDialog extends Dialog {
 				}
 			}
 		});
-
+		
 		final Button cancel = new Button(buttonBar, SWT.PUSH);
 		cancel.setText("Ca&ncel");
 		data = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
@@ -165,18 +165,18 @@ public class CompositePresentationDialog extends Dialog {
 				}
 			}
 		});
-
+		
 		// TODO contestText.setFocus();
 		comp.getShell().setDefaultButton(cancel);
 		 */
 
-		if (info != null) {
+		if (presInfo != null) {
 			buildListFromInfo();
 		}
 	}
 
 	private void buildListFromInfo() {
-		for (PresentationInfo part : info.infos) {
+		for (PresentationInfo part : presInfo.infos) {
 			PresentationInfo found = null;
 			for (PresentationInfo pres : presentations) {
 				if (pres.equals(part)) {

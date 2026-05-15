@@ -119,7 +119,6 @@ public class FloorGeneratorNAC26 extends FloorGenerator {
 
 			long time = System.currentTimeMillis();
 			ITeam t1 = floor.getTeam(4);
-			ITeam t2 = floor.getTeam(47);
 			ITeam t3 = floor.getTeam(11);
 			Path path1 = floor.getPath(t1, prob);
 			Path path2 = floor.getPath(t3, p);
