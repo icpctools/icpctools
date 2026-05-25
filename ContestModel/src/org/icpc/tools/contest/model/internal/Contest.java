@@ -85,6 +85,12 @@ public class Contest implements IContest {
 	private int lastTimedEventIndex;
 	private boolean isConfigLoaded;
 
+	public enum SpecVersion {
+		UNKNOWN, v2026_01, v2023_06
+	}
+
+	private SpecVersion specVersion = SpecVersion.UNKNOWN;
+
 	// map of known properties for each contest type
 	@SuppressWarnings("unchecked")
 	protected Set<String>[] allKnownProperties = new Set[ContestType.values().length];
@@ -154,6 +160,14 @@ public class Contest implements IContest {
 		synchronized (modifiers) {
 			modifiers.remove(modifier);
 		}
+	}
+
+	public void setSpecVersion(SpecVersion version) {
+		this.specVersion = version;
+	}
+
+	public SpecVersion getSpecVersion() {
+		return specVersion;
 	}
 
 	public void add(IContestObject obj) {

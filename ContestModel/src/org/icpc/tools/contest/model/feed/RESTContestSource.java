@@ -43,6 +43,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper.SpecVersion;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.ContestObject;
 import org.icpc.tools.contest.model.internal.FileReference;
@@ -75,6 +76,7 @@ public class RESTContestSource extends DiskContestSource {
 	private boolean firstConnection = true;
 	private int contestSizeBeforeFeed;
 	private boolean isCDS;
+	private SpecVersion specVersion;
 
 	/**
 	 * Creates a REST contest source with local (temp) caching.
@@ -141,6 +143,8 @@ public class RESTContestSource extends DiskContestSource {
 				feedCacheFile.delete();
 			}
 		}
+
+		cacheSpecVersion();
 	}
 
 	private void setup() {
@@ -214,6 +218,14 @@ public class RESTContestSource extends DiskContestSource {
 
 	private URL getChildURL(String path) throws Exception {
 		String u = url.toExternalForm();
+		if ("../..".equals(path)) {
+			// special case the API endpoint so we get a clean url
+			int ind = u.lastIndexOf("/", u.length() - 1);
+			u = u.substring(0, ind);
+			ind = u.lastIndexOf("/", u.length() - 1);
+			return new URI(u.substring(0, ind)).toURL();
+		}
+
 		if (u.endsWith("/"))
 			return new URI(u + path).toURL();
 
@@ -577,6 +589,38 @@ public class RESTContestSource extends DiskContestSource {
 		}
 	}
 
+	/**
+	 * Connect to the parent endpoint and cache the spec version.
+	 */
+	protected void cacheSpecVersion() {
+		if (specVersion != null) {
+			return;
+		}
+
+		try {
+			InputStream in = connect("../..");
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			StringBuilder sb = new StringBuilder();
+			String s = br.readLine();
+			while (s != null) {
+				sb.append(s);
+				s = br.readLine();
+			}
+
+			JSONParser parser2 = new JSONParser(sb.toString());
+			JsonObject obj = parser2.readObject();
+
+			String version = obj.getString("version");
+			specVersion = ContestAPIHelper.parseVersion(version);
+
+			if (specVersion == null) {
+				Trace.trace(Trace.WARNING, "Unknown spec version: " + version);
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not determine spec version", e);
+		}
+	}
+
 	@Override
 	protected void loadContestImpl() throws Exception {
 		if (url == null || feedFile != null)
@@ -617,6 +661,10 @@ public class RESTContestSource extends DiskContestSource {
 				} catch (Exception ex) {
 					Trace.trace(Trace.WARNING, "Could not write message to feed cache", ex);
 				}
+			}
+
+			if (specVersion != null) {
+				ContestAPIHelper.setVersion(specVersion);
 			}
 
 			in = new BackupInputStream(connect(path), feedCacheOut);
