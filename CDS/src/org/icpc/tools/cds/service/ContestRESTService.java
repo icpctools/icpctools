@@ -30,6 +30,7 @@ import org.icpc.tools.contest.model.ILanguage;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.Scoreboard;
 import org.icpc.tools.contest.model.feed.ContestAPIHelper;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper.SpecVersion;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.JSONArrayWriter;
@@ -86,13 +87,16 @@ public class ContestRESTService extends HttpServlet {
 		}
 
 		if (path != null && path.startsWith("/2026-01")) {
-			ContestAPIHelper.set2026_01();
+			ContestAPIHelper.setVersion(SpecVersion.v2026_01);
 			path = path.substring(8);
+		} else if (path != null && path.startsWith("/2026-draft")) {
+			ContestAPIHelper.setVersion(SpecVersion.v2026_draft);
+			path = path.substring(11);
 		} else if (path != null && path.startsWith("/2023-06")) {
-			ContestAPIHelper.set2023_06();
+			ContestAPIHelper.setVersion(SpecVersion.v2023_06);
 			path = path.substring(8);
 		} else {
-			ContestAPIHelper.set2026_01();
+			ContestAPIHelper.setVersion(SpecVersion.v2026_01);
 		}
 		if (path == null || path.equals("") || path.equals("/")) {
 			sendAPIInfo(response);
@@ -297,15 +301,15 @@ public class ContestRESTService extends HttpServlet {
 		je.encode("name", "Contest Data Server");
 		je.encodePrimitive("logo", "[{\"href\":\"/cdsIcon.png\",\"filename\":\"logo.png\","
 				+ "\"mime\":\"image/png\",\"width\":512,\"height\":512}]");
-		if (ContestAPIHelper.is2026_01()) {
-			je.encode("version", "2026-01");
-			je.encode("version_url", "https://ccs-specs.icpc.io/2026-01/contest_api");
+		if (ContestAPIHelper.is2026_draft()) {
+			je.encode("version", "2026-draft");
+			je.encode("version_url", "https://ccs-specs.icpc.io/draft/contest_api");
 		} else if (ContestAPIHelper.is2023_06()) {
 			je.encode("version", "2023-06");
 			je.encode("version_url", "https://ccs-specs.icpc.io/2023-06/contest_api");
 		} else {
-			je.encode("version", "draft");
-			je.encode("version_url", "https://ccs-specs.icpc.io/draft/contest_api");
+			je.encode("version", "2026-01");
+			je.encode("version_url", "https://ccs-specs.icpc.io/2026-01/contest_api");
 		}
 		je.close();
 	}

@@ -16,26 +16,54 @@ import org.icpc.tools.contest.model.internal.Info;
 public class ContestAPIHelper {
 	protected static boolean isCDS;
 
-	private enum Version {
-		v2023_06, v2026_01
+	public enum SpecVersion {
+		v2023_06, v2026_01, v2026_draft
 	}
 
-	private static final ThreadLocal<Version> local = new ThreadLocal<>();
+	private static final ThreadLocal<SpecVersion> local = new ThreadLocal<>();
 
-	public static void set2026_01() {
-		local.set(Version.v2026_01);
+	public static SpecVersion parseVersion(String version) {
+		if ("2026-01".equals(version))
+			return SpecVersion.v2026_01;
+		else if ("2023-06".equals(version))
+			return SpecVersion.v2023_06;
+		else if ("2026-draft".equals(version))
+			return SpecVersion.v2026_draft;
+
+		// unknown or invalid version
+		return null;
 	}
 
-	public static void set2023_06() {
-		local.set(Version.v2023_06);
+	public static void setVersion(SpecVersion v) {
+		local.set(v);
 	}
 
+	/**
+	 * Helper method to tell if we're using the 2026-draft spec version
+	 */
+	public static boolean is2026_draft() {
+		return local.get() == SpecVersion.v2026_draft;
+	}
+
+	/**
+	 * Helper method to tell if we're using the 2026-01 spec version
+	 */
 	public static boolean is2026_01() {
-		return local.get() == Version.v2026_01;
+		return local.get() == SpecVersion.v2026_01;
 	}
 
+	/**
+	 * Helper method to tell if we're using the 2023-06 spec version
+	 */
 	public static boolean is2023_06() {
-		return local.get() == Version.v2023_06;
+		return local.get() == SpecVersion.v2023_06;
+	}
+
+	/**
+	 * Helper method to tell if we're using the 2023-06 spec version
+	 */
+	public static boolean isUnknownSpec() {
+		return local.get() == null;
 	}
 
 	static class Result {
