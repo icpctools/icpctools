@@ -561,11 +561,12 @@ public class ContestRESTService extends HttpServlet {
 				return;
 			}
 
-			Long newTime = null;
+			Long newStartTime = null;
+			Long newCountdownPauseTime = null;
 			if (time != null && !"null".equals(time))
 				try {
-					newTime = Timestamp.parse(time.toString());
-					Trace.trace(Trace.INFO, "Patch time: " + Timestamp.format(newTime));
+					newStartTime = Timestamp.parse(time.toString());
+					Trace.trace(Trace.INFO, "Patch time: " + Timestamp.format(newStartTime));
 				} catch (Exception e) {
 					Trace.trace(Trace.WARNING, "Invalid patch time: " + e.getMessage());
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -574,8 +575,9 @@ public class ContestRESTService extends HttpServlet {
 
 			if (countdownTime != null && !"null".equals(countdownTime))
 				try {
-					newTime = (long) -RelativeTime.parse(countdownTime.toString());
-					Trace.trace(Trace.INFO, "Patch countdown time: " + RelativeTime.format(newTime.longValue()));
+					newCountdownPauseTime = (long) RelativeTime.parse(countdownTime.toString());
+					Trace.trace(Trace.INFO,
+							"Patch countdown time: " + RelativeTime.format(newCountdownPauseTime.longValue()));
 				} catch (Exception e) {
 					Trace.trace(Trace.WARNING, "Invalid patch countdown time: " + e.getMessage());
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -583,8 +585,8 @@ public class ContestRESTService extends HttpServlet {
 				}
 
 			try {
-				Trace.trace(Trace.INFO, "Patching start time");
-				StartTimeService.setStartTime(ei.cc, newTime);
+				Trace.trace(Trace.INFO, "Patching contest start");
+				StartTimeService.setContestStart(ei.cc, newStartTime, newCountdownPauseTime);
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "Error setting start time", e);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());

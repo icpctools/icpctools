@@ -3,10 +3,9 @@ package org.icpc.tools.cds.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.LockSupport;
+import java.util.Objects;
 
 import org.icpc.tools.cds.ConfiguredContest;
-import org.icpc.tools.cds.ConfiguredContest.Test;
 import org.icpc.tools.cds.ConfiguredContest.View;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
@@ -21,7 +20,6 @@ import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
-import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Clarification;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -39,7 +37,20 @@ import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
 
-public class PlaybackContest extends Contest {
+/**
+ * CDS Contest enables most of the CDS capabilities and behaviours on a contest:
+ * <ul>
+ * <li>Applies configuration defaults</li>
+ * <li>Adds video streams to teams, and cuts them off at contest freeze</li>
+ * <li>Downloads file references for contest objects</li>
+ * <li>Logs contest state change events (e.g. 'Contest started')</li>
+ * <li>Records reactions</li>
+ * <li>Does view filtering (contest subset)</li>
+ * <li>Enables countdown pause times (for CCSs that don't support it)</li>
+ * </ul>
+ *
+ */
+public class CDSContest extends Contest {
 	private static final String LOGO = "logo";
 	private static final String PHOTO = "photo";
 	private static final String VIDEO = "video";
@@ -55,93 +66,19 @@ public class PlaybackContest extends Contest {
 	private static final String KEY_LOG = "key_log";
 	private static final String TOOL_DATA = "tool_data";
 
-	protected ConfiguredContest cc;
-	protected String contestId;
-	protected boolean recordReactions;
-	protected boolean isTesting;
-	protected double timeMultiplier = Double.NaN;
-	protected Long startTime;
+	private ConfiguredContest cc;
+	private String contestId;
+	private boolean recordReactions;
 	private Contest defaultConfig = new Contest(false);
 
-	public PlaybackContest(ConfiguredContest cc) {
+	private State[] currentState = new State[1];
+
+	public CDSContest(ConfiguredContest cc) {
 		contestId = cc.getId();
 		recordReactions = cc.isRecordingReactions();
 		this.cc = cc;
-	}
 
-	public void setStartTime(Long startTime) {
-		this.startTime = startTime;
-	}
-
-	public void setTestMode() {
-		Test test = cc.getTest();
-		timeMultiplier = test.getMultiplier();
-		if (test.getStartTime() >= 0) {
-			startTime = test.getStartTime();
-			Trace.trace(Trace.USER, "Contest " + contestId + " starting at " + Timestamp.format(startTime));
-		} else if (test.getCountdown() >= 0) {
-			startTime = System.currentTimeMillis() + test.getCountdown() * 1000L;
-			Trace.trace(Trace.USER, "Contest " + contestId + " starting in " + test.getCountdown() + " seconds");
-		} else { // default to 30s countdown
-			startTime = System.currentTimeMillis() + 30L * 1000L;
-			Trace.trace(Trace.USER, "Contest " + contestId + " starting in 30s");
-		}
-
-		isTesting = true;
-	}
-
-	/**
-	 * Delay if we haven't reached the given contest time in ms based on the contest start time and
-	 * the time multiplier.
-	 *
-	 * @param info
-	 * @param time
-	 */
-	protected void waitForContestTime(long time) {
-		if (startTime == null || startTime < 0)
-			return;
-
-		double contestTime = System.currentTimeMillis() - startTime;
-		long dt = (long) (time / timeMultiplier - contestTime);
-
-		// no point waiting for less that 5ms
-		if (dt < 5)
-			return;
-
-		// let people know if we'll be waiting for a while
-		if (dt > 5000)
-			Trace.trace(Trace.USER, "Sleeping for " + (int) (dt / 100) / 10f + " seconds.");
-
-		try {
-			LockSupport.parkNanos(dt * 1_000_000);
-		} catch (Exception e) {
-			// ignore
-		}
-	}
-
-	private void fixInfoStartTime(Info info) {
-		if (info.getStartTime() == null)
-			return;
-
-		info.setStartStatus(startTime);
-	}
-
-	private void fixStateTimes(State state) {
-		if (startTime == null || startTime < 0)
-			return;
-
-		if (state.getStarted() != null)
-			state.setStarted(startTime);
-		if (state.getEnded() != null)
-			state.setEnded(startTime + getDuration());
-		if (state.getFrozen() != null)
-			state.setFrozen(startTime + getDuration() - getFreezeDuration());
-		if (state.getThawed() != null)
-			state.setThawed(startTime + getDuration());
-		if (state.getFinalized() != null)
-			state.setFinalized(startTime + getDuration());
-		if (state.getEndOfUpdates() != null)
-			state.setEndOfUpdates(startTime + getDuration());
+		currentState[0] = new State();
 	}
 
 	protected void downloadAndSync(RESTContestSource src, IContestObject obj) {
@@ -378,21 +315,40 @@ public class PlaybackContest extends Contest {
 			}
 		}
 
-		if (obj instanceof Submission) {
-			Submission sub = (Submission) obj;
+		// record reactions if not testing
+		if (recordReactions && !cc.isTesting()) {
+			if (obj instanceof Submission) {
+				Submission sub = (Submission) obj;
 
-			if (recordReactions && !isTesting)
 				ReactionVideoRecorder.getInstance().startRecording(cc, sub);
-		}
+			}
 
-		if (obj instanceof Judgement) {
-			Judgement j = (Judgement) obj;
-			if (recordReactions && !isTesting && j.getJudgementTypeId() != null)
-				ReactionVideoRecorder.getInstance().stopRecording(cc, j);
+			if (obj instanceof Judgement) {
+				Judgement j = (Judgement) obj;
+				if (j.getJudgementTypeId() != null)
+					ReactionVideoRecorder.getInstance().stopRecording(cc, j);
+			}
 		}
 
 		if (obj instanceof State) {
 			State state = (State) obj;
+
+			if (obj instanceof State) {
+				State state2 = (State) obj;
+				if (!Objects.equals(currentState[0].getStarted(), state2.getStarted()))
+					Trace.trace(Trace.USER, "Contest started: " + contestId);
+				if (!Objects.equals(currentState[0].getFrozen(), state2.getFrozen()))
+					Trace.trace(Trace.USER, "Contest frozen: " + contestId);
+				if (!Objects.equals(currentState[0].getThawed(), state2.getThawed()))
+					Trace.trace(Trace.USER, "Contest thawed: " + contestId);
+				if (!Objects.equals(currentState[0].getEnded(), state2.getEnded()))
+					Trace.trace(Trace.USER, "Contest ended: " + contestId);
+				if (!Objects.equals(currentState[0].getFinalized(), state2.getFinalized()))
+					Trace.trace(Trace.USER, "Contest finalized: " + contestId);
+				if (!Objects.equals(currentState[0].getEndOfUpdates(), state2.getEndOfUpdates()))
+					Trace.trace(Trace.USER, "Contest end of updates: " + contestId);
+				currentState[0] = state2;
+			}
 			if (state.isFrozen() && state.isRunning() && VideoAggregator.isRunning())
 				VideoAggregator.getInstance().dropUntrustedListeners();
 		}
@@ -411,84 +367,12 @@ public class PlaybackContest extends Contest {
 		// if the CCS says the contest is stopped but doesn't support pause time, fix it
 		if (obj instanceof Info) {
 			Info info = (Info) obj;
+			info.setId(cc.getId());
+
 			Info currentInfo = getInfo();
 			if (info.getStartTime() == null && info.getCountdownPauseTime() == null && !info.supportsCountdownPauseTime()
 					&& currentInfo != null)
 				info.setCountdownPauseTime(currentInfo.getCountdownPauseTime());
-		}
-
-		if (!isTesting) {
-			super.add(obj);
-			return;
-		}
-
-		if (obj instanceof Info) {
-			Info info = (Info) obj;
-			fixInfoStartTime(info);
-			if (!Double.isNaN(timeMultiplier))
-				info.setTimeMultiplier(timeMultiplier);
-		}
-
-		if (obj instanceof State) {
-			State state = (State) obj;
-			fixStateTimes(state);
-
-			// if we're testing and contest hasn't started yet, just loop for 5s in case something
-			// changes
-			if (getState().getStarted() == null) {
-				double dt = 5000;
-				if (startTime != null && startTime > 0)
-					dt = startTime - System.currentTimeMillis();
-				while (dt > 2500) {
-					// wait for 2s
-					try {
-						LockSupport.parkNanos(2000 * 1_000_000);
-					} catch (Exception e) {
-						// ignore
-					}
-
-					fixStateTimes(state);
-					dt = 5000;
-					if (startTime != null && startTime > 0)
-						dt = startTime - System.currentTimeMillis();
-				}
-			}
-
-			if (state.isRunning())
-				waitForContestTime(0);
-			if (state.isFrozen())
-				waitForContestTime(getDuration() - getFreezeDuration());
-			if ((!state.isRunning() && state.isFrozen()) || state.isFinal())
-				waitForContestTime(getDuration());
-		}
-
-		if (obj instanceof Submission) {
-			Submission s = (Submission) obj;
-			waitForContestTime(s.getContestTime());
-			s.add("time", Timestamp.now());
-		}
-
-		if (obj instanceof Judgement) {
-			Judgement j = (Judgement) obj;
-			if (j.getEndContestTime() != null) {
-				waitForContestTime(j.getEndContestTime());
-				j.add("end_time", Timestamp.now());
-			} else {
-				waitForContestTime(j.getStartContestTime());
-				j.add("start_time", Timestamp.now());
-			}
-		}
-
-		if (obj instanceof Run) {
-			Run r = (Run) obj;
-			waitForContestTime(r.getContestTime());
-			r.add("time", Timestamp.now());
-		}
-
-		if (obj instanceof Clarification) {
-			Clarification c = (Clarification) obj;
-			waitForContestTime(c.getContestTime());
-			c.add("time", Timestamp.now());
 		}
 
 		super.add(obj);

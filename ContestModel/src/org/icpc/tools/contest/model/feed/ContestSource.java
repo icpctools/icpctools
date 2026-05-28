@@ -401,11 +401,11 @@ public abstract class ContestSource {
 	}
 
 	/**
-	 * Set the contest start time to null or a value in ms since the epoch.
+	 * Set the contest start or countdown pause times in ms since the epoch.
 	 *
 	 * @throws IOException
 	 */
-	public void setStartTime(Long time) throws IOException {
+	public void setContestStart(Long startTime, Long countdownPauseTime) throws IOException {
 		// ignore
 	}
 
