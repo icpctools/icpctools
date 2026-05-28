@@ -3,7 +3,7 @@ package org.icpc.tools.cds.service;
 import java.io.IOException;
 
 import org.icpc.tools.cds.ConfiguredContest;
-import org.icpc.tools.cds.util.PlaybackContest;
+import org.icpc.tools.cds.util.ReplayContest;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
@@ -28,23 +28,11 @@ public class StartTimeService {
 	}
 
 	private static boolean errorIfContestNotPaused(Long time, HttpServletResponse response) throws IOException {
-		if (time == null || time > 0) {
+		if (time == null || time < 0) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest not paused");
 			return true;
 		}
 		return false;
-	}
-
-	private static Long getStartStatus(IContest contest) {
-		Long startTime = contest.getStartTime();
-		if (startTime != null)
-			return startTime;
-
-		Long pause = contest.getCountdownPauseTime();
-		if (pause == null)
-			return null;
-
-		return (long) -pause;
 	}
 
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {
@@ -57,27 +45,27 @@ public class StartTimeService {
 		// remove:0:00:00 - remove the given time from the countdown
 
 		IContest contest = cc.getContest();
-		Long startStatus = getStartStatus(contest);
-		long currentStart = 0;
-		if (startStatus != null)
-			currentStart = startStatus.longValue();
+		Long startTime = contest.getStartTime();
+		Long pauseTime = contest.getCountdownPauseTime();
 
 		long now = System.currentTimeMillis();
 
 		Trace.trace(Trace.USER, "Start time command: " + command);
 		try {
 			if (command.startsWith("set:")) {
-				if (errorIfContestNotPaused(currentStart, response))
+				if (startTime != null) {
+					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest currently in countdown");
 					return;
+				}
 
-				long time = -RelativeTime.parse(command.substring(4).trim());
-				if (time > -30000) {
+				long countdownPauseTime = RelativeTime.parse(command.substring(4).trim());
+				if (countdownPauseTime < 30000) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Can't set contest to less than 30s countdown");
 					return;
 				}
-				setStartTime(cc, time);
+				setContestStart(cc, null, countdownPauseTime);
 			} else if (command.startsWith("add:")) {
-				if (errorIfContestNotPaused(currentStart, response))
+				if (errorIfContestNotPaused(pauseTime, response))
 					return;
 
 				long time = RelativeTime.parse(command.substring(4).trim());
@@ -85,36 +73,42 @@ public class StartTimeService {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid add time");
 					return;
 				}
-				setStartTime(cc, currentStart - time);
+				setContestStart(cc, null, pauseTime + time);
 			} else if (command.startsWith("remove:")) {
-				if (errorIfContestNotPaused(currentStart, response))
+				if (errorIfContestNotPaused(pauseTime, response))
 					return;
 
 				long time = RelativeTime.parse(command.substring(7).trim());
-				if (time <= 0 || time > -currentStart - 30000) {
+				if (pauseTime - time < 300000) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid remove time");
 					return;
 				}
-				setStartTime(cc, currentStart + time);
+				setContestStart(cc, null, pauseTime - time);
 			} else if (command.equals("pause")) {
-				if (errorIfContestNotCountingDown(currentStart, response))
+				if (errorIfContestNotCountingDown(startTime, response))
 					return;
 
-				if (currentStart - now < 30000) {
+				if (startTime - now < 30000) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Can't pause in the last 30s");
 					return;
 				}
-				setStartTimeInSeconds(cc, now - currentStart);
+
+				// pause at the next full second
+				long newPauseTime = (long) (Math.floor((startTime - now) / 1000.0)) * 1000;
+				setContestStart(cc, null, newPauseTime);
 			} else if (command.equals("resume")) {
-				if (errorIfContestNotPaused(currentStart, response))
+				if (errorIfContestNotPaused(pauseTime, response))
 					return;
-				setStartTimeInSeconds(cc, now - currentStart);
+
+				// resume at nearest full second
+				long newStartTime = ((now + pauseTime) / 1000) * 1000;
+				setContestStart(cc, newStartTime, null);
 			} else if (command.equals("clear")) {
 				if (contest.getState().isRunning()) {
 					response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest already running");
 					return;
 				}
-				setStartTime(cc, null);
+				setContestStart(cc, null, null);
 			}
 		} catch (IllegalArgumentException e) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
@@ -130,27 +124,6 @@ public class StartTimeService {
 	}
 
 	/**
-	 * Sets the start time to null or a new date given in seconds.
-	 *
-	 * @param newTime
-	 * @throws Exception
-	 */
-	private static void setStartTimeInSeconds(ConfiguredContest cc, Long newTime) throws Exception {
-		if (newTime == null) {
-			setStartTime(cc, null);
-			return;
-		}
-
-		Long time = newTime;
-		if (time > 0) // resume at the closest second
-			time = (time / 1000) * 1000;
-		else // pause with the full current second
-			time = (long) (Math.floor(time / 1000.0)) * 1000;
-
-		setStartTime(cc, time);
-	}
-
-	/**
 	 * Sets the start time to null or a new date given in milliseconds.
 	 *
 	 * The request should fail with a 401 if the user does not have sufficient access rights, or a
@@ -160,14 +133,16 @@ public class StartTimeService {
 	 * @param newTime
 	 * @throws Exception
 	 */
-	protected static void setStartTime(ConfiguredContest cc, Long time) throws Exception {
-		if (time == null)
+	protected static void setContestStart(ConfiguredContest cc, Long startTime, Long countdownPauseTime)
+			throws Exception {
+		if (startTime == null && countdownPauseTime == null)
 			Trace.trace(Trace.INFO, "Setting start time to: null");
-		else if (time < 0)
-			Trace.trace(Trace.INFO, "Setting start time to paused at: " + RelativeTime.format(-time.longValue()));
-		else
+		else if (countdownPauseTime != null)
 			Trace.trace(Trace.INFO,
-					"Setting start time to: " + Timestamp.format(time) + " (" + ContestUtil.formatTime(time) + ")");
+					"Setting start time to paused at: " + RelativeTime.format(countdownPauseTime.longValue()));
+		else
+			Trace.trace(Trace.INFO, "Setting start time to: " + Timestamp.format(startTime) + " ("
+					+ ContestUtil.formatTime(startTime) + ")");
 
 		Contest contest = cc.getContest();
 		long now = System.currentTimeMillis();
@@ -176,24 +151,22 @@ public class StartTimeService {
 		if (currentStartTime != null && currentStartTime > 0 && currentStartTime < now)
 			throw new IllegalArgumentException("Contest has already started");
 
-		if (currentStartTime != null && currentStartTime < 0 && time != null && time < 0)
-			throw new IllegalArgumentException("Contest already paused");
-
-		if (time != null && time > 0 && time < now)
+		if (startTime != null && startTime < now)
 			throw new IllegalArgumentException("Can't start contest in the past");
 
-		if (contest instanceof PlaybackContest)
-			((PlaybackContest) contest).setStartTime(time);
-
-		IInfo newInfo = contest.setStartStatus(time);
-
-		if (!cc.isTesting() && cc.getCCS() != null) {
-			ContestSource source = cc.getContestSource();
-			if (source instanceof RESTContestSource) {
-				RESTContestSource restSource = (RESTContestSource) source;
-				restSource.cacheClientSideEvent(newInfo, Delta.UPDATE);
+		if (cc.isTesting()) {
+			if (contest instanceof ReplayContest)
+				((ReplayContest) contest).setContestStart(startTime, countdownPauseTime);
+		} else {
+			if (cc.getCCS() != null) {
+				ContestSource source = cc.getContestSource();
+				if (source instanceof RESTContestSource) {
+					RESTContestSource restSource = (RESTContestSource) source;
+					IInfo newInfo = contest.setContestStart(startTime, countdownPauseTime);
+					restSource.cacheClientSideEvent(newInfo, Delta.UPDATE);
+				}
+				source.setContestStart(startTime, countdownPauseTime);
 			}
-			source.setStartTime(time);
 		}
 	}
 }

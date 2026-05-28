@@ -756,12 +756,13 @@ public class Contest implements IContest {
 		return Math.round(contestTimeMs * timeMultiplier);
 	}
 
-	public Info setStartStatus(Long start) {
+	public Info setContestStart(Long startTime, Long countdownPauseTime) {
 		if (info == null)
 			throw new IllegalArgumentException("Contest isn't initialized yet");
 
 		Info info2 = (Info) info.clone();
-		info2.setStartStatus(start);
+		info2.setStartTime(startTime);
+		info2.setCountdownPauseTime(countdownPauseTime);
 		add(info2);
 		return info2;
 	}

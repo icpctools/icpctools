@@ -113,18 +113,8 @@ public class Info extends ContestObject implements IInfo {
 		return startTime;
 	}
 
-	public void setStartStatus(Long start) {
-		if (start == null) {
-			pauseTime = null;
-			startTime = null;
-		} else if (start.longValue() < 0) {
-			pauseTime = -start.longValue();
-			supportsPauseTime = true;
-			startTime = null;
-		} else {
-			pauseTime = null;
-			startTime = start;
-		}
+	public void setStartTime(Long time) {
+		startTime = time;
 	}
 
 	public boolean supportsCountdownPauseTime() {

@@ -8,13 +8,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.icpc.tools.cds.service.ExecutorListener;
+import org.icpc.tools.cds.util.CDSContest;
 import org.icpc.tools.cds.util.HttpHelper;
-import org.icpc.tools.cds.util.PlaybackContest;
+import org.icpc.tools.cds.util.ReplayContest;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
@@ -34,7 +34,6 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Info;
-import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.w3c.dom.Element;
@@ -445,6 +444,14 @@ public class ConfiguredContest {
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Could not close contest", e);
 		}
+		try {
+			if (contest != null && contest instanceof ReplayContest) {
+				ReplayContest rContest = (ReplayContest) contest;
+				rContest.stopReplay();
+			}
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not stop replay", e);
+		}
 	}
 
 	public String getPath() {
@@ -633,16 +640,13 @@ public class ConfiguredContest {
 
 		try {
 			ContestSource source = getContestSource();
-			PlaybackContest pc = new PlaybackContest(this);
-			pc.addModifier((cont, obj) -> {
-				if (obj instanceof Info) {
-					Info info2 = (Info) obj;
-					info2.setId(id);
-				}
-				return true;
-			});
-			if (isTesting())
-				pc.setTestMode();
+			Contest tempContest;
+			if (isTesting()) {
+				tempContest = new ReplayContest(this);
+			} else {
+				tempContest = new CDSContest(this);
+			}
+			final Contest cdsContest = tempContest;
 
 			source.addListener(new ContestSourceListener() {
 				@Override
@@ -654,12 +658,9 @@ public class ConfiguredContest {
 				}
 			});
 
-			contestSource.setInitialContest(pc);
+			contestSource.setInitialContest(cdsContest);
 			contest = contestSource.getContest();
 			contestSource.setExecutor(ExecutorListener.getExecutor());
-
-			if (isTesting())
-				contest.setHashCode(contest.hashCode() + (int) (Math.random() * 500.0));
 
 			// if you're an admin, staff, analyst, spectator, or balloon on the CDS, give equivalent
 			// access on all contests
@@ -672,31 +673,12 @@ public class ConfiguredContest {
 					contest.add(account);
 			}
 
-			State[] currentState = new State[1];
-			currentState[0] = new State();
 			contest.addListenerFromStart((contest2, obj, d) -> {
 				if (obj instanceof ITeam) {
 					ITeam team = (ITeam) obj;
 					if (videos != null && streamMap.get(team.getId()) == null && isTeamOrSpare(contest, team)) {
 						setupTeamStreams(team.getId());
 					}
-				}
-
-				if (obj instanceof State) {
-					State state2 = (State) obj;
-					if (!Objects.equals(currentState[0].getStarted(), state2.getStarted()))
-						Trace.trace(Trace.USER, "Contest started: " + id);
-					if (!Objects.equals(currentState[0].getFrozen(), state2.getFrozen()))
-						Trace.trace(Trace.USER, "Contest frozen: " + id);
-					if (!Objects.equals(currentState[0].getThawed(), state2.getThawed()))
-						Trace.trace(Trace.USER, "Contest thawed: " + id);
-					if (!Objects.equals(currentState[0].getEnded(), state2.getEnded()))
-						Trace.trace(Trace.USER, "Contest ended: " + id);
-					if (!Objects.equals(currentState[0].getFinalized(), state2.getFinalized()))
-						Trace.trace(Trace.USER, "Contest finalized: " + id);
-					if (!Objects.equals(currentState[0].getEndOfUpdates(), state2.getEndOfUpdates()))
-						Trace.trace(Trace.USER, "Contest end of updates: " + id);
-					currentState[0] = state2;
 				}
 			});
 
@@ -706,10 +688,7 @@ public class ConfiguredContest {
 				try {
 					RESTContestSource contestSource2 = new RESTContestSource(folder, apiSource.getURL(), apiSource.getUser(),
 							apiSource.getPassword(), name != null ? name + "-source" : "source");
-					Contest contest3 = contestSource2.getContest();
-					contest3.addListenerFromStart((contest2, obj, d) -> {
-						pc.add(obj);
-					});
+					contestSource2.setInitialContest(cdsContest);
 				} catch (Exception e) {
 					Trace.trace(Trace.ERROR, "Could not configure second contest source", e);
 				}

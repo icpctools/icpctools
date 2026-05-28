@@ -763,7 +763,7 @@ public class RESTContestSource extends DiskContestSource {
 	 * @throws IOException
 	 */
 	@Override
-	public void setStartTime(Long time) throws IOException {
+	public void setContestStart(Long startTime, Long countdownPauseTime) throws IOException {
 		try {
 			Trace.trace(Trace.INFO, "Setting contest time at " + url);
 
@@ -776,14 +776,14 @@ public class RESTContestSource extends DiskContestSource {
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
 			bw.write("{ \"id\":\"" + contestId + "\", \"start_time\":");
 
-			if (time == null || time <= 0)
+			if (startTime == null || startTime <= 0)
 				bw.write("null");
 			else
-				bw.write("\"" + Timestamp.format(time.longValue()) + "\"");
+				bw.write("\"" + Timestamp.format(startTime.longValue()) + "\"");
 
-			if (time != null && time < 0) {
+			if (countdownPauseTime != null && countdownPauseTime > 0) {
 				bw.write(", \"countdown_pause_time\":");
-				bw.write("\"" + RelativeTime.format(-time.longValue()) + "\"");
+				bw.write("\"" + RelativeTime.format(countdownPauseTime.longValue()) + "\"");
 			}
 
 			bw.write(" }");
