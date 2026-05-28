@@ -1157,8 +1157,7 @@ public class DiskContestSource extends ContestSource {
 
 			boolean found = false;
 			for (FileReference ref2 : localList) {
-				if (ref.height == ref2.height && ref.width == ref2.width
-						&& (ref.mime == null || ref.mime.equals(ref2.mime))
+				if (ref.height == ref2.height && ref.width == ref2.width && (ref.mime == null || ref.mime.equals(ref2.mime))
 						&& (ref.tags == null || Arrays.equals(ref.tags, ref2.tags))) {
 					found = true;
 					continue;
@@ -1295,12 +1294,12 @@ public class DiskContestSource extends ContestSource {
 			File f = new File(root, "contest.yaml");
 			if (f.exists()) {
 				contest.add(YamlParser.importContestInfo(f, false));
-				Trace.trace(Trace.INFO, "Imported contest yaml");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			} else {
 				f = getConfigFile(root, "contest.yaml");
 				if (f.exists()) {
 					contest.add(YamlParser.importContestInfo(f, true));
-					Trace.trace(Trace.INFO, "Imported contest yaml");
+					Trace.trace(Trace.INFO, "Imported " + f.getName());
 				} else {
 					attachLocalResources(contest.getInfo());
 				}
@@ -1317,7 +1316,7 @@ public class DiskContestSource extends ContestSource {
 				for (IAccount a : accounts)
 					contest.add(a);
 
-				Trace.trace(Trace.INFO, "Imported accounts yaml");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing accounts: " + e.getMessage());
@@ -1334,7 +1333,7 @@ public class DiskContestSource extends ContestSource {
 				for (IProblem p : problems)
 					contest.add(p);
 
-				Trace.trace(Trace.INFO, "Imported problems yaml");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing problems: " + e.getMessage());
@@ -1346,7 +1345,7 @@ public class DiskContestSource extends ContestSource {
 			File f = getConfigFile(root, "groups.tsv");
 			if (f.exists()) {
 				TSVImporter.importGroups(contest, f);
-				Trace.trace(Trace.INFO, "Imported groups tsv");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing groups: " + e.getMessage());
@@ -1360,7 +1359,7 @@ public class DiskContestSource extends ContestSource {
 
 			if (f.exists()) {
 				TSVImporter.importInstitutions(contest, f);
-				Trace.trace(Trace.INFO, "Imported institutions tsv");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing institutions: " + e.getMessage());
@@ -1374,7 +1373,7 @@ public class DiskContestSource extends ContestSource {
 
 			if (f.exists()) {
 				TSVImporter.importTeams(contest, f);
-				Trace.trace(Trace.INFO, "Imported teams tsv");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing teams: " + e.getMessage());
@@ -1385,7 +1384,7 @@ public class DiskContestSource extends ContestSource {
 			File f = getConfigFile(root, "members.tsv");
 			if (f.exists()) {
 				TSVImporter.importTeamMembers(contest, f);
-				Trace.trace(Trace.INFO, "Imported persons tsv");
+				Trace.trace(Trace.INFO, "Imported " + f.getName());
 			}
 		} catch (Exception e) {
 			configValidation.err("Error importing persons: " + e.getMessage());
