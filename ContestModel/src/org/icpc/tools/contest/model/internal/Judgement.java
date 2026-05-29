@@ -154,6 +154,13 @@ public class Judgement extends ContestObject implements IJudgement {
 		return j;
 	}
 
+	public void clearJudgement() {
+		maxRunTime = 0;
+		endTime = null;
+		endContestTime = null;
+		judgementTypeId = null;
+	}
+
 	private static double round(double d) {
 		return Math.round(d * 100_000.0) / 100_000.0;
 	}

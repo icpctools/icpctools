@@ -2,6 +2,7 @@ package org.icpc.tools.cds.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.LockSupport;
 
 import org.icpc.tools.cds.ConfiguredContest;
@@ -58,6 +59,10 @@ public class ReplayContest extends CDSContest {
 						// ignore
 					}
 					timeUntilContest = startTime != null ? startTime - System.currentTimeMillis() : Long.MAX_VALUE;
+				}
+
+				if (stopReplay) {
+					return;
 				}
 
 				// release objects
@@ -121,6 +126,8 @@ public class ReplayContest extends CDSContest {
 	}
 
 	private void releaseEvents() {
+		ensureIntermediateEvents();
+
 		while (!timedObject.isEmpty() && !stopReplay) {
 			IContestObject nextObj = null;
 			long nextTime = Long.MAX_VALUE;
@@ -141,9 +148,6 @@ public class ReplayContest extends CDSContest {
 	}
 
 	private long getReleaseTime(IContestObject obj) {
-		if (obj instanceof Info) {
-			//
-		}
 		if (obj instanceof State) {
 			State state = (State) obj;
 			if (state.getEnded() != null) {
@@ -186,7 +190,7 @@ public class ReplayContest extends CDSContest {
 		super.add(obj);
 	}
 
-	public void fixWallClockTime(IContestObject obj) {
+	private void fixWallClockTime(IContestObject obj) {
 		if (obj instanceof State) {
 			State state = (State) obj;
 
@@ -217,6 +221,79 @@ public class ReplayContest extends CDSContest {
 			} else {
 				j.add("start_time", Timestamp.now());
 			}
+		}
+	}
+
+	/**
+	 * Make sure the contest contains 'intermediate' events, including start of each judgement and
+	 * contest start state update.
+	 */
+	private void ensureIntermediateEvents() {
+		State state = null;
+		boolean hasStart = false;
+		List<IContestObject> toAdd = new ArrayList<IContestObject>();
+		for (IContestObject obj : timedObject) {
+			// for every judgement, check if there is a corresponding 'start' event
+			if (obj instanceof Judgement) {
+				Judgement j = (Judgement) obj;
+				if (j.getJudgementTypeId() != null) {
+					// final judgement. check if there is a starting one, and if not create one
+					boolean found = false;
+					for (IContestObject obj2 : timedObject) {
+						if (obj2 instanceof Judgement) {
+							Judgement j2 = (Judgement) obj2;
+							if (j2.getJudgementTypeId() == null && j2.getId().equals(j.getId())) {
+								found = true;
+								break;
+							}
+						}
+					}
+					if (!found) {
+						// clone and clean final judgement to create an equivalent initial event
+						Judgement newJ = (Judgement) j.clone();
+						newJ.clearJudgement();
+						toAdd.add(newJ);
+					}
+				}
+			}
+			if (obj instanceof State) {
+				state = (State) obj;
+
+				// check if there's a state with only contest started
+				Map<String, Object> props = state.getProperties();
+				if (props.size() == 1 && props.containsKey("started")) {
+					hasStart = true;
+				}
+			}
+		}
+
+		for (IContestObject obj : toAdd) {
+			timedObject.add(obj);
+		}
+
+		// create contest starting state
+		if (!hasStart) {
+			State start = new State();
+			start.setStarted(startTime);
+			timedObject.add(start);
+		}
+		if (state == null) {
+			// no state at all, create a freeze and ended state too
+			if (getFreezeDuration() != null) {
+				State freeze = new State();
+				freeze.setStarted(startTime);
+				freeze.setFrozen(startTime + getDuration() - getFreezeDuration());
+				freeze.setEnded(startTime + getDuration());
+				timedObject.add(freeze);
+			}
+
+			State ended = new State();
+			ended.setStarted(startTime);
+			if (getFreezeDuration() != null) {
+				ended.setFrozen(startTime + getDuration() - getFreezeDuration());
+			}
+			ended.setEnded(startTime + getDuration());
+			timedObject.add(ended);
 		}
 	}
 }
