@@ -73,27 +73,27 @@ public class State extends ContestObject implements IState {
 		return removedIntervals;
 	}
 
-	public void setStarted(long time) {
+	public void setStarted(Long time) {
 		started = time;
 	}
 
-	public void setEnded(long time) {
+	public void setEnded(Long time) {
 		ended = time;
 	}
 
-	public void setFrozen(long time) {
+	public void setFrozen(Long time) {
 		frozen = time;
 	}
 
-	public void setThawed(long time) {
+	public void setThawed(Long time) {
 		thawed = time;
 	}
 
-	public void setFinalized(long time) {
+	public void setFinalized(Long time) {
 		finalized = time;
 	}
 
-	public void setEndOfUpdates(long time) {
+	public void setEndOfUpdates(Long time) {
 		endOfUpdates = time;
 	}
 
