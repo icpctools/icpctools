@@ -5,6 +5,13 @@ package org.icpc.tools.contest.model;
  */
 public interface IState extends IContestObject {
 	/**
+	 * The time the contest floor was set ready.
+	 *
+	 * @return the start time
+	 */
+	Long getFloorReady();
+
+	/**
 	 * The time the contest started.
 	 *
 	 * @return the start time

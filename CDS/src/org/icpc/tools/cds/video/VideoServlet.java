@@ -140,13 +140,16 @@ public class VideoServlet extends HttpServlet {
 			return;
 		}
 
-		// check if any contests are in freeze
+		// check if any contests are in freeze or not ready
 		boolean isStaff = CDSAuth.isStaff(request);
 		if (!isStaff) {
 			for (ConfiguredContest cc : CDSConfig.getContests()) {
 				IState state = cc.getContest().getState();
 				if (state.isFrozen() && state.isRunning()) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Contest is frozen");
+					return;
+				} else if (cc.isFloorReady() && state.getFloorReady() == null) {
+					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Contest floor is not ready");
 					return;
 				}
 			}

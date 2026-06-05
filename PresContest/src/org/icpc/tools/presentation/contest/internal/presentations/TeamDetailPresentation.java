@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -19,8 +20,10 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
+import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -47,6 +50,8 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	private TeamInfo info;
 	private boolean voice;
 	private long lastAudio;
+
+	private Boolean contestFloorReady;
 
 	@Override
 	public void setSize(Dimension d) {
@@ -113,6 +118,34 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	}
 
 	/**
+	 * Play a sound effect for the contest floor opening.
+	 */
+	private void playFloorOpen() {
+		try {
+			Trace.trace(Trace.INFO, "Playing floor opening audio");
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream("data/floorOpen.wav");
+			AudioInputStream audioIn = AudioSystem.getAudioInputStream(in);
+			Clip clip = AudioSystem.getClip();
+
+			clip.addLineListener(event -> {
+				if (event.getType() == LineEvent.Type.STOP) {
+					clip.close();
+					try {
+						audioIn.close();
+					} catch (Exception e) {
+						// ignore
+					}
+				}
+			});
+
+			clip.open(audioIn);
+			clip.start();
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not play floor opening sound", e);
+		}
+	}
+
+	/**
 	 * Play a wav file using Java audio.
 	 */
 	private static void playWAV(File file) {
@@ -160,6 +193,39 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 	public void aboutToShow() {
 		getContest();
 		setTeam(team);
+
+		ContestSource source = ContestSource.getInstance();
+		if (source == null || !(source instanceof RESTContestSource))
+			return;
+
+		RESTContestSource restSource = (RESTContestSource) source;
+
+		execute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					JsonObject obj = restSource.getAccess();
+					Object[] endpoints = obj.getArray("endpoints");
+					for (Object ep : endpoints) {
+						if (ep instanceof JsonObject) {
+							JsonObject jo = (JsonObject) ep;
+							if ("state".equals(jo.getString("type"))) {
+								Object[] props = jo.getArray("properties");
+								for (Object p : props) {
+									if ("floor_ready".equals(p)) {
+										contestFloorReady = false;
+										return;
+									}
+								}
+								return;
+							}
+						}
+					}
+				} catch (Exception e) {
+					Trace.trace(Trace.WARNING, "Could not determine contest floor ready state", e);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -203,6 +269,19 @@ public class TeamDetailPresentation extends AbstractICPCPresentation {
 		} else if (contestImage != null)
 			g.drawImage(contestImage, (width - contestImage.getWidth()) / 2, (height - contestImage.getHeight()) / 2,
 					null);
+
+		if (contestFloorReady != null && contestFloorReady != true) {
+			if (getContest().getState().getFloorReady() != null) {
+				contestFloorReady = true;
+				playFloorOpen();
+				return;
+			}
+			g.setColor(Color.RED);
+			g.setFont(font);
+			FontMetrics fm = g.getFontMetrics();
+			String s = "🚫 Contest floor is not ready 🚫";
+			TextHelper.drawString(g, s, (width - fm.stringWidth(s)) / 2, height / 2);
+		}
 	}
 
 	@Override

@@ -73,6 +73,11 @@ public class AccessService {
 				else
 					je.encode("type", IContestObject.getTypeName(ct));
 
+				if (ct == IContestObject.ContestType.STATE) {
+					if (cc.isFloorReady() && !properties.contains("floor_ready"))
+						properties.add("floor_ready");
+				}
+
 				String s = String.join("\",\"", properties);
 				je.encodePrimitive("properties", "[\"" + s + "\"]");
 				je.close();
