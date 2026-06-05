@@ -18,8 +18,6 @@ import org.icpc.tools.contest.model.FloorMap;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.feed.ContestSource;
-import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.NetworkUtil;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ClientLauncher;
@@ -72,11 +70,6 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 	}
 
 	@Override
-	public void init() {
-		setTeam(TeamUtil.getTeamId(getContest()), TeamUtil.getTeamMember());
-	}
-
-	@Override
 	public void setSize(Dimension d) {
 		super.setSize(d);
 		final float dpi = 96;
@@ -84,12 +77,11 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 		fontTouch = font;
 	}
 
-	public void setTeam(String id, String member) {
+	private void setTeam(IContest contest, String id, String member) {
 		try {
 			teamId = id;
 			teamMember = member;
 
-			IContest contest = getContest();
 			FloorMap map = new FloorMap(contest);
 			ITeam t = contest.getTeamById(teamId);
 			Trace.trace(Trace.INFO, "Floor map team: " + t);
@@ -197,39 +189,58 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 		execute(new Runnable() {
 			@Override
 			public void run() {
-				cacheInfo();
+				IContest contest = getContest();
+
+				// wait 1-4s for the contest to have some teams
+				boolean waited = false;
+				while (contest.getTeams().length == 0) {
+					try {
+						waited = true;
+						Thread.sleep(1000 + (int) (Math.random() * 3000));
+					} catch (Exception e) {
+						// ignore
+					}
+				}
+
+				if (waited) {
+					try {
+						Thread.sleep(200);
+					} catch (Exception e) {
+						// ignore
+					}
+				}
+
+				setTeam(contest, TeamUtil.getTeamId(contest), TeamUtil.getTeamMember());
+
+				cacheInfo(contest);
+
+				if (image == null && contestImage == null)
+					contestImage = getContest().getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7),
+							getModeTag(), true, true);
 			}
 		});
 	}
 
-	protected void cacheInfo() {
-		if (contestImage == null)
-			contestImage = getContest().getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7),
-					getModeTag(), true, true);
-
+	private void cacheInfo(IContest contest) {
 		if (teamId == null || teamId.isEmpty() || image != null)
 			return;
 
-		ContestSource source = ContestSource.getInstance();
-		if (source == null || !(source instanceof RESTContestSource))
-			return;
-
-		RESTContestSource restSource = (RESTContestSource) source;
 		try {
-			ITeam team = restSource.getTeam(teamId);
+			ITeam team = contest.getTeamById(teamId);
+			if (team != null) {
+				teamName = team.getActualDisplayName();
+			} else {
+				teamName = "Team " + teamId;
+			}
 
 			IOrganization org = null;
 			if (team != null && team.getOrganizationId() != null) {
-				org = restSource.getOrganization(team.getOrganizationId());
-				teamName = team.getActualDisplayName();
-			}
-			if (teamName == null)
-				teamName = "Team " + teamId;
+				org = contest.getOrganizationById(team.getOrganizationId());
 
-			// load logo
-			if (image == null && org != null)
+				// load logo
 				image = org.getLogoImage((int) (width * 0.7), (int) ((height - MARGIN * 2) * 0.7), getModeTag(), true,
 						true);
+			}
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Could not load team info", e);
 		}
@@ -265,7 +276,7 @@ public class TeamDisplayPresentation extends AbstractICPCPresentation {
 					MARGIN + fm.getAscent());
 
 		Long ms = getClock();
-		if (ms != null) {
+		if (ms != null && ms < getContest().getDuration()) {
 			String time = AbstractICPCPresentation.getTime(ms, true);
 
 			int yh = (int) (height * 0.07f);
