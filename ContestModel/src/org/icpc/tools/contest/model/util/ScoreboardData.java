@@ -64,6 +64,11 @@ public class ScoreboardData {
 		}
 
 		@Override
+		public Long getFloorReady() {
+			return null;
+		}
+
+		@Override
 		public Long getStarted() {
 			return started;
 		}

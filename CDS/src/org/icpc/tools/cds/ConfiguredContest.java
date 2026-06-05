@@ -65,6 +65,7 @@ public class ConfiguredContest {
 	private List<Video> videos = new ArrayList<>(3);
 	private Test test;
 	private Boolean isTesting;
+	private Boolean floorReady;
 	private View view;
 
 	private DiskContestSource contestSource;
@@ -287,6 +288,7 @@ public class ConfiguredContest {
 
 		recordReactions = CDSConfig.getBoolean(e, "recordReactions");
 		hidden = CDSConfig.getBoolean(e, "hidden");
+		floorReady = CDSConfig.getBoolean(e, "floorReady");
 
 		Element ee = CDSConfig.getChild(e, "ccs");
 		if (ee != null) {
@@ -468,6 +470,10 @@ public class ConfiguredContest {
 
 	public boolean isHidden() {
 		return hidden;
+	}
+
+	public boolean isFloorReady() {
+		return floorReady;
 	}
 
 	public CCS getCCS() {

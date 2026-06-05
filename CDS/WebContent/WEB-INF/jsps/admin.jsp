@@ -37,9 +37,19 @@
                <span class="input-group-btn">
                <button type="button" class="btn btn-info btn-flat" onclick="addStartStatus($('#add-status').val(), 0)">Add</button>
                </span></div>
-            </div>
-            </div>
-     </div></div>
+          </div>
+        </div>
+        <div class="card">
+           <div class="card-header">
+             <h3 class="card-title">Floor Ready</h3>
+           </div>
+          <div class="card-body">
+            <p>Set the contest floor ready (open for spectators)</p>
+            <button id="floorReady" class="btn btn-info" onclick="patchContestFloorReady()">Floor Ready</button>
+          </div>
+        </div>
+       </div>
+     </div>
      
      <div class="row">
         <div class="col-5">
@@ -210,6 +220,12 @@
     	addStartStatus("Contest Director", 0);
     }
 
+    function patchContestFloorReady() {
+    	var time = new Date().toISOString();
+    	var s = '{"floor_ready":"' + time + '"}';
+    	cds.doPatch("state", '', s, function() { document.getElementById('floorReady').disabled = true; });
+    }
+ 
     function patchContestStart(id, start_time, pause_time) {
     	var s = '{"id":"' + id + '","start_time":"' + start_time + '"';
     	if (pause_time != null)

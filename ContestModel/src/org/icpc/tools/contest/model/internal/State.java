@@ -12,6 +12,7 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 
 // need initial (empty) state if contest data doesn't have one, otherwise endpoint is null
 public class State extends ContestObject implements IState {
+	private static final String FLOOR_READY = "floor_ready";
 	private static final String STARTED = "started";
 	private static final String ENDED = "ended";
 	private static final String FROZEN = "frozen";
@@ -20,6 +21,7 @@ public class State extends ContestObject implements IState {
 	private static final String END_OF_UPDATES = "end_of_updates";
 	private static final String REMOVED_INTERVALS = "removed_intervals";
 
+	private Long floorReady;
 	private Long started;
 	private Long ended;
 	private Long frozen;
@@ -36,6 +38,11 @@ public class State extends ContestObject implements IState {
 	@Override
 	public boolean isSingleton() {
 		return true;
+	}
+
+	@Override
+	public Long getFloorReady() {
+		return floorReady;
 	}
 
 	@Override
@@ -73,6 +80,10 @@ public class State extends ContestObject implements IState {
 		return removedIntervals;
 	}
 
+	public void setFloorReady(Long time) {
+		floorReady = time;
+	}
+
 	public void setStarted(Long time) {
 		started = time;
 	}
@@ -99,7 +110,10 @@ public class State extends ContestObject implements IState {
 
 	@Override
 	protected boolean addImpl(String name, Object value) throws Exception {
-		if (STARTED.equals(name)) {
+		if (FLOOR_READY.equals(name)) {
+			floorReady = parseTimestamp(value);
+			return true;
+		} else if (STARTED.equals(name)) {
 			started = parseTimestamp(value);
 			return true;
 		} else if (ENDED.equals(name)) {
@@ -134,6 +148,8 @@ public class State extends ContestObject implements IState {
 
 	@Override
 	protected void getProperties(Properties props) {
+		if (floorReady != null)
+			props.addLiteralString(FLOOR_READY, Timestamp.format(floorReady));
 		if (started != null)
 			props.addLiteralString(STARTED, Timestamp.format(started));
 		if (ended != null)
