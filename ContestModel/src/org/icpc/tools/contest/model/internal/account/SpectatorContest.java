@@ -40,7 +40,7 @@ public class SpectatorContest extends PublicContest {
 				addIt(obj);
 				return;
 			}
-			case RUN: { // TODO - access block for live
+			case RUN: {
 				IRun run = (IRun) obj;
 
 				IJudgement j = getJudgementById(run.getJudgementId());
