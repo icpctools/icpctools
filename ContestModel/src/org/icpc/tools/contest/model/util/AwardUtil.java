@@ -607,7 +607,8 @@ public class AwardUtil {
 				throw new IllegalArgumentException("Honor solved parameter invalid");
 			if (solvedBottom > teams.length || solvedTop > teams.length)
 				throw new IllegalArgumentException("Honor solved parameter invalid");
-
+		} catch (IllegalArgumentException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Could not parse honor parameters: " + template.getParameters());
 		}
