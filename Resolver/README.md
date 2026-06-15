@@ -646,7 +646,7 @@ top 25% of teams in the contest.
 
 | Paramter           | Description
 | :----------------- | :----------
-| solvedTop          | The number of solved problems to start the award at
+| solvedTop          | The number of less solved problems as the lowest broze medalist to start the award at
 | solvedBottom       | The number of solved problems to end the award at
 | percentileTop      | The percentile of teams at which to start the award
 | percentileBottom   | The percentile of teams at which to stop the award
