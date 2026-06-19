@@ -14,6 +14,7 @@ import java.util.prefs.Preferences;
 
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.CDSConfig.Domain;
+import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.feed.JSONParser;
@@ -52,6 +53,10 @@ public class PresentationServer {
 
 	private PresentationServer() {
 		super();
+
+		executor = ExecutorListener.getExecutor();
+
+		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 45L, TimeUnit.SECONDS);
 	}
 
 	private static PresentationServer instance = new PresentationServer();
@@ -719,12 +724,6 @@ public class PresentationServer {
 	protected void handleCommand(JsonObject obj) {
 		int[] clientUIDs = readClients(obj);
 		sendCommand(clientUIDs, obj.getString("source"), obj.getString("action"));
-	}
-
-	public void setExecutor(ScheduledExecutorService executor) {
-		this.executor = executor;
-
-		executor.scheduleWithFixedDelay(() -> forEachClient(clients, cl -> cl.writePing()), 30L, 45L, TimeUnit.SECONDS);
 	}
 
 	public void scheduleCallback(IContest c, long contestTimeMs) {
