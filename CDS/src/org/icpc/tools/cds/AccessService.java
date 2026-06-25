@@ -65,7 +65,7 @@ public class AccessService {
 		Set<String>[] allKnownProperties = cc.getContestByRole(request).getKnownProperties();
 		for (IContestObject.ContestType ct : IContestObject.ContestType.values()) {
 			Set<String> properties = allKnownProperties[ct.ordinal()];
-			if (properties != null) {
+			if (properties != null && !properties.isEmpty()) {
 				je.writeSeparator();
 				je.open();
 				if (ct == IContestObject.ContestType.CONTEST)

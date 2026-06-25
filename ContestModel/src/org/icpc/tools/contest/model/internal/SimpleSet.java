@@ -70,7 +70,7 @@ public class SimpleSet implements Set<String> {
 
 			@Override
 			public boolean hasNext() {
-				return count < size - 1;
+				return count < size;
 			}
 
 			@Override

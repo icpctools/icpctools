@@ -96,6 +96,27 @@ public class Contest implements IContest {
 	public Contest(boolean keepHistory) {
 		data = new ContestData(keepHistory);
 		data.add(state);
+
+		addDefaultKnownProperties();
+	}
+
+	protected void addDefaultKnownProperties() {
+		addKnownProperties(IContestObject.ContestType.STATE, "started", "ended", "end_of_updates");
+
+		addKnownProperties(IContestObject.ContestType.PROBLEM, "id", "label", "name", "ordinal");
+
+		addKnownProperties(IContestObject.ContestType.SUBMISSION, "id", "language_id", "problem_id", "team_id");
+
+		addKnownProperties(IContestObject.ContestType.JUDGEMENT, "id", "submission_id", "start_time", "end_time");
+	}
+
+	protected void addKnownProperties(ContestType type, String... props) {
+		Set<String> knownProps = new SimpleSet();
+		allKnownProperties[type.ordinal()] = knownProps;
+
+		for (String s : props) {
+			knownProps.add(s);
+		}
 	}
 
 	@Override
