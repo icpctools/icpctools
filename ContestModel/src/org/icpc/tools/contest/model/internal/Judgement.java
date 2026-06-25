@@ -129,10 +129,10 @@ public class Judgement extends ContestObject implements IJudgement {
 			endTime = parseTimestamp(value);
 			return true;
 		} else if (SCORE.equals(name)) {
-			score = Double.parseDouble((String) value);
+			score = parseDoubleObj(value);
 			return true;
 		} else if (CURRENT.equals(name)) {
-			current = Boolean.parseBoolean((String) value);
+			current = parseBooleanObj(value);
 			return true;
 		}
 		return super.addImpl(name, value);
