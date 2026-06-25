@@ -259,7 +259,7 @@ public class Problem extends ContestObject implements IProblem {
 				return true;
 			}
 			case MAX_SCORE: {
-				maxScore = parseDouble(value);
+				maxScore = parseDoubleObj(value);
 				return true;
 			}
 			case LOCATION: {

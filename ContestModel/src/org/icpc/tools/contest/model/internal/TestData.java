@@ -43,7 +43,7 @@ public class TestData extends ContestObject implements ITestData {
 			ordinal = parseInt(value);
 			return true;
 		} else if (SAMPLE.equals(name)) {
-			isSample = parseBoolean(value);
+			isSample = parseBooleanObj(value);
 			return true;
 		}
 

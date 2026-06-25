@@ -107,7 +107,19 @@ public abstract class ContestObject implements IContestObject {
 		}
 	}
 
+	protected static Boolean parseBooleanObj(Object value) {
+		if (value == null || "null".equals(value))
+			return null;
+
+		if (value instanceof Boolean)
+			return (Boolean) value;
+		return Boolean.parseBoolean((String) value);
+	}
+
 	protected static boolean parseBoolean(Object value) {
+		if (value == null || "null".equals(value))
+			return false;
+
 		if (value instanceof Boolean)
 			return (Boolean) value;
 		return Boolean.parseBoolean((String) value);
@@ -125,7 +137,19 @@ public abstract class ContestObject implements IContestObject {
 		return Long.parseLong((String) value);
 	}
 
+	protected static Double parseDoubleObj(Object value) throws NumberFormatException {
+		if (value == null || "null".equals(value))
+			return null;
+
+		if (value instanceof Double)
+			return (Double) value;
+		return Double.parseDouble((String) value);
+	}
+
 	protected static double parseDouble(Object value) throws NumberFormatException {
+		if (value == null || "null".equals(value))
+			return Double.NaN;
+
 		if (value instanceof Double)
 			return (Double) value;
 		return Double.parseDouble((String) value);
