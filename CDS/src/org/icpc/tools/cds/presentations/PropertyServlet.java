@@ -25,7 +25,7 @@ public class PropertyServlet extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!CDSAuth.isPresAdmin(request) && !CDSAuth.isAdmin(request)) {
+		if (!CDSAuth.isAdmin(request) && !CDSAuth.isPresAdmin(request) && !CDSAuth.isPresUser(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -115,12 +115,18 @@ public class PropertyServlet extends HttpServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!CDSAuth.isPresAdmin(request) && !CDSAuth.isAdmin(request)) {
+		if (!CDSAuth.isAdmin(request) && !CDSAuth.isPresAdmin(request) && !CDSAuth.isPresUser(request)) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
 		String path = request.getPathInfo();
 		if (path == null || path.length() < 2) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+
+		// presentation users may only set properties
+		if (!path.startsWith("/property") && !CDSAuth.isAdmin(request) && !CDSAuth.isPresAdmin(request)) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
