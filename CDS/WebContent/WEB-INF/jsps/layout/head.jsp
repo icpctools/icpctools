@@ -185,6 +185,16 @@ function logout() {
             </li>
             <% } %>
             
+            <% if (CDSAuth.isPresUser(request)) { %>
+            <li class="nav-item">
+              <a href="${pageContext.request.contextPath}/presentation/admin/intro"
+                class="nav-link<% if (requestURI.contains("presentation/admin/intro")) { %> active<% } %>">
+                <i class="nav-icon fas fa-address-card"></i>
+                <p>Team Intro</p>
+              </a>
+            </li>
+            <% } %>
+            
             <% if (CDSAuth.isPresAdmin(request)) { %>
             <li class="nav-item">
               <a href="${pageContext.request.contextPath}/presentation/admin/web"
