@@ -49,6 +49,9 @@ public class PropertyServlet extends HttpServlet {
 		} else if ("/web".equals(path)) {
 			request.getRequestDispatcher("/WEB-INF/jsps/present.jsp").forward(request, response);
 			return;
+		} else if ("/intro".equals(path)) {
+			request.getRequestDispatcher("/WEB-INF/jsps/team-intro.jsp").forward(request, response);
+			return;
 		} else {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
