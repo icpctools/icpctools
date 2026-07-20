@@ -12,6 +12,7 @@ public interface IAccount extends IContestObject {
 	public String SPECTATOR = "spectator";
 	public String BALLOON = "balloon";
 	public String PRES_ADMIN = "presAdmin";
+	public String PRES_USER = "presUser";
 
 	/**
 	 * The name
