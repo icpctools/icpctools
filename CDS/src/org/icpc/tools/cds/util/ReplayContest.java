@@ -131,17 +131,20 @@ public class ReplayContest extends CDSContest {
 		while (!timedObject.isEmpty() && !stopReplay) {
 			IContestObject nextObj = null;
 			long nextTime = Long.MAX_VALUE;
-			for (IContestObject obj : timedObject) {
+			int nextIndex = -1;
+			for (int i = 0; i < timedObject.size(); i++) {
+				IContestObject obj = timedObject.get(i);
 				long time = getReleaseTime(obj);
 				if (time < nextTime) {
 					nextObj = obj;
 					nextTime = time;
+					nextIndex = i;
 				}
 			}
 
 			waitForContestTime(nextTime);
 
-			timedObject.remove(nextObj);
+			timedObject.remove(nextIndex);
 			fixWallClockTime(nextObj);
 			super.add(nextObj);
 		}
@@ -153,7 +156,7 @@ public class ReplayContest extends CDSContest {
 			if (state.getEnded() != null) {
 				return getDuration();
 			}
-			if (state.getFrozen() != null) {
+			if (state.getFrozen() != null && getFreezeDuration() != null) {
 				return getDuration() - getFreezeDuration();
 			}
 			if (state.getStarted() != null)
@@ -199,7 +202,7 @@ public class ReplayContest extends CDSContest {
 				state.setStarted(startTime);
 			if (state.getEnded() != null)
 				state.setEnded(startTime + duration);
-			if (state.getFrozen() != null)
+			if (state.getFrozen() != null && getFreezeDuration() != null)
 				state.setFrozen(startTime + duration - getFreezeDuration());
 			if (state.getThawed() != null)
 				state.setThawed(startTime + duration);
