@@ -36,6 +36,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.TSVImporter;
+import org.icpc.tools.contest.model.feed.ContestAPIHelper.SpecVersion;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ContestObject;
@@ -1284,9 +1285,43 @@ public class DiskContestSource extends ContestSource {
 		return new File(root, "config" + File.separator + file);
 	}
 
+	protected static SpecVersion parseAPIJsonForVersion(BufferedReader br) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		String s = br.readLine();
+		while (s != null) {
+			sb.append(s);
+			s = br.readLine();
+		}
+
+		JSONParser parser2 = new JSONParser(sb.toString());
+		JsonObject obj = parser2.readObject();
+
+		String version = obj.getString("version");
+		SpecVersion specVersion = ContestAPIHelper.parseVersion(version);
+
+		if (specVersion == null) {
+			Trace.trace(Trace.WARNING, "Unknown spec version: " + version);
+		}
+		return specVersion;
+	}
+
 	protected void loadConfigFiles() {
 		if (root == null) // this is a cache
 			return;
+
+		// spec version
+		try {
+			File f = new File(root, "api.json");
+			if (f.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(f));
+				SpecVersion specVersion = parseAPIJsonForVersion(br);
+				if (specVersion != null)
+					ContestAPIHelper.setVersion(specVersion);
+			}
+		} catch (Exception e) {
+			configValidation.err("Could not determine spec version: " + e.getMessage());
+			Trace.trace(Trace.WARNING, "Could not determine spec version", e);
+		}
 
 		// load yamls
 		configValidation = new Validation();
