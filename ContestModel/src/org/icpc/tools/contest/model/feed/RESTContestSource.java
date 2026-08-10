@@ -593,29 +593,13 @@ public class RESTContestSource extends DiskContestSource {
 	 * Connect to the parent endpoint and cache the spec version.
 	 */
 	protected void cacheSpecVersion() {
-		if (specVersion != null) {
+		if (specVersion != null || url == null)
 			return;
-		}
 
 		try {
 			InputStream in = connect("../..");
 			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-			StringBuilder sb = new StringBuilder();
-			String s = br.readLine();
-			while (s != null) {
-				sb.append(s);
-				s = br.readLine();
-			}
-
-			JSONParser parser2 = new JSONParser(sb.toString());
-			JsonObject obj = parser2.readObject();
-
-			String version = obj.getString("version");
-			specVersion = ContestAPIHelper.parseVersion(version);
-
-			if (specVersion == null) {
-				Trace.trace(Trace.WARNING, "Unknown spec version: " + version);
-			}
+			specVersion = parseAPIJsonForVersion(br);
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Could not determine spec version", e);
 		}
