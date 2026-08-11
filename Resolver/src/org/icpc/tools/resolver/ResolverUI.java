@@ -16,12 +16,14 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
@@ -158,8 +160,8 @@ public class ResolverUI {
 			}
 
 			@Override
-			public void atStep(ResolutionStep step) {
-				processStep(step);
+			public void step(ResolutionStep step, boolean forward) {
+				processStep(step, forward);
 			}
 
 			@Override
@@ -218,7 +220,8 @@ public class ResolverUI {
 				if (teamListPresentation == null || !isPresenter || !active)
 					return;
 
-				if ('r' == e.getKeyChar() || 'R' == e.getKeyChar() || 'b' == e.getKeyChar() || 'B' == e.getKeyChar() || KeyEvent.VK_PAGE_UP == e.getKeyCode())
+				if ('r' == e.getKeyChar() || 'R' == e.getKeyChar() || 'b' == e.getKeyChar() || 'B' == e.getKeyChar()
+						|| KeyEvent.VK_PAGE_UP == e.getKeyCode())
 					processAction(Action.REVERSE);
 				else if ('1' == e.getKeyChar())
 					processAction(Action.FAST_REVERSE);
@@ -243,7 +246,8 @@ public class ResolverUI {
 					setScrollPauseImpl(!pauseScroll);
 				} else if ('i' == e.getKeyChar())
 					scoreboardPresentation.setShowSubmissionInfo(!scoreboardPresentation.getShowSubmissionInfo());
-				else if (' ' == e.getKeyChar() || 'f' == e.getKeyChar() || 'F' == e.getKeyChar() || KeyEvent.VK_PAGE_DOWN == e.getKeyCode())
+				else if (' ' == e.getKeyChar() || 'f' == e.getKeyChar() || 'F' == e.getKeyChar()
+						|| KeyEvent.VK_PAGE_DOWN == e.getKeyCode())
 					processAction(Action.FORWARD);
 				else if ('s' == e.getKeyChar() && listener != null)
 					listener.swap();
@@ -501,19 +505,23 @@ public class ResolverUI {
 		return null;
 	}
 
-	private int processStep(ResolutionStep step) {
+	private int processStep(ResolutionStep step, boolean forward) {
 		if (step instanceof ContestStateStep) {
-			ContestStateStep state = (ContestStateStep) step;
-			splashPresentation.setContest(state.contest);
-			scoreboardPresentation.setContest(state.contest);
-			teamListPresentation.setContest(state.contest);
-			teamListPhotoPresentation.setContest(state.contest);
-			judgePresentation.setContest(state.contest);
-			awardPresentation.setContest(state.contest);
-			if (teamLogoPresentation != null)
-				teamLogoPresentation.setContest(state.contest);
-			if (orgPresentation != null)
-				orgPresentation.setContest(state.contest);
+			// do nothing
+		} else if (step instanceof JudgementStep) {
+			JudgementStep jStep = (JudgementStep) step;
+			Contest contest = getFirstContest();
+
+			IJudgement[] judgements = jStep.judgements;
+			if (judgements != null) {
+				for (IJudgement j : judgements) {
+					if (forward) {
+						contest.add(j);
+					} else {
+						contest.remove(j);
+					}
+				}
+			}
 		} else if (step instanceof TeamSelectionStep) {
 			TeamSelectionStep sel = (TeamSelectionStep) step;
 			scoreboardPresentation.setSelectedTeams(sel.teams, sel.type);

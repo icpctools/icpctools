@@ -1,8 +1,6 @@
 package org.icpc.tools.cds.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -14,7 +12,6 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IResolveInfo;
-import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.JSONWriter;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -22,9 +19,8 @@ import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,7 +54,7 @@ public class ResolverService {
 	}
 
 	protected static void doPut(HttpServletResponse response, String command, ConfiguredContest cc) throws IOException {
-		IContest contest = cc.getContest();
+		Contest contest = cc.getContest();
 		if (contest.getState().isRunning()) {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Contest still running");
 			return;
@@ -66,10 +62,9 @@ public class ResolverService {
 
 		Trace.trace(Trace.USER, "Resolver command: " + command);
 		try {
-			Contest c = (Contest) contest;
 			if ("reset".equals(command) && control == null) {
 				ResolveInfo resolveInfo = new ResolveInfo();
-				c.add(resolveInfo);
+				contest.add(resolveInfo);
 			} else if ("init".equals(command)) {
 				if (steps != null)
 					return;
@@ -90,40 +85,25 @@ public class ResolverService {
 				}
 				Trace.trace(Trace.USER, "Auto-resolved " + count + " judgements");
 
-				ResolverLogic resolver = new ResolverLogic(c, false);
+				ResolverLogic resolver = new ResolverLogic(contest, false);
 				steps = resolver.resolveFrom(false);
 				control = new ResolutionControl(steps);
 				control.addListener(new IResolutionListener() {
-					protected List<IJudgement> judgements;
-
 					@Override
-					public void atStep(ResolutionStep step) {
-						if (step instanceof SubmissionSelectionStep) {
-							SubmissionSelectionStep step2 = (SubmissionSelectionStep) step;
-							if (step2.subInfo == null)
-								return;
-
-							String teamId = step2.subInfo.getTeam().getId();
-							int pInd = step2.subInfo.getProblemIndex();
-							String pId = contest.getProblems()[pInd].getId();
-							ISubmission[] subs = contest.getSubmissions();
-							judgements = new ArrayList<>();
-							for (ISubmission s : subs) {
-								if (s.getTeamId().equals(teamId) && s.getProblemId().equals(pId)) {
-									if (s.getContestTime() < contest.getDuration()) {
-										IJudgement[] j = contest.getJudgementsBySubmissionId(s.getId());
-										judgements.addAll(Arrays.asList(j));
-									}
-								}
-							}
-						} else if (step instanceof ContestStateStep) {
+					public void step(ResolutionStep step, boolean forward) {
+						if (step instanceof JudgementStep) {
+							JudgementStep stateStep = (JudgementStep) step;
+							IJudgement[] judgements = stateStep.judgements;
 							if (judgements == null)
 								return;
 
-							for (IJudgement j : judgements)
-								cc.exposeContestObject(j);
-
-							judgements = null;
+							for (IJudgement j : judgements) {
+								if (forward) {
+									contest.add(j);
+								} else {
+									contest.remove(j);
+								}
+							}
 						}
 					}
 
@@ -142,7 +122,7 @@ public class ResolverService {
 
 						Trace.trace(Trace.INFO, "Resolver going to pause " + pause);
 
-						ResolveInfo resolveInfo = (ResolveInfo) c.getResolveInfo();
+						ResolveInfo resolveInfo = (ResolveInfo) contest.getResolveInfo();
 						if (resolveInfo != null)
 							resolveInfo = ((ResolveInfo) resolveInfo.clone());
 						else
@@ -151,11 +131,11 @@ public class ResolverService {
 							resolveInfo.setClicks(pause + 1000);
 						else
 							resolveInfo.setClicks(pause);
-						c.add(resolveInfo);
+						contest.add(resolveInfo);
 					}
 				});
 
-				c.addListener(new IContestListener() {
+				contest.addListener(new IContestListener() {
 					@Override
 					public void contestChanged(IContest contest2, IContestObject obj, Delta delta) {
 						if (delta != Delta.DELETE && obj instanceof IResolveInfo) {

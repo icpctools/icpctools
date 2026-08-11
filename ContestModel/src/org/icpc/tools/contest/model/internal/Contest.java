@@ -1330,20 +1330,6 @@ public class Contest implements IContest {
 		add(new Judgement(submission.getId(), submission, typeId));
 	}
 
-	/**
-	 * Updates the state of the submission to match the given submission.
-	 */
-	public void updateSubmissionTo(ISubmission submission, IContest contest) {
-		if (submission == null)
-			return;
-
-		IJudgement[] sjs = contest.getJudgementsBySubmissionId(submission.getId());
-		if (sjs != null) {
-			for (IJudgement sj : sjs)
-				add(sj);
-		}
-	}
-
 	@Override
 	public long getContestTimeOfLastEvent() {
 		return lastEventTime;
