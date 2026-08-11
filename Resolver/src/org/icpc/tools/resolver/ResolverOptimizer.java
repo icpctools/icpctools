@@ -164,7 +164,7 @@ public class ResolverOptimizer {
 				IResult result = contest.getResult(team, probIndex);
 
 				if (result.getStatus() != Status.SUBMITTED) {
-					contest.updateSubmissionTo(submission, finalContest);
+					ResolverLogic.updateSubmissionJudgements(submission, finalContest, contest);
 				}
 			}
 		}
@@ -231,7 +231,7 @@ public class ResolverOptimizer {
 		for (ISubmission submission : submissions) {
 			if (!contest.isJudged(submission) && submission.getTeamId().equals(resolve.teamId)
 					&& submission.getProblemId().equals(resolve.problemId)) {
-				contest.updateSubmissionTo(submission, finalContest);
+				ResolverLogic.updateSubmissionJudgements(submission, finalContest, contest);
 			}
 		}
 

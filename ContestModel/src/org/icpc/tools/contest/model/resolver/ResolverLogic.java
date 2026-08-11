@@ -26,6 +26,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
@@ -165,6 +166,7 @@ public class ResolverLogic {
 	 */
 	public List<ResolutionStep> resolveFrom(boolean startWithJudgeQueue) {
 		Trace.trace(Trace.INFO, "Resolving...");
+		long time = System.currentTimeMillis();
 
 		// cache all the awards by team id
 		IAward[] contestAwards = finalContest.getAwards();
@@ -229,6 +231,9 @@ public class ResolverLogic {
 		Trace.trace(Trace.USER, "Resolving " + countUnjudgedSubmissions(contest) + " pending submissions out of the "
 				+ contest.getNumSubmissions() + " total submissions in the contest... ");
 
+		// take our 'moving copy' to make changes without touching the initial contest
+		contest = contest.clone(false);
+
 		// first click - show the scoreboard
 		steps.add(new ScrollStep(0));
 		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
@@ -245,7 +250,7 @@ public class ResolverLogic {
 
 		ResolutionUtil.numberThePauses(steps);
 
-		Trace.trace(Trace.USER, "Done resolving");
+		Trace.trace(Trace.USER, "Done resolving in " + (System.currentTimeMillis() - time) + " ms");
 
 		return steps;
 	}
@@ -256,6 +261,20 @@ public class ResolverLogic {
 			return AwardUtil.getPlaceString(n);
 		} catch (Exception e) {
 			return place;
+		}
+	}
+
+	/**
+	 * Updates the state of the submission to match the given submission.
+	 */
+	public static void updateSubmissionJudgements(ISubmission submission, Contest fromContest, Contest toContest) {
+		if (submission == null)
+			return;
+
+		IJudgement[] sjs = fromContest.getJudgementsBySubmissionId(submission.getId());
+		if (sjs != null) {
+			for (IJudgement sj : sjs)
+				toContest.add(sj);
 		}
 	}
 
@@ -271,7 +290,7 @@ public class ResolverLogic {
 				IResult result = contest.getResult(team, probIndex);
 
 				if (result.getStatus() != Status.SUBMITTED) {
-					contest.updateSubmissionTo(submission, finalContest);
+					updateSubmissionJudgements(submission, finalContest, contest);
 				}
 			}
 		}
@@ -328,10 +347,14 @@ public class ResolverLogic {
 			if (!contest.isJudged(submission) && submission.getTeamId().equals(team.getId())
 					&& submission.getProblemId().equals(contest.getProblems()[problemIndex].getId())) {
 				// we found it; update its status to match the correct (final contest) status
-				contest = contest.clone(false);
-				contest.updateSubmissionTo(submission, finalContest);
+				IJudgement[] sjs = finalContest.getJudgementsBySubmissionId(submission.getId());
+				if (sjs != null) {
+					for (IJudgement sj : sjs)
+						contest.add(sj);
+				}
 
-				steps.add(new ContestStateStep(contest));
+				steps.add(new JudgementStep(sjs));
+
 				steps.add(new SubmissionSelectionStep2(submission.getId()));
 				timing.onStep(steps, State.SELECT_SUBMISSION);
 

@@ -6,6 +6,7 @@ import java.util.concurrent.locks.LockSupport;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 
@@ -22,7 +23,7 @@ public class ResolutionControl {
 	public interface IResolutionListener {
 		void toPause(int pause, boolean includeDelays);
 
-		void atStep(ResolutionStep step);
+		void step(ResolutionStep step, boolean forward);
 
 		void atPause(int pause);
 	}
@@ -41,6 +42,10 @@ public class ResolutionControl {
 		synchronized (listeners) {
 			listeners.remove(listener);
 		}
+	}
+
+	public List<ResolutionStep> getSteps() {
+		return steps;
 	}
 
 	public int getCurrentPause() {
@@ -67,7 +72,7 @@ public class ResolutionControl {
 		scrollSpeedFactor = d;
 	}
 
-	private void notifyListenersAtStep(ResolutionStep step) {
+	private void notifyListenersAtStep(ResolutionStep step, boolean forward) {
 		IResolutionListener[] list = null;
 		synchronized (listeners) {
 			list = listeners.toArray(new IResolutionListener[0]);
@@ -75,7 +80,7 @@ public class ResolutionControl {
 
 		for (IResolutionListener listener : list) {
 			try {
-				listener.atStep(step);
+				listener.step(step, forward);
 			} catch (Throwable t) {
 				Trace.trace(Trace.ERROR, "Error notifying listener", t);
 			}
@@ -111,7 +116,7 @@ public class ResolutionControl {
 			if (!forward)
 				step = findPrevious(step);
 			Trace.trace(Trace.INFO, "Step " + currentStep + " <  " + step);
-			notifyListenersAtStep(step);
+			notifyListenersAtStep(step, forward);
 		}
 		return false;
 	}
@@ -201,6 +206,9 @@ public class ResolutionControl {
 	}
 
 	private ResolutionStep findPrevious(ResolutionStep step) {
+		if (step instanceof JudgementStep)
+			return step;
+
 		Class<? extends ResolutionStep> cl = step.getClass();
 		int num = currentStep;
 		while (num > 0) {

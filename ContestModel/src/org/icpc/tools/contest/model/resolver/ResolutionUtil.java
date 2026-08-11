@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 
@@ -90,6 +91,19 @@ public class ResolutionUtil {
 		@Override
 		public String toString() {
 			return "Change contest state";
+		}
+	}
+
+	public static class JudgementStep implements ResolutionStep {
+		public IJudgement[] judgements;
+
+		public JudgementStep(IJudgement[] judgements) {
+			this.judgements = judgements;
+		}
+
+		@Override
+		public String toString() {
+			return "Judgement step";
 		}
 	}
 
@@ -315,4 +329,3 @@ public class ResolutionUtil {
 		}
 	}
 }
-
