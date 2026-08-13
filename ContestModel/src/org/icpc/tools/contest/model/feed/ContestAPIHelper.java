@@ -17,21 +17,42 @@ public class ContestAPIHelper {
 	protected static boolean isCDS;
 
 	public enum SpecVersion {
-		v2023_06, v2026_01, v2026_draft
+		v2023_06, v2026_01, v2026_01_next
 	}
 
 	private static final ThreadLocal<SpecVersion> local = new ThreadLocal<>();
 
 	public static SpecVersion parseVersion(String version) {
-		if ("2026-01".equals(version))
-			return SpecVersion.v2026_01;
-		else if ("2023-06".equals(version))
+		if ("2023-06".equals(version))
 			return SpecVersion.v2023_06;
-		else if ("2026-draft".equals(version))
-			return SpecVersion.v2026_draft;
+		else if ("2026-01".equals(version))
+			return SpecVersion.v2026_01;
+		else if ("2026-01-next".equals(version))
+			return SpecVersion.v2026_01_next;
 
 		// unknown or invalid version
 		return null;
+	}
+
+	public static String getVersionString() {
+		return getVersionString(local.get());
+	}
+
+	public static String getVersionString(SpecVersion version) {
+		switch (version) {
+			case v2023_06: {
+				return "2023-06";
+			}
+			case v2026_01: {
+				return "2026-01";
+			}
+			case v2026_01_next: {
+				return "2026-01-next";
+			}
+			default: {
+				return "draft";
+			}
+		}
 	}
 
 	public static void setVersion(SpecVersion v) {
@@ -39,10 +60,10 @@ public class ContestAPIHelper {
 	}
 
 	/**
-	 * Helper method to tell if we're using the 2026-draft spec version
+	 * Helper method to tell if we're using the 2026-01-next draft spec
 	 */
-	public static boolean is2026_draft() {
-		return local.get() == SpecVersion.v2026_draft;
+	public static boolean is2026_01_next() {
+		return local.get() == SpecVersion.v2026_01_next;
 	}
 
 	/**
