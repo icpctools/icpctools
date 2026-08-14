@@ -24,6 +24,8 @@ import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
+import org.icpc.tools.contest.model.IJudgement;
+import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
@@ -34,8 +36,15 @@ import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Info;
+import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
+import org.icpc.tools.contest.model.internal.account.PublicContest;
+import org.icpc.tools.contest.model.resolver.ResolutionControl;
+import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+import org.icpc.tools.contest.model.resolver.ResolverLogic;
 import org.w3c.dom.Element;
 
 import jakarta.servlet.AsyncContext;
@@ -79,6 +88,8 @@ public class ConfiguredContest {
 														// desktop, webcam, audio, total
 
 	private static Map<String, Map<StreamType, List<Integer>>> streamMap = new HashMap<>();
+
+	private ResolutionControl resolutionControl;
 
 	public static class Video {
 		private Element video;
@@ -925,10 +936,96 @@ public class ConfiguredContest {
 	 * @param co
 	 */
 	public void exposeContestObject(IContestObject co) {
-		synchronized (accountContests) {
-			for (Contest ac : accountContests.values())
-				ac.add(co);
+		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
+		if (c instanceof PublicContest) {
+			PublicContest pc = (PublicContest) c;
+			pc.add(co);
 		}
+	}
+
+	public void unexposeContestObject(IContestObject co) {
+		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
+		if (c instanceof PublicContest) {
+			PublicContest pc = (PublicContest) c;
+			pc.remove(co);
+		}
+	}
+
+	public ResolutionControl getResolutionControl() {
+		return resolutionControl;
+	}
+
+	public synchronized ResolutionControl initResolution(boolean startFromJudgeQueue) {
+		if (resolutionControl != null)
+			return resolutionControl;
+
+		// let public contest know it's ok to start letting out judgements
+		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
+		if (c instanceof PublicContest) {
+			PublicContest pc = (PublicContest) c;
+			pc.setResolving(true);
+		}
+
+		// TODO - sync with ResolverLogic cleanOutlierSubmissions() and ResolverOptimizer
+		// The resolver skips over non-solution/non-penalty judgements (e.g. compile error)
+		// since these typically 'disappear' from scoreboards during the regular contest.
+		// Resolve these first to avoid confusing the presenter
+		int count = 0;
+		for (IJudgement j : contest.getJudgements()) {
+			IJudgementType jt = contest.getJudgementTypeById(j.getJudgementTypeId());
+			if (!jt.isSolved() && !jt.isPenalty()) {
+				exposeContestObject(j);
+				count++;
+			}
+		}
+		Trace.trace(Trace.USER, "Auto-resolved " + count + " judgements");
+
+		ResolverLogic resolver = new ResolverLogic(contest, false);
+		List<ResolutionStep> steps = resolver.resolveFrom(startFromJudgeQueue);
+		resolutionControl = new ResolutionControl(steps);
+		resolutionControl.addListener(new IResolutionListener() {
+			@Override
+			public void step(ResolutionStep step, boolean forward) {
+				Trace.trace(Trace.INFO, "Resolver at step " + step);
+				if (step instanceof JudgementStep) {
+					JudgementStep jStep = (JudgementStep) step;
+					IJudgement[] judgements = jStep.judgements;
+					if (judgements == null)
+						return;
+
+					for (IJudgement j : judgements) {
+						if (forward) {
+							exposeContestObject(j);
+						} else {
+							unexposeContestObject(j);
+						}
+					}
+				}
+			}
+
+			@Override
+			public void atPause(int pause) {
+				Trace.trace(Trace.INFO, "Resolver at pause " + pause);
+			}
+
+			@Override
+			public void toPause(int pause, boolean includeDelays) {
+				Trace.trace(Trace.INFO, "Resolver going to pause " + pause);
+
+				ResolveInfo resolveInfo = (ResolveInfo) contest.getResolveInfo();
+				if (resolveInfo != null)
+					resolveInfo = ((ResolveInfo) resolveInfo.clone());
+				else
+					resolveInfo = new ResolveInfo();
+				if (!includeDelays)
+					resolveInfo.setClicks(pause + 1000);
+				else
+					resolveInfo.setClicks(pause);
+				contest.add(resolveInfo);
+			}
+		});
+
+		return resolutionControl;
 	}
 
 	@Override

@@ -169,12 +169,9 @@
              <h3 class="card-title">Resolver Info (Beta)</h3>
            </div>
         <div class="card-body">
-          Initializing the resolver does three things:
-          <ul>
-            <li>Shows the status of the resolution</li>
-            <li>Allows you to control the resolution (for extreme circumstances)</li>
-            <li>Makes judgements public as they are resolved</li>
-          </ul>
+          <p>
+          Resolver status and control.
+          </p>
             <table id="resolver-table" class="table table-sm table-hover table-striped">
               <tbody>
                 <tr>

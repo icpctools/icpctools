@@ -2,43 +2,30 @@ package org.icpc.tools.cds.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.contest.Trace;
-import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IContestListener;
-import org.icpc.tools.contest.model.IContestObject;
-import org.icpc.tools.contest.model.IJudgement;
-import org.icpc.tools.contest.model.IJudgementType;
-import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.JSONWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
-import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolverLogic;
 
 import jakarta.servlet.http.HttpServletResponse;
 
 public class ResolverService {
-	protected static List<ResolutionStep> steps;
-	protected static ResolutionControl control;
-	protected static ScheduledExecutorService executor;
-	protected static boolean localControl;
-
 	protected static void doGet(HttpServletResponse response, ConfiguredContest cc) throws IOException {
 		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setContentType("application/json");
 
 		JsonObject obj = new JsonObject();
+		ResolutionControl control = cc.getResolutionControl();
 		if (control != null) {
 			obj.put("pause", control.getCurrentPause());
+			List<ResolutionStep> steps = control.getSteps();
 			obj.put("total_pauses", ResolutionUtil.getTotalPauses(steps));
 			obj.put("total_time", ResolutionUtil.getTotalTime(steps));
 			obj.put("stepping", control.isStepping());
@@ -62,121 +49,20 @@ public class ResolverService {
 
 		Trace.trace(Trace.USER, "Resolver command: " + command);
 		try {
+			final ResolutionControl control = cc.getResolutionControl();
 			if ("reset".equals(command) && control == null) {
 				ResolveInfo resolveInfo = new ResolveInfo();
 				contest.add(resolveInfo);
 			} else if ("init".equals(command)) {
-				if (steps != null)
-					return;
-
-				if (executor == null)
-					executor = ExecutorListener.getExecutor();
-
-				// The resolver skips over non-solution/non-penalty judgements (e.g. compile error)
-				// since these typically 'disappear' from scoreboards during the regular contest.
-				// Resolve these first to avoid confusing the presenter
-				int count = 0;
-				for (IJudgement j : contest.getJudgements()) {
-					IJudgementType jt = contest.getJudgementTypeById(j.getJudgementTypeId());
-					if (!jt.isSolved() && !jt.isPenalty()) {
-						cc.exposeContestObject(j);
-						count++;
-					}
-				}
-				Trace.trace(Trace.USER, "Auto-resolved " + count + " judgements");
-
-				ResolverLogic resolver = new ResolverLogic(contest, false);
-				steps = resolver.resolveFrom(false);
-				control = new ResolutionControl(steps);
-				control.addListener(new IResolutionListener() {
-					@Override
-					public void step(ResolutionStep step, boolean forward) {
-						if (step instanceof JudgementStep) {
-							JudgementStep stateStep = (JudgementStep) step;
-							IJudgement[] judgements = stateStep.judgements;
-							if (judgements == null)
-								return;
-
-							for (IJudgement j : judgements) {
-								if (forward) {
-									contest.add(j);
-								} else {
-									contest.remove(j);
-								}
-							}
-						}
-					}
-
-					@Override
-					public void atPause(int pause) {
-						Trace.trace(Trace.INFO, "Resolver at pause " + pause);
-					}
-
-					@Override
-					public void toPause(int pause, boolean includeDelays) {
-						// send out changes coming from the local/CDS control
-						if (!localControl)
-							return;
-
-						localControl = false;
-
-						Trace.trace(Trace.INFO, "Resolver going to pause " + pause);
-
-						ResolveInfo resolveInfo = (ResolveInfo) contest.getResolveInfo();
-						if (resolveInfo != null)
-							resolveInfo = ((ResolveInfo) resolveInfo.clone());
-						else
-							resolveInfo = new ResolveInfo();
-						if (!includeDelays)
-							resolveInfo.setClicks(pause + 1000);
-						else
-							resolveInfo.setClicks(pause);
-						contest.add(resolveInfo);
-					}
-				});
-
-				contest.addListener(new IContestListener() {
-					@Override
-					public void contestChanged(IContest contest2, IContestObject obj, Delta delta) {
-						if (delta != Delta.DELETE && obj instanceof IResolveInfo) {
-							IResolveInfo resolveInfo = (IResolveInfo) obj;
-
-							if (resolveInfo.getSpeedFactor() != Double.NaN) {
-								control.setSpeedFactor(resolveInfo.getSpeedFactor());
-							}
-							if (resolveInfo.getScrollSpeedFactor() != Double.NaN) {
-								control.setScrollSpeedFactor(resolveInfo.getScrollSpeedFactor());
-							}
-							int pause = resolveInfo.getClicks();
-							if (pause >= 0 && resolveInfo.getClicks() != control.getCurrentPause()) {
-								boolean includeDelays = true;
-								if (pause > 999) {
-									pause -= 1000;
-									includeDelays = false;
-								} else if (Math.abs(pause - control.getCurrentPause()) > 1)
-									includeDelays = false;
-
-								final int pause2 = pause;
-								boolean includeDelays2 = includeDelays;
-								executor.submit(new Runnable() {
-									@Override
-									public void run() {
-										control.moveToPause(pause2, includeDelays2);
-									}
-								});
-							}
-						}
-					}
-				});
-
+				cc.initResolution(true);
 				return;
 			}
 
 			if (control == null || control.isStepping())
 				return;
 
-			localControl = true;
-			executor.submit(new Runnable() {
+			// TODO: output a ResolveInfo event instead?
+			ExecutorListener.getExecutor().submit(new Runnable() {
 				@Override
 				public void run() {
 					if ("fast-forward".equals(command))

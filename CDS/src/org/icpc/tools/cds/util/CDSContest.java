@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.icpc.tools.cds.ConfiguredContest;
 import org.icpc.tools.cds.ConfiguredContest.View;
+import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.ReactionVideoRecorder;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoAggregator.ConnectionMode;
@@ -18,6 +19,7 @@ import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IDelete;
 import org.icpc.tools.contest.model.IProblem;
+import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.internal.Award;
@@ -36,6 +38,7 @@ import org.icpc.tools.contest.model.internal.Run;
 import org.icpc.tools.contest.model.internal.State;
 import org.icpc.tools.contest.model.internal.Submission;
 import org.icpc.tools.contest.model.internal.Team;
+import org.icpc.tools.contest.model.resolver.ResolutionControl;
 
 /**
  * CDS Contest enables most of the CDS capabilities and behaviours on a contest:
@@ -47,6 +50,7 @@ import org.icpc.tools.contest.model.internal.Team;
  * <li>Records reactions</li>
  * <li>Does view filtering (contest subset)</li>
  * <li>Enables countdown pause times (for CCSs that don't support it)</li>
+ * <li>Supports resolution control (resolver)</li>
  * </ul>
  *
  */
@@ -373,6 +377,42 @@ public class CDSContest extends Contest {
 			if (info.getStartTime() == null && info.getCountdownPauseTime() == null && !info.supportsCountdownPauseTime()
 					&& currentInfo != null)
 				info.setCountdownPauseTime(currentInfo.getCountdownPauseTime());
+		}
+
+		// resolution
+		if (obj instanceof IResolveInfo) {
+			// TODO: always start with judge queue for now, should allow either but not sent from the
+			// client
+			ResolutionControl control = cc.initResolution(true);
+
+			if (obj instanceof IResolveInfo) {
+				IResolveInfo resolveInfo = (IResolveInfo) obj;
+
+				if (!Double.isNaN(resolveInfo.getSpeedFactor())) {
+					control.setSpeedFactor(resolveInfo.getSpeedFactor());
+				}
+				if (!Double.isNaN(resolveInfo.getScrollSpeedFactor())) {
+					control.setScrollSpeedFactor(resolveInfo.getScrollSpeedFactor());
+				}
+				int pause = resolveInfo.getClicks();
+				if (pause >= 0 && resolveInfo.getClicks() != control.getCurrentPause()) {
+					boolean includeDelays = true;
+					if (pause > 999) {
+						pause -= 1000;
+						includeDelays = false;
+					} else if (Math.abs(pause - control.getCurrentPause()) > 1)
+						includeDelays = false;
+
+					final int pause2 = pause;
+					boolean includeDelays2 = includeDelays;
+					ExecutorListener.getExecutor().submit(new Runnable() {
+						@Override
+						public void run() {
+							control.moveToPause(pause2, includeDelays2);
+						}
+					});
+				}
+			}
 		}
 
 		super.add(obj);
