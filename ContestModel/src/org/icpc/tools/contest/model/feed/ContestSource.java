@@ -273,18 +273,19 @@ public abstract class ContestSource {
 	}
 
 	/**
-	 * Wait for the contest to be loading.
+	 * Wait for the contest to be loading with the given timeout in ms.
 	 *
+	 * @param timeout a timeout in ms
 	 * @return <code>true</code> if the contest is or was successfully loaded, and
 	 *         <code>false</code> otherwise
 	 */
-	public boolean waitForContestLoad() {
+	public boolean waitForContestLoad(int timeout) {
 		return waitForContest(new Ready() {
 			@Override
 			public boolean isReady(ConnectionState state) {
 				return state == ConnectionState.CONNECTED || state == ConnectionState.READING;
 			}
-		}, 2000);
+		}, timeout);
 	}
 
 	/**
@@ -298,7 +299,7 @@ public abstract class ContestSource {
 	 */
 	public boolean waitForContest(int timeout) {
 		long endTime = System.currentTimeMillis() + timeout;
-		boolean b = waitForContestLoad();
+		boolean b = waitForContestLoad(timeout);
 		if (!b)
 			return false;
 
