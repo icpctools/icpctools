@@ -24,7 +24,7 @@ public class ContestData {
 		BufferedContest bufferedContest = new BufferedContest();
 		source.setInitialContest(bufferedContest);
 		Contest tempContest = source.getContest();
-		source.waitForContestLoad();
+		source.waitForContestLoad(5000);
 		int count = 0;
 		while (count < 6 && bufferedContest.isBuffering()) {
 			count++;

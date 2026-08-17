@@ -601,7 +601,7 @@ public class CoachView extends Panel {
 			if (contest.getNumTeams() > 0)
 				loadTeamList();
 
-			contestSource.waitForContestLoad();
+			contestSource.waitForContestLoad(5000);
 
 			if (contestSource.isCDS()) {
 				BasicClient client = new BasicClient(contestSource, "Coach");
