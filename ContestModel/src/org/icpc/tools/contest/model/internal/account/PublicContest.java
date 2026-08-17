@@ -217,12 +217,14 @@ public class PublicContest extends Contest implements IFilteredContest {
 			}
 			case AWARD: {
 				IAward award = (IAward) obj;
-				if (award.getAwardType() != IAward.FIRST_TO_SOLVE)
-					return;
+				if (!resolving) {
+					if (award.getAwardType() != IAward.FIRST_TO_SOLVE)
+						return;
 
-				IState state = getState();
-				if (state.isFrozen())
-					return;
+					IState state = getState();
+					if (state.isFrozen())
+						return;
+				}
 
 				super.add(obj);
 				return;
