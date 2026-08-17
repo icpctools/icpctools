@@ -220,7 +220,8 @@ public class Award extends ContestObject implements IAward {
 		props.addString(CITATION, citation);
 		if (mode != null && mode != DisplayMode.DETAIL)
 			props.addLiteralString(DISPLAY_MODE, mode.name().toLowerCase());
-		props.add(PARAMETERS, getEncodedParameters());
+		if (!parameters.isEmpty())
+			props.add(PARAMETERS, getEncodedParameters());
 	}
 
 	private String getEncodedParameters() {
