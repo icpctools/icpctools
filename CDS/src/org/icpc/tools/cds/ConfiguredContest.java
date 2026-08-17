@@ -21,6 +21,7 @@ import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAccount;
+import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
@@ -35,6 +36,7 @@ import org.icpc.tools.contest.model.feed.RESTContestSource;
 import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.internal.YamlParser;
@@ -42,9 +44,12 @@ import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.icpc.tools.contest.model.internal.account.PublicContest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
+import org.icpc.tools.contest.model.util.AwardUtil;
 import org.w3c.dom.Element;
 
 import jakarta.servlet.AsyncContext;
@@ -947,7 +952,7 @@ public class ConfiguredContest {
 		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
 		if (c instanceof PublicContest) {
 			PublicContest pc = (PublicContest) c;
-			pc.remove(co);
+			pc.add(new Deletion(co.getId(), co.getType()));
 		}
 	}
 
@@ -959,7 +964,14 @@ public class ConfiguredContest {
 		if (resolutionControl != null)
 			return resolutionControl;
 
-		// let public contest know it's ok to start letting out judgements
+		// awards
+		IAward[] awards = contest.getAwards();
+		if (awards == null || awards.length == 0) {
+			Trace.trace(Trace.USER, "Generating awards");
+			AwardUtil.createDefaultAwards(contest);
+		}
+
+		// let public contest know it's ok to start letting out judgements and awards
 		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
 		if (c instanceof PublicContest) {
 			PublicContest pc = (PublicContest) c;
@@ -983,6 +995,7 @@ public class ConfiguredContest {
 		ResolverLogic resolver = new ResolverLogic(contest, false);
 		List<ResolutionStep> steps = resolver.resolveFrom(startFromJudgeQueue);
 		resolutionControl = new ResolutionControl(steps);
+		resolutionControl.setSpeedFactor(0.2);
 		resolutionControl.addListener(new IResolutionListener() {
 			@Override
 			public void step(ResolutionStep step, boolean forward) {
@@ -999,6 +1012,22 @@ public class ConfiguredContest {
 						} else {
 							unexposeContestObject(j);
 						}
+					}
+				} else if (step instanceof AwardStep) {
+					AwardStep aStep = (AwardStep) step;
+					for (IAward a : aStep.awards) {
+						if (forward) {
+							exposeContestObject(a);
+						} else {
+							unexposeContestObject(a);
+						}
+					}
+				} else if (step instanceof ListAwardStep) {
+					ListAwardStep aStep = (ListAwardStep) step;
+					if (forward) {
+						exposeContestObject(aStep.award);
+					} else {
+						unexposeContestObject(aStep.award);
 					}
 				}
 			}
