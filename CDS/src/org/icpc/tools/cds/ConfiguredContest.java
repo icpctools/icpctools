@@ -995,7 +995,6 @@ public class ConfiguredContest {
 		ResolverLogic resolver = new ResolverLogic(contest, false);
 		List<ResolutionStep> steps = resolver.resolveFrom(startFromJudgeQueue);
 		resolutionControl = new ResolutionControl(steps);
-		resolutionControl.setSpeedFactor(0.2);
 		resolutionControl.addListener(new IResolutionListener() {
 			@Override
 			public void step(ResolutionStep step, boolean forward) {
