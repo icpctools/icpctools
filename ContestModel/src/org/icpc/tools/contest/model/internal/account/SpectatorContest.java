@@ -28,6 +28,15 @@ public class SpectatorContest extends PublicContest {
 	}
 
 	@Override
+	protected void addDefaultKnownProperties() {
+		super.addDefaultKnownProperties();
+
+		addKnownProperties(IContestObject.ContestType.PROBLEM, "test_data_count");
+
+		addKnownProperty(IContestObject.ContestType.SUBMISSION, "language_id");
+	}
+
+	@Override
 	public void add(IContestObject obj) {
 		IContestObject.ContestType cType = obj.getType();
 		if (obj instanceof IDelete) {

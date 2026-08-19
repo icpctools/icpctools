@@ -13,12 +13,12 @@
 - username: presentation
   password: presentat1on
   type: public
-- username: myicpc
-  password: my1cpc
+- username: analyst
+  password: ana1yst
   type: analyst
 - username: live
   password: l1ve
-  type: analyst
+  type: spectator
 - username: team1
   password: t3am
   type: team
