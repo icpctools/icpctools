@@ -105,7 +105,7 @@ public class Contest implements IContest {
 
 		addKnownProperties(IContestObject.ContestType.PROBLEM, "id", "label", "name", "ordinal");
 
-		addKnownProperties(IContestObject.ContestType.SUBMISSION, "id", "language_id", "problem_id", "team_id");
+		addKnownProperties(IContestObject.ContestType.SUBMISSION, "id", "problem_id", "team_id", "time", "contest_time");
 
 		addKnownProperties(IContestObject.ContestType.JUDGEMENT, "id", "submission_id", "start_time", "end_time");
 	}
@@ -211,6 +211,21 @@ public class Contest implements IContest {
 		for (String name : props.keySet())
 			if (!knownProps.contains(name))
 				knownProps.add(name);
+	}
+
+	public void addKnownProperty(IContestObject.ContestType type, String name) {
+		if (type == null || name == null)
+			return;
+
+		int ord = type.ordinal();
+		Set<String> knownProps = allKnownProperties[ord];
+		if (knownProps == null) {
+			knownProps = new SimpleSet();
+			allKnownProperties[ord] = knownProps;
+		}
+
+		if (!knownProps.contains(name))
+			knownProps.add(name);
 	}
 
 	private void updateTime(long time) {
