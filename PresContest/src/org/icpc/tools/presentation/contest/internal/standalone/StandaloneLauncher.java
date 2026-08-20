@@ -1,5 +1,7 @@
 package org.icpc.tools.presentation.contest.internal.standalone;
 
+import io.sentry.Sentry;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +29,8 @@ public class StandaloneLauncher {
 	public static void main(String[] args) {
 		Trace.init("ICPC Standalone Presentations", "standalone", args);
 		System.setProperty("apple.awt.application.name", "Presentation Client");
+
+		Sentry.init();
 
 		List<PresentationInfo> presentations = PresentationHelper.getPresentations();
 		if (presentations.isEmpty()) {
@@ -316,6 +320,7 @@ public class StandaloneLauncher {
 
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR, "      Could not load presentation");
+				Sentry.captureException(e);
 				return;
 			}
 		}
@@ -325,6 +330,7 @@ public class StandaloneLauncher {
 			window.setDisplayConfig(new DisplayConfig(displayStr[0], displayStr[1]));
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Invalid display option: " + displayStr + " " + e.getMessage());
+			Sentry.captureException(e);
 		}
 		if (lightMode)
 			((PresentationWindowImpl) window).setLightMode(true);
