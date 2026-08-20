@@ -5,7 +5,7 @@
         <dependent-module archiveName="contestModel.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ContestModel/ContestModel">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="snakeyaml-2.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/snakeyaml-2.4.jar">
+        <dependent-module archiveName="snakeyaml-2.6.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/snakeyaml-2.6.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="batik-all-1.19.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/ContestModel/lib/batik-all-1.19.jar">
