@@ -58,7 +58,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 	// objects seen during the freeze that should be sent on thaw
 	protected List<IContestObject> freeze = new ArrayList<>();
 
-	protected boolean resolving;
+	protected static List<IContestObject> resolved = new ArrayList<>();
 
 	public PublicContest() {
 		// do nothing
@@ -192,7 +192,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 					return;
 
 				// or during the freeze
-				if (getFreezeDuration() != null && !resolving && getState().getThawed() == null) {
+				if (getFreezeDuration() != null && !resolved.contains(j) && getState().getThawed() == null) {
 					long freezeTime = getDuration() - getFreezeDuration();
 					if (time >= freezeTime) {
 						freeze.add(j);
@@ -217,7 +217,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 			}
 			case AWARD: {
 				IAward award = (IAward) obj;
-				if (!resolving) {
+				if (!resolved.contains(award)) {
 					if (award.getAwardType() != IAward.FIRST_TO_SOLVE)
 						return;
 
@@ -244,8 +244,12 @@ public class PublicContest extends Contest implements IFilteredContest {
 		freeze.clear();
 	}
 
-	public void setResolving(boolean resolving) {
-		this.resolving = resolving;
+	public static void setResolved(IContestObject obj) {
+		resolved.add(obj);
+	}
+
+	public static List<IContestObject> getResolved() {
+		return resolved;
 	}
 
 	/**
