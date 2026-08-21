@@ -38,7 +38,8 @@ import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.SVGUtil;
-import org.w3c.dom.svg.SVGDocument;
+
+import com.github.weisj.jsvg.SVGDocument;
 
 /**
  * Helps convert logos and other images from raw source (from the CMS export or hand-built contest
@@ -121,14 +122,14 @@ public class ImagesGenerator {
 				File from = new File(args[0], "images" + File.separator + "logo" + File.separator + t.getId() + ".png");
 				File to = new File(args[0],
 						"images" + File.separator + "logo" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
-		
+
 				from = new File(args[0], "images" + File.separator + "tile" + File.separator + t.getId() + ".png");
 				to = new File(args[0],
 						"images" + File.separator + "tile" + File.separator + t.getOrganizationId() + ".png");
-		
+
 				if (from.exists())
 					Files.copy(from.toPath(), to.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
 			}
@@ -447,7 +448,8 @@ public class ImagesGenerator {
 			}
 		}
 
-		// Special case: if no file without tags was found, use fallback (if it exists and doesn't match dimension patterns)
+		// Special case: if no file without tags was found, use fallback (if it exists and doesn't
+		// match dimension patterns)
 		if (!result.containsKey(null) && fallbackFile != null) {
 			String fallbackName = fallbackFile.getName();
 			String ext = getImageExtension(fallbackName);
@@ -490,8 +492,8 @@ public class ImagesGenerator {
 	}
 
 	/**
-	 * Compare two files by their extension priority (based on IMAGE_EXTENSIONS order).
-	 * Returns negative if f1 has higher priority, positive if f2 has higher priority.
+	 * Compare two files by their extension priority (based on IMAGE_EXTENSIONS order). Returns
+	 * negative if f1 has higher priority, positive if f2 has higher priority.
 	 */
 	private static int compareFilesByExtension(File f1, File f2) {
 		int priority1 = getExtensionPriority(f1.getName());
@@ -593,8 +595,10 @@ public class ImagesGenerator {
 
 						img = removeBorders(img);
 
-						// Pattern to detect dimension files (e.g., logo.1920x1080.png or logo.dark.1920x1080.png)
-						Pattern dimensionFilePattern = Pattern.compile("\\.[0-9]+x[0-9]+\\.[a-z]+$", Pattern.CASE_INSENSITIVE);
+						// Pattern to detect dimension files (e.g., logo.1920x1080.png or
+						// logo.dark.1920x1080.png)
+						Pattern dimensionFilePattern = Pattern.compile("\\.[0-9]+x[0-9]+\\.[a-z]+$",
+								Pattern.CASE_INSENSITIVE);
 
 						// clean up old generated files
 						File[] files2 = folder.listFiles();

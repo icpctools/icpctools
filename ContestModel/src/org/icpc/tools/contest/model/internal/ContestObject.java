@@ -19,7 +19,8 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 import org.icpc.tools.contest.model.feed.Timestamp;
-import org.w3c.dom.svg.SVGDocument;
+
+import com.github.weisj.jsvg.SVGDocument;
 
 public abstract class ContestObject implements IContestObject {
 	public static final String ID = "id";

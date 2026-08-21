@@ -1,81 +1,61 @@
 package org.icpc.tools.contest.model.internal;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.transcoder.SVGAbstractTranscoder;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.icpc.tools.contest.Trace;
-import org.w3c.dom.svg.SVGDocument;
+
+import com.github.weisj.jsvg.SVGDocument;
+import com.github.weisj.jsvg.parser.DocumentLimits;
+import com.github.weisj.jsvg.parser.LoaderContext;
+import com.github.weisj.jsvg.parser.SVGLoader;
+import com.github.weisj.jsvg.view.ViewBox;
 
 public class SVGUtil {
-	private static class BufferedImageTranscoder extends ImageTranscoder {
-		private BufferedImage img = null;
-
-		@Override
-		public BufferedImage createImage(int w, int h) {
-			return new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		}
-
-		@Override
-		public void writeImage(BufferedImage img2, TranscoderOutput output) {
-			this.img = img2;
-		}
-
-		public BufferedImage getBufferedImage() {
-			return img;
-		}
-	}
+	private static SVGLoader loader = new SVGLoader();
+	private static DocumentLimits docLimits = new DocumentLimits(DocumentLimits.DEFAULT_MAX_NESTING_DEPTH,
+			DocumentLimits.DEFAULT_MAX_USE_NESTING_DEPTH, DocumentLimits.DEFAULT_MAX_PATH_COUNT + 1000);
+	private static LoaderContext context = LoaderContext.builder().documentLimits(docLimits).build();
 
 	private SVGUtil() {
 		// use static methods
 	}
 
 	public static SVGDocument loadSVG(File svgFile) throws Exception {
-		String parser = XMLResourceDescriptor.getXMLParserClassName();
-		SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
-		return factory.createSVGDocument(svgFile.toURI().toString());
+		SVGDocument document = loader.load(svgFile.toURI().toURL(), context);
+
+		if (document == null)
+			throw new IllegalArgumentException("Invalid SVG file " + svgFile.getAbsolutePath());
+
+		return document;
 	}
 
 	public static SVGDocument loadSVG(String svgFile, InputStream in) throws Exception {
-		String parser = XMLResourceDescriptor.getXMLParserClassName();
-		SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory(parser);
-		return factory.createSVGDocument(svgFile, in);
+		URI baseUri = URI.create("file:///");
+		SVGDocument document = loader.load(in, baseUri, context);
+
+		if (document == null)
+			throw new IllegalArgumentException("Invalid SVG input stream " + svgFile);
+
+		return document;
 	}
 
 	public static BufferedImage convertSVG(SVGDocument svg, int width, int height) {
 		try {
-			String ws;
-			String hs;
-			String viewBox = svg.getDocumentElement().getAttribute("viewBox");
-			String[] viewBoxValues = viewBox.split(" ");
-			if (viewBoxValues.length == 4) {
-				ws = viewBoxValues[2];
-				hs = viewBoxValues[3];
-			} else {
-				ws = svg.getDocumentElement().getAttribute("width");
-				hs = svg.getDocumentElement().getAttribute("height");
-				if (ws.isBlank() || hs.isBlank())
-					return null;
-			}
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
-			float w = Float.parseFloat(ws);
-			float h = Float.parseFloat(hs);
-			float scale = Math.min(width / w, height / h);
+			Graphics2D g = image.createGraphics();
+			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+			ViewBox viewBox = new ViewBox(0, 0, width, height);
+			svg.render(null, g, viewBox);
+			g.dispose();
 
-			BufferedImageTranscoder imageTranscoder = new BufferedImageTranscoder();
-			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, w * scale);
-			imageTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, h * scale);
-
-			TranscoderInput input = new TranscoderInput(svg);
-			imageTranscoder.transcode(input, null);
-
-			return imageTranscoder.getBufferedImage();
+			return image;
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Invalid SVG", e);
 			return null;

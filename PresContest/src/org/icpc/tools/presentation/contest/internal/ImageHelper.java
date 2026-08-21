@@ -9,7 +9,8 @@ import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.internal.SVGUtil;
-import org.w3c.dom.svg.SVGDocument;
+
+import com.github.weisj.jsvg.SVGDocument;
 
 public class ImageHelper {
 	/**
