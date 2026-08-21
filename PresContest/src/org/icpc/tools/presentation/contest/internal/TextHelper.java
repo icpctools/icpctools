@@ -37,7 +37,8 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.internal.SVGUtil;
-import org.w3c.dom.svg.SVGDocument;
+
+import com.github.weisj.jsvg.SVGDocument;
 
 /**
  * A helper class that can layout and draw a set of text and images. It handles some special cases
