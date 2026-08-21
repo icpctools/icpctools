@@ -42,6 +42,7 @@ import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.icpc.tools.contest.model.internal.account.PublicContest;
+import org.icpc.tools.contest.model.internal.account.StaffContest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
@@ -936,23 +937,29 @@ public class ConfiguredContest {
 
 	/**
 	 * Expose a contest object from during the freeze (typically judgements) to the publicly visible
-	 * contests (staff, balloon, and public roles).
+	 * contests (public, balloon, spectator, and team accounts).
 	 *
 	 * @param co
 	 */
 	public void exposeContestObject(IContestObject co) {
-		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
-		if (c instanceof PublicContest) {
-			PublicContest pc = (PublicContest) c;
-			pc.add(co);
+		PublicContest.getResolved().add(co);
+		synchronized (accountContests) {
+			for (Contest c : accountContests.values()) {
+				if (!(c instanceof StaffContest)) {
+					c.add(co);
+				}
+			}
 		}
 	}
 
 	public void unexposeContestObject(IContestObject co) {
-		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
-		if (c instanceof PublicContest) {
-			PublicContest pc = (PublicContest) c;
-			pc.add(new Deletion(co.getId(), co.getType()));
+		PublicContest.getResolved().remove(co);
+		synchronized (accountContests) {
+			for (Contest c : accountContests.values()) {
+				if (!(c instanceof StaffContest)) {
+					c.add(new Deletion(co.getId(), co.getType()));
+				}
+			}
 		}
 	}
 
@@ -969,13 +976,6 @@ public class ConfiguredContest {
 		if (awards == null || awards.length == 0) {
 			Trace.trace(Trace.USER, "Generating awards");
 			AwardUtil.createDefaultAwards(contest);
-		}
-
-		// let public contest know it's ok to start letting out judgements and awards
-		Contest c = getContestForAccount(PUBLIC_ACCOUNT);
-		if (c instanceof PublicContest) {
-			PublicContest pc = (PublicContest) c;
-			pc.setResolving(true);
 		}
 
 		// TODO - sync with ResolverLogic cleanOutlierSubmissions() and ResolverOptimizer
