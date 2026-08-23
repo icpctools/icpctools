@@ -496,8 +496,10 @@ public class Resolver {
 				Trace.trace(Trace.INFO, "Test mode active");
 			} else {
 				// not test mode
-				if (!contestSources[con].waitForContest(30000))
+				if (!contestSources[con].waitForContest(60000)) {
 					Trace.trace(Trace.ERROR, "Could not load complete contest");
+					System.exit(1);
+				}
 			}
 
 			// check for unjudged runs. if we're in test mode warn the user and delete them.
