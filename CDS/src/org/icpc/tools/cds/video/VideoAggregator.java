@@ -180,7 +180,7 @@ public class VideoAggregator {
 		return addReservation(name, url, mode, type, null, null);
 	}
 
-	public int addReservation(String name, String url, ConnectionMode mode, StreamType type, String teamId,
+	public synchronized int addReservation(String name, String url, ConnectionMode mode, StreamType type, String teamId,
 			String videoHandler) {
 		if (name == null)
 			throw new IllegalArgumentException();
