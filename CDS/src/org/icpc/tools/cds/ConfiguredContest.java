@@ -407,7 +407,7 @@ public class ConfiguredContest {
 		}
 	}
 
-	private void setupTeamStreams(String teamId) {
+	private synchronized void setupTeamStreams(String teamId) {
 		if (teamId == null || streamMap.containsKey(teamId))
 			return;
 
