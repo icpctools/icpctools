@@ -103,7 +103,7 @@
                                 <td class="text-center">
                                     <a
                                         href="javascript:request('<%= request.getContextPath() %>/stream?type=webcam&action=eager');">Eager</a><br /><a
-                                        href="javascript:request('<%= request.getContextPath() %>/stream?type=webcam&actione=lazy');">Lazy</a><br><a
+                                        href="javascript:request('<%= request.getContextPath() %>/stream?type=webcam&action=lazy');">Lazy</a><br><a
                                         href="javascript:request('<%= request.getContextPath() %>/stream?type=webcam&action=lazy_close');">Lazy
                                         close</a></td>
                                 <td></td>
