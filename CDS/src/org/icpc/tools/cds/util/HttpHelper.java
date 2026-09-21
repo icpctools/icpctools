@@ -78,6 +78,8 @@ public class HttpHelper {
 		IAccount account = getAccountFromRequest(request);
 		if (account != null) {
 			JSONEncoder.setAccountToken(getAccountToken(account));
+		} else {
+			JSONEncoder.setAccountToken(null);
 		}
 	}
 

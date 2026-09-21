@@ -17,12 +17,14 @@ import org.icpc.tools.cds.service.ContestFeedExecutor.Feed;
 import org.icpc.tools.cds.service.ContestObjectQueue.ContestObjectDelta;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IAccount;
 import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
+import org.icpc.tools.contest.model.feed.JSONEncoder;
 import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 
@@ -43,27 +45,37 @@ public class ContestFeedService {
 		final AsyncContext asyncCtx = request.startAsync();
 		asyncCtx.setTimeout(0); // no timeout
 		cc.add(asyncCtx);
+
+		final IAccount account = HttpHelper.getAccountFromRequest(request);
+		final String accountToken = account != null ? HttpHelper.getAccountToken(account) : null;
+		final String threadHost = "https://" + request.getServerName() + ":" + request.getServerPort();
+
 		ContestFeedExecutor.getInstance().addFeedSource(new Feed() {
-			protected int count = 120;
+			protected long lastActivityTime = System.currentTimeMillis();
 			protected int ind3 = ind;
 
 			@Override
 			public synchronized boolean doOutput() {
 				try {
-					HttpHelper.setThreadHost(request);
-					count++;
-
+					long time = System.currentTimeMillis();
 					boolean isDone = contest.isDoneUpdating();
 					ContestObjectDelta co = queue.poll();
+					boolean hasEvent = co != null;
+					if (hasEvent) {
+						JSONEncoder.setThreadHost(threadHost);
+						JSONEncoder.setAccountToken(accountToken);
+					}
 					while (co != null) {
 						IContestObject obj = filter.filter(co.obj);
 						if (obj != null) {
 							writer.writeEvent(obj, prefix + ind3++, co.d);
-							count = 0;
 						}
 						co = queue.poll();
 					}
-					writer2.flush();
+					if (hasEvent) {
+						lastActivityTime = time;
+						writer2.flush();
+					}
 					/*if (writer.checkError()) {
 						remove();
 						return false;
@@ -72,9 +84,11 @@ public class ContestFeedService {
 						remove();
 						return false;
 					}
-					if (count > 120) {
+
+					if (time > lastActivityTime + 100 * 1000) { // 100s
 						writer.writeHeartbeat();
-						count = 0;
+						writer2.flush();
+						lastActivityTime = time;
 					}
 					return true;
 				} catch (Throwable t) {
