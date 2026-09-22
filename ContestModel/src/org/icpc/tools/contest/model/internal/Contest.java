@@ -535,8 +535,12 @@ public class Contest implements IContest {
 	}
 
 	public void addListenerFromStart(IContestListener listener) {
+		addListenerAfterEvent(listener, 0);
+	}
+
+	public void addListenerAfterEvent(IContestListener listener, int start) {
 		synchronized (data) {
-			data.iterate(this, listener);
+			data.iterate(this, listener, start);
 			addListener(listener);
 		}
 	}

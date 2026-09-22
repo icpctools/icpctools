@@ -35,8 +35,6 @@ public class ExecutorListener implements ServletContextListener {
 		});
 		servletContextEvent.getServletContext().setAttribute("executor", executor);
 
-		new ContestFeedExecutor().start(executor);
-
 		ReactionVideoRecorder.getInstance().start(executor);
 	}
 

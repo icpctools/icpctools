@@ -373,17 +373,17 @@ public class ContestData implements Iterable<IContestObject> {
 						totalSize++;
 
 						// update type cache
-						if (! (obj instanceof IDelete)) {
+						if (!(obj instanceof IDelete)) {
 							int index = -1;
 							int type = obj.getType().ordinal();
 							TypeCache tc = typeCache[type];
 							Integer in = tc.idMap.get(obj.getId());
 							if (in != null)
 								index = in;
-	
+
 							addOrUpdateCache(tc, obj, totalSize - 1, index);
 						} else {
-							removeFromCache((Deletion)obj);
+							removeFromCache((Deletion) obj);
 						}
 					}
 				}
@@ -584,8 +584,8 @@ public class ContestData implements Iterable<IContestObject> {
 		}
 	}
 
-	public void iterate(IContest contest, IContestListener listener) {
-		for (int i = 0; i < totalSize; i++) {
+	public void iterate(IContest contest, IContestListener listener, int start) {
+		for (int i = start; i < totalSize; i++) {
 			int arr = i % ARRAY_SIZE;
 			int num = i / ARRAY_SIZE;
 			listener.contestChanged(contest, objs[num][arr], deltas[num][arr]);

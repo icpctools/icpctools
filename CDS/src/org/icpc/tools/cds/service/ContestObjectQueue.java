@@ -1,7 +1,7 @@
 package org.icpc.tools.cds.service;
 
-import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestListener.Delta;
+import org.icpc.tools.contest.model.IContestObject;
 
 public class ContestObjectQueue {
 	private static final int ARRAY_SIZE = 1000;
@@ -18,20 +18,14 @@ public class ContestObjectQueue {
 	}
 
 	private ContestObjectDelta[][] objs = new ContestObjectDelta[NUM_ARRAYS][];
-	private int ignoreFirst;
 	private int start;
 	private int end;
 
-	public ContestObjectQueue(int ignoreFirst) {
-		this.ignoreFirst = ignoreFirst;
+	public ContestObjectQueue() {
+		// do nothing
 	}
 
 	public synchronized void add(IContestObject obj, Delta d) {
-		if (ignoreFirst > 0) {
-			ignoreFirst--;
-			return;
-		}
-
 		int arr = end / ARRAY_SIZE;
 		int ind = end % ARRAY_SIZE;
 		if (objs[arr] == null)
@@ -39,6 +33,10 @@ public class ContestObjectQueue {
 
 		objs[arr][ind] = new ContestObjectDelta(obj, d);
 		end++;
+	}
+
+	public synchronized boolean isEmpty() {
+		return end == start;
 	}
 
 	public synchronized ContestObjectDelta poll() {

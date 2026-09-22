@@ -13,19 +13,15 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.icpc.tools.cds.ConfiguredContest;
-import org.icpc.tools.cds.service.ContestFeedExecutor.Feed;
-import org.icpc.tools.cds.service.ContestObjectQueue.ContestObjectDelta;
 import org.icpc.tools.cds.util.HttpHelper;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAccount;
-import org.icpc.tools.contest.model.IContestListener;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IContestObjectFilter;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.feed.DiskContestSource;
 import org.icpc.tools.contest.model.feed.JSONEncoder;
-import org.icpc.tools.contest.model.feed.NDJSONFeedWriter;
 import org.icpc.tools.contest.model.internal.Contest;
 
 import jakarta.servlet.AsyncContext;
@@ -33,78 +29,30 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class ContestFeedService {
-	protected static void doStream(HttpServletRequest request, IContestObjectFilter filter, PrintWriter writer2,
+	protected static void doStream(HttpServletRequest request, IContestObjectFilter filter, PrintWriter writer,
 			Contest contest, int ind, ConfiguredContest cc) {
-		NDJSONFeedWriter writer = new NDJSONFeedWriter(writer2);
-
-		final ContestObjectQueue queue = new ContestObjectQueue(ind);
-		IContestListener listener = (contest2, obj, d) -> queue.add(obj, d);
-		contest.addListenerFromStart(listener);
-		final String prefix = NDJSONFeedWriter.getContestPrefix(contest);
+		final IAccount account = HttpHelper.getAccountFromRequest(request);
+		final String accountToken = account != null ? HttpHelper.getAccountToken(account) : null;
+		final String threadHost = "https://" + request.getServerName() + ":" + request.getServerPort();
 
 		final AsyncContext asyncCtx = request.startAsync();
 		asyncCtx.setTimeout(0); // no timeout
 		cc.add(asyncCtx);
 
-		final IAccount account = HttpHelper.getAccountFromRequest(request);
-		final String accountToken = account != null ? HttpHelper.getAccountToken(account) : null;
-		final String threadHost = "https://" + request.getServerName() + ":" + request.getServerPort();
-
-		ContestFeedExecutor.getInstance().addFeedSource(new Feed() {
-			protected long lastActivityTime = System.currentTimeMillis();
-			protected int ind3 = ind;
-
+		ContestFeed feed = new ContestFeed(contest, ind, writer, filter) {
 			@Override
-			public synchronized boolean doOutput() {
-				try {
-					long time = System.currentTimeMillis();
-					boolean isDone = contest.isDoneUpdating();
-					ContestObjectDelta co = queue.poll();
-					boolean hasEvent = co != null;
-					if (hasEvent) {
-						JSONEncoder.setThreadHost(threadHost);
-						JSONEncoder.setAccountToken(accountToken);
-					}
-					while (co != null) {
-						IContestObject obj = filter.filter(co.obj);
-						if (obj != null) {
-							writer.writeEvent(obj, prefix + ind3++, co.d);
-						}
-						co = queue.poll();
-					}
-					if (hasEvent) {
-						lastActivityTime = time;
-						writer2.flush();
-					}
-					/*if (writer.checkError()) {
-						remove();
-						return false;
-					}*/
-					if (isDone) {
-						remove();
-						return false;
-					}
-
-					if (time > lastActivityTime + 100 * 1000) { // 100s
-						writer.writeHeartbeat();
-						writer2.flush();
-						lastActivityTime = time;
-					}
-					return true;
-				} catch (Throwable t) {
-					// failed to write to stream
-					t.printStackTrace();
-					remove();
-					return false;
-				}
+			protected void setupThread() {
+				JSONEncoder.setThreadHost(threadHost);
+				JSONEncoder.setAccountToken(accountToken);
 			}
 
-			protected void remove() {
-				contest.removeListener(listener);
+			@Override
+			protected void cleanup() {
 				asyncCtx.complete();
 				cc.remove(asyncCtx);
 			}
-		});
+		};
+		feed.startListening();
 	}
 
 	/**
