@@ -259,10 +259,10 @@ These are the supported modes:
 
 | Mode | Description |
 | --- | ---
-| direct | Exposes the stream URL directly to clients in the feed. The CDS will not access the URL unless you enable the recording of reaction videos.
-| lazy | Gives clients a URL to the CDS. The CDS will connect to the source only when the first client requests a particular stream, and will disconnect that stream when the last client drops.
-| lazy_close | Same as lazy, but the CDS will stay connected after the last client drops. This will allow subsequent calls to connect much faster.
-| eager | Cause the CDS to connect to all streams immediately, and stay connected even after all clients disconnect - using up lots of resources, but allowing all clients to connect as fast as possible.
+| direct | Exposes the stream URL directly to clients in the feed.<br>The CDS will not access the URL unless you enable the recording of reaction videos.
+| lazy | Gives clients a URL to the CDS.<br>The CDS will connect to the source only when the first client requests a particular stream,<br>and will disconnect that stream when the last client drops.
+| lazy_close | Same as lazy, but stay connected after the last client drops.<br>This will allow subsequent calls to connect much faster.
+| eager | Connect to all streams immediately and stay connected even after all clients disconnect.<br> Uses up lots of resources, but allows all clients to connect as fast as possible.
 
 
 ###### test Child Element
@@ -368,9 +368,9 @@ folder and are shown in their Linux form; replace the "/" characters with "\" on
 
 | Command | Effect
 | --- | ---------
-| /bin/server start cds | Start the CDS in background mode (allows running other commands from the same prompt, but discards server console output)
+| /bin/server start cds | Start the CDS in background mode<br>(allows running other commands from the same prompt, but discards server console output)
 | /bin/server stop cds | Stop the CDS
-| /bin/server run cds | Start the CDS in foreground mode (ties up the console window, but allows display of server output)
+| /bin/server run cds | Start the CDS in foreground mode (ties up the console window,<br>but allows display of server output)
 | /bin/server status cds | Displays the current status of the CDS
 | /bin/server list | List the servers which WLP knows about
 

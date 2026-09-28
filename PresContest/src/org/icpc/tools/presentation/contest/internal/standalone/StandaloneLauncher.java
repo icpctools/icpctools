@@ -158,14 +158,11 @@ public class StandaloneLauncher {
 				maxId = Math.max(maxId, pw.getId().length());
 		}
 
-		String thumb = "";
 		if (generateGFM) {
-			Trace.trace(Trace.USER,
-					"|   # | " + pad("Name", maxName) + " | " + pad("Id", maxId) + " | Thumbnails | Description");
-			Trace.trace(Trace.USER, "| --: | " + pad("----", maxName) + " | " + pad("----", maxId) + " | ---- | ----");
+			Trace.trace(Trace.USER, "|   # | " + pad("Name", maxName) + " | " + pad("Id", maxId) + " | Description");
+			Trace.trace(Trace.USER, "| --: | " + pad("----", maxName) + " | " + pad("----", maxId) + " | ----");
 		} else
-			Trace.trace(Trace.USER,
-					"   # | " + pad("Name", maxName) + " | " + pad("Id", maxId) + thumb + " | Description");
+			Trace.trace(Trace.USER, "   # | " + pad("Name", maxName) + " | Description");
 
 		int count = 1;
 		String lastCategory = null;
@@ -173,7 +170,7 @@ public class StandaloneLauncher {
 			String cat = pw.getCategory();
 			if (cat != null && !cat.equals(lastCategory)) {
 				if (generateGFM)
-					Trace.trace(Trace.USER, "| | **" + cat + "**");
+					Trace.trace(Trace.USER, "|    | **" + cat + "**");
 				else
 					Trace.trace(Trace.USER, cat);
 				lastCategory = cat;
@@ -194,13 +191,6 @@ public class StandaloneLauncher {
 			else
 				sb.append(pad(pw.getId(), maxId));
 			sb.append(" | ");
-
-			if (generateGFM) {
-				if (pw.getImage() != null)
-					sb.append("![](src/" + pw.getImage() + ")");
-
-				sb.append(" | ");
-			}
 
 			if (pw.getDescription() != null) {
 				String s = pw.getDescription();

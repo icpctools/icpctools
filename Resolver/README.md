@@ -276,10 +276,10 @@ parameters:
 
 | Parameter | Value
 | --- | --- |
-| {team.display_name} | The team's display name, e.g. "drop tables". If there is no display name the team name will be used.
+| {team.display_name} | The team's display name, e.g. "drop tables".<br>If there is no display name the team name will be used.
 | {team.name} | The team's name, e.g. "drop tables".
 | {org.name} | The organizations name, often a short form, e.g. "UBC".
-| {org.formal_name} | The full organization name, e.g. "University of Toronto". If there is no formal name the organization name will be used.
+| {org.formal_name} | The full organization name, e.g. "University of Toronto".<br>If there is no formal name the organization name will be used.
 
 Examples:
  - -—display_name "{team.name} ({org.name})"
@@ -631,10 +631,10 @@ Award template patterns:
 | :----------------- | :---------- | :----------
 | winner             | none        | Applied to the team in first place.
 | gold-medal         | numTeams    | A single award applied to the top numTeams in the contest.
-| silver-medal       | numTeams    | A single award applied to the next numTeams in the contest, after gold is applied.
-| bronze-medal       | numTeams    | A single award applied to the next numTeams in the contest, after silver is applied.
+| silver-medal       | numTeams    | A single award applied to the next numTeams in the contest,<br>after gold is applied.
+| bronze-medal       | numTeams    | A single award applied to the next numTeams in the contest,<br>after silver is applied.
 | first-to-solve-*   | none        | Separate awards applied to the first team to solve each problem.
-| group-winner-*     | numPerGroup | Separate awards applied to the top numPerGroup (defaults to 1) teams in each group.
+| group-winner-*     | numPerGroup | Separate awards applied to the top numPerGroup (defaults to 1)<br>teams in each group.
 | group-winners      | none        | A single award applied to all group winners.
 | highest-honors     | see below   | A single award for highest honours.
 | high-honors        | see below   | A single award for high honours.
