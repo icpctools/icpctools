@@ -72,7 +72,7 @@ public class Clarification extends TimedEvent implements IClarification {
 		} else if (FROM_TEAM_ID.equals(name)) {
 			fromTeamId = (String) value;
 			return true;
-		} else if (TO_TEAM_ID.equals(name) && (ContestAPIHelper.is2023_06() || ContestAPIHelper.isUnknownSpec())) {
+		} else if (TO_TEAM_ID.equals(name) && !(ContestAPIHelper.is2026_01() || ContestAPIHelper.is2026_01_next())) {
 			if (value == null || "null".equals(value))
 				toTeamIds = null;
 			else

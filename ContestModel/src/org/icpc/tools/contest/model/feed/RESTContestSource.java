@@ -600,6 +600,9 @@ public class RESTContestSource extends DiskContestSource {
 			InputStream in = connect("../..");
 			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			specVersion = parseAPIJsonForVersion(br);
+			if (ContestAPIHelper.isUnsupported(specVersion)) {
+				Trace.trace(Trace.WARNING, "Unsupported spec version " + ContestAPIHelper.getVersionString(specVersion));
+			}
 		} catch (Exception e) {
 			Trace.trace(Trace.WARNING, "Could not determine spec version", e);
 		}

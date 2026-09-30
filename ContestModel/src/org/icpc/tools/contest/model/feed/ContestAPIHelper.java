@@ -17,18 +17,26 @@ public class ContestAPIHelper {
 	protected static boolean isCDS;
 
 	public enum SpecVersion {
-		v2023_06, v2026_01, v2026_01_next
+		v2020_03, v2021_11, v2022_07, v2023_06, v2026_01, v2026_01_next, draft
 	}
 
 	private static final ThreadLocal<SpecVersion> local = new ThreadLocal<>();
 
 	public static SpecVersion parseVersion(String version) {
-		if ("2023-06".equals(version))
-			return SpecVersion.v2023_06;
+		if ("2026-01-next".equals(version))
+			return SpecVersion.v2026_01_next;
 		else if ("2026-01".equals(version))
 			return SpecVersion.v2026_01;
-		else if ("2026-01-next".equals(version))
-			return SpecVersion.v2026_01_next;
+		else if ("2023-06".equals(version))
+			return SpecVersion.v2023_06;
+		else if ("2022-07".equals(version))
+			return SpecVersion.v2022_07;
+		else if ("2021-11".equals(version))
+			return SpecVersion.v2021_11;
+		else if ("2020-03".equals(version))
+			return SpecVersion.v2020_03;
+		else if ("draft".equals(version))
+			return SpecVersion.draft;
 
 		// unknown or invalid version
 		return null;
@@ -40,17 +48,29 @@ public class ContestAPIHelper {
 
 	public static String getVersionString(SpecVersion version) {
 		switch (version) {
-			case v2023_06: {
-				return "2023-06";
+			case v2026_01_next: {
+				return "2026-01-next";
 			}
 			case v2026_01: {
 				return "2026-01";
 			}
-			case v2026_01_next: {
-				return "2026-01-next";
+			case v2023_06: {
+				return "2023-06";
+			}
+			case v2022_07: {
+				return "2022-07";
+			}
+			case v2021_11: {
+				return "2021-11";
+			}
+			case v2020_03: {
+				return "2020-03";
+			}
+			case draft: {
+				return "draft";
 			}
 			default: {
-				return "draft";
+				return "unknown";
 			}
 		}
 	}
@@ -81,10 +101,18 @@ public class ContestAPIHelper {
 	}
 
 	/**
-	 * Helper method to tell if we're using the 2023-06 spec version
+	 * Helper method to tell if we're using an unknown spec version
 	 */
 	public static boolean isUnknownSpec() {
 		return local.get() == null;
+	}
+
+	/**
+	 * Helper method to identify known but unsupported spec version
+	 */
+	public static boolean isUnsupported(SpecVersion version) {
+		return version == SpecVersion.v2020_03 || version == SpecVersion.v2021_11 || version == SpecVersion.v2022_07
+				|| version == SpecVersion.draft;
 	}
 
 	static class Result {

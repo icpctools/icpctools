@@ -1301,6 +1301,8 @@ public class DiskContestSource extends ContestSource {
 
 		if (specVersion == null) {
 			Trace.trace(Trace.WARNING, "Unknown spec version: " + version);
+		} else if (ContestAPIHelper.isUnsupported(specVersion)) {
+			Trace.trace(Trace.WARNING, "Unsupported spec version " + ContestAPIHelper.getVersionString(specVersion));
 		}
 		return specVersion;
 	}
