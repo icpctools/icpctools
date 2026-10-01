@@ -10,7 +10,6 @@ import org.icpc.tools.contest.model.internal.Person;
 /**
  * Filter that adds things analysts can see compared to spectators:
  * <ul>
- * <li>Runs (until the freeze)</li>
  * <li>Person emails</li>
  * <li>Submission files (for submissions before the freeze)</li>
  * <li>Judgement max runtime</li>
@@ -39,14 +38,14 @@ public class AnalystContest extends SpectatorContest {
 		switch (obj.getType()) {
 			case TEAM: {
 				if (property.startsWith("backup") || property.startsWith("tool_data") || property.startsWith("key_log"))
-					return (this.getState().getStarted() != null && !this.getState().isFrozen());
+					return this.getState().getStarted() != null && !this.getState().isFrozen();
 
 				return super.allowProperty(obj, property);
 			}
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
 				if (property.startsWith("entry_point") || property.startsWith("files") || property.startsWith("reaction")) {
-					return this.isBeforeFreeze(s);
+					return this.isBeforeFreeze(s) || getState().getThawed() != null;
 				}
 				return super.allowProperty(obj, property);
 			}

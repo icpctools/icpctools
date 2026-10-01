@@ -145,7 +145,7 @@ public class VideoServlet extends HttpServlet {
 		if (!isStaff) {
 			for (ConfiguredContest cc : CDSConfig.getContests()) {
 				IState state = cc.getContest().getState();
-				if (state.isFrozen() && state.isRunning()) {
+				if (state.isFrozen()) {
 					response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Contest is frozen");
 					return;
 				} else if (cc.isFloorReady() && state.getFloorReady() == null) {

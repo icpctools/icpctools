@@ -19,6 +19,7 @@ import org.icpc.tools.contest.model.internal.Problem;
  * <li>Submission language</li>
  * <li>Submission reaction videos (until the freeze)</li>
  * <li>Commentary</li>
+ * <li>Runs (until the freeze)</li>
  * </ul>
  */
 public class SpectatorContest extends PublicContest {
@@ -53,8 +54,13 @@ public class SpectatorContest extends PublicContest {
 				IRun run = (IRun) obj;
 
 				IJudgement j = getJudgementById(run.getJudgementId());
-				if (j == null)
+				if (j == null) {
+					if (getFreezeDuration() != null && getState().getThawed() == null) {
+						// might just be hidden by freeze, we'll try again on thaw
+						releaseAtThaw.add(run);
+					}
 					return;
+				}
 
 				if (isJudgementHidden(j))
 					return;
@@ -69,10 +75,10 @@ public class SpectatorContest extends PublicContest {
 					return;
 
 				// hide runs for submissions after freeze
-				if (getFreezeDuration() != null) {
+				if (getFreezeDuration() != null && getState().getThawed() == null) {
 					long freezeTime = getDuration() - getFreezeDuration();
-					if (s.getContestTime() >= freezeTime && getState().getThawed() == null) {
-						freeze.add(run);
+					if (time >= freezeTime) {
+						releaseAtThaw.add(run);
 						return;
 					}
 				}
@@ -116,7 +122,7 @@ public class SpectatorContest extends PublicContest {
 			case SUBMISSION: {
 				ISubmission s = (ISubmission) obj;
 				if (property.startsWith("reaction")) {
-					return this.isBeforeFreeze(s);
+					return this.isBeforeFreeze(s) && this.getState().getThawed() != null;
 				}
 				return super.allowProperty(obj, property);
 			}

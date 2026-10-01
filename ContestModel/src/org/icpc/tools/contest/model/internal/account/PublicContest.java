@@ -46,6 +46,7 @@ import org.icpc.tools.contest.model.internal.Team;
  * <li>Runs</li>
  * <li>Commentary</li>
  * </ul>
+ * TODO: runs, judgements, submissions, teams - thaw
  */
 public class PublicContest extends Contest implements IFilteredContest {
 	private static final String EMAIL = "email";
@@ -53,10 +54,11 @@ public class PublicContest extends Contest implements IFilteredContest {
 
 	protected String username;
 
-	protected List<IProblem> problems = new ArrayList<>();
+	// objects to release at contest start
+	protected List<IContestObject> releaseAtStart = new ArrayList<>();
 
-	// objects seen during the freeze that should be sent on thaw
-	protected List<IContestObject> freeze = new ArrayList<>();
+	// objects seen during the freeze that should be sent at thaw
+	protected List<IContestObject> releaseAtThaw = new ArrayList<>();
 
 	protected static List<IContestObject> resolved = new ArrayList<>();
 
@@ -68,14 +70,14 @@ public class PublicContest extends Contest implements IFilteredContest {
 	public void add(IContestObject obj) {
 		IContestObject.ContestType cType = obj.getType();
 		if (obj instanceof IDelete) {
-			if (cType.equals(IContestObject.ContestType.PROBLEM) && !problems.isEmpty()) {
-				IProblem remove = null;
-				for (IProblem p : problems) {
-					if (p.getId().equals(obj.getId()))
-						remove = p;
+			if (!releaseAtStart.isEmpty()) {
+				IContestObject remove = null;
+				for (IContestObject co : releaseAtStart) {
+					if (co.getType().equals(cType) && co.getId().equals(obj.getId()))
+						remove = co;
 				}
 				if (remove != null)
-					problems.remove(remove);
+					releaseAtStart.remove(remove);
 				return;
 			}
 			super.add(obj);
@@ -103,7 +105,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				IProblem p = (IProblem) obj;
 				if (getState().getStarted() == null) {
 					p = filterProblem(p);
-					problems.add(p);
+					releaseAtStart.add(p);
 				} else
 					super.add(obj);
 				return;
@@ -111,15 +113,19 @@ public class PublicContest extends Contest implements IFilteredContest {
 			case STATE: {
 				IState state = (IState) obj;
 				super.add(state);
-				// TODO out of order!
-				if (state.getStarted() != null && getProblems().length == 0) {
-					for (IProblem p : problems) {
+
+				if (state.getStarted() != null && !releaseAtStart.isEmpty()) {
+					for (IContestObject p : releaseAtStart) {
 						super.add(p);
 					}
-					problems.clear();
+					releaseAtStart.clear();
 				}
-				if (state.getThawed() != null && !freeze.isEmpty()) {
-					thaw();
+				if (state.getThawed() != null && !releaseAtThaw.isEmpty()) {
+					for (IContestObject co : releaseAtThaw) {
+						// send objects back through add() to ensure re-filtering
+						add(co);
+					}
+					releaseAtThaw.clear();
 				}
 				return;
 			}
@@ -171,6 +177,14 @@ public class PublicContest extends Contest implements IFilteredContest {
 				if (isTeamHidden(team))
 					return;
 
+				// keep submissions from during the freeze so we can resend (undo filter)
+				if (getFreezeDuration() != null && getState().getThawed() == null) {
+					long freezeTime = getDuration() - getFreezeDuration();
+					if (time >= freezeTime) {
+						releaseAtThaw.add(sub);
+					}
+				}
+
 				sub = filterSubmission(sub);
 				super.add(sub);
 				return;
@@ -195,7 +209,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 				if (getFreezeDuration() != null && !resolved.contains(j) && getState().getThawed() == null) {
 					long freezeTime = getDuration() - getFreezeDuration();
 					if (time >= freezeTime) {
-						freeze.add(j);
+						releaseAtThaw.add(j);
 						return;
 					}
 				}
@@ -234,18 +248,6 @@ public class PublicContest extends Contest implements IFilteredContest {
 			default:
 				return;
 		}
-	}
-
-	protected void thaw() {
-		for (IContestObject co : freeze) {
-			// send objects back through add() to ensure filtering
-			add(co);
-		}
-		freeze.clear();
-	}
-
-	public static void setResolved(IContestObject obj) {
-		resolved.add(obj);
 	}
 
 	public static List<IContestObject> getResolved() {
@@ -299,7 +301,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 	/**
 	 * Helper method for subclasses to filter submissions.
 	 */
-	protected ISubmission filterSubmission(ISubmission sub) {
+	protected ISubmission filterSubmission(ISubmission sub) { // TODO need to thaw some properties
 		Submission s = (Submission) ((Submission) sub).clone();
 		String[] properties = new String[] { "language_id", "entry_point", "files", "reaction" };
 		for (String property : properties) {
@@ -348,7 +350,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 	/**
 	 * Helper method for subclasses to filter judgements.
 	 */
-	protected IJudgement filterJudgement(IJudgement jud) {
+	protected IJudgement filterJudgement(IJudgement jud) { // TODO need to thaw some properties
 		Judgement j = (Judgement) ((Judgement) jud).clone();
 		j.add("max_run_time", null);
 
