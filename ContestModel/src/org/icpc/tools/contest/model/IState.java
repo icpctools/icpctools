@@ -61,7 +61,7 @@ public interface IState extends IContestObject {
 	boolean isRunning();
 
 	/**
-	 * Returns true if the contest is frozen.
+	 * Returns true if the contest is frozen (and not yet thawed).
 	 *
 	 * @return
 	 */

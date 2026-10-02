@@ -13,6 +13,7 @@ import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.JSONParser;
 import org.icpc.tools.contest.model.feed.JSONParser.JsonObject;
 import org.icpc.tools.contest.model.feed.RESTContestSource;
+import org.icpc.tools.contest.model.feed.Timestamp;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.State;
@@ -54,12 +55,16 @@ public class FinalizeService {
 				state.setEndOfUpdates(System.currentTimeMillis());
 				((Contest) contest).add(state);
 			} else if ("thaw".equals(command)) {
+				long now = System.currentTimeMillis();
 				if (cc.getCCS() != null) {
 					ContestSource source = cc.getContestSource();
 					if (source instanceof RESTContestSource) {
-						long now = System.currentTimeMillis();
 						source.setContestThawTime(now);
 					}
+				} else {
+					State s = (State) (((State) c.getState()).clone());
+					s.add("thawed", Timestamp.format(now));
+					c.add(s);
 				}
 			}
 		} catch (IllegalArgumentException e) {
