@@ -594,6 +594,13 @@ public class TextHelper {
 			String word = m.group();
 
 			if (fm.stringWidth(sb.toString() + word) > width) {
+				// the word fits if we drop the trailing whitespace, e.g. "message. "
+				String trimmed = word.stripTrailing();
+				if (trimmed.length() < word.length() && fm.stringWidth(sb.toString() + trimmed) <= width) {
+					int ind = sb.length() + word.length();
+					return new String[] { sb.toString() + trimmed, src.substring(ind).stripLeading() };
+				}
+
 				if (sb.length() == 0) {
 					// add individual letters?
 					if (word.trim().length() < 6) // not worth wrapping, just start a new line
@@ -615,6 +622,11 @@ public class TextHelper {
 
 					if (i < 3)
 						return null;
+
+					// don't wrap just before a period, keep it on the first line instead
+					if (i < src.length() && src.charAt(i) == '.' && (i + 1 == src.length() || Character.isWhitespace(src.charAt(i + 1))))
+						return new String[] { src.substring(0, i + 1), src.substring(i + 1).stripLeading() };
+
 					return new String[] { src.substring(0, i) + "-", src.substring(i) };
 				}
 				return new String[] { sb.toString(), src.substring(sb.length()) };
