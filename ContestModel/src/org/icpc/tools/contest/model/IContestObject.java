@@ -18,6 +18,7 @@ import org.icpc.tools.contest.model.internal.Organization;
 import org.icpc.tools.contest.model.internal.Person;
 import org.icpc.tools.contest.model.internal.Problem;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
+import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.internal.Run;
 import org.icpc.tools.contest.model.internal.StartStatus;
 import org.icpc.tools.contest.model.internal.State;
@@ -26,12 +27,12 @@ import org.icpc.tools.contest.model.internal.Team;
 
 public interface IContestObject {
 	enum ContestType {
-		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PERSON, MAP_INFO, START_STATUS, COMMENTARY, ACCOUNT, RESOLVE_INFO
+		CONTEST, LANGUAGE, GROUP, ORGANIZATION, TEAM, STATE, RUN, SUBMISSION, JUDGEMENT, CLARIFICATION, AWARD, JUDGEMENT_TYPE, TEST_DATA, PROBLEM, PERSON, MAP_INFO, START_STATUS, COMMENTARY, ACCOUNT, RESOLVE_INFO, RESOLVER_SELECTION
 	}
 
 	String[] ContestTypeNames = new String[] { "contests", "languages", "groups", "organizations", "teams", "state",
 			"runs", "submissions", "judgements", "clarifications", "awards", "judgement-types", "testdata", "problems",
-			"persons", "map-info", "start-status", "commentary", "accounts", "resolve-info" };
+			"persons", "map-info", "start-status", "commentary", "accounts", "resolve-info", "resolver-selection" };
 
 	static String getTypeName(ContestType type) {
 		return ContestTypeNames[type.ordinal()];
@@ -51,7 +52,7 @@ public interface IContestObject {
 
 	static boolean isSingleton(ContestType type) {
 		return type != null && (ContestType.STATE.equals(type) || ContestType.MAP_INFO.equals(type)
-				|| ContestType.RESOLVE_INFO.equals(type));
+				|| ContestType.RESOLVE_INFO.equals(type) || ContestType.RESOLVER_SELECTION.equals(type));
 	}
 
 	static IContestObject createByName(String typeName) {
@@ -101,6 +102,8 @@ public interface IContestObject {
 				return new MapInfo();
 			case RESOLVE_INFO:
 				return new ResolveInfo();
+			case RESOLVER_SELECTION:
+				return new ResolverSelection();
 			default:
 				// don't create unrecognized elements
 				return null;
