@@ -33,6 +33,7 @@ import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IProblemSummary;
 import org.icpc.tools.contest.model.IResolveInfo;
+import org.icpc.tools.contest.model.IResolverSelection;
 import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IRun;
 import org.icpc.tools.contest.model.IStanding;
@@ -69,6 +70,7 @@ public class Contest implements IContest {
 	private IAward[] awards;
 	private IMapInfo mapInfo;
 	private IResolveInfo resolveInfo;
+	private IResolverSelection resolveSelection;
 
 	private Result[][] results;
 	private ProblemSummary[] resultSummary;
@@ -387,6 +389,8 @@ public class Contest implements IContest {
 			mapInfo = (MapInfo) obj;
 		} else if (type == ContestType.RESOLVE_INFO) {
 			resolveInfo = (ResolveInfo) obj;
+		} else if (type == ContestType.RESOLVER_SELECTION) {
+			resolveSelection = (ResolverSelection) obj;
 		}
 	}
 
@@ -983,6 +987,11 @@ public class Contest implements IContest {
 	@Override
 	public IResolveInfo getResolveInfo() {
 		return resolveInfo;
+	}
+
+	@Override
+	public IResolverSelection getResolverSelection() {
+		return resolveSelection;
 	}
 
 	protected IResult getResult(ITeam team, IProblem problem) {

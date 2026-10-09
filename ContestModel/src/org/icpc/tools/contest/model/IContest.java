@@ -641,6 +641,13 @@ public interface IContest {
 	IResolveInfo getResolveInfo();
 
 	/**
+	 * Return the resolver selection for this contest.
+	 *
+	 * @return the resolver selection
+	 */
+	IResolverSelection getResolverSelection();
+
+	/**
 	 * Validate all contest objects that can be validated.
 	 *
 	 * @return a list of validation issues

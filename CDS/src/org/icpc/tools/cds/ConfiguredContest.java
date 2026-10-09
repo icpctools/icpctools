@@ -39,6 +39,7 @@ import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
+import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
 import org.icpc.tools.contest.model.internal.account.PublicContest;
@@ -48,7 +49,9 @@ import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListen
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ProblemSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.w3c.dom.Element;
@@ -1028,6 +1031,31 @@ public class ConfiguredContest {
 					} else {
 						unexposeContestObject(aStep.award);
 					}
+				} else if (step instanceof TeamSelectionStep) {
+					TeamSelectionStep tStep = (TeamSelectionStep) step;
+					String[] teamIds = null;
+					if (tStep.teams != null) {
+						teamIds = new String[tStep.teams.size()];
+
+						int i = 0;
+						for (ITeam t : tStep.teams) {
+							teamIds[i++] = t.getId();
+						}
+					}
+
+					ResolverSelection sel = getNewResolverSelection(contest);
+					sel.setSelection(teamIds, null);
+					contest.add(sel);
+				} else if (step instanceof ProblemSelectionStep) {
+					ProblemSelectionStep pStep = (ProblemSelectionStep) step;
+
+					ResolverSelection sel = getNewResolverSelection(contest);
+					String problemId = null;
+					if (pStep.subInfo != null) {
+						problemId = pStep.subInfo.getProblemId();
+					}
+					sel.setSelection(sel.getTeamIds(), problemId);
+					contest.add(sel);
 				}
 			}
 
@@ -1051,9 +1079,19 @@ public class ConfiguredContest {
 					resolveInfo.setClicks(pause);
 				contest.add(resolveInfo);
 			}
+
 		});
 
 		return resolutionControl;
+	}
+
+	private static ResolverSelection getNewResolverSelection(Contest c) {
+		ResolverSelection sel = (ResolverSelection) c.getResolverSelection();
+		if (sel != null)
+			sel = ((ResolverSelection) sel.clone());
+		else
+			sel = new ResolverSelection();
+		return sel;
 	}
 
 	@Override

@@ -91,6 +91,7 @@ public class PublicContest extends Contest implements IFilteredContest {
 			case GROUP:
 			case MAP_INFO:
 			case RESOLVE_INFO:
+			case RESOLVER_SELECTION:
 			case START_STATUS:
 				super.add(obj);
 				return;
