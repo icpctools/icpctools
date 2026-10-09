@@ -43,7 +43,12 @@ function sortByColumn(table) {
   }
 
   function getCellValue(row, index) {
-     return $(row).children('td').eq(index).text();
+     var text = $(row).children('td').eq(index).text().trim();
+     // convert durations (e.g. "1h10m9s") to seconds so they sort numerically
+     var m = text.match(/^(-)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/);
+     if (text && m)
+        return (m[1] ? -1 : 1) * ((+m[2] || 0) * 86400 + (+m[3] || 0) * 3600 + (+m[4] || 0) * 60 + (+m[5] || 0));
+     return text;
   }
 }
 
