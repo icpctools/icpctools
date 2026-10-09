@@ -34,8 +34,9 @@ body.dark-mode .table-warning {
 }
 
 .scoreboard_logo {
-    max-height: var(--logo-size);
-    max-width: var(--logo-size);
+    width: var(--logo-size);
+    height: var(--logo-size);
+    object-fit: contain;
 }
 
 .logo_table_header {
