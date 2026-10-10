@@ -22,8 +22,8 @@ import org.icpc.tools.contest.model.internal.TimedEvent;
 public class ReplayContest extends CDSContest {
 	protected ConfiguredContest cc;
 	protected double timeMultiplier;
-	protected Long startTime;
-	protected boolean stopReplay = false;
+	protected volatile Long startTime;
+	protected volatile boolean stopReplay = false;
 
 	protected Thread startThread;
 
@@ -98,11 +98,7 @@ public class ReplayContest extends CDSContest {
 	 * @param time
 	 */
 	protected void waitForContestTime(long time) {
-		if (startTime == null || startTime < 0)
-			return;
-
-		double contestTime = System.currentTimeMillis() - startTime;
-		long dt = (long) (time / timeMultiplier - contestTime);
+		long dt = getTimeUntil(time);
 
 		// no point waiting for less that 5ms
 		if (dt < 5)
@@ -119,6 +115,18 @@ public class ReplayContest extends CDSContest {
 		}
 	}
 
+	/**
+	 * Returns the time in ms until the given contest time is reached, or 0 if there is no start time.
+	 */
+	private long getTimeUntil(long time) {
+		Long st = startTime;
+		if (st == null || st < 0)
+			return 0;
+
+		double contestTime = System.currentTimeMillis() - st;
+		return (long) (time / timeMultiplier - contestTime);
+	}
+
 	private static boolean isTimedEvent(IContestObject obj) {
 		ContestType type = obj.getType();
 		return (type == ContestType.STATE || type == ContestType.SUBMISSION || type == ContestType.JUDGEMENT
@@ -126,25 +134,62 @@ public class ReplayContest extends CDSContest {
 	}
 
 	private void releaseEvents() {
-		ensureIntermediateEvents();
+		// make sure the initial contest data is loaded before checking for intermediate events
+		try {
+			cc.getContestSource().waitForContest(60000);
+		} catch (Exception e) {
+			Trace.trace(Trace.WARNING, "Could not wait for contest load", e);
+		}
 
-		while (!timedObject.isEmpty() && !stopReplay) {
+		synchronized (timedObject) {
+			ensureIntermediateEvents();
+		}
+
+		while (!stopReplay) {
+			List<IContestObject> objs = null;
+			synchronized (timedObject) {
+				// wait for more events instead of exiting, since they may still be loading
+				while (timedObject.isEmpty() && !stopReplay) {
+					try {
+						timedObject.wait();
+					} catch (InterruptedException e) {
+						// ignore
+					}
+				}
+				if (stopReplay)
+					return;
+
+				objs = new ArrayList<>(timedObject);
+			}
+
 			IContestObject nextObj = null;
 			long nextTime = Long.MAX_VALUE;
-			int nextIndex = -1;
-			for (int i = 0; i < timedObject.size(); i++) {
-				IContestObject obj = timedObject.get(i);
+			for (IContestObject obj : objs) {
 				long time = getReleaseTime(obj);
-				if (time < nextTime) {
+				if (nextObj == null || time < nextTime) {
 					nextObj = obj;
 					nextTime = time;
-					nextIndex = i;
 				}
 			}
 
 			waitForContestTime(nextTime);
 
-			timedObject.remove(nextIndex);
+			// if we were interrupted (e.g. the start time changed), check again
+			if (getTimeUntil(nextTime) >= 5)
+				continue;
+
+			synchronized (timedObject) {
+				boolean found = false;
+				for (int i = 0; i < timedObject.size(); i++) {
+					if (timedObject.get(i) == nextObj) {
+						timedObject.remove(i);
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					continue;
+			}
 			fixWallClockTime(nextObj);
 			super.add(nextObj);
 		}
@@ -180,7 +225,10 @@ public class ReplayContest extends CDSContest {
 	@Override
 	public void add(IContestObject obj) {
 		if (isTimedEvent(obj)) {
-			timedObject.add(obj);
+			synchronized (timedObject) {
+				timedObject.add(obj);
+				timedObject.notifyAll();
+			}
 			return;
 		}
 
