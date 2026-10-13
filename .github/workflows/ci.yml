@@ -15,9 +15,10 @@ jobs:
       - name: Install pnpm and Node
         uses: pnpm/setup@v1
         with:
-          working-directory: CDS/ui
+          package-json-file: CDS/ui/package.json
           runtime: node@24
           cache: true
+          cache-dependency-path: CDS/ui/pnpm-lock.yaml
           # the ant ui target installs and builds
           install: false
       - name: Build
