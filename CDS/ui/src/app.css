@@ -1,0 +1,7 @@
+@import 'tailwindcss';
+
+/* contest-ui components are styled with Tailwind classes */
+@source '../node_modules/@icpctools/contest-ui/dist';
+
+/* dark mode follows the class set by mode-watcher */
+@custom-variant dark (&:where(.dark, .dark *));

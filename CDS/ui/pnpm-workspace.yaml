@@ -1,0 +1,3 @@
+# our own packages are trusted as soon as they're released (pnpm otherwise waits a day)
+minimumReleaseAgeExclude:
+  - '@icpctools/*'

@@ -54,7 +54,17 @@
       <fileset dir="." includes="*.pdf *.txt"/>
     </copy>
   </target>
-  <target name="war" depends="clean,build,doc">
+  <!-- build the web UI (CDS/ui) into WebContent/ui; requires Node and pnpm -->
+  <target name="ui">
+    <exec dir="ui" executable="pnpm" failonerror="true">
+      <arg value="install"/>
+      <arg value="--frozen-lockfile"/>
+    </exec>
+    <exec dir="ui" executable="pnpm" failonerror="true">
+      <arg value="build"/>
+    </exec>
+  </target>
+  <target name="war" depends="clean,build,doc,ui">
     <property name="war.path" value="staging/CDS.war"/>
     <war destfile="${war.path}" webxml="WebContent/WEB-INF/web.xml">
       <manifest>
