@@ -15,7 +15,11 @@ jobs:
       - name: Install pnpm and Node
         uses: pnpm/setup@v1
         with:
+          working-directory: CDS/ui
           runtime: node@24
+          cache: true
+          # the ant ui target installs and builds
+          install: false
       - name: Build
         run: ant build
       - name: Add run ID
