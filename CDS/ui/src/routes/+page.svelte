@@ -15,6 +15,7 @@
 				<span class="font-medium">{contest.formal_name ?? contest.name}</span>
 				<span class="text-sm text-gray-500 dark:text-gray-400">{contest.id}</span>
 				<a href={resolve('/contests/[id]/teams', { id: contest.id })} class="ml-auto text-sm text-blue-600 hover:underline dark:text-blue-400">Teams</a>
+				<a href={resolve('/contests/[id]/submissions', { id: contest.id })} class="text-sm text-blue-600 hover:underline dark:text-blue-400">Submissions</a>
 			</li>
 		{/each}
 	</ul>

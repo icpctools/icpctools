@@ -2,11 +2,11 @@ import { error } from '@sveltejs/kit';
 import { findById, findManyById } from '@icpctools/contest-api';
 import { loadContest } from '$lib/contests';
 
-export const load = async ({ params }) => {
+export const load = async ({ params, depends }) => {
+	depends('app:contest', 'app:teams', 'app:organizations', 'app:groups');
+
 	const cc = await loadContest(params.id);
 	if (!cc) error(404, `Contest ${params.id} not found`);
-
-	await Promise.all([cc.loadContest(), cc.loadTeams(), cc.loadOrganizations(), cc.loadGroups()]);
 
 	const orgs = cc.getOrganizations();
 	const groups = cc.getGroups();

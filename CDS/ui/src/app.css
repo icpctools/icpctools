@@ -3,5 +3,11 @@
 /* contest-ui components are styled with Tailwind classes */
 @source '../node_modules/@icpctools/contest-ui/dist';
 
+/* colors used by contest-ui components */
+@theme {
+	--color-hover: light-dark(var(--color-gray-400), var(--color-gray-700));
+	--color-link: light-dark(var(--color-blue-600), var(--color-blue-400));
+}
+
 /* dark mode follows the class set by mode-watcher */
 @custom-variant dark (&:where(.dark, .dark *));
