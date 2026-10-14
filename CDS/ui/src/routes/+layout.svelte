@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { ModeWatcher } from 'mode-watcher';
+	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import '../app.css';
 
 	let { children } = $props();

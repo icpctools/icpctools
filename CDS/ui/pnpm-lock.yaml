@@ -166,12 +166,15 @@ importers:
 
   .:
     dependencies:
+      '@fortawesome/fontawesome-free':
+        specifier: ^7.3.1
+        version: 7.3.1
       '@icpctools/contest-api':
-        specifier: ^0.8.0
-        version: 0.8.0
+        specifier: ^0.9.0
+        version: 0.9.0
       '@icpctools/contest-ui':
-        specifier: ^0.8.0
-        version: 0.8.0(svelte@5.57.2)
+        specifier: ^0.9.0
+        version: 0.9.0(svelte@5.57.2)
       mode-watcher:
         specifier: ^1.1.0
         version: 1.1.0(svelte@5.57.2)
@@ -217,11 +220,11 @@ packages:
     resolution: {integrity: sha512-wmglKKPDIkgV3aWlZzWECCPoGIkYCulzBwxG9+w7rc5BGapZ6cPMpoPOT8k36J0Ni7PPX6c/rsoMWfS4d1MUMg==}
     engines: {node: '>=6'}
 
-  '@icpctools/contest-api@0.8.0':
-    resolution: {integrity: sha512-OfETpjKOQZLa6EQseCD5v0WBEkoE14bQHnwbBW06w8bfwFnFfMbVbjLduc7Xle+qX03ewXbO+lNjOOlhMHKN4w==}
+  '@icpctools/contest-api@0.9.0':
+    resolution: {integrity: sha512-WV0NV8JxxmueUhIu6kmVryvI8Da3sCL9BCK18xKpRE1zDFrZhEW9s0YGMaUu94xw25E6UYicPPIf5bupS8M1kg==}
 
-  '@icpctools/contest-ui@0.8.0':
-    resolution: {integrity: sha512-hVT2kjZdhKC3lMpgHCIF+uCTld00UhCVBvnKRnWMdQu+lEiieQPfmIqqgke6OEbxsP0g1nxHZfGwdH+P5gZVpw==}
+  '@icpctools/contest-ui@0.9.0':
+    resolution: {integrity: sha512-436vnbwfMT15eclLxPO7U6qBz2kVlnyRtShj1ML1P2C//U4lQeWHywmtk4PHClIEBCs/x/qFQpj2y3vGNvhQ1g==}
     peerDependencies:
       svelte: ^5.0.0
 
@@ -983,12 +986,12 @@ snapshots:
 
   '@fortawesome/fontawesome-free@7.3.1': {}
 
-  '@icpctools/contest-api@0.8.0': {}
+  '@icpctools/contest-api@0.9.0': {}
 
-  '@icpctools/contest-ui@0.8.0(svelte@5.57.2)':
+  '@icpctools/contest-ui@0.9.0(svelte@5.57.2)':
     dependencies:
       '@fortawesome/fontawesome-free': 7.3.1
-      '@icpctools/contest-api': 0.8.0
+      '@icpctools/contest-api': 0.9.0
       mode-watcher: 1.1.0(svelte@5.57.2)
       mpegts.js: 1.8.2
       svelte: 5.57.2
