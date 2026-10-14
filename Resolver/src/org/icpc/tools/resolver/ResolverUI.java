@@ -310,6 +310,7 @@ public class ResolverUI {
 			}
 		};
 		judgePresentation.setProperty("clockOff");
+		judgePresentation.setContest(contest);
 
 		awardPresentation = new TeamAwardPresentation() {
 			@Override
