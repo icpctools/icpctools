@@ -120,4 +120,4 @@ jobs:
       - name: Trigger website rebuild
         run: gh api repos/icpctools/icpctools.github.io/dispatches -f event_type=release -f "client_payload[sha]=$GITHUB_SHA"
         env:
-          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.WEBSITE_DISPATCH_TOKEN }}
