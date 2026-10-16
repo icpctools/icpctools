@@ -18,7 +18,7 @@ jobs:
       - name: Install pnpm and Node
         uses: pnpm/setup@v3.1.1
         with:
-          package-json-file: CDS/ui/package.json
+          working-directory: CDS/ui
           runtime: node@24
           cache: true
           cache-dependency-path: CDS/ui/pnpm-lock.yaml
@@ -121,3 +121,38 @@ jobs:
         run: gh api repos/icpctools/icpctools.github.io/dispatches -f event_type=release -f "client_payload[sha]=$GITHUB_SHA"
         env:
           GH_TOKEN: ${{ secrets.WEBSITE_DISPATCH_TOKEN }}
+  cleanup:
+    runs-on: ubuntu-26.04
+    needs: [push-release, push-docker]
+    if: always() && github.ref == 'refs/heads/main' && needs.push-release.result == 'success'
+    permissions:
+      contents: write
+      packages: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      # Number of newest prereleases to keep; full releases are never removed
+      KEEP: 25
+      # Deletions per run, to stay within the API rate limit while working through a large backlog
+      MAX_DELETE: 100
+    steps:
+      - name: Delete old prereleases and their Docker images
+        run: |
+          # Releases are listed newest first; delete the oldest prereleases beyond the newest $KEEP
+          gh api --paginate "repos/$REPO/releases" --jq '.[] | select(.prerelease) | "\(.id) \(.tag_name)"' \
+            | tail -n +$((KEEP + 1)) | tail -n $MAX_DELETE > old-releases.txt
+          echo "Deleting $(wc -l < old-releases.txt) prereleases"
+
+          gh api --paginate "orgs/icpctools/packages/container/cds/versions" \
+            --jq '.[] | "\(.id) \(.metadata.container.tags | join(","))"' > image-versions.txt
+
+          while read -r id tag; do
+            echo "Deleting $tag"
+            gh api -X DELETE "repos/$REPO/releases/$id" || echo "::warning::Could not delete release $tag"
+            gh api -X DELETE "repos/$REPO/git/refs/tags/$tag" || echo "::warning::Could not delete tag $tag"
+            # Only delete images that are tagged with exactly this version, never ones that are also tagged otherwise
+            awk -v t="${tag#v}" '$2 == t { print $1 }' image-versions.txt | while read -r version; do
+              gh api -X DELETE "orgs/icpctools/packages/container/cds/versions/$version" \
+                || echo "::warning::Could not delete image cds:${tag#v}"
+            done
+          done < old-releases.txt
