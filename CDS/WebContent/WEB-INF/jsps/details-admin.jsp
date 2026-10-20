@@ -35,7 +35,7 @@ contest = new Contest("/api", "<%= cc.getId() %>");
                     <h3 class="card-title">Judgements</h3>
                     <div class="card-tools">
                         <span id="judgements-count" title="?" class="badge bg-primary">?</span>
-                        <button id="judgements-button" type="button" class="btn btn-tool">API</button>
+                        <button id="judgements-api" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@ contest = new Contest("/api", "<%= cc.getId() %>");
                     <h3 class="card-title">Runs</h3>
                     <div class="card-tools">
                         <span id="runs-count" title="?" class="badge bg-primary">?</span>
-                        <button id="runs-button" type="button" class="btn btn-tool">API</button>
+                        <button id="runs-api" type="button" class="btn btn-tool">API</button>
                     </div>
                 </div>
             </div>
@@ -56,6 +56,9 @@ contest = new Contest("/api", "<%= cc.getId() %>");
     </div>
 </div>
 <script type="text/javascript">
+registerContestObjectTable("judgements");
+registerContestObjectTable("runs");
+
     $(document).ready(function () {
         $.when(contest.loadJudgements()).done(function () {
         	updateContestObjectHeader("judgements", contest.getJudgements());
