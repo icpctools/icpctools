@@ -114,7 +114,7 @@ jobs:
     runs-on: ubuntu-26.04
     # The website fetches release data and container image tags when it builds, so wait for the image
     # too - but still update the website for the new release if only the docker push failed
-    needs: [push-release, push-docker]
+    needs: [push-release, push-docker, cleanup]
     if: always() && github.ref == 'refs/heads/main' && needs.push-release.result == 'success'
     steps:
       - name: Trigger website rebuild
