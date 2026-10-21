@@ -1,4 +1,4 @@
-FROM ubuntu:jammy
+FROM ubuntu:26.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 LABEL org.opencontainers.image.description="ICPC Tools Contest Data Server"
