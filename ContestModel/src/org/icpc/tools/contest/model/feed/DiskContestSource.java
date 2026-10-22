@@ -80,7 +80,7 @@ public class DiskContestSource extends ContestSource {
 
 	private static final String[] LOGO_EXTENSIONS = new String[] { "png", "svg", "jpg", "jpeg" };
 	private static final String[] PHOTO_EXTENSIONS = new String[] { "jpg", "jpeg", "png", "svg" };
-	private static final String[] VIDEO_EXTENSIONS = new String[] { "ts", "m2ts", "ogg", "flv" };
+	private static final String[] VIDEO_EXTENSIONS = new String[] { "ts", "m2ts", "ogg", "flv", "mp4", "m3u8" };
 	private static final String[] AUDIO_EXTENSIONS = new String[] { "mp4", "m4a", "wav", "mp3", "oga" };
 
 	protected File eventFeedFile;
