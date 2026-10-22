@@ -33,11 +33,13 @@ public class MimeUtil {
 			return "video/ogg";
 		else if (ext.equals("flv"))
 			return "video/x-flv";
+		else if (ext.equals("mp4") || ext.equals("m4s") || ext.equals("m4v"))
+			return "video/mp4";
 		else if (ext.equals("txt") || ext.equals("log") || ext.equals("tsv") || ext.equals("yaml") || ext.equals("xml"))
 			return "text/plain";
 		else if (ext.equals("pdf"))
 			return "application/pdf";
-		else if (ext.equals("m4a") || ext.equals("mp4"))
+		else if (ext.equals("m4a"))
 			return "audio/mp4";
 		else if (ext.equals("wav"))
 			return "audio/wav";
@@ -45,6 +47,10 @@ public class MimeUtil {
 			return "audio/mpeg";
 		else if (ext.equals("oga"))
 			return "audio/ogg";
+		else if (ext.equals("m3u8"))
+			return "application/vnd.apple.mpegurl";
+		else if (ext.equals("aac"))
+			return "audio/aac";
 		return null;
 	}
 
@@ -76,18 +82,26 @@ public class MimeUtil {
 				return "ogg";
 			case ("video/x-flv"):
 				return "flv";
+			case ("video/mp4"):
+				return "mp4";
+			case ("video/iso.segment"):
+				return "m4s";
 			case ("text/plain"):
 				return "txt";
 			case ("application/pdf"):
 				return "pdf";
 			case ("audio/mp4"):
-				return "mp4";
+				return "m4a";
 			case ("audio/wav"):
 				return "wav";
 			case ("audio/mpeg"):
 				return "mp3";
 			case ("audio/ogg"):
 				return "oga";
+			case ("audio/aac"):
+				return "aac";
+			case ("application/vnd.apple.mpegurl"):
+				return "m3u8";
 		}
 		return null;
 	}

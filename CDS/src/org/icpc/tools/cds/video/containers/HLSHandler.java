@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLConnection;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +17,6 @@ import org.icpc.tools.cds.service.ExecutorListener;
 import org.icpc.tools.cds.video.VideoAggregator;
 import org.icpc.tools.cds.video.VideoServingHandler;
 import org.icpc.tools.cds.video.VideoStream;
-import org.icpc.tools.cds.video.containers.HLSFileCache.CachedFile;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.HTTPSSecurity;
 
@@ -28,9 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * https://datatracker.ietf.org/doc/html/draft-pantos-hls-rfc8216bis
  */
-// TODO - cache HLS m3u8
 // TODO - handle HLS query params
-// TODO - multiplexing m3u8
 // TODO - connection modes, e.g. eager, lazy
 public class HLSHandler extends VideoServingHandler {
 	private static final String HEADER = "#EXTM3U";
@@ -38,6 +36,8 @@ public class HLSHandler extends VideoServingHandler {
 	private static final String PARAM_PART = "_HLS_part";
 	private static final String PARAM_SKIP = "_HLS_skip";
 	*/
+
+	private static final NumberFormat nf = NumberFormat.getIntegerInstance();
 
 	static {
 		startBackgroundCleanup();
@@ -95,10 +95,6 @@ public class HLSHandler extends VideoServingHandler {
 		String query = request.getQueryString();
 
 		Trace.trace(Trace.INFO, "HLS index: " + request.getRequestURL() + " " + query);
-		/*String media = request.getParameter(PARAM_MEDIA);
-		String part = request.getParameter(PARAM_PART);
-		String skip = request.getParameter(PARAM_SKIP);
-		boolean doSkip = "YES".equals(skip);*/
 
 		VideoStream vs = (VideoStream) store;
 		HLSFileCache fileCache = (HLSFileCache) store.getObject();
@@ -108,6 +104,7 @@ public class HLSHandler extends VideoServingHandler {
 		if (query == null) {
 			if (fileCache != null && fileCache.getParser() != null
 					&& fileCache.getParser().readTime > System.currentTimeMillis() - 500) {
+				response.setContentType(getMimeType());
 				streamIndex(fileCache, response);
 				return;
 			}
@@ -172,20 +169,27 @@ public class HLSHandler extends VideoServingHandler {
 	private static void cleanCaches() {
 		VideoAggregator va = VideoAggregator.getInstance();
 		int numStreams = va.getNumStreams();
-		// long cacheSize = 0;
+		long[] cacheData = new long[5];
 		for (int i = 0; i < numStreams; i++) {
 			VideoStream vs = va.getStream(i);
 			if (vs != null) {
 				Object obj = vs.getObject();
 				if (obj != null && obj instanceof HLSFileCache) {
 					HLSFileCache fileCache = (HLSFileCache) obj;
-					// cacheSize +=
-					fileCache.cleanCache();
+					long[] data = fileCache.cleanCache();
+					cacheData[0] += data[0];
+					cacheData[1] += data[1];
+					cacheData[2] += data[2];
+					cacheData[3] += data[3];
+					cacheData[4] += data[4];
 				}
 			}
 		}
 
-		// System.out.println("Cleaned cache, remaining size: " + cacheSize + " bytes");
+		if (cacheData[2] != 0 || cacheData[3] != 0 || cacheData[0] != cacheData[1]) {
+			Trace.trace(Trace.INFO, "HLS cache: " + nf.format(cacheData[1] / 1024.0) + " kB. " + cacheData[2]
+					+ " removed, " + cacheData[3] + " reduced, " + cacheData[4] + " entries.");
+		}
 	}
 
 	protected static void startBackgroundCleanup() {
@@ -194,7 +198,8 @@ public class HLSHandler extends VideoServingHandler {
 
 	/**
 	 * Parses a string byterange in the HTTP form "bytes=start-end" into a byte array, e.g.
-	 * "bytes=512-1024" returns [512, 1024].
+	 * "bytes=512-1024" returns [512, 1024]. Open-ended ranges return -1 as the end, e.g.
+	 * "bytes=512-" returns [512, -1].
 	 *
 	 * @param s an HTTP byte range
 	 * @return the integer start and end values of the range
@@ -208,7 +213,13 @@ public class HLSHandler extends VideoServingHandler {
 		if (ind < 0)
 			return null;
 
-		return new int[] { Integer.parseInt(s.substring(0, ind)), Integer.parseInt(s.substring(ind + 1)) };
+		// TODO: suffix ("bytes=-500") or multi-range requests aren't supported
+		try {
+			String end = s.substring(ind + 1);
+			return new int[] { Integer.parseInt(s.substring(0, ind)), end.isEmpty() ? -1 : Integer.parseInt(end) };
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -228,37 +239,13 @@ public class HLSHandler extends VideoServingHandler {
 		}
 
 		int[] httpByterange = null;
-		int[] hlsByterange = null;
 		String range = request.getHeader("Range");
 		if (range != null && range.length() > 0) {
 			httpByterange = parseRange(range);
-
-			// convert from HTTP byte range [start, end] to HLS byte range [length, start]
-			hlsByterange = new int[2];
-			hlsByterange[0] = httpByterange[1] - httpByterange[0] + 1;
-			hlsByterange[1] = httpByterange[0];
 		}
 
 		// any valid file should already be in the cache list
-		CachedFile cf = fileCache.getFromCache(name, hlsByterange);
-		if (cf == null) {
-			Trace.trace(Trace.ERROR, "Request to stream an invalid file: " + name + " / " + range);
-			response.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
-		}
-
-		if (cf.byterange != null) {
-			response.setStatus(206);
-			response.setHeader("Content-Range", "bytes " + cf.byterange[0] + "-" + cf.byterange[1] + "/*");
-		}
-
-		if (cf.byterange != null) {
-			response.setContentLength(cf.byterange[0]);
-		} else if (cf.b != null) {
-			response.setContentLength(cf.b.length);
-		}
-
-		fileCache.serveFile(cf, response.getOutputStream());
+		fileCache.serveRange(name, httpByterange, response);
 	}
 
 	private static void streamIndex(HLSFileCache fileCache, HttpServletResponse response) {
