@@ -25,7 +25,9 @@ jobs:
           # the ant ui target installs and builds
           install: false
       - name: Build
-        run: ant build
+        run: |
+          git config --global --add safe.directory ${GITHUB_WORKSPACE}
+          ant build
       - name: Add run ID
         run: echo $GITHUB_RUN_ID > dist/github_run_id.txt
       - uses: actions/upload-artifact@v7.0.2
