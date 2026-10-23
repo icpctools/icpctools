@@ -58,14 +58,14 @@
       </jar>
    </target>
    <target name="version">
-      <exec executable="git" outputproperty="git_hash" failifexecutionfails="false">
+      <exec executable="git" outputproperty="git_hash" errorproperty="git_hash.err" failifexecutionfails="false">
          <arg value="log"/>
          <arg value="-n"/>
          <arg value="1"/>
          <arg value="--pretty=format:%H"/>
          <arg value="./.."/>
       </exec>
-      <exec executable="git" outputproperty="git.count" failifexecutionfails="false">
+      <exec executable="git" outputproperty="git.count" errorproperty="git.count.err" failifexecutionfails="false">
          <arg value="rev-list"/>
          <arg value="${git_hash}"/>
          <arg value="--count"/>
