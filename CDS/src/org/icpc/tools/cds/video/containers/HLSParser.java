@@ -28,6 +28,7 @@ public class HLSParser {
 	private static final String X_MAP = "#EXT-X-MAP:";
 	private static final String X_STREAM_INF = "#EXT-X-STREAM-INF:";
 	private static final String X_BYTE_RANGE = "#EXT-X-BYTERANGE:";
+	private static final String X_ENDLIST = "#EXT-X-ENDLIST";
 
 	private static final String INF = "#EXTINF:";
 	private static final String X_PART = "#EXT-X-PART:";
@@ -50,6 +51,8 @@ public class HLSParser {
 	protected HLSSegment map;
 	protected List<String> preload = new ArrayList<>();
 	protected long readTime;
+	// true if the playlist has ended, i.e. no more segments will be added
+	protected boolean endList;
 
 	protected String urlPrefix;
 
@@ -101,9 +104,10 @@ public class HLSParser {
 	 * [length, start]. e.g. input "1024@512" -> output [1024, 512]
 	 *
 	 * @param a byterange string
+	 * @param defaultStart the start to use if the string doesn't contain one
 	 * @return an integer array containing the length and start
 	 */
-	private static int[] parseByteRange(String s) {
+	private static int[] parseByteRange(String s, int defaultStart) {
 		if (s == null || s.length() == 0)
 			return null;
 
@@ -112,6 +116,7 @@ public class HLSParser {
 			int ind = s.indexOf("@");
 			if (ind < 0) {
 				br[0] = Integer.parseInt(s);
+				br[1] = defaultStart;
 			} else {
 				br[0] = Integer.parseInt(s.substring(0, ind));
 				br[1] = Integer.parseInt(s.substring(ind + 1, s.length()));
@@ -134,6 +139,7 @@ public class HLSParser {
 			List<HLSSegment> segments = new ArrayList<HLSSegment>();
 			boolean gap = false;
 			int[] byterange = null;
+			int nextStart = 0;
 			while (s != null) {
 				if (s.startsWith(X_STREAM_INF) || s.startsWith(INF)) {
 					if (header == null) {
@@ -148,7 +154,7 @@ public class HLSParser {
 						String[] ss = getURI(s);
 						HLSSegment seg = new HLSSegment();
 						seg.file = ss[0];
-						seg.byterange = parseByteRange(getValue(s, "BYTERANGE"));
+						seg.byterange = parseByteRange(getValue(s, "BYTERANGE"), 0);
 						map = seg;
 						buf.add(ss[1]);
 					} else if (s.startsWith(X_PART)) {
@@ -162,8 +168,14 @@ public class HLSParser {
 					} else if (s.equals(X_GAP)) {
 						gap = true;
 						buf.add(s);
+					} else if (s.equals(X_ENDLIST)) {
+						endList = true;
+						buf.add(s);
 					} else if (s.startsWith(X_BYTE_RANGE)) {
-						byterange = parseByteRange(s.substring(X_BYTE_RANGE.length()));
+						// if there's no start, the range begins after the previous segment's range
+						byterange = parseByteRange(s.substring(X_BYTE_RANGE.length()), nextStart);
+						if (byterange != null)
+							nextStart = byterange[0] + byterange[1];
 						buf.add(s);
 					} else if (s.equals(VERSION)) {
 						version = s.substring(VERSION.length());
@@ -197,6 +209,8 @@ public class HLSParser {
 	}
 
 	public void prefillCache(HLSFileCache fileCache) {
+		fileCache.setEndList(endList);
+
 		// add all files to the cache list, but download only the map, footer, and up to 2 files
 		if (map != null) {
 			CachedFile cf = fileCache.addToCache(map.file, map.byterange, true);
