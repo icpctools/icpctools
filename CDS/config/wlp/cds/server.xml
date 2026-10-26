@@ -14,10 +14,10 @@
        <httpOptions ThrowIOEForInboundConnections="true"/>
     </httpEndpoint>
 
-    <httpSession invalidationTimeout="8h" idReuse="true"/>
+    <httpSession invalidationTimeout="8h" idReuse="true" cloneId="cds"/>
 
-    <keyStore id="defaultKeyStore" password="{xor}FhwPHAswMDMs" />
-    <!--<ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustDefaultCerts="true" />-->
+    <keyStore id="defaultKeyStore" password="{xor}FhwPHAswMDMs"/>
+    <!--<ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustDefaultCerts="true"/>-->
 
     <jndiEntry jndiName="icpc.cds.config" value="${server.config.dir}/config"/>
 
