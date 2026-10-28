@@ -303,7 +303,7 @@ public class ContestRESTService extends HttpServlet {
 				+ "\"mime\":\"image/png\",\"width\":512,\"height\":512}]");
 		je.encode("version", ContestAPIHelper.getVersionString());
 		if (ContestAPIHelper.is2026_01_next()) {
-			je.encode("version_url", "https://ccs-specs.icpc.io/draft/contest_api");
+			je.encode("version_url", "https://ccs-specs.icpc.io/2026-01-next/contest_api");
 		} else if (ContestAPIHelper.is2023_06()) {
 			je.encode("version_url", "https://ccs-specs.icpc.io/2023-06/contest_api");
 		} else {
