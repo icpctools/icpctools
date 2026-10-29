@@ -1,3 +1,5 @@
+import adapter from '@sveltejs/adapter-static';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
@@ -9,11 +11,20 @@ const apiProxy = {
 };
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
-	server: {
-		proxy: apiProxy
-	},
-	preview: {
-		proxy: apiProxy
-	}
+	plugins: [
+		tailwindcss(),
+		sveltekit({
+			preprocess: vitePreprocess(),
+			// single-page app served by the CDS under /ui; all data is loaded in the browser from the
+			// Contest API. Built into WebContent so it is included in the war
+			adapter: adapter({
+				pages: '../WebContent/ui',
+				assets: '../WebContent/ui',
+				fallback: 'index.html'
+			}),
+			paths: { base: '/ui' }
+		})
+	],
+	server: { proxy: apiProxy },
+	preview: { proxy: apiProxy }
 });
