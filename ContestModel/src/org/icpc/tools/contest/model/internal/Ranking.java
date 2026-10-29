@@ -102,7 +102,7 @@ public class Ranking {
 						&& standing.getLastSolutionTime() == lastStanding.getLastSolutionTime()) {
 					standing.setRank(lastStanding.getRank());
 				} else {
-					standing.setRank((i + 1) + "");
+					standing.setRank(i + 1);
 					lastStanding = standing;
 				}
 			}
@@ -130,7 +130,7 @@ public class Ranking {
 
 			for (int i = n; i < next; i++) {
 				Standing standingI = (Standing) standings[order[i]];
-				standingI.setRank((n + 1) + "");
+				standingI.setRank(n + 1);
 			}
 
 			n = next;

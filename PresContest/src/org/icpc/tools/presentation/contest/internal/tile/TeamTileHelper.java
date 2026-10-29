@@ -272,7 +272,7 @@ public class TeamTileHelper {
 		g.setColor(lightMode ? Color.BLACK : Color.WHITE);
 
 		IStanding standing = contest.getStanding(team);
-		String s = standing.getRank();
+		String s = standing.getRank() + "";
 		g.drawString(s, (ww - rankFm.stringWidth(s)) / 2, (tileDim.height + rankFm.getAscent()) / 2);
 		rankAndScoreMeasure.stopMeasure();
 

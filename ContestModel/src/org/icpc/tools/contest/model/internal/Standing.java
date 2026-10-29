@@ -7,7 +7,7 @@ public class Standing implements IStanding {
 	private long penalty;
 	private int numSolved;
 	private long lastSolution;
-	private String rank;
+	private int rank;
 	private double score;
 
 	public Standing() {
@@ -45,11 +45,11 @@ public class Standing implements IStanding {
 	}
 
 	@Override
-	public String getRank() {
+	public int getRank() {
 		return rank;
 	}
 
-	public void setRank(String rank) {
+	public void setRank(int rank) {
 		this.rank = rank;
 	}
 

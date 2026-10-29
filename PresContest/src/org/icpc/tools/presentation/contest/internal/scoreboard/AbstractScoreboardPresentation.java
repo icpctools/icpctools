@@ -424,11 +424,10 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		FontMetrics fm = g.getFontMetrics();
 
 		IStanding standing = getContest().getStanding(team);
-		String s = standing.getRank();
+		String s = standing.getRank() + "";
 		g.setColor(isLightMode() ? Color.BLACK : Color.WHITE);
 		g.setFont(rowItalicsFont);
-		if (s != null)
-			TextImage.drawString(g, s, BORDER + (fm.stringWidth("199") - fm.stringWidth(s)) / 2, 5);
+		TextImage.drawString(g, s, BORDER + (fm.stringWidth("199") - fm.stringWidth(s)) / 2, 5);
 
 		BufferedImage img = getSmallTeamLogo(team, true);
 		if (img != null) {
