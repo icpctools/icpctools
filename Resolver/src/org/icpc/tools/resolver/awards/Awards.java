@@ -157,14 +157,10 @@ public class Awards {
 						IAward[] awards = contest.getAwards();
 						if (awards == null || awards.length == 0) {
 							Trace.trace(Trace.USER, "No awards found in feed, showing default awards");
-							contest.finalizeResults();
 							AwardUtil.createDefaultAwards(contest);
 							awards = contest.getAwards();
 						} else
 							Trace.trace(Trace.USER, "Awards found in feed");
-
-						// create the official scoreboard
-						contest.officialResults();
 
 						AwardUtil.printAwards(contest);
 						break;

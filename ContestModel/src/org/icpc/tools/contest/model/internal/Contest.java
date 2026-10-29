@@ -42,7 +42,6 @@ import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.RemovedInterval;
 import org.icpc.tools.contest.model.Status;
-import org.icpc.tools.contest.model.util.AwardUtil;
 
 public class Contest implements IContest {
 	private static final Collator collator = Collator.getInstance(Locale.US);
@@ -1280,34 +1279,6 @@ public class Contest implements IContest {
 			calculateResultsAndStandings();
 
 			return standings[teamIndex];
-		}
-	}
-
-	/**
-	 * Finalize the results of the contest. Ranking will no longer be interim.
-	 */
-	public void finalizeResults() {
-		synchronized (data) {
-			order = null;
-			orderedTeams = null;
-			results = null;
-			standings = null;
-			calculateResultsAndStandings();
-			Ranking.rankIt(this, teams, standings, Ranking.Scoring.UNOFFICIAL, order, AwardUtil.getLastBronze(this));
-		}
-	}
-
-	/**
-	 * Finalize the results of the contest and apply official scoring rules.
-	 */
-	public void officialResults() {
-		synchronized (data) {
-			order = null;
-			orderedTeams = null;
-			results = null;
-			standings = null;
-			calculateResultsAndStandings();
-			Ranking.rankIt(this, teams, standings, Ranking.Scoring.OFFICIAL, order, AwardUtil.getLastBronze(this));
 		}
 	}
 

@@ -144,7 +144,6 @@ public class ProjectionScoreboardService {
 			if (contestTimeMs > contest.getDuration())
 				return;
 			submission.add("contest_time", RelativeTime.format(contestTimeMs));
-			clone.finalizeResults();
 			count++;
 		}
 	}
