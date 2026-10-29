@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { findById, findManyById } from '@icpctools/contest-api';
-import { loadContest } from '$lib/contests';
+import { loadContest } from '#lib/contests.js';
 
 export const load = async ({ params, depends }) => {
 	depends('app:contest', 'app:teams', 'app:organizations', 'app:groups');
