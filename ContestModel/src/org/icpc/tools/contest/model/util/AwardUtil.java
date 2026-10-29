@@ -80,7 +80,7 @@ public class AwardUtil {
 		// int numPerGroup = Integer.parseInt(a.getCount());
 
 		int count = 0;
-		String lastRank = null;
+		int lastRank = -1;
 		List<String> teamIds = new ArrayList<>();
 		for (ITeam team : contest.getOrderedTeams()) {
 			if (contest.getStanding(team).getNumSolved() == 0)
@@ -95,8 +95,8 @@ public class AwardUtil {
 				}
 
 			if (teamInGroup) {
-				String rank = contest.getStanding(team).getRank();
-				if (count <= numPerGroup && rank.equals(lastRank)) {
+				int rank = contest.getStanding(team).getRank();
+				if (count <= numPerGroup && rank == lastRank) {
 					teamIds.add(team.getId());
 				} else if (count < numPerGroup) {
 					teamIds.add(team.getId());
@@ -371,12 +371,11 @@ public class AwardUtil {
 			String[] teamIds = new String[] { team.getId() };
 			IStanding standing = contest.getStanding(team);
 			try {
-				int rank = Integer.parseInt(standing.getRank());
 				contest.add(new Award(IAward.RANK, (i + 1) + "", teamIds,
-						Messages.getString("awardPlace").replace("{0}", getPlaceString(rank)), mode));
+						Messages.getString("awardPlace").replace("{0}", getPlaceString(standing.getRank())), mode));
 			} catch (Exception e) {
 				contest.add(new Award(IAward.RANK, (i + 1) + "", teamIds,
-						Messages.getString("awardPlace").replace("{0}", standing.getRank()), mode));
+						Messages.getString("awardPlace").replace("{0}", standing.getRank() + ""), mode));
 			}
 		}
 	}

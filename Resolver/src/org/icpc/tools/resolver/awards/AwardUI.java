@@ -463,18 +463,7 @@ public class AwardUI {
 			IStanding s1 = contest.getStanding(t1);
 			IStanding s2 = contest.getStanding(t2);
 			if (col == SORT_RANK) {
-				try {
-					int r1 = Integer.parseInt(s1.getRank());
-					int r2 = Integer.parseInt(s2.getRank());
-					if (r1 > r2)
-						return inc;
-					if (r1 < r2)
-						return -inc;
-					return 0;
-				} catch (Exception e) {
-					// ignore and fall back to string sorting
-					return s1.getRank().compareTo(s2.getRank()) * inc;
-				}
+				return (s1.getRank() - s2.getRank()) * inc;
 			} else if (col == SORT_TEAM_ID) {
 				try {
 					Integer in1 = Integer.parseInt(t1.getId());
@@ -497,17 +486,9 @@ public class AwardUI {
 					return -inc;
 				return collator.compare(g1, g2) * inc;
 			} else if (col == SORT_SOLVED) {
-				if (s1.getNumSolved() > s2.getNumSolved())
-					return -inc;
-				if (s1.getNumSolved() < s2.getNumSolved())
-					return inc;
-				return 0;
+				return (s2.getNumSolved() - s1.getNumSolved()) * inc;
 			} else if (col == SORT_PENALTY) {
-				if (s1.getTime() > s2.getTime())
-					return -inc;
-				if (s1.getTime() < s2.getTime())
-					return inc;
-				return 0;
+				return (int) (s2.getTime() - s1.getTime()) * inc;
 			} else if (col == SORT_AWARDS) {
 				String a1 = getAwardString(t1);
 				String a2 = getAwardString(t2);
@@ -595,7 +576,7 @@ public class AwardUI {
 			IStanding standing = contest.getStanding(team);
 			String awardStr = getAwardString(team);
 			String groupName = getGroupLabel(team);
-			ti.setText(new String[] { standing.getRank(), team.getLabel(), team.getActualDisplayName(), groupName,
+			ti.setText(new String[] { standing.getRank() + "", team.getLabel(), team.getActualDisplayName(), groupName,
 					standing.getNumSolved() + "", ContestUtil.getTime(standing.getTime()), awardStr });
 		}
 	}

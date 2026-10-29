@@ -281,7 +281,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 
 				if (worstCase != null && worstCase[jj] != null) {
 					IStanding standing = worstCase[jj];
-					s = standing.getRank();
+					s = standing.getRank() + "";
 					yy += fm.getHeight() + GAP;
 					g2.drawString(s, xx + (cubeWidth - fm.stringWidth(s)) / 2, yy);
 				}

@@ -37,5 +37,5 @@ public interface IStanding {
 	 *
 	 * @return the rank
 	 */
-	String getRank();
+	int getRank();
 }

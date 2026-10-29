@@ -873,7 +873,7 @@ public class ResolverLogic {
 			}
 
 			IStanding standing = contestWorst.getStanding(contestWorst.getTeamById(teamId));
-			if (!standing.getRank().equals(currentStanding.getRank()))
+			if (standing.getRank() != currentStanding.getRank())
 				standingWorst[i] = standing;
 		}
 

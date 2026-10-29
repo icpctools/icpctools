@@ -306,7 +306,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 		if (team == null)
 			return;
 		IStanding standing = contest.getStanding(team);
-		String s = standing.getRank();
+		String s = standing.getRank() + "";
 		g.setColor(Color.white);
 		g.setFont(rowItalicsFont);
 		TextImage.drawString(g, s, BORDER + (fm.stringWidth("199") - fm.stringWidth(s)) / 2, 5);
