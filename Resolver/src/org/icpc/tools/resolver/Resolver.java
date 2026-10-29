@@ -620,9 +620,6 @@ public class Resolver {
 				AwardUtil.createDefaultAwards(cc);
 			}
 
-			// create the official scoreboard
-			cc.officialResults();
-
 			ResolverLogic logic = new ResolverLogic(cc, show_info);
 
 			long time = System.currentTimeMillis();
@@ -635,9 +632,6 @@ public class Resolver {
 				Trace.trace(Trace.USER, "Generating awards");
 				AwardUtil.createDefaultAwards(finalContest[con]);
 			}
-
-			// create the official scoreboard
-			finalContest[con].officialResults();
 
 			ResolverLogic logic = new ResolverLogic(finalContest[con], show_info);
 
