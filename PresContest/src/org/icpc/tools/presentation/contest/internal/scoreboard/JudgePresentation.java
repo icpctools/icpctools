@@ -17,7 +17,6 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
-import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
@@ -150,9 +149,9 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 	}
 
 	@Override
-	public void setSelectedSubmission(SubmissionInfo submission) {
-		super.setSelectedSubmission(submission);
-		if (submission == null)
+	public void setSelectedProblem(String problemId) {
+		super.setSelectedProblem(problemId);
+		if (problemId == null)
 			setSelectedSubmissionId(null);
 	}
 

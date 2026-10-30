@@ -152,10 +152,10 @@ public class ResolutionUtil {
 		}
 	}
 
-	public static class SubmissionSelectionStep implements ResolutionStep {
+	public static class ProblemSelectionStep implements ResolutionStep {
 		public SubmissionInfo subInfo;
 
-		public SubmissionSelectionStep(SubmissionInfo subInfo) {
+		public ProblemSelectionStep(SubmissionInfo subInfo) {
 			this.subInfo = subInfo;
 		}
 
@@ -163,14 +163,14 @@ public class ResolutionUtil {
 		public String toString() {
 			if (subInfo == null)
 				return "Select submission (none)";
-			return "Select submission " + subInfo.getProblemIndex() + " for team " + subInfo.getTeam().getId();
+			return "Select submission " + subInfo.getProblemId() + " for team " + subInfo.getTeam().getId();
 		}
 	}
 
-	public static class SubmissionSelectionStep2 implements ResolutionStep {
+	public static class SubmissionSelectionStep implements ResolutionStep {
 		public String submissionId;
 
-		public SubmissionSelectionStep2(String submissionId) {
+		public SubmissionSelectionStep(String submissionId) {
 			this.submissionId = submissionId;
 		}
 

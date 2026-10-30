@@ -998,6 +998,12 @@ public class Contest implements IContest {
 		return getResult(teamIndex, problemIndex);
 	}
 
+	public IResult getResult(ITeam team, String problemId) {
+		int teamIndex = getTeamIndex(team.getId());
+		int problemIndex = getProblemIndex(problemId);
+		return getResult(teamIndex, problemIndex);
+	}
+
 	@Override
 	public IResult getResult(int teamIndex, int problemIndex) {
 		Result[][] tempResults = results;
@@ -1254,6 +1260,18 @@ public class Contest implements IContest {
 				return i;
 		}
 		return -1;
+	}
+
+	public String getProblemIdByLabel(String problemLabel) {
+		if (problemLabel == null)
+			return null;
+
+		IProblem[] tempProbs = getProblems();
+		for (int i = 0; i < tempProbs.length; i++) {
+			if (problemLabel.equals(tempProbs[i].getLabel()))
+				return tempProbs[i].getId();
+		}
+		return null;
 	}
 
 	@Override

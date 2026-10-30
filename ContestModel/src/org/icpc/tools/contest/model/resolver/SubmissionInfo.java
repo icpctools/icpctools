@@ -17,14 +17,14 @@ import org.icpc.tools.contest.model.ITeam;
  */
 public class SubmissionInfo {
 	private final ITeam team;
-	private final int problemIndex;
+	private final String problemId;
 	private IStanding[] ifSolved;
 	private IStanding[] bestCase;
 	private IStanding[] worstCase;
 
-	public SubmissionInfo(ITeam team, int problemIndex) {
+	public SubmissionInfo(ITeam team, String problemId) {
 		this.team = team;
-		this.problemIndex = problemIndex;
+		this.problemId = problemId;
 	}
 
 	public void setPossibleStandings(IStanding[] ifSolved, IStanding[] bestCase, IStanding[] worstCase) {
@@ -37,8 +37,8 @@ public class SubmissionInfo {
 		return team;
 	}
 
-	public int getProblemIndex() {
-		return problemIndex;
+	public String getProblemId() {
+		return problemId;
 	}
 
 	public IStanding[] getStandingIfSolved() {
@@ -55,6 +55,6 @@ public class SubmissionInfo {
 
 	@Override
 	public String toString() {
-		return "SubmissionInfo[" + team.getId() + ", " + problemIndex + "]";
+		return "SubmissionInfo[" + team.getId() + ", " + problemId + "]";
 	}
 }
