@@ -8,7 +8,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.resolver.SelectType;
-import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
@@ -62,7 +60,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 
 	protected boolean showMedals = false;
 	protected int advanceLineRow = 0;
-	protected SubmissionInfo selectedSubmission = null;
+	protected String selectedProblemId;
 
 	protected static final Color BG_COLOR = new Color(60, 60, 60);
 
@@ -271,19 +269,10 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		}
 	}
 
-	public void setSelectedTeam(ITeam team, SelectType type) {
-		selectType = type;
-		if (team == null)
-			selectedTeams = null;
-		else {
-			selectedTeams = new ArrayList<>(1);
-			selectedTeams.add(team);
-		}
-	}
-
 	public void setSelectedTeams(List<ITeam> teams, SelectType type) {
 		selectType = type;
 		selectedTeams = teams;
+		selectedProblemId = null;
 	}
 
 	public List<ITeam> getSelectedTeams() {
@@ -301,12 +290,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		setSize(getSize());
 	}
 
-	public void setSelectedSubmission(SubmissionInfo s) {
-		selectedSubmission = s;
-	}
-
-	public SubmissionInfo getSelectedSubmission() {
-		return selectedSubmission;
+	public void setSelectedProblem(String problemId) {
+		selectedProblemId = problemId;
 	}
 
 	public void setShowMedals(boolean b) {
@@ -518,8 +503,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 			// compute horizontal starting position of current problem representation (rectangle)
 			int xx = indent + curProblem * (cubeWidth + CUBE_INSET);
 
-			SubmissionInfo runInfo = selectedSubmission;
-			if (runInfo != null && runInfo.getTeam().equals(team) && runInfo.getProblemIndex() == curProblem) {
+			if (selectedProblemId != null && selectedTeams.contains(team)
+					&& selectedProblemId.equals(problems[curProblem].getId())) {
 				g.setColor(PENDING_SUBMISSION_BLINK_HILIGHT_COLOR);
 				g.setStroke(new BasicStroke(3));
 

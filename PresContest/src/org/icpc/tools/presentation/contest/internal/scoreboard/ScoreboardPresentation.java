@@ -28,6 +28,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 	private static final int GAP = 5;
 
 	private boolean showSubmissionInfo;
+	private SubmissionInfo submissionInfo = null;
 	private boolean showLegend = true;
 
 	@Override
@@ -41,6 +42,10 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 
 	public boolean getShowSubmissionInfo() {
 		return showSubmissionInfo;
+	}
+
+	public void setSubmissionInfo(SubmissionInfo s) {
+		submissionInfo = s;
 	}
 
 	/**
@@ -94,17 +99,16 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 		// draw an info box if that option was selected
 		if (showSubmissionInfo) {
 			// check the current SubmissionInfo object, which is set in Resolver.resolveToRow() to be
-			// a
-			// pending submission on the currently selected team row
-			SubmissionInfo runInfo = selectedSubmission;
-			if (runInfo != null) {
+			// a pending submission on the currently selected team row
+			// SubmissionInfo runInfo = selectedSubmission;
+			if (submissionInfo != null) {
 				// there is a pending submission; calculate the vertical position for the box
-				ITeam team = runInfo.getTeam();
+				ITeam team = submissionInfo.getTeam();
 				double y = getTeamY(team);
 				Graphics2D g4 = (Graphics2D) g.create();
 				g4.translate(0, (int) y);
 				// draw the info box with the specified SubmissionInfo object data in it
-				paintSubmissionInfo(g4, runInfo, y > height / 2);
+				paintSubmissionInfo(g4, y > height / 2);
 				g4.dispose();
 			} else {
 				// there's no pending submission; see if maybe we should draw a FTS info box instead
@@ -141,7 +145,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 	 * @param alignTop - boolean flag specifying how to manage vertical alignment of the info box
 	 *           with respect to the row containing the current pending submission
 	 */
-	private void paintSubmissionInfo(Graphics2D g2, SubmissionInfo submissionInfo, boolean alignTop) {
+	private void paintSubmissionInfo(Graphics2D g2, boolean alignTop) {
 		// g2.setFont(rowFont);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -159,15 +163,13 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 
 		ITeam team = submissionInfo.getTeam();
 		String teamId = team.getId();
-		int problemInd = submissionInfo.getProblemIndex();
 
 		int numRuns = 0;
 		int numRunsBefore = 0;
 		IContest contest = getContest();
 		ISubmission[] submissions = contest.getSubmissions();
 		for (ISubmission submission : submissions) {
-			if (submission.getTeamId().equals(teamId)
-					&& submission.getProblemId().equals(contest.getProblems()[problemInd].getId())) {
+			if (submission.getTeamId().equals(teamId) && submission.getProblemId().equals(submissionInfo.getProblemId())) {
 				numRuns++;
 				if (contest.isJudged(submission))
 					numRunsBefore++;
@@ -188,8 +190,7 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 		ISubmission[] submissions2 = new ISubmission[numRuns];
 		int c = 0;
 		for (ISubmission submission : submissions) {
-			if (submission.getTeamId().equals(teamId)
-					&& submission.getProblemId().equals(contest.getProblems()[problemInd].getId())) {
+			if (submission.getTeamId().equals(teamId) && submission.getProblemId().equals(submissionInfo.getProblemId())) {
 				submissions2[c] = submission;
 				c++;
 			}

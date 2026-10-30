@@ -13,6 +13,7 @@ import org.icpc.tools.contest.model.IContestObject.ContestType;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.IOrganization;
+import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.IResolveInfo.PredeterminedStep;
 import org.icpc.tools.contest.model.IResult;
@@ -34,8 +35,8 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ProblemSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep2;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
@@ -225,7 +226,7 @@ public class ResolverLogic {
 		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
 		steps.add(new PauseStep());
 		steps.add(new TeamSelectionStep());
-		steps.add(new SubmissionSelectionStep(null));
+		steps.add(new ProblemSelectionStep(null));
 		steps.add(new ToJudgeStep(null));
 
 		Trace.trace(Trace.USER, "Resolving " + countUnjudgedSubmissions(contest) + " pending submissions out of the "
@@ -332,8 +333,8 @@ public class ResolverLogic {
 		Trace.trace(Trace.INFO, "Resolving: " + submissionInfo);
 
 		ITeam team = submissionInfo.getTeam();
-		int problemIndex = submissionInfo.getProblemIndex();
-		IResult r = contest.getResult(team, problemIndex);
+		String problemId = submissionInfo.getProblemId();
+		IResult r = contest.getResult(team, problemId);
 
 		// check if the specified submission is "pending"
 		if (r.getStatus() != Status.SUBMITTED) {
@@ -345,7 +346,7 @@ public class ResolverLogic {
 		ISubmission[] submissions = contest.getSubmissions();
 		for (ISubmission submission : submissions) {
 			if (!contest.isJudged(submission) && submission.getTeamId().equals(team.getId())
-					&& submission.getProblemId().equals(contest.getProblems()[problemIndex].getId())) {
+					&& submission.getProblemId().equals(problemId)) {
 				// we found it; update its status to match the correct (final contest) status
 				IJudgement[] sjs = finalContest.getJudgementsBySubmissionId(submission.getId());
 				if (sjs != null) {
@@ -355,12 +356,12 @@ public class ResolverLogic {
 
 				steps.add(new JudgementStep(sjs));
 
-				steps.add(new SubmissionSelectionStep2(submission.getId()));
+				steps.add(new SubmissionSelectionStep(submission.getId()));
 				timing.onStep(steps, State.SELECT_SUBMISSION);
 
 				// there may be more submissions from this team for this problem so no break
 
-				IResult newResult = contest.getResult(team, problemIndex);
+				IResult newResult = contest.getResult(team, problemId);
 				if (newResult.getScore() > r.getScore()) {
 					break;
 				}
@@ -368,10 +369,10 @@ public class ResolverLogic {
 		}
 
 		// get the newly-computed result for the current team on the specified problem
-		IResult newResult = contest.getResult(team, problemIndex);
+		IResult newResult = contest.getResult(team, problemId);
 
 		// get the equivalent information out of the final contest
-		IResult finalResult = finalContest.getResult(team, problemIndex);
+		IResult finalResult = finalContest.getResult(team, problemId);
 
 		// double check that the two match
 		if (newResult.getStatus() != finalResult.getStatus())
@@ -438,13 +439,13 @@ public class ResolverLogic {
 					// resolve runs until the team is done or it moves up
 					while (runInfo != null && runInfo.getTeam().equals(team) && contest.getOrderOf(team) == currentRow) {
 						// select run
-						steps.add(new SubmissionSelectionStep(runInfo));
+						steps.add(new ProblemSelectionStep(runInfo));
 						boolean first = true;
 						for (ISubmission r : contest.getSubmissions()) {
 							if (!contest.isJudged(r) && r.getTeamId().equals(runInfo.getTeam().getId())
-									&& r.getProblemId().equals(contest.getProblems()[runInfo.getProblemIndex()].getId())) {
+									&& r.getProblemId().equals(runInfo.getProblemId())) {
 								if (first) {
-									steps.add(new SubmissionSelectionStep2(r.getId()));
+									steps.add(new SubmissionSelectionStep(r.getId()));
 									first = false;
 								}
 								judgeRuns.add(r.getId());
@@ -456,7 +457,7 @@ public class ResolverLogic {
 						resolveOneSubmission(runInfo, timing);
 
 						// deselect
-						steps.add(new SubmissionSelectionStep(null));
+						steps.add(new ProblemSelectionStep(null));
 						timing.onStep(steps, State.DESELECT);
 
 						// we're done with that pending submission; find next pending submission
@@ -814,7 +815,7 @@ public class ResolverLogic {
 		boolean otherProblemsPending = false;
 		for (ISubmission submission : submissions) {
 			if (submission.getTeamId().equals(teamId) && !contest.isJudged(submission)) {
-				if (submission.getProblemId().equals(contest.getProblems()[resolve.getProblemIndex()].getId()))
+				if (submission.getProblemId().equals(resolve.getProblemId()))
 					numPendingRuns++;
 				else
 					otherProblemsPending = true;
@@ -833,8 +834,7 @@ public class ResolverLogic {
 
 			int j = 0;
 			for (ISubmission submission : submissions) {
-				if (submission.getTeamId().equals(teamId)
-						&& submission.getProblemId().equals(contestIfSolved.getProblems()[resolve.getProblemIndex()].getId())
+				if (submission.getTeamId().equals(teamId) && submission.getProblemId().equals(resolve.getProblemId())
 						&& !contest.isJudged(submission)) {
 					if (j == i)
 						contestIfSolved.setSubmissionIsSolved(submission, true);
@@ -915,7 +915,8 @@ public class ResolverLogic {
 
 	private SubmissionInfo getNextResolve() {
 		ITeam[] teams = contest.getOrderedTeams();
-		int numProblems = contest.getNumProblems();
+		IProblem[] problems = contest.getProblems();
+		int numProblems = problems.length;
 		for (int i = teams.length - 1; i >= 0; i--) {
 			ITeam team = teams[i];
 
@@ -926,7 +927,7 @@ public class ResolverLogic {
 					if (pInd >= 0) {
 						IResult r1 = contest.getResult(team, pInd);
 						if (r1.getStatus() == Status.SUBMITTED) {
-							return new SubmissionInfo(team, pInd);
+							return new SubmissionInfo(team, problems[pInd].getId());
 						}
 					}
 				}
@@ -936,7 +937,7 @@ public class ResolverLogic {
 			for (int j = 0; j < numProblems; j++) {
 				IResult r1 = contest.getResult(team, j);
 				if (r1.getStatus() == Status.SUBMITTED) {
-					return new SubmissionInfo(team, j);
+					return new SubmissionInfo(team, problems[j].getId());
 				}
 			}
 		}
