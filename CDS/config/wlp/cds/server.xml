@@ -19,6 +19,8 @@
     <keyStore id="defaultKeyStore" password="{xor}FhwPHAswMDMs"/>
     <!--<ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" trustDefaultCerts="true"/>-->
 
+    <ltpa keysPassword="WebAS"/>
+
     <jndiEntry jndiName="icpc.cds.config" value="${server.config.dir}/config"/>
 
     <webApplication id="CDS" location="CDS.war" name="CDS" contextRoot="/"/>
