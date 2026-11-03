@@ -97,6 +97,7 @@ public class ResolverUI {
 	private boolean isPresenter;
 	private Screen screen = Screen.MAIN;
 	private boolean showInfo;
+	private int advanceLineRow;
 	private boolean pauseScroll = false;
 
 	private ClickListener listener;
@@ -300,6 +301,7 @@ public class ResolverUI {
 		if (showInfo)
 			scoreboardPresentation.setShowSubmissionInfo(true);
 		scoreboardPresentation.setProperty("clockOff");
+		scoreboardPresentation.setAdvanceLineRow(advanceLineRow);
 		scoreboardPresentation.setContest(contest);
 
 		judgePresentation = new JudgePresentation2() {
@@ -454,6 +456,17 @@ public class ResolverUI {
 
 	public void setSpeedFactor(double d) {
 		control.setSpeedFactor(d);
+	}
+
+	/**
+	 * Draw a line on the scoreboard below the given number of rows. Must be called before display().
+	 *
+	 * @param row the number of rows above the line, or 0 for no line
+	 */
+	public void setAdvanceLineRow(int row) {
+		advanceLineRow = row;
+		if (scoreboardPresentation != null)
+			scoreboardPresentation.setAdvanceLineRow(row);
 	}
 
 	private void setScrollSpeedFactorImpl(double d) {

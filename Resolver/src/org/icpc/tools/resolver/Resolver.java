@@ -82,6 +82,7 @@ public class Resolver {
 	private boolean judgeQueue;
 	private boolean test;
 	private boolean lightMode;
+	private int advanceLineRow;
 	private String displayName;
 	private String[] groupList;
 	private String[] problemList;
@@ -130,6 +131,8 @@ public class Resolver {
 		System.out.println("         {team.display_name), {team.name), {org.formal_name}, and {org.name}");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
+		System.out.println("     --advanceLine row");
+		System.out.println("         Draw a line below the given row, e.g. to show the advancement cut-off");
 		System.out.println("     --side");
 		System.out.println("         displays logos, suitable for a lower resolution/side display");
 		System.out.println("         when used with a CDS in distributed mode");
@@ -229,6 +232,7 @@ public class Resolver {
 				Trace.trace(Trace.INFO, "  " + step);
 
 			ui[i] = createUI(steps);
+			ui[i].setAdvanceLineRow(advanceLineRow);
 			contestIds[i] = cs.getContestId();
 
 			i++;
@@ -438,6 +442,13 @@ public class Resolver {
 		} else if ("--light".equals(option)) {
 			lightMode = true;
 			return true;
+		} else if ("--advanceLine".equalsIgnoreCase(option)) {
+			ArgumentParser.expectOptions(option, options, "row:int");
+			int row = (int) options.get(0);
+			if (row <= 0)
+				Trace.trace(Trace.ERROR, "Illegal --advanceLine value ignored");
+			else
+				advanceLineRow = row;
 
 		} else {
 			// the argument read from the command line was unrecognized...
