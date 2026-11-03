@@ -61,6 +61,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	protected int teamsPerScreen = DEFAULT_TEAMS_PER_SCREEN;
 
 	protected boolean showMedals = false;
+	protected int advanceLineRow = 0;
 	protected SubmissionInfo selectedSubmission = null;
 
 	protected static final Color BG_COLOR = new Color(60, 60, 60);
@@ -312,6 +313,16 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		showMedals = b;
 	}
 
+	/**
+	 * Draw a line below the given number of rows, e.g. to mark the last team that advances to the
+	 * next contest.
+	 *
+	 * @param row the number of rows above the line, or 0 for no line
+	 */
+	public void setAdvanceLineRow(int row) {
+		advanceLineRow = Math.max(0, row);
+	}
+
 	@Override
 	protected void drawHeader(Graphics2D g) {
 		g.setFont(rowFont);
@@ -362,12 +373,20 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		} else if (oddRow)
 			bg = isLightMode() ? Color.LIGHT_GRAY : BG_COLOR;
 
+		int x = 0;
+		if (isInTransition())
+			x = width - (int) (getTransitionTime() * width);
+
 		if (bg != null) {
 			g.setColor(bg);
-			int x = 0;
-			if (isInTransition())
-				x = width - (int) (getTransitionTime() * width);
 			g.fillRect(x, 0, width, (int) rowHeight);
+		}
+
+		// advancement line along the bottom of the last advancing row
+		if (advanceLineRow > 0 && row == advanceLineRow - 1) {
+			int h = Math.max(3, (int) (rowHeight / 10));
+			g.setColor(ICPCColors.YELLOW);
+			g.fillRect(x, (int) rowHeight - h, width, h);
 		}
 	}
 

@@ -304,6 +304,12 @@ to review the medalists without restarting from the beginning.
 Light mode - use a white background and shift colors to match.
 
 ```
+--advanceLine <row>
+```
+Draws a yellow line on the scoreboard below the given row, e.g. to show the advancement
+cut-off. The line stays at that row while teams move past it.
+
+```
 --help
 ```
 Displays a help message listing the available options
