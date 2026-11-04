@@ -99,6 +99,7 @@ public class ResolverUI {
 	private boolean showInfo;
 	private int advanceLineRow;
 	private boolean pauseScroll = false;
+	private boolean showPauseIndicator;
 
 	private ClickListener listener;
 
@@ -173,16 +174,25 @@ public class ResolverUI {
 	}
 
 	public void moveTo(int pause2) {
-		// if thread is still running, ignore
-		if (thread != null || messageFont == null)
+		if (messageFont == null)
 			return;
+
+		// if thread is still running, ignore - unless the presenter went back (e.g. 'b' while auto-resolving
+		// was paused): then stop where we are and follow
+		if (thread != null) {
+			int target = pause2 > 999 ? pause2 - 1000 : pause2;
+			if (target > control.getCurrentPause())
+				return;
+			stopThread();
+		}
 
 		// fire off a new thread to handle the click
 		thread = new Thread("Resolver") {
 			@Override
 			public void run() {
 				moveToImpl(pause2);
-				thread = null;
+				if (thread == this)
+					thread = null;
 			}
 		};
 		thread.setDaemon(true);
@@ -403,6 +413,9 @@ public class ResolverUI {
 	}
 
 	private void paintHook(Graphics2D g) {
+		if (showPauseIndicator && pauseScroll)
+			paintPauseIndicator(g);
+
 		if (!showInfo)
 			return;
 
@@ -445,6 +458,30 @@ public class ResolverUI {
 
 	public void setIsPresenter(boolean isPresenter) {
 		this.isPresenter = isPresenter;
+	}
+
+	/**
+	 * Show a 'paused' marker on this screen while paused. Only for a presenter driving other
+	 * resolvers, since the audience sees those, not this screen.
+	 */
+	public void setShowPauseIndicator(boolean show) {
+		showPauseIndicator = show;
+	}
+
+	private void paintPauseIndicator(Graphics2D g) {
+		Dimension d = scoreboardPresentation.getSize();
+		g.setFont(messageFont);
+		FontMetrics fm = g.getFontMetrics();
+		String s = "Paused";
+		int w = fm.stringWidth(s) + 30;
+		int h = fm.getHeight() + 10;
+		g.setComposite(AlphaComposite.SrcOver.derive(0.8f));
+		g.setColor(Color.BLACK);
+		g.fillRoundRect(d.width - w - 10, 10, w, h, 10, 10);
+		g.setComposite(AlphaComposite.SrcOver);
+		g.setColor(Color.YELLOW);
+		g.drawRoundRect(d.width - w - 10, 10, w, h, 10, 10);
+		g.drawString(s, d.width - w + 5, 15 + fm.getAscent());
 	}
 
 	private void setSpeedFactorImpl(double d) {
@@ -500,6 +537,8 @@ public class ResolverUI {
 
 	public void setScrollPause(boolean pause) {
 		pauseScroll = pause;
+		if (control != null)
+			control.setPaused(pause);
 		if (teamListPresentation != null)
 			teamListPresentation.setScrollPause(pause);
 
@@ -609,16 +648,27 @@ public class ResolverUI {
 
 		lastClickTime = now;
 
-		// if thread is still running, ignore
-		if (thread != null)
-			return;
+		if (thread != null) {
+			// if thread is still running and not paused, ignore
+			if (!pauseScroll)
+				return;
+
+			// paused while auto-resolving: any click resumes, and the other actions stop where we are and
+			// go from there (e.g. 'b' goes back to the start of this step)
+			if (action == Action.FORWARD || action == Action.FAST_FORWARD) {
+				setScrollPauseImpl(false);
+				return;
+			}
+			stopThread();
+		}
 
 		// fire off a new thread to handle the click
 		thread = new Thread("Resolver") {
 			@Override
 			public void run() {
 				actionImpl(action);
-				thread = null;
+				if (thread == this)
+					thread = null;
 			}
 		};
 
@@ -631,12 +681,30 @@ public class ResolverUI {
 		setScrollPauseImpl(false);
 	}
 
+	/**
+	 * Stop the running thread (e.g. auto-resolving) at the current step and wait for it to end.
+	 */
+	private void stopThread() {
+		Thread t = thread;
+		if (t == null)
+			return;
+		control.cancel();
+		try {
+			t.join(2000);
+		} catch (InterruptedException e) {
+			// ignore
+		}
+		thread = null;
+	}
+
 	private void actionImpl(Action action) {
 		int currentPause = control.getCurrentPause();
 		Trace.trace(Trace.INFO, "**Action: " + action.name() + " from " + currentPause + "**");
 
 		if (action == Action.FORWARD || action == Action.FAST_FORWARD)
 			control.forward(action == Action.FORWARD);
+		else if ((action == Action.REVERSE || action == Action.FAST_REVERSE) && control.isBetweenPauses())
+			control.moveToPause(currentPause, false); // stopped mid-way: back to where this step started
 		else if (action == Action.REVERSE || action == Action.FAST_REVERSE)
 			control.rewind(action == Action.REVERSE);
 		else if (action == Action.BEGIN)

@@ -270,6 +270,8 @@ public class Resolver {
 
 		for (int j = 0; j < ui.length; j++) {
 			ui[j].setIsPresenter(isPresenter);
+			// the audience watches the other resolvers, so the presenter can see when it's paused
+			ui[j].setShowPauseIndicator(isPresenter && client != null);
 		}
 
 		launch();

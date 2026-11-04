@@ -129,6 +129,7 @@ public class AbstractScrollingScoreboardPresentation extends AbstractScoreboardP
 
 	public void setScrollPause(boolean pause) {
 		scrollPause = pause;
+		rowsPaused = pause;
 	}
 
 	@Override
