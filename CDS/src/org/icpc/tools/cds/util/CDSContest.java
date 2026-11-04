@@ -207,7 +207,7 @@ public class CDSContest extends Contest {
 				String[] problems = cc.getView().getProblems();
 				if (problems != null) {
 					Problem p = (Problem) obj;
-					if (!view.matchesProblem(p.getLabel()))
+					if (!view.matchesProblem(p.getId()))
 						return;
 				}
 			}

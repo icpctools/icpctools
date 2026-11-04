@@ -224,10 +224,11 @@ public class ConfiguredContest {
 		private String[] problems;
 
 		private Pattern[] groupPatterns;
+		private Pattern[] problemPatterns;
 
 		protected View(Element e) {
 			String groupStr = CDSConfig.getString(e, "groupIds");
-			String problemStr = CDSConfig.getString(e, "problemLabels");
+			String problemStr = CDSConfig.getString(e, "problemIds");
 
 			if (groupStr != null) {
 				groups = groupStr.split(",");
@@ -235,21 +236,28 @@ public class ConfiguredContest {
 				for (int i = 0; i < groups.length; i++)
 					groupPatterns[i] = Pattern.compile(groups[i].trim());
 			}
-			if (problemStr != null)
+			if (problemStr != null) {
 				problems = problemStr.split(",");
+				problemPatterns = new Pattern[problems.length];
+				for (int i = 0; i < problems.length; i++)
+					problemPatterns[i] = Pattern.compile(problems[i].trim());
+			}
 		}
 
 		public boolean matchesGroup(String groupId) {
 			for (Pattern p : groupPatterns)
-				if (p.matcher(groupId).matches())
+				if (p.matcher(groupId).matches()) {
 					return true;
+				}
 			return false;
 		}
 
-		public boolean matchesProblem(String problemLabel) {
-			for (String pLabel : problems)
-				if (pLabel.contains(problemLabel))
+		public boolean matchesProblem(String problem) {
+			for (Pattern p : problemPatterns) {
+				if (p.matcher(problem).matches()) {
 					return true;
+				}
+			}
 			return false;
 		}
 
