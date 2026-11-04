@@ -84,8 +84,25 @@ public class HttpHelper {
 	}
 
 	public static void sendFile(HttpServletRequest request, HttpServletResponse response, File f) throws IOException {
+		sendFile(request, response, f, true);
+	}
+
+	/**
+	 * Send a file.
+	 *
+	 * @param cache true to allow caching, or false if the file may be changing
+	 */
+	public static void sendFile(HttpServletRequest request, HttpServletResponse response, File f, boolean cache)
+			throws IOException {
 		if (f == null || !f.exists()) {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+
+		if (!cache) {
+			setCommonHeaders(f.getName(), response);
+			response.setHeader("Cache-Control", "no-store");
+			writeFile(response, f);
 			return;
 		}
 
@@ -120,9 +137,13 @@ public class HttpHelper {
 
 		setCommonHeaders(f.getName(), response);
 
-		response.setContentLength((int) f.length());
 		response.setDateHeader("Last-Modified", lastModified);
 		response.setHeader("ETag", "e" + lastModified);
+		writeFile(response, f);
+	}
+
+	private static void writeFile(HttpServletResponse response, File f) throws IOException {
+		response.setContentLength((int) f.length());
 
 		ServletOutputStream out = response.getOutputStream();
 		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(f));

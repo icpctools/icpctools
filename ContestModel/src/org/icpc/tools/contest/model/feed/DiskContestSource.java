@@ -1083,6 +1083,27 @@ public class DiskContestSource extends ContestSource {
 				}
 			}
 		}
+
+		// folder-based files (e.g. HLS recordings), where the folder matches the pattern and contains
+		// an index file, e.g. reaction.webcam/index.m3u8
+		File[] folders = folder
+				.listFiles((dir, name) -> name.toLowerCase().startsWith(pattern.name) && new File(dir, name).isDirectory());
+		if (folders != null) {
+			for (File f : folders) {
+				for (String ext : pattern.extensions) {
+					File file = new File(f, "index." + ext);
+					if (!file.isFile())
+						continue;
+
+					String diff = f.getName().substring(pattern.name.length());
+					FileReference ref = getMetadata(pattern.url + diff + "/" + file.getName(), file);
+					if (ref != null && !hrefs.contains(ref.href)) {
+						refList.add(ref);
+						hrefs.add(ref.href);
+					}
+				}
+			}
+		}
 		return refList;
 	}
 

@@ -445,7 +445,13 @@ public class ContestRESTService extends HttpServlet {
 		cc.incrementDownload();
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		if (obj instanceof ISubmission && url != null && url.contains("reaction")) {
-			HttpHelper.streamFile(request, response, f);
+			File folderMarker = new File(f.getParentFile().getPath() + "-temp");
+			if (folderMarker.exists()) {
+				// a file in a folder-based recording (e.g. HLS) that is still in progress: the index
+				// changes, so make sure nothing is cached
+				HttpHelper.sendFile(request, response, f, false);
+			} else
+				HttpHelper.streamFile(request, response, f);
 		} else {
 			HttpHelper.sendFile(request, response, f);
 		}

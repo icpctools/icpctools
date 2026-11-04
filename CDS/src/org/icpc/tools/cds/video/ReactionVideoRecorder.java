@@ -1,10 +1,6 @@
 package org.icpc.tools.cds.video;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.icpc.tools.cds.CDSConfig;
 import org.icpc.tools.cds.ConfiguredContest;
+import org.icpc.tools.cds.video.VideoHandler.IRecording;
 import org.icpc.tools.cds.video.VideoStream.StreamType;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
@@ -29,6 +26,9 @@ import org.icpc.tools.contest.model.internal.Submission;
  * Reaction video recorder. Will record webcam and desktop video from when a submission is received
  * until 30 seconds after the corresponding judgement. If there is no judgement, recording will be
  * capped at 5 minutes.
+ *
+ * The recording itself is delegated to each stream's VideoHandler, so the format (single file, HLS
+ * index and segments, etc.) is up to the handler.
  */
 public class ReactionVideoRecorder {
 	private ScheduledExecutorService scheduledExecutor;
@@ -37,13 +37,13 @@ public class ReactionVideoRecorder {
 	private static final int MAX_DURATION = 5 * 60; // 5 minutes
 	private static final String WEBCAM = "webcam";
 	private static final String DESKTOP = "desktop";
+	private static final String MARKER_SUFFIX = "-temp";
+	// recording markers older than this are left over from a crash and can be removed
+	private static final long STALE_MARKER_AGE_MS = (MAX_DURATION + 2 * 60) * 1000L;
 
-	protected class Info {
-		int[] stream;
-		VideoStreamListener[] listener;
-		OutputStream[] out;
-		File[] tempFile;
-		File[] file;
+	protected static class Info {
+		List<IRecording> recordings;
+		List<File> markers;
 	}
 
 	// map from submission id to reaction Info
@@ -55,39 +55,57 @@ public class ReactionVideoRecorder {
 
 	public void start(ScheduledExecutorService executor) {
 		scheduledExecutor = executor;
-		cleanUpReactions();
 		instance = this;
+
+		// markers can be left behind by a crash (here or on another CDS), so check periodically
+		executor.scheduleWithFixedDelay(this::cleanUpReactions, 0, MAX_DURATION * 2, TimeUnit.SECONDS);
 	}
 
+	/**
+	 * Remove stale recording markers from all contests.
+	 */
 	public void cleanUpReactions() {
-		for (ConfiguredContest cc : CDSConfig.getContests())
-			cleanUpReactions(cc);
+		try {
+			for (ConfiguredContest cc : CDSConfig.getContests()) {
+				String dir = cc.getPath();
+				if (dir != null)
+					cleanUpMarkers(new File(dir));
+			}
+		} catch (Exception e) {
+			// don't let an exception cancel the scheduled cleanup
+			Trace.trace(Trace.ERROR, "Error cleaning up reaction markers", e);
+		}
 	}
 
 	public static ReactionVideoRecorder getInstance() {
 		return instance;
 	}
 
-	private static void cleanUpReactions(ConfiguredContest cc) {
-		// check if already recorded in a previous run
-		String dir = cc.getPath();
-		if (dir == null)
+	/**
+	 * Remove recording markers (submissions/<id>/*-temp) that are older than the maximum recording
+	 * time, i.e. left over from a CDS that crashed or was stopped while recording.
+	 */
+	protected static void cleanUpMarkers(File contestDir) {
+		File[] submissionDirs = new File(contestDir, "submissions").listFiles(File::isDirectory);
+		if (submissionDirs == null)
 			return;
 
-		// TODO - wrong folder, need to remove or do deep scan on submissions folder
-		File reactDir = new File(dir, "video" + File.separator + "reactions");
-		if (!reactDir.exists())
-			return;
+		long cutoff = System.currentTimeMillis() - STALE_MARKER_AGE_MS;
+		for (File submissionDir : submissionDirs) {
+			File[] markers = submissionDir.listFiles((d, name) -> name.endsWith(MARKER_SUFFIX));
+			if (markers == null)
+				continue;
 
-		File[] files = reactDir.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File f, String s) {
-				return f.getName().endsWith(".temp");
+			for (File marker : markers) {
+				long modified = marker.lastModified();
+				if (modified > 0 && modified < cutoff) {
+					if (marker.delete())
+						Trace.trace(Trace.INFO, "Removed stale reaction marker: " + marker);
+					else
+						Trace.trace(Trace.WARNING, "Could not remove stale reaction marker: " + marker);
+				}
 			}
-		});
-
-		for (File f : files)
-			f.delete();
+		}
 	}
 
 	public void startRecording(ConfiguredContest cc, ISubmission submission) {
@@ -125,124 +143,91 @@ public class ReactionVideoRecorder {
 	}
 
 	private void startRecordingImpl(ConfiguredContest cc, Info info, String teamId, ISubmission submission) {
-		int numStreams = 0;
+		String submissionId = submission.getId();
+		File submissionDir = new File(cc.getPath(), "submissions" + File.separator + submissionId);
 
-		List<Integer> streamsWebcam = cc.getStreams(teamId, StreamType.WEBCAM);
-		if (streamsWebcam != null)
-			numStreams += streamsWebcam.size();
+		// figure out which streams we're going to save and the base names we'll save them to
+		List<Integer> streams = new ArrayList<>();
+		List<String> baseNames = new ArrayList<>();
+		addStreams(cc.getStreams(teamId, StreamType.WEBCAM), WEBCAM, streams, baseNames);
+		addStreams(cc.getStreams(teamId, StreamType.DESKTOP), DESKTOP, streams, baseNames);
 
-		List<Integer> streamsDesktop = cc.getStreams(teamId, StreamType.DESKTOP);
-		if (streamsDesktop != null)
-			numStreams += streamsDesktop.size();
-
-		if (numStreams == 0)
+		if (streams.isEmpty())
 			return;
 
-		info.file = new File[numStreams];
-		info.stream = new int[numStreams];
-		info.listener = new VideoStreamListener[numStreams];
-		info.out = new OutputStream[numStreams];
-		info.tempFile = new File[numStreams];
-
-		String rootFolder = cc.getPath();
-		String submissionId = submission.getId();
-		File submissionDir = new File(rootFolder, "submissions" + File.separator + submissionId);
-
-		// setup all the streams we're going to save and the filenames we'll save them to
-		int count = 0;
 		VideoAggregator va = VideoAggregator.getInstance();
-		if (streamsWebcam != null) {
-			int numWebcam = streamsWebcam.size();
-			for (int i = 0; i < numWebcam; i++) {
-				info.stream[count] = streamsWebcam.get(i);
-				String extension = va.getStream(info.stream[count]).getFileExtension();
-				if (numWebcam > 1)
-					info.file[count] = new File(submissionDir, "reaction." + WEBCAM + (i + 1) + "." + extension);
-				else
-					info.file[count] = new File(submissionDir, "reaction." + WEBCAM + "." + extension);
-				count++;
-			}
-		}
-
-		if (streamsDesktop != null) {
-			int numDesktop = streamsDesktop.size();
-			for (int i = 0; i < numDesktop; i++) {
-				info.stream[count] = streamsDesktop.get(i);
-				String extension = va.getStream(info.stream[count]).getFileExtension();
-				if (numDesktop > 1)
-					info.file[count] = new File(submissionDir, "reaction." + DESKTOP + (i + 1) + "." + extension);
-				else
-					info.file[count] = new File(submissionDir, "reaction." + DESKTOP + "." + extension);
-				count++;
-			}
-		}
-
 		FileReferenceList list = new FileReferenceList();
-		List<String> hrefs = new ArrayList<>();
-		for (int i = 0; i < numStreams; i++) {
-			// create marker file
-			info.tempFile[i] = new File(submissionDir, info.file[i].getName() + "-temp");
-			boolean secondary = false;
-			if (info.tempFile[i].exists()) // another CDS already recording
-				secondary = true;
+		List<IRecording> recordings = new ArrayList<>();
+		List<File> markers = new ArrayList<>();
+		for (int i = 0; i < streams.size(); i++) {
+			VideoStream stream = va.getStream(streams.get(i));
+			VideoHandler handler = stream.getHandler();
+			String baseName = baseNames.get(i);
+			File file = handler.getRecordingFile(submissionDir, baseName);
 
-			if (!secondary) {
-				try {
-					if (!info.tempFile[i].createNewFile()) {
-						// warning, couldn't create temp file
-						if (info.tempFile[i].exists()) // another CDS already recording
-							secondary = true;
-					}
-				} catch (Exception e) {
-					// ignore
-					Trace.trace(Trace.ERROR, "Error creating file", e);
-				}
+			// path of the recording relative to the submission folder, e.g. "reaction.webcam.ts" or
+			// "reaction.webcam/index.m3u8"
+			String relPath = submissionDir.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/');
+			String topLevel = relPath.contains("/") ? relPath.substring(0, relPath.indexOf('/')) : relPath;
+
+			// create marker file beside the top-level file or folder. if it already exists, another
+			// CDS is already recording
+			File marker = new File(submissionDir, topLevel + MARKER_SUFFIX);
+			boolean secondary = false;
+			try {
+				secondary = !marker.createNewFile();
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Error creating marker file", e);
+				secondary = marker.exists();
 			}
 
 			if (!secondary) {
-				info.tempFile[i].deleteOnExit();
+				marker.deleteOnExit();
+				markers.add(marker);
 
-				try {
-					info.out[i] = new BufferedOutputStream(new FileOutputStream(info.file[i]));
-				} catch (Exception e) {
-					// could not create file
-					Trace.trace(Trace.ERROR, "Error creating output stream", e);
-					return;
-				}
-
-				info.listener[i] = new VideoStreamListener(info.out[i], true);
-
-				VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[i]);
 				Trace.trace(Trace.INFO,
 						"Recording reaction for " + submissionId + " from " + teamId + " on " + stream.getName());
 				try {
-					stream.addListener(info.listener[i]);
+					recordings.add(handler.startRecording(stream, submissionDir, baseName));
 				} catch (Exception e) {
-					Trace.trace(Trace.WARNING, "Could not write header info for reaction " + submissionId);
+					Trace.trace(Trace.ERROR, "Could not record reaction " + submissionId + " on " + stream.getName(), e);
+					marker.delete();
+					markers.remove(marker);
+					continue;
 				}
 			}
 
-			VideoStream stream = VideoAggregator.getInstance().getStream(info.stream[0]);
 			FileReference ref = new FileReference();
-			String name = info.file[i].getName().substring(0,
-					info.file[i].getName().length() - stream.getHandler().getFileExtension().length() - 1);
+			// single files are referenced without extension, folder-based recordings by their path
+			String name = relPath.contains("/") ? relPath : baseName;
 			ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + name;
-
-			int count2 = 2;
-			while (hrefs.contains(ref.href)) {
-				ref.href = "contests/" + cc.getId() + "/submissions/" + submissionId + "/" + count2;
-				count2 += 1;
-			}
-			hrefs.add(ref.href);
-
 			ref.mime = stream.getMimeType();
-			ref.file = info.file[i];
+			ref.file = file;
 			list.add(ref);
+		}
+
+		synchronized (info) {
+			info.recordings = recordings;
+			info.markers = markers;
 		}
 
 		((Submission) submission).setReaction(list);
 
 		scheduleEndOfRecording(info, MAX_DURATION);
+	}
+
+	private static void addStreams(List<Integer> list, String type, List<Integer> streams, List<String> baseNames) {
+		if (list == null)
+			return;
+
+		int num = list.size();
+		for (int i = 0; i < num; i++) {
+			streams.add(list.get(i));
+			if (num > 1)
+				baseNames.add("reaction." + type + (i + 1));
+			else
+				baseNames.add("reaction." + type);
+		}
 	}
 
 	public void stopRecording(ConfiguredContest cc, IJudgement judgement) {
@@ -254,39 +239,42 @@ public class ReactionVideoRecorder {
 			return;
 
 		Info info = submissions.get(subId);
-		if (info != null && info.out != null) {
+		if (info != null && info.recordings != null) {
 			scheduleEndOfRecording(info, DURATION);
 		}
 	}
 
 	protected ScheduledFuture<?> scheduleEndOfRecording(Info info, int time) {
-		return scheduledExecutor.schedule(new Runnable() {
-			@Override
-			public void run() {
-				if (info.out != null) {
-					VideoAggregator aggregator = VideoAggregator.getInstance();
-					for (int i = 0; i < info.stream.length; i++) {
-						Trace.trace(Trace.INFO, "Reaction recording done: " + aggregator.getStreamName(info.stream[i]));
-						aggregator.removeStreamListener(info.stream[i], info.listener[i]);
+		return scheduledExecutor.schedule(() -> endRecording(info), time, TimeUnit.SECONDS);
+	}
 
-						try {
-							info.out[i].close();
-						} catch (Exception e) {
-							// ignore
-						}
-						info.out = null;
+	private static void endRecording(Info info) {
+		List<IRecording> recordings;
+		List<File> markers;
+		synchronized (info) {
+			recordings = info.recordings;
+			markers = info.markers;
+			info.recordings = null;
+			info.markers = null;
+		}
+		if (recordings == null)
+			return;
 
-						if (info.tempFile[i].exists())
-							info.tempFile[i].delete();
-
-						if (info.file[i].exists() && info.file[i].length() == 0) {
-							Trace.trace(Trace.WARNING, "No video received for submission: " + info.file[i].toString());
-							// TODO - not safe to delete if another CDS has picked it up already
-							// info.file[i].delete();
-						}
-					}
-				}
+		for (IRecording rec : recordings) {
+			try {
+				rec.stop();
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Error stopping reaction recording", e);
 			}
-		}, time, TimeUnit.SECONDS);
+			if (rec.isEmpty())
+				Trace.trace(Trace.WARNING, "No video received for reaction recording: " + rec);
+			// TODO - not safe to delete empty recordings if another CDS has picked it up already
+		}
+
+		for (File marker : markers) {
+			if (marker.exists())
+				marker.delete();
+		}
+		Trace.trace(Trace.INFO, "Reaction recording done");
 	}
 }
