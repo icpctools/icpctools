@@ -89,6 +89,32 @@ public class FileReferenceList implements Iterable<FileReference> {
 					return ref.file;
 			}
 		}
+
+		// support files that live in a folder of their own (e.g. HLS index and segments): if the ref
+		// is <folder>/<file> on disk and in its href, allow access to other files in the same folder
+		int ind = url.lastIndexOf('/');
+		if (ind <= 0)
+			return null;
+
+		String folderUrl = url.substring(0, ind);
+		String name = url.substring(ind + 1);
+		if (name.isEmpty() || name.startsWith(".") || name.contains("\\"))
+			return null;
+
+		for (FileReference ref : refs) {
+			if (ref.file == null || ref.href == null)
+				continue;
+
+			// only applies when the href ends with the actual folder and file name
+			File folder = ref.file.getParentFile();
+			if (folder == null || !folderUrl.equals(folder.getName())
+					|| !ref.href.endsWith("/" + folder.getName() + "/" + ref.file.getName()))
+				continue;
+
+			File f = new File(folder, name);
+			if (f.isFile() && folder.equals(f.getParentFile()))
+				return f;
+		}
 		return null;
 	}
 

@@ -2,6 +2,7 @@ package org.icpc.tools.cds.video.containers;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -115,10 +116,7 @@ public class HLSHandler extends VideoServingHandler {
 		long time = System.currentTimeMillis();
 		InputStream in = null;
 		try {
-			String baseURL = url;
-			if (!baseURL.endsWith(".m3u8")) {
-				baseURL += "/stream.m3u8";
-			}
+			String baseURL = getIndexURL(url);
 			URI uri = null;
 			if (query != null)
 				uri = new URI(baseURL + "?" + query);
@@ -149,10 +147,8 @@ public class HLSHandler extends VideoServingHandler {
 
 			// System.out.println(" m3u8 time " + (System.currentTimeMillis() - time) + "ms");
 
-			if (fileCache == null) {
-				fileCache = new HLSFileCache(parser);
-				store.setObject(fileCache);
-			}
+			if (fileCache == null)
+				fileCache = getFileCache(store, parser);
 
 			// cache files - segments, parts, preloads
 			parser.prefillCache(fileCache);
@@ -164,6 +160,54 @@ public class HLSHandler extends VideoServingHandler {
 		} catch (Exception e) {
 			Trace.trace(Trace.ERROR, "Error loading HLS index", e);
 		}
+	}
+
+	/**
+	 * Returns the URL of the remote index for the given stream URL.
+	 */
+	private static String getIndexURL(String url) {
+		if (url.endsWith(".m3u8"))
+			return url;
+		return url + "/stream.m3u8";
+	}
+
+	/**
+	 * Returns the file cache for the given stream, creating it with the given parser if it doesn't
+	 * exist yet.
+	 */
+	private static HLSFileCache getFileCache(IStore store, HLSParser parser) {
+		synchronized (HLSHandler.class) {
+			HLSFileCache fileCache = (HLSFileCache) store.getObject();
+			if (fileCache == null) {
+				fileCache = new HLSFileCache(parser);
+				store.setObject(fileCache);
+			}
+			return fileCache;
+		}
+	}
+
+	/**
+	 * HLS recordings are a folder containing an index and segments, e.g. reaction.webcam/index.m3u8.
+	 */
+	@Override
+	protected File getRecordingFile(File dir, String baseName) {
+		return new File(new File(dir, baseName), getFileName());
+	}
+
+	@Override
+	protected IRecording startRecording(VideoStream stream, File dir, String baseName) throws IOException {
+		URI uri;
+		try {
+			uri = new URI(getIndexURL(stream.getURL()));
+		} catch (Exception e) {
+			throw new IOException("Invalid HLS URL: " + stream.getURL(), e);
+		}
+
+		HLSFileCache fileCache = getFileCache(stream, new HLSParser(uri, ""));
+		HLSRecording rec = new HLSRecording(ExecutorListener.getExecutor(), fileCache, uri,
+				getRecordingFile(dir, baseName));
+		rec.start();
+		return rec;
 	}
 
 	private static void cleanCaches() {

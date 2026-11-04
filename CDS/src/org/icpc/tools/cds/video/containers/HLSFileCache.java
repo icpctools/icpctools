@@ -479,6 +479,18 @@ public class HLSFileCache {
 		return cf;
 	}
 
+	/**
+	 * Returns the complete contents of the given file (or byte range), adding it to the cache and
+	 * downloading it, or waiting for another thread to download it, if necessary.
+	 *
+	 * @param name a file name, relative to the index
+	 * @param byterange an HLS byterange [length, start], or null for the entire file
+	 * @return the contents, or null if the file could not be loaded
+	 */
+	public byte[] getContents(String name, int[] byterange) {
+		return load(addToCache(name, byterange, false));
+	}
+
 	private void serveFile(CachedFile cf, OutputStream out) {
 		// only the first thread should attempt to download the file
 		boolean download = false;
