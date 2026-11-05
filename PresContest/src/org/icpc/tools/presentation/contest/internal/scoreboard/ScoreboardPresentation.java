@@ -102,13 +102,10 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 			// a pending submission on the currently selected team row
 			// SubmissionInfo runInfo = selectedSubmission;
 			if (submissionInfo != null) {
-				// there is a pending submission; calculate the vertical position for the box
-				ITeam team = submissionInfo.getTeam();
-				double y = getTeamY(team);
 				Graphics2D g4 = (Graphics2D) g.create();
-				g4.translate(0, (int) y);
+				// there is a pending submission
 				// draw the info box with the specified SubmissionInfo object data in it
-				paintSubmissionInfo(g4, y > height / 2);
+				paintSubmissionInfo(g4);
 				g4.dispose();
 			} else {
 				// there's no pending submission; see if maybe we should draw a FTS info box instead
@@ -140,12 +137,17 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 	 * SubmissionInfo.
 	 *
 	 * @param g2 - the graphics object to be used to draw the info box
-	 * @param submissionInfo - the SubmissionInfo object containing the info data regarding what
-	 *           happens when the current pending submission is resolved
-	 * @param alignTop - boolean flag specifying how to manage vertical alignment of the info box
-	 *           with respect to the row containing the current pending submission
 	 */
-	private void paintSubmissionInfo(Graphics2D g2, boolean alignTop) {
+	private void paintSubmissionInfo(Graphics2D g2) {
+		if (submissionInfo == null)
+			return;
+
+		ITeam team = submissionInfo.getTeam();
+		double ty = getTeamY(team);
+
+		g2.translate(0, (int) ty);
+		boolean alignTop = ty > height / 2;
+
 		// g2.setFont(rowFont);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -161,7 +163,6 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 		if (bestCase != null)
 			tw = fm.stringWidth("Best case with other submission:");
 
-		ITeam team = submissionInfo.getTeam();
 		String teamId = team.getId();
 
 		int numRuns = 0;

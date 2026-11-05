@@ -35,9 +35,7 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ProblemSelectionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.SelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -225,8 +223,7 @@ public class ResolverLogic {
 		steps.add(new ContestStateStep(contest));
 		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
 		steps.add(new PauseStep());
-		steps.add(new TeamSelectionStep());
-		steps.add(new ProblemSelectionStep(null));
+		steps.add(new SelectionStep());
 		steps.add(new ToJudgeStep(null));
 
 		Trace.trace(Trace.USER, "Resolving " + countUnjudgedSubmissions(contest) + " pending submissions out of the "
@@ -329,7 +326,7 @@ public class ResolverLogic {
 	 * @param submissionInfo - an object describing the submission (team and problem) to be resolved
 	 * @return true if the submission was "pending" and was ultimately Solved; false otherwise
 	 */
-	private boolean resolveSubmissionImpl(SubmissionInfo submissionInfo, Timing timing) {
+	private boolean resolveSubmissionImpl(SubmissionInfo submissionInfo, SelectionStep selStep, Timing timing) {
 		Trace.trace(Trace.INFO, "Resolving: " + submissionInfo);
 
 		ITeam team = submissionInfo.getTeam();
@@ -355,8 +352,7 @@ public class ResolverLogic {
 				}
 
 				steps.add(new JudgementStep(sjs));
-
-				steps.add(new SubmissionSelectionStep(submission.getId()));
+				steps.add(selStep.withSubmissionId(submission.getId()));
 				timing.onStep(steps, State.SELECT_SUBMISSION);
 
 				// there may be more submissions from this team for this problem so no break
@@ -383,7 +379,7 @@ public class ResolverLogic {
 	}
 
 	private void resolveEverything(boolean startWithJudgeQueue) {
-		// boolean singleStep = false;
+		SelectionStep selStep = new SelectionStep();
 
 		Timing timing = null;
 		if (startWithJudgeQueue && !teamLists.isEmpty()) {
@@ -391,7 +387,7 @@ public class ResolverLogic {
 			timing = new JudgeQueueTiming();
 		} else {
 			ITeam[] teams = contest.getOrderedTeams();
-			steps.add(new TeamSelectionStep(teams[teams.length - 1]));
+			steps.add(selStep.withTeam(teams[teams.length - 1]));
 			timing = new ScoreboardTiming();
 		}
 		steps.add(new PauseStep());
@@ -426,7 +422,7 @@ public class ResolverLogic {
 			while (!doneWithRow) {
 				ITeam[] teams = contest.getOrderedTeams();
 				ITeam team = teams[currentRow];
-				steps.add(new TeamSelectionStep(team));
+				steps.add(selStep.withTeam(team));
 				timing.onStep(steps, State.SELECT_TEAM);
 
 				if (runInfo == null || !runInfo.getTeam().equals(team)) {
@@ -439,13 +435,13 @@ public class ResolverLogic {
 					// resolve runs until the team is done or it moves up
 					while (runInfo != null && runInfo.getTeam().equals(team) && contest.getOrderOf(team) == currentRow) {
 						// select run
-						steps.add(new ProblemSelectionStep(runInfo));
+						steps.add(selStep.withProblem(runInfo));
 						boolean first = true;
 						for (ISubmission r : contest.getSubmissions()) {
 							if (!contest.isJudged(r) && r.getTeamId().equals(runInfo.getTeam().getId())
 									&& r.getProblemId().equals(runInfo.getProblemId())) {
 								if (first) {
-									steps.add(new SubmissionSelectionStep(r.getId()));
+									steps.add(selStep.withSubmissionId(r.getId()));
 									first = false;
 								}
 								judgeRuns.add(r.getId());
@@ -454,10 +450,10 @@ public class ResolverLogic {
 						timing.onStep(steps, State.SELECT_PROBLEM);
 
 						// resolve
-						resolveOneSubmission(runInfo, timing);
+						resolveOneSubmission(runInfo, selStep, timing);
 
 						// deselect
-						steps.add(new ProblemSelectionStep(null));
+						steps.add(selStep.withProblem(null));
 						timing.onStep(steps, State.DESELECT);
 
 						// we're done with that pending submission; find next pending submission
@@ -478,7 +474,7 @@ public class ResolverLogic {
 					teamLists.remove(step);
 
 					if (step.shouldHighlight())
-						steps.add(new TeamSelectionStep(step.teams));
+						steps.add(selStep.withTeams(step.teams));
 					steps.add(new PauseStep());
 					steps.add(new ScrollTeamListStep(true));
 					steps.add(step);
@@ -576,14 +572,14 @@ public class ResolverLogic {
 						}
 						if (hasFTS) {
 							if (show) {
-								steps.add(new TeamSelectionStep(team, SelectType.FTS_HIGHLIGHT));
+								steps.add(selStep.withTeam(team, SelectType.FTS_HIGHLIGHT));
 							} else {
 								// it's an FTS-only award
-								steps.add(new TeamSelectionStep(team, SelectType.FTS));
+								steps.add(selStep.withTeam(team, SelectType.FTS));
 							}
 						} else {
 							// the award is for something other than FTS
-							steps.add(new TeamSelectionStep(team, SelectType.HIGHLIGHT));// TODO
+							steps.add(selStep.withTeam(team, SelectType.HIGHLIGHT));// TODO
 						}
 						steps.add(new PauseStep());
 
@@ -615,7 +611,7 @@ public class ResolverLogic {
 							steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 
 						if (step.shouldHighlight())
-							steps.add(new TeamSelectionStep(step.teams));
+							steps.add(selStep.withTeams(step.teams));
 						// Note: if this ever is false for an award that doesn't happen AFTER another
 						// list award, we'll
 						// need to change the logic here to pause before showing the list award
@@ -648,7 +644,7 @@ public class ResolverLogic {
 			// move up one row
 			currentRow--;
 		}
-		steps.add(new TeamSelectionStep());
+		steps.add(new SelectionStep());
 		steps.add(new PauseStep());
 	}
 
@@ -887,12 +883,12 @@ public class ResolverLogic {
 	 * @param submissionInfo - a SubmissionInfo object indicating the pending submission to be
 	 *           resolved
 	 */
-	private void resolveOneSubmission(SubmissionInfo submissionInfo, Timing timing) {
+	private void resolveOneSubmission(SubmissionInfo submissionInfo, SelectionStep selStep, Timing timing) {
 		ITeam team = submissionInfo.getTeam();
 
 		// resolve one submission
 		int oldRow = contest.getOrderOf(team);
-		if (resolveSubmissionImpl(submissionInfo, timing)) {
+		if (resolveSubmissionImpl(submissionInfo, selStep, timing)) {
 			// submission was solved, check if the new position in the contest is different
 			int newRow = contest.getOrderOf(team);
 			if (newRow != oldRow) {

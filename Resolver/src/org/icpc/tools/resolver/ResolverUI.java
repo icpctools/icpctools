@@ -28,12 +28,10 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ProblemSelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SubmissionSelectionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.TeamSelectionStep;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.SelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -459,7 +457,8 @@ public class ResolverUI {
 	}
 
 	/**
-	 * Draw a line on the scoreboard below the given number of rows. Must be called before display().
+	 * Draw a line on the scoreboard below the given number of rows. Must be called before
+	 * display().
 	 *
 	 * @param row the number of rows above the line, or 0 for no line
 	 */
@@ -536,23 +535,21 @@ public class ResolverUI {
 					}
 				}
 			}
-		} else if (step instanceof TeamSelectionStep) {
-			TeamSelectionStep sel = (TeamSelectionStep) step;
+		} else if (step instanceof SelectionStep) {
+			SelectionStep sel = (SelectionStep) step;
 			scoreboardPresentation.setSelectedTeams(sel.teams, sel.type);
+			scoreboardPresentation.setSelectedProblem(sel.problemId);
+			scoreboardPresentation.setSubmissionInfo(sel.subInfo);
+
 			if (orgPresentation != null)
 				orgPresentation.setSelectedTeams(sel.teams, sel.type);
-		} else if (step instanceof SubmissionSelectionStep) {
-			SubmissionSelectionStep sel = (SubmissionSelectionStep) step;
+
 			judgePresentation.handleSubmission(sel.submissionId);
+			judgePresentation.setSelectedProblem(sel.problemId);
 			judgePresentation.setSelectedSubmissionId(sel.submissionId);
 		} else if (step instanceof ToJudgeStep) {
 			ToJudgeStep sel = (ToJudgeStep) step;
 			judgePresentation.handleSubmissions(sel.submissionIds);
-		} else if (step instanceof ProblemSelectionStep) {
-			ProblemSelectionStep sel = (ProblemSelectionStep) step;
-			scoreboardPresentation.setSelectedProblem(sel.subInfo.getProblemId());
-			scoreboardPresentation.setSubmissionInfo(sel.subInfo);
-			judgePresentation.setSelectedProblem(sel.subInfo.getProblemId());
 		} else if (step instanceof AwardStep) {
 			AwardStep award = (AwardStep) step;
 			awardPresentation.setTeam(award.teamId);
