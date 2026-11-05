@@ -756,8 +756,6 @@ public class Resolver {
 			Trace.trace(Trace.USER, "  Fast playback time: " + min + "m " + seconds + "s");
 		}
 		Trace.trace(Trace.USER, "  Total pauses: " + ResolutionUtil.getTotalPauses(steps));
-
-		Trace.trace(Trace.INFO, "  Contest states: " + ResolutionUtil.getTotalContests(steps));
 		Trace.trace(Trace.INFO, "  Total steps: " + steps.size());
 		Trace.trace(Trace.INFO, "  Time to resolve: " + (System.currentTimeMillis() - time) + "ms");
 	}

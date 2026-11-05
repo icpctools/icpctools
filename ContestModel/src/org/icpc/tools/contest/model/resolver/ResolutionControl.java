@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.concurrent.locks.LockSupport;
 
 import org.icpc.tools.contest.Trace;
+import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 
@@ -206,7 +206,7 @@ public class ResolutionControl {
 	}
 
 	private ResolutionStep findPrevious(ResolutionStep step) {
-		if (step instanceof JudgementStep)
+		if (step instanceof IJudgement)
 			return step;
 
 		Class<? extends ResolutionStep> cl = step.getClass();
