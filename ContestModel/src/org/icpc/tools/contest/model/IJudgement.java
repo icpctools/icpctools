@@ -1,9 +1,11 @@
 package org.icpc.tools.contest.model;
 
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+
 /**
  * A submission judgement.
  */
-public interface IJudgement extends IContestObject {
+public interface IJudgement extends IContestObject, ResolutionStep {
 	/**
 	 * Returns the contest time relative to the start of the contest, in ms.
 	 *
