@@ -107,27 +107,75 @@ public class ResolutionUtil {
 		}
 	}
 
-	public static class TeamSelectionStep implements ResolutionStep {
+	/**
+	 * A selection in the resolver. withX() methods change the existing object (clearing any old
+	 * data, e.g. if you select a team then the previous problem and submission id are reset) and
+	 * then return a clone(), so you can do:
+	 * <ol>
+	 * <li>steps.add(step.withProblem(p));</li>
+	 * <li>steps.add(step.withSubmissionId(subId));</li>
+	 * </ol>
+	 * and not worry about creating new objects each time.
+	 */
+	public static class SelectionStep implements ResolutionStep {
 		public List<ITeam> teams;
 		public SelectType type;
+		public String problemId;
+		public SubmissionInfo subInfo;
+		public String submissionId;
 
-		public TeamSelectionStep() {
+		// team
+		public SelectionStep() {
 			// no selection
 		}
 
-		public TeamSelectionStep(ITeam team) {
-			this(team, SelectType.NORMAL);
+		@Override
+		protected SelectionStep clone() {
+			SelectionStep ss = new SelectionStep();
+			ss.teams = teams;
+			ss.type = type;
+			ss.problemId = problemId;
+			ss.subInfo = subInfo;
+			ss.submissionId = submissionId;
+			return ss;
 		}
 
-		public TeamSelectionStep(ITeam team, SelectType type) {
+		public SelectionStep withTeam(ITeam team) {
+			return withTeam(team, SelectType.NORMAL);
+		}
+
+		public SelectionStep withTeam(ITeam team, SelectType newType) {
 			teams = new ArrayList<>(1);
 			teams.add(team);
-			this.type = type;
+			type = newType;
+			problemId = null;
+			subInfo = null;
+			submissionId = null;
+			return clone();
 		}
 
-		public TeamSelectionStep(ITeam[] teams) {
-			this.teams = Arrays.asList(teams);
+		public SelectionStep withTeams(ITeam[] newTeams) {
+			teams = Arrays.asList(newTeams);
 			type = SelectType.TEAM_LIST;
+			problemId = null;
+			subInfo = null;
+			submissionId = null;
+			return clone();
+		}
+
+		public SelectionStep withProblem(SubmissionInfo newSubInfo) {
+			if (newSubInfo != null)
+				problemId = newSubInfo.getProblemId();
+			else
+				problemId = null;
+			subInfo = newSubInfo;
+			submissionId = null;
+			return clone();
+		}
+
+		public SelectionStep withSubmissionId(String newSubId) {
+			submissionId = newSubId;
+			return clone();
 		}
 
 		@Override
@@ -147,36 +195,11 @@ public class ResolutionUtil {
 					sb.append("...");
 			}
 			if (type != null && type != SelectType.NORMAL)
-				sb.append(" " + type.name());
+				sb.append(", " + type.name());
+
+			sb.append(", " + problemId);
+			sb.append(", " + submissionId);
 			return sb.toString();
-		}
-	}
-
-	public static class ProblemSelectionStep implements ResolutionStep {
-		public SubmissionInfo subInfo;
-
-		public ProblemSelectionStep(SubmissionInfo subInfo) {
-			this.subInfo = subInfo;
-		}
-
-		@Override
-		public String toString() {
-			if (subInfo == null)
-				return "Select submission (none)";
-			return "Select submission " + subInfo.getProblemId() + " for team " + subInfo.getTeam().getId();
-		}
-	}
-
-	public static class SubmissionSelectionStep implements ResolutionStep {
-		public String submissionId;
-
-		public SubmissionSelectionStep(String submissionId) {
-			this.submissionId = submissionId;
-		}
-
-		@Override
-		public String toString() {
-			return "Select submission id " + submissionId;
 		}
 	}
 
