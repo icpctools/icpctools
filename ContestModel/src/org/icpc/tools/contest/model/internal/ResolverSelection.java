@@ -5,13 +5,34 @@ import java.util.List;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IResolverSelection;
+import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+import org.icpc.tools.contest.model.resolver.SelectType;
+import org.icpc.tools.contest.model.resolver.SubmissionInfo;
 
-public class ResolverSelection extends ContestObject implements IResolverSelection {
+/**
+ * A selection in the resolver. withX() methods change the existing object (clearing any old data,
+ * e.g. if you select a team then the previous problem and submission id are reset) and then return
+ * a clone(), so you can do:
+ * <ol>
+ * <li>steps.add(step.withProblem(p));</li>
+ * <li>steps.add(step.withSubmissionId(subId));</li>
+ * </ol>
+ * and not worry about creating new objects each time.
+ */
+public class ResolverSelection extends ContestObject implements IResolverSelection, ResolutionStep {
 	private static final String TEAM_IDS = "team_ids";
+	private static final String SELECT_TYPE = "select_type";
 	private static final String PROBLEM_ID = "problem_id";
+	private static final String SUBMISSION_ID = "submission_id";
 
 	private String[] teamIds;
+	private String selectType;
 	private String problemId;
+	public String submissionId;
+
+	// internal property - never serialized
+	public SubmissionInfo subInfo;
 
 	@Override
 	public ContestType getType() {
@@ -33,6 +54,17 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 		return problemId;
 	}
 
+	public SelectType getSelectType() {
+		if (selectType == null)
+			return null;
+
+		try {
+			return SelectType.valueOf(selectType);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public void setSelection(String[] teamIds, String problemId) {
 		this.teamIds = teamIds;
 		this.problemId = problemId;
@@ -42,7 +74,10 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 	public IContestObject clone() {
 		ResolverSelection s = new ResolverSelection();
 		s.teamIds = teamIds;
+		s.selectType = selectType;
 		s.problemId = problemId;
+		s.subInfo = subInfo;
+		s.submissionId = submissionId;
 		return s;
 	}
 
@@ -58,8 +93,14 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 				// ignore
 			}
 			return true;
+		} else if (SELECT_TYPE.equals(name)) {
+			selectType = (String) value;
+			return true;
 		} else if (PROBLEM_ID.equals(name)) {
 			problemId = (String) value;
+			return true;
+		} else if (SUBMISSION_ID.equals(name)) {
+			submissionId = (String) value;
 			return true;
 		}
 		return super.addImpl(name, value);
@@ -68,7 +109,11 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 	@Override
 	protected void getProperties(Properties props) {
 		props.addArray(TEAM_IDS, teamIds);
+		if (selectType != null && !"NORMAL".equals(selectType)) {
+			props.addLiteralString(SELECT_TYPE, selectType.toLowerCase());
+		}
 		props.addLiteralString(PROBLEM_ID, problemId);
+		props.addLiteralString(SUBMISSION_ID, submissionId);
 		super.getProperties(props);
 	}
 
@@ -89,11 +134,62 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 		return errors;
 	}
 
+	public ResolverSelection withTeam(ITeam team) {
+		return withTeam(team, SelectType.NORMAL);
+	}
+
+	public ResolverSelection withTeam(ITeam team, SelectType newType) {
+		teamIds = new String[] { team.getId() };
+		selectType = newType.toString();
+		problemId = null;
+		subInfo = null;
+		submissionId = null;
+		return (ResolverSelection) clone();
+	}
+
+	public ResolverSelection withTeams(ITeam[] newTeams) {
+		teamIds = new String[newTeams.length];
+		int i = 0;
+		for (ITeam t : newTeams) {
+			teamIds[i++] = t.getId();
+		}
+		selectType = SelectType.TEAM_LIST.toString();
+		problemId = null;
+		subInfo = null;
+		submissionId = null;
+		return (ResolverSelection) clone();
+	}
+
+	public ResolverSelection withProblem(SubmissionInfo newSubInfo) {
+		if (newSubInfo != null)
+			problemId = newSubInfo.getProblemId();
+		else
+			problemId = null;
+		subInfo = newSubInfo;
+		submissionId = null;
+		return (ResolverSelection) clone();
+	}
+
+	public ResolverSelection withSubmissionId(String newSubId) {
+		submissionId = newSubId;
+		return (ResolverSelection) clone();
+	}
+
 	@Override
 	public String toString() {
-		int numTeams = 0;
-		if (teamIds != null)
-			numTeams = teamIds.length;
-		return "ResolverSelection [" + numTeams + ", " + problemId + "]";
+		StringBuilder sb = new StringBuilder("ResolverSelection [");
+		if (teamIds == null || teamIds.length == 0) {
+			sb.append("no teams");
+		} else if (teamIds.length == 1) {
+			sb.append("team " + teamIds[0]);
+		} else {
+			sb.append(teamIds.length + " teams");
+		}
+
+		sb.append(", " + selectType);
+		sb.append(", " + problemId);
+		sb.append(", " + submissionId);
+		sb.append("]");
+		return sb.toString();
 	}
 }

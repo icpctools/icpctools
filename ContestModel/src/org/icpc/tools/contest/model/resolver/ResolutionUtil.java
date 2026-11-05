@@ -1,7 +1,5 @@
 package org.icpc.tools.contest.model.resolver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -104,102 +102,6 @@ public class ResolutionUtil {
 		@Override
 		public String toString() {
 			return "Judgement step";
-		}
-	}
-
-	/**
-	 * A selection in the resolver. withX() methods change the existing object (clearing any old
-	 * data, e.g. if you select a team then the previous problem and submission id are reset) and
-	 * then return a clone(), so you can do:
-	 * <ol>
-	 * <li>steps.add(step.withProblem(p));</li>
-	 * <li>steps.add(step.withSubmissionId(subId));</li>
-	 * </ol>
-	 * and not worry about creating new objects each time.
-	 */
-	public static class SelectionStep implements ResolutionStep {
-		public List<ITeam> teams;
-		public SelectType type;
-		public String problemId;
-		public SubmissionInfo subInfo;
-		public String submissionId;
-
-		// team
-		public SelectionStep() {
-			// no selection
-		}
-
-		@Override
-		protected SelectionStep clone() {
-			SelectionStep ss = new SelectionStep();
-			ss.teams = teams;
-			ss.type = type;
-			ss.problemId = problemId;
-			ss.subInfo = subInfo;
-			ss.submissionId = submissionId;
-			return ss;
-		}
-
-		public SelectionStep withTeam(ITeam team) {
-			return withTeam(team, SelectType.NORMAL);
-		}
-
-		public SelectionStep withTeam(ITeam team, SelectType newType) {
-			teams = new ArrayList<>(1);
-			teams.add(team);
-			type = newType;
-			problemId = null;
-			subInfo = null;
-			submissionId = null;
-			return clone();
-		}
-
-		public SelectionStep withTeams(ITeam[] newTeams) {
-			teams = Arrays.asList(newTeams);
-			type = SelectType.TEAM_LIST;
-			problemId = null;
-			subInfo = null;
-			submissionId = null;
-			return clone();
-		}
-
-		public SelectionStep withProblem(SubmissionInfo newSubInfo) {
-			if (newSubInfo != null)
-				problemId = newSubInfo.getProblemId();
-			else
-				problemId = null;
-			subInfo = newSubInfo;
-			submissionId = null;
-			return clone();
-		}
-
-		public SelectionStep withSubmissionId(String newSubId) {
-			submissionId = newSubId;
-			return clone();
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			if (teams == null || teams.isEmpty())
-				sb.append("Select team (none)");
-			else if (teams.size() == 1) {
-				ITeam team = teams.get(0);
-				sb.append("Select team " + team.getId() + ": " + team.getActualDisplayName());
-			} else {
-				sb.append("Select teams ");
-				int n = Math.min(10, teams.size());
-				for (int i = 0; i < n; i++)
-					sb.append(teams.get(i).getId() + " ");
-				if (n < teams.size())
-					sb.append("...");
-			}
-			if (type != null && type != SelectType.NORMAL)
-				sb.append(", " + type.name());
-
-			sb.append(", " + problemId);
-			sb.append(", " + submissionId);
-			return sb.toString();
 		}
 	}
 

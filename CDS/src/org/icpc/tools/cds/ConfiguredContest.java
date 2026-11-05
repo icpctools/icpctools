@@ -50,7 +50,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
 import org.icpc.tools.contest.model.util.AwardUtil;
 import org.w3c.dom.Element;
@@ -1038,25 +1037,8 @@ public class ConfiguredContest {
 					} else {
 						unexposeContestObject(aStep.award);
 					}
-				} else if (step instanceof SelectionStep) {
-					SelectionStep sStep = (SelectionStep) step;
-					String[] teamIds = null;
-					if (sStep.teams != null) {
-						teamIds = new String[sStep.teams.size()];
-
-						int i = 0;
-						for (ITeam t : sStep.teams) {
-							teamIds[i++] = t.getId();
-						}
-					}
-
-					ResolverSelection sel = (ResolverSelection) contest.getResolverSelection();
-					if (sel != null)
-						sel = ((ResolverSelection) sel.clone());
-					else
-						sel = new ResolverSelection();
-					sel.setSelection(teamIds, sStep.problemId);
-					contest.add(sel);
+				} else if (step instanceof ResolverSelection) {
+					contest.add((ResolverSelection) step);
 				}
 			}
 

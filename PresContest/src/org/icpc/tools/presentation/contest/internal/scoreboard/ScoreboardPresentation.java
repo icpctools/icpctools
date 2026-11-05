@@ -109,8 +109,9 @@ public class ScoreboardPresentation extends AbstractScrollingScoreboardPresentat
 				g4.dispose();
 			} else {
 				// there's no pending submission; see if maybe we should draw a FTS info box instead
-				if (selectedTeams != null && (selectType == SelectType.FTS || selectType == SelectType.FTS_HIGHLIGHT)) {
-					for (ITeam selectedTeam : selectedTeams) {
+				if (selectedTeamIds != null && (selectType == SelectType.FTS || selectType == SelectType.FTS_HIGHLIGHT)) {
+					for (String teamId : selectedTeamIds) {
+						ITeam selectedTeam = contest.getTeamById(teamId);
 						double y = getTeamY(selectedTeam);
 						Graphics2D g4 = (Graphics2D) g.create();
 						g4.translate(0, (int) y);

@@ -23,6 +23,7 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
@@ -35,7 +36,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -223,7 +223,7 @@ public class ResolverLogic {
 		steps.add(new ContestStateStep(contest));
 		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
 		steps.add(new PauseStep());
-		steps.add(new SelectionStep());
+		steps.add(new ResolverSelection());
 		steps.add(new ToJudgeStep(null));
 
 		Trace.trace(Trace.USER, "Resolving " + countUnjudgedSubmissions(contest) + " pending submissions out of the "
@@ -326,7 +326,7 @@ public class ResolverLogic {
 	 * @param submissionInfo - an object describing the submission (team and problem) to be resolved
 	 * @return true if the submission was "pending" and was ultimately Solved; false otherwise
 	 */
-	private boolean resolveSubmissionImpl(SubmissionInfo submissionInfo, SelectionStep selStep, Timing timing) {
+	private boolean resolveSubmissionImpl(SubmissionInfo submissionInfo, ResolverSelection selStep, Timing timing) {
 		Trace.trace(Trace.INFO, "Resolving: " + submissionInfo);
 
 		ITeam team = submissionInfo.getTeam();
@@ -379,7 +379,7 @@ public class ResolverLogic {
 	}
 
 	private void resolveEverything(boolean startWithJudgeQueue) {
-		SelectionStep selStep = new SelectionStep();
+		ResolverSelection selStep = new ResolverSelection();
 
 		Timing timing = null;
 		if (startWithJudgeQueue && !teamLists.isEmpty()) {
@@ -644,7 +644,7 @@ public class ResolverLogic {
 			// move up one row
 			currentRow--;
 		}
-		steps.add(new SelectionStep());
+		steps.add(new ResolverSelection());
 		steps.add(new PauseStep());
 	}
 
@@ -883,7 +883,7 @@ public class ResolverLogic {
 	 * @param submissionInfo - a SubmissionInfo object indicating the pending submission to be
 	 *           resolved
 	 */
-	private void resolveOneSubmission(SubmissionInfo submissionInfo, SelectionStep selStep, Timing timing) {
+	private void resolveOneSubmission(SubmissionInfo submissionInfo, ResolverSelection selStep, Timing timing) {
 		ITeam team = submissionInfo.getTeam();
 
 		// resolve one submission
