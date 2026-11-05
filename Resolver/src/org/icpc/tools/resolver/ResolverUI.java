@@ -19,6 +19,7 @@ import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
@@ -31,7 +32,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.SelectionStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -535,17 +535,17 @@ public class ResolverUI {
 					}
 				}
 			}
-		} else if (step instanceof SelectionStep) {
-			SelectionStep sel = (SelectionStep) step;
-			scoreboardPresentation.setSelectedTeams(sel.teams, sel.type);
-			scoreboardPresentation.setSelectedProblem(sel.problemId);
+		} else if (step instanceof ResolverSelection) {
+			ResolverSelection sel = (ResolverSelection) step;
+			scoreboardPresentation.setSelectedTeams(sel.getTeamIds(), sel.getSelectType());
+			scoreboardPresentation.setSelectedProblem(sel.getProblemId());
 			scoreboardPresentation.setSubmissionInfo(sel.subInfo);
 
 			if (orgPresentation != null)
-				orgPresentation.setSelectedTeams(sel.teams, sel.type);
+				orgPresentation.setSelectedTeams(sel.getTeamIds(), sel.getSelectType());
 
 			judgePresentation.handleSubmission(sel.submissionId);
-			judgePresentation.setSelectedProblem(sel.problemId);
+			judgePresentation.setSelectedProblem(sel.getProblemId());
 			judgePresentation.setSelectedSubmissionId(sel.submissionId);
 		} else if (step instanceof ToJudgeStep) {
 			ToJudgeStep sel = (ToJudgeStep) step;

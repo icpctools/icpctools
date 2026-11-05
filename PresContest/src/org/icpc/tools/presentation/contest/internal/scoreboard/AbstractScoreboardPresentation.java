@@ -8,6 +8,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	public static Font problemFont;
 
 	protected SelectType selectType = SelectType.NORMAL;
-	protected List<ITeam> selectedTeams = null;
+	protected List<String> selectedTeamIds = null;
 	protected String focusOnTeamId;
 	protected Animator focusOnTeamScroll = new Animator(0, new Movement(3, 8));
 	protected int teamsPerScreen = DEFAULT_TEAMS_PER_SCREEN;
@@ -269,14 +271,14 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 		}
 	}
 
-	public void setSelectedTeams(List<ITeam> teams, SelectType type) {
+	public void setSelectedTeams(String[] teamIds, SelectType type) {
+		if (teamIds == null) {
+			selectedTeamIds = new ArrayList<String>(0);
+		} else {
+			selectedTeamIds = Arrays.asList(teamIds);
+		}
 		selectType = type;
-		selectedTeams = teams;
 		selectedProblemId = null;
-	}
-
-	public List<ITeam> getSelectedTeams() {
-		return selectedTeams;
 	}
 
 	public int getNumRows() {
@@ -402,7 +404,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	 */
 	protected void drawTeamGrid(Graphics2D g, IContest contest, ITeam team) {
 		// make sure we have selected a team
-		if ((selectedTeams != null && selectedTeams.contains(team))
+		if ((selectedTeamIds != null && selectedTeamIds.contains(team.getId()))
 				|| (focusOnTeamId != null && focusOnTeamId.equals(team.getId()))) {
 
 			// we have a selected team; choose selection (background) color based on whether they
@@ -503,7 +505,7 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 			// compute horizontal starting position of current problem representation (rectangle)
 			int xx = indent + curProblem * (cubeWidth + CUBE_INSET);
 
-			if (selectedProblemId != null && selectedTeams.contains(team)
+			if (selectedProblemId != null && selectedTeamIds.contains(team.getId())
 					&& selectedProblemId.equals(problems[curProblem].getId())) {
 				g.setColor(PENDING_SUBMISSION_BLINK_HILIGHT_COLOR);
 				g.setStroke(new BasicStroke(3));

@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +33,7 @@ public class OrgsPresentation extends AbstractICPCPresentation {
 	private int numTeams = Integer.MAX_VALUE;
 	private int lastImgSize;
 	private SelectType selectType = SelectType.NORMAL;
-	private List<ITeam> selectedTeams = null;
+	private List<String> selectedTeamIds = null;
 
 	private void setTargets() {
 		IContest contest = getContest();
@@ -100,17 +102,19 @@ public class OrgsPresentation extends AbstractICPCPresentation {
 		setTargets();
 	}
 
-	public void setSelectedTeams(List<ITeam> teams, SelectType type) {
+	public void setSelectedTeams(String[] teamIds, SelectType type) {
 		selectType = type;
-		selectedTeams = teams;
-
-		if (selectedTeams == null)
+		if (teamIds == null) {
+			selectedTeamIds = new ArrayList<String>(0);
 			return;
+		}
+
+		selectedTeamIds = Arrays.asList(teamIds);
 
 		int last = 0;
 		ITeam[] ordTeams = getContest().getOrderedTeams();
 		for (int i = 0; i < ordTeams.length; i++) {
-			if (teams.contains(ordTeams[i]))
+			if (selectedTeamIds.contains(ordTeams[i].getId()))
 				last = i;
 		}
 		if (last > 0)
@@ -244,7 +248,7 @@ public class OrgsPresentation extends AbstractICPCPresentation {
 					continue;
 
 				Graphics2D gg = (Graphics2D) g.create();
-				if ((selectedTeams != null && selectedTeams.contains(team))) {
+				if ((selectedTeamIds != null && selectedTeamIds.contains(team.getId()))) {
 					if (selectType == SelectType.FTS || selectType == SelectType.FTS_HIGHLIGHT)
 						gg.setColor(ICPCColors.FIRST_TO_SOLVE_COLOR);
 					else

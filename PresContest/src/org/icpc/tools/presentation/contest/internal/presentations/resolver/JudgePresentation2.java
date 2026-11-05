@@ -78,6 +78,9 @@ public class JudgePresentation2 extends JudgePresentation {
 	}
 
 	public void handleSubmission(String submissionId) {
+		if (submissionId == null) {
+			return;
+		}
 		ISubmission submission = getContest().getSubmissionById(submissionId);
 		if (submission == null)
 			System.err.println("Couldn't find submission: " + submissionId);
