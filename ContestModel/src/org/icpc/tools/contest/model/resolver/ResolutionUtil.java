@@ -30,6 +30,7 @@ public class ResolutionUtil {
 		public Presentations p;
 		public String message;
 		public String teamId;
+		public Boolean scroll;
 
 		public PresentationStep(Presentations pp) {
 			this.p = pp;
@@ -42,6 +43,11 @@ public class ResolutionUtil {
 
 		public PresentationStep withTeamId(String newTeamId) {
 			teamId = newTeamId;
+			return this;
+		}
+
+		public PresentationStep withScroll(Boolean newScroll) {
+			scroll = newScroll;
 			return this;
 		}
 
@@ -137,34 +143,6 @@ public class ResolutionUtil {
 			if (award.getParameters() != null && award.getParameters().containsKey("highlight"))
 				return Boolean.parseBoolean(award.getParameters().get("highlight"));
 			return true;
-		}
-	}
-
-	public static class ScrollStep implements ResolutionStep {
-		public int row;
-
-		public ScrollStep(int row) {
-			this.row = row;
-		}
-
-		@Override
-		public String toString() {
-			return "Scroll to row " + row;
-		}
-	}
-
-	public static class ScrollTeamListStep implements ResolutionStep {
-		public boolean top;
-
-		public ScrollTeamListStep(boolean top) {
-			this.top = top;
-		}
-
-		@Override
-		public String toString() {
-			if (top)
-				return "Scroll team list down";
-			return "Scroll team list up";
 		}
 	}
 

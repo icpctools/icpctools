@@ -31,8 +31,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -230,12 +228,11 @@ public class ResolverLogic {
 		contest = contest.clone(false);
 
 		// first click - show the scoreboard
-		steps.add(new ScrollStep(0));
-		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD).withScroll(true));
 		steps.add(new PauseStep());
 
 		// second click - scroll down to bottom (so last team is at bottom of screen)
-		steps.add(new ScrollStep(contest.getOrderedTeams().length - 1));
+		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD).withScroll(false));
 		steps.add(new PauseStep());
 
 		// third click - select the team or switch to judge queue
@@ -412,9 +409,6 @@ public class ResolverLogic {
 				timing = new PauseTiming();
 			}
 
-			// scroll to row
-			steps.add(new ScrollStep(currentRow));
-
 			// highlight team
 			boolean doneWithRow = false;
 			while (!doneWithRow) {
@@ -474,14 +468,13 @@ public class ResolverLogic {
 					if (step.shouldHighlight())
 						steps.add(selStep.withTeams(step.teams));
 					steps.add(new PauseStep());
-					steps.add(new ScrollTeamListStep(true));
 					steps.add(step);
 					if (step.photos) {
 						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
 					} else {
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
+						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(true));
 						steps.add(new PauseStep());
-						steps.add(new ScrollTeamListStep(false));
+						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
 					}
 					steps.add(new PauseStep());
 					checkAfterAwards(step.award.getId());
@@ -621,15 +614,14 @@ public class ResolverLogic {
 						// need to change the logic here to pause before showing the list award
 						if (step.showScoreboardBefore())
 							steps.add(new PauseStep());
-						steps.add(new ScrollTeamListStep(true));
 						steps.add(step);
 
 						if (step.photos) {
 							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
 						} else {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(true));
 							steps.add(new PauseStep());
-							steps.add(new ScrollTeamListStep(false));
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
 						}
 						steps.add(new PauseStep());
 						checkAfterAwards(step.award.getId());
@@ -687,15 +679,14 @@ public class ResolverLogic {
 
 				ListAwardStep step = new ListAwardStep(award, teams, selections,
 						award.getDisplayMode() == DisplayMode.PHOTOS, false);
-				steps.add(new ScrollTeamListStep(true));
 				steps.add(award);
 				steps.add(step);
 				if (award.getDisplayMode() == DisplayMode.PHOTOS) {
 					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
 				} else {
-					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST));
+					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(true));
 					steps.add(new PauseStep());
-					steps.add(new ScrollTeamListStep(false));
+					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
 				}
 			}
 			steps.add(new PauseStep());

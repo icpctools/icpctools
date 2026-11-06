@@ -19,6 +19,7 @@ import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IResolveInfo;
+import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
@@ -29,8 +30,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ScrollTeamListStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -534,6 +533,19 @@ public class ResolverUI {
 			scoreboardPresentation.setSelectedProblem(sel.getProblemId());
 			scoreboardPresentation.setSubmissionInfo(sel.subInfo);
 
+			// scroll to new team
+			if (sel.getProblemId() == null && sel.getTeamIds() != null && sel.getTeamIds().length == 1) {
+				IContest contest = getFirstContest();
+				ITeam team = contest.getTeamById(sel.getTeamIds()[0]);
+				int scrollToRow = contest.getOrderOf(team);
+				IResolveInfo resolveInfo = contest.getResolveInfo();
+				int rowOffset = 0;
+				if (resolveInfo != null && resolveInfo.getRowOffset() >= 0)
+					rowOffset = resolveInfo.getRowOffset();
+				int row = Math.max(0, scrollToRow - scoreboardPresentation.getNumRows() - rowOffset + 3);
+				scoreboardPresentation.setScrollToRow(row);
+			}
+
 			if (orgPresentation != null)
 				orgPresentation.setSelectedTeams(sel.getTeamIds(), sel.getSelectType());
 
@@ -549,25 +561,23 @@ public class ResolverUI {
 			teamListPhotoPresentation.setAward(teamList.award);
 			if (messagePresentation != null)
 				messagePresentation.setMessage(teamList.award.getCitation());
-		} else if (step instanceof ScrollTeamListStep) {
-			ScrollTeamListStep scroll = (ScrollTeamListStep) step;
-			teamListPresentation.scrollIt(scroll.top);
-		} else if (step instanceof ScrollStep) {
-			ScrollStep scroll = (ScrollStep) step;
-			IContest contest = getFirstContest();
-			IResolveInfo resolveInfo = contest.getResolveInfo();
-			int rowOffset = 0;
-			if (resolveInfo != null && resolveInfo.getRowOffset() >= 0)
-				rowOffset = resolveInfo.getRowOffset();
-			int row = Math.max(0, scroll.row - scoreboardPresentation.getNumRows() - rowOffset + 3);
-			scoreboardPresentation.setScrollToRow(row);
 		} else if (step instanceof PresentationStep) {
 			PresentationStep pstep = (PresentationStep) step;
 			if (pstep.p == PresentationStep.Presentations.SPLASH)
 				setPresentation(splashPresentation);
-			else if (pstep.p == PresentationStep.Presentations.SCOREBOARD)
+			else if (pstep.p == PresentationStep.Presentations.SCOREBOARD) {
+				if (pstep.scroll != null) {
+					if (pstep.scroll)
+						scoreboardPresentation.setScrollToRow(0);
+					else {
+						IContest contest = getFirstContest();
+						scoreboardPresentation
+								.setScrollToRow(contest.getOrderedTeams().length - scoreboardPresentation.getNumRows() + 2);
+					}
+				}
+
 				setPresentation(scoreboardPresentation);
-			else if (pstep.p == PresentationStep.Presentations.JUDGE)
+			} else if (pstep.p == PresentationStep.Presentations.JUDGE)
 				setPresentation(judgePresentation);
 			else if (pstep.p == PresentationStep.Presentations.TEAM_AWARD) {
 				String teamId = pstep.teamId;
@@ -576,9 +586,11 @@ public class ResolverUI {
 					teamLogoPresentation.setTeam(teamId);
 
 				setPresentation(awardPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST)
+			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST) {
+				if (pstep.scroll != null)
+					teamListPresentation.scrollIt(pstep.scroll);
 				setPresentation(teamListPresentation);
-			else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO)
+			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO)
 				setPresentation(teamListPhotoPresentation);
 			else if (pstep.p == PresentationStep.Presentations.MESSAGE) {
 				messagePresentation.setMessage(pstep.message);
