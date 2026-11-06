@@ -28,7 +28,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
@@ -347,11 +346,12 @@ public class ResolverLogic {
 				// we found it; update its status to match the correct (final contest) status
 				IJudgement[] sjs = finalContest.getJudgementsBySubmissionId(submission.getId());
 				if (sjs != null) {
-					for (IJudgement sj : sjs)
+					for (IJudgement sj : sjs) {
 						contest.add(sj);
+						steps.add(sj);
+					}
 				}
 
-				steps.add(new JudgementStep(sjs));
 				steps.add(selStep.withSubmissionId(submission.getId()));
 				timing.onStep(steps, State.SELECT_SUBMISSION);
 

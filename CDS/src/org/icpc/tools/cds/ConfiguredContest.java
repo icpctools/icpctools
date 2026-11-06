@@ -38,6 +38,7 @@ import org.icpc.tools.contest.model.internal.Account;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.Info;
+import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.internal.YamlParser;
@@ -47,7 +48,6 @@ import org.icpc.tools.contest.model.internal.account.StaffContest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
@@ -1008,18 +1008,12 @@ public class ConfiguredContest {
 			@Override
 			public void step(ResolutionStep step, boolean forward) {
 				Trace.trace(Trace.INFO, "Resolver at step " + step);
-				if (step instanceof JudgementStep) {
-					JudgementStep jStep = (JudgementStep) step;
-					IJudgement[] judgements = jStep.judgements;
-					if (judgements == null)
-						return;
-
-					for (IJudgement j : judgements) {
-						if (forward) {
-							exposeContestObject(j);
-						} else {
-							unexposeContestObject(j);
-						}
+				if (step instanceof Judgement) {
+					Judgement j = (Judgement) step;
+					if (forward) {
+						exposeContestObject(j);
+					} else {
+						unexposeContestObject(j);
 					}
 				} else if (step instanceof AwardStep) {
 					AwardStep aStep = (AwardStep) step;

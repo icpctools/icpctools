@@ -16,15 +16,14 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IJudgement;
 import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.JudgementStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
@@ -521,19 +520,13 @@ public class ResolverUI {
 	private int processStep(ResolutionStep step, boolean forward) {
 		if (step instanceof ContestStateStep) {
 			// do nothing
-		} else if (step instanceof JudgementStep) {
-			JudgementStep jStep = (JudgementStep) step;
+		} else if (step instanceof Judgement) {
+			Judgement j = (Judgement) step;
 			Contest contest = getFirstContest();
-
-			IJudgement[] judgements = jStep.judgements;
-			if (judgements != null) {
-				for (IJudgement j : judgements) {
-					if (forward) {
-						contest.add(j);
-					} else {
-						contest.remove(j);
-					}
-				}
+			if (forward) {
+				contest.add(j);
+			} else {
+				contest.remove(j);
 			}
 		} else if (step instanceof ResolverSelection) {
 			ResolverSelection sel = (ResolverSelection) step;
