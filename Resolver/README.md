@@ -364,6 +364,14 @@ i
 ```
 Toggle additional information regarding each pending run (same as --info).
 
+```
+p
+```
+Pause or resume. Pauses scrolling and auto-resolving immediately, and teams that are moving stop
+where they are. While paused, a click (space, f or the mouse) resumes; r or b goes back to where
+the current step started, and 0 restarts. When the resolver is the presenter for other resolvers
+connected through a CDS, they pause too, and the presenter's screen shows "Paused".
+
 
 ### Command Line Examples
 
