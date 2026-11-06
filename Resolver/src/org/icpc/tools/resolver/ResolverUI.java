@@ -26,7 +26,6 @@ import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -555,12 +554,6 @@ public class ResolverUI {
 		} else if (step instanceof ToJudgeStep) {
 			ToJudgeStep sel = (ToJudgeStep) step;
 			judgePresentation.handleSubmissions(sel.submissionIds);
-		} else if (step instanceof ListAwardStep) {
-			ListAwardStep teamList = (ListAwardStep) step;
-			teamListPresentation.setAward(teamList.award);
-			teamListPhotoPresentation.setAward(teamList.award);
-			if (messagePresentation != null)
-				messagePresentation.setMessage(teamList.award.getCitation());
 		} else if (step instanceof PresentationStep) {
 			PresentationStep pstep = (PresentationStep) step;
 			if (pstep.p == PresentationStep.Presentations.SPLASH)
@@ -587,12 +580,20 @@ public class ResolverUI {
 
 				setPresentation(awardPresentation);
 			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST) {
+				if (pstep.awardId != null) {
+					IAward award = getFirstContest().getAwardById(pstep.awardId);
+					teamListPresentation.setAward(award);
+				}
 				if (pstep.scroll != null)
 					teamListPresentation.scrollIt(pstep.scroll);
 				setPresentation(teamListPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO)
+			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO) {
+				if (pstep.awardId != null) {
+					IAward award = getFirstContest().getAwardById(pstep.awardId);
+					teamListPhotoPresentation.setAward(award);
+				}
 				setPresentation(teamListPhotoPresentation);
-			else if (pstep.p == PresentationStep.Presentations.MESSAGE) {
+			} else if (pstep.p == PresentationStep.Presentations.MESSAGE) {
 				messagePresentation.setMessage(pstep.message);
 				setPresentation(messagePresentation);
 			}

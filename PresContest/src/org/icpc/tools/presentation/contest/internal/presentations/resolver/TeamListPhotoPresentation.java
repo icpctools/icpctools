@@ -15,18 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IAward;
+import org.icpc.tools.contest.model.IAward.DisplayMode;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
 import org.icpc.tools.contest.model.IOrganization;
 import org.icpc.tools.contest.model.ITeam;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
+import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -134,11 +133,12 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				List<Cache> list = new ArrayList<>();
 
 				for (ResolutionStep step : steps) {
-					if (step instanceof ListAwardStep && ((ListAwardStep) step).photos) {
-						ListAwardStep as = (ListAwardStep) step;
+					if (step instanceof Award && award.getDisplayMode() == DisplayMode.PHOTOS) {
+						Award award2 = (Award) step;
+
 						Cache c = new Cache();
-						c.teamIds = Arrays.stream(as.teams).map(IContestObject::getId).collect(Collectors.toList());
-						c.award2 = as.award;
+						c.teamIds = Arrays.asList(award2.getTeamIds());
+						c.award2 = award;
 
 						list.add(c);
 					}

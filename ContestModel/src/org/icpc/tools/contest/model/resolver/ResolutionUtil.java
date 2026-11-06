@@ -1,10 +1,8 @@
 package org.icpc.tools.contest.model.resolver;
 
 import java.util.List;
-import java.util.Map;
 
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 
 public class ResolutionUtil {
@@ -31,6 +29,7 @@ public class ResolutionUtil {
 		public String message;
 		public String teamId;
 		public Boolean scroll;
+		public String awardId;
 
 		public PresentationStep(Presentations pp) {
 			this.p = pp;
@@ -48,6 +47,11 @@ public class ResolutionUtil {
 
 		public PresentationStep withScroll(Boolean newScroll) {
 			scroll = newScroll;
+			return this;
+		}
+
+		public PresentationStep withAwardId(String newAwardId) {
+			awardId = newAwardId;
 			return this;
 		}
 
@@ -111,41 +115,6 @@ public class ResolutionUtil {
 		}
 	}
 
-	public static class ListAwardStep implements ResolutionStep {
-		public IAward award;
-		public ITeam[] teams;
-		public Map<String, SelectType> selections;
-		public boolean photos;
-		public boolean after;
-
-		public ListAwardStep(IAward award, ITeam[] teams, Map<String, SelectType> selections, boolean photos,
-				boolean after) {
-			this.award = award;
-			this.teams = teams;
-			this.selections = selections;
-			this.photos = photos;
-			this.after = after;
-		}
-
-		@Override
-		public String toString() {
-			return "Team List " + award.getId();
-		}
-
-		public boolean showScoreboardBefore() {
-			if (award.getParameters() != null && award.getParameters().containsKey("showScoreboardBefore")) {
-				return Boolean.parseBoolean(award.getParameters().get("showScoreboardBefore"));
-			}
-			return true;
-		}
-
-		public boolean shouldHighlight() {
-			if (award.getParameters() != null && award.getParameters().containsKey("highlight"))
-				return Boolean.parseBoolean(award.getParameters().get("highlight"));
-			return true;
-		}
-	}
-
 	public static double getTotalTime(List<ResolutionStep> steps) {
 		double time = 0;
 		for (ResolutionStep step : steps) {
@@ -175,5 +144,23 @@ public class ResolutionUtil {
 				ps.num = num++;
 			}
 		}
+	}
+
+	public static boolean showScoreboardBefore(IAward award) {
+		if (award.getParameters() != null && award.getParameters().containsKey("showScoreboardBefore")) {
+			return Boolean.parseBoolean(award.getParameters().get("showScoreboardBefore"));
+		}
+		return true;
+	}
+
+	public static boolean shouldHighlight(IAward award) {
+		if (award.getParameters() != null && award.getParameters().containsKey("highlight"))
+			return Boolean.parseBoolean(award.getParameters().get("highlight"));
+		return true;
+	}
+
+	public static boolean after(IAward award) {
+		return award.getParameters() != null && award.getParameters().containsKey(ResolverLogic.AFTER)
+				&& award.getParameters().get(ResolverLogic.AFTER).equals("true");
 	}
 }
