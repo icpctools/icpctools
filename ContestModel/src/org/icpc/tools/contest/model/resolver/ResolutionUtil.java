@@ -28,9 +28,21 @@ public class ResolutionUtil {
 		}
 
 		public Presentations p;
+		public String message;
+		public String teamId;
 
 		public PresentationStep(Presentations pp) {
 			this.p = pp;
+		}
+
+		public PresentationStep withMessage(String newMessage) {
+			message = newMessage;
+			return this;
+		}
+
+		public PresentationStep withTeamId(String newTeamId) {
+			teamId = newTeamId;
+			return this;
 		}
 
 		@Override
@@ -65,19 +77,6 @@ public class ResolutionUtil {
 		}
 	}
 
-	public static class MessageStep implements ResolutionStep {
-		public String text;
-
-		public MessageStep(String text) {
-			this.text = text;
-		}
-
-		@Override
-		public String toString() {
-			return "Message " + text;
-		}
-	}
-
 	public static class ContestStateStep implements ResolutionStep {
 		public Contest contest;
 
@@ -103,36 +102,6 @@ public class ResolutionUtil {
 			if (submissionIds == null)
 				return "Submissions to judge: (none)";
 			return "Submissions to judge: " + submissionIds.length;
-		}
-	}
-
-	public static class AwardStep implements ResolutionStep {
-		public String teamId;
-		public List<IAward> awards;
-
-		public AwardStep(String teamId, List<IAward> awards) {
-			this.teamId = teamId;
-			this.awards = awards;
-		}
-
-		@Override
-		public String toString() {
-			if (awards == null)
-				return "Award (none)";
-
-			if (awards.size() == 1)
-				return "Award (" + awards.get(0).getCitation() + ")";
-
-			StringBuilder sb = new StringBuilder();
-			boolean first = true;
-			for (IAward a : awards) {
-				if (first)
-					first = !first;
-				else
-					sb.append(", ");
-				sb.append(a.getCitation());
-			}
-			return "Awards (" + sb.toString() + ")";
 		}
 	}
 

@@ -24,12 +24,10 @@ import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -521,8 +519,11 @@ public class ResolverLogic {
 								}
 
 								if (show) {
-									steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
-									steps.add(new AwardStep(missedTeamId, teamAwards));
+									for (IAward a : teamAwards) {
+										steps.add(a);
+									}
+									steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD)
+											.withTeamId(missedTeamId));
 									steps.add(new PauseStep());
 								}
 								awards.remove(missedTeam.getId());
@@ -586,8 +587,11 @@ public class ResolverLogic {
 						if (show) {
 							// we have successfully resolved up to and including the next award row, so
 							// show it
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
-							steps.add(new AwardStep(team.getId(), teamAwards));
+							for (IAward a : teamAwards) {
+								steps.add(a);
+							}
+							steps.add(
+									new PresentationStep(PresentationStep.Presentations.TEAM_AWARD).withTeamId((team.getId())));
 							steps.add(new PauseStep());
 
 							for (IAward award : teamAwards) {
@@ -669,13 +673,10 @@ public class ResolverLogic {
 			int size = teamIds.length;
 
 			if (award.getDisplayMode() == DisplayMode.MESSAGE) {
-				steps.add(new MessageStep(award.getCitation()));
-				steps.add(new PresentationStep(PresentationStep.Presentations.MESSAGE));
+				steps.add(new PresentationStep(PresentationStep.Presentations.MESSAGE).withMessage(award.getCitation()));
 			} else if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
-				steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD));
-				List<IAward> list = new ArrayList<>();
-				list.add(award);
-				steps.add(new AwardStep(teamIds[0], list));
+				steps.add(award);
+				steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD).withTeamId(teamIds[0]));
 			} else {
 				ITeam[] teams = new ITeam[size];
 				Map<String, SelectType> selections = new HashMap<>();
@@ -687,6 +688,7 @@ public class ResolverLogic {
 				ListAwardStep step = new ListAwardStep(award, teams, selections,
 						award.getDisplayMode() == DisplayMode.PHOTOS, false);
 				steps.add(new ScrollTeamListStep(true));
+				steps.add(award);
 				steps.add(step);
 				if (award.getDisplayMode() == DisplayMode.PHOTOS) {
 					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));

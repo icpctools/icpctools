@@ -47,8 +47,6 @@ import org.icpc.tools.contest.model.internal.account.PublicContest;
 import org.icpc.tools.contest.model.internal.account.StaffContest;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.resolver.ResolverLogic;
 import org.icpc.tools.contest.model.util.AwardUtil;
@@ -1008,28 +1006,12 @@ public class ConfiguredContest {
 			@Override
 			public void step(ResolutionStep step, boolean forward) {
 				Trace.trace(Trace.INFO, "Resolver at step " + step);
-				if (step instanceof Judgement) {
-					Judgement j = (Judgement) step;
+				if (step instanceof Judgement | step instanceof IAward) {
+					IContestObject co = (IContestObject) step;
 					if (forward) {
-						exposeContestObject(j);
+						exposeContestObject(co);
 					} else {
-						unexposeContestObject(j);
-					}
-				} else if (step instanceof AwardStep) {
-					AwardStep aStep = (AwardStep) step;
-					for (IAward a : aStep.awards) {
-						if (forward) {
-							exposeContestObject(a);
-						} else {
-							unexposeContestObject(a);
-						}
-					}
-				} else if (step instanceof ListAwardStep) {
-					ListAwardStep aStep = (ListAwardStep) step;
-					if (forward) {
-						exposeContestObject(aStep.award);
-					} else {
-						unexposeContestObject(aStep.award);
+						unexposeContestObject(co);
 					}
 				} else if (step instanceof ResolverSelection) {
 					contest.add((ResolverSelection) step);
