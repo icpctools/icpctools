@@ -2,7 +2,9 @@ package org.icpc.tools.contest.model;
 
 import java.util.Map;
 
-public interface IAward extends IContestObject {
+import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
+
+public interface IAward extends IContestObject, ResolutionStep {
 	class AwardType {
 		private String name;
 		private String regEx;

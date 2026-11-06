@@ -15,17 +15,17 @@ import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
+import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
+import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.MessageStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -520,13 +520,13 @@ public class ResolverUI {
 	private int processStep(ResolutionStep step, boolean forward) {
 		if (step instanceof ContestStateStep) {
 			// do nothing
-		} else if (step instanceof Judgement) {
-			Judgement j = (Judgement) step;
+		} else if (step instanceof Judgement | step instanceof IAward) {
+			IContestObject co = (IContestObject) step;
 			Contest contest = getFirstContest();
 			if (forward) {
-				contest.add(j);
+				contest.add(co);
 			} else {
-				contest.remove(j);
+				contest.remove(co);
 			}
 		} else if (step instanceof ResolverSelection) {
 			ResolverSelection sel = (ResolverSelection) step;
@@ -543,15 +543,6 @@ public class ResolverUI {
 		} else if (step instanceof ToJudgeStep) {
 			ToJudgeStep sel = (ToJudgeStep) step;
 			judgePresentation.handleSubmissions(sel.submissionIds);
-		} else if (step instanceof AwardStep) {
-			AwardStep award = (AwardStep) step;
-			awardPresentation.setTeam(award.teamId);
-			if (teamLogoPresentation != null)
-				teamLogoPresentation.setTeam(award.teamId);
-		} else if (step instanceof MessageStep) {
-			MessageStep mStep = (MessageStep) step;
-			messagePresentation.setMessage(mStep.text);
-			setPresentation(messagePresentation);
 		} else if (step instanceof ListAwardStep) {
 			ListAwardStep teamList = (ListAwardStep) step;
 			teamListPresentation.setAward(teamList.award);
@@ -578,12 +569,21 @@ public class ResolverUI {
 				setPresentation(scoreboardPresentation);
 			else if (pstep.p == PresentationStep.Presentations.JUDGE)
 				setPresentation(judgePresentation);
-			else if (pstep.p == PresentationStep.Presentations.TEAM_AWARD)
+			else if (pstep.p == PresentationStep.Presentations.TEAM_AWARD) {
+				String teamId = pstep.teamId;
+				awardPresentation.setTeam(teamId);
+				if (teamLogoPresentation != null)
+					teamLogoPresentation.setTeam(teamId);
+
 				setPresentation(awardPresentation);
-			else if (pstep.p == PresentationStep.Presentations.TEAM_LIST)
+			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST)
 				setPresentation(teamListPresentation);
 			else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO)
 				setPresentation(teamListPhotoPresentation);
+			else if (pstep.p == PresentationStep.Presentations.MESSAGE) {
+				messagePresentation.setMessage(pstep.message);
+				setPresentation(messagePresentation);
+			}
 		} else {
 			Trace.trace(Trace.ERROR, "Unknown resolution step!");
 			System.exit(1);

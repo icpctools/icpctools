@@ -31,7 +31,6 @@ import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.FileReference;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.AwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.util.Messages;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
@@ -107,34 +106,15 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 				List<Cache> list = new ArrayList<>();
 
 				for (ResolutionStep step : steps) {
-					if (step instanceof AwardStep) {
-						AwardStep as = (AwardStep) step;
+					if (step instanceof IAward) {
+						IAward award = (IAward) step;
 
-						// if this award screen was already shown, just reuse the previous
-						// cache (same photo, awards).
-						boolean alreadyCached = false;
-						for (Cache cc : list) {
-							if (cc.teamId.equals(as.teamId)) {
-								alreadyCached = true;
-								break;
-							}
-						}
-						if (alreadyCached)
+						if (award.getDisplayMode() == DisplayMode.LIST || award.getDisplayMode() == DisplayMode.PHOTOS)
 							continue;
 
-						Cache c = new Cache();
-						c.teamId = as.teamId;
-
-						for (IAward a : as.awards) {
-							if (a.getTeamIds() != null) {
-								for (String tId : a.getTeamIds()) {
-									if (tId.equals(c.teamId))
-										c.awards.add(a);
-								}
-							}
+						for (String teamId : award.getTeamIds()) {
+							cache(list, award, teamId);
 						}
-
-						list.add(c);
 					}
 				}
 
@@ -144,6 +124,25 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 				updateCache(0);
 			}
 		});
+	}
+
+	private void cache(List<Cache> list, IAward award, String teamId) {
+		// if this award screen was already shown, just reuse the previous
+		// cache (same photo, awards).
+		for (Cache cc : list) {
+			if (cc.teamId.equals(teamId)) {
+				if (!cc.awards.contains(award)) {
+					cc.awards.add(award);
+				}
+				return;
+			}
+		}
+
+		Cache c = new Cache();
+		c.teamId = teamId;
+		c.awards.add(award);
+
+		list.add(c);
 	}
 
 	public void setTeam(String teamId) {
