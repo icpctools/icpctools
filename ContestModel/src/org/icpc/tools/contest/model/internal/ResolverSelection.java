@@ -147,12 +147,8 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 		return (ResolverSelection) clone();
 	}
 
-	public ResolverSelection withTeams(ITeam[] newTeams) {
-		teamIds = new String[newTeams.length];
-		int i = 0;
-		for (ITeam t : newTeams) {
-			teamIds[i++] = t.getId();
-		}
+	public ResolverSelection withTeams(String[] newTeamIds) {
+		teamIds = newTeamIds;
 		selectType = SelectType.TEAM_LIST.toString();
 		problemId = null;
 		subInfo = null;

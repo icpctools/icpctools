@@ -27,7 +27,6 @@ import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ListAwardStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -40,7 +39,7 @@ import org.icpc.tools.contest.model.util.AwardUtil;
  * the resolution will take.
  */
 public class ResolverLogic {
-	private static final String AFTER = "after";
+	public static final String AFTER = "after";
 	private static final String AFTER_ID = "afterId";
 	private static final String SHOW_SCOREBOARD = "showScoreboard";
 
@@ -107,7 +106,7 @@ public class ResolverLogic {
 
 	// map from all the teamIds getting an award to the list of awards they're getting
 	private Map<String, List<IAward>> awards = new HashMap<>();
-	private List<ListAwardStep> teamLists = new ArrayList<>();
+	private List<IAward> teamLists = new ArrayList<>();
 	private Map<String, IAward> afterAwards = new HashMap<>();
 
 	private List<ResolutionStep> steps = new ArrayList<>();
@@ -188,20 +187,7 @@ public class ResolverLogic {
 						aw.add(award);
 					}
 				} else {
-					int size = teamIds.length;
-					ITeam[] teams = new ITeam[size];
-					Map<String, SelectType> selections = new HashMap<>();
-					for (int i = 0; i < size; i++) {
-						teams[i] = finalContest.getTeamById(teamIds[i]);
-
-						// TODO figure out selections
-					}
-
-					ListAwardStep step = new ListAwardStep(award, teams, selections,
-							award.getDisplayMode() == DisplayMode.PHOTOS,
-							award.getParameters() != null && award.getParameters().containsKey(AFTER)
-									&& award.getParameters().get(AFTER).equals("true"));
-					teamLists.add(step);
+					teamLists.add(award);
 				}
 			}
 		}
@@ -460,24 +446,26 @@ public class ResolverLogic {
 				}
 
 				boolean backToScoreboard = false;
-				ListAwardStep step = getListAward(currentRow, false);
-				if (step != null) {
-					Trace.trace(Trace.INFO, "Team list at row: " + currentRow + " " + step);
-					teamLists.remove(step);
+				IAward award = getListAward(currentRow, false);
+				if (award != null) {
+					Trace.trace(Trace.INFO, "Team list at row: " + currentRow + " " + award);
+					teamLists.remove(award);
 
-					if (step.shouldHighlight())
-						steps.add(selStep.withTeams(step.teams));
+					if (ResolutionUtil.shouldHighlight(award))
+						steps.add(selStep.withTeams(award.getTeamIds()));
 					steps.add(new PauseStep());
-					steps.add(step);
-					if (step.photos) {
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+
+					if (award.getDisplayMode() == DisplayMode.PHOTOS) {
+						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO)
+								.withAwardId(award.getId()));
 					} else {
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(true));
+						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withAwardId(award.getId())
+								.withScroll(true));
 						steps.add(new PauseStep());
 						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
 					}
 					steps.add(new PauseStep());
-					checkAfterAwards(step.award.getId());
+					checkAfterAwards(award.getId());
 					if (judgeStep != null) {
 						int size = judgeRuns.size();
 						String[] ii = new String[size];
@@ -506,8 +494,8 @@ public class ResolverLogic {
 
 								// are we going to show this on a separate page?
 								boolean show = false;
-								for (IAward award : teamAwards) {
-									if (award.getDisplayMode() == DisplayMode.DETAIL)
+								for (IAward award2 : teamAwards) {
+									if (award2.getDisplayMode() == DisplayMode.DETAIL)
 										show = true;
 								}
 
@@ -552,8 +540,8 @@ public class ResolverLogic {
 
 						// are we going to show this on a separate page?
 						boolean show = false;
-						for (IAward award : teamAwards) {
-							if (award.getDisplayMode() == DisplayMode.DETAIL)
+						for (IAward award2 : teamAwards) {
+							if (award2.getDisplayMode() == DisplayMode.DETAIL)
 								show = true;
 						}
 
@@ -587,8 +575,8 @@ public class ResolverLogic {
 									new PresentationStep(PresentationStep.Presentations.TEAM_AWARD).withTeamId((team.getId())));
 							steps.add(new PauseStep());
 
-							for (IAward award : teamAwards) {
-								checkAfterAwards(award.getId());
+							for (IAward award2 : teamAwards) {
+								checkAfterAwards(award2.getId());
 							}
 
 							// go back to the scoreboard presentation
@@ -599,36 +587,37 @@ public class ResolverLogic {
 					if (checkAfterAwards(currentRow + ""))
 						steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 
-					step = getListAward(currentRow, true);
-					while (step != null) {
-						Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + step);
-						teamLists.remove(step);
+					award = getListAward(currentRow, true);
+					while (award != null) {
+						Trace.trace(Trace.INFO, "Team list at row after: " + currentRow + " " + award);
+						teamLists.remove(award);
 
-						if (step.showScoreboardBefore() && backToScoreboard)
+						if (ResolutionUtil.showScoreboardBefore(award) && backToScoreboard)
 							steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
 
-						if (step.shouldHighlight())
-							steps.add(selStep.withTeams(step.teams));
+						if (ResolutionUtil.shouldHighlight(award))
+							steps.add(selStep.withTeams(award.getTeamIds()));
 						// Note: if this ever is false for an award that doesn't happen AFTER another
 						// list award, we'll
 						// need to change the logic here to pause before showing the list award
-						if (step.showScoreboardBefore())
+						if (ResolutionUtil.showScoreboardBefore(award))
 							steps.add(new PauseStep());
-						steps.add(step);
 
-						if (step.photos) {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+						if (award.getDisplayMode() == DisplayMode.PHOTOS) {
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO)
+									.withAwardId(award.getId()));
 						} else {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(true));
+							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withAwardId(award.getId())
+									.withScroll(true));
 							steps.add(new PauseStep());
 							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
 						}
 						steps.add(new PauseStep());
-						checkAfterAwards(step.award.getId());
+						checkAfterAwards(award.getId());
 
 						backToScoreboard = true;
 
-						step = getListAward(currentRow, true);
+						award = getListAward(currentRow, true);
 					}
 				}
 				if (backToScoreboard) {
@@ -644,8 +633,8 @@ public class ResolverLogic {
 		steps.add(new PauseStep());
 	}
 
-	protected ListAwardStep getListAward(int currentRow, boolean after) {
-		for (ListAwardStep step : teamLists) {
+	protected IAward getListAward(int currentRow, boolean after) {
+		for (IAward step : teamLists) {
 			if (isListReadyToDisplay(step, currentRow, after)) {
 				return step;
 			}
@@ -662,7 +651,6 @@ public class ResolverLogic {
 				steps.add(new PauseStep());
 			}
 			String[] teamIds = award.getTeamIds();
-			int size = teamIds.length;
 
 			if (award.getDisplayMode() == DisplayMode.MESSAGE) {
 				steps.add(new PresentationStep(PresentationStep.Presentations.MESSAGE).withMessage(award.getCitation()));
@@ -670,21 +658,13 @@ public class ResolverLogic {
 				steps.add(award);
 				steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD).withTeamId(teamIds[0]));
 			} else {
-				ITeam[] teams = new ITeam[size];
-				Map<String, SelectType> selections = new HashMap<>();
-				for (int i = 0; i < size; i++) {
-					teams[i] = finalContest.getTeamById(teamIds[i]);
-					// TODO figure out selections
-				}
-
-				ListAwardStep step = new ListAwardStep(award, teams, selections,
-						award.getDisplayMode() == DisplayMode.PHOTOS, false);
 				steps.add(award);
-				steps.add(step);
 				if (award.getDisplayMode() == DisplayMode.PHOTOS) {
-					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO));
+					steps.add(
+							new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO).withAwardId(award.getId()));
 				} else {
-					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(true));
+					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withAwardId(award.getId())
+							.withScroll(true));
 					steps.add(new PauseStep());
 					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
 				}
@@ -699,11 +679,10 @@ public class ResolverLogic {
 		return false;
 	}
 
-	protected boolean isListReadyToDisplay(ListAwardStep step, int row, boolean after) {
-		if (step == null)
+	protected boolean isListReadyToDisplay(IAward award, int row, boolean after) {
+		if (award == null)
 			return false;
 
-		IAward award = step.award;
 		String[] teamIds = award.getTeamIds();
 		if (award.getParameters() != null && award.getParameters().containsKey("before")) {
 			if (!after)
@@ -720,7 +699,7 @@ public class ResolverLogic {
 				return true;
 		}
 
-		if (after != step.after)
+		if (after != ResolutionUtil.after(award))
 			return false;
 
 		// we've done all the teams
@@ -756,7 +735,7 @@ public class ResolverLogic {
 				numSolved = Integer.parseInt(award.getParameters().get("numSolved"));
 			} catch (Exception e) {
 				Trace.trace(Trace.ERROR,
-						"Could not parse solved award parameter " + step.award.getParameters().get("numSolved"));
+						"Could not parse solved award parameter " + award.getParameters().get("numSolved"));
 			}
 
 			if (numSolved > 0) {
