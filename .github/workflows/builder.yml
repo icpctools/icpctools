@@ -4,8 +4,7 @@ on:
     branches:
       - main
     paths:
-      # The builder copies build/cds into the Liberty server directory, but only
-      # server.xml affects the minified runtime, so only it needs a rebuild.
+      # all inputs of the builder image
       - build/builder.Dockerfile
       - build/cds/server.xml
 jobs:
