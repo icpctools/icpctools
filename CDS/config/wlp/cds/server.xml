@@ -1,4 +1,5 @@
 <server description="ICPC contest data server">
+    <!-- The builder minifies Liberty with build/cds/server.xml. Keep its feature list in sync with this one. -->
     <featureManager>
        <feature>pages-4.0</feature>
        <feature>jndi-1.0</feature>
