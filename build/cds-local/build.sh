@@ -37,7 +37,7 @@ fi
 cd "$REPO"
 VERSION="$(awk -F '=' '{ print $2 }' version.properties).$(git rev-list HEAD --count)"
 TAG="$VERSION"
-if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+if [ -n "$(git status --porcelain)" ]; then
   TAG="$VERSION-dirty"
 fi
 
