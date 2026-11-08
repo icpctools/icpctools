@@ -84,8 +84,12 @@
       id="org.icpc.tools.presentation.contest.photos"
       name="Photos"
       category="ICPC"
-      description="A rotating set of photos found in CDP/present/photos/. Optional fade when fade: is set."
-      properties="duration:12000,fade:0"
+      description="A rotating set of photos found in CDP/present/photos/ or CDP/present/photos-name/. Optional fade when fade: is set."
+      properties="duration:12000,fade:0,
+         h - bicubic interpolation,
+         l - nearest-neighbor interpolation,
+         catalog:name - use CDP/present/photos-name (letters digits _ -),
+         catalog: - reset to CDP/present/photos"
       image="images/presentations/photos.png"
       class="org.icpc.tools.presentation.contest.internal.presentations.PhotoPresentation"/>
    <presentation

@@ -8,6 +8,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.feed.ContestSource;
@@ -16,93 +18,223 @@ import org.icpc.tools.presentation.core.Presentation;
 
 public class PhotoPresentation extends Presentation {
 	private static final String[] HELP = new String[] { "This presentation will pan across a series of photos.",
-			"Place photos on the CDS in {icpc.cds.config}/present/photos." };
+			"Place photos on the CDS in {icpc.cds.config}/present/photos",
+			"or present/photos-name and set property catalog:name." };
 
 	private static final int SECONDS_PER_PHOTO = 12;
-	private static final int MIN_DURATION_MS = 100;
 	private static final int CACHE_SIZE = 2;
+	private static final int MIN_DURATION_MS = 100;
+	private static final String DEFAULT_DIRECTORY = "/presentation/photos";
+	private static final String CATALOG_PREFIX = "catalog:";
+	private static final Pattern CATALOG_NAME = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_-]{0,31}");
 
-	private String mode = null;
-	private int durationMs = SECONDS_PER_PHOTO * 1000;
-	private int fadeMs = 0;
+	static final int NOT_CATALOG = 0;
+	static final int CATALOG_RESET = 1;
+	static final int CATALOG_SET = 2;
+	static final int CATALOG_INVALID = 3;
 
+	static final class CatalogProperty {
+		final int action;
+		final String name;
+
+		CatalogProperty(int action, String name) {
+			this.action = action;
+			this.name = name;
+		}
+	}
+
+	interface PhotoLoader {
+		String[] list(String directory) throws Exception;
+
+		BufferedImage open(String path) throws Exception;
+	}
+
+	private volatile String mode = null;
+	private volatile String catalog = null;
+	private volatile boolean active;
+	private volatile PhotoLoader loader = new PhotoLoader() {
+		@Override
+		public String[] list(String directory) throws Exception {
+			ContestSource source = ContestSource.getInstance();
+			if (source == null) {
+				return null;
+			}
+			return source.getDirectory(directory);
+		}
+
+		@Override
+		public BufferedImage open(String path) throws Exception {
+			return ImageHelper.loadImage(path);
+		}
+	};
+
+	private volatile int durationMs = SECONDS_PER_PHOTO * 1000;
+	private volatile int fadeMs;
 	private PhotoPan current;
 	private PhotoPan outgoing;
 	private BufferedImage blend;
+	private boolean hasPainted;
+	private boolean switchedBeforeRepeat;
 	private final List<BufferedImage> images = new ArrayList<>(4);
 	private int num;
 	private String[] filenames;
-	private Presentation.Job job;
+	private int generation;
+	private int loadingGeneration = -1;
+	private int discardedImages;
 
-	// Avoid fading a preloaded image that was replaced before the first paint.
-	private boolean hasPainted;
-	private boolean switchedBeforeRepeat;
 
 	@Override
 	public void init() {
-		execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					filenames = ContestSource.getInstance().getDirectory("/presentation/photos");
-				} catch (Exception e) {
-					Trace.trace(Trace.ERROR, "Could not load present/photo contents: " + e.getMessage());
-				}
-				preloadImages();
-			}
-		});
+		active = true;
+		beginLoad();
 	}
 
 	@Override
 	public void aboutToShow() {
-		// The next photo may already be fading in before the repeat boundary.
-		if (!switchedBeforeRepeat) {
-			switchToNextImage();
+		synchronized (images) {
+			// The next photo may already be fading in before the repeat boundary.
+			if (!switchedBeforeRepeat) {
+				switchToNextImage();
+			}
+			switchedBeforeRepeat = false;
 		}
-		switchedBeforeRepeat = false;
 	}
 
-	private void preloadImages() {
-		if (images.size() >= CACHE_SIZE) {
-			return;
+	private void beginLoad() {
+		final int gen;
+		final String directory;
+		synchronized (images) {
+			gen = ++generation;
+			directory = directoryForCatalog(catalog);
+			discardImages();
+			filenames = null;
+			num = 0;
+			// Reserve the listing before aboutToShow() can start a cache-only load.
+			runLoad(gen, directory, true);
+		}
+	}
+
+	private void runLoad(final int gen, final String directory, final boolean fetchListing) {
+		synchronized (images) {
+			if (!active || gen != generation) {
+				return;
+			}
+			if (loadingGeneration == gen) {
+				return;
+			}
+			loadingGeneration = gen;
 		}
 
-		if (filenames == null || filenames.length == 0) {
-			return;
-		}
-
-		if (job != null && !job.isComplete()) {
-			return;
-		}
-
-		job = execute(new Runnable() {
+		execute(new Runnable() {
 			@Override
 			public void run() {
-				while (images.size() < CACHE_SIZE) {
-					num++;
-					if (num >= filenames.length) {
-						num = 0;
+				try {
+					if (fetchListing) {
+						fetchListing(gen, directory);
 					}
-
-					try {
-						images.add(ImageHelper.loadImage("/presentation/photos/" + filenames[num]));
-					} catch (Exception e) {
-						Trace.trace(Trace.ERROR, "Could not load image " + filenames[num] + ": " + e.getMessage());
-					}
-
-					if (current == null) {
-						switchToNextImage();
+					fillCache(gen, directory);
+				} finally {
+					synchronized (images) {
+						if (loadingGeneration == gen) {
+							loadingGeneration = -1;
+						}
 					}
 				}
 			}
 		});
 	}
 
+	private void fetchListing(int gen, String directory) {
+		String[] names = null;
+		try {
+			names = loader.list(directory);
+		} catch (Exception e) {
+			Trace.trace(Trace.ERROR, "Could not load " + directory + " contents: " + e.getMessage());
+		}
+		synchronized (images) {
+			if (!active || gen != generation) {
+				return;
+			}
+			filenames = names;
+			num = 0;
+		}
+	}
+
+	private void fillCache(int gen, String directory) {
+		int misses = 0;
+		while (true) {
+			String filename;
+			synchronized (images) {
+				if (!active || gen != generation) {
+					return;
+				}
+				if (images.size() >= CACHE_SIZE) {
+					return;
+				}
+				if (filenames == null || filenames.length == 0) {
+					return;
+				}
+				if (misses >= filenames.length) {
+					return;
+				}
+				num++;
+				if (num >= filenames.length || num < 0) {
+					num = 0;
+				}
+				filename = filenames[num];
+			}
+
+			if (!isSafeFileName(filename)) {
+				misses++;
+				continue;
+			}
+
+			String path = directory + "/" + filename;
+			BufferedImage img = null;
+			try {
+				img = loader.open(path);
+			} catch (Exception e) {
+				Trace.trace(Trace.ERROR, "Could not load image " + filename + ": " + e.getMessage());
+			}
+
+			synchronized (images) {
+				if (!active || gen != generation) {
+					if (img != null) {
+						img.flush();
+						discardedImages++;
+					}
+					return;
+				}
+				if (img == null) {
+					misses++;
+					continue;
+				}
+				misses = 0;
+				images.add(img);
+				if (current == null) {
+					switchToNextImageLocked();
+				}
+			}
+		}
+	}
+
 	private boolean switchToNextImage() {
+		int gen;
+		String directory;
+		boolean switched;
+		synchronized (images) {
+			switched = switchToNextImageLocked();
+			gen = generation;
+			directory = directoryForCatalog(catalog);
+		}
+		runLoad(gen, directory, false);
+		return switched;
+	}
+
+	private boolean switchToNextImageLocked() {
 		if (images.isEmpty()) {
 			return false;
 		}
-
 		if (outgoing != null) {
 			outgoing.release();
 			outgoing = null;
@@ -115,9 +247,30 @@ public class PhotoPresentation extends Presentation {
 			}
 		}
 		current = createPan(images.remove(0));
-
-		preloadImages();
 		return true;
+	}
+
+	private void discardImages() {
+		if (current != null) {
+			current.release();
+			current = null;
+		}
+		if (outgoing != null) {
+			outgoing.release();
+			outgoing = null;
+		}
+		if (blend != null) {
+			blend.flush();
+			blend = null;
+		}
+		hasPainted = false;
+		switchedBeforeRepeat = false;
+		for (BufferedImage cached : images) {
+			if (cached != null) {
+				cached.flush();
+			}
+		}
+		images.clear();
 	}
 
 	@Override
@@ -159,6 +312,12 @@ public class PhotoPresentation extends Presentation {
 
 	@Override
 	public void paint(Graphics2D g) {
+		synchronized (images) {
+			paintLocked(g);
+		}
+	}
+
+	private void paintLocked(Graphics2D g) {
 		if (current == null) {
 			paintHelp(g, HELP, "");
 			return;
@@ -215,14 +374,11 @@ public class PhotoPresentation extends Presentation {
 
 	@Override
 	public void dispose() {
-		if (current != null) {
-			current.release();
-		}
-		if (outgoing != null) {
-			outgoing.release();
-		}
-		if (blend != null) {
-			blend.flush();
+		synchronized (images) {
+			active = false;
+			generation++;
+			loadingGeneration = -1;
+			discardImages();
 		}
 		super.dispose();
 	}
@@ -348,14 +504,134 @@ public class PhotoPresentation extends Presentation {
 
 	@Override
 	public void setProperty(String value) {
-		if (value != null && value.startsWith("fade:")) {
+		super.setProperty(value);
+		if (value == null) {
+			mode = null;
+			return;
+		}
+		if (value.startsWith("lightMode:")) {
+			return;
+		}
+
+		if (value.startsWith("fade:")) {
 			fadeMs = parseMs(value.substring("fade:".length()), fadeMs);
 			return;
 		}
-		if (value != null && value.startsWith("duration:")) {
+		if (value.startsWith("duration:")) {
 			durationMs = clampDurationMs(parseMs(value.substring("duration:".length()), durationMs));
 			return;
 		}
+
+		CatalogProperty request = parseCatalogProperty(value);
+		if (request.action != NOT_CATALOG) {
+			if (request.action == CATALOG_INVALID) {
+				Trace.trace(Trace.ERROR, "Ignoring invalid photo catalog name");
+				return;
+			}
+			String next = request.action == CATALOG_RESET ? null : request.name;
+			if (Objects.equals(catalog, next)) {
+				return;
+			}
+			catalog = next;
+			if (active) {
+				beginLoad();
+			}
+			return;
+		}
+
 		mode = value;
+	}
+
+	static CatalogProperty parseCatalogProperty(String value) {
+		if (value == null) {
+			return new CatalogProperty(NOT_CATALOG, null);
+		}
+		if ("catalog".equals(value)) {
+			return new CatalogProperty(CATALOG_RESET, null);
+		}
+		if (!value.startsWith(CATALOG_PREFIX)) {
+			return new CatalogProperty(NOT_CATALOG, null);
+		}
+
+		String name = value.substring(CATALOG_PREFIX.length()).trim();
+		if (name.isEmpty()) {
+			return new CatalogProperty(CATALOG_RESET, null);
+		}
+		if (!isValidCatalogName(name)) {
+			return new CatalogProperty(CATALOG_INVALID, null);
+		}
+		return new CatalogProperty(CATALOG_SET, name);
+	}
+
+	static boolean isValidCatalogName(String name) {
+		return name != null && CATALOG_NAME.matcher(name).matches();
+	}
+
+	static String directoryForCatalog(String catalog) {
+		if (catalog == null || catalog.isEmpty()) {
+			return DEFAULT_DIRECTORY;
+		}
+		return DEFAULT_DIRECTORY + "-" + catalog;
+	}
+
+	static boolean isSafeFileName(String name) {
+		if (name == null || name.isEmpty() || ".".equals(name) || "..".equals(name)) {
+			return false;
+		}
+		if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0 || name.indexOf('\0') >= 0 || name.indexOf('?') >= 0
+				|| name.indexOf('#') >= 0 || name.contains("..")) {
+			return false;
+		}
+		return true;
+	}
+
+	void setPhotoLoader(PhotoLoader photoLoader) {
+		if (photoLoader != null) {
+			loader = photoLoader;
+		}
+	}
+
+	String getPhotoDirectory() {
+		return directoryForCatalog(catalog);
+	}
+
+	String getInterpolationMode() {
+		return mode;
+	}
+
+	int getGeneration() {
+		synchronized (images) {
+			return generation;
+		}
+	}
+
+	int getDiscardedImages() {
+		synchronized (images) {
+			return discardedImages;
+		}
+	}
+
+	int getCachedImageCount() {
+		synchronized (images) {
+			return images.size() + (current == null ? 0 : 1) + (outgoing == null ? 0 : 1);
+		}
+	}
+
+	boolean isLoading() {
+		synchronized (images) {
+			return loadingGeneration != -1;
+		}
+	}
+
+	boolean isShowing(BufferedImage candidate) {
+		if (candidate == null) {
+			return false;
+		}
+		synchronized (images) {
+			if ((current != null && candidate == current.image) || (outgoing != null && candidate == outgoing.image)) {
+				return true;
+			}
+			return images.contains(candidate);
+		}
 	}
 }

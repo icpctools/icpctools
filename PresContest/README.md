@@ -312,7 +312,7 @@ Available presentations:
 | 24 | Logo Wall                   | .org.logo.wall            | Shows all organization logos
 | 25 | Person                      | .person                   | Highlight a person
 | 26 | Photo and caption           | .single.photo             | The photo at CDP/present/photo.jpg and an optional message.
-| 27 | Photos                      | .photos                   | A rotating set of photos found in CDP/present/photos/.
+| 27 | Photos                      | .photos                   | A rotating set of photos in CDP/present/photos/. Property catalog:name uses CDP/present/photos-name/.
 | 28 | Problem Colours             | .problems.colors          | The problem colors
 | 29 | Problem summary             | .problem.summary          | 
 | 30 | Single Team                 | .team                     | A team photo and name.
@@ -368,3 +368,14 @@ Available presentations:
 | 73 | Tile list                   | .tile.scoreboard.list     | A contest scoreboard listed alphabetically by team
 | 74 | Tile rank                   | .tile.scoreboard.rank     | A ranked contest scoreboard
 | 75 | Tiles                       | .tile.scoreboard          | The current contest standings.
+
+### Photos catalogs
+
+Photos uses `CDP/present/photos/` when no catalog property is set. Apply a property in Presentation Admin, including while the presentation is already showing:
+
+- `catalog:awards` reads `CDP/present/photos-awards/`
+- `catalog:` or `catalog` returns to `CDP/present/photos/`
+- A catalog name is 1-32 characters: a letter or digit, then letters, digits, `_`, or `-`. Other names are ignored.
+- `h` and `l` still select bicubic and nearest-neighbor interpolation and can be combined with a catalog by applying them separately.
+- `duration:12000` and `fade:1000` control timing independently of the catalog. Fade is off by default.
+- Switching catalogs clears both fading photos and the cache; the new catalog starts without fading from the old one.
