@@ -12,8 +12,8 @@ build/cds-local/run.sh                           # runs cds-local:latest at http
 ## Files
 
 * [build/cds-local/build.sh](build.sh): builds the builder image, runs the ant build of
-  ContestModel and CDS in it, and then builds the CDS image `cds-local:<version>-<arch>` (also tagged
-  `cds-local:latest`). The version gets a `-dirty` suffix when tracked files have uncommitted changes.
+  ContestModel, the presentations (PresCore, PresContest) and CDS in it, and then builds the CDS
+  image `cds-local:<version>-<arch>` (also tagged `cds-local:latest`). The version gets a `-dirty` suffix when tracked files have uncommitted changes.
 * [build/cds-local/builder.Dockerfile](builder.Dockerfile): `ghcr.io/icpctools/builder`
   plus Node 24, pnpm and libatomic, the extras that [ci.yml](../../.github/workflows/ci.yml) installs per run.
 * [build/cds-local/cds.Dockerfile](cds.Dockerfile): a copy of
@@ -39,7 +39,8 @@ build/cds-local/run.sh                           # runs cds-local:latest at http
   `docker run --privileged --rm tonistiigi/binfmt --uninstall qemu-x86_64 && docker run --privileged --rm tonistiigi/binfmt --install amd64`.
   Alternatively, use Rosetta: `colima start --vm-type vz --vz-rosetta`. Apple is phasing Rosetta out
   from macOS 28, though, and it's unclear whether that includes Rosetta for Linux VMs.
-* Only ContestModel and CDS are built. Presentations are left out; develop those in dev mode from the IDE.
+* The presentations are built and bundled like in CI, so the admin client lists them. Other clients
+  (Resolver, CoachView, PresAdmin and so on) aren't built.
 * `CDS/ui/node_modules`, which also holds the pnpm store, and the corepack cache are kept in
   per-architecture Docker volumes (`cds-local-node_modules-<arch>`, `cds-local-cache-<arch>`), so they
   don't mix with the host's `node_modules`. Remove them with `docker volume rm` to start clean.

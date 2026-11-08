@@ -56,8 +56,9 @@ fi
 BUILDER="cds-local-builder:$BUILD_ARCH"
 docker build --platform "$BUILD_PLATFORM" --build-arg BASE="$BASE" -t "$BUILDER" -f "$HERE/builder.Dockerfile" "$HERE"
 
-echo "==> ant build of ContestModel and CDS"
-rm -f "dist/wlp.CDS-$VERSION.zip"
+echo "==> ant build of ContestModel, presentations and CDS"
+# the CDS bundles every dist/presentations-*.zip, so drop stale ones first
+rm -f "dist/wlp.CDS-$VERSION.zip" dist/presentations-*.zip
 # node_modules and the pnpm/corepack caches live in per-arch volumes, so they never mix with the
 # host's (macOS) node_modules or with the other architecture's
 docker run --rm --platform "$BUILD_PLATFORM" \
@@ -65,7 +66,7 @@ docker run --rm --platform "$BUILD_PLATFORM" \
   -v "cds-local-node_modules-$BUILD_ARCH":/src/CDS/ui/node_modules \
   -v "cds-local-cache-$BUILD_ARCH":/cache \
   "$BUILDER" \
-  bash -c 'git config --global --add safe.directory /src && ant -f ContestModel/build.xml && ant -f CDS/build.xml dist'
+  bash -c 'git config --global --add safe.directory /src && ant -f ContestModel/build.xml && ant -f PresCore/build.xml && ant -f PresContest/build.xml && ant -f CDS/build.xml dist'
 
 if [ ! -f "dist/wlp.CDS-$VERSION.zip" ]; then
   echo "Build did not produce dist/wlp.CDS-$VERSION.zip" >&2
