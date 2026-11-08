@@ -1,10 +1,11 @@
 <server description="Minimal server.xml for minify">
+   <!-- Keep this feature list in sync with CDS/config/wlp/cds/server.xml. -->
    <featureManager>
-    <feature>pages-3.1</feature>
+    <feature>pages-4.0</feature>
     <feature>jndi-1.0</feature>
-    <feature>websocket-2.1</feature>
-    <feature>appSecurity-5.0</feature>
-    <feature>servlet-6.0</feature>
-    <feature>cdi-4.0</feature>
+    <feature>websocket-2.2</feature>
+    <feature>appSecurity-6.0</feature>
+    <feature>servlet-6.1</feature>
+    <feature>cdi-4.1</feature>
    </featureManager>
 </server>
