@@ -14,7 +14,9 @@ build/cds-local/run.sh                           # runs cds-local:latest at http
 * [build/cds-local/build.sh](build.sh): builds the builder image, runs the ant build of
   ContestModel, the presentations (PresCore, PresContest) and CDS in it, and then builds the CDS
   image `cds-local:<version>-<arch>` (also tagged `cds-local:latest`). The version gets a `-dirty`
-  suffix when the working tree has any changes, untracked files included.
+  suffix when the working tree has any changes, untracked files included. `--full` runs the whole
+  `ant build`, like CI, which also puts the other tools' zips in `dist/` and takes about a minute
+  longer.
 * [build/cds-local/builder.Dockerfile](builder.Dockerfile): `ghcr.io/icpctools/builder`
   plus Node 24, pnpm and libatomic, the extras that [ci.yml](../../.github/workflows/ci.yml) installs per run.
 * [build/cds-local/cds.Dockerfile](cds.Dockerfile): a copy of
