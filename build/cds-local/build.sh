@@ -3,6 +3,7 @@
 #
 #   build/cds-local/build.sh                         # CDS image for the Docker host's platform
 #   PLATFORM=linux/amd64 build/cds-local/build.sh    # CDS image for amd64, like CI
+#   build/cds-local/build.sh --full                  # ant build of everything, like CI
 #   build/cds-local/build.sh --published-builder     # pull ghcr.io/icpctools/builder (needs docker login ghcr.io)
 #
 # The ant build always runs natively (BUILD_PLATFORM, default the Docker host's platform): its output
@@ -19,9 +20,11 @@ ARCH=${PLATFORM#linux/}
 BUILD_PLATFORM=${BUILD_PLATFORM:-linux/$NATIVE_ARCH}
 BUILD_ARCH=${BUILD_PLATFORM#linux/}
 OWN_BUILDER=1
+FULL=0
 
 for arg in "$@"; do
   case "$arg" in
+    --full) FULL=1 ;;
     --published-builder) OWN_BUILDER=0 ;;
     -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown option: $arg" >&2; exit 1 ;;
@@ -56,7 +59,13 @@ fi
 BUILDER="cds-local-builder:$BUILD_ARCH"
 docker build --platform "$BUILD_PLATFORM" --build-arg BASE="$BASE" -t "$BUILDER" -f "$HERE/builder.Dockerfile" "$HERE"
 
-echo "==> ant build of ContestModel, presentations and CDS"
+if [ "$FULL" = 1 ]; then
+  ANT="ant build"
+  echo "==> ant build of everything"
+else
+  ANT="ant -f ContestModel/build.xml && ant -f PresCore/build.xml && ant -f PresContest/build.xml && ant -f CDS/build.xml dist"
+  echo "==> ant build of ContestModel, presentations and CDS"
+fi
 # the CDS bundles every dist/presentations-*.zip, so drop stale ones first
 rm -f "dist/wlp.CDS-$VERSION.zip" dist/presentations-*.zip
 # node_modules and the pnpm/corepack caches live in per-arch volumes, so they never mix with the
@@ -66,7 +75,7 @@ docker run --rm --platform "$BUILD_PLATFORM" \
   -v "cds-local-node_modules-$BUILD_ARCH":/src/CDS/ui/node_modules \
   -v "cds-local-cache-$BUILD_ARCH":/cache \
   "$BUILDER" \
-  bash -c 'git config --global --add safe.directory /src && ant -f ContestModel/build.xml && ant -f PresCore/build.xml && ant -f PresContest/build.xml && ant -f CDS/build.xml dist'
+  bash -c "git config --global --add safe.directory /src && $ANT"
 
 if [ ! -f "dist/wlp.CDS-$VERSION.zip" ]; then
   echo "Build did not produce dist/wlp.CDS-$VERSION.zip" >&2
