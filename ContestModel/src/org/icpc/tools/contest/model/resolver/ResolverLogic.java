@@ -29,7 +29,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
 /**
@@ -209,7 +208,6 @@ public class ResolverLogic {
 		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
 		steps.add(new PauseStep());
 		steps.add(new ResolverSelection());
-		steps.add(new ToJudgeStep(null));
 
 		Trace.trace(Trace.USER, "Resolving " + countUnjudgedSubmissions(contest) + " pending submissions out of the "
 				+ contest.getNumSubmissions() + " total submissions in the contest... ");
@@ -374,12 +372,14 @@ public class ResolverLogic {
 		}
 		steps.add(new PauseStep());
 
-		ToJudgeStep judgeStep = new ToJudgeStep(null);
+		List<String> judgeRuns = null;
+		ResolutionStep placeholder = (ResolutionStep) new Object();
 		if (startWithJudgeQueue && !teamLists.isEmpty()) {
-			steps.add(judgeStep);
+			// add a placeholder so we can add the submissions we're going to judge later
+			steps.add(placeholder);
 			steps.add(new PauseStep());
+			judgeRuns = new ArrayList<>();
 		}
-		List<String> judgeRuns = new ArrayList<>();
 
 		SubmissionInfo runInfo = getNextResolve();
 		// Project standings for the first run, if we have any. We don't have any for an empty
@@ -423,7 +423,9 @@ public class ResolverLogic {
 									steps.add(selStep.withSubmissionId(r.getId()));
 									first = false;
 								}
-								judgeRuns.add(r.getId());
+								if (judgeRuns != null) {
+									judgeRuns.add(r.getId());
+								}
 							}
 						}
 						timing.onStep(steps, State.SELECT_PROBLEM);
@@ -467,15 +469,11 @@ public class ResolverLogic {
 					}
 					steps.add(new PauseStep());
 					checkAfterAwards(award.getId());
-					if (judgeStep != null) {
-						int size = judgeRuns.size();
-						String[] ii = new String[size];
-						for (int i = 0; i < size; i++)
-							ii[i] = judgeRuns.get(i);
-						judgeStep.submissionIds = ii; // judgeRuns.toArray(new
-																// Integer[judgeRuns.size()]);
-						judgeStep = null;
-						judgeRuns.clear();
+					if (judgeRuns != null) {
+						String[] subIds = judgeRuns.toArray(new String[0]);
+						int ind = steps.indexOf(placeholder);
+						steps.set(ind, new PresentationStep(PresentationStep.Presentations.JUDGE).withSubmissionIds(subIds));
+						judgeRuns = null;
 					}
 
 					// check for awards we've missed
