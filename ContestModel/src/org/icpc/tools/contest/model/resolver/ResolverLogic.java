@@ -24,7 +24,6 @@ import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
@@ -111,6 +110,7 @@ public class ResolverLogic {
 
 	private List<ResolutionStep> steps = new ArrayList<>();
 
+	private Contest frozenContest;
 	private Contest contest;
 	private Contest finalContest;
 
@@ -149,6 +149,10 @@ public class ResolverLogic {
 			int lastBronze = AwardUtil.getLastBronze(finalContest);
 			this.singleStepStartRow = Math.max(lastBronze - 1, this.singleStepStartRow);
 		}
+	}
+
+	public Contest getFrozenContest() {
+		return frozenContest;
 	}
 
 	/**
@@ -195,13 +199,13 @@ public class ResolverLogic {
 
 		// revert to start of the freeze
 		contest = finalContest.clone(new FreezeFilter(finalContest));
+		frozenContest = contest;
 
 		// clean up unjudged and non-penalty submissions in the last hour that don't matter and will
 		// mess with resolving
 		cleanOutlierSubmissions();
 
 		// set the initial state
-		steps.add(new ContestStateStep(contest));
 		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
 		steps.add(new PauseStep());
 		steps.add(new ResolverSelection());
@@ -243,19 +247,12 @@ public class ResolverLogic {
 	}
 
 	/**
-	 * Updates the state of the submission to match the given submission.
-	 */
-	public static void updateSubmissionJudgements(ISubmission submission, Contest fromContest, Contest toContest) {
-		if (submission == null)
-			return;
-
-		IJudgement[] sjs = fromContest.getJudgementsBySubmissionId(submission.getId());
-		if (sjs != null) {
-			for (IJudgement sj : sjs)
-				toContest.add(sj);
-		}
-	}
-
+	 * Some submissions (like compile errors) have no impact on the resolving process but show up as
+	 * odd or unexpected behaviour in the UI because they typically 'automatically disappear' from
+	 * scoreboards during the regular contest.
+	 *
+	 * This releases these judgements before the resolving process begins to avoid confusion.
+	 **/
 	protected void cleanOutlierSubmissions() {
 		ISubmission[] submissions = contest.getSubmissions();
 		for (ISubmission submission : submissions) {
@@ -268,7 +265,11 @@ public class ResolverLogic {
 				IResult result = contest.getResult(team, probIndex);
 
 				if (result.getStatus() != Status.SUBMITTED) {
-					updateSubmissionJudgements(submission, finalContest, contest);
+					IJudgement[] sjs = finalContest.getJudgementsBySubmissionId(submission.getId());
+					if (sjs != null) {
+						for (IJudgement sj : sjs)
+							steps.add(sj);
+					}
 				}
 			}
 		}
@@ -282,7 +283,7 @@ public class ResolverLogic {
 				for (IJudgement sj : sjs) {
 					IJudgementType jt = finalContest.getJudgementTypeById(sj.getJudgementTypeId());
 					if (jt != null && !jt.isSolved() && !jt.isPenalty() && !contest.isBeforeFreeze(submission)) {
-						contest.add(sj);
+						steps.add(sj);
 					}
 				}
 			}

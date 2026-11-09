@@ -164,7 +164,7 @@ public class ResolverOptimizer {
 				IResult result = contest.getResult(team, probIndex);
 
 				if (result.getStatus() != Status.SUBMITTED) {
-					ResolverLogic.updateSubmissionJudgements(submission, finalContest, contest);
+					updateSubmissionJudgements(submission, finalContest, contest);
 				}
 			}
 		}
@@ -224,6 +224,20 @@ public class ResolverOptimizer {
 		return iList;
 	}
 
+	/**
+	 * Updates the state of the submission to match the given submission.
+	 */
+	private static void updateSubmissionJudgements(ISubmission submission, Contest fromContest, Contest toContest) {
+		if (submission == null)
+			return;
+
+		IJudgement[] sjs = fromContest.getJudgementsBySubmissionId(submission.getId());
+		if (sjs != null) {
+			for (IJudgement sj : sjs)
+				toContest.add(sj);
+		}
+	}
+
 	private void resolveSubmissions(Option o, Resolve resolve) {
 		ITeam team = contest.getTeamById(resolve.teamId);
 		int oldRow = contest.getOrderOf(team);
@@ -231,7 +245,8 @@ public class ResolverOptimizer {
 		for (ISubmission submission : submissions) {
 			if (!contest.isJudged(submission) && submission.getTeamId().equals(resolve.teamId)
 					&& submission.getProblemId().equals(resolve.problemId)) {
-				ResolverLogic.updateSubmissionJudgements(submission, finalContest, contest);
+				updateSubmissionJudgements(submission, finalContest, contest);
+
 			}
 		}
 

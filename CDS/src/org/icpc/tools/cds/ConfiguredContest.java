@@ -25,8 +25,6 @@ import org.icpc.tools.contest.model.IAward;
 import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IGroup;
-import org.icpc.tools.contest.model.IJudgement;
-import org.icpc.tools.contest.model.IJudgementType;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.feed.ContestSource;
 import org.icpc.tools.contest.model.feed.ContestSource.ConnectionState;
@@ -984,20 +982,6 @@ public class ConfiguredContest {
 			Trace.trace(Trace.USER, "Generating awards");
 			AwardUtil.createDefaultAwards(contest);
 		}
-
-		// TODO - sync with ResolverLogic cleanOutlierSubmissions() and ResolverOptimizer
-		// The resolver skips over non-solution/non-penalty judgements (e.g. compile error)
-		// since these typically 'disappear' from scoreboards during the regular contest.
-		// Resolve these first to avoid confusing the presenter
-		int count = 0;
-		for (IJudgement j : contest.getJudgements()) {
-			IJudgementType jt = contest.getJudgementTypeById(j.getJudgementTypeId());
-			if (!jt.isSolved() && !jt.isPenalty()) {
-				exposeContestObject(j);
-				count++;
-			}
-		}
-		Trace.trace(Trace.USER, "Auto-resolved " + count + " judgements");
 
 		ResolverLogic resolver = new ResolverLogic(contest, false);
 		List<ResolutionStep> steps = resolver.resolveFrom(startFromJudgeQueue);

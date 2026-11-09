@@ -3,7 +3,6 @@ package org.icpc.tools.contest.model.resolver;
 import java.util.List;
 
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.internal.Contest;
 
 public class ResolutionUtil {
 	protected enum DelayType {
@@ -84,19 +83,6 @@ public class ResolutionUtil {
 		@Override
 		public String toString() {
 			return "Delay " + type.name();
-		}
-	}
-
-	public static class ContestStateStep implements ResolutionStep {
-		public Contest contest;
-
-		public ContestStateStep(Contest contest) {
-			this.contest = contest;
-		}
-
-		@Override
-		public String toString() {
-			return "Change contest state";
 		}
 	}
 

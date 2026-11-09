@@ -16,7 +16,6 @@ import java.util.List;
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IAward;
-import org.icpc.tools.contest.model.IContest;
 import org.icpc.tools.contest.model.IContestObject;
 import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.ITeam;
@@ -25,7 +24,6 @@ import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ContestStateStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -80,6 +78,19 @@ public class ResolverUI {
 		MAIN, TEAM, SIDE, ORG
 	}
 
+	public static class ContestStateStep implements ResolutionStep {
+		public Contest contest;
+
+		public ContestStateStep(Contest contest) {
+			this.contest = contest;
+		}
+
+		@Override
+		public String toString() {
+			return "Change contest state";
+		}
+	}
+
 	private static final String[] MESSAGES = new String[] { "John, click me!", "I'm waiting for you...",
 			"To pause dramatic; to click divine", "CLICK ME PLEASE!", "Are you still there?",
 			"Loading, please wait... (just kidding - click me)", "DO NOT TOUCH ANYTHING! (also just kidding)",
@@ -116,6 +127,7 @@ public class ResolverUI {
 	private Thread thread;
 	private int firstStep = -1;
 	private boolean active = true;
+	private Contest contest;
 
 	public ResolverUI(boolean showInfo, boolean isPresenter, Screen screen, ClickListener listener) {
 		this.showInfo = showInfo;
@@ -129,8 +141,10 @@ public class ResolverUI {
 	public void setup(List<ResolutionStep> steps) {
 		this.steps = steps;
 
-		control = new ResolutionControl(steps);
-		IContest contest = getFirstContest();
+		contest = getInitialContest();
+		if (contest == null)
+			throw new IllegalArgumentException("No contest to resolve");
+
 		IResolveInfo resolveInfo = contest.getResolveInfo();
 		if (resolveInfo != null) {
 			if (!Double.isNaN(resolveInfo.getSpeedFactor()))
@@ -143,6 +157,7 @@ public class ResolverUI {
 				firstStep = resolveInfo.getClicks() % 1000 + 1000;
 		}
 
+		control = new ResolutionControl(steps);
 		control.addListener(new IResolutionListener() {
 			@Override
 			public void toPause(int pause, boolean includeDelays) {
@@ -203,10 +218,6 @@ public class ResolverUI {
 		this.window = presWindow;
 		if (steps == null || steps.isEmpty())
 			throw new IllegalArgumentException("Nothing to resolve");
-
-		Contest contest = getFirstContest();
-		if (contest == null)
-			throw new IllegalArgumentException("No contest to resolve");
 
 		ContestUtil.flashPending = false;
 
@@ -503,13 +514,12 @@ public class ResolverUI {
 			scoreboardPresentation.setScrollPause(pause);
 	}
 
-	private Contest getFirstContest() {
+	private Contest getInitialContest() {
 		int i = 0;
 		while (i < steps.size()) {
-			ResolutionStep step = steps.get(i);
+			ResolutionStep step = steps.get(i++);
 			if (step instanceof ContestStateStep)
 				return ((ContestStateStep) step).contest;
-			i++;
 		}
 
 		return null;
@@ -520,7 +530,6 @@ public class ResolverUI {
 			// do nothing
 		} else if (step instanceof Judgement | step instanceof IAward) {
 			IContestObject co = (IContestObject) step;
-			Contest contest = getFirstContest();
 			if (forward) {
 				contest.add(co);
 			} else {
@@ -534,7 +543,6 @@ public class ResolverUI {
 
 			// scroll to new team
 			if (sel.getProblemId() == null && sel.getTeamIds() != null && sel.getTeamIds().length == 1) {
-				IContest contest = getFirstContest();
 				ITeam team = contest.getTeamById(sel.getTeamIds()[0]);
 				int scrollToRow = contest.getOrderOf(team);
 				IResolveInfo resolveInfo = contest.getResolveInfo();
@@ -563,7 +571,6 @@ public class ResolverUI {
 					if (pstep.scroll)
 						scoreboardPresentation.setScrollToRow(0);
 					else {
-						IContest contest = getFirstContest();
 						scoreboardPresentation
 								.setScrollToRow(contest.getOrderedTeams().length - scoreboardPresentation.getNumRows() + 2);
 					}
@@ -581,7 +588,7 @@ public class ResolverUI {
 				setPresentation(awardPresentation);
 			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST) {
 				if (pstep.awardId != null) {
-					IAward award = getFirstContest().getAwardById(pstep.awardId);
+					IAward award = contest.getAwardById(pstep.awardId);
 					teamListPresentation.setAward(award);
 				}
 				if (pstep.scroll != null)
@@ -589,7 +596,7 @@ public class ResolverUI {
 				setPresentation(teamListPresentation);
 			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO) {
 				if (pstep.awardId != null) {
-					IAward award = getFirstContest().getAwardById(pstep.awardId);
+					IAward award = contest.getAwardById(pstep.awardId);
 					teamListPhotoPresentation.setAward(award);
 				}
 				setPresentation(teamListPhotoPresentation);
@@ -683,7 +690,7 @@ public class ResolverUI {
 				Presentation bp = (Presentation) bc.getDeclaredConstructor().newInstance();
 				if (bp != null && bp instanceof BrandingPresentation) {
 					BrandingPresentation bp2 = (BrandingPresentation) bp;
-					bp2.setContest(getFirstContest());
+					bp2.setContest(contest);
 					bp2.setChildPresentation(currentPresentation);
 					currentPresentation = bp2;
 				}
