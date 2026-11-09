@@ -48,6 +48,7 @@ import org.icpc.tools.presentation.core.DisplayConfig;
 import org.icpc.tools.presentation.core.PresentationWindow;
 import org.icpc.tools.presentation.core.internal.PresentationWindowImpl;
 import org.icpc.tools.resolver.ResolverUI.ClickListener;
+import org.icpc.tools.resolver.ResolverUI.ContestStateStep;
 import org.icpc.tools.resolver.ResolverUI.Screen;
 
 /**
@@ -635,6 +636,7 @@ public class Resolver {
 
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
+			steps.add(new ContestStateStep(logic.getFrozenContest()));
 			steps.addAll(subSteps);
 			outputStats(steps, time, con);
 		} else {
@@ -655,6 +657,7 @@ public class Resolver {
 
 			long time = System.currentTimeMillis();
 			List<ResolutionStep> subSteps = logic.resolveFrom(judgeQueue);
+			steps.add(new ContestStateStep(logic.getFrozenContest()));
 			steps.addAll(subSteps);
 			outputStats(steps, time, con);
 		}
