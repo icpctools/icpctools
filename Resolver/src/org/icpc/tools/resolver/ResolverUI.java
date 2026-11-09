@@ -27,7 +27,6 @@ import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListen
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.ToJudgeStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
@@ -559,9 +558,6 @@ public class ResolverUI {
 			judgePresentation.handleSubmission(sel.submissionId);
 			judgePresentation.setSelectedProblem(sel.getProblemId());
 			judgePresentation.setSelectedSubmissionId(sel.submissionId);
-		} else if (step instanceof ToJudgeStep) {
-			ToJudgeStep sel = (ToJudgeStep) step;
-			judgePresentation.handleSubmissions(sel.submissionIds);
 		} else if (step instanceof PresentationStep) {
 			PresentationStep pstep = (PresentationStep) step;
 			if (pstep.p == PresentationStep.Presentations.SPLASH)
@@ -577,9 +573,12 @@ public class ResolverUI {
 				}
 
 				setPresentation(scoreboardPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.JUDGE)
+			} else if (pstep.p == PresentationStep.Presentations.JUDGE) {
 				setPresentation(judgePresentation);
-			else if (pstep.p == PresentationStep.Presentations.TEAM_AWARD) {
+
+				if (pstep.submissionIds != null)
+					judgePresentation.handleSubmissions(pstep.submissionIds);
+			} else if (pstep.p == PresentationStep.Presentations.TEAM_AWARD) {
 				String teamId = pstep.teamId;
 				awardPresentation.setTeam(teamId);
 				if (teamLogoPresentation != null)

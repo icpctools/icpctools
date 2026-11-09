@@ -29,6 +29,7 @@ public class ResolutionUtil {
 		public String teamId;
 		public Boolean scroll;
 		public String awardId;
+		public String[] submissionIds;
 
 		public PresentationStep(Presentations pp) {
 			this.p = pp;
@@ -51,6 +52,11 @@ public class ResolutionUtil {
 
 		public PresentationStep withAwardId(String newAwardId) {
 			awardId = newAwardId;
+			return this;
+		}
+
+		public PresentationStep withSubmissionIds(String[] newSubmissionIds) {
+			submissionIds = newSubmissionIds;
 			return this;
 		}
 
@@ -83,21 +89,6 @@ public class ResolutionUtil {
 		@Override
 		public String toString() {
 			return "Delay " + type.name();
-		}
-	}
-
-	public static class ToJudgeStep implements ResolutionStep {
-		public String[] submissionIds;
-
-		public ToJudgeStep(String[] submissionIds) {
-			this.submissionIds = submissionIds;
-		}
-
-		@Override
-		public String toString() {
-			if (submissionIds == null)
-				return "Submissions to judge: (none)";
-			return "Submissions to judge: " + submissionIds.length;
 		}
 	}
 
