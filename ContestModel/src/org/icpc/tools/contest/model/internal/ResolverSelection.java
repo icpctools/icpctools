@@ -182,9 +182,15 @@ public class ResolverSelection extends ContestObject implements IResolverSelecti
 			sb.append(teamIds.length + " teams");
 		}
 
-		sb.append(", " + selectType);
-		sb.append(", " + problemId);
-		sb.append(", " + submissionId);
+		if (selectType != null && !selectType.equals("NORMAL")) {
+			sb.append(", select " + selectType);
+		}
+		if (problemId != null) {
+			sb.append(", problem " + problemId);
+		}
+		if (submissionId != null) {
+			sb.append(", submission " + submissionId);
+		}
 		sb.append("]");
 		return sb.toString();
 	}

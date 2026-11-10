@@ -133,14 +133,15 @@ public class TeamListPhotoPresentation extends AbstractICPCPresentation {
 				List<Cache> list = new ArrayList<>();
 
 				for (ResolutionStep step : steps) {
-					if (step instanceof Award && award.getDisplayMode() == DisplayMode.PHOTOS) {
+					if (step instanceof Award) {
 						Award award2 = (Award) step;
+						if (award2.getDisplayMode() == DisplayMode.PHOTOS) {
+							Cache c = new Cache();
+							c.teamIds = Arrays.asList(award2.getTeamIds());
+							c.award2 = award;
 
-						Cache c = new Cache();
-						c.teamIds = Arrays.asList(award2.getTeamIds());
-						c.award2 = award;
-
-						list.add(c);
+							list.add(c);
+						}
 					}
 				}
 
