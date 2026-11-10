@@ -51,6 +51,7 @@ public class ResolverPresentation extends ContestObject implements IResolverPres
 
 	public ResolverPresentation(Presentations p) {
 		super();
+		this.p = p;
 		this.kind = p.name().toLowerCase();
 	}
 
@@ -198,10 +199,12 @@ public class ResolverPresentation extends ContestObject implements IResolverPres
 		StringBuilder sb = new StringBuilder("ResolverPresentation [");
 		sb.append(kind);
 
-		if (submissionIds != null || submissionIds.length == 1) {
-			sb.append(" with submission " + submissionIds[0]);
-		} else {
-			sb.append(" with " + submissionIds.length + " submissions");
+		if (submissionIds != null) {
+			if (submissionIds.length == 1) {
+				sb.append(" with submission " + submissionIds[0]);
+			} else {
+				sb.append(" with " + submissionIds.length + " submissions");
+			}
 		}
 
 		if (teamId != null) {

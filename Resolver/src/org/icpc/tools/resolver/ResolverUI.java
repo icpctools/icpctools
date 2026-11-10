@@ -127,6 +127,7 @@ public class ResolverUI {
 	private int firstStep = -1;
 	private boolean active = true;
 	private Contest contest;
+	private String lastScrollTeamId;
 
 	public ResolverUI(boolean showInfo, boolean isPresenter, Screen screen, ClickListener listener) {
 		this.showInfo = showInfo;
@@ -542,14 +543,18 @@ public class ResolverUI {
 
 			// scroll to new team
 			if (sel.getProblemId() == null && sel.getTeamIds() != null && sel.getTeamIds().length == 1) {
-				ITeam team = contest.getTeamById(sel.getTeamIds()[0]);
-				int scrollToRow = contest.getOrderOf(team);
-				IResolveInfo resolveInfo = contest.getResolveInfo();
-				int rowOffset = 0;
-				if (resolveInfo != null && resolveInfo.getRowOffset() >= 0)
-					rowOffset = resolveInfo.getRowOffset();
-				int row = Math.max(0, scrollToRow - scoreboardPresentation.getNumRows() - rowOffset + 3);
-				scoreboardPresentation.setScrollToRow(row);
+				String scrollTeamId = sel.getTeamIds()[0];
+				if (lastScrollTeamId == null || !lastScrollTeamId.equals(scrollTeamId)) {
+					ITeam team = contest.getTeamById(scrollTeamId);
+					int scrollToRow = contest.getOrderOf(team);
+					IResolveInfo resolveInfo = contest.getResolveInfo();
+					int rowOffset = 0;
+					if (resolveInfo != null && resolveInfo.getRowOffset() >= 0)
+						rowOffset = resolveInfo.getRowOffset();
+					int row = Math.max(0, scrollToRow - scoreboardPresentation.getNumRows() - rowOffset + 3);
+					scoreboardPresentation.setScrollToRow(row);
+					lastScrollTeamId = scrollTeamId;
+				}
 			}
 
 			if (orgPresentation != null)

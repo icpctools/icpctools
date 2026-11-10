@@ -323,7 +323,10 @@ public class ResolverLogic {
 		for (ISubmission submission : submissions) {
 			if (!contest.isJudged(submission) && submission.getTeamId().equals(team.getId())
 					&& submission.getProblemId().equals(problemId)) {
-				// we found it; update its status to match the correct (final contest) status
+				steps.add(selStep.withSubmissionId(submission.getId()));
+				timing.onStep(steps, State.SELECT_SUBMISSION);
+
+				// update its status to match the correct (final contest) status
 				IJudgement[] sjs = finalContest.getJudgementsBySubmissionId(submission.getId());
 				if (sjs != null) {
 					for (IJudgement sj : sjs) {
@@ -331,9 +334,6 @@ public class ResolverLogic {
 						steps.add(sj);
 					}
 				}
-
-				steps.add(selStep.withSubmissionId(submission.getId()));
-				timing.onStep(steps, State.SELECT_SUBMISSION);
 
 				// there may be more submissions from this team for this problem so no break
 
@@ -373,10 +373,10 @@ public class ResolverLogic {
 		steps.add(new PauseStep());
 
 		List<String> judgeRuns = null;
-		ResolutionStep placeholder = (ResolutionStep) new Object();
+		ResolverPresentation presStep = new ResolverPresentation(ResolverPresentation.Presentations.JUDGE);
 		if (startWithJudgeQueue && !teamLists.isEmpty()) {
-			// add a placeholder so we can add the submissions we're going to judge later
-			steps.add(placeholder);
+			// add a placeholder we can add the submissions we're going to judge later
+			steps.add(presStep);
 			steps.add(new PauseStep());
 			judgeRuns = new ArrayList<>();
 		}
@@ -415,20 +415,15 @@ public class ResolverLogic {
 					while (runInfo != null && runInfo.getTeam().equals(team) && contest.getOrderOf(team) == currentRow) {
 						// select run
 						steps.add(selStep.withProblem(runInfo));
-						boolean first = true;
+						timing.onStep(steps, State.SELECT_PROBLEM);
 						for (ISubmission r : contest.getSubmissions()) {
 							if (!contest.isJudged(r) && r.getTeamId().equals(runInfo.getTeam().getId())
 									&& r.getProblemId().equals(runInfo.getProblemId())) {
-								if (first) {
-									steps.add(selStep.withSubmissionId(r.getId()));
-									first = false;
-								}
 								if (judgeRuns != null) {
 									judgeRuns.add(r.getId());
 								}
 							}
 						}
-						timing.onStep(steps, State.SELECT_PROBLEM);
 
 						// resolve
 						resolveOneSubmission(runInfo, selStep, timing);
@@ -470,10 +465,7 @@ public class ResolverLogic {
 					steps.add(new PauseStep());
 					checkAfterAwards(award.getId());
 					if (judgeRuns != null) {
-						String[] subIds = judgeRuns.toArray(new String[0]);
-						int ind = steps.indexOf(placeholder);
-						steps.set(ind,
-								new ResolverPresentation(ResolverPresentation.Presentations.JUDGE).withSubmissionIds(subIds));
+						presStep.submissionIds = judgeRuns.toArray(new String[0]);
 						judgeRuns = null;
 					}
 
