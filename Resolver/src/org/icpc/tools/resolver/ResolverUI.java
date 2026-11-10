@@ -21,11 +21,11 @@ import org.icpc.tools.contest.model.IResolveInfo;
 import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.internal.Contest;
 import org.icpc.tools.contest.model.internal.Judgement;
+import org.icpc.tools.contest.model.internal.ResolverPresentation;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionControl;
 import org.icpc.tools.contest.model.resolver.ResolutionControl.IResolutionListener;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.presentation.contest.internal.AbstractICPCPresentation;
 import org.icpc.tools.presentation.contest.internal.ICPCFont;
@@ -558,11 +558,11 @@ public class ResolverUI {
 			judgePresentation.handleSubmission(sel.submissionId);
 			judgePresentation.setSelectedProblem(sel.getProblemId());
 			judgePresentation.setSelectedSubmissionId(sel.submissionId);
-		} else if (step instanceof PresentationStep) {
-			PresentationStep pstep = (PresentationStep) step;
-			if (pstep.p == PresentationStep.Presentations.SPLASH)
+		} else if (step instanceof ResolverPresentation) {
+			ResolverPresentation pstep = (ResolverPresentation) step;
+			if (pstep.p == ResolverPresentation.Presentations.SPLASH)
 				setPresentation(splashPresentation);
-			else if (pstep.p == PresentationStep.Presentations.SCOREBOARD) {
+			else if (pstep.p == ResolverPresentation.Presentations.SCOREBOARD) {
 				if (pstep.scroll != null) {
 					if (pstep.scroll)
 						scoreboardPresentation.setScrollToRow(0);
@@ -573,19 +573,19 @@ public class ResolverUI {
 				}
 
 				setPresentation(scoreboardPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.JUDGE) {
+			} else if (pstep.p == ResolverPresentation.Presentations.JUDGE) {
 				setPresentation(judgePresentation);
 
 				if (pstep.submissionIds != null)
 					judgePresentation.handleSubmissions(pstep.submissionIds);
-			} else if (pstep.p == PresentationStep.Presentations.TEAM_AWARD) {
+			} else if (pstep.p == ResolverPresentation.Presentations.TEAM_AWARD) {
 				String teamId = pstep.teamId;
 				awardPresentation.setTeam(teamId);
 				if (teamLogoPresentation != null)
 					teamLogoPresentation.setTeam(teamId);
 
 				setPresentation(awardPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST) {
+			} else if (pstep.p == ResolverPresentation.Presentations.TEAM_LIST) {
 				if (pstep.awardId != null) {
 					IAward award = contest.getAwardById(pstep.awardId);
 					teamListPresentation.setAward(award);
@@ -593,13 +593,13 @@ public class ResolverUI {
 				if (pstep.scroll != null)
 					teamListPresentation.scrollIt(pstep.scroll);
 				setPresentation(teamListPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.TEAM_LIST_PHOTO) {
+			} else if (pstep.p == ResolverPresentation.Presentations.TEAM_PHOTOS) {
 				if (pstep.awardId != null) {
 					IAward award = contest.getAwardById(pstep.awardId);
 					teamListPhotoPresentation.setAward(award);
 				}
 				setPresentation(teamListPhotoPresentation);
-			} else if (pstep.p == PresentationStep.Presentations.MESSAGE) {
+			} else if (pstep.p == ResolverPresentation.Presentations.MESSAGE) {
 				messagePresentation.setMessage(pstep.message);
 				setPresentation(messagePresentation);
 			}
