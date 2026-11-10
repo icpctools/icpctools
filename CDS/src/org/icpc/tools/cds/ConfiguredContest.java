@@ -38,6 +38,7 @@ import org.icpc.tools.contest.model.internal.Deletion;
 import org.icpc.tools.contest.model.internal.Info;
 import org.icpc.tools.contest.model.internal.Judgement;
 import org.icpc.tools.contest.model.internal.ResolveInfo;
+import org.icpc.tools.contest.model.internal.ResolverPresentation;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.internal.YamlParser;
 import org.icpc.tools.contest.model.internal.account.AccountHelper;
@@ -999,6 +1000,8 @@ public class ConfiguredContest {
 					}
 				} else if (step instanceof ResolverSelection) {
 					contest.add((ResolverSelection) step);
+				} else if (step instanceof ResolverPresentation) {
+					contest.add((ResolverPresentation) step);
 				}
 			}
 

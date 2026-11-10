@@ -23,11 +23,11 @@ import org.icpc.tools.contest.model.ITeam;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
+import org.icpc.tools.contest.model.internal.ResolverPresentation;
 import org.icpc.tools.contest.model.internal.ResolverSelection;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.DelayType;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.PauseStep;
-import org.icpc.tools.contest.model.resolver.ResolutionUtil.PresentationStep;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
 import org.icpc.tools.contest.model.util.AwardUtil;
 
@@ -205,7 +205,7 @@ public class ResolverLogic {
 		cleanOutlierSubmissions();
 
 		// set the initial state
-		steps.add(new PresentationStep(PresentationStep.Presentations.SPLASH));
+		steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SPLASH));
 		steps.add(new PauseStep());
 		steps.add(new ResolverSelection());
 
@@ -216,11 +216,11 @@ public class ResolverLogic {
 		contest = contest.clone(false);
 
 		// first click - show the scoreboard
-		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD).withScroll(true));
+		steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD).withScroll(true));
 		steps.add(new PauseStep());
 
 		// second click - scroll down to bottom (so last team is at bottom of screen)
-		steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD).withScroll(false));
+		steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD).withScroll(false));
 		steps.add(new PauseStep());
 
 		// third click - select the team or switch to judge queue
@@ -363,7 +363,7 @@ public class ResolverLogic {
 
 		Timing timing = null;
 		if (startWithJudgeQueue && !teamLists.isEmpty()) {
-			steps.add(new PresentationStep(PresentationStep.Presentations.JUDGE));
+			steps.add(new ResolverPresentation(ResolverPresentation.Presentations.JUDGE));
 			timing = new JudgeQueueTiming();
 		} else {
 			ITeam[] teams = contest.getOrderedTeams();
@@ -459,20 +459,21 @@ public class ResolverLogic {
 					steps.add(new PauseStep());
 
 					if (award.getDisplayMode() == DisplayMode.PHOTOS) {
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO)
+						steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_PHOTOS)
 								.withAwardId(award.getId()));
 					} else {
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withAwardId(award.getId())
-								.withScroll(true));
+						steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_LIST)
+								.withAwardId(award.getId()).withScroll(true));
 						steps.add(new PauseStep());
-						steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
+						steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_LIST).withScroll(false));
 					}
 					steps.add(new PauseStep());
 					checkAfterAwards(award.getId());
 					if (judgeRuns != null) {
 						String[] subIds = judgeRuns.toArray(new String[0]);
 						int ind = steps.indexOf(placeholder);
-						steps.set(ind, new PresentationStep(PresentationStep.Presentations.JUDGE).withSubmissionIds(subIds));
+						steps.set(ind,
+								new ResolverPresentation(ResolverPresentation.Presentations.JUDGE).withSubmissionIds(subIds));
 						judgeRuns = null;
 					}
 
@@ -502,7 +503,7 @@ public class ResolverLogic {
 									for (IAward a : teamAwards) {
 										steps.add(a);
 									}
-									steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD)
+									steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_AWARD)
 											.withTeamId(missedTeamId));
 									steps.add(new PauseStep());
 								}
@@ -519,7 +520,7 @@ public class ResolverLogic {
 					}
 					// backToScoreboard = true;
 
-					steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+					steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD));
 					steps.add(new PauseStep());
 				}
 
@@ -570,8 +571,8 @@ public class ResolverLogic {
 							for (IAward a : teamAwards) {
 								steps.add(a);
 							}
-							steps.add(
-									new PresentationStep(PresentationStep.Presentations.TEAM_AWARD).withTeamId((team.getId())));
+							steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_AWARD)
+									.withTeamId((team.getId())));
 							steps.add(new PauseStep());
 
 							for (IAward award2 : teamAwards) {
@@ -584,7 +585,7 @@ public class ResolverLogic {
 					}
 
 					if (checkAfterAwards(currentRow + ""))
-						steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+						steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD));
 
 					award = getListAward(currentRow, true);
 					while (award != null) {
@@ -592,7 +593,7 @@ public class ResolverLogic {
 						teamLists.remove(award);
 
 						if (ResolutionUtil.showScoreboardBefore(award) && backToScoreboard)
-							steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+							steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD));
 
 						if (ResolutionUtil.shouldHighlight(award))
 							steps.add(selStep.withTeams(award.getTeamIds()));
@@ -603,13 +604,14 @@ public class ResolverLogic {
 							steps.add(new PauseStep());
 
 						if (award.getDisplayMode() == DisplayMode.PHOTOS) {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO)
+							steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_PHOTOS)
 									.withAwardId(award.getId()));
 						} else {
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withAwardId(award.getId())
-									.withScroll(true));
+							steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_LIST)
+									.withAwardId(award.getId()).withScroll(true));
 							steps.add(new PauseStep());
-							steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
+							steps.add(
+									new ResolverPresentation(ResolverPresentation.Presentations.TEAM_LIST).withScroll(false));
 						}
 						steps.add(new PauseStep());
 						checkAfterAwards(award.getId());
@@ -620,7 +622,7 @@ public class ResolverLogic {
 					}
 				}
 				if (backToScoreboard) {
-					steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+					steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD));
 					steps.add(new PauseStep());
 				}
 			}
@@ -646,26 +648,27 @@ public class ResolverLogic {
 		Trace.trace(Trace.INFO, "Checking after award: " + id + " " + (award != null));
 		if (award != null) {
 			if ("true".equals(award.getParameters().get(SHOW_SCOREBOARD))) {
-				steps.add(new PresentationStep(PresentationStep.Presentations.SCOREBOARD));
+				steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD));
 				steps.add(new PauseStep());
 			}
 			String[] teamIds = award.getTeamIds();
 
 			if (award.getDisplayMode() == DisplayMode.MESSAGE) {
-				steps.add(new PresentationStep(PresentationStep.Presentations.MESSAGE).withMessage(award.getCitation()));
+				steps.add(new ResolverPresentation(ResolverPresentation.Presentations.MESSAGE)
+						.withMessage(award.getCitation()));
 			} else if (award.getDisplayMode() != DisplayMode.LIST && award.getDisplayMode() != DisplayMode.PHOTOS) {
 				steps.add(award);
-				steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_AWARD).withTeamId(teamIds[0]));
+				steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_AWARD).withTeamId(teamIds[0]));
 			} else {
 				steps.add(award);
 				if (award.getDisplayMode() == DisplayMode.PHOTOS) {
-					steps.add(
-							new PresentationStep(PresentationStep.Presentations.TEAM_LIST_PHOTO).withAwardId(award.getId()));
+					steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_PHOTOS)
+							.withAwardId(award.getId()));
 				} else {
-					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withAwardId(award.getId())
-							.withScroll(true));
+					steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_LIST)
+							.withAwardId(award.getId()).withScroll(true));
 					steps.add(new PauseStep());
-					steps.add(new PresentationStep(PresentationStep.Presentations.TEAM_LIST).withScroll(false));
+					steps.add(new ResolverPresentation(ResolverPresentation.Presentations.TEAM_LIST).withScroll(false));
 				}
 			}
 			steps.add(new PauseStep());

@@ -19,53 +19,6 @@ public class ResolutionUtil {
 		// can't create
 	}
 
-	public static class PresentationStep implements ResolutionStep {
-		public enum Presentations {
-			SPLASH, SCOREBOARD, JUDGE, TEAM_AWARD, TEAM_LIST, TEAM_LIST_PHOTO, MESSAGE
-		}
-
-		public Presentations p;
-		public String message;
-		public String teamId;
-		public Boolean scroll;
-		public String awardId;
-		public String[] submissionIds;
-
-		public PresentationStep(Presentations pp) {
-			this.p = pp;
-		}
-
-		public PresentationStep withMessage(String newMessage) {
-			message = newMessage;
-			return this;
-		}
-
-		public PresentationStep withTeamId(String newTeamId) {
-			teamId = newTeamId;
-			return this;
-		}
-
-		public PresentationStep withScroll(Boolean newScroll) {
-			scroll = newScroll;
-			return this;
-		}
-
-		public PresentationStep withAwardId(String newAwardId) {
-			awardId = newAwardId;
-			return this;
-		}
-
-		public PresentationStep withSubmissionIds(String[] newSubmissionIds) {
-			submissionIds = newSubmissionIds;
-			return this;
-		}
-
-		@Override
-		public String toString() {
-			return "Show presentation " + p.name();
-		}
-	}
-
 	public static class PauseStep implements ResolutionStep {
 		public int num;
 
