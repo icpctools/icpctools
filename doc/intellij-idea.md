@@ -1,22 +1,44 @@
 # Running the ICPC Tools inside IntelliJ IDEA
 
 You can use [IntelliJ IDEA](https://www.jetbrains.com/idea/) to develop and debug the ICPC Tools.
-Note that to work on the CDS, the Ultimate edition is required, since it uses Java EE.
+Note that to run the CDS in the IDE, the Ultimate edition is required, since it uses Java EE.
+To run it outside the IDE, see the [CDS Docker image](../README.md#using-the-cds-docker-image), or
+[build one from your working tree](../build/cds-local/LOCAL.md).
 
-## Configuring general settings
+## Getting started
 
-To get started, first open the whole repository in IDEA.
+1. Open the whole repository in IDEA.
+2. Open File -> Project structure and select a valid SDK under `Project SDK`. If none are available,
+   click `Add SDK` and add one.
+3. Run `SWTLauncher/setup-platform-swt.sh`. It copies the SWT JAR for your platform into
+   `SWTLauncher/lib-platform`, where the modules that use SWT find it.
 
-Next, open File -> Project structure. Select a valid SDK under `Project SDK`. If none are available,
-click `Add SDK` and add one. Also select a directory under `Project compiler output` to put compilation results.
+That's it! The project setup is in git. If you change a module's dependencies, also update its
+Eclipse `.classpath` file, and the other way around.
 
-## Configuring modules
+## Recreating the project setup
 
-Next, go to Modules on the same window. Remove the `icpctools` module (or how it is called, depends on
-your directory name).
-Now perform the following steps for the top level icpctools directory, and it should find all the modules:
+You only need this section if the project setup is broken, or to recreate it.
 
-Alternatively, if this doesn't work, perform the steps for each of the directories listed below.
+### Recreating the `.idea` directory
+
+The `.idea` directory has the project-wide setup: the list of modules (`modules.xml`), and the SDK,
+language level and compiler output directory (`misc.xml`). To recreate it, close the project, delete
+the `.idea` directory and open the whole repository in IDEA again.
+
+Open File -> Project structure. Select a valid SDK under `Project SDK`, set `Language level` to 17 to
+match the Ant build, and check that `Project compiler output` is the `out` directory.
+
+Go to Modules on the same window. Remove the `icpctools` module that was created by default. Then click
+`+`, click `Import Module`, select the top level icpctools directory and choose `Create module from
+existing sources`, and it should find all the modules. When asked about the existing `.iml` files,
+choose to reuse them.
+
+### Recreating the modules from scratch
+
+The `.iml` file in each module directory has that module's sources and dependencies. To recreate
+them too, delete them, and recreate the `.idea` directory as above, but instead of importing the
+top level directory, create each module with these steps:
 
 * Click `+`
 * Click `Import Module`
@@ -46,11 +68,8 @@ Now we need to add dependencies. Some modules need other modules and some module
 For each of the modules listed below, add the specified modules, directories and JARs. First, select the module,
 then click the `Dependencies` tab. Click the `+` button. Select `Module Dependency...` to add a module dependency
 and select `JARs or Directories...` to add a directory or JAR.
-Add the dependencies listed below.
-
-To add the SWT JAR for your platform, run `SWTLauncher/setup-platform-swt.sh`. It puts the right JAR in the
-`SWTLauncher/lib-platform` directory, so add that directory. Don't add `SWTLauncher/lib`, since it has
-the JARs for all platforms which clash in the IDE.
+For SWT, add the `SWTLauncher/lib-platform` directory, not `SWTLauncher/lib`, since `lib` has the JARs
+for all platforms which clash in the IDE.
 
 Module dependencies might be added automatically when importing all the modules at once.
 
@@ -95,7 +114,7 @@ Module dependencies might be added automatically when importing all the modules 
 
 ## Creating the artifact for the CDS
 
-Now select the `Facets` item on the left. At the bottom it will tell you that the Web Facet resources
+Open File -> Project structure and select the `Facets` item on the left. At the bottom it will tell you that the Web Facet resources
 are not included in an artifact. Click the `Create Artifact` button. Rename the artifact to `CDS` and
 select an output directory for the artifact. We need this directory later. Keep clicking the `Fix`
 button at the bottom until it goes away. Now expand `WEB-INF`, then `classes`. Click on `classes` and

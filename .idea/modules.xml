@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/BalloonUtility/BalloonUtility.iml" filepath="$PROJECT_DIR$/BalloonUtility/BalloonUtility.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CDS/CDS.iml" filepath="$PROJECT_DIR$/CDS/CDS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CoachView/CoachView.iml" filepath="$PROJECT_DIR$/CoachView/CoachView.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ContestModel/ContestModel.iml" filepath="$PROJECT_DIR$/ContestModel/ContestModel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ContestUtil/ContestUtil.iml" filepath="$PROJECT_DIR$/ContestUtil/ContestUtil.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PresAdmin/PresAdmin.iml" filepath="$PROJECT_DIR$/PresAdmin/PresAdmin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PresContest/PresContest.iml" filepath="$PROJECT_DIR$/PresContest/PresContest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PresCore/PresCore.iml" filepath="$PROJECT_DIR$/PresCore/PresCore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ProblemSet/ProblemSet.iml" filepath="$PROJECT_DIR$/ProblemSet/ProblemSet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Resolver/Resolver.iml" filepath="$PROJECT_DIR$/Resolver/Resolver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SWTLauncher/SWTLauncher.iml" filepath="$PROJECT_DIR$/SWTLauncher/SWTLauncher.iml" />
+    </modules>
+  </component>
+</project>

@@ -10,3 +10,8 @@ bazel-*
 ContestUtil/src/org/icpc/tools/contest/util/cms/login.tsv
 CDS/WebContent/ui
 SWTLauncher/lib-platform/*.jar
+/out
+.idea/*
+!.idea/modules.xml
+!.idea/misc.xml
+!.idea/vcs.xml

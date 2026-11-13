@@ -7,5 +7,5 @@ The JAR is ignored by git; only this file is committed.
 right one at runtime through `SWTLauncher`. An IDE runs the tools
 directly, so its classpath must have exactly one SWT JAR, from this directory.
 
-See [Configuring modules](../../doc/intellij-idea.md#configuring-modules)
+See [Getting started](../../doc/intellij-idea.md#getting-started)
 in the IntelliJ IDEA guide.
