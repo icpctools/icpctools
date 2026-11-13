@@ -55,7 +55,6 @@ Module dependencies might be added automatically when importing all the modules 
   * Module `ContestModel`
   * Module `PresCore`
   * The SWT JAR for your platform
-  * The file `svgSalamander-1.1.2.4.jar` from the `ContestModel/lib` directory.
 * For `CoachView` add:
   * Module `ContestModel`
   * Module `PresCore`
@@ -67,7 +66,8 @@ Module dependencies might be added automatically when importing all the modules 
 * For `ContestModel` add:
   * The `lib` directory in the project root
   * The `testlib` directory in the project root
-  * The `lib` directory in the `ContestModel` directory
+  * The `lib` directory in the `ContestModel` directory. Check `Export` for it, since other modules
+    (e.g. `PresContest`) use its JARs, such as `jsvg`, through `ContestModel`.
 * For `ContestUtil` add:
   * Module `ContestModel`
 * For `PresCore` add:
@@ -81,11 +81,10 @@ Module dependencies might be added automatically when importing all the modules 
   * Module `ContestModel`
   * Module `PresCore`
   * The `lib` directory in the `PresContest` directory
-  * The file `svgSalamander-1.1.2.4.jar` from the `ContestModel/lib` directory.
 * For `ProblemSet` add:
   * The `lib` directory in the `ProblemSet` directory
   * The SWT JAR for your platform
-* For `Resolver` add:b
+* For `Resolver` add:
   * Module `ContestModel`
   * Module `PresCore`
   * Module `PresContest`
