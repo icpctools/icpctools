@@ -18,6 +18,12 @@ public class ResolutionControl {
 	private double scrollSpeedFactor = 1;
 	private boolean stepping;
 
+	// pausing and cancelling a running step sequence (e.g. auto-resolving); these are set from other
+	// threads while the stepping thread holds the lock, so they are not synchronized
+	private volatile boolean paused;
+	private volatile boolean cancelled;
+	private volatile Thread steppingThread;
+
 	private final List<IResolutionListener> listeners = new ArrayList<>();
 
 	public interface IResolutionListener {
@@ -126,6 +132,41 @@ public class ResolutionControl {
 	}
 
 	/**
+	 * Pause or resume a running step sequence. While paused, the stepping thread holds at the
+	 * current step, and the remaining time of a delay is kept for when it resumes.
+	 */
+	public void setPaused(boolean pause) {
+		paused = pause;
+		Thread t = steppingThread;
+		if (t != null)
+			LockSupport.unpark(t);
+	}
+
+	public boolean isPaused() {
+		return paused;
+	}
+
+	/**
+	 * Returns true if a cancelled step sequence stopped between two pauses.
+	 */
+	public boolean isBetweenPauses() {
+		return !atPauseStep();
+	}
+
+	/**
+	 * Stop a running step sequence at the current step, which may be between two pauses. Returns
+	 * immediately; the stepping method returns soon after. The next move goes from where it stopped.
+	 */
+	public void cancel() {
+		Thread t = steppingThread;
+		if (t == null)
+			return;
+		cancelled = true;
+		paused = false;
+		LockSupport.unpark(t);
+	}
+
+	/**
 	 * Step forward or backward to the given pause, optionally including delays. This method is
 	 * blocking and will not return until it is complete, run on non-critical thread if you are
 	 * using delays!
@@ -173,36 +214,74 @@ public class ResolutionControl {
 	}
 
 	private synchronized void stepToPause(int toPause, boolean includeDelays) {
-		if (toPause == currentPause)
+		boolean betweenPauses = !atPauseStep();
+		if (toPause == currentPause && !betweenPauses)
 			return;
 
 		Trace.trace(Trace.INFO, "Resolving to: " + toPause + " / " + includeDelays);
 		stepping = true;
+		cancelled = false;
+		steppingThread = Thread.currentThread();
+		try {
+			long[] startTime = new long[] { System.nanoTime() };
+			if (!includeDelays)
+				startTime = null;
 
-		long[] startTime = new long[] { System.nanoTime() };
-		if (!includeDelays)
-			startTime = null;
+			// notify listener which pause we're going to
+			notifyListenersToPause(toPause, includeDelays);
 
-		boolean forward = toPause > currentPause;
-
-		// notify listener which pause we're going to
-		notifyListenersToPause(toPause, includeDelays);
-
-		while (currentPause != toPause) {
-			if (forward)
-				currentStep++;
-			else
-				currentStep--;
-
-			if (processStep(startTime, forward)) {
-				if (currentPause == toPause) {
-					stepping = false;
-					return;
+			// a cancelled sequence may have stopped between two pauses; going back starts by undoing
+			// the steps since the last pause
+			if (betweenPauses && toPause <= currentPause) {
+				while (!atPauseStep()) {
+					processStep(null, false);
+					currentStep--;
 				}
+				if (toPause == currentPause)
+					return;
 			}
-		}
 
-		stepping = false;
+			boolean forward = toPause > currentPause;
+			while (currentPause != toPause) {
+				holdWhilePaused(startTime);
+				if (cancelled)
+					return;
+
+				if (forward)
+					currentStep++;
+				else
+					currentStep--;
+
+				if (processStep(startTime, forward)) {
+					if (currentPause == toPause)
+						return;
+				}
+				if (cancelled)
+					return;
+			}
+		} finally {
+			stepping = false;
+			cancelled = false;
+			steppingThread = null;
+		}
+	}
+
+	private boolean atPauseStep() {
+		return currentStep < 0 || currentStep >= steps.size() || steps.get(currentStep) instanceof PauseStep;
+	}
+
+	/**
+	 * Hold while paused. The time spent paused is added to the delay timeline, so the steps after
+	 * resuming are not rushed to catch up.
+	 */
+	private void holdWhilePaused(long[] startTime) {
+		if (!paused)
+			return;
+		long t0 = System.nanoTime();
+		while (paused && !cancelled)
+			LockSupport.parkNanos(50_000_000L);
+		if (startTime != null)
+			startTime[0] += System.nanoTime() - t0;
 	}
 
 	private ResolutionStep findPrevious(ResolutionStep step) {
@@ -232,6 +311,12 @@ public class ResolutionControl {
 	private void wait(long[] startTime, int type) {
 		long delay = Math.round(ResolutionUtil.DELAY_TIMES[type] * speedFactor * 1_000_000_000.0);
 		startTime[0] += delay;
-		LockSupport.parkNanos(startTime[0] - System.nanoTime());
+		long remaining;
+		while (!cancelled && (remaining = startTime[0] - System.nanoTime()) > 0) {
+			if (paused)
+				holdWhilePaused(startTime);
+			else
+				LockSupport.parkNanos(remaining);
+		}
 	}
 }
