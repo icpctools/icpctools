@@ -12,11 +12,11 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../SWTLauncher/lib" />
+          <root url="file://$MODULE_DIR$/../SWTLauncher/lib-platform" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/../SWTLauncher/lib" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/../SWTLauncher/lib-platform" recursive="false" />
       </library>
     </orderEntry>
   </component>

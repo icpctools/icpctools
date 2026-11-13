@@ -46,15 +46,18 @@ Now we need to add dependencies. Some modules need other modules and some module
 For each of the modules listed below, add the specified modules, directories and JARs. First, select the module,
 then click the `Dependencies` tab. Click the `+` button. Select `Module Dependency...` to add a module dependency
 and select `JARs or Directories...` to add a directory or JAR.
-Add the dependencies listed below. If you need to add the SWT JAR for your platform, select the correct JAR in
-`SWTLauncher/lib` based on your operating system.
+Add the dependencies listed below.
+
+To add the SWT JAR for your platform, run `SWTLauncher/setup-platform-swt.sh`. It puts the right JAR in the
+`SWTLauncher/lib-platform` directory, so add that directory. Don't add `SWTLauncher/lib`, since it has
+the JARs for all platforms which clash in the IDE.
 
 Module dependencies might be added automatically when importing all the modules at once.
 
 * For `BalloonUtility` add:
   * Module `ContestModel`
   * Module `PresCore`
-  * The SWT JAR for your platform
+  * The `SWTLauncher/lib-platform` directory (the SWT JAR for your platform)
 * For `CoachView` add:
   * Module `ContestModel`
   * Module `PresCore`
@@ -76,18 +79,19 @@ Module dependencies might be added automatically when importing all the modules 
 * For `PresAdmin` add:
   * Module `ContestModel`
   * Module `PresCore`
-  * The SWT JAR for your platform
+  * The `SWTLauncher/lib-platform` directory (the SWT JAR for your platform)
 * For `PresContest` add:
   * Module `ContestModel`
   * Module `PresCore`
   * The `lib` directory in the `PresContest` directory
 * For `ProblemSet` add:
   * The `lib` directory in the `ProblemSet` directory
-  * The SWT JAR for your platform
+  * The `SWTLauncher/lib-platform` directory (the SWT JAR for your platform)
 * For `Resolver` add:
   * Module `ContestModel`
   * Module `PresCore`
   * Module `PresContest`
+  * The `SWTLauncher/lib-platform` directory (the SWT JAR for your platform)
 
 ## Creating the artifact for the CDS
 
