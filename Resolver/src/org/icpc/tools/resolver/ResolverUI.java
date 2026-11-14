@@ -461,7 +461,9 @@ public class ResolverUI {
 	}
 
 	public void setSpeedFactor(double d) {
-		control.setSpeedFactor(d);
+		if (control != null) {
+			control.setSpeedFactor(d);
+		}
 	}
 
 	/**

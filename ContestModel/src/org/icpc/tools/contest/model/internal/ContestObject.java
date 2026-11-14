@@ -537,13 +537,14 @@ public abstract class ContestObject implements IContestObject {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(IContestObject.getTypeName(getType()) + "\n");
+		sb.append(IContestObject.getTypeName(getType()) + "[");
 		Map<String, Object> props = getProperties();
 		for (String key : props.keySet())
-			sb.append("  " + key + ": " + props.get(key) + "\n");
+			sb.append(key + "= " + props.get(key) + ", ");
 
 		sb.deleteCharAt(sb.length() - 1);
 
+		sb.append("]");
 		return sb.toString();
 	}
 }
