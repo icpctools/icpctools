@@ -11,6 +11,7 @@ export const load = async ({ params, depends }) => {
 	const orgs = cc.getOrganizations();
 	const groups = cc.getGroups();
 	const teams = cc.getTeams().map((team) => ({
+		id: team.id,
 		team,
 		org: findById(orgs, team.organization_id),
 		groups: findManyById(groups, team.group_ids)

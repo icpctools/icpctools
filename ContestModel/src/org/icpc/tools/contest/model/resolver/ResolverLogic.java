@@ -637,7 +637,6 @@ public class ResolverLogic {
 
 	protected boolean checkAfterAwards(String id) {
 		IAward award = afterAwards.get(id);
-		Trace.trace(Trace.INFO, "Checking after award: " + id + " " + (award != null));
 		if (award != null) {
 			if ("true".equals(award.getParameters().get(SHOW_SCOREBOARD))) {
 				steps.add(new ResolverPresentation(ResolverPresentation.Presentations.SCOREBOARD));

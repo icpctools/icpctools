@@ -90,6 +90,8 @@ public class Contest implements IContest {
 	@SuppressWarnings("unchecked")
 	protected Set<String>[] allKnownProperties = new Set[ContestType.values().length];
 
+	protected List<String> invalidSubmissions = new ArrayList<String>();
+
 	public Contest() {
 		this(true);
 	}
@@ -469,6 +471,7 @@ public class Contest implements IContest {
 					c.add(co);
 			}
 		}
+		c.invalidSubmissions = invalidSubmissions;
 
 		return c;
 	}
@@ -488,6 +491,7 @@ public class Contest implements IContest {
 				}
 			}
 		}
+		c.invalidSubmissions = invalidSubmissions;
 
 		return c;
 	}
@@ -1098,8 +1102,13 @@ public class Contest implements IContest {
 							} else if (!isJudged(s))
 								tempFTS[problemIndex] = "waiting for judgement";
 						}
-					} else
-						Trace.trace(Trace.WARNING, "Invalid submission: " + s);
+					} else {
+						if (!invalidSubmissions.contains(s.getId())) {
+							invalidSubmissions.add(s.getId());
+
+							Trace.trace(Trace.WARNING, "Invalid submission team or problem: " + s.getId());
+						}
+					}
 				}
 			}
 			// sb.append((System.currentTimeMillis() - scoreTime) + "ms ");
