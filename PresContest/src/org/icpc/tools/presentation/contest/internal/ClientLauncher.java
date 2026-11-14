@@ -47,6 +47,8 @@ public class ClientLauncher {
 		System.out.println("         overriden by the server");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
+		System.out.println("     --dev");
+		System.out.println("         Skip automatic updates from the CDS during development");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -62,6 +64,7 @@ public class ClientLauncher {
 		String[] displayName = new String[1];
 		String[] presStr = new String[1];
 		boolean[] lightMode = new boolean[1];
+		boolean[] devMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
@@ -84,6 +87,9 @@ public class ClientLauncher {
 				} else if ("--light".equals(option)) {
 					lightMode[0] = true;
 					return true;
+				} else if ("--dev".equals(option)) {
+					devMode[0] = true;
+					return true;
 				} else if ("--display_name".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "display_name:string");
 					displayName[0] = (String) options.get(0);
@@ -105,7 +111,9 @@ public class ClientLauncher {
 
 		RESTContestSource cdsSource = RESTContestSource.ensureCDS(contestSource);
 		cdsSource.outputValidation();
-		cdsSource.checkForUpdates("presentations-");
+		if (!devMode[0]) {
+			cdsSource.checkForUpdates("presentations-");
+		}
 
 		if (displayName[0] != null)
 			TeamDisplay.overrideDisplayName(cdsSource.getContest(), displayName[0]);

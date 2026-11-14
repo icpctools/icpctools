@@ -31,6 +31,8 @@ public class Admin {
 		System.out.println("Usage: presAdmin.bat/sh cdsURL user password [options]");
 		System.out.println();
 		System.out.println("  Options:");
+		System.out.println("     --dev");
+		System.out.println("         Skip automatic updates from the CDS during development");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -40,9 +42,14 @@ public class Admin {
 	public static void main(String[] args) {
 		Trace.init("ICPC Presentation Admin", "presAdmin", args);
 
+		boolean[] devMode = new boolean[1];
 		Source source = ArgumentParser.parseSource(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				if ("--dev".equals(option)) {
+					devMode[0] = true;
+					return true;
+				}
 				return false;
 			}
 
@@ -78,7 +85,9 @@ public class Admin {
 			return;
 		}
 
-		util.checkForUpdates("presentationAdmin-");
+		if (!devMode[0]) {
+			util.checkForUpdates("presentationAdmin-");
+		}
 
 		View v = new View(url, source.user, source.password);
 

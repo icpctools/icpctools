@@ -933,6 +933,8 @@ public class CoachView extends Panel {
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
+		System.out.println("     --dev");
+		System.out.println("         Skip automatic updates from the CDS during development");
 		System.out.println("     --help");
 		System.out.println("         Shows this message");
 		System.out.println("     --version");
@@ -944,9 +946,14 @@ public class CoachView extends Panel {
 
 		String[] displayStr2 = new String[1];
 		// boolean[] lightMode = new boolean[1];
+		boolean[] devMode = new boolean[1];
 		ContestSource contestSource = ArgumentParser.parse(args, new OptionParser() {
 			@Override
 			public boolean setOption(String option, List<Object> options) throws IllegalArgumentException {
+				if ("--dev".equals(option)) {
+					devMode[0] = true;
+					return true;
+				}
 				if ("--display".equals(option)) {
 					ArgumentParser.expectOptions(option, options, "#:string");
 					displayStr2[0] = (String) options.get(0);
@@ -968,8 +975,9 @@ public class CoachView extends Panel {
 
 		RESTContestSource restSource = RESTContestSource.ensureContestAPI(contestSource);
 		restSource.outputValidation();
-		if (ContestAPIHelper.isCDS())
+		if (!devMode[0] && ContestAPIHelper.isCDS()) {
 			restSource.checkForUpdates("coachview-");
+		}
 
 		CoachView cv = new CoachView();
 		cv.contestSource = restSource;
