@@ -240,7 +240,7 @@ public class CDSContest extends Contest {
 			}
 			if (obj instanceof Run) {
 				Run run = (Run) obj;
-				if (getJudgementById(run.getJudgementTypeId()) == null)
+				if (getJudgementById(run.getJudgementId()) == null)
 					return;
 			}
 			if (obj instanceof Person) {
