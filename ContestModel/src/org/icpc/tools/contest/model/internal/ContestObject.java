@@ -539,10 +539,14 @@ public abstract class ContestObject implements IContestObject {
 		StringBuilder sb = new StringBuilder();
 		sb.append(IContestObject.getTypeName(getType()) + "[");
 		Map<String, Object> props = getProperties();
-		for (String key : props.keySet())
-			sb.append(key + "= " + props.get(key) + ", ");
-
-		sb.deleteCharAt(sb.length() - 1);
+		boolean first = true;
+		for (String key : props.keySet()) {
+			if (!first) {
+				sb.append(", ");
+			}
+			first = false;
+			sb.append(key + "=" + props.get(key));
+		}
 
 		sb.append("]");
 		return sb.toString();
