@@ -7,6 +7,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -90,7 +91,7 @@ public class Contest implements IContest {
 	@SuppressWarnings("unchecked")
 	protected Set<String>[] allKnownProperties = new Set[ContestType.values().length];
 
-	protected List<String> invalidSubmissions = new ArrayList<String>();
+	protected Set<String> invalidSubmissions = new HashSet<String>();
 
 	public Contest() {
 		this(true);
