@@ -925,6 +925,10 @@ public class CoachView extends Panel {
 	}
 
 	protected static void showHelp() {
+		showHelp(false);
+	}
+
+	protected static void showHelp(boolean all) {
 		System.out.println("Usage: coachView.bat/sh contestURL user password [options]");
 		System.out.println();
 		System.out.println("  Options:");
@@ -933,10 +937,12 @@ public class CoachView extends Panel {
 		System.out.println("         1 = primary display, 2 = secondary display, etc.");
 		System.out.println("     --light");
 		System.out.println("         Use light mode");
-		System.out.println("     --dev");
-		System.out.println("         Skip automatic updates from the CDS during development");
-		System.out.println("     --help");
-		System.out.println("         Shows this message");
+		if (all) {
+			System.out.println("     --dev");
+			System.out.println("         Skip automatic updates from the CDS during development");
+		}
+		System.out.println("     --help, --help-all");
+		System.out.println("         Shows this message (--help-all includes development options)");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
 	}
@@ -969,6 +975,11 @@ public class CoachView extends Panel {
 			@Override
 			public void showHelp() {
 				CoachView.showHelp();
+			}
+
+			@Override
+			public void showHelp(boolean all) {
+				CoachView.showHelp(all);
 			}
 		});
 		String displayStr = displayStr2[0];

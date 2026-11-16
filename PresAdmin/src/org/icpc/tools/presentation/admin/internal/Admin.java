@@ -27,14 +27,20 @@ import org.icpc.tools.contest.model.util.ArgumentParser.Source;
 
 public class Admin {
 	protected static void showHelp() {
+		showHelp(false);
+	}
+
+	protected static void showHelp(boolean all) {
 		System.out.println();
 		System.out.println("Usage: presAdmin.bat/sh cdsURL user password [options]");
 		System.out.println();
 		System.out.println("  Options:");
-		System.out.println("     --dev");
-		System.out.println("         Skip automatic updates from the CDS during development");
-		System.out.println("     --help");
-		System.out.println("         Shows this message");
+		if (all) {
+			System.out.println("     --dev");
+			System.out.println("         Skip automatic updates from the CDS during development");
+		}
+		System.out.println("     --help, --help-all");
+		System.out.println("         Shows this message (--help-all includes development options)");
 		System.out.println("     --version");
 		System.out.println("         Displays version information");
 	}
@@ -56,6 +62,11 @@ public class Admin {
 			@Override
 			public void showHelp() {
 				Admin.showHelp();
+			}
+
+			@Override
+			public void showHelp(boolean all) {
+				Admin.showHelp(all);
 			}
 		});
 

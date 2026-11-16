@@ -26,6 +26,11 @@ public class ArgumentParser {
 		 * Callback to display the command line help for the tool.
 		 */
 		public void showHelp();
+
+		/** Displays help, optionally including development options. */
+		default void showHelp(boolean all) {
+			showHelp();
+		}
 	}
 
 	public static class Source {
@@ -250,8 +255,8 @@ public class ArgumentParser {
 					continue;
 
 				if (s.startsWith("-")) {
-					if ("--help".equals(s)) {
-						parser.showHelp();
+					if ("--help".equals(s) || "--help-all".equals(s)) {
+						parser.showHelp("--help-all".equals(s));
 						System.exit(0);
 					}
 					if (used.contains(s))
