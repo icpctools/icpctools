@@ -729,7 +729,10 @@ public class AwardUI {
 		final Shell shell = new Shell(display);
 		shell.setText("Award Utility");
 		Image image = new Image(display, AwardUI.class.getResourceAsStream("/images/resolverIcon.png"));
-		shell.setImage(image);
+		display.asyncExec(() -> {
+			if (!shell.isDisposed())
+				shell.setImage(image);
+		});
 		ErrorHandler.setShell(shell);
 
 		Menu sysMenu = display.getSystemMenu();

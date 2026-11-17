@@ -1105,9 +1105,12 @@ public class BalloonUtility {
 
 		Display display = new Display();
 		final Shell shell = new Shell(display);
-		Image image = new Image(display, BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
-		shell.setImage(image);
 		shell.setText("Balloon Utility");
+		Image image = new Image(display, BalloonUtility.class.getResourceAsStream("/images/balloonIcon.png"));
+		display.asyncExec(() -> {
+			if (!shell.isDisposed())
+				shell.setImage(image);
+		});
 		ErrorHandler.setShell(shell);
 
 		if (contestSource == null) {

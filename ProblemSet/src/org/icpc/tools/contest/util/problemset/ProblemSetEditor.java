@@ -567,7 +567,10 @@ public class ProblemSetEditor {
 
 		shell.setText("Problem Set Editor");
 		Image image = new Image(display, ProblemSetEditor.class.getResourceAsStream("/images/problemSetIcon.png"));
-		shell.setImage(image);
+		display.asyncExec(() -> {
+			if (!shell.isDisposed())
+				shell.setImage(image);
+		});
 
 		ProblemSetEditor editor = new ProblemSetEditor(shell);
 

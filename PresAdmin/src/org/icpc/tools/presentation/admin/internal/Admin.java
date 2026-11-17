@@ -112,7 +112,10 @@ public class Admin {
 		}
 
 		shell.setText("Presentation Admin");
-		shell.setImage(ImageResource.getImage(ImageResource.IMG_ICON));
+		display.asyncExec(() -> {
+			if (!shell.isDisposed())
+				shell.setImage(ImageResource.getImage(ImageResource.IMG_ICON));
+		});
 		shell.addShellListener(new ShellAdapter() {
 			@Override
 			public void shellClosed(ShellEvent event) {
