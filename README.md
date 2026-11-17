@@ -58,6 +58,7 @@ Version | Java Version | Contest API
 2.5 | Java 11 minimum | 2022-07
 2.6 | Java 17 minimum | 2023-06 (+ draft support for 2026-01)
 2.7 | Java 17 minimum | 2026-01 (2023-06 API available at /api/2023-06/)
+2.8 | Java 25 minimum | 2026-01 (2023-06 API available at /api/2023-06/)
 
 ## Contributing
 
