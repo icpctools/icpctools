@@ -175,26 +175,43 @@ public class CDSUtil {
 	}
 
 	private static String getVersion(String ver) {
-		if (ver == null)
+		if (ver == null) {
 			return "dev";
+		}
 		return ver;
 	}
 
 	private static String getVersion() {
 		Class<?> c = getCallerClass();
+		if (c == null) {
+			return "dev";
+		}
+		// Normal JAR builds provide the version through the package.
 		Package pack = c.getPackage();
 		String spec = pack.getSpecificationVersion();
 		String impl = pack.getImplementationVersion();
-		if (spec == null && impl == null)
+		if (spec == null && impl == null) {
+			// Retain the legacy fallback, though its intended use case is unknown.
 			try {
-				java.util.Properties prop = new java.util.Properties();
-				prop.load(c.getResourceAsStream("/META-INF/MANIFEST.MF"));
-				spec = prop.getProperty("Specification-Version");
-				impl = prop.getProperty("Implementation-Version");
+				Enumeration<URL> manifests = c.getClassLoader().getResources("META-INF/MANIFEST.MF");
+				while (manifests.hasMoreElements()) {
+					try (InputStream in = manifests.nextElement().openStream()) {
+						java.util.Properties prop = new java.util.Properties();
+						prop.load(in);
+						String title = prop.getProperty("Implementation-Title");
+						// All ICPC modules have titles starting with "ICPC ".
+						if (title == null || !title.startsWith("ICPC ")) {
+							continue;
+						}
+						spec = prop.getProperty("Specification-Version");
+						impl = prop.getProperty("Implementation-Version");
+						break;
+					}
+				}
 			} catch (Exception e) {
 				// ignore
 			}
-
+		}
 		return getVersion(spec) + "." + getVersion(impl);
 	}
 
