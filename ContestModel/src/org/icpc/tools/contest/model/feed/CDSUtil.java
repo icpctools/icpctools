@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -196,15 +198,14 @@ public class CDSUtil {
 				Enumeration<URL> manifests = c.getClassLoader().getResources("META-INF/MANIFEST.MF");
 				while (manifests.hasMoreElements()) {
 					try (InputStream in = manifests.nextElement().openStream()) {
-						java.util.Properties prop = new java.util.Properties();
-						prop.load(in);
-						String title = prop.getProperty("Implementation-Title");
+						Attributes attributes = new Manifest(in).getMainAttributes();
+						String title = attributes.getValue(Attributes.Name.IMPLEMENTATION_TITLE);
 						// All ICPC modules have titles starting with "ICPC ".
 						if (title == null || !title.startsWith("ICPC ")) {
 							continue;
 						}
-						spec = prop.getProperty("Specification-Version");
-						impl = prop.getProperty("Implementation-Version");
+						spec = attributes.getValue(Attributes.Name.SPECIFICATION_VERSION);
+						impl = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
 						break;
 					}
 				}
