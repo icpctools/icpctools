@@ -1,7 +1,26 @@
 # ICPC Tools Changelog
 
-## V2.7 - ??
+## V2.8 - ??
 -----------------
+* Java 25 minimum
+
+## V2.7 - November 2026
+-----------------
+* Supports the 2026-01 and 2023-06 releases of the Contest API spec.
+  * Includes most features of the 2026-01-next spec at time of release.
+* Java 17 minimum, newer LTS recommended.
+* Lots of fixes from use at several regional and World Finals contests.
+* CDS:
+  * Support for multiple spec versions at the same time: /api/<spec-version>.
+  * Initial HLS support (MPEG-TS still the default).
+  * Contest replay now supports object arrays and out of order events.
+  * Auth tokens added for easier browser support of contest file references.
+  * Resolver events in feed: judgements and awards appear as they do onscreen.
+* Presentations:
+  * Team floor intro presentation added, with optional audio.
+* Resolver:
+   * Performance improvements loading contests, especially on Windows.
+   * Internal restructuring to simplify steps and allow for future change.
 
 ## V2.6 - November 2025
 -----------------
