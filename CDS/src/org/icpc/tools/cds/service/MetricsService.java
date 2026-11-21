@@ -27,6 +27,8 @@ public class MetricsService {
 	}
 
 	public static void write(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		response.setContentType("text/plain; version=0.0.4");
+		response.setCharacterEncoding("UTF-8");
 		PrintWriter pw = response.getWriter();
 
 		ConfiguredContest[] ccs = CDSConfig.getContests();
