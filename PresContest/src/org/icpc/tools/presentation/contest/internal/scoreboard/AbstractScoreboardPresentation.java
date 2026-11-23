@@ -61,6 +61,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	protected int teamsPerScreen = DEFAULT_TEAMS_PER_SCREEN;
 
 	protected boolean showMedals = false;
+	// when paused, teams stop moving (e.g. mid-way to their new row) until resumed
+	protected boolean rowsPaused = false;
 	protected int advanceLineRow = 0;
 	protected String selectedProblemId;
 
@@ -150,7 +152,8 @@ public abstract class AbstractScoreboardPresentation extends TitledPresentation 
 	public void incrementTimeMs(long dt) {
 		// update Y locations (move each team a little bit toward their target location
 		// based on their current standings order)
-		updateTeamY(dt);
+		if (!rowsPaused)
+			updateTeamY(dt);
 
 		if (focusOnTeamId != null) {
 			IContest contest = getContest();
