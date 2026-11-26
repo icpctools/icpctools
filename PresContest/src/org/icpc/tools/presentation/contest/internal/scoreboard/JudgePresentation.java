@@ -16,6 +16,7 @@ import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.presentation.contest.internal.Animator;
 import org.icpc.tools.presentation.contest.internal.Animator.Movement;
@@ -327,7 +328,7 @@ public class JudgePresentation extends AbstractScoreboardPresentation {
 		drawRight(g, contest, team, standing, sr);
 	}
 
-	protected void drawRight(Graphics2D g, IContest contest, ITeam team, IStanding standing, SubmissionRecord run) {
+	protected void drawRight(Graphics2D g, IContest contest, ITeam team, ITeamResult standing, SubmissionRecord run) {
 		int n = standing.getNumSolved();
 
 		g.setFont(rowFont);

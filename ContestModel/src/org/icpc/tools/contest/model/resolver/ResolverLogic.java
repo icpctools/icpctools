@@ -20,6 +20,7 @@ import org.icpc.tools.contest.model.IResult;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.contest.model.Status;
 import org.icpc.tools.contest.model.TypeFilter;
 import org.icpc.tools.contest.model.internal.Contest;
@@ -734,13 +735,13 @@ public class ResolverLogic {
 			if (numSolved > 0) {
 				ITeam[] teams = contest.getOrderedTeams();
 				for (int i = 0; i < row; i++) {
-					IStanding s = contest.getStanding(teams[i]);
-					if (s.getNumSolved() <= numSolved)
+					ITeamResult tr = contest.getTeamResult(teams[i]);
+					if (tr.getNumSolved() <= numSolved)
 						return false;
 				}
 				if (!after) {
-					IStanding s = contest.getStanding(teams[row]);
-					if (s.getNumSolved() <= numSolved)
+					ITeamResult tr = contest.getTeamResult(teams[row]);
+					if (tr.getNumSolved() <= numSolved)
 						return false;
 				}
 			}

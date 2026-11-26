@@ -9,9 +9,9 @@ import java.util.List;
 
 import org.icpc.tools.contest.Trace;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.TextHelper;
 import org.icpc.tools.presentation.contest.internal.scoreboard.JudgePresentation;
@@ -134,7 +134,7 @@ public class JudgePresentation2 extends JudgePresentation {
 
 		IContest contest = getContest();
 		ITeam team = contest.getTeamById(submission.submission.getTeamId());
-		IStanding standing = contest.getStanding(team);
+		ITeamResult tr = contest.getTeamResult(team);
 
 		BufferedImage img = getSmallTeamLogo(team, true);
 		if (img != null) {
@@ -151,6 +151,6 @@ public class JudgePresentation2 extends JudgePresentation {
 		TextHelper.drawString(g, s, xx, fm.getAscent() + 5,
 				(int) (width - BORDER * 2 - fm.stringWidth("199 9 9999") - rowHeight));
 
-		drawRight(g, contest, team, standing, submission);
+		drawRight(g, contest, team, tr, submission);
 	}
 }
