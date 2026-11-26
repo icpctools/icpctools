@@ -385,6 +385,14 @@ public interface IContest {
 	boolean isTeamHidden(ITeam team);
 
 	/**
+	 * Returns the current results for the given team.
+	 *
+	 * @param team a team
+	 * @return a team result, or <code>null</code> if the team was invalid
+	 */
+	ITeamResult getTeamResult(ITeam team);
+
+	/**
 	 * Returns the current standing for the given team.
 	 *
 	 * @param team a team

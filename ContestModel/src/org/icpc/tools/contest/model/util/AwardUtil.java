@@ -20,6 +20,7 @@ import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.Contest;
 
@@ -174,9 +175,9 @@ public class AwardUtil {
 			for (IAward a : awards) {
 				if (a.getAwardType() == IAward.MEDAL) {
 					for (String tid : a.getTeamIds()) {
-						IStanding s = contest.getStanding(contest.getTeamById(tid));
-						if (s != null && s.getNumSolved() > 0) {
-							lowestMedalNumSolved = Math.min(lowestMedalNumSolved, s.getNumSolved());
+						ITeamResult tr = contest.getTeamResult(contest.getTeamById(tid));
+						if (tr != null && tr.getNumSolved() > 0) {
+							lowestMedalNumSolved = Math.min(lowestMedalNumSolved, tr.getNumSolved());
 						}
 					}
 				}
@@ -622,9 +623,9 @@ public class AwardUtil {
 			if (a.getAwardType() == IAward.MEDAL) {
 				medalTeams.addAll(Arrays.asList(a.getTeamIds()));
 				for (String tid : a.getTeamIds()) {
-					IStanding s = contest.getStanding(contest.getTeamById(tid));
-					if (s != null && s.getNumSolved() > 0) {
-						lowestMedalNumSolved = Math.min(lowestMedalNumSolved, s.getNumSolved());
+					ITeamResult tr = contest.getTeamResult(contest.getTeamById(tid));
+					if (tr != null && tr.getNumSolved() > 0) {
+						lowestMedalNumSolved = Math.min(lowestMedalNumSolved, tr.getNumSolved());
 					}
 				}
 			}

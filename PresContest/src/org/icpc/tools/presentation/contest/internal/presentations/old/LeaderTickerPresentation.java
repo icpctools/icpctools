@@ -9,8 +9,8 @@ import java.awt.geom.Dimension2D;
 
 import org.icpc.tools.contest.model.ContestUtil;
 import org.icpc.tools.contest.model.IContest;
-import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.presentation.contest.internal.ICPCColors;
 import org.icpc.tools.presentation.contest.internal.ShadedRectangle;
 import org.icpc.tools.presentation.contest.internal.Utility;
@@ -119,8 +119,8 @@ public class LeaderTickerPresentation extends AbstractTickerPresentation {
 		IContest sc = getContest();
 		ITeam[] teams = sc.getOrderedTeams();
 		for (int i = 0; i < 12; i++) {
-			IStanding standing = sc.getStanding(teams[i]);
-			append(new LeaderTicker(i + 1, teams[i].getActualDisplayName(), standing.getNumSolved(), standing.getTime()));
+			ITeamResult tr = sc.getTeamResult(teams[i]);
+			append(new LeaderTicker(i + 1, teams[i].getActualDisplayName(), tr.getNumSolved(), tr.getTime()));
 		}
 	}
 }

@@ -1,47 +1,35 @@
 package org.icpc.tools.contest.model.internal;
 
 import org.icpc.tools.contest.model.IStanding;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.contest.model.feed.RelativeTime;
 
 public class Standing implements IStanding {
-	private long penalty;
-	private int numSolved;
-	private long lastSolution;
+	private ITeamResult tr;
 	private int rank;
-	private double score;
 
-	public Standing() {
-		// do nothing
-	}
-
-	public void init(int numSolved2, long penalty2, double score2, long lastSolution2) {
-		this.numSolved = numSolved2;
-		this.penalty = penalty2;
-		this.score = score2;
-		this.lastSolution = lastSolution2;
-	}
-
-	public void setPenalty(long penalty) {
-		this.penalty = penalty;
+	public Standing(TeamResult tr2) {
+		this.tr = tr2;
 	}
 
 	@Override
 	public long getTime() {
-		return penalty;
-	}
-
-	public void setNumSolved(int numSolved) {
-		this.numSolved = numSolved;
+		return tr.getTime();
 	}
 
 	@Override
 	public int getNumSolved() {
-		return numSolved;
+		return tr.getNumSolved();
 	}
 
 	@Override
 	public long getLastSolutionTime() {
-		return lastSolution;
+		return tr.getLastSolutionTime();
+	}
+
+	@Override
+	public double getScore() {
+		return tr.getScore();
 	}
 
 	@Override
@@ -54,13 +42,8 @@ public class Standing implements IStanding {
 	}
 
 	@Override
-	public double getScore() {
-		return score;
-	}
-
-	@Override
 	public String toString() {
-		return "Standing [" + rank + ", " + numSolved + ", " + RelativeTime.format(penalty) + ", "
-				+ RelativeTime.format(lastSolution) + ", " + score + "]";
+		return "Standing [" + rank + ", " + getNumSolved() + ", " + RelativeTime.format(getTime()) + ", "
+				+ RelativeTime.format(getLastSolutionTime()) + ", " + getScore() + "]";
 	}
 }

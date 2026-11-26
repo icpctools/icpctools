@@ -42,6 +42,7 @@ import org.icpc.tools.contest.model.IStartStatus;
 import org.icpc.tools.contest.model.IState;
 import org.icpc.tools.contest.model.ISubmission;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.contest.model.RemovedInterval;
 import org.icpc.tools.contest.model.Status;
 
@@ -73,7 +74,8 @@ public class Contest implements IContest {
 	private IResolveInfo resolveInfo;
 	private IResolverSelection resolveSelection;
 
-	private Result[][] results;
+	private Result[][] problemData;
+	private TeamResult[] teamResults;
 	private ProblemSummary[] resultSummary;
 	private Standing[] standings;
 	private int[] order;
@@ -282,7 +284,8 @@ public class Contest implements IContest {
 
 			order = null;
 			orderedTeams = null;
-			results = null;
+			problemData = null;
+			teamResults = null;
 			resultSummary = null;
 			standings = null;
 			submissionJudgements = null;
@@ -298,7 +301,8 @@ public class Contest implements IContest {
 
 			order = null;
 			orderedTeams = null;
-			results = null;
+			problemData = null;
+			teamResults = null;
 			resultSummary = null;
 			standings = null;
 			submissionJudgements = null;
@@ -318,7 +322,8 @@ public class Contest implements IContest {
 
 			order = null;
 			orderedTeams = null;
-			results = null;
+			problemData = null;
+			teamResults = null;
 			resultSummary = null;
 			standings = null;
 			if (submissionJudgements != null) {
@@ -341,7 +346,8 @@ public class Contest implements IContest {
 
 			order = null;
 			orderedTeams = null;
-			results = null;
+			problemData = null;
+			teamResults = null;
 			resultSummary = null;
 			standings = null;
 			if (submissionJudgements != null) {
@@ -367,7 +373,8 @@ public class Contest implements IContest {
 
 			order = null;
 			orderedTeams = null;
-			results = null;
+			problemData = null;
+			teamResults = null;
 			resultSummary = null;
 			standings = null;
 			submissionJudgements = null;
@@ -1020,17 +1027,17 @@ public class Contest implements IContest {
 
 	@Override
 	public IResult getResult(int teamIndex, int problemIndex) {
-		Result[][] tempResults = results;
+		Result[][] tempResults = problemData;
 		if (tempResults != null)
 			return tempResults[teamIndex][problemIndex];
 
 		synchronized (data) {
-			if (results != null)
-				return results[teamIndex][problemIndex];
+			if (problemData != null)
+				return problemData[teamIndex][problemIndex];
 
-			calculateResultsAndStandings();
+			calculateProblemData();
 
-			return results[teamIndex][problemIndex];
+			return problemData[teamIndex][problemIndex];
 		}
 	}
 
@@ -1044,33 +1051,30 @@ public class Contest implements IContest {
 			if (resultSummary != null)
 				return resultSummary[problemIndex];
 
-			calculateResultsAndStandings();
+			calculateProblemData();
 
 			return resultSummary[problemIndex];
 		}
 	}
 
-	private void calculateResultsAndStandings() {
+	/**
+	 * Calculates problem data (each team's current results on each problem), team results (team's
+	 * overall num solved, time, score, etc), first to solve, and problem summaries.
+	 */
+	private void calculateProblemData() {
 		synchronized (data) {
-			if (results != null)
+			if (problemData != null)
 				return;
 
-			// System.out.print("Results: ");
-			// StringBuilder sb = new StringBuilder();
-			// long scoreTime = System.currentTimeMillis();
 			int numTeams = getNumTeams();
 			int numProblems = getNumProblems();
 
-			Result[][] tempResults = new Result[numTeams][numProblems];
-			ProblemSummary[] tempResultSummary = new ProblemSummary[numProblems];
-			Standing[] tempStandings = new Standing[numTeams];
+			Result[][] tempProblemData = new Result[numTeams][numProblems];
 			for (int i = 0; i < numTeams; i++) {
-				tempStandings[i] = new Standing();
 				for (int j = 0; j < numProblems; j++)
-					tempResults[i][j] = new Result();
+					tempProblemData[i][j] = new Result();
 			}
-			for (int j = 0; j < numProblems; j++)
-				tempResultSummary[j] = new ProblemSummary();
+			TeamResult[] tempTeamResults = new TeamResult[numTeams];
 
 			// This will initialize submissions as side-effect.
 			getSubmissions();
@@ -1079,8 +1083,6 @@ public class Contest implements IContest {
 			ISubmission[] sortedSubs = new ISubmission[submissions.length];
 			System.arraycopy(submissions, 0, sortedSubs, 0, submissions.length);
 			Arrays.sort(sortedSubs, Comparator.comparingLong(ISubmission::getContestTime));
-
-			// sb.append((System.currentTimeMillis() - scoreTime) + "ms ");
 
 			String[] tempFTS = new String[numProblems];
 			long duration = getDuration();
@@ -1093,13 +1095,13 @@ public class Contest implements IContest {
 					if (problemIndex >= 0 && teamIndex >= 0) {
 						IJudgement j = getJudgement(s);
 						IJudgementType jt = getJudgementType(s);
-						tempResults[teamIndex][problemIndex].addSubmission(this, s, j, jt);
+						tempProblemData[teamIndex][problemIndex].addSubmission(this, s, j, jt);
 
 						// calculate FTS
 						if (tempFTS[problemIndex] == null && !isTeamHidden(teams[teamIndex])) {
 							if (isSolved(s)) {
 								tempFTS[problemIndex] = s.getId();
-								tempResults[teamIndex][problemIndex].setFTS();
+								tempProblemData[teamIndex][problemIndex].setFTS();
 							} else if (!isJudged(s))
 								tempFTS[problemIndex] = "waiting for judgement";
 						}
@@ -1112,7 +1114,6 @@ public class Contest implements IContest {
 					}
 				}
 			}
-			// sb.append((System.currentTimeMillis() - scoreTime) + "ms ");
 
 			for (int i = 0; i < numTeams; i++) {
 				int numSolved = 0;
@@ -1120,34 +1121,61 @@ public class Contest implements IContest {
 				long lastSolution = -1;
 				double score = 0;
 				for (int j = 0; j < numProblems; j++) {
-					penalty += tempResults[i][j].getPenaltyTime();
-					if (tempResults[i][j].getStatus() == Status.SOLVED) {
-						long time = tempResults[i][j].getContestTime();
+					penalty += tempProblemData[i][j].getPenaltyTime();
+					if (tempProblemData[i][j].getStatus() == Status.SOLVED) {
+						long time = tempProblemData[i][j].getContestTime();
 						penalty += time;
 						numSolved++;
-						score += tempResults[i][j].getScore();
+						score += tempProblemData[i][j].getScore();
 						if (time > lastSolution)
 							lastSolution = time;
-					} else if (tempResults[i][j].getStatus() == Status.SUBMITTED) {
+					} else if (tempProblemData[i][j].getStatus() == Status.SUBMITTED) {
 						// For scoring contests any problem that has a score should influence the
 						// total score and the time of last submission
-						double scoreForThisProblem = tempResults[i][j].getScore();
+						double scoreForThisProblem = tempProblemData[i][j].getScore();
 						if (scoreForThisProblem > 0) {
 							score += scoreForThisProblem;
-							long time = tempResults[i][j].getContestTime();
+							long time = tempProblemData[i][j].getContestTime();
 							if (time > lastSolution)
 								lastSolution = time;
 						}
 					}
 				}
 
-				tempStandings[i].init(numSolved, penalty, score, lastSolution);
+				tempTeamResults[i] = new TeamResult(numSolved, penalty, score, lastSolution);
 			}
+
+			// calculate problem summaries
+			ProblemSummary[] tempResultSummary = new ProblemSummary[numProblems];
+			for (int j = 0; j < numProblems; j++)
+				tempResultSummary[j] = new ProblemSummary();
 
 			for (int i = 0; i < numTeams; i++) {
 				for (int j = 0; j < numProblems; j++)
-					if (tempResults[i][j] != null)
-						tempResultSummary[j].addResult(tempResults[i][j]);
+					if (tempProblemData[i][j] != null)
+						tempResultSummary[j].addResult(tempProblemData[i][j]);
+			}
+
+			problemData = tempProblemData;
+			resultSummary = tempResultSummary;
+			fts = tempFTS;
+			teamResults = tempTeamResults;
+		}
+	}
+
+	private void calculateStandings() {
+		synchronized (data) {
+			if (standings != null)
+				return;
+
+			if (problemData == null) {
+				calculateProblemData();
+			}
+
+			int numTeams = getNumTeams();
+			Standing[] tempStandings = new Standing[numTeams];
+			for (int i = 0; i < numTeams; i++) {
+				tempStandings[i] = new Standing(teamResults[i]);
 			}
 
 			int[] tempOrder = new int[numTeams];
@@ -1166,14 +1194,8 @@ public class Contest implements IContest {
 
 			Ranking.rankIt(this, teams, tempStandings, tempOrder);
 
-			results = tempResults;
-			resultSummary = tempResultSummary;
 			standings = tempStandings;
 			order = tempOrder;
-			fts = tempFTS;
-
-			// sb.append((System.currentTimeMillis() - scoreTime) + "ms ");
-			// System.out.println(sb.toString() + objects.size() + " objects ");
 		}
 	}
 
@@ -1197,7 +1219,7 @@ public class Contest implements IContest {
 			if (order != null)
 				return order;
 
-			calculateResultsAndStandings();
+			calculateStandings();
 
 			return order;
 		}
@@ -1294,6 +1316,32 @@ public class Contest implements IContest {
 	}
 
 	@Override
+	public ITeamResult getTeamResult(ITeam team) {
+		if (team == null)
+			return null;
+
+		return getTeamResult(getTeamIndex(team.getId()));
+	}
+
+	private ITeamResult getTeamResult(int teamIndex) {
+		if (teamIndex < 0)
+			return null;
+
+		TeamResult[] tempTeamResult = teamResults;
+		if (tempTeamResult != null)
+			return tempTeamResult[teamIndex];
+
+		synchronized (data) {
+			if (teamResults != null)
+				return teamResults[teamIndex];
+
+			calculateProblemData();
+
+			return teamResults[teamIndex];
+		}
+	}
+
+	@Override
 	public IStanding getStanding(ITeam team) {
 		if (team == null)
 			return null;
@@ -1313,7 +1361,7 @@ public class Contest implements IContest {
 			if (standings != null)
 				return standings[teamIndex];
 
-			calculateResultsAndStandings();
+			calculateStandings();
 
 			return standings[teamIndex];
 		}
@@ -1614,7 +1662,7 @@ public class Contest implements IContest {
 			if (fts != null)
 				return id.equals(fts[problemIndex]);
 
-			calculateResultsAndStandings();
+			calculateProblemData();
 
 			return id.equals(fts[problemIndex]);
 		}

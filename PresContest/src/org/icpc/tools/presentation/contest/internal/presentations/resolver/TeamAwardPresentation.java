@@ -29,6 +29,7 @@ import org.icpc.tools.contest.model.IPerson;
 import org.icpc.tools.contest.model.IProblem;
 import org.icpc.tools.contest.model.IStanding;
 import org.icpc.tools.contest.model.ITeam;
+import org.icpc.tools.contest.model.ITeamResult;
 import org.icpc.tools.contest.model.internal.Award;
 import org.icpc.tools.contest.model.internal.FileReference;
 import org.icpc.tools.contest.model.resolver.ResolutionUtil.ResolutionStep;
@@ -460,13 +461,13 @@ public class TeamAwardPresentation extends AbstractICPCPresentation {
 		if (hasMedal && !hasSolutionAward) {
 			IContest contest = getContest();
 			ITeam team = contest.getTeamById(currentCache.teamId);
-			IStanding s = contest.getStanding(team);
-			if (s.getNumSolved() == 1)
-				list.add(new Award(IAward.OTHER, s.getNumSolved() + "", teamIds, Messages.getString("awardSolvedOne"),
+			ITeamResult tr = contest.getTeamResult(team);
+			if (tr.getNumSolved() == 1)
+				list.add(new Award(IAward.OTHER, tr.getNumSolved() + "", teamIds, Messages.getString("awardSolvedOne"),
 						DisplayMode.PAUSE));
-			else if (s.getNumSolved() > 1)
-				list.add(new Award(IAward.OTHER, s.getNumSolved() + "", teamIds,
-						Messages.getString("awardSolvedMultiple").replace("{0}", s.getNumSolved() + ""), DisplayMode.PAUSE));
+			else if (tr.getNumSolved() > 1)
+				list.add(new Award(IAward.OTHER, tr.getNumSolved() + "", teamIds,
+						Messages.getString("awardSolvedMultiple").replace("{0}", tr.getNumSolved() + ""), DisplayMode.PAUSE));
 		}
 
 		currentCache.awards = list;
