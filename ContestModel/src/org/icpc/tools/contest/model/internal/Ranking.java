@@ -3,6 +3,8 @@ package org.icpc.tools.contest.model.internal;
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Locale;
 
 import org.icpc.tools.contest.model.IContest;
@@ -37,53 +39,43 @@ public class Ranking {
 	 * Sort the teams based on their current standing.
 	 */
 	private static void sort(IContest contest, ITeam[] teams, IStanding[] standings, int[] order) {
-		int numTeams = order.length;
+		Integer[] sortedOrder = new Integer[order.length];
+		for (int i = 0; i < order.length; i++)
+			sortedOrder[i] = order[i];
 
 		boolean passFail = contest.getScoreboardType() == ScoreboardType.PASS_FAIL;
-		for (int i = 0; i < numTeams - 1; i++) {
-			for (int j = i + 1; j < numTeams; j++) {
-				boolean swap = false;
-				IStanding si = standings[order[i]];
-				IStanding sj = standings[order[j]];
-				if (passFail) {
-					if (si.getNumSolved() < sj.getNumSolved())
-						swap = true;
-					else if (si.getNumSolved() == sj.getNumSolved()) {
-						if (si.getTime() > sj.getTime())
-							swap = true;
-						else if (si.getTime() == sj.getTime()) {
-							if (si.getLastSolutionTime() > sj.getLastSolutionTime())
-								swap = true;
-							else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
-								String tin = teams[order[i]].getActualDisplayName();
-								String tjn = teams[order[j]].getActualDisplayName();
-								if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
-									swap = true;
-							}
-						}
-					}
-				} else {
-					if (si.getScore() < sj.getScore())
-						swap = true;
-					else if (si.getScore() == sj.getScore()) {
-						if ((sj.getLastSolutionTime() >= 0 && si.getLastSolutionTime() < 0)
-								|| (sj.getLastSolutionTime() >= 0 && si.getLastSolutionTime() > sj.getLastSolutionTime())) {
-							swap = true;
-						} else if (si.getLastSolutionTime() == sj.getLastSolutionTime()) {
-							String tin = teams[order[i]].getActualDisplayName();
-							String tjn = teams[order[j]].getActualDisplayName();
-							if (tin != null && tjn != null && collator.compare(tin, tjn) > 0)
-								swap = true;
-						}
-					}
-					// Future: some contests also use penalty as a tiebreaker, but there's no way
-					// to know this from the Contest API (yet)
-				}
-
-				if (swap)
-					swapOrder(order, i, j);
+		Comparator<String> nameComparator = Comparator.nullsLast(collator);
+		Arrays.sort(sortedOrder, (i, j) -> {
+			IStanding si = standings[i];
+			IStanding sj = standings[j];
+			int comparison;
+			if (passFail) {
+				comparison = Integer.compare(sj.getNumSolved(), si.getNumSolved());
+				if (comparison != 0)
+					return comparison;
+				comparison = Long.compare(si.getTime(), sj.getTime());
+				if (comparison != 0)
+					return comparison;
+			} else {
+				comparison = si.getScore() == sj.getScore() ? 0 : Double.compare(sj.getScore(), si.getScore());
+				if (comparison != 0)
+					return comparison;
+				// Teams with a scoring submission come before teams with no submission time.
+				comparison = Boolean.compare(si.getLastSolutionTime() < 0, sj.getLastSolutionTime() < 0);
+				if (comparison != 0)
+					return comparison;
+				// Future: some contests also use penalty as a tiebreaker, but there's no way
+				// to know this from the Contest API (yet)
 			}
-		}
+
+			comparison = Long.compare(si.getLastSolutionTime(), sj.getLastSolutionTime());
+			if (comparison != 0)
+				return comparison;
+			return nameComparator.compare(teams[i].getActualDisplayName(), teams[j].getActualDisplayName());
+		});
+
+		for (int i = 0; i < order.length; i++)
+			order[i] = sortedOrder[i];
 	}
 
 	/**
@@ -140,16 +132,4 @@ public class Ranking {
 		}
 	}
 
-	/**
-	 * Swap two array elements.
-	 *
-	 * @param ob an int array
-	 * @param i an index
-	 * @param j an index
-	 */
-	private static void swapOrder(int[] order, int i, int j) {
-		int t = order[i];
-		order[i] = order[j];
-		order[j] = t;
-	}
 }
